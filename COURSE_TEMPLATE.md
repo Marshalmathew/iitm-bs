@@ -44,7 +44,7 @@ To maintain a cohesive visual identity across all textbooks, include the followi
     colback=orange!5!white, colframe=orange!75!black, fonttitle=\bfseries, title={Example: #1}
 }
 \newtcolorbox{intuitionbox}[1]{
-    colback=purple!5!white, colframe=purple!75!black, fonttitle=\bfseries, title={💡 Core Intuition: #1}
+    colback=purple!5!white, colframe=purple!75!black, fonttitle=\bfseries, title={Core Intuition: #1}
 }
 
 % --- Semantic Macros ---
