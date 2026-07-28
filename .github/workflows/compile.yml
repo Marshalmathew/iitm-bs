@@ -7,12 +7,36 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      courses: ${{ steps.filter.outputs.changes }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Filter changed paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            maths1: maths1/**
+            maths2: maths2/**
+            python: python/**
+            stats1: stats1/**
+            stats2: stats2/**
+
   build:
+    needs: changes
+    if: ${{ needs.changes.outputs.courses != '[]' && needs.changes.outputs.courses != '' }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        course: [maths1, maths2, python, stats1, stats2]
+        course: ${{ fromJSON(needs.changes.outputs.courses) }}
 
     steps:
       - name: Checkout Repository
@@ -44,28 +68,34 @@ jobs:
           name: ${{ matrix.course }}-textbook
           path: ${{ matrix.course }}/main.pdf
 
-  bundle:
-    needs: build
+  commit-pdfs:
+    needs: [changes, build]
+    if: ${{ success() && needs.changes.outputs.courses != '[]' && needs.changes.outputs.courses != '' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Download All Course Artifacts
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          
+      - name: Download New PDF Artifacts
         uses: actions/download-artifact@v4
         with:
-          path: pdfs
+          path: downloaded-pdfs
 
-      - name: Organize PDFs and Create Combined Zip
+      - name: Organize PDFs into Repo
         run: |
-          mkdir -p dist
-          cp pdfs/maths1-textbook/main.pdf dist/Mathematics_1_Textbook.pdf
-          cp pdfs/maths2-textbook/main.pdf dist/Mathematics_2_Textbook.pdf
-          cp pdfs/python-textbook/main.pdf dist/Python_Programming_Textbook.pdf
-          cp pdfs/stats1-textbook/main.pdf dist/Statistics_1_Textbook.pdf
-          cp pdfs/stats2-textbook/main.pdf dist/Statistics_2_Textbook.pdf
-          cd dist
-          zip -r ../iitm-bs-all-textbooks.zip *.pdf
+          mkdir -p compiled_pdfs
+          # Only copy the ones that were just built and downloaded
+          for course in maths1 maths2 python stats1 stats2; do
+            if [ -f "downloaded-pdfs/${course}-textbook/main.pdf" ]; then
+              echo "Updating PDF for ${course}..."
+              cp "downloaded-pdfs/${course}-textbook/main.pdf" "compiled_pdfs/${course}.pdf"
+            fi
+          done
 
-      - name: Upload Single Combined Bundle Artifact
-        uses: actions/upload-artifact@v4
+      - name: Commit and Push PDFs
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          name: iitm-bs-all-textbooks
-          path: iitm-bs-all-textbooks.zip
+          commit_message: "chore: update compiled PDFs [skip ci]"
+          file_pattern: "compiled_pdfs/*.pdf"
