@@ -53,6 +53,14 @@ has \textbf{ONLY the trivial solution} $c_1 = c_2 = \dots = c_k = 0$.
 If a non-trivial solution exists (at least one $c_i \neq 0$), the vectors are \textbf{Linearly Dependent}.
 \end{definitionbox}
 
+\begin{intuitionbox}{Degrees of Freedom \& Redundancy}
+Think of vectors as giving you directions to move in space.
+\begin{itemize}
+    \item A \textbf{Linearly Independent} vector unlocks a brand new dimension. If you have two independent vectors in 3D space, you can travel anywhere on a flat 2D plane. A third independent vector would allow you to step off that plane and explore the entire 3D space.
+    \item A \textbf{Linearly Dependent} vector is completely redundant. It's like being given a third direction that just points somewhere on the 2D plane you can already reach using the first two vectors. It provides zero new ``degrees of freedom''.
+\end{itemize}
+\end{intuitionbox}
+
 \textbf{Data Science Relevance:} In Machine Learning, \textbf{multicollinearity} occurs when input feature vectors are linearly dependent (or nearly dependent). This causes severe instability in linear models and matrix inversion $(X^T X)^{-1}$.
 
 \begin{videocard}{IITM BS Lecture: Linear Dependence}{https://www.youtube.com/watch?v=1Krnnc6wKyk}

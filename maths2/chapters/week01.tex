@@ -33,6 +33,15 @@ $$c_{ij} = \sum_{p=1}^{k} a_{ip} b_{pj}$$
 Matrix multiplication is associative $(AB)C = A(BC)$ and distributive, but \textbf{NOT commutative} ($AB \neq BA$ in general).
 \end{theorembox}
 
+\begin{intuitionbox}{Matrix Multiplication as Geometric Transformation}
+Matrix multiplication isn't just an arbitrary set of dot products---it's a geometric transformation of space!
+\begin{itemize}
+    \item When you multiply a vector $\mathbf{v}$ by a matrix $A$ ($A\mathbf{v}$), the matrix $A$ grabs the vector and rotates, scales, or shears it to a new location in space.
+    \item When you multiply two matrices together ($C = AB$), you are composing two transformations. First apply transformation $B$, then apply transformation $A$.
+    \item Because doing Transformation $B$ then $A$ is usually different than doing $A$ then $B$, matrix multiplication is \textbf{not commutative} ($AB \neq BA$).
+\end{itemize}
+\end{intuitionbox}
+
 \begin{videocard}{IITM BS Lecture: Matrices}{https://www.youtube.com/watch?v=rnIDlZnrCc0}
 Official lecture explaining matrix algebra, transposition $A^T$, symmetric matrices ($A = A^T$), and matrix-vector products.
 \end{videocard}
