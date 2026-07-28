@@ -1,0 +1,123 @@
+\chapter{Describing Numerical Data}
+
+Numerical data requires a richer mathematical toolkit than categorical data. Because the data consists of actual numbers on an interval or ratio scale, we can perform arithmetic. When analyzing numerical data, we generally want to capture three things: the \emph{centre} (where is the middle?), the \emph{spread} (how scattered is it?), and the \emph{shape} (is it symmetric or skewed?).
+
+\section{Frequency Tables and Histograms}
+
+For discrete data with a massive range, or for continuous data (which has infinite possible values), we cannot simply list every unique value like we did for categorical data. Instead, we must group values into \textbf{class intervals} (or "bins").
+
+\begin{definitionbox}{Class Intervals and Histograms}
+\begin{itemize}
+    \item \textbf{Class Intervals:} Divide the total range of the data into $k$ non-overlapping, equal-width bins (e.g., $0-10, 10-20, 20-30$).
+    \item \textbf{Histogram:} A bar chart specifically designed for numerical data. The x-axis is a continuous number line. Crucially, the bars are \emph{adjacent} (no gaps between them) to represent the continuous nature of the data.
+    \item \textbf{Choosing Bins ($k$):} A common rule of thumb is $k \approx \sqrt{n}$, where $n$ is the sample size. If you have 100 data points, use about 10 bins.
+\end{itemize}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: W3\_L1 Frequency Tables for Numerical Data}{https://www.youtube.com/watch?v=wifCmIPaBqQ}
+Official lecture explaining how to bin continuous data and construct a histogram.
+\end{videocard}
+
+\section{Measures of Central Tendency}
+
+Where is the "middle" of the data? We have three primary ways to define it.
+
+\begin{formulabox}{Mean, Median, and Mode}
+Let $x_1, x_2, \ldots, x_n$ be $n$ numerical observations.
+\begin{itemize}
+    \item \textbf{Sample Mean ($\bar{x}$):} The arithmetic average.
+    $$\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i$$
+    \item \textbf{Median:} The literal middle value when observations are sorted in ascending order.
+        \begin{itemize}
+            \item If $n$ is odd: The exact middle value at position $\frac{n+1}{2}$.
+            \item If $n$ is even: The average of the two middle values at $\frac{n}{2}$ and $\frac{n}{2}+1$.
+        \end{itemize}
+    \item \textbf{Mode:} The most frequently occurring value. (Less commonly used for continuous numerical data unless binned).
+\end{itemize}
+\end{formulabox}
+
+\begin{theorembox}{Mean vs. Median: The Impact of Outliers}
+\begin{itemize}
+    \item The \textbf{mean} incorporates the exact value of \emph{every single data point} into its calculation. Therefore, it is highly sensitive to \textbf{outliers} (extreme values).
+    \item The \textbf{median} depends \emph{only} on the rank-ordering of the data. Changing the largest value in the dataset from $100$ to $1,000,000$ does not change the median at all. Thus, the median is \textbf{robust} to outliers.
+    \item \textbf{Right-Skewed (Long Right Tail):} Mean $>$ Median. (The few huge values pull the mean up).
+    \item \textbf{Left-Skewed (Long Left Tail):} Mean $<$ Median. (The few tiny values pull the mean down).
+    \item \textbf{Symmetric:} Mean $\approx$ Median.
+\end{itemize}
+\end{theorembox}
+
+\textbf{Data Science Relevance:} In data science, replacing missing values (NaNs) is called \textbf{Imputation}. If your feature has extreme outliers (like Income), imputing missing values with the \emph{Mean} will severely distort your dataset. You must impute using the \emph{Median}.
+
+\begin{videocard}{IITM BS Lecture: W3\_L2 \& L3 Mean, Median, and Mode}{https://www.youtube.com/watch?v=2qTdQjFGA94}
+Official lectures comparing the formulas and structural differences between Mean and Median.
+\end{videocard}
+
+\section{Measures of Dispersion (Spread)}
+
+Knowing the centre isn't enough. A city where the temperature is exactly $25^\circ$C every day has a mean of 25. A city where the temperature violently swings between $0^\circ$C and $50^\circ$C also has a mean of 25. We need to measure the spread.
+
+\begin{formulabox}{Range, Variance, Standard Deviation, and IQR}
+\begin{itemize}
+    \item \textbf{Range:} $R = \max - \min$. Simplest measure, but entirely dictated by the two most extreme outliers.
+    \item \textbf{Sample Variance ($s^2$):} The average squared distance of each point from the mean.
+    $$s^2 = \frac{1}{n-1}\sum_{i=1}^{n}(x_i - \bar{x})^2$$
+    \textit{Note:} We divide by $n-1$ (Bessel's correction) rather than $n$ to make it an unbiased estimator of the population variance.
+    \item \textbf{Standard Deviation ($s$):} $s = \sqrt{s^2}$. This returns the spread back to the original units of the data.
+    \item \textbf{Interquartile Range (IQR):}
+    $$\mathrm{IQR} = Q_3 - Q_1$$
+    This measures the exact spread of the \emph{middle 50\%} of the data. Because it ignores the top 25\% and bottom 25\%, it is highly \textbf{robust} to outliers.
+\end{itemize}
+\end{formulabox}
+
+\textbf{Data Science Relevance:} Machine Learning algorithms like K-Means Clustering and Support Vector Machines rely on measuring distances between data points. If one feature has a standard deviation of $1000$ and another has a standard deviation of $1$, the algorithm will completely ignore the smaller feature. We use the Standard Deviation to mathematically scale (Standardize) all features to have $s=1$.
+
+\begin{videocard}{IITM BS Lecture: W3\_L4 Measures of Dispersion}{https://www.youtube.com/watch?v=Ju8cRGDTxsQ}
+Official lecture deriving the Variance and explaining why we square the distances from the mean.
+\end{videocard}
+
+\section{Quartiles and the Five-Number Summary}
+
+We can slice ordered data into percentages to understand its structure deeply.
+
+\begin{definitionbox}{Percentiles and Quartiles}
+\begin{itemize}
+    \item \textbf{$p$-th Percentile:} The value below which $p\%$ of the observations fall.
+    \item \textbf{Quartiles:} Specific percentiles that divide the sorted data into four equal quarters (25\% each).
+        \begin{itemize}
+            \item $Q_1$ (25th percentile) — Lower quartile.
+            \item $Q_2$ (50th percentile) — Median.
+            \item $Q_3$ (75th percentile) — Upper quartile.
+        \end{itemize}
+    \item \textbf{Five-Number Summary:} $\{\min,\; Q_1,\; Q_2,\; Q_3,\; \max\}$.
+    \item \textbf{Boxplot:} A visual display of the Five-Number Summary. The "box" goes from $Q_1$ to $Q_3$, containing the middle 50\% of data.
+\end{itemize}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: W3\_L5 Percentiles, Quartiles, and IQR}{https://www.youtube.com/watch?v=3pjSpNbas14}
+Official lecture on calculating $Q_1$ and $Q_3$ and using them to mathematically flag Outliers.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{Central Tendency:} A startup has 5 employees. Four engineers make ₹80,000 each. The CEO makes ₹1,680,000. 
+    \begin{enumerate}
+        \item Calculate the Mean salary and the Median salary.
+        \item The CEO goes to the press and says, "Our average employee makes ₹400,000! We pay great!" Explain mathematically why this is highly misleading, and state whether the distribution is Left-Skewed or Right-Skewed.
+    \end{enumerate}
+    \item \textbf{Calculating Spread:} Given the dataset $X = \{2, 4, 4, 4, 5, 5, 7, 9\}$ ($n=8$):
+    \begin{enumerate}
+        \item Calculate the Sample Mean ($\bar{x}$).
+        \item Calculate the Sample Variance ($s^2$) and Standard Deviation ($s$).
+    \end{enumerate}
+    \item \textbf{Quartiles and IQR:} Using the same sorted dataset $X = \{2, 4, 4, 4, 5, 5, 7, 9\}$:
+    \begin{enumerate}
+        \item Find the Median ($Q_2$).
+        \item Find $Q_1$ and $Q_3$. (Hint: $Q_1$ is the median of the lower half, $Q_3$ is the median of the upper half).
+        \item Calculate the Interquartile Range (IQR).
+    \end{enumerate}
+    \item \textbf{Data Science Application:} You are preprocessing a dataset of house prices for a neural network. You notice that the "Number of Bedrooms" feature ranges from $1$ to $5$, but the "Square Footage" feature ranges from $800$ to $12,000$. Which measure of dispersion dictates that you MUST apply feature scaling before training the model? What would happen if you didn't?
+    \item \textbf{Histograms vs. Bar Charts:} Explain the fundamental visual difference between a Histogram and a Bar Chart, and explain why that visual difference exists based on the underlying data types.
+\end{enumerate}

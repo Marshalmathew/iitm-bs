@@ -1,0 +1,64 @@
+\documentclass[11pt,a4paper,oneside]{book}
+\input{preamble.tex}
+
+\title{
+    \Huge\bfseries\sffamily\color{primarydark} Statistics for Data Science 1 \\
+    \large\vspace{0.3cm}\color{tealdef} Course Revision Textbook \& NPTEL Lecture Companion
+}
+\author{
+    \textbf{IIT Madras BS in Data Science and Applications} \\
+    \small Prepared for Comprehensive Revision \& Concept Mastery
+}
+\date{July 2026}
+
+\makeindex
+
+\begin{document}
+
+\maketitle
+
+\frontmatter
+\tableofcontents
+\newpage
+
+\chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction}
+
+Welcome to the \textbf{Statistics for Data Science 1 (SDS1)} Revision Textbook. This guide covers every topic from the 12-week IIT Madras foundational course, building from descriptive summaries of raw data all the way to classical probability distributions used in machine learning models.
+
+\section*{Structure of this Guide}
+\begin{itemize}
+    \item \textbf{Chapters 1--4 (Quiz 1 Content):} Data types, scales, descriptive statistics for categorical and numerical data, measures of central tendency, dispersion, and association between variables.
+    \item \textbf{Chapters 5--8 (Quiz 2 Content):} Counting principles, permutations, combinations, sample spaces, probability axioms, conditional probability, independence, and Bayes' Theorem.
+    \item \textbf{Chapters 9--12 (End-Term Content):} Random variables, PMF/CDF, expectation, variance, Binomial, Poisson, and continuous distributions (Uniform, Exponential).
+\end{itemize}
+
+\section*{Box Colour Legend}
+\begin{itemize}
+    \item \textcolor{tealdef}{\textbf{Teal}} — Definitions and core terminology.
+    \item \textcolor{primaryborder}{\textbf{Indigo}} — Theorems, rules, and important properties.
+    \item \textcolor{purpleex}{\textbf{Violet}} — Worked examples with step-by-step solutions.
+    \item \textcolor{coralformula}{\textbf{Amber}} — Key formulas to memorise.
+    \item \textcolor{yttext}{\textbf{Red card}} — Video resources (IITM + supplementary).
+\end{itemize}
+
+\mainmatter
+
+\include{chapters/week01}
+\include{chapters/week02}
+\include{chapters/week03}
+\include{chapters/week04}
+\include{chapters/week05}
+\include{chapters/week06}
+\include{chapters/week07}
+\include{chapters/week08}
+\include{chapters/week09}
+\include{chapters/week10}
+\include{chapters/week11}
+\include{chapters/week12}
+
+\backmatter
+\printindex
+\include{appendix}
+
+\end{document}

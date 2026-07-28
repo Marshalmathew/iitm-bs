@@ -1,0 +1,162 @@
+\chapter{Coordinate Geometry and Straight Lines}
+
+Coordinate geometry (or analytic geometry) provides a powerful way to link algebraic equations with geometric shapes. By assigning coordinates to points in a plane, we can analyze geometric properties using algebra. In data science, this forms the foundation of spatial analysis, allowing algorithms to model relationships between features, measure distances between data points, and draw boundaries between different classes.
+
+\section{Fundamental Formulas}
+
+The Cartesian coordinate system represents every point in a two-dimensional plane using a pair of numerical coordinates $(x, y)$. The horizontal axis is the x-axis, and the vertical axis is the y-axis.
+
+\subsection{Distance Formula}
+\index{Distance Formula}
+The straight-line distance $d$ between any two points $P(x_1, y_1)$ and $Q(x_2, y_2)$ is derived from the Pythagorean theorem:
+$$d(P, Q) = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}$$
+
+\textbf{Data Science Relevance:} The distance formula is identical to the \index{Euclidean Distance}\textbf{Euclidean Distance}, which is the core metric used by many machine learning algorithms. For example, the K-Nearest Neighbors (KNN) algorithm calculates the distance between a new data point and all existing points to classify it based on its closest neighbors.
+
+\begin{lstlisting}[language=Python, caption=Data Science: Euclidean Distance in Python]
+import numpy as np
+
+# Define two data points (e.g., house features)
+p = np.array([3, 4])
+q = np.array([7, 1])
+
+# Calculate Euclidean Distance
+distance = np.linalg.norm(p - q)
+print(f"Distance: {distance}") # Output: 5.0
+\end{lstlisting}
+
+\begin{videocard}{IITM BS Lecture: W2\_L13 Distance Formula}{https://www.youtube.com/watch?v=aDhyAkXiDOY}
+Official IIT Madras lecture calculating the distance between two points in coordinate geometry.
+\end{videocard}
+
+\subsection{Section Formula}
+The section formula helps us find the coordinates of a point that divides a line segment into a specific ratio.
+\begin{formulabox}{Internal and External Division}
+\begin{itemize}
+    \item \textbf{Internal Division:} The point $R(x, y)$ dividing the segment $PQ$ internally in the ratio $m : n$ is:
+    $$x = \frac{m x_2 + n x_1}{m + n}, \quad y = \frac{m y_2 + n y_1}{m + n}$$
+    \item \textbf{Midpoint Formula:} The midpoint of $PQ$ (a $1:1$ ratio) simplifies to the average of the coordinates:
+    $$M = \left( \frac{x_1 + x_2}{2}, \frac{y_1 + y_2}{2} \right)$$
+    \item \textbf{External Division:} If division is external:
+    $$x = \frac{m x_2 - n x_1}{m - n}, \quad y = \frac{m y_2 - n y_1}{m - n}$$
+\end{itemize}
+\end{formulabox}
+
+\begin{videocard}{IITM BS Lecture: W2\_L14 Section Formula}{https://www.youtube.com/watch?v=B5yv8zPrkek}
+Official IIT Madras lecture explaining how to divide a line segment in a given ratio.
+\end{videocard}
+
+\section{Slope of a Line}
+
+The \index{Slope}slope (or gradient) $m$ represents the steepness and direction of a line. For a non-vertical line passing through $P(x_1, y_1)$ and $Q(x_2, y_2)$:
+$$m = \frac{\text{change in y}}{\text{change in x}} = \frac{y_2 - y_1}{x_2 - x_1} = \tan(\theta)$$
+where $\theta$ is the angle of inclination of the line with the positive x-axis ($0 \le \theta < \pi, \theta \neq \frac{\pi}{2}$).
+
+\begin{theorembox}{Parallel and Perpendicular Lines}
+Let $L_1$ and $L_2$ be two non-vertical lines with slopes $m_1$ and $m_2$ respectively.
+\begin{itemize}
+    \item \textbf{Parallel Condition ($L_1 \parallel L_2$):} The lines never intersect and have the exact same steepness.
+    $$m_1 = m_2$$
+    \item \textbf{Perpendicular Condition ($L_1 \perp L_2$):} The lines intersect at a 90-degree angle.
+    $$m_1 \cdot m_2 = -1 \iff m_1 = -\frac{1}{m_2}$$
+\end{itemize}
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: W2\_L16 Slope of a line}{https://www.youtube.com/watch?v=V-b3BL8DAvU}
+Official IIT Madras lecture covering rise over run and the angle of inclination.
+\end{videocard}
+
+\section{Equations of a Straight Line}
+
+Depending on the given parameters, a straight line can be mathematically represented in several different standard forms.
+
+\begin{definitionbox}{Standard Forms of Line Equations}
+\begin{itemize}
+    \item \textbf{Slope-Intercept Form:} Given slope $m$ and y-intercept $c$:
+    $$y = mx + c$$
+    \item \textbf{Point-Slope Form:} Given slope $m$ and a point $(x_1, y_1)$:
+    $$y - y_1 = m(x - x_1)$$
+    \item \textbf{Two-Point Form:} Passing through $(x_1, y_1)$ and $(x_2, y_2)$:
+    $$y - y_1 = \left( \frac{y_2 - y_1}{x_2 - x_1} \right) (x - x_1)$$
+    \item \textbf{Intercept Form:} Given x-intercept $a$ and y-intercept $b$:
+    $$\frac{x}{a} + \frac{y}{b} = 1$$
+    \item \textbf{General Form:} Any straight line can be written as:
+    $$Ax + By + C = 0$$
+    with slope $m = -A/B$ and y-intercept $c = -C/B$ (if $B \neq 0$).
+\end{itemize}
+\end{definitionbox}
+
+\begin{examplebox}{Finding Line Equations}
+Find the equation of the line passing through $(-1, 3)$ that is perpendicular to the line $3x - 4y + 8 = 0$.
+\begin{enumerate}
+    \item First, rewrite the given line to find its slope:
+    $$3x - 4y + 8 = 0 \implies 4y = 3x + 8 \implies y = \frac{3}{4}x + 2$$
+    So, the slope of the given line is $m_1 = \frac{3}{4}$.
+    \item Since our target line is perpendicular, its slope $m_2$ satisfies:
+    $$m_2 = -\frac{1}{m_1} = -\frac{4}{3}$$
+    \item Now use the point-slope form with slope $m_2 = -\frac{4}{3}$ and point $(-1, 3)$:
+    $$y - 3 = -\frac{4}{3}(x - (-1)) \implies 3(y - 3) = -4(x + 1)$$
+    $$3y - 9 = -4x - 4 \implies 4x + 3y - 5 = 0$$
+\end{enumerate}
+The general equation of the line is $4x + 3y - 5 = 0$.
+\end{examplebox}
+
+\begin{videocard}{IITM BS Lecture: W2\_L20 General Equation of a Line}{https://www.youtube.com/watch?v=_3Iidm8NnbM}
+Official IIT Madras lecture discussing forms, conversions, and geometric properties.
+\end{videocard}
+
+\section{Distance Metrics for Lines}
+
+Just as we measure the distance between two points, we can measure the distance from a point to an entire line.
+
+\begin{formulabox}{Line Distance Formulas}
+\begin{itemize}
+    \item \textbf{Distance from a Point to a Line:} The perpendicular distance $d$ from point $(x_0, y_0)$ to the line $Ax + By + C = 0$ is:
+    $$d = \frac{|Ax_0 + By_0 + C|}{\sqrt{A^2 + B^2}}$$
+    \item \textbf{Distance between Parallel Lines:} The distance $d$ between two parallel lines $Ax + By + C_1 = 0$ and $Ax + By + C_2 = 0$ is:
+    $$d = \frac{|C_1 - C_2|}{\sqrt{A^2 + B^2}}$$
+\end{itemize}
+\end{formulabox}
+
+\textbf{Data Science Relevance:} In \index{Support Vector Machines}Support Vector Machines (SVMs), the algorithm tries to find a hyperplane (a line in 2D space) that cleanly separates two classes of data. To do this, it maximizes the perpendicular distance (margin) between the separating line and the closest data points (support vectors). The formula above is exactly what the SVM is optimizing!
+
+\section{Straight-Line Fit (Least Squares Regression)}
+
+In data science, we often want to find a line of best fit $y = mx + c$ for a set of $N$ noisy data points $(x_i, y_i)$. Under the \index{Ordinary Least Squares}\textbf{ordinary least squares (OLS)} framework, we define "best fit" as the line that minimizes the sum of squared vertical residuals (the error between the actual $y$ values and the predicted values on the line):
+$$E(m, c) = \sum_{i=1}^N (y_i - (m x_i + c))^2$$
+
+\begin{theorembox}{Least Squares Coefficients}
+Using calculus (setting the partial derivatives with respect to $m$ and $c$ to zero), we can find the optimal slope and intercept:
+$$m = \frac{N\sum (x_i y_i) - \sum x_i \sum y_i}{N\sum x_i^2 - (\sum x_i)^2}, \quad c = \bar{y} - m\bar{x}$$
+where $\bar{x} = \frac{1}{N}\sum x_i$ and $\bar{y} = \frac{1}{N}\sum y_i$ are the sample means.
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: W2\_L24 Straight Line Fit}{https://www.youtube.com/watch?v=xdZHsFuyBZM}
+Official IIT Madras lecture explaining vertical distance, sum of squared errors, and basic regression.
+\end{videocard}
+
+\section*{Supplementary Lecture Videos}
+For further reinforcement and specialized topics, refer to the following official IIT Madras lectures:
+\begin{itemize}
+    \item \href{https://www.youtube.com/watch?v=RfG2NLXqGE8}{W2\_L12: Rectangular coordinate system - axes points lines \& quadrants}
+    \item \href{https://www.youtube.com/watch?v=x62fodF7ezk}{W2\_L15: Area of a triangle - formula derivation using coordinates}
+    \item \href{https://www.youtube.com/watch?v=CXhBGVfmtBg}{W2\_L17: Parallel \& perpendicular lines - slope conditions \& angle of intersection}
+    \item \href{https://www.youtube.com/watch?v=fKUK8xeuWNo}{W2\_L18: Representation of a line 1 - point slope \& two point forms}
+    \item \href{https://www.youtube.com/watch?v=zM0q4y-y4so}{W2\_L19: Representation of a line 2 - slope intercept \& intercept forms}
+    \item \href{https://www.youtube.com/watch?v=gJuJtTYmbSs}{W2\_L21: Equation of parallel \& perpendicular lines in general form}
+    \item \href{https://www.youtube.com/watch?v=CjeHgCXhi4k}{W2\_L22: Equation of a perpendicular line through a point using slope conditions}
+    \item \href{https://www.youtube.com/watch?v=tYSZ4L0X3kY}{W2\_L23: Distance of a point from a line - perpendicular distance \& parallel lines}
+\end{itemize}
+
+\newpage
+\section{Practice Exercises}
+\textit{Try to solve these exercises independently. Detailed step-by-step solutions are available in the Appendix at the end of the book.}
+
+\begin{enumerate}
+    \item \textbf{Pure Math:} Find the distance between the points $A(3, 4)$ and $B(7, 1)$.
+    \item \textbf{Pure Math:} A point $P$ divides the line segment joining $X(1, -2)$ and $Y(-3, 6)$ internally in the ratio $1:3$. Find the coordinates of $P$.
+    \item \textbf{Data Science:} A K-Means clustering algorithm places a centroid at $(5, 5)$. A new data point arrives at $(2, 9)$. What is the Euclidean distance from the point to the centroid?
+    \item \textbf{Pure Math:} Find the equation of the line passing through the points $(2, 3)$ and $(4, 7)$ in slope-intercept form.
+    \item \textbf{Data Science:} A simple linear regression model predicts housing prices ($y$) based on square footage ($x$). The model parameters are learned as slope $m = 150$ and intercept $c = 50000$. If a house has $2000$ square feet, what is the predicted price? 
+    \item \textbf{Pure Math:} Find the perpendicular distance from the origin $(0,0)$ to the line $3x - 4y + 15 = 0$.
+\end{enumerate}

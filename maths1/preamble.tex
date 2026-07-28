@@ -1,0 +1,227 @@
+% Preamble for IITM Mathematics for Data Science 1 (MDS1) Textbook
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{
+    a4paper,
+    left=0.9in,
+    right=0.9in,
+    top=1.0in,
+    bottom=1.0in
+}
+
+% Typography
+\usepackage{palatino} % Clean serif body font
+\usepackage[scaled]{helvet} % Helvetica for sans-serif
+\usepackage{microtype} % Better word spacing and justifications
+
+% Math Packages
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{bm} % Bold math symbols
+\usepackage{array}
+\usepackage{booktabs}
+
+% Headings styling
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\sffamily\huge\bfseries\color{primarydark}}
+  {\chaptername\ \thechapter}{20pt}{\Huge}
+\titleformat{\section}
+  {\normalfont\sffamily\Large\bfseries\color{primarydark}}
+  {\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\sffamily\large\bfseries\color{primarydark}}
+  {\thesubsection}{1em}{}
+
+% Colors
+\usepackage{xcolor}
+% Tailored Slate Blue/Navy for Theorems
+\definecolor{primarydark}{HTML}{1e293b}
+\definecolor{primarylight}{HTML}{eff6ff}
+\definecolor{primaryborder}{HTML}{3b82f6}
+
+% Tailored Teal for Definitions
+\definecolor{tealdef}{HTML}{0f766e}
+\definecolor{tealbg}{HTML}{f0fdfa}
+\definecolor{tealborder}{HTML}{14b8a6}
+
+% Tailored Purple for Examples
+\definecolor{purpleex}{HTML}{6b21a8}
+\definecolor{purplebg}{HTML}{faf5ff}
+\definecolor{purpleborder}{HTML}{a855f7}
+
+% Tailored Coral for Key Formulas
+\definecolor{coralformula}{HTML}{c2410c}
+\definecolor{coralbg}{HTML}{fff7ed}
+\definecolor{coralborder}{HTML}{f97316}
+
+% YouTube Dark Slate card
+\definecolor{ytcardbg}{HTML}{f8fafc}
+\definecolor{ytcardborder}{HTML}{cbd5e1}
+\definecolor{yttext}{HTML}{ef4444} % YouTube Red for links
+
+% Indexing, QR Codes & Listings
+\usepackage{imakeidx}
+\usepackage{qrcode}
+\usepackage{listings}
+
+% Hyperref configuration (loaded BEFORE custom tcolorbox environments using \href)
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=blue,
+    pdftitle={IITM Mathematics for Data Science 1 (MDS1)},
+    pdfpagemode=FullScreen,
+}
+
+% Custom tcolorboxes
+\usepackage[most]{tcolorbox}
+\usetikzlibrary{shadows}
+
+% Definition Box
+\newtcolorbox{definitionbox}[1]{
+    colback=tealbg,
+    colframe=tealborder,
+    coltitle=white,
+    fonttitle=\bfseries\sffamily,
+    title={Definition: #1},
+    enhanced,
+    attach boxed title to top left={yshift=-2mm, xshift=4mm},
+    boxed title style={colback=tealdef, colframe=tealborder, arc=1mm},
+    arc=2mm,
+    boxrule=0.8mm,
+    top=4mm,
+    bottom=3mm,
+    left=3mm,
+    right=3mm,
+    drop shadow={opacity=0.1, color=black}
+}
+
+% Theorem/Rule Box
+\newtcolorbox{theorembox}[1]{
+    colback=primarylight,
+    colframe=primaryborder,
+    coltitle=white,
+    fonttitle=\bfseries\sffamily,
+    title={Theorem/Rule: #1},
+    enhanced,
+    attach boxed title to top left={yshift=-2mm, xshift=4mm},
+    boxed title style={colback=primarydark, colframe=primaryborder, arc=1mm},
+    arc=2mm,
+    boxrule=0.8mm,
+    top=4mm,
+    bottom=3mm,
+    left=3mm,
+    right=3mm,
+    drop shadow={opacity=0.1, color=black}
+}
+
+% Example Box
+\newtcolorbox{examplebox}[1]{
+    colback=purplebg,
+    colframe=purpleborder,
+    coltitle=white,
+    fonttitle=\bfseries\sffamily,
+    title={Example: #1},
+    enhanced,
+    attach boxed title to top left={yshift=-2mm, xshift=4mm},
+    boxed title style={colback=purpleex, colframe=purpleborder, arc=1mm},
+    arc=2mm,
+    boxrule=0.8mm,
+    top=4mm,
+    bottom=3mm,
+    left=3mm,
+    right=3mm,
+    drop shadow={opacity=0.1, color=black}
+}
+
+% Key Formula Box
+\newtcolorbox{formulabox}[1]{
+    colback=coralbg,
+    colframe=coralborder,
+    coltitle=white,
+    fonttitle=\bfseries\sffamily,
+    title={Key Formula: #1},
+    enhanced,
+    attach boxed title to top left={yshift=-2mm, xshift=4mm},
+    boxed title style={colback=coralformula, colframe=coralborder, arc=1mm},
+    arc=2mm,
+    boxrule=0.8mm,
+    top=4mm,
+    bottom=3mm,
+    left=3mm,
+    right=3mm,
+    drop shadow={opacity=0.1, color=black}
+}
+
+% YouTube Video Resource Card
+\newtcolorbox{videocard}[2]{
+    colback=ytcardbg,
+    colframe=ytcardborder,
+    enhanced,
+    boxrule=0.5mm,
+    arc=1.5mm,
+    left=3mm,
+    right=3mm,
+    top=3mm,
+    bottom=3mm,
+    fontupper=\small\sffamily,
+    title={\href{#2}{\textcolor{yttext}{\textbf{Video Resource:}} \textcolor{primarydark}{#1}} \hfill \raisebox{-1.5mm}{\qrcode[height=0.6cm]{#2}}},
+    coltitle=primarydark,
+    colbacktitle=ytcardbg,
+    attach title to top left={yshift=-2mm, xshift=2mm},
+    boxed title style={colback=ytcardbg, colframe=ytcardbg},
+    underlay={
+        \path[draw=ytcardborder, line width=0.5mm] (frame.north west) -- (frame.south west);
+    },
+    title style={bottom=1mm}
+}
+
+% Python Code Snippets Styling
+\definecolor{codegreen}{HTML}{10B981}
+\definecolor{codegray}{HTML}{6B7280}
+\definecolor{codepurple}{HTML}{8B5CF6}
+\definecolor{codebg}{HTML}{F8FAFC}
+\lstdefinestyle{pystyle}{
+    language=Python,
+    backgroundcolor=\color{codebg},   
+    commentstyle=\color{codegray}\itshape,
+    keywordstyle=\color{codepurple}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codegreen},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=4,
+    frame=single,
+    rulecolor=\color{ytcardborder},
+    xleftmargin=10pt,
+    xrightmargin=10pt
+}
+\lstset{style=pystyle}
+
+% Custom Math Macros
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\set}[1]{\left\{#1\right\}}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\func}[3]{#1 \colon #2 \to #3}
+\newcommand{\limit}[2]{\lim_{#1 \to #2}}
+\newcommand{\deriv}[2]{\frac{d#1}{d#2}}
+\newcommand{\pderiv}[2]{\frac{\partial#1}{\partial#2}}
+\newcommand{\dx}{\,dx}

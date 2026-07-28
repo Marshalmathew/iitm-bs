@@ -1,0 +1,106 @@
+\chapter{Random Variables}
+
+Until now, our sample spaces have been arbitrary sets of outcomes, like \{Heads, Tails\} or \{Spam, Legit\}. But mathematics requires numbers. A \textbf{Random Variable} acts as a bridge, translating physical outcomes into numbers so we can do algebra and calculus on them.
+
+\section{Introduction to Random Variables}
+
+\begin{definitionbox}{Random Variable}
+A \textbf{Random Variable ($X$)} is a function that maps every possible outcome in the sample space $S$ to a real number. 
+$$X: S \to \mathbb{R}$$
+For example, if we flip two coins, $S = \{HH, HT, TH, TT\}$. We can define the Random Variable $X$ as "the number of Heads". Then:
+$X(HH) = 2$, $X(HT) = 1$, $X(TH) = 1$, $X(TT) = 0$. 
+\end{definitionbox}
+
+\begin{theorembox}{Discrete vs. Continuous Random Variables}
+\begin{itemize}
+    \item \textbf{Discrete Random Variable:} Can only take on a countable number of distinct values. Often associated with \emph{counting} things (e.g., number of emails received, number of defective products, rolling a die).
+    \item \textbf{Continuous Random Variable:} Can take on any value within an infinitely dense interval. Often associated with \emph{measuring} things (e.g., exact height, time, temperature). 
+\end{itemize}
+\end{theorembox}
+
+\textbf{Data Science Relevance:} In Machine Learning, classifying a label (like predicting whether a tumor is Malignant or Benign) is modeling a \textbf{Discrete Random Variable}. Predicting an exact numerical value (like predicting the future price of a stock) is modeling a \textbf{Continuous Random Variable}.
+
+\begin{videocard}{IITM BS Lecture: W8\_L1 \& L3 Random Variables}{https://www.youtube.com/watch?v=6EPAFA3orpA}
+Official lectures defining random variables and clearly separating Discrete from Continuous.
+\end{videocard}
+
+\section{The Probability Mass Function (PMF)}
+
+For discrete random variables, we want to know the probability of hitting a specific numerical value.
+
+\begin{definitionbox}{Probability Mass Function (PMF)}
+The \textbf{Probability Mass Function} of a discrete random variable $X$, denoted $f(x)$ or $P(X=x)$, gives the exact probability that $X$ will take on the value $x$.
+\end{definitionbox}
+
+\begin{formulabox}{Properties of a Valid PMF}
+For $f(x)$ to be a valid mathematical PMF, it must satisfy two Kolmogorov-derived rules:
+\begin{enumerate}
+    \item \textbf{Non-negativity:} $f(x) \ge 0$ for all possible values of $x$. (You cannot have a negative probability).
+    \item \textbf{Sum to One:} $\sum f(x) = 1$. (The sum of probabilities for all possible values of $X$ must equal exactly $1$).
+\end{enumerate}
+\end{formulabox}
+
+\begin{videocard}{IITM BS Lecture: W8\_L4 \& L5 Probability Mass Function}{https://www.youtube.com/watch?v=MGCD1KTWW3w}
+Official lectures detailing the properties of PMFs and how to graph them as stick plots.
+\end{videocard}
+
+\section{The Cumulative Distribution Function (CDF)}
+
+Sometimes we don't just want $P(X = x)$. We want to know the probability that $X$ is \emph{less than or equal to} $x$. (e.g., What is the probability a server goes down in 5 days \emph{or less}?).
+
+\begin{definitionbox}{Cumulative Distribution Function (CDF)}
+The \textbf{Cumulative Distribution Function}, denoted $F(x)$, gives the accumulating probability up to and including $x$.
+$$F(x) = P(X \le x) = \sum_{k \le x} P(X = k)$$
+\end{definitionbox}
+
+\begin{theorembox}{Properties of a Valid CDF}
+\begin{enumerate}
+    \item \textbf{Bounds:} $0 \le F(x) \le 1$.
+    \item \textbf{Non-Decreasing:} If $x_1 < x_2$, then $F(x_1) \le F(x_2)$. (It can only go up, never down).
+    \item \textbf{Limits:} As $x \to -\infty$, $F(x) \to 0$. As $x \to \infty$, $F(x) \to 1$.
+    \item For a discrete variable, the CDF graph looks like a \textbf{step function}, jumping up exactly at the values where the PMF has mass.
+\end{enumerate}
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: W8\_L6 Cumulative Distribution Function}{https://www.youtube.com/watch?v=59sIZrAH5OQ}
+Official lecture explaining how to compute the CDF from the PMF and how to read the step function graph.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{Discrete vs. Continuous:} Classify the following random variables as Discrete or Continuous:
+    \begin{enumerate}
+        \item The number of customer complaints received in a day.
+        \item The exact time it takes for a webpage to load.
+        \item The number of heads when flipping 100 coins.
+        \item The volume of water in a water bottle.
+    \end{enumerate}
+
+    \item \textbf{Validating a PMF:} A discrete random variable $X$ can take the values $x \in \{1, 2, 3, 4\}$. Its PMF is defined as $P(X=x) = c \cdot x$.
+    \begin{enumerate}
+        \item Find the value of the constant $c$ that makes this a valid PMF.
+        \item What is the exact probability $P(X=3)$?
+    \end{enumerate}
+
+    \item \textbf{Creating a PMF:} You roll two standard 6-sided dice. Let the Random Variable $X$ be the \emph{sum} of the two dice.
+    \begin{enumerate}
+        \item What is the Sample Space of the underlying experiment, and what is its size?
+        \item What is the set of all possible numerical values that $X$ can take?
+        \item Calculate $P(X=7)$ and $P(X=12)$.
+    \end{enumerate}
+
+    \item \textbf{Building a CDF:} Let $X$ have the following PMF:
+    $$P(X=1) = 0.2, \quad P(X=2) = 0.5, \quad P(X=3) = 0.3$$
+    \begin{enumerate}
+        \item Calculate the CDF values: $F(1), F(2), F(3)$.
+        \item What is the value of the CDF at $F(1.5)$? (Think carefully about the definition of $X \le 1.5$).
+        \item Sketch (mentally or on paper) what the graph of this CDF looks like.
+    \end{enumerate}
+
+    \item \textbf{Using the CDF:} You are given the CDF of a discrete random variable $Y$ that only takes integer values:
+    $F(1) = 0.1, \quad F(2) = 0.4, \quad F(3) = 0.9, \quad F(4) = 1.0$
+    Using \emph{only} the CDF, find the exact PMF probability $P(Y=3)$.
+\end{enumerate}

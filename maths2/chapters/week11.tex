@@ -1,0 +1,80 @@
+\chapter{Hessian Matrix, Multivariable Extrema \& Differentiability}
+
+To determine whether a critical point $\mathbf{x}_0$ is a local minimum, local maximum, or saddle point, we analyze second-order partial derivatives. In this chapter, we master the \textbf{Hessian Matrix}, the \textbf{Second Derivative Test}, and formal \textbf{Multivariable Differentiability}.
+
+\section{Second-Order Partial Derivatives and Clairaut's Theorem}
+
+For $f(x, y)$, there are four second-order partial derivatives:
+$$f_{xx} = \frac{\partial^2 f}{\partial x^2}, \quad f_{yy} = \frac{\partial^2 f}{\partial y^2}, \quad f_{xy} = \frac{\partial^2 f}{\partial y \partial x}, \quad f_{yx} = \frac{\partial^2 f}{\partial x \partial y}$$
+
+\begin{theorembox}{Clairaut's Theorem (Symmetry of Mixed Partials)}
+If $f_{xy}$ and $f_{yx}$ are continuous on an open set containing $\mathbf{x}_0$, then the mixed partials are equal:
+$$f_{xy} = f_{yx}$$
+\end{theorembox}
+
+\section{The Hessian Matrix}
+
+\begin{definitionbox}{The Hessian Matrix $H(f)$}
+The \textbf{Hessian Matrix} $H(f)(\mathbf{x})$ is the symmetric matrix of second-order partial derivatives:
+$$H(f)(\mathbf{x}) = \begin{bmatrix} \frac{\partial^2 f}{\partial x_1^2} & \frac{\partial^2 f}{\partial x_1 \partial x_2} & \dots & \frac{\partial^2 f}{\partial x_1 \partial x_n} \\ \frac{\partial^2 f}{\partial x_2 \partial x_1} & \frac{\partial^2 f}{\partial x_2^2} & \dots & \frac{\partial^2 f}{\partial x_2 \partial x_n} \\ \vdots & \vdots & \ddots & \vdots \\ \frac{\partial^2 f}{\partial x_n \partial x_1} & \frac{\partial^2 f}{\partial x_n \partial x_2} & \dots & \frac{\partial^2 f}{\partial x_n^2} \end{bmatrix} \in \mathbb{R}^{n \times n}$$
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Higher Order Partial Derivatives & Hessian Matrix}{https://www.youtube.com/watch?v=SNAyzb35MAc}
+Official lecture constructing Hessian matrices for 2D and 3D functions.
+\end{videocard}
+
+\section{Second Derivative Test for Local Extrema}
+
+\begin{theorembox}{Second Derivative Test for $f(x, y)$}
+Let $(x_0, y_0)$ be a critical point ($\nabla f(x_0, y_0) = \mathbf{0}$). Define the Hessian determinant $D$:
+$$D = \det(H(f)(x_0, y_0)) = f_{xx} f_{yy} - (f_{xy})^2$$
+\begin{enumerate}
+\item If $D > 0$ and $f_{xx} > 0$ (Hessian is Positive Definite): $(x_0, y_0)$ is a \textbf{Local Minimum}.
+2. If $D > 0$ and $f_{xx} < 0$ (Hessian is Negative Definite): $(x_0, y_0)$ is a \textbf{Local Maximum}.
+3. If $D < 0$ (Hessian is Indefinite): $(x_0, y_0)$ is a \textbf{Saddle Point}.
+4. If $D = 0$: Test is \textbf{Inconclusive}.
+\end{theorembox}
+
+\textbf{Data Science Relevance:} In Optimization and Deep Learning, Newton-Raphson optimization uses the inverse Hessian $H^{-1} \nabla f$ for second-order gradient updates. Convex loss functions (where $H(L)$ is positive semi-definite everywhere) guarantee that any local minimum is a global minimum!
+
+\begin{videocard}{IITM BS Lecture: Hessian Matrix & Local Extrema for f(x,y)}{https://www.youtube.com/watch?v=XJH8RJ5m3OU}
+Official lecture classifying 2D critical points using the Hessian discriminant $D$.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Hessian Matrix for 3D Functions f(x,y,z)}{https://www.youtube.com/watch?v=QOqj5I8q_eU}
+Official lecture extending local extrema classification to 3D via leading principal minors of $H(f)$.
+\end{videocard}
+
+\section{Multivariable Differentiability}
+
+Unlike 1D functions, the existence of partial derivatives $\frac{\partial f}{\partial x}$ and $\frac{\partial f}{\partial y}$ does \textbf{NOT} guarantee that a multivariable function is continuous or differentiable!
+
+\begin{definitionbox}{Formal Multivariable Differentiability}
+A function $f: \mathbb{R}^n \to \mathbb{R}$ is \textbf{Differentiable} at $\mathbf{x}_0$ if there exists a linear mapping (the derivative total transformation $J$) such that:
+$$\lim_{\mathbf{h} \to \mathbf{0}} \frac{|f(\mathbf{x}_0 + \mathbf{h}) - f(\mathbf{x}_0) - \nabla f(\mathbf{x}_0)^T \mathbf{h}|}{\|\mathbf{h}\|} = 0$$
+\textbf{Sufficient Condition:} If all first partial derivatives $\frac{\partial f}{\partial x_i}$ exist and are \textbf{continuous} near $\mathbf{x}_0$, then $f$ is guaranteed to be differentiable at $\mathbf{x}_0$.
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Differentiability for Multivariable Functions}{https://www.youtube.com/watch?v=tbd1xs-ZeU4}
+Official lecture contrasting partial derivative existence with formal multivariable differentiability.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+\item \textbf{Hessian Matrix Computation:} Compute the Hessian matrix $H(f)(x, y)$ for $f(x, y) = x^3 - 3xy^2 + y^4$. Evaluate it at the point $(1, 2)$.
+
+\item \textbf{Classifying 2D Critical Points:} Find all critical points of $f(x, y) = x^3 + y^3 - 3xy$ (from Week 10 exercise: $(0,0)$ and $(1,1)$), and classify each point as a local minimum, local maximum, or saddle point using the Hessian test.
+
+\item \textbf{Saddle Point Identification:} Show that the origin $(0, 0)$ is a saddle point for the hyperbolic paraboloid $f(x, y) = x^2 - y^2$ by analyzing the eigenvalues or determinant of $H(f)(0, 0)$.
+
+\item \textbf{Classifying 3D Critical Points:} For $f(x, y, z) = x^2 + 2y^2 + 3z^2 - 4x + 8y - 12z$, find the critical point and construct the $3 \times 3$ Hessian matrix to classify it.
+
+\item \textbf{Data Science Application (Convexity of Mean Squared Error):} The OLS Linear Regression loss function for 1 feature $w$ is $L(w) = \frac{1}{N} \sum_{i=1}^N (w x_i - y_i)^2$.
+    \begin{enumerate}
+        \item Compute the second derivative $\frac{d^2 L}{dw^2}$.
+        \item Show that $\frac{d^2 L}{dw^2} \ge 0$ for all $w$, proving that the loss surface is strictly convex and has a unique global minimum.
+    \end{enumerate}
+\end{enumerate}

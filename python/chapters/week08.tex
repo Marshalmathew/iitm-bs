@@ -1,0 +1,87 @@
+\chapter{File Handling \& Exception Management}
+
+Data science datasets rarely start in memory—they live on disk as CSV, JSON, text logs, or database dumps. In this chapter, we cover \textbf{File I/O} (Input/Output) operations and \textbf{Exception Handling} to ensure robust data ingestion pipelines that don't crash when encountering missing or corrupted data.
+
+\section{Reading and Writing Files}
+
+Python uses the built-in `open(filename, mode)` function to interact with files on disk. Using the Context Manager `with` guarantees that file handles are automatically closed, even if errors occur.
+
+\begin{definitionbox}{File Modes and Context Managers}
+Common modes: `'r'` (read), `'w'` (write / overwrite), `'a'` (append), `'b'` (binary mode).
+\begin{lstlisting}
+# Writing to a text file
+with open("data.txt", "w") as f:
+    f.write("Line 1: Data Science\n")
+    f.write("Line 2: Machine Learning\n")
+
+# Reading line by line (memory efficient)
+with open("data.txt", "r") as f:
+    for line in f:
+        print(line.strip())
+\end{lstlisting}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Reading and Writing to a File}{https://www.youtube.com/watch?v=rYLJaAdgLhI}
+Official lecture demonstrating file modes, `open()`, `.read()`, `.readline()`, and `with` context blocks.
+\end{videocard}
+
+\section{Processing Large Datasets}
+
+When log files or text datasets exceed available RAM, loading the entire file with `.read()` causes an Out-Of-Memory (OOM) crash. Instead, stream the file line by line using an iterator or chunked reads.
+
+\begin{theorembox}{Line-by-Line Streaming}
+Iterating over a file object `for line in f:` streams one line at a time into memory ($\mathcal{O}(1)$ memory complexity).
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: Handling Very Big Files}{https://www.youtube.com/watch?v=NwFpo_KGvOA}
+Official lecture discussing memory considerations when searching and processing massive files.
+\end{videocard}
+
+\section{Exception Handling (`try`, `except`, `else`, `finally`)}
+
+An \textbf{Exception} is a runtime error that halts program execution. Exception handling allows Python to catch runtime errors gracefully.
+
+\begin{formulabox}{The Exception Handling Block}
+\begin{lstlisting}
+try:
+    # Code that might raise an exception
+    num = int(input("Enter a number: "))
+    result = 100 / num
+except ValueError:
+    print("Invalid input! Please enter a number.")
+except ZeroDivisionError:
+    print("Division by zero is undefined.")
+else:
+    # Executed ONLY if NO exception occurred
+    print(f"Result: {result}")
+finally:
+    # Executed ALWAYS (used for cleanup)
+    print("Execution complete.")
+\end{lstlisting}
+\end{formulabox}
+
+\textbf{Data Science Relevance:} Web scrapers, data loaders, and model training loops use `try-except` blocks to skip corrupted rows or bad images without crashing overnight training runs.
+
+\begin{videocard}{IITM BS Lecture: Exception Handling Explained}{https://www.youtube.com/watch?v=me3_XR7Iz60}
+Official lecture explaining `try`, `except`, `finally`, built-in exception types, and raising custom errors.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{File Writing \& Reading:} Write a Python script that:
+    \begin{enumerate}
+        \item Creates a file named `log.txt` and writes $3$ lines of sample log entries.
+        \item Reopens `log.txt` in read mode and counts the total number of lines in the file.
+    \end{enumerate}
+
+    \item \textbf{Handling Missing Files:} Write a script using `try-except` that attempts to open `"missing_dataset.csv"`. If the file does not exist, catch `FileNotFoundError` and print `"Dataset file not found. Please check filepath."`.
+
+    \item \textbf{Safe Type Conversion Function:} Write a function `safe_float(value)` that attempts to convert `value` to a `float`. If a `ValueError` or `TypeError` occurs, return `None`. Test with `"3.14"`, `"abc"`, and `[1, 2]`.
+
+    \item \textbf{Parsing Log File Data:} Suppose a text file `scores.txt` contains numeric test scores, one per line. Write a script to read the file, convert each line to float inside a `try` block (skipping invalid lines), and calculate the average score.
+
+    \item \textbf{Data Science Application (CSV Line Counter & Cleaner):} Write a script `clean_csv(input_path, output_path)` that reads a CSV file line by line, removes empty lines or lines starting with `#` (comments), and writes clean lines to `output_path`.
+\end{enumerate}

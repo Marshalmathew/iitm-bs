@@ -1,0 +1,122 @@
+\chapter{Continuous Probability Distributions}
+
+Discrete distributions (like Binomial and Poisson) are for \emph{counting}. But what happens when we need to measure something that is infinitely divisible, like time, distance, or temperature? We must transition from the discrete mathematics of sums to the continuous mathematics of integrals.
+
+\section{The Probability Density Function (PDF)}
+
+For a continuous random variable $X$, the probability of hitting any \emph{exact} number is zero. For example, the probability that a person is exactly $175.00000000\ldots$ cm tall is zero. Therefore, a Probability Mass Function (PMF) cannot exist for continuous variables. Instead, we use a \textbf{Probability Density Function (PDF)}.
+
+\begin{definitionbox}{Probability Density Function (PDF)}
+The PDF of a continuous random variable $X$, denoted $f(x)$, represents the \emph{relative density} of probability at $x$. 
+To find the actual probability that $X$ falls within a specific interval $[a, b]$, you must calculate the area under the PDF curve between those two points using an integral:
+$$P(a \le X \le b) = \int_{a}^{b} f(x) \, dx$$
+\end{definitionbox}
+
+\begin{theorembox}{Properties of a Valid PDF}
+Because probabilities must be valid, a mathematically legal PDF $f(x)$ must satisfy:
+\begin{enumerate}
+    \item \textbf{Non-negativity:} $f(x) \ge 0$ for all $x$. (The curve can never dip below the x-axis).
+    \item \textbf{Total Area is 1:} $\int_{-\infty}^{\infty} f(x) \, dx = 1$. (100\% of the probability is under the curve).
+\end{enumerate}
+\emph{Crucial Distinction:} Unlike a PMF, the value of $f(x)$ can absolutely be greater than $1$. It is a \emph{density}, not a probability. Only the \emph{area} under it must be $\le 1$.
+\end{theorembox}
+
+\begin{videocard}{StatQuest: Probability Density Functions (PDFs)}{https://www.youtube.com/watch?v=79953_-VFzQ}
+A visually clear explanation of what a PDF is, why $f(x)$ is not a probability, and how to compute probabilities from it using integrals.
+\end{videocard}
+
+\section{The Uniform Distribution}
+
+The simplest continuous distribution is the Uniform Distribution, where probability is spread perfectly evenly across a specific interval.
+
+\begin{definitionbox}{Uniform Distribution}
+A continuous random variable $X$ follows a \textbf{Uniform Distribution}, denoted $X \sim \text{Uniform}(a, b)$, if it is equally likely to take any value within the interval $[a, b]$, and has zero probability outside of it.
+
+The PDF is a flat horizontal line:
+$$f(x) = \begin{cases} \frac{1}{b-a} & \text{for } a \le x \le b \\ 0 & \text{otherwise} \end{cases}$$
+\end{definitionbox}
+
+\begin{theorembox}{Expectation and Variance of Uniform}
+\begin{itemize}
+    \item \textbf{Expectation (Mean):} $E[X] = \frac{a+b}{2}$ (The exact midpoint).
+    \item \textbf{Variance:} $Var(X) = \frac{(b-a)^2}{12}$
+\end{itemize}
+\end{theorembox}
+
+\textbf{Data Science Relevance:} The Uniform distribution is the foundation of all \textbf{Random Number Generation}. Every random library in Python or R starts by generating a number from $\text{Uniform}(0, 1)$ before transforming it into other distributions.
+
+\section{The Exponential Distribution}
+
+While the Poisson distribution counts \emph{how many} rare events happen in a fixed time, the \textbf{Exponential distribution} measures the \emph{continuous waiting time} between those events. 
+
+\begin{definitionbox}{Exponential Distribution}
+Let $X$ be the waiting time until the next event in a Poisson process with rate $\lambda$. $X \sim \text{Exp}(\lambda)$.
+The PDF is a curve that decays exponentially:
+$$f(x) = \begin{cases} \lambda e^{-\lambda x} & \text{for } x \ge 0 \\ 0 & \text{for } x < 0 \end{cases}$$
+\end{definitionbox}
+
+\begin{theorembox}{Expectation and CDF of Exponential}
+\begin{itemize}
+    \item \textbf{Expectation:} $E[X] = \frac{1}{\lambda}$ (If events happen 4 times an hour, the expected wait time is $1/4$ of an hour).
+    \item \textbf{Variance:} $Var(X) = \frac{1}{\lambda^2}$
+    \item \textbf{Cumulative Distribution Function (CDF):} To avoid integrals, use the CDF to find the probability of waiting \emph{less than or equal to} time $x$:
+    $$F(x) = P(X \le x) = 1 - e^{-\lambda x}$$
+\end{itemize}
+\index{PDF}\index{Uniform Distribution}\index{Exponential Distribution}
+
+\begin{lstlisting}[caption={SciPy/Python Modeling of Uniform and Exponential Distributions}]
+import scipy.stats as stats
+import numpy as np
+
+# 1. Uniform Distribution Uniform(0, 30)
+# loc=a, scale=(b-a)
+uniform_dist = stats.uniform(loc=0, scale=30)
+print("Uniform Mean:", uniform_dist.mean())
+print("Uniform P(X > 20):", 1 - uniform_dist.cdf(20))
+
+# 2. Exponential Distribution Exp(lambda=4 per sec)
+# scale = 1 / lambda
+exp_dist = stats.expon(scale=1/4)
+print("\nExponential Mean wait time:", exp_dist.mean())
+print("Exponential P(T < 0.5 sec):", exp_dist.cdf(0.5))
+print("Exponential P(T > 1.0 sec):", 1 - exp_dist.cdf(1.0))
+\end{lstlisting}
+
+\begin{videocard}{StatQuest: The Exponential Distribution}{https://www.youtube.com/watch?v=p3T-_LMrvBc}
+A deep dive into how the Exponential distribution connects perfectly to the Poisson rate $\lambda$.
+\end{videocard}
+
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{PDF Properties:} Let $X$ be a continuous random variable with the PDF:
+    $f(x) = c$ for $0 \le x \le 5$, and $f(x) = 0$ everywhere else.
+    \begin{enumerate}
+        \item Find the value of the constant $c$ that makes this a mathematically valid PDF.
+        \item What specific continuous distribution is this?
+    \end{enumerate}
+
+    \item \textbf{Uniform Distribution:} A train arrives at a station perfectly uniformly between 8:00 AM and 8:30 AM. You arrive at exactly 8:00 AM. Let $X \sim \text{Uniform}(0, 30)$ be your waiting time in minutes.
+    \begin{enumerate}
+        \item What is the mathematical PDF $f(x)$ for this distribution?
+        \item What is your Expected waiting time, and what is the Variance?
+        \item Calculate the exact probability that you wait longer than $20$ minutes, $P(X > 20)$. (Use geometry: Area of a rectangle!).
+    \end{enumerate}
+
+    \item \textbf{Exponential Mean and Variance:} Call center agents finish calls at an average rate of $\lambda = 0.2$ calls per minute. Let $X \sim \text{Exp}(0.2)$ be the time until the next call is finished.
+    \begin{enumerate}
+        \item What is the Expected waiting time in minutes?
+        \item What is the Variance of the waiting time?
+    \end{enumerate}
+
+    \item \textbf{Exponential Probabilities (Using CDF):} A server processes database queries at an average rate of $\lambda = 4$ per second. Let $T$ be the time (in seconds) until the next query arrives. $T \sim \text{Exp}(4)$.
+    \begin{enumerate}
+        \item What is the probability that the next query arrives in \emph{less than} $0.5$ seconds? (Hint: Use the CDF $F(0.5)$).
+        \item What is the probability that it takes \emph{longer than} $1$ second for the next query to arrive? (Hint: Use the Complement rule with the CDF).
+    \end{enumerate}
+
+    \item \textbf{Data Science Application:} You are building an ML simulation for a logistics company. You need to simulate the time a delivery truck is stuck at a red light. The light cycle is strictly 60 seconds long. Should you model the waiting time using a Poisson, Uniform, or Exponential distribution? Mathematically justify why the other two are wrong.
+\end{enumerate}

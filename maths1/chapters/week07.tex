@@ -1,0 +1,102 @@
+\chapter{Sequences and Limits (Part 1)}
+
+Calculus is the mathematical study of continuous change. It is entirely built upon the foundational concept of a \textbf{limit}. In this chapter, we explore how sequence terms behave as they approach infinity, and how this relates to geometric tangents and instantaneous rates of change. 
+
+\section{Sequences and Convergence}
+
+A \textbf{sequence} is an ordered list of numbers. Formally, it can be viewed as a function whose domain is the set of natural numbers $\N$, written as:
+$$a_1, a_2, a_3, \dots, a_n, \dots \quad \text{or } \{a_n\}_{n=1}^{\infty}$$
+where $a_n$ represents the $n$-th term of the sequence.
+
+\begin{definitionbox}{Limit of a Sequence}
+A sequence $\{a_n\}$ has the limit $L$ (written as $\limit{n}{\infty} a_n = L$) if the terms $a_n$ get arbitrarily close to $L$ as $n$ grows to infinity.
+\begin{itemize}
+    \item \textbf{Convergent:} If the limit exists and is a finite real number $L$.
+    \item \textbf{Divergent:} If the limit does not exist (e.g., the terms grow without bound toward $\pm\infty$, or they oscillate back and forth indefinitely).
+\end{itemize}
+\end{definitionbox}
+
+\textbf{Data Science Relevance:} In machine learning, training an algorithm like a neural network involves minimizing a loss function over multiple iterations (epochs). The sequence of loss values $\{L_1, L_2, L_3, \dots, L_n\}$ as training progresses must ideally \textbf{converge} to a minimum value. If the loss sequence \textit{diverges}, the model has failed to learn (often due to a learning rate that is too high).
+
+\begin{theorembox}{Limit Laws for Sequences}
+If $\{a_n\}$ and $\{b_n\}$ are convergent sequences with $\limit{n}{\infty} a_n = A$ and $\limit{n}{\infty} b_n = B$:
+\begin{itemize}
+    \item $\limit{n}{\infty} (a_n \pm b_n) = A \pm B$
+    \item $\limit{n}{\infty} (a_n \cdot b_n) = A \cdot B$
+    \item $\limit{n}{\infty} \left(\frac{a_n}{b_n}\right) = \frac{A}{B}$ (provided $b_n \neq 0$ and $B \neq 0$)
+    \item $\limit{n}{\infty} c = c$ (for any constant $c$)
+\end{itemize}
+\end{theorembox}
+
+\begin{examplebox}{Sequence Convergence Check}
+Determine if the sequence $a_n = \frac{4n^2 - 3n}{2n^2 + 5n + 1}$ converges, and find its limit.
+\begin{itemize}
+    \item Divide both the numerator and denominator by the highest power of $n$ (which is $n^2$):
+    $$a_n = \frac{\frac{4n^2}{n^2} - \frac{3n}{n^2}}{\frac{2n^2}{n^2} + \frac{5n}{n^2} + \frac{1}{n^2}} = \frac{4 - \frac{3}{n}}{2 + \frac{5}{n} + \frac{1}{n^2}}$$
+    \item Take the limit as $n \to \infty$. Note that as $n$ grows infinitely large, any fraction with $n$ in the denominator shrinks to $0$ ($\limit{n}{\infty} \frac{1}{n} = 0$):
+    $$\limit{n}{\infty} a_n = \frac{4 - 0}{2 + 0 + 0} = \frac{4}{2} = 2$$
+    \item Since the limit is a finite number, the sequence \textbf{converges} to $2$.
+\end{itemize}
+\end{examplebox}
+
+\begin{videocard}{Khan Academy: Introduction to Limits}{https://www.youtube.com/watch?v=riXcZT2ICjA}
+A highly intuitive, visual introduction to what limits actually mean conceptually.
+\end{videocard}
+
+\section{Rates of Change and Secant Lines}
+
+Let $y = f(x)$ be a function representing some changing quantity (e.g., position over time).
+
+\begin{definitionbox}{Average Rate of Change and Secants}
+\begin{itemize}
+    \item The \textbf{average rate of change} of $f(x)$ over the interval $[x_1, x_2]$ is the ratio of change in output to change in input:
+    $$\text{Average Rate of Change} = \frac{\Delta y}{\Delta x} = \frac{f(x_2) - f(x_1)}{x_2 - x_1}$$
+    \item Geometrically, this ratio is the slope of the \textbf{secant line} that connects the two points $(x_1, f(x_1))$ and $(x_2, f(x_2))$ on the graph of $f$.
+\end{itemize}
+\end{definitionbox}
+
+\section{Tangents as Limits of Secants}
+
+If we want to find the \textit{instantaneous} rate of change at exactly one point $x_1 = c$, we can't use the secant formula directly because $\frac{f(c) - f(c)}{c - c} = \frac{0}{0}$, which is undefined. 
+
+Instead, we let the second point $x_2$ get closer and closer to $c$. Let the difference between them be $h$ (so $x_2 = c + h$). As $h \to 0$, the secant line approaches the \textbf{tangent line} at $c$.
+
+\begin{definitionbox}{Tangent Line Slope (The Derivative)}
+The slope of the tangent line to the curve $y = f(x)$ at the point $(c, f(c))$ is the limit of the secant slopes as $h \to 0$:
+$$m_{\text{tan}} = \limit{h}{0} \frac{f(c + h) - f(c)}{h}$$
+This instantaneous slope is the foundation of the \textbf{derivative}.
+\end{definitionbox}
+
+\textbf{Data Science Relevance:} In Gradient Descent, we want to slide down a loss curve to find its bottom. To do this, we need to know the slope of the tangent line at our current position. The limit formula above is exactly how that slope is mathematically defined!
+
+\begin{examplebox}{Finding Tangent Slope using Limits}
+Find the slope of the tangent line to the curve $f(x) = x^2 + 2x$ at $x = 3$.
+\begin{enumerate}
+    \item Set up the limit for the slope at $c = 3$:
+    $$m_{\text{tan}} = \limit{h}{0} \frac{f(3+h) - f(3)}{h}$$
+    \item Compute the output at our target point: $f(3) = 3^2 + 2(3) = 9 + 6 = 15$.
+    \item Compute the output slightly offset by $h$:
+    $$f(3+h) = (3+h)^2 + 2(3+h) = (9 + 6h + h^2) + (6 + 2h) = h^2 + 8h + 15$$
+    \item Substitute back into the limit:
+    $$m_{\text{tan}} = \limit{h}{0} \frac{(h^2 + 8h + 15) - 15}{h} = \limit{h}{0} \frac{h^2 + 8h}{h}$$
+    \item Factor out $h$ to resolve the division by zero issue:
+    $$m_{\text{tan}} = \limit{h}{0} \frac{h(h + 8)}{h} = \limit{h}{0} (h + 8) = 8$$
+\end{enumerate}
+So, the instantaneous slope of the tangent line to $x^2 + 2x$ at exactly $x=3$ is $8$.
+\end{examplebox}
+
+\begin{videocard}{3Blue1Brown: The Essence of Calculus}{https://www.youtube.com/watch?v=WUvTyaaNkzM}
+The absolute best visual explanation of how shrinking secant lines transform into tangent derivatives.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Try to solve these exercises independently. Detailed step-by-step solutions are available in the Appendix at the end of the book.}
+
+\begin{enumerate}
+    \item \textbf{Pure Math:} Determine if the sequence $b_n = \frac{5n^3 - n + 2}{7n^3 + 4n^2}$ converges, and if so, find its limit.
+    \item \textbf{Pure Math:} Determine if the sequence $c_n = \frac{n^2}{3n + 1}$ converges or diverges.
+    \item \textbf{Data Science:} A machine learning model's loss over $n$ epochs is modeled by the sequence $L_n = 2 + \frac{10}{n^2}$. As training goes on infinitely ($n \to \infty$), what is the theoretical minimum loss the model converges to?
+    \item \textbf{Pure Math:} Find the average rate of change of the function $f(x) = x^3$ over the interval $[1, 3]$.
+    \item \textbf{Pure Math:} Using the limit definition of the tangent slope $m_{\text{tan}} = \limit{h}{0} \frac{f(c + h) - f(c)}{h}$, find the instantaneous slope of $f(x) = x^2$ at the point $x = 4$.
+\end{enumerate}

@@ -1,0 +1,130 @@
+% Preamble for IITM Programming in Python Textbook
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{a4paper, left=0.9in, right=0.9in, top=1.0in, bottom=1.0in}
+
+% Typography
+\usepackage{palatino}
+\usepackage[scaled]{helvet}
+\usepackage{microtype}
+
+% Math & Tables
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{array}
+\usepackage{booktabs}
+
+% Listings for Code Highlighting
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{primarydark}{HTML}{0f172a}
+\definecolor{primarylight}{HTML}{f1f5f9}
+\definecolor{primaryborder}{HTML}{3b82f6}
+
+\definecolor{tealdef}{HTML}{0f766e}
+\definecolor{tealbg}{HTML}{f0fdfa}
+\definecolor{tealborder}{HTML}{14b8a6}
+
+\definecolor{purpleex}{HTML}{7c3aed}
+\definecolor{purplebg}{HTML}{f5f3ff}
+\definecolor{purpleborder}{HTML}{8b5cf6}
+
+\definecolor{coralformula}{HTML}{b45309}
+\definecolor{coralbg}{HTML}{fffbeb}
+\definecolor{coralborder}{HTML}{f59e0b}
+
+\definecolor{ytcardbg}{HTML}{f8fafc}
+\definecolor{ytcardborder}{HTML}{cbd5e1}
+\definecolor{yttext}{HTML}{ef4444}
+
+% Code snippet colors
+\definecolor{codegreen}{HTML}{10B981}
+\definecolor{codegray}{HTML}{6B7280}
+\definecolor{codepurple}{HTML}{8B5CF6}
+\definecolor{codebg}{HTML}{F8FAFC}
+
+\lstdefinestyle{pystyle}{
+    language=Python,
+    backgroundcolor=\color{codebg},   
+    commentstyle=\color{codegray}\itshape,
+    keywordstyle=\color{codepurple}\bfseries,
+    stringstyle=\color{codegreen},
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,                 
+    frame=single,
+    rulecolor=\color{primaryborder},
+    showstringspaces=false
+}
+\lstset{style=pystyle}
+
+\usepackage{imakeidx}
+\usepackage{qrcode}
+
+% Section headings
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\sffamily\huge\bfseries\color{primarydark}}
+  {\chaptername\ \thechapter}{20pt}{\Huge}
+\titleformat{\section}
+  {\normalfont\sffamily\Large\bfseries\color{primarydark}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\sffamily\large\bfseries\color{primarydark}}{\thesubsection}{1em}{}
+
+% Hyperref (loaded BEFORE custom tcolorbox environments using \href)
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true, linkcolor=blue, urlcolor=blue,
+    pdftitle={IITM Programming in Python},
+    pdfpagemode=FullScreen
+}
+
+% tcolorbox
+\usepackage[most]{tcolorbox}
+\usetikzlibrary{shadows}
+
+\newtcolorbox{definitionbox}[1]{
+    colback=tealbg, colframe=tealborder, coltitle=white,
+    fonttitle=\bfseries\sffamily, title={Concept: #1},
+    enhanced, attach boxed title to top left={yshift=-2mm, xshift=4mm},
+    boxed title style={colback=tealdef, colframe=tealborder, arc=1mm},
+    arc=2mm, boxrule=0.8mm, top=4mm, bottom=3mm, left=3mm, right=3mm,
+    drop shadow={opacity=0.1, color=black}
+}
+\newtcolorbox{theorembox}[1]{
+    colback=primarylight, colframe=primaryborder, coltitle=white,
+    fonttitle=\bfseries\sffamily, title={Syntax / Rule: #1},
+    enhanced, attach boxed title to top left={yshift=-2mm, xshift=4mm},
+    boxed title style={colback=primarydark, colframe=primaryborder, arc=1mm},
+    arc=2mm, boxrule=0.8mm, top=4mm, bottom=3mm, left=3mm, right=3mm,
+    drop shadow={opacity=0.1, color=black}
+}
+\newtcolorbox{examplebox}[1]{
+    colback=purplebg, colframe=purpleborder, coltitle=white,
+    fonttitle=\bfseries\sffamily, title={Code Example: #1},
+    enhanced, attach boxed title to top left={yshift=-2mm, xshift=4mm},
+    boxed title style={colback=purpleex, colframe=purpleborder, arc=1mm},
+    arc=2mm, boxrule=0.8mm, top=4mm, bottom=3mm, left=3mm, right=3mm,
+    drop shadow={opacity=0.1, color=black}
+}
+\newtcolorbox{formulabox}[1]{
+    colback=coralbg, colframe=coralborder, coltitle=white,
+    fonttitle=\bfseries\sffamily, title={Key Pattern / Logic: #1},
+    enhanced, attach boxed title to top left={yshift=-2mm, xshift=4mm},
+    boxed title style={colback=coralformula, colframe=coralborder, arc=1mm},
+    arc=2mm, boxrule=0.8mm, top=4mm, bottom=3mm, left=3mm, right=3mm,
+    drop shadow={opacity=0.1, color=black}
+}
+
+\newtcolorbox{videocard}[2]{
+    colback=ytcardbg, colframe=ytcardborder, enhanced,
+    boxrule=0.5mm, arc=1.5mm, left=3mm, right=3mm, top=3mm, bottom=3mm,
+    fontupper=\small\sffamily,
+    title={\href{#2}{\textcolor{yttext}{\textbf{Video Resource:}} \textcolor{primarydark}{#1}} \hfill \raisebox{-1.5mm}{\qrcode[height=0.6cm]{#2}}},
+    coltitle=primarydark, colbacktitle=ytcardbg,
+    attach title to top left={yshift=-2mm, xshift=2mm},
+    boxed title style={colback=ytcardbg, colframe=ytcardbg}
+}

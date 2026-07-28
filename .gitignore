@@ -1,0 +1,23 @@
+# LaTeX build auxiliary files
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.idx
+*.ind
+*.ilg
+*.bbl
+*.blg
+
+# Compiled PDFs and zips
+*.pdf
+*.zip
+
+# OS & Editor metadata
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

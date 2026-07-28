@@ -1,0 +1,100 @@
+\chapter{The Binomial Distribution}
+
+So far, we have looked at generic, custom-built Random Variables. However, many real-world problems follow the exact same mathematical structure. Instead of recalculating probabilities from scratch every time, statisticians have derived standard \textbf{Probability Distributions} that act as mathematical templates. The most fundamental of these is the Binomial Distribution.
+
+\section{The Bernoulli Distribution}
+
+Before we can build a Binomial Distribution, we must define its basic building block: a Bernoulli Trial.
+
+\begin{definitionbox}{Bernoulli Trial and Distribution}
+A \textbf{Bernoulli Trial} is a random experiment that has exactly two possible outcomes: "Success" (mapped to $1$) and "Failure" (mapped to $0$). Let the probability of success be $p$, and the probability of failure be $1-p$ (often denoted $q$).
+
+A Random Variable $X$ follows a \textbf{Bernoulli Distribution}, denoted $X \sim \text{Bernoulli}(p)$, if its PMF is:
+$$P(X=1) = p, \quad P(X=0) = 1-p$$
+\end{definitionbox}
+
+\begin{theorembox}{Expectation and Variance of Bernoulli}
+For $X \sim \text{Bernoulli}(p)$:
+\begin{itemize}
+    \item \textbf{Expectation:} $E[X] = (1 \times p) + (0 \times (1-p)) = \mathbf{p}$
+    \item \textbf{Variance:} $Var(X) = \mathbf{p(1-p)}$
+\end{itemize}
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: W10\_L1 Bernoulli Distribution}{https://www.youtube.com/watch?v=HRQHVuQkKGE}
+Official lecture defining the Bernoulli random variable and calculating its expected value and variance.
+\end{videocard}
+
+\section{Independent and Identically Distributed (IID) Trials}
+
+A single coin flip is a Bernoulli trial. But what if we flip the coin $10$ times? To mathematically chain these trials together, we must make two strict assumptions, known as \textbf{IID}.
+
+\begin{definitionbox}{IID (Independent and Identically Distributed)}
+A sequence of random variables $X_1, X_2, \ldots, X_n$ is IID if:
+\begin{enumerate}
+    \item \textbf{Independent:} The outcome of one trial has absolutely zero effect on the outcome of any other trial.
+    \item \textbf{Identically Distributed:} Every single trial has the exact same probability of success $p$. The coin does not suddenly become biased on the 5th flip.
+\end{enumerate}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: W10\_L2 IID Bernoulli Trials}{https://www.youtube.com/watch?v=NbcbU0TNSXA}
+Official lecture explaining the vital assumptions of Independence and Identical Distribution.
+\end{videocard}
+
+\section{The Binomial Distribution}
+
+If we run $n$ IID Bernoulli trials and count the \emph{total} number of successes, that total count follows a \textbf{Binomial Distribution}.
+
+\begin{definitionbox}{Binomial Distribution}
+Let $X$ be the total number of successes in $n$ IID Bernoulli trials, each with success probability $p$. We write this as $X \sim \text{Bin}(n, p)$.
+
+The Probability Mass Function (PMF) of $X$ is:
+$$P(X=k) = \binom{n}{k} p^k (1-p)^{n-k}$$
+\textit{Why?} $p^k$ is the probability of getting exactly $k$ successes. $(1-p)^{n-k}$ is the probability of getting exactly $n-k$ failures. We multiply by the combination $\binom{n}{k}$ to account for all the different possible orders those successes and failures could happen in.
+\end{definitionbox}
+
+\begin{theorembox}{Expectation and Variance of Binomial}
+Because a Binomial random variable is simply the sum of $n$ independent Bernoulli random variables ($X = X_1 + X_2 + \ldots + X_n$), we can use the linearity of expectation and variance!
+\begin{itemize}
+    \item \textbf{Expectation:} $E[X] = E[X_1] + \ldots + E[X_n] = p + \ldots + p = \mathbf{n \times p}$
+    \item \textbf{Variance:} $Var(X) = Var(X_1) + \ldots + Var(X_n) = \mathbf{n \times p(1-p)}$
+\end{itemize}
+\end{theorembox}
+
+\textbf{Data Science Relevance:} The Binomial distribution is the foundation of \textbf{A/B Testing} and measuring \textbf{Conversion Rates}. If an e-commerce website has a conversion rate of $p=0.05$, and $n=1000$ users visit the site, the number of purchases made follows a Binomial Distribution. Furthermore, the most popular classification algorithm, \textbf{Logistic Regression}, is mathematically derived directly from the Bernoulli/Binomial distribution!
+
+\begin{videocard}{IITM BS Lecture: W10\_L3, L4, L5 Binomial Distribution}{https://www.youtube.com/watch?v=BjepdIsKBNI}
+Official lectures deriving the Binomial PMF, modeling real-world situations, and proving the Expectation/Variance formulas.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{Bernoulli Trials:} An ad campaign has a Click-Through Rate (CTR) of $3\%$. Let $X$ represent a single user viewing the ad, where $X=1$ if they click and $X=0$ if they don't.
+    \begin{enumerate}
+        \item What is the distribution of $X$?
+        \item Calculate the Expected Value and Variance of $X$.
+    \end{enumerate}
+
+    \item \textbf{Binomial PMF:} A factory produces lightbulbs. $10\%$ of all lightbulbs produced are defective. You randomly sample $5$ lightbulbs off the assembly line. Let $X$ be the number of defective bulbs in your sample.
+    \begin{enumerate}
+        \item What are the parameters $n$ and $p$ for this Binomial distribution?
+        \item What is the exact probability of getting exactly $2$ defective bulbs?
+        \item What is the probability of getting exactly $0$ defective bulbs?
+    \end{enumerate}
+
+    \item \textbf{Binomial Expectation and Variance:} A multiple choice test has $50$ questions. Each question has $4$ options, with only $1$ correct answer. A student completely guesses on every single question. Let $Y$ be the number of questions they get correct.
+    \begin{enumerate}
+        \item Calculate the expected number of correct answers, $E[Y]$.
+        \item Calculate the variance of their score, $Var(Y)$.
+    \end{enumerate}
+
+    \item \textbf{Using the Complement Rule with Binomial:} A medical treatment has a $60\%$ success rate. It is administered to $10$ patients. 
+    \begin{enumerate}
+        \item What is the probability that \textbf{at least one} patient is successfully cured? (Hint: Use the Complement rule!).
+    \end{enumerate}
+
+    \item \textbf{Data Science Application:} You are running an A/B test on a website. You show a new checkout button to $100$ users. You want to model the number of clicks using a Binomial distribution. What two \textbf{IID assumptions} must you mathematically make about the users for the Binomial model to be valid? Give an example of how one of those assumptions could be violated in real life.
+\end{enumerate}

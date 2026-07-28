@@ -1,0 +1,90 @@
+\chapter{Hypothesis Testing: Size, Power, Z-Test \& p-Values}
+
+Hypothesis testing provides a formal mathematical framework for decision-making under uncertainty. In this chapter, we master \textbf{Null vs. Alternative Hypotheses}, \textbf{Type I Error ($\alpha$, Size)}, \textbf{Type II Error ($\beta$, Power $1-\beta$)}, the \textbf{Z-Test}, and \textbf{$p$-values}.
+
+\section{Null and Alternative Hypotheses, Errors, and Power}
+
+\begin{definitionbox}{Hypotheses and Decision Matrix}
+\begin{itemize}
+    \item \textbf{Null Hypothesis ($H_0$):} Baseline assumption of no effect or no difference (e.g. $H_0: \mu = \mu_0$).
+    \item \textbf{Alternative Hypothesis ($H_1$ or $H_a$):} Claim of interest we seek to prove (e.g. $H_1: \mu \neq \mu_0$ or $H_1: \mu > \mu_0$).
+
+\end{itemize}
+\begin{center}
+\begin{tabular}{c|cc}
+& \textbf{Accept $H_0$ (Fail to Reject)} & \textbf{Reject $H_0$} \\
+\hline
+\textbf{$H_0$ True} & Correct Decision ($1 - \alpha$) & \textbf{Type I Error ($\alpha$)} \\
+\textbf{$H_0$ False} & \textbf{Type II Error ($\beta$)} & Correct Decision (\textbf{Power $1 - \beta$}) \\
+\end{tabular}
+\end{center}
+\end{definitionbox}
+
+\begin{formulabox}{Size and Power of a Test}
+\begin{itemize}
+    \item \textbf{Significance Level / Size ($\alpha$):} $\alpha = \P(\text{Reject } H_0 \mid H_0 \text{ is true})$.
+    \item \textbf{Type II Error Probability ($\beta$):} $\beta = \P(\text{Fail to Reject } H_0 \mid H_0 \text{ is false})$.
+    \item \textbf{Statistical Power ($1 - \beta$):} $1 - \beta = \P(\text{Reject } H_0 \mid H_1 \text{ is true})$.
+\end{itemize}
+\end{formulabox}
+
+\begin{videocard}{IITM BS Lecture: Size and Power of a Test}{https://www.youtube.com/watch?v=4__hxeWOs5w}
+Official lecture defining rejection regions, Type I/II errors, and calculating test power.
+\end{videocard}
+
+\section{The One-Sample Z-Test}
+
+When sample size $n$ is large (or population variance $\sigma^2$ is known), the sample mean $\bar{X}_n$ follows a Gaussian distribution under $H_0$.
+
+\begin{formulabox}{Z-Test Statistic and Rejection Regions}
+For $H_0: \mu = \mu_0$ with test statistic $Z_{\text{calc}} = \frac{\bar{X}_n - \mu_0}{\sigma / \sqrt{n}}$:
+\begin{itemize}
+    \item \textbf{Two-Tailed ($H_1: \mu \neq \mu_0$):} Reject $H_0$ if $|Z_{\text{calc}}| \ge z_{\alpha/2}$.
+    \item \textbf{Right-Tailed ($H_1: \mu > \mu_0$):} Reject $H_0$ if $Z_{\text{calc}} \ge z_{\alpha}$.
+    \item \textbf{Left-Tailed ($H_1: \mu < \mu_0$):} Reject $H_0$ if $Z_{\text{calc}} \le -z_{\alpha}$.
+\end{itemize}
+Common Critical Values: For $\alpha = 0.05 \implies z_{0.025} = 1.96$ (two-tailed), $z_{0.05} = 1.645$ (one-tailed).
+\end{formulabox}
+
+\begin{videocard}{IITM BS Lecture: Standard Testing Methods: Z-Test}{https://www.youtube.com/watch?v=ZLj66E1Ue5Q}
+Official lecture executing one-sample and two-sample Z-tests on numerical dataset examples.
+\end{videocard}
+
+\section{The $p$-Value}
+
+\begin{definitionbox}{The $p$-Value Definition}
+The \textbf{$p$-value} is the probability of observing a test statistic at least as extreme as the one actually calculated from the sample, assuming $H_0$ is true.
+$$\text{Decision Rule: If } p\text{-value} \le \alpha \implies \text{Reject } H_0. \quad \text{If } p\text{-value} > \alpha \implies \text{Fail to Reject } H_0.$$
+\end{definitionbox}
+
+\textbf{Data Science Relevance:} In A/B testing and feature selection (e.g. statsmodels OLS summary output), $p$-values tell us whether a feature's coefficient is statistically significantly different from zero ($\beta_j \neq 0$)!
+
+\begin{videocard}{IITM BS Lecture: The p-Value}{https://www.youtube.com/watch?v=RfJBrqRljEg}
+Official lecture deriving $p$-values for right-tailed, left-tailed, and two-tailed tests.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+\item \textbf{Type I and Type II Error Identification:} A medical diagnostic AI system evaluates $H_0: \text{Patient is Healthy}$ vs. $H_1: \text{Patient has Disease}$.
+    \begin{enumerate}
+\item Explain what a Type I error represents in this context.
+    2. Explain what a Type II error represents in this context. Which error is more dangerous?
+
+\item \textbf{One-Sample Right-Tailed Z-Test:} An online store claims average order delivery time is at most $\mu_0 = 48$ hours. A customer protection group samples $n = 64$ deliveries and finds $\bar{X} = 51$ hours with known population standard deviation $\sigma = 12$ hours.
+    \begin{enumerate}
+\item State $H_0$ and $H_1$.
+    2. Compute the test statistic $Z_{\text{calc}}$.
+    3. At significance level $\alpha = 0.05$ ($z_{0.05} = 1.645$), do we reject $H_0$?
+
+\item \textbf{p-Value Calculation:} For the Z-test in Exercise 2 where $Z_{\text{calc}} = 2.0$:
+    Given $\Phi(2.0) = 0.9772$, calculate the exact one-tailed $p$-value.
+
+\item \textbf{Two-Tailed Z-Test with $p$-Value:} A machine fills cereal boxes with target weight $\mu_0 = 500$g. An inspector samples $n = 100$ boxes and finds $\bar{X} = 496$g with $\sigma = 20$g.
+    Compute $Z_{\text{calc}}$ for $H_0: \mu = 500$ vs $H_1: \mu \neq 500$, calculate the two-tailed $p$-value (given $\Phi(2.0) = 0.9772$), and state the decision at $\alpha = 0.05$.
+
+\item \textbf{Data Science Application (A/B Test Significance Decision):} An e-commerce A/B test compares new checkout UI (Treatment) vs current UI (Control). The test yields $Z_{\text{calc}} = 2.33$ for a two-tailed test.
+    Given $\Phi(2.33) = 0.9901$, calculate the two-tailed $p$-value. Is the new checkout UI's conversion uplift statistically significant at $\alpha = 0.01$?
+\end{enumerate}

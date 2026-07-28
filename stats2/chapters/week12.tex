@@ -1,0 +1,116 @@
+\chapter{Advanced Hypothesis Testing, LRT \& Goodness-of-Fit}
+
+In practical data science applications, population variance $\sigma^2$ is almost never known, requiring \textbf{Student's $t$-test}. Additionally, we frequently compare two populations or test if categorical data fits a theoretical model. In this final capstone chapter, we master \textbf{One-Sample and Two-Sample $t$-Tests}, \textbf{Chi-Squared ($\chi^2$) Goodness-of-Fit Tests}, and the general \textbf{Likelihood Ratio Test (LRT)}.
+
+\section{Student's $t$-Test for Variance Unknown}
+
+When $\sigma^2$ is unknown, we substitute the sample variance $S^2 = \frac{1}{n-1} \sum_{i=1}^n (X_i - \bar{X})^2$.
+
+\begin{definitionbox}{One-Sample $t$-Test Statistic}
+For $H_0: \mu = \mu_0$ with unknown $\sigma^2$:
+$$T_{\text{calc}} = \frac{\bar{X}_n - \mu_0}{S / \sqrt{n}} \sim t_{n-1} \quad (\text{Student's } t \text{-distribution with } n-1 \text{ degrees of freedom})$$
+The $t$-distribution has heavier tails than the standard normal $\mathcal{N}(0,1)$, accounting for additional uncertainty in estimating $S$.
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: t-Test for Mean (Variance Unknown)}{https://www.youtube.com/watch?v=dbJwXIoDBtQ}
+Official lecture deriving Student's $t$-test statistic, degrees of freedom, and critical value tables.
+\end{videocard}
+
+\section{Two-Sample Tests}
+
+To test if two population means are equal ($H_0: \mu_1 - \mu_2 = 0$):
+
+\begin{formulabox}{Two-Sample Pooled $t$-Test Formula}
+Assuming equal variances $\sigma_1^2 = \sigma_2^2$:
+$$T_{\text{calc}} = \frac{\bar{X}_1 - \bar{X}_2}{S_p \sqrt{\frac{1}{n_1} + \frac{1}{n_2}}} \sim t_{n_1 + n_2 - 2}$$
+where pooled variance $S_p^2 = \frac{(n_1 - 1)S_1^2 + (n_2 - 1)S_2^2}{n_1 + n_2 - 2}$.
+\end{formulabox}
+
+\begin{videocard}{IITM BS Lecture: Two Samples from Normal Distribution}{https://www.youtube.com/watch?v=G4mJrRem0H0}
+Official lecture deriving two-sample $z$-tests, pooled $t$-tests, and $F$-tests for variance equality.
+\end{videocard}
+
+\section{Likelihood Ratio Test (LRT) and Chi-Squared Goodness of Fit}
+
+\begin{definitionbox}{Likelihood Ratio Test (LRT)}
+For testing $H_0: \theta \in \Theta_0$ vs $H_1: \theta \in \Theta \setminus \Theta_0$:
+$$\Lambda(\mathbf{x}) = \frac{\sup_{\theta \in \Theta_0} L(\theta)}{\sup_{\theta \in \Theta} L(\theta)}$$
+By Wilks' Theorem, $-2 \ln \Lambda(\mathbf{x}) \xrightarrow{d} \chi_k^2$ where $k = \dim(\Theta) - \dim(\Theta_0)$.
+\end{definitionbox}
+
+\begin{formulabox}{Pearson's Chi-Squared ($\chi^2$) Goodness-of-Fit Test}
+To test whether categorical frequency data $O_1, \dots, O_k$ matches expected counts $E_1, \dots, E_k$:
+$$\chi_{\text{calc}}^2 = \sum_{i=1}^k \frac{(O_i - E_i)^2}{E_i} \sim \chi_{k - 1 - m}^2$$
+Reject $H_0$ if $\chi_{\text{calc}}^2 \ge \chi_{\alpha, k-1-m}^2$.
+\end{formulabox}
+
+\index{t-Test}\index{Chi-Squared Test}\index{Likelihood Ratio Test}
+
+\begin{lstlisting}[caption={SciPy/Python Implementation of t-Tests and Chi-Squared Goodness of Fit}]
+import scipy.stats as stats
+import numpy as np
+
+# 1. One-Sample t-Test (H0: mu = 100)
+data = np.array([102, 105, 98, 108, 101, 104, 99, 106, 103, 100, 107, 102, 105, 101, 104, 98])
+t_stat, p_val = stats.ttest_1samp(data, popmean=100)
+print(f"One-Sample t-test: t = {t_stat:.3f}, p-value = {p_val:.4f}")
+
+# 2. Two-Sample Independent t-Test (Pooled)
+group1 = [14, 16, 15, 13, 17, 15, 14, 16, 15, 15]
+group2 = [11, 13, 12, 10, 14, 12, 13, 11, 12, 12]
+t_ind, p_ind = stats.ttest_ind(group1, group2, equal_var=True)
+print(f"Two-Sample t-test: t = {t_ind:.3f}, p-value = {p_ind:.4f}")
+
+# 3. Chi-Squared Goodness-of-Fit Test (Die Fairness)
+observed = np.array([15, 7, 8, 12, 10, 8])
+expected = np.array([10, 10, 10, 10, 10, 10])
+chi2_stat, p_chi2 = stats.chisquare(f_obs=observed, f_exp=expected)
+print(f"Chi-Squared test: chi2 = {chi2_stat:.3f}, p-value = {p_chi2:.4f}")
+\end{lstlisting}
+
+\begin{videocard}{IITM BS Lecture: Likelihood Ratio Tests}{https://www.youtube.com/watch?v=KzXltUrRt84}
+Official lecture deriving likelihood ratios and Wilks' asymptotic $\chi^2$ theorem.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Goodness of Fit for Discrete Distributions}{https://www.youtube.com/watch?v=bnBk6mMEArU}
+Official lecture computing observed vs expected cell counts and applying $\chi^2$ test statistic.
+\end{videocard}
+
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+\item \textbf{One-Sample $t$-Test Calculation:} A sample of $n = 16$ measurements has sample mean $\bar{X} = 104$ and sample standard deviation $S = 8$. We test $H_0: \mu = 100$ vs $H_1: \mu \neq 100$.
+    \begin{enumerate}
+\item State degrees of freedom $df$.
+    2. Compute the test statistic $T_{\text{calc}}$.
+    3. At $\alpha = 0.05$ with critical value $t_{0.025, 15} = 2.131$, state your decision.
+
+\item \textbf{Two-Sample Pooled $t$-Test:} Two independent samples yield:
+\begin{itemize}
+    \item Group 1: $n_1 = 10, \bar{X}_1 = 15, S_1^2 = 4$.
+    \item Group 2: $n_2 = 10, \bar{X}_2 = 12, S_2^2 = 6$.
+\end{itemize}
+    Compute pooled variance $S_p^2$ and $T_{\text{calc}}$ for $H_0: \mu_1 - \mu_2 = 0$.
+
+\item \textbf{Chi-Squared Goodness of Fit (Die Fairness Test):} A 6-sided die is rolled $N = 60$ times, observing counts:
+    $$\text{Observed } O_i = [15, 7, 8, 12, 10, 8] \quad \text{for faces } 1 \dots 6$$
+    Under $H_0$: Die is fair ($E_i = 10$ for all $i$). Compute $\chi_{\text{calc}}^2$. At $\alpha = 0.05$ with critical value $\chi_{0.05, 5}^2 = 11.07$, is the die fair?
+
+\item \textbf{Wilks' Likelihood Ratio Test Stat:} A likelihood ratio test yields likelihood ratio $\Lambda = 0.05$. Compute Wilks' test statistic $W = -2 \ln \Lambda$.
+
+\item \textbf{Comprehensive Course Review Question ($\chi^2$ Independence Test):} In a marketing survey, 200 users are classified by Subscription Tier (Free, Premium) and Churn Status (Retained, Churned):
+\begin{center}
+\begin{tabular}{c|cc|c}
+& Retained & Churned & Total \\
+\hline
+Free Tier & 80 ($E=90$) & 40 ($E=30$) & 120 \\
+Premium Tier & 70 ($E=60$) & 10 ($E=20$) & 80 \\
+\hline
+Total & 150 & 50 & 200 \\
+\end{tabular}
+\end{center}
+Compute the $\chi_{\text{calc}}^2$ test statistic using the given expected counts $E_{ij}$ to test for independence between Subscription Tier and Churn.
+\end{enumerate}

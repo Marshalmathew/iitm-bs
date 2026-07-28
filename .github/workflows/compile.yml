@@ -1,0 +1,71 @@
+name: Compile LaTeX Textbooks
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        course: [maths1, maths2, python, stats1, stats2]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install TeX Live
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y texlive-latex-extra texlive-fonts-recommended texlive-pictures qrencode
+
+      - name: Compile LaTeX Document
+        run: |
+          cd ${{ matrix.course }}
+          pdflatex -interaction=nonstopmode main.tex || true
+          if [ -f main.idx ]; then makeindex main.idx; fi
+          pdflatex -halt-on-error -interaction=nonstopmode main.tex
+
+      - name: Verify PDF Generation
+        run: |
+          if [ ! -f ${{ matrix.course }}/main.pdf ]; then
+            echo "Error: main.pdf was not generated for ${{ matrix.course }}"
+            cat ${{ matrix.course }}/main.log | tail -n 50
+            exit 1
+          fi
+
+      - name: Upload Individual PDF Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.course }}-textbook
+          path: ${{ matrix.course }}/main.pdf
+
+  bundle:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download All Course Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: pdfs
+
+      - name: Organize PDFs and Create Combined Zip
+        run: |
+          mkdir -p dist
+          cp pdfs/maths1-textbook/main.pdf dist/Mathematics_1_Textbook.pdf
+          cp pdfs/maths2-textbook/main.pdf dist/Mathematics_2_Textbook.pdf
+          cp pdfs/python-textbook/main.pdf dist/Python_Programming_Textbook.pdf
+          cp pdfs/stats1-textbook/main.pdf dist/Statistics_1_Textbook.pdf
+          cp pdfs/stats2-textbook/main.pdf dist/Statistics_2_Textbook.pdf
+          cd dist
+          zip -r ../iitm-bs-all-textbooks.zip *.pdf
+
+      - name: Upload Single Combined Bundle Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: iitm-bs-all-textbooks
+          path: iitm-bs-all-textbooks.zip

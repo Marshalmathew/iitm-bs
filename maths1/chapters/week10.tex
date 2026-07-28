@@ -1,0 +1,134 @@
+\chapter{Graph Theory (I): BFS, DFS, and Topo Sort}
+
+Graph theory is the study of networks consisting of points (vertices) connected by lines (edges). In data science, graphs model relations between data points, such as social networks, recommendation systems, page ranking (PageRank), and dependencies between variables in probabilistic models (like Bayesian Networks).
+
+\section{Introduction and Classifications}
+
+A \textbf{graph} $G$ is a pair $G = (V, E)$, where $V$ is a non-empty set of vertices (or nodes) and $E$ is a set of edges (connections between vertices).
+
+\begin{definitionbox}{Graph Classifications}
+\begin{itemize}
+    \item \textbf{Undirected Graph:} Edges have no orientation. An edge is an unordered pair $\{u, v\}$.
+    \item \textbf{Directed Graph (Digraph):} Edges have orientation. An edge is an ordered pair $(u, v)$, representing a one-way flow from $u \to v$.
+    \item \textbf{Simple Graph:} A graph with no loops (edges from a vertex to itself) and no multiple edges (parallel edges between the same two vertices).
+    \item \textbf{Weighted Graph:} A graph where each edge is assigned a numerical weight/cost (like distance or time).
+\end{itemize}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: W10\_L1 Introduction to Graphs}{https://www.youtube.com/watch?v=wtQ6RtTwCVk}
+Official IIT Madras lecture introducing vertices, edges, connectivity, and basic terminology.
+\end{videocard}
+
+\section{Representations of Graphs}
+
+How we store graphs in memory dictates algorithm performance.
+
+\begin{definitionbox}{Graph Storage Representations}
+Let $G = (V, E)$ with $V = \{1, 2, \dots, n\}$.
+\begin{itemize}
+    \item \textbf{Adjacency Matrix ($A$):} A square $n \times n$ matrix where $A_{ij} = 1$ if $(i, j) \in E$, and $0$ otherwise.
+    \begin{itemize}
+        \item For undirected graphs, $A$ is symmetric ($A_{ij} = A_{ji}$).
+        \item Excellent for dense graphs, but wastes $O(|V|^2)$ memory on sparse graphs.
+    \end{itemize}
+    \item \textbf{Adjacency List:} An array of lists. The list at index $i$ contains all vertices adjacent to vertex $i$. This is highly space-efficient for \textbf{sparse graphs} (where $|E| \ll |V|^2$), requiring only $O(|V| + |E|)$ memory.
+\end{itemize}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: W10\_L3 Representation of Graphs}{https://www.youtube.com/watch?v=4M-1F4DORps}
+Official IIT Madras lecture comparing matrices and lists, detailing spatial complexity trade-offs.
+\end{videocard}
+
+\section{Graph Traversals: BFS and DFS}
+
+To analyze or search a graph, we must visit all its vertices systematically.
+
+\begin{theorembox}{BFS and DFS Traversals}
+\begin{itemize}
+    \item \textbf{Breadth-First Search (BFS):}
+        \begin{itemize}
+            \item \textbf{Concept:} Explores the graph level-by-level (radiating outward like ripples in a pond), visiting all neighbors of a node before moving to the next level.
+            \item \textbf{Data Structure:} Uses a \textbf{Queue} (First-In, First-Out).
+            \item \textbf{Application:} Finds the shortest path in an \textbf{unweighted} graph.
+        \end{itemize}
+    \item \textbf{Depth-First Search (DFS):}
+        \begin{itemize}
+            \item \textbf{Concept:} Explores as deep as possible along each branch before backtracking.
+            \item \textbf{Data Structure:} Uses a \textbf{Stack} (Last-In, First-Out) or \textbf{Recursion}.
+            \item \textbf{Application:} Cycle detection, finding connected components, maze solving.
+        \end{itemize}
+\end{itemize}
+\textbf{Complexity:} Both algorithms run in $O(|V| + |E|)$ time when using an Adjacency List.
+\end{theorembox}
+
+\begin{examplebox}{BFS Algorithm Trace}
+Consider a simple graph with vertices $\{0, 1, 2, 3\}$ and edges $\{(0,1), (0,2), (1,2), (2,3)\}$. Let's trace BFS starting at node $0$.
+
+\begin{center}
+\begin{tabular}{|c|c|c|l|}
+\hline
+\textbf{Step} & \textbf{Current Node} & \textbf{Queue (Front to Back)} & \textbf{Visited Set} \\
+\hline
+1 & (Start) & $[0]$ & $\{0\}$ \\
+\hline
+2 & Pop $0$ & $[\,]$ & $\{0\}$ \\
+  & Push neighbors $1, 2$ & $[1, 2]$ & $\{0, 1, 2\}$ \\
+\hline
+3 & Pop $1$ & $[2]$ & $\{0, 1, 2\}$ \\
+  & Neighbors already visited & $[2]$ & $\{0, 1, 2\}$ \\
+\hline
+4 & Pop $2$ & $[\,]$ & $\{0, 1, 2\}$ \\
+  & Push neighbor $3$ & $[3]$ & $\{0, 1, 2, 3\}$ \\
+\hline
+5 & Pop $3$ & $[\,]$ & $\{0, 1, 2, 3\}$ \\
+  & Neighbors already visited & $[\,]$ & $\{0, 1, 2, 3\}$ \\
+\hline
+\end{tabular}
+\end{center}
+
+BFS completely explores level 1 (nodes $1, 2$) before reaching level 2 (node $3$).
+\end{examplebox}
+
+\begin{videocard}{IITM BS Lecture: W10\_L4 Breadth-First Search (BFS)}{https://www.youtube.com/watch?v=WPaX9PFJY_4}
+Official IIT Madras lecture detailing the queue mechanism and level-order traversal of BFS.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: W10\_L5 Depth-First Search (DFS)}{https://www.youtube.com/watch?v=1BvUzBkyD_o}
+Official IIT Madras lecture detailing the recursive stack mechanism and backtracking in DFS.
+\end{videocard}
+
+\section{Directed Acyclic Graphs (DAGs) and Topological Sorting}
+
+\begin{definitionbox}{DAGs and Topological Sort}
+\begin{itemize}
+    \item \textbf{DAG:} A Directed Acyclic Graph is a directed graph that contains \textbf{no directed cycles}. If you start at a node and follow the arrows, you can never return to that node.
+    \item \textbf{Topological Sorting:} A linear ordering of vertices such that for every directed edge $u \to v$, vertex $u$ comes before $v$ in the ordering. This is only possible if the graph is a DAG.
+\end{itemize}
+\end{definitionbox}
+
+\textbf{Data Science Relevance:} In data engineering pipelines (like Apache Airflow), tasks have dependencies (e.g., Task B cannot start until Task A finishes). The pipeline is modeled as a DAG. Topological sorting determines the exact sequential order to execute the tasks so that no dependencies are broken.
+
+\begin{videocard}{IITM BS Lecture: W10\_L9 Topological Sorting}{https://www.youtube.com/watch?v=Rax3k-rCYkY}
+Official IIT Madras lecture showing how to use DFS (or Kahn's Algorithm) to generate a valid topological order.
+\end{videocard}
+
+\section*{Supplementary Lecture Videos}
+For further reinforcement and specialized topics, refer to the following official IIT Madras lectures:
+\begin{itemize}
+    \item \href{https://www.youtube.com/watch?v=4K2wZkFKqIY}{W10\_L2: Some general graph problems}
+    \item \href{https://www.youtube.com/watch?v=l56BfAgi5LA}{W10\_L6: Applications of BFS \& DFS | part 1}
+    \item \href{https://www.youtube.com/watch?v=yD4mk9nD_-s}{W10\_L7: Applications of BFS \& DFS | part 2}
+    \item \href{https://www.youtube.com/watch?v=rCiV-4ceYRU}{W10\_L8: Complexity of BFS \& DFS}
+\end{itemize}
+
+\newpage
+\section{Practice Exercises}
+\textit{Try to solve these exercises independently. Detailed step-by-step solutions are available in the Appendix at the end of the book.}
+
+\begin{enumerate}
+    \item \textbf{Computer Science:} An undirected graph has $6$ vertices and $15$ edges. Is it a simple graph, or must it contain multiple edges/loops? (Hint: consider the maximum number of edges in a simple graph with $n$ vertices).
+    \item \textbf{Data Structure:} A graph is represented by an Adjacency Matrix. What does it mean if the sum of all elements in the $i$-th row is $3$? Assume the graph is unweighted and directed.
+    \item \textbf{Algorithms:} You are traversing a graph to find the shortest path out of a maze. The graph is unweighted. Should you use BFS or DFS, and why?
+    \item \textbf{Algorithms:} You have a DAG representing university course prerequisites. You want to generate a valid semester-by-semester graduation plan. Which graph algorithm should you use?
+    \item \textbf{Complexity:} An undirected graph $G = (V, E)$ has $|V| = 10,000$ and $|E| = 20,000$. Which storage representation is more memory efficient: an Adjacency Matrix or an Adjacency List? Justify mathematically.
+\end{enumerate}

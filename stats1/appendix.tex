@@ -1,0 +1,524 @@
+\appendix
+\chapter{Solutions to Practice Exercises}
+
+This appendix contains the detailed, step-by-step solutions for all practice exercises found at the end of each weekly chapter.
+
+\section*{Week 1: Introduction and Types of Data}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Concepts: Identify the sample, population, statistic, parameter, descriptive, and inferential parts.}
+\begin{itemize}
+    \item \textbf{Sample:} The 500 patients in the trial.
+    \item \textbf{Population:} The general population of all people with high blood pressure.
+    \item \textbf{Statistic:} The 12-point average drop in blood pressure (calculated exactly from the sample).
+    \item \textbf{Parameter:} The true average drop in blood pressure for the entire population (which is unknown).
+    \item \textbf{Descriptive Part:} The act of calculating and reporting the 12-point drop in the 500 patients.
+    \item \textbf{Inferential Part:} The act of generalizing that result to conclude the drug works for everyone.
+\end{itemize}
+
+\textbf{2. Data Classification: Classify the variables.}
+\begin{itemize}
+    \item \textbf{(a) Emails received:} Numerical Discrete (you can count them: 0, 1, 2, but you can't get 1.5 emails).
+    \item \textbf{(b) Letter grades (A, B, C, D, F):} Categorical Ordinal (they are categories, but A is definitively better than B).
+    \item \textbf{(c) Exact volume of water:} Numerical Continuous (it can be exactly 500.1234 ml, falling anywhere on the interval).
+    \item \textbf{(d) Laptop brand:} Categorical Nominal (categories with no natural rank or order).
+\end{itemize}
+
+\textbf{3. Scales of Measurement: Identify the scale.}
+\begin{itemize}
+    \item \textbf{(a) Manufacturing\_Year:} \textbf{Interval}. Gaps are equal (2018 - 2015 = 3 years), but there is no absolute zero (Year 0 doesn't mean "no time").
+    \item \textbf{(b) Mileage\_Driven:} \textbf{Ratio}. A car with 0 km has truly been driven "zero distance."
+    \item \textbf{(c) Color:} \textbf{Nominal}. Unordered labels.
+    \item \textbf{(d) Condition\_Rating (1-Poor, 2-Fair, 3-Excellent):} \textbf{Ordinal}. The numbers imply order, but the gap between Poor and Fair isn't mathematically identical to Fair and Excellent.
+\end{itemize}
+
+\textbf{4. Data Structures: Time Series vs. Cross-Sectional.}
+\begin{itemize}
+    \item \textbf{Patient X over a week:} \textbf{Time Series}. It observes a single subject across multiple time points.
+    \item \textbf{100 patients on Monday morning:} \textbf{Cross-Sectional}. It observes multiple subjects at a single snapshot in time.
+\end{itemize}
+
+\textbf{5. Data Science Application: Why is treating Pincode as Numerical Ratio a catastrophe?}
+\begin{itemize}
+    \item A Pincode is a \textbf{Categorical Nominal} variable that just happens to use numbers as its labels.
+    \item If you treat it as Numerical Ratio, the machine learning model will try to do math on it. It will assume that Pincode 600000 is "twice as large" or "mathematically greater" than Pincode 300000. 
+    \item This implies geographic locations have a numerical order or magnitude, which is complete nonsense and will destroy the model's logic. Pincodes should be treated as categories.
+\end{itemize}
+
+\section*{Week 2: Describing Categorical Data}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Frequency Calculations: Calculate the relative frequency and percentage.}
+\begin{itemize}
+    \item The total sample size is $n = 200$.
+    \item Android frequency = $110$. Relative frequency = $110 / 200 = 0.55$ ($55\%$).
+    \item iOS frequency = $80$. Relative frequency = $80 / 200 = 0.40$ ($40\%$).
+    \item Other frequency = $200 - 110 - 80 = 10$. Relative frequency = $10 / 200 = 0.05$ ($5\%$).
+\end{itemize}
+
+\textbf{2. Charting Logic: Which chart to convey exactly 50\%?}
+\begin{itemize}
+    \item A \textbf{Pie Chart} is actually better suited here.
+    \item While humans are generally poor at estimating obscure angles (like $17\%$), a $50\%$ chunk perfectly cuts a circle in half. This "half-pie" visual is instantly and universally recognized by audiences without needing to read the axis labels of a Bar Chart.
+\end{itemize}
+
+\textbf{3. Graphing Ethics: What cardinal rule did they violate?}
+\begin{itemize}
+    \item They violated the rule: \textbf{"Always start the y-axis at zero for bar charts."}
+    \item They likely started the y-axis at $9,000$. This made the competitor's bar ($10,000$) visually appear to have a height of $1,000$ units above the baseline, and the company's bar ($11,000$) visually appear to have a height of $2,000$ units above the baseline. Thus, it falsely looks twice as tall.
+\end{itemize}
+
+\textbf{4. Mode and Median: Small (10), Medium (20), Large (15), Extra Large (5).}
+\begin{itemize}
+    \item \textbf{Mode:} The category with the highest frequency is \textbf{Medium} ($20$).
+    \item \textbf{Median:} The categories are ordinal and naturally sorted (S, M, L, XL). Total $n = 50$, an even number. The median lies between the 25th and 26th observations.
+    \item Cumulative counts: Small ($10$), Medium ($10+20=30$). 
+    \item Since both the 25th and 26th observations fall within the Medium category, the \textbf{Median is Medium}.
+\end{itemize}
+
+\textbf{5. Data Science Application: What is the accuracy of the terrible model?}
+\begin{itemize}
+    \item The model guesses "Benign" for all $10,000$ images.
+    \item It gets all $9,800$ Benign images correct, and gets the $200$ Malignant images wrong.
+    \item \textbf{Accuracy} = $9,800 / 10,000 = 0.98$ (\textbf{98\%}).
+    \item This specific dataset problem is called \textbf{Class Imbalance}. It proves that raw accuracy is a terrible metric when predicting rare, critical events!
+\end{itemize}
+
+\section*{Week 3: Describing Numerical Data}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Central Tendency: Startup Salaries}
+\begin{itemize}
+    \item \textbf{(a) Mean:} $\bar{x} = \frac{80000 \times 4 + 1680000}{5} = \frac{2000000}{5} = 400,000$. \textbf{Median:} Sorted array is $80k, 80k, 80k, 80k, 1.68M$. The middle value is exactly $80,000$.
+    \item \textbf{(b)} The Mean is heavily distorted by the single extreme outlier (the CEO). Quoting the Mean is mathematically true but highly deceptive, as $80\%$ of the company makes $5\times$ less than that average. Because the extreme outlier is on the high (right) end, making Mean $>$ Median, the distribution is \textbf{Right-Skewed}.
+\end{itemize}
+
+\textbf{2. Calculating Spread: $X = \{2, 4, 4, 4, 5, 5, 7, 9\}$}
+\begin{itemize}
+    \item \textbf{(a) Sample Mean ($\bar{x}$):} $\frac{2+4+4+4+5+5+7+9}{8} = \frac{40}{8} = 5$.
+    \item \textbf{(b) Sample Variance ($s^2$):} 
+    \begin{enumerate}
+        \item Deviations from mean ($x_i - 5$): $-3, -1, -1, -1, 0, 0, 2, 4$.
+        \item Squared deviations: $9, 1, 1, 1, 0, 0, 4, 16$. Sum of squares = $32$.
+        \item Divide by $n-1$: $s^2 = \frac{32}{7} \approx 4.57$.
+    \end{enumerate}
+    \item \textbf{Standard Deviation ($s$):} $s = \sqrt{4.57} \approx 2.14$.
+\end{itemize}
+
+\textbf{3. Quartiles and IQR: $X = \{2, 4, 4, 4, \mid 5, 5, 7, 9\}$}
+\begin{itemize}
+    \item \textbf{(a) Median ($Q_2$):} The dataset has $n=8$. The median is the average of the 4th and 5th values: $\frac{4+5}{2} = 4.5$.
+    \item \textbf{(b) $Q_1$:} The median of the lower half $\{2, 4, 4, 4\}$ is $\frac{4+4}{2} = 4$. \textbf{$Q_3$:} The median of the upper half $\{5, 5, 7, 9\}$ is $\frac{5+7}{2} = 6$.
+    \item \textbf{(c) IQR:} $Q_3 - Q_1 = 6 - 4 = 2$.
+\end{itemize}
+
+\textbf{4. Data Science Application: Feature Scaling}
+\begin{itemize}
+    \item The measures of dispersion (Range, Variance, Standard Deviation) for Square Footage are thousands of times larger than those for Bedrooms.
+    \item Without scaling, a distance-based ML model will treat a change of $1$ sq ft as mathematically equal in importance to a change of $1$ bedroom. Because square footage varies by thousands, it will completely dominate the loss function, and the algorithm will functionally ignore the Bedrooms feature entirely. 
+\end{itemize}
+
+\textbf{5. Histograms vs. Bar Charts}
+\begin{itemize}
+    \item \textbf{Visual Difference:} Bar charts have gaps between the bars; Histograms have adjacent bars that touch.
+    \item \textbf{Underlying Reason:} Bar charts display \emph{Categorical} data, where groups are distinct and disjoint (there is no logical space "between" iOS and Android). Histograms display \emph{Continuous Numerical} data along a continuous number line; the exact end of one bin (e.g., $10-20$) is the exact start of the next bin ($20-30$), hence they touch.
+\end{itemize}
+
+\section*{Week 4: Association Between Two Variables}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Contingency Tables: Housing vs. Commute}
+\begin{itemize}
+    \item \textbf{(a) Table Construction:}
+    \begin{center}
+    \begin{tabular}{lccc}
+    \toprule
+     & \textbf{On-Campus} & \textbf{Off-Campus} & \textbf{Total} \\
+    \midrule
+    Walk & 80 & 20 & 100 \\
+    Bike & 20 & 40 & 60 \\
+    Car  & 10 & 130 & 140 \\
+    \midrule
+    \textbf{Total} & \textbf{110} & \textbf{190} & \textbf{300} \\
+    \bottomrule
+    \end{tabular}
+    \end{center}
+    \item \textbf{(b) Conditional on On-Campus:} Total On-Campus = 110. \\ Walk = $80/110 \approx 72.7\%$. Bike = $20/110 \approx 18.2\%$. Car = $10/110 \approx 9.1\%$.
+    \item \textbf{(c) Association:} Yes, they are highly associated. We prove this by looking at the Off-Campus conditional distribution (Car = $130/190 \approx 68.4\%$). Because the commute distributions ($9.1\%$ Car vs $68.4\%$ Car) change drastically depending on housing, the variables are dependent/associated.
+\end{itemize}
+
+\textbf{2. Correlation Calculation ($X = \{1, 2, 3, 4, 5\}$, $Y = \{2, 4, 5, 4, 5\}$)}
+\begin{itemize}
+    \item $\bar{x} = 3, \bar{y} = 4$.
+    \item Deviations $(x_i-\bar{x})$: $-2, -1, 0, 1, 2$.
+    \item Deviations $(y_i-\bar{y})$: $-2, 0, 1, 0, 1$.
+    \item Cross-products $\sum(x_i-\bar{x})(y_i-\bar{y}) = (-2)(-2) + (-1)(0) + (0)(1) + (1)(0) + (2)(1) = 4 + 0 + 0 + 0 + 2 = \mathbf{6}$.
+    \item Sum of squares $X$: $4+1+0+1+4 = \mathbf{10}$.
+    \item Sum of squares $Y$: $4+0+1+0+1 = \mathbf{6}$.
+    \item $r = \frac{6}{\sqrt{10} \cdot \sqrt{6}} = \frac{6}{\sqrt{60}} \approx \frac{6}{7.746} \approx \mathbf{0.775}$.
+\end{itemize}
+
+\textbf{3. Correlation Fallacies: Ice Cream and Sharks}
+\begin{itemize}
+    \item \textbf{(a)} $r = +0.85$ indicates a \textbf{strong, positive, linear} relationship. As ice cream sales increase, shark attacks tightly increase.
+    \item \textbf{(b)} The fallacy is \textbf{"Correlation implies Causation"}. The confounding variable is \textbf{Summer (Temperature)}. When it gets hot, ice cream sales go up. Simultaneously, more people swim in the ocean, causing shark attacks to go up. One does not cause the other.
+\end{itemize}
+
+\textbf{4. Data Science Application: Mileage Features}
+\begin{itemize}
+    \item \textbf{(a)} $r = \mathbf{1.0}$. Miles is just Kilometers multiplied by a constant ($0.62$). It is a perfect positive linear transformation.
+    \item \textbf{(b)} \textbf{No}, you must drop one. Including both provides zero new information to the model and causes a mathematical instability called \textbf{Multicollinearity}.
+\end{itemize}
+
+\textbf{5. Non-Linear Relationships ($X = \{-2, -1, 0, 1, 2\}$, $Y = \{4, 1, 0, 1, 4\}$)}
+\begin{itemize}
+    \item \textbf{(a)} The relationship is exactly $Y = X^2$. It is a perfect parabola.
+    \item \textbf{(b)} $r = \mathbf{0}$. Pearson's $r$ only measures \emph{linear} relationships. A straight line of best fit through a U-shaped parabola is completely flat, returning $r = 0$, completely failing to detect the perfect non-linear relationship.
+\end{itemize}
+
+\section*{Week 5: Permutations and Combinations}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Basic Counting: Burger Menu}
+\begin{itemize}
+    \item We cascade the tasks using the Multiplication Principle (AND rule).
+    \item Pick a bun (3 ways) AND pick a meat (4 ways) AND pick a side (Fries OR Rings = 2 ways).
+    \item $3 \times 4 \times 2 = \mathbf{24}$ distinct meals.
+\end{itemize}
+
+\textbf{2. Permutations (Distinct): 8 Runners}
+\begin{itemize}
+    \item \textbf{(a)} $^8P_3 = \frac{8!}{(8-3)!} = \frac{8!}{5!} = 8 \times 7 \times 6 = \mathbf{336}$ ways.
+    \item \textbf{(b)} We used the \textbf{Permutation} formula because the \emph{order} of selection fundamentally matters. (Alice coming 1st and Bob 2nd is a totally different outcome than Bob coming 1st and Alice 2nd).
+\end{itemize}
+
+\textbf{3. Permutations (Non-Distinct): "STATISTICS"}
+\begin{itemize}
+    \item \textbf{(a)} The word has $10$ total letters. The frequencies are: S ($3$), T ($3$), I ($2$), A ($1$), C ($1$). 
+    \item Number of unique arrangements = $\frac{10!}{3! \times 3! \times 2!} = \frac{3,628,800}{6 \times 6 \times 2} = \frac{3,628,800}{72} = \mathbf{50,400}$.
+    \item \textbf{(b)} If we just used $10!$, the math assumes every 'S' is a completely unique letter (like $S_1, S_2, S_3$). We divide by $3!$ in the denominator to mathematically erase the $6$ internal ways the three 'S's can swap positions with each other without changing the spelling of the word.
+\end{itemize}
+
+\textbf{4. Combinations: ML Models}
+\begin{itemize}
+    \item \textbf{(a)} Order does not matter for an ensemble group. $^nC_r = ^{10}C_4 = \frac{10!}{4!(10-4)!} = \frac{10 \times 9 \times 8 \times 7}{4 \times 3 \times 2 \times 1} = \mathbf{210}$ combinations.
+    \item \textbf{(b)} $^{10}C_6 = \frac{10!}{6!4!} = \mathbf{210}$. The number is identical due to the symmetry rule of combinations ($^nC_r = ^nC_{n-r}$). Logically, choosing exactly $4$ models to keep is mathematically identical to choosing exactly $6$ models to throw in the trash.
+\end{itemize}
+
+\textbf{5. Advanced Application: Committees}
+\begin{itemize}
+    \item \textbf{(a)} No restrictions: Total pool is $13$ people ($6M+7W$). Pick $5$. \\ $^{13}C_5 = \frac{13!}{5!8!} = \mathbf{1,287}$.
+    \item \textbf{(b)} Exactly 3 Men AND 2 Women:
+    \begin{itemize}
+        \item Ways to pick the Men: $^6C_3 = \frac{6!}{3!3!} = 20$.
+        \item Ways to pick the Women: $^7C_2 = \frac{7!}{2!5!} = 21$.
+        \item Multiply them together (AND rule): $20 \times 21 = \mathbf{420}$ committees.
+    \end{itemize}
+\end{itemize}
+
+\section*{Week 6: Probability Basics}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Sample Spaces: Define $S$.}
+\begin{itemize}
+    \item \textbf{(a) Flipping a coin 3 times:} $S = \{HHH, HHT, HTH, HTT, THH, THT, TTH, TTT\}$. (Discrete, finite, $8$ elements).
+    \item \textbf{(b) Counting cars in an hour:} $S = \{0, 1, 2, 3, 4, \dots \}$. (Discrete, theoretically countably infinite).
+    \item \textbf{(c) Lifespan of a lightbulb:} $S = \{t \mid t \ge 0\}$. (Continuous interval from $0$ to infinity).
+\end{itemize}
+
+\textbf{2. Set Operations: $S = \{1,2,3,4,5,6\}$}
+\begin{itemize}
+    \item \textbf{(a) Sets:} $A = \{2, 4, 6\}$, \quad $B = \{4, 5, 6\}$.
+    \item \textbf{(b) $A \cap B$:} $\{4, 6\}$. In plain English: "Rolling an even number that is also greater than 3."
+    \item \textbf{(c) $A \cup B$:} $\{2, 4, 5, 6\}$.
+    \item \textbf{(d) $A^c$:} $\{1, 3, 5\}$. (The event of rolling an odd number).
+    \item \textbf{(e) Mutually Exclusive?} \textbf{No.} For them to be mutually exclusive, $A \cap B$ must be the empty set ($\emptyset$). Because they share the outcomes $4$ and $6$, they can happen at the same time.
+\end{itemize}
+
+\textbf{3. Complement Rule: Cybersecurity Packets}
+\begin{itemize}
+    \item \textbf{(a)} To calculate $P(\text{at least one})$ directly using the Addition Rule, you would have to calculate $P(1) + P(2) + P(3) + P(4) + P(5)$. This involves heavy combinatorics for every single scenario.
+    \item \textbf{(b)} The complement of "at least one packet drops" is \textbf{"zero packets drop"} (i.e., all $5$ packets succeed). 
+    \item Probability of one packet succeeding = $1 - 0.1 = 0.9$. 
+    \item Probability of all $5$ succeeding independently = $0.9^5 = 0.59049$. 
+    \item By the Complement Rule: $P(\text{at least one drops}) = 1 - 0.59049 = \mathbf{0.40951}$.
+\end{itemize}
+
+\textbf{4. General Addition Rule: Students studying Python and R}
+Let $P(P) = 0.60$, $P(R) = 0.50$, and $P(P \cap R) = 0.20$.
+\begin{itemize}
+    \item \textbf{(a) Python OR R ($P \cup R$):} 
+    $$P(P \cup R) = P(P) + P(R) - P(P \cap R) = 0.60 + 0.50 - 0.20 = \mathbf{0.90} \;(90\%)$$
+    \item \textbf{(b) Neither:} "Neither" is the complement of "Python OR R". 
+    $$P((P \cup R)^c) = 1 - 0.90 = \mathbf{0.10} \;(10\%)$$
+\end{itemize}
+
+\textbf{5. Axioms Check: Machine Learning Probabilities}
+\begin{itemize}
+    \item The model outputs sum to: $0.5 + 0.4 + 0.2 = \mathbf{1.1}$.
+    \item This fundamentally violates \textbf{Kolmogorov's Second Axiom (Normalization)}, which mathematically mandates that the probability of the entire sample space must equal exactly $1.0$ ($P(S) = 1$). 
+\end{itemize}
+
+\section*{Week 7: Conditional Probability and Bayes' Theorem}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Conditional Probability: Deck of Cards}
+\begin{itemize}
+    \item \textbf{(a)} $P(K) = \frac{4}{52} = \mathbf{\frac{1}{13}}$.
+    \item \textbf{(b)} The new information restricts our sample space from $52$ down to just $12$ face cards. Out of those $12$ Face cards, $4$ are Kings. $P(K \mid F) = \frac{4}{12} = \mathbf{\frac{1}{3}}$. (Notice how the new information drastically changed the probability!)
+\end{itemize}
+
+\textbf{2. Multiplication Rule: Marbles without Replacement}
+\begin{itemize}
+    \item The bag starts with $8$ total marbles.
+    \item $P(R_1) = \frac{5}{8}$.
+    \item Once the Red marble is removed, the bag has $7$ marbles left, and $3$ of them are Blue. $P(B_2 \mid R_1) = \frac{3}{7}$.
+    \item By the Multiplication Rule: $P(R_1 \cap B_2) = \frac{5}{8} \times \frac{3}{7} = \mathbf{\frac{15}{56}}$.
+\end{itemize}
+
+\textbf{3. Checking for Independence}
+\begin{itemize}
+    \item \textbf{(a)} $P(A \cup B) = P(A) + P(B) - P(A \cap B)$.
+    $$0.7 = 0.4 + 0.5 - P(A \cap B) \implies P(A \cap B) = 0.9 - 0.7 = \mathbf{0.2}$$
+    \item \textbf{(b)} To test for independence, we check if $P(A \cap B) = P(A) \times P(B)$.
+    $$P(A) \times P(B) = 0.4 \times 0.5 = 0.2$$
+    Since $0.2 = 0.2$, the events \textbf{ARE} mathematically independent.
+\end{itemize}
+
+\textbf{4. Bayes' Theorem: Medical Testing}
+\begin{itemize}
+    \item \textbf{(a) Total $P(+)$:} A positive test can come from a sick person (True Positive) OR a healthy person (False Positive).
+    $$P(+) = P(D)P(+ \mid D) + P(H)P(+ \mid H)$$
+    $$P(+) = (0.01 \times 0.90) + (0.99 \times 0.05) = 0.009 + 0.0495 = \mathbf{0.0585}$$
+    \item \textbf{(b) $P(D \mid +)$:} Using Bayes' Theorem:
+    $$P(D \mid +) = \frac{P(D)P(+ \mid D)}{P(+)} = \frac{0.009}{0.0585} \approx 0.1538 \text{ (\textbf{15.38\%})}$$
+    Even with a "90\% accurate" test, a positive result only means a $15\%$ chance of having the disease! This is the Base Rate Fallacy.
+\end{itemize}
+
+\textbf{5. Data Science Application: Spam Filter}
+\begin{itemize}
+    \item Let $S$ = Spam ($0.20$), $L$ = Legit ($0.80$). Let $F$ = contains the word "Free".
+    \item We know $P(F \mid S) = 0.80$ and $P(F \mid L) = 0.10$.
+    \item First find total probability of "Free":
+    $$P(F) = (0.20 \times 0.80) + (0.80 \times 0.10) = 0.16 + 0.08 = 0.24$$
+    \item Now apply Bayes' Theorem to find $P(S \mid F)$:
+    $$P(S \mid F) = \frac{0.20 \times 0.80}{0.24} = \frac{0.16}{0.24} = \frac{2}{3} \approx \mathbf{66.67\%}$$
+\end{itemize}
+
+\section*{Week 8: Random Variables}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Discrete vs. Continuous}
+\begin{itemize}
+    \item \textbf{(a)} Complaints: \textbf{Discrete}. You count them (0, 1, 2). You can't get 1.5 complaints.
+    \item \textbf{(b)} Load time: \textbf{Continuous}. Time is an infinitely dense measurement (e.g., 1.245 seconds).
+    \item \textbf{(c)} Heads: \textbf{Discrete}. You count them (0 to 100).
+    \item \textbf{(d)} Volume: \textbf{Continuous}. Liquid is measured, not counted.
+\end{itemize}
+
+\textbf{2. Validating a PMF}
+\begin{itemize}
+    \item \textbf{(a)} By the sum rule, $\sum P(X=x) = 1$.
+    $$c(1) + c(2) + c(3) + c(4) = 1 \implies 10c = 1 \implies \mathbf{c = 0.1}$$
+    \item \textbf{(b)} $P(X=3) = 0.1 \times 3 = \mathbf{0.3}$.
+\end{itemize}
+
+\textbf{3. Creating a PMF: Two Dice}
+\begin{itemize}
+    \item \textbf{(a)} The sample space $S = \{(1,1), (1,2), \ldots, (6,6)\}$. The size is $6 \times 6 = \mathbf{36}$.
+    \item \textbf{(b)} The numerical values $X$ (the sum) can take: $\mathbf{\{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12\}}$.
+    \item \textbf{(c)} For $X=7$, the winning outcomes are $(1,6), (2,5), (3,4), (4,3), (5,2), (6,1)$ (there are 6). $P(X=7) = \mathbf{\frac{6}{36} = \frac{1}{6}}$.
+    \item For $X=12$, the only winning outcome is $(6,6)$. $P(X=12) = \mathbf{\frac{1}{36}}$.
+\end{itemize}
+
+\textbf{4. Building a CDF}
+\begin{itemize}
+    \item \textbf{(a) CDF Values:}
+    \begin{itemize}
+        \item $F(1) = P(X \le 1) = P(X=1) = \mathbf{0.2}$.
+        \item $F(2) = P(X \le 2) = P(X=1) + P(X=2) = 0.2 + 0.5 = \mathbf{0.7}$.
+        \item $F(3) = P(X \le 3) = 0.7 + 0.3 = \mathbf{1.0}$.
+    \end{itemize}
+    \item \textbf{(b) $F(1.5)$:} What is the probability $X \le 1.5$? Because $X$ can only be 1, 2, or 3, the only possible value less than 1.5 is exactly 1. So $F(1.5) = F(1) = \mathbf{0.2}$.
+    \item \textbf{(c) Graph:} It is a \textbf{Step Function}. It stays flat at 0, jumps up to 0.2 exactly at $x=1$, stays flat at 0.2, jumps up to 0.7 exactly at $x=2$, stays flat, jumps up to 1.0 exactly at $x=3$, and stays flat at 1.0 forever to the right.
+\end{itemize}
+
+\textbf{5. Using the CDF}
+\begin{itemize}
+    \item The CDF accumulates probability. To find the exact probability mass added \emph{at} $x=3$, we take the total accumulated probability up to 3, and subtract the total accumulated probability up to 2.
+    \item $P(Y=3) = P(Y \le 3) - P(Y \le 2) = F(3) - F(2) = 0.9 - 0.4 = \mathbf{0.5}$.
+\end{itemize}
+
+\section*{Week 9: Expectation and Variance}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Calculating Expectation: Lottery Ticket}
+\begin{itemize}
+    \item \textbf{(a) PMF:} $P(X=500) = 0.01$, $P(X=50) = 0.05$, $P(X=0) = 0.94$.
+    \item \textbf{(b) $E[X]$:} Multiply each payout by its probability and sum.
+    $$E[X] = (500 \times 0.01) + (50 \times 0.05) + (0 \times 0.94) = 5 + 2.5 + 0 = \mathbf{7.5 \text{ Rupees}}$$
+    \item \textbf{(c) Net Profit:} You pay $10$ to play. The Expected Net Profit is $E[X - 10] = E[X] - 10 = 7.5 - 10 = \mathbf{-2.5 \text{ Rupees}}$. Mathematically, you are guaranteed to lose money in the long run.
+\end{itemize}
+
+\textbf{2. Calculating Variance}
+\begin{itemize}
+    \item \textbf{(a) $E[Y]$:} 
+    $$E[Y] = (-1 \times 0.2) + (0 \times 0.5) + (1 \times 0.3) = -0.2 + 0 + 0.3 = \mathbf{0.1}$$
+    \item \textbf{(b) $E[Y^2]$:} Square the values first, then multiply by the original PMF probabilities.
+    $$E[Y^2] = ((-1)^2 \times 0.2) + (0^2 \times 0.5) + (1^2 \times 0.3) = (1 \times 0.2) + 0 + (1 \times 0.3) = \mathbf{0.5}$$
+    \item \textbf{(c) $Var(Y)$:} Using the computational formula $E[Y^2] - (E[Y])^2$:
+    $$Var(Y) = 0.5 - (0.1)^2 = 0.5 - 0.01 = \mathbf{0.49}$$
+\end{itemize}
+
+\textbf{3. Properties of Expectation and Variance}
+Given $E[X] = 25$, $Var(X) = 4$, and $F = 1.8X + 32$.
+\begin{itemize}
+    \item \textbf{(a) $E[F]$:} Expectation is linear.
+    $$E[1.8X + 32] = 1.8E[X] + 32 = 1.8(25) + 32 = 45 + 32 = \mathbf{77^\circ \text{F}}$$
+    \item \textbf{(b) $Var(F)$:} Variance ignores shifts ($+32$ disappears) and squares scalars ($1.8$ becomes $1.8^2$).
+    $$Var(1.8X + 32) = 1.8^2 Var(X) = 3.24 \times 4 = \mathbf{12.96}$$
+    \item \textbf{(c) SD($F$):} $\sqrt{Var(F)} = \sqrt{12.96} = \mathbf{3.6^\circ \text{F}}$. (Notice that $1.8 \times \sqrt{4} = 3.6$; standard deviation does not square the scalar!).
+\end{itemize}
+
+\textbf{4. Independence and Variance}
+\begin{itemize}
+    \item \textbf{(a) $E[X + Y]$:} By the strict Linearity of Expectation, $E[X+Y] = E[X] + E[Y] = 0.5 + 3.5 = \mathbf{4.0}$. This is always true, even if they were dependent.
+    \item \textbf{(b)} Flipping a coin and rolling a die have absolutely no physical connection, so they are perfectly \textbf{independent}. Because they are independent, we can legally use the additive property of variance: $Var(X + Y) = Var(X) + Var(Y)$.
+\end{itemize}
+
+\section*{Week 10: The Binomial Distribution}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Bernoulli Trials: CTR}
+\begin{itemize}
+    \item \textbf{(a)} The distribution is exactly $X \sim \text{Bernoulli}(p=0.03)$.
+    \item \textbf{(b)} Expected Value $E[X] = p = \mathbf{0.03}$. Variance $Var(X) = p(1-p) = 0.03 \times 0.97 = \mathbf{0.0291}$.
+\end{itemize}
+
+\textbf{2. Binomial PMF: Defective Bulbs}
+\begin{itemize}
+    \item \textbf{(a)} $n = 5$, $p = 0.10$.
+    \item \textbf{(b) $P(X=2)$:} Using the Binomial PMF formula:
+    $$P(X=2) = \binom{5}{2} (0.10)^2 (0.90)^3 = 10 \times 0.01 \times 0.729 = \mathbf{0.0729 \text{ (7.29\%)}}$$
+    \item \textbf{(c) $P(X=0)$:} 
+    $$P(X=0) = \binom{5}{0} (0.10)^0 (0.90)^5 = 1 \times 1 \times (0.90)^5 = \mathbf{0.59049 \text{ (59.05\%)}}$$
+\end{itemize}
+
+\textbf{3. Binomial Expectation and Variance: Multiple Choice}
+\begin{itemize}
+    \item We have $n=50$ trials. The probability of guessing correctly is $p = 1/4 = 0.25$.
+    \item \textbf{(a) Expected Score:} $E[Y] = n \times p = 50 \times 0.25 = \mathbf{12.5 \text{ questions}}$.
+    \item \textbf{(b) Variance:} $Var(Y) = n \times p \times (1-p) = 50 \times 0.25 \times 0.75 = \mathbf{9.375}$.
+\end{itemize}
+
+\textbf{4. Using the Complement Rule with Binomial}
+\begin{itemize}
+    \item We have $n=10$, $p=0.60$. We want $P(X \ge 1)$.
+    \item Calculating $P(1) + P(2) + \ldots + P(10)$ is agonizing. Instead, we use the Complement Rule: $P(X \ge 1) = 1 - P(X = 0)$.
+    \item $P(X=0) = \binom{10}{0} (0.60)^0 (0.40)^{10} = (0.40)^{10} \approx 0.0001048$.
+    \item $P(X \ge 1) = 1 - 0.0001048 = \mathbf{0.9998952}$. There is a $99.99\%$ chance at least one person is cured.
+\end{itemize}
+
+\textbf{5. Data Science Application: A/B Testing}
+\begin{itemize}
+    \item \textbf{Assumption 1 (Independent):} Users do not communicate or influence each other's decisions to click. 
+    \item \textbf{Assumption 2 (Identically Distributed):} Every single user in the $100$-person sample has the exact same baseline underlying probability of clicking.
+    \item \textbf{Violation Example:} If a user posts the link in a Discord server saying "Click this button for free money!", you suddenly get a flood of highly-motivated users. Their baseline probability of clicking is vastly higher than the organic users, violently breaking the "Identically Distributed" assumption and invalidating your entire Binomial model.
+\end{itemize}
+
+\section*{Week 11: The Poisson Distribution}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Poisson Probabilities: Bookstore}
+\begin{itemize}
+    \item \textbf{(a) $P(X=3)$:} Here, $\lambda = 2$.
+    $$P(X=3) = \frac{e^{-2} 2^3}{3!} \approx \frac{0.1353 \times 8}{6} = \mathbf{0.1804 \text{ (18.04\%)}}$$
+    \item \textbf{(b) $P(X=0)$:}
+    $$P(X=0) = \frac{e^{-2} 2^0}{0!} = \frac{e^{-2} \times 1}{1} \approx \mathbf{0.1353 \text{ (13.53\%)}}$$
+\end{itemize}
+
+\textbf{2. Scaling the Interval: DDoS Requests}
+\begin{itemize}
+    \item \textbf{(a) 2-minute window:} The base rate is $6$ per minute. For $2$ minutes, the new rate is $\lambda_{\text{new}} = 6 \times 2 = \mathbf{12}$.
+    $$P(X=10) = \frac{e^{-12} 12^{10}}{10!} \approx \mathbf{0.1048 \text{ (10.48\%)}}$$
+    \item \textbf{(b) 10-second window:} $10$ seconds is $\frac{1}{6}$ of a minute. The new rate is $\lambda_{\text{new}} = 6 \times \frac{1}{6} = \mathbf{1}$. Because $E[X] = \lambda$, the expected number of requests is exactly $\mathbf{1}$.
+\end{itemize}
+
+\textbf{3. Poisson Approximation to Binomial}
+\begin{itemize}
+    \item \textbf{(a) Exact Binomial ($n=100$, $p=0.01$):}
+    $$P(X=2) = \binom{100}{2} (0.01)^2 (0.99)^{98} = 4950 \times 0.0001 \times 0.3733 \approx \mathbf{0.1849}$$
+    \item \textbf{(b) Poisson Approx ($\lambda = np = 100 \times 0.01 = 1$):}
+    $$P(X=2) = \frac{e^{-1} 1^2}{2!} = \frac{0.3678}{2} = \mathbf{0.1839}$$
+    \item \textbf{(c) Comparison:} The numbers are extremely close (a $0.001$ difference). We strongly prefer the Poisson distribution because computing $100!$ inherently causes massive memory integer overflows on normal computers, while calculating $e^{-1}$ is computationally trivial.
+\end{itemize}
+
+\textbf{4. Using the Complement Rule with Poisson}
+\begin{itemize}
+    \item We want $P(X \ge 1)$. The complement is $P(X=0)$.
+    \item $P(X=0) = \frac{e^{-1.5} 1.5^0}{0!} = e^{-1.5} \approx \mathbf{0.2231}$.
+    \item $P(X \ge 1) = 1 - 0.2231 = \mathbf{0.7769 \text{ (77.69\%)}}$.
+\end{itemize}
+
+\textbf{5. Expectation and Variance: $Y \sim \text{Pois}(4)$}
+\begin{itemize}
+    \item \textbf{(a)} $E[Y] = \lambda = \mathbf{4}$.
+    \item \textbf{(b)} $Var(Y) = \lambda = \mathbf{4}$.
+    \item \textbf{(c)} Using the variance formula $Var(Y) = E[Y^2] - (E[Y])^2$:
+    $$4 = E[Y^2] - (4)^2 \implies 4 = E[Y^2] - 16 \implies E[Y^2] = \mathbf{20}$$
+\end{itemize}
+
+\section*{Week 12: Continuous Probability Distributions}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. PDF Properties}
+\begin{itemize}
+    \item \textbf{(a)} The total area under the PDF must equal $1$. The shape is a rectangle from $x=0$ to $x=5$, so the width is $5$. The height is $c$. 
+    $$ \text{Area} = \text{width} \times \text{height} = 5 \times c = 1 \implies \mathbf{c = \frac{1}{5} = 0.2}$$
+    \item \textbf{(b)} Because the probability is perfectly flat across an interval, this is the \textbf{Uniform Distribution}, specifically $X \sim \text{Uniform}(0, 5)$.
+\end{itemize}
+
+\textbf{2. Uniform Distribution: Waiting for a Train}
+\begin{itemize}
+    \item \textbf{(a) Mathematical PDF:} $f(x) = \mathbf{\frac{1}{30}}$ for $0 \le x \le 30$.
+    \item \textbf{(b) Expectation and Variance:} 
+    $$E[X] = \frac{0 + 30}{2} = \mathbf{15 \text{ minutes}}$$
+    $$Var(X) = \frac{(30 - 0)^2}{12} = \frac{900}{12} = \mathbf{75}$$
+    \item \textbf{(c) $P(X > 20)$:} We need the area under the PDF from $20$ to $30$. This is a rectangle with width $(30-20) = 10$, and height $1/30$.
+    $$\text{Area} = 10 \times \frac{1}{30} = \mathbf{\frac{1}{3} \approx 33.33\%}$$
+\end{itemize}
+
+\textbf{3. Exponential Mean and Variance}
+\begin{itemize}
+    \item Here, $\lambda = 0.2$.
+    \item \textbf{(a) Expected wait time:} $E[X] = \frac{1}{\lambda} = \frac{1}{0.2} = \mathbf{5 \text{ minutes}}$.
+    \item \textbf{(b) Variance:} $Var(X) = \frac{1}{\lambda^2} = \frac{1}{0.04} = \mathbf{25}$.
+\end{itemize}
+
+\textbf{4. Exponential Probabilities: Database Queries}
+\begin{itemize}
+    \item Here, $\lambda = 4$.
+    \item \textbf{(a) $P(T < 0.5)$:} We use the CDF $F(x) = 1 - e^{-\lambda x}$.
+    $$F(0.5) = 1 - e^{-4(0.5)} = 1 - e^{-2} \approx 1 - 0.1353 = \mathbf{0.8647 \text{ (86.47\%)}}$$
+    \item \textbf{(b) $P(T > 1)$:} Use the complement rule $1 - P(T \le 1)$.
+    $$P(T > 1) = 1 - F(1) = 1 - (1 - e^{-4(1)}) = e^{-4} \approx \mathbf{0.0183 \text{ (1.83\%)}}$$
+\end{itemize}
+
+\textbf{5. Data Science Application: Simulation}
+\begin{itemize}
+    \item You should use the \textbf{Uniform Distribution}, specifically $\text{Uniform}(0, 60)$. Assuming you arrive at a perfectly random time within the cycle, your wait time is equally likely to be anywhere between $0$ and $60$ seconds.
+    \item \textbf{Why not Poisson?} Poisson models discrete counts (number of events), but waiting time is continuous.
+    \item \textbf{Why not Exponential?} The Exponential distribution mathematically extends to infinity ($x \ge 0$). A red light has a strict 60-second cutoff, so the unbounded tail of the Exponential distribution makes it mathematically impossible and inappropriate here.
+\end{itemize}

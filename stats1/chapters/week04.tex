@@ -1,0 +1,142 @@
+\chapter{Association Between Two Variables}
+
+Real-world data science problems almost always involve studying \emph{relationships} between variables. Does smoking cause lung cancer? Does square footage predict house price? This chapter covers the mathematical tools to quantify association between two variables, depending on whether they are categorical or numerical.
+
+\section{Two Categorical Variables: Contingency Tables}
+
+When both variables are categorical, we use a \textbf{contingency table} (also known as a cross-tabulation or two-way table) to map their joint frequencies.
+
+\begin{definitionbox}{Contingency Table Frequencies}
+Let $f_{ij}$ be the frequency in row $i$ and column $j$, and let $n$ be the total sample size.
+\begin{itemize}
+    \item \textbf{Joint Relative Frequency:} $\frac{f_{ij}}{n}$ — The proportion of the total sample that falls into both row $i$ AND column $j$.
+    \item \textbf{Marginal Relative Frequency:} The row or column totals divided by $n$. This effectively ignores one variable to just look at the other.
+    \item \textbf{Conditional Relative Frequency:} The frequency of one variable \emph{given} a specific category of the other. E.g., $\frac{f_{ij}}{f_{i\bullet}}$ (where $f_{i\bullet}$ is the row $i$ total) gives the distribution of the column variable restricted only to row $i$.
+\end{itemize}
+\end{definitionbox}
+
+\begin{theorembox}{Defining Association for Categorical Variables}
+Two categorical variables are \textbf{associated} (dependent) if the conditional relative frequencies of one variable \emph{change} depending on the category of the other variable. If the conditional distributions are identical across all rows, the variables are \textbf{independent}.
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: W4\_L2 \& L3 Two Categorical Variables}{https://www.youtube.com/watch?v=iG9ATr_t_ZE}
+Official lectures covering contingency tables and calculating relative frequencies.
+\end{videocard}
+
+\begin{examplebox}{Contingency Table Analysis}
+200 people were surveyed on Gender (Male/Female) and Product Preference (A/B/C):
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{lcccc}
+\toprule
+ & \textbf{Product A} & \textbf{Product B} & \textbf{Product C} & \textbf{Total} \\
+\midrule
+Male   & 40 & 30 & 50 & \textbf{120} \\
+Female & 20 & 40 & 20 &  \textbf{80} \\
+\midrule
+\textbf{Total} & \textbf{60} & \textbf{70} & \textbf{70} & \textbf{200} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Check for Association:} 
+\begin{itemize}
+    \item Conditional distribution of preference \emph{given Male}: A = $40/120 \approx 33\%$, B = $25\%$, C = $42\%$. 
+    \item Conditional distribution of preference \emph{given Female}: A = $20/80 = 25\%$, B = $50\%$, C = $25\%$. 
+\end{itemize}
+Because $33\% \neq 25\%$ (for Product A), the conditional distributions differ. Therefore, Gender and Product Preference are \textbf{associated}.
+\end{examplebox}
+
+\section{Two Numerical Variables: Covariance and Correlation}
+
+When both variables are numerical, we first visualize them using a \textbf{scatterplot}. Then, we quantify their linear relationship using Covariance and Correlation.
+
+\begin{formulabox}{Covariance}
+The \textbf{covariance} between $X$ and $Y$ measures how much they vary together:
+$$s_{XY} = \frac{1}{n-1}\sum_{i=1}^{n}(x_i - \bar{x})(y_i - \bar{y})$$
+\begin{itemize}
+    \item $s_{XY} > 0$: $X$ and $Y$ tend to increase together (positive association).
+    \item $s_{XY} < 0$: When $X$ increases, $Y$ tends to decrease (negative association).
+    \item $s_{XY} = 0$: No linear association.
+\end{itemize}
+\textbf{Fatal Flaw:} The magnitude of $s_{XY}$ depends entirely on the units of measurement. Covariance in grams will be mathematically smaller than covariance in kilograms, even though the relationship is identical.
+\end{formulabox}
+
+\begin{videocard}{IITM BS Lecture: W4\_L6 Covariance}{https://www.youtube.com/watch?v=0UcFJnqx6S0}
+Official lecture deriving the Covariance formula and showing its unit-dependence flaw.
+\end{videocard}
+
+To fix the unit-dependence flaw of Covariance, we divide it by the standard deviations of $X$ and $Y$ to create a unitless metric.
+
+\begin{formulabox}{Pearson Correlation Coefficient ($r$)}
+$$r = \frac{s_{XY}}{s_X \cdot s_Y} = \frac{\displaystyle\sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})}{\sqrt{\displaystyle\sum_{i=1}^{n}(x_i-\bar{x})^2}\;\sqrt{\displaystyle\sum_{i=1}^{n}(y_i-\bar{y})^2}}$$
+\begin{itemize}
+    \item $-1 \le r \le 1$ always.
+    \item $r = +1$: Perfect positive linear relationship (all points lie exactly on an upward line).
+    \item $r = -1$: Perfect negative linear relationship.
+    \item $r = 0$: No \textbf{linear} relationship. (Warning: they could still have a perfect non-linear relationship, like a U-shape parabola!)
+\end{itemize}
+\end{formulabox}
+
+\textbf{Data Science Relevance:} Correlation is the foundation of \textbf{Feature Selection}. If a feature has $r \approx 0$ with your target variable, it's generally useless for a linear regression model and should be dropped. Conversely, if two input features have $r \approx 1$ with each other, they are redundant. This is called \textbf{Multicollinearity}, and you should drop one of them to simplify your model.
+
+\begin{videocard}{IITM BS Lecture: W4\_L7 Correlation}{https://www.youtube.com/watch?v=v0CaodTv8zw}
+Official lecture on calculating Pearson's $r$ and understanding bounds of $-1$ to $1$.
+\end{videocard}
+
+\section{Categorical \& Numerical: Point Biserial Correlation}
+
+What if one variable is Categorical (specifically, binary) and the other is Numerical? 
+We encode the binary variable as $0$ and $1$, and apply the exact same Pearson formula. Algebraically, this simplifies into the \textbf{Point Biserial Correlation} ($r_{pb}$):
+
+$$r_{pb} = \frac{\bar{x}_1 - \bar{x}_0}{s_X}\sqrt{\frac{n_1 n_0}{n^2}}$$
+
+Where $\bar{x}_1, \bar{x}_0$ are the means of the continuous variable for group 1 and group 0, $n_1, n_0$ are the group sizes, and $s_X$ is the overall standard deviation of the continuous variable.
+
+\section*{Supplementary Lecture Videos}
+\begin{itemize}
+    \item \href{https://www.youtube.com/watch?v=38019YAFyN8}{W4\_L4: Association between two numerical variables - scatterplot}
+    \item \href{https://www.youtube.com/watch?v=1-9_vRZV-ck}{W4\_L8: Association between two numerical variables - fitting a line}
+    \item \href{https://www.youtube.com/watch?v=0q40C-Qu5TE}{W4\_L9: Association between categorical \& numerical variables}
+\end{itemize}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{Contingency Tables:} A university surveys 300 students on their housing (On-Campus vs. Off-Campus) and commuting method (Walk, Bike, Car). 
+    \begin{itemize}
+        \item Walk: 80 On-Campus, 20 Off-Campus
+        \item Bike: 20 On-Campus, 40 Off-Campus
+        \item Car:  10 On-Campus, 130 Off-Campus
+    \end{itemize}
+    \begin{enumerate}
+        \item Construct the contingency table with marginal totals.
+        \item Calculate the conditional relative frequency of commuting method \emph{given} the student lives On-Campus.
+        \item Are housing and commuting method associated? Mathematically justify your answer.
+    \end{enumerate}
+    
+    \item \textbf{Correlation Calculation:} Calculate the Pearson correlation coefficient ($r$) for the following dataset of hours studied ($X$) and test scores ($Y$):
+    $$X = \{1, 2, 3, 4, 5\}, \quad Y = \{2, 4, 5, 4, 5\}$$
+    (Hint: $\bar{x} = 3, \bar{y} = 4$)
+    
+    \item \textbf{Correlation Fallacies:} A researcher plots the relationship between Ice Cream Sales ($X$) and Shark Attacks ($Y$). She calculates $r = +0.85$. 
+    \begin{enumerate}
+        \item Interpret the strength and direction of this linear relationship.
+        \item The researcher concludes that eating ice cream causes sharks to attack. Identify the statistical fallacy she committed and provide the real logical explanation (the "confounding variable").
+    \end{enumerate}
+
+    \item \textbf{Data Science Application:} You are training a Multiple Linear Regression model to predict a used car's price. You have two features: \texttt{Mileage\_in\_Miles} and \texttt{Mileage\_in\_Kilometers}. 
+    \begin{enumerate}
+        \item What is the exact Pearson correlation ($r$) between these two features? 
+        \item Should you include both features in your machine learning model? What is this scenario called?
+    \end{enumerate}
+
+    \item \textbf{Non-Linear Relationships:} Plot the points $X = \{-2, -1, 0, 1, 2\}$ and $Y = \{4, 1, 0, 1, 4\}$. 
+    \begin{enumerate}
+        \item What is the mathematical relationship between $X$ and $Y$?
+        \item Without doing the full math, what is the Pearson correlation coefficient ($r$) for this dataset? Why?
+    \end{enumerate}
+\end{enumerate}

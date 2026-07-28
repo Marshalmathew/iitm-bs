@@ -1,0 +1,543 @@
+\appendix
+\chapter{Solutions to Practice Exercises}
+
+This appendix provides detailed, step-by-step solutions for the practice exercises found at the end of each chapter. The exercises are designed to blend pure mathematical reasoning with practical data science applications.
+
+\section*{Week 1: Sets, Relations, and Functions}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Pure Math: Let $A = \{1, 2, 3\}$ and $B = \{3, 4, 5\}$. Find $(A \cup B) \setminus (A \cap B)$.}
+\begin{itemize}
+    \item First, find the union $A \cup B$, which represents all elements in either set: $A \cup B = \{1, 2, 3, 4, 5\}$.
+    \item Next, find the intersection $A \cap B$, which represents elements present in both sets: $A \cap B = \{3\}$.
+    \item Finally, take the difference, which removes elements of the intersection from the union: $(A \cup B) \setminus (A \cap B) = \{1, 2, 4, 5\}$.
+\end{itemize}
+
+\textbf{2. Data Science: Express "Users who clicked the ad but did not buy the product" using set notation.}
+\begin{itemize}
+    \item Let $C$ be the set of users who clicked the ad.
+    \item Let $B$ be the set of users who bought the product.
+    \item We want elements in $C$ that are NOT in $B$. This is the definition of set difference.
+    \item Therefore, the expression is $C \setminus B$ (or $C - B$).
+\end{itemize}
+
+\textbf{3. Pure Math: Determine if the relation $R$ on $\R$ defined by $x R y \iff x < y$ is an equivalence relation.}
+\begin{itemize}
+    \item \textbf{Reflexivity:} Is $x < x$ for all real numbers $x$? No. For example, $5 \not< 5$. Since reflexivity fails, $R$ cannot be an equivalence relation.
+    \item \textbf{Symmetry:} If $x < y$, is $y < x$? No. If $3 < 5$, $5 \not< 3$. Symmetry fails.
+    \item \textbf{Transitivity:} If $x < y$ and $y < z$, then $x < z$. Yes, this property holds.
+    \item Conclusion: It is not an equivalence relation because it is neither reflexive nor symmetric.
+\end{itemize}
+
+\textbf{4. Data Science: Is the relation "lives in the same city as" an equivalence relation?}
+\begin{itemize}
+    \item \textbf{Reflexivity:} Does User A live in the same city as User A? Yes.
+    \item \textbf{Symmetry:} If User A lives in the same city as User B, does User B live in the same city as User A? Yes.
+    \item \textbf{Transitivity:} If User A lives in the same city as User B, and User B lives in the same city as User C, does User A live in the same city as User C? Yes.
+    \item Conclusion: Since it satisfies all three properties, it is an equivalence relation. It perfectly partitions users into disjoint sets (cities).
+\end{itemize}
+
+\textbf{5. Pure Math: Prove whether the function $\func{f}{\Z}{\Z}$ given by $f(x) = x^2$ is injective, surjective, both, or neither.}
+\begin{itemize}
+    \item \textbf{Injectivity:} Does $f(x_1) = f(x_2)$ imply $x_1 = x_2$? Let's test negative numbers. $f(2) = 4$ and $f(-2) = 4$. Since $2 \neq -2$ but their outputs are the same, the function is NOT injective.
+    \item \textbf{Surjectivity:} For every integer $y$, is there an integer $x$ such that $x^2 = y$? Consider $y = -1$ (which is in the codomain $\Z$). There is no integer $x$ such that $x^2 = -1$. The function is NOT surjective.
+    \item Conclusion: The function is neither injective nor surjective.
+\end{itemize}
+
+\textbf{6. Data Science: Prove that the Min-Max scaling function $\func{g}{[0, 10]}{[0, 1]}$ defined by $g(x) = \frac{x}{10}$ is a bijection.}
+\begin{itemize}
+    \item \textbf{Injectivity:} Assume $g(x_1) = g(x_2)$.
+    $$\frac{x_1}{10} = \frac{x_2}{10} \implies x_1 = x_2$$
+    Thus, $g$ is injective.
+    \item \textbf{Surjectivity:} Let $y \in [0, 1]$. We need to find an $x \in [0, 10]$ such that $g(x) = y$.
+    $$\frac{x}{10} = y \implies x = 10y$$
+    Since $0 \le y \le 1$, it follows that $0 \le 10y \le 10$. Therefore, $x = 10y$ is a valid input in the domain $[0, 10]$.
+    Check: $g(10y) = \frac{10y}{10} = y$. Thus, $g$ is surjective.
+    \item Conclusion: Since it is both injective and surjective, $g$ is a bijection. This guarantees that our data scaling is a perfectly reversible operation.
+\end{itemize}
+
+\section*{Week 2: Coordinate Geometry and Straight Lines}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Pure Math: Find the distance between the points $A(3, 4)$ and $B(7, 1)$.}
+\begin{itemize}
+    \item Use the distance formula: $d = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}$.
+    \item $d = \sqrt{(7 - 3)^2 + (1 - 4)^2} = \sqrt{4^2 + (-3)^2}$.
+    \item $d = \sqrt{16 + 9} = \sqrt{25} = 5$.
+\end{itemize}
+
+\textbf{2. Pure Math: A point $P$ divides the line segment joining $X(1, -2)$ and $Y(-3, 6)$ internally in the ratio $1:3$. Find the coordinates of $P$.}
+\begin{itemize}
+    \item Use the internal section formula with $m=1, n=3$, $(x_1, y_1)=(1, -2)$, and $(x_2, y_2)=(-3, 6)$.
+    \item $x = \frac{1(-3) + 3(1)}{1 + 3} = \frac{-3 + 3}{4} = 0$.
+    \item $y = \frac{1(6) + 3(-2)}{1 + 3} = \frac{6 - 6}{4} = 0$.
+    \item The coordinates of point $P$ are $(0, 0)$.
+\end{itemize}
+
+\textbf{3. Data Science: A K-Means clustering algorithm places a centroid at $(5, 5)$. A new data point arrives at $(2, 9)$. What is the Euclidean distance from the point to the centroid?}
+\begin{itemize}
+    \item Euclidean distance is exactly the distance formula.
+    \item $d = \sqrt{(2 - 5)^2 + (9 - 5)^2} = \sqrt{(-3)^2 + 4^2}$.
+    \item $d = \sqrt{9 + 16} = \sqrt{25} = 5$.
+\end{itemize}
+
+\textbf{4. Pure Math: Find the equation of the line passing through the points $(2, 3)$ and $(4, 7)$ in slope-intercept form.}
+\begin{itemize}
+    \item First find the slope $m = \frac{7 - 3}{4 - 2} = \frac{4}{2} = 2$.
+    \item Use point-slope form: $y - y_1 = m(x - x_1) \implies y - 3 = 2(x - 2)$.
+    \item Simplify to slope-intercept form ($y = mx + c$): $y = 2x - 4 + 3 \implies y = 2x - 1$.
+\end{itemize}
+
+\textbf{5. Data Science: A simple linear regression model predicts housing prices ($y$) based on square footage ($x$). The model parameters are learned as slope $m = 150$ and intercept $c = 50000$. If a house has $2000$ square feet, what is the predicted price?}
+\begin{itemize}
+    \item The model equation is $y = mx + c = 150x + 50000$.
+    \item Substitute $x = 2000$: $y = 150(2000) + 50000 = 300000 + 50000$.
+    \item The predicted price is $350,000$.
+\end{itemize}
+
+\textbf{6. Pure Math: Find the perpendicular distance from the origin $(0,0)$ to the line $3x - 4y + 15 = 0$.}
+\begin{itemize}
+    \item Use the point-to-line distance formula: $d = \frac{|Ax_0 + By_0 + C|}{\sqrt{A^2 + B^2}}$.
+    \item Here $(x_0, y_0) = (0, 0)$ and the line is $3x - 4y + 15 = 0$ ($A=3, B=-4, C=15$).
+    \item $d = \frac{|3(0) - 4(0) + 15|}{\sqrt{3^2 + (-4)^2}} = \frac{15}{\sqrt{9 + 16}} = \frac{15}{5} = 3$.
+\end{itemize}
+
+\section*{Week 3: Quadratic Functions}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Pure Math: Find the roots of the quadratic equation $3x^2 - 5x - 2 = 0$ using factorization.}
+\begin{itemize}
+    \item We need two numbers that multiply to $(3)(-2) = -6$ and add to $-5$. These numbers are $-6$ and $1$.
+    \item Rewrite the middle term: $3x^2 - 6x + x - 2 = 0$.
+    \item Factor by grouping: $3x(x - 2) + 1(x - 2) = 0 \implies (3x + 1)(x - 2) = 0$.
+    \item The roots are $x = -\frac{1}{3}$ and $x = 2$.
+\end{itemize}
+
+\textbf{2. Pure Math: Calculate the discriminant of $4x^2 + 12x + 9 = 0$ and state the nature of its roots.}
+\begin{itemize}
+    \item The discriminant is $D = b^2 - 4ac$. Here, $a=4, b=12, c=9$.
+    \item $D = (12)^2 - 4(4)(9) = 144 - 144 = 0$.
+    \item Since $D = 0$, the equation has one repeated real root.
+\end{itemize}
+
+\textbf{3. Data Science: A Mean Squared Error loss function for a single parameter $w$ is defined as $L(w) = 2w^2 - 16w + 35$. Find the value of $w$ that minimizes the loss, and the minimum loss value itself.}
+\begin{itemize}
+    \item This is an optimization problem where $a = 2, b = -16, c = 35$. Since $a > 0$, it is a parabola opening upward (a minimum exists).
+    \item The minimum occurs at the vertex: $w = -\frac{b}{2a} = -\frac{-16}{2(2)} = \frac{16}{4} = 4$.
+    \item The minimum loss value is $L(4) = 2(4)^2 - 16(4) + 35 = 32 - 64 + 35 = 3$.
+    \item So, setting parameter $w = 4$ minimizes the loss to $3$.
+\end{itemize}
+
+\textbf{4. Pure Math: Convert the quadratic function $y = x^2 + 6x + 5$ into vertex form and identify its vertex.}
+\begin{itemize}
+    \item The vertex form is $y = a(x - h)^2 + k$. We complete the square.
+    \item Half of the $x$ coefficient is $\frac{6}{2} = 3$, and $3^2 = 9$.
+    \item Add and subtract 9: $y = (x^2 + 6x + 9) - 9 + 5$.
+    \item $y = (x + 3)^2 - 4$.
+    \item The vertex $(h, k)$ is $(-3, -4)$.
+\end{itemize}
+
+\textbf{5. Data Science: A manufacturing algorithm predicts that producing $n$ items yields a cost $C(n) = 0.5n^2 - 50n + 1500$. How many items should be produced to minimize the cost?}
+\begin{itemize}
+    \item Here $a = 0.5, b = -50$. Since $a > 0$, this parabola has a minimum.
+    \item The number of items that minimizes cost is given by the vertex x-coordinate: $n = -\frac{b}{2a}$.
+    \item $n = -\frac{-50}{2(0.5)} = \frac{50}{1} = 50$.
+    \item Producing 50 items minimizes the cost.
+\end{itemize}
+
+\section*{Week 4: Algebra of Polynomials}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Pure Math: Use the Remainder Theorem to find the remainder when $P(x) = x^4 - 2x^3 + 5x - 7$ is divided by $(x - 1)$.}
+\begin{itemize}
+    \item By the Remainder Theorem, the remainder is $P(1)$.
+    \item Substitute $x = 1$: $P(1) = (1)^4 - 2(1)^3 + 5(1) - 7$.
+    \item $P(1) = 1 - 2 + 5 - 7 = 6 - 9 = -3$.
+    \item The remainder is $-3$.
+\end{itemize}
+
+\textbf{2. Pure Math: Determine the end behavior of the polynomial $f(x) = 3x^5 - 4x^3 + 2x - 1$.}
+\begin{itemize}
+    \item The leading term is $3x^5$.
+    \item The degree $n = 5$ is odd, and the leading coefficient $a_n = 3$ is positive.
+    \item According to the Leading Coefficient Test for odd degree/positive coefficient, the end behavior is Down-Up.
+    \item As $x \to \infty, y \to \infty$, and as $x \to -\infty, y \to -\infty$.
+\end{itemize}
+
+\textbf{3. Data Science: You are fitting a polynomial regression curve to 4 data points. What is the maximum number of turning points a degree-3 polynomial curve can have as it passes through the data?}
+\begin{itemize}
+    \item A polynomial of degree $n$ has at most $n - 1$ turning points.
+    \item For $n = 3$, the maximum number of turning points is $3 - 1 = 2$.
+\end{itemize}
+
+\textbf{4. Pure Math: Find the x-intercepts and state their multiplicities for the polynomial $g(x) = x^2(x + 3)^3(x - 5)$. Will the graph cross or bounce at $x = -3$?}
+\begin{itemize}
+    \item Set $g(x) = 0$ to find the roots:
+    \item $x = 0$ has multiplicity 2 (even).
+    \item $x = -3$ has multiplicity 3 (odd).
+    \item $x = 5$ has multiplicity 1 (odd).
+    \item At $x = -3$, because the multiplicity is odd, the graph will \textbf{cross} the x-axis (with flattening, since $3 > 1$).
+\end{itemize}
+
+\textbf{5. Data Science: A complex machine learning boundary is defined by the polynomial equation $B(x) = -2x^6 + 5x^4 - 3x^2 + 1$. As $x \to \infty$ and $x \to -\infty$, in which direction does the boundary eventually head?}
+\begin{itemize}
+    \item Look at the leading term: $-2x^6$.
+    \item The degree $n = 6$ is even, and the leading coefficient $a_n = -2$ is negative.
+    \item By the Leading Coefficient Test for even degree/negative coefficient, the end behavior is Down-Down.
+    \item As $x \to \infty$, $B(x) \to -\infty$, and as $x \to -\infty$, $B(x) \to -\infty$.
+\end{itemize}
+
+\section*{Week 5: Functions, Compositions, and Exponentials}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Pure Math: Use the horizontal line test conceptually to determine if $f(x) = x^2$ is one-to-one on the domain $\R$. What if the domain is restricted to $[0, \infty)$?}
+\begin{itemize}
+    \item On the domain $\R$, the graph of $f(x) = x^2$ is a full parabola opening upwards. A horizontal line like $y = 4$ intersects the graph at two points: $(-2, 4)$ and $(2, 4)$. Thus, it is \textbf{not} one-to-one on $\R$.
+    \item If restricted to $[0, \infty)$, we only have the right half of the parabola. Any horizontal line $y > 0$ will intersect the graph exactly once. Thus, it \textbf{is} one-to-one on $[0, \infty)$.
+\end{itemize}
+
+\textbf{2. Pure Math: Let $f(x) = x^2 + 1$ and $g(x) = 2x - 3$. Find $(f \circ g)(x)$ and $(g \circ f)(x)$. Are they equal?}
+\begin{itemize}
+    \item $(f \circ g)(x) = f(g(x)) = f(2x - 3) = (2x - 3)^2 + 1 = 4x^2 - 12x + 9 + 1 = 4x^2 - 12x + 10$.
+    \item $(g \circ f)(x) = g(f(x)) = g(x^2 + 1) = 2(x^2 + 1) - 3 = 2x^2 + 2 - 3 = 2x^2 - 1$.
+    \item $4x^2 - 12x + 10 \neq 2x^2 - 1$. Thus, function composition is \textbf{not} commutative in general.
+\end{itemize}
+
+\textbf{3. Data Science: In a neural network, a linear transformation $L(x) = 3x - 2$ is followed by a ReLU activation function $R(x) = \max(0, x)$. Evaluate the composite output $(R \circ L)(1)$ and $(R \circ L)(0)$.}
+\begin{itemize}
+    \item For $x = 1$: First, $L(1) = 3(1) - 2 = 1$. Then, $R(1) = \max(0, 1) = 1$. So, $(R \circ L)(1) = 1$.
+    \item For $x = 0$: First, $L(0) = 3(0) - 2 = -2$. Then, $R(-2) = \max(0, -2) = 0$. So, $(R \circ L)(0) = 0$.
+    \item This composite structure ($R(L(x))$) acts as an "activation" switch, only passing positive signals forward.
+\end{itemize}
+
+\textbf{4. Pure Math: Find the inverse function $f^{-1}(x)$ for $f(x) = \frac{4x}{x - 2}$.}
+\begin{itemize}
+    \item Set $y = \frac{4x}{x - 2}$.
+    \item Multiply by $(x - 2)$: $y(x - 2) = 4x \implies xy - 2y = 4x$.
+    \item Collect $x$ terms on one side: $xy - 4x = 2y \implies x(y - 4) = 2y$.
+    \item Solve for $x$: $x = \frac{2y}{y - 4}$.
+    \item Swap variables: $f^{-1}(x) = \frac{2x}{x - 4}$.
+\end{itemize}
+
+\textbf{5. Pure Math: Simplify the exponential expression: $\frac{(e^{2x})^3 \cdot e^{-x}}{e^{4x}}$.}
+\begin{itemize}
+    \item Apply power of a power rule: $(e^{2x})^3 = e^{6x}$.
+    \item The expression becomes: $\frac{e^{6x} \cdot e^{-x}}{e^{4x}}$.
+    \item Apply multiplication rule (add exponents) in numerator: $e^{6x + (-x)} = e^{5x}$.
+    \item Apply division rule (subtract exponents): $\frac{e^{5x}}{e^{4x}} = e^{5x - 4x} = e^x$.
+    \item The simplified expression is simply $e^x$.
+\end{itemize}
+
+\section*{Week 6: Logarithmic Functions}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Pure Math: Evaluate the expression without a calculator: $\log_3(81) - \log_2\left(\frac{1}{8}\right)$.}
+\begin{itemize}
+    \item Evaluate the first term: $3^4 = 81$, so $\log_3(81) = 4$.
+    \item Evaluate the second term: $2^{-3} = \frac{1}{2^3} = \frac{1}{8}$, so $\log_2\left(\frac{1}{8}\right) = -3$.
+    \item Subtract the values: $4 - (-3) = 4 + 3 = 7$.
+\end{itemize}
+
+\textbf{2. Data Science: In binary classification, the Cross-Entropy loss for a true label $y=1$ and predicted probability $p$ is defined as $L = -\ln(p)$. If the predicted probability is $p = e^{-2}$, what is the loss?}
+\begin{itemize}
+    \item Substitute $p$ into the loss function: $L = -\ln(e^{-2})$.
+    \item Use the inverse property $\ln(e^x) = x$: $L = -(-2) = 2$.
+    \item The loss is $2$.
+\end{itemize}
+
+\textbf{3. Pure Math: Use the laws of logarithms to expand the expression completely: $\ln\left(\frac{x^4 \sqrt{y^3}}{e^2}\right)$.}
+\begin{itemize}
+    \item First, apply the quotient rule: $\ln(x^4 \sqrt{y^3}) - \ln(e^2)$.
+    \item Apply the product rule to the first term: $\ln(x^4) + \ln(y^{3/2}) - \ln(e^2)$.
+    \item Apply the power rule to all terms, and use $\ln(e) = 1$: $4\ln(x) + \frac{3}{2}\ln(y) - 2(1)$.
+    \item The expanded form is: $4\ln(x) + \frac{3}{2}\ln(y) - 2$.
+\end{itemize}
+
+\textbf{4. Data Science: A dataset feature $X$ ranges from $1$ to $1,000,000$. A data scientist applies a base-10 log transformation to create a new feature $X' = \log_{10}(X)$. What is the new range of $X'$?}
+\begin{itemize}
+    \item Find the minimum value of $X'$: $\log_{10}(1) = 0$.
+    \item Find the maximum value of $X'$: $\log_{10}(1,000,000) = \log_{10}(10^6) = 6$.
+    \item The new range of $X'$ is incredibly compressed, spanning from $0$ to $6$.
+\end{itemize}
+
+\textbf{5. Pure Math: Solve the equation for $x$: $e^{2x} - 3e^x + 2 = 0$. (Hint: treat it as a quadratic in form).}
+\begin{itemize}
+    \item Let $u = e^x$. The equation becomes a quadratic: $u^2 - 3u + 2 = 0$.
+    \item Factor the quadratic: $(u - 1)(u - 2) = 0$.
+    \item So, $u = 1$ or $u = 2$.
+    \item Substitute back $e^x = u$: $e^x = 1 \implies x = \ln(1) = 0$.
+    \item And $e^x = 2 \implies x = \ln(2)$.
+    \item The solutions are $x = 0$ and $x = \ln(2)$.
+\end{itemize}
+
+\textbf{6. Pure Math: Solve the logarithmic equation: $\log(x + 3) - \log(x) = 1$.}
+\begin{itemize}
+    \item (Note: $\log$ without a base usually means base 10). Apply the quotient rule: $\log\left(\frac{x + 3}{x}\right) = 1$.
+    \item Convert to exponential form: $\frac{x + 3}{x} = 10^1 = 10$.
+    \item Multiply by $x$: $x + 3 = 10x$.
+    \item Solve for $x$: $3 = 9x \implies x = \frac{3}{9} = \frac{1}{3}$.
+    \item Check validity: Both $x+3 = \frac{10}{3} > 0$ and $x = \frac{1}{3} > 0$ are valid inside the logs. The solution is $x = \frac{1}{3}$.
+\end{itemize}
+
+\section*{Week 7: Sequences and Limits (Part 1)}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Pure Math: Determine if the sequence $b_n = \frac{5n^3 - n + 2}{7n^3 + 4n^2}$ converges, and if so, find its limit.}
+\begin{itemize}
+    \item Divide numerator and denominator by the highest power of $n$, which is $n^3$:
+    $$b_n = \frac{\frac{5n^3}{n^3} - \frac{n}{n^3} + \frac{2}{n^3}}{\frac{7n^3}{n^3} + \frac{4n^2}{n^3}} = \frac{5 - \frac{1}{n^2} + \frac{2}{n^3}}{7 + \frac{4}{n}}$$
+    \item Take the limit as $n \to \infty$. All fraction terms with $n$ in the denominator go to $0$:
+    $$\limit{n}{\infty} b_n = \frac{5 - 0 + 0}{7 + 0} = \frac{5}{7}$$
+    \item The sequence converges to $\frac{5}{7}$.
+\end{itemize}
+
+\textbf{2. Pure Math: Determine if the sequence $c_n = \frac{n^2}{3n + 1}$ converges or diverges.}
+\begin{itemize}
+    \item Divide numerator and denominator by the highest power of $n$ in the denominator, which is $n$:
+    $$c_n = \frac{\frac{n^2}{n}}{\frac{3n}{n} + \frac{1}{n}} = \frac{n}{3 + \frac{1}{n}}$$
+    \item Take the limit as $n \to \infty$:
+    $$\limit{n}{\infty} c_n = \frac{\infty}{3 + 0} = \infty$$
+    \item Since the limit is infinity, the sequence \textbf{diverges}.
+\end{itemize}
+
+\textbf{3. Data Science: A machine learning model's loss over $n$ epochs is modeled by the sequence $L_n = 2 + \frac{10}{n^2}$. As training goes on infinitely ($n \to \infty$), what is the theoretical minimum loss the model converges to?}
+\begin{itemize}
+    \item Take the limit of $L_n$ as $n \to \infty$:
+    $$\limit{n}{\infty} L_n = \limit{n}{\infty} \left(2 + \frac{10}{n^2}\right)$$
+    \item By limit laws, this is $\limit{n}{\infty} 2 + \limit{n}{\infty} \frac{10}{n^2} = 2 + 0 = 2$.
+    \item The theoretical minimum loss is $2$.
+\end{itemize}
+
+\textbf{4. Pure Math: Find the average rate of change of the function $f(x) = x^3$ over the interval $[1, 3]$.}
+\begin{itemize}
+    \item Use the average rate of change formula: $\frac{f(x_2) - f(x_1)}{x_2 - x_1}$.
+    \item $f(3) = 3^3 = 27$.
+    \item $f(1) = 1^3 = 1$.
+    \item Average rate of change = $\frac{27 - 1}{3 - 1} = \frac{26}{2} = 13$.
+\end{itemize}
+
+\textbf{5. Pure Math: Using the limit definition of the tangent slope $m_{\text{tan}} = \limit{h}{0} \frac{f(c + h) - f(c)}{h}$, find the instantaneous slope of $f(x) = x^2$ at the point $x = 4$.}
+\begin{itemize}
+    \item Here $c = 4$. $f(4) = 4^2 = 16$.
+    \item $f(4+h) = (4+h)^2 = 16 + 8h + h^2$.
+    \item Set up the limit: $\limit{h}{0} \frac{(16 + 8h + h^2) - 16}{h}$.
+    \item Simplify the numerator: $\limit{h}{0} \frac{8h + h^2}{h}$.
+    \item Factor out $h$: $\limit{h}{0} \frac{h(8 + h)}{h} = \limit{h}{0} (8 + h)$.
+    \item Apply the limit as $h \to 0$: $8 + 0 = 8$.
+    \item The instantaneous slope is $8$.
+\end{itemize}
+
+\section*{Week 8: Differentiation}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Pure Math: Differentiate $f(x) = x^3 e^x$ using the Product Rule.}
+\begin{itemize}
+    \item Let $u(x) = x^3$ and $v(x) = e^x$.
+    \item $u'(x) = 3x^2$ and $v'(x) = e^x$.
+    \item Apply Product Rule: $f'(x) = u'v + uv' = (3x^2)(e^x) + (x^3)(e^x)$.
+    \item Factor out $x^2 e^x$: $f'(x) = x^2 e^x (3 + x)$.
+\end{itemize}
+
+\textbf{2. Data Science: A machine learning Mean Squared Error cost function for a single parameter $w$ is given by $C(w) = (w - 3)^2 + 4$. Find the critical point $w$ where the gradient (derivative) is zero. Is this a maximum or minimum?}
+\begin{itemize}
+    \item Find derivative using the Chain Rule: $C'(w) = 2(w - 3)(1) + 0 = 2w - 6$.
+    \item Set derivative to zero to find critical points: $2w - 6 = 0 \implies 2w = 6 \implies w = 3$.
+    \item Check the second derivative: $C''(w) = 2$.
+    \item Since $C''(3) = 2 > 0$, the function is concave up, meaning $w=3$ is a \textbf{minimum}.
+\end{itemize}
+
+\textbf{3. Pure Math: Find the derivative of $g(x) = \ln(3x^4 - 2x)$ using the Chain Rule.}
+\begin{itemize}
+    \item Let the outer function be $\ln(u)$ and the inner function be $u = 3x^4 - 2x$.
+    \item The derivative of the outer function is $\frac{1}{u}$. The derivative of the inner function is $12x^3 - 2$.
+    \item Apply the Chain Rule: $g'(x) = \frac{1}{3x^4 - 2x} \cdot (12x^3 - 2) = \frac{12x^3 - 2}{3x^4 - 2x}$.
+\end{itemize}
+
+\textbf{4. Pure Math: Use L'Hôpital's Rule to evaluate the limit: $\limit{x}{0} \frac{\sin(x)}{x}$.}
+\begin{itemize}
+    \item Direct substitution gives $\frac{\sin(0)}{0} = \frac{0}{0}$, an indeterminate form.
+    \item Differentiate the numerator: $\deriv{}{x}(\sin(x)) = \cos(x)$.
+    \item Differentiate the denominator: $\deriv{}{x}(x) = 1$.
+    \item Take the limit of the new fraction: $\limit{x}{0} \frac{\cos(x)}{1} = \cos(0) = 1$.
+    \item The limit is $1$.
+\end{itemize}
+
+\textbf{5. Data Science: A simple neural network maps input $x$ through two layers: $y = (2x + 1)^3$. Using the Chain Rule, what is $\deriv{y}{x}$?}
+\begin{itemize}
+    \item Let the outer function be $u^3$ and the inner layer be $u = 2x + 1$.
+    \item Derivative of the outer function is $3u^2$. Derivative of the inner function is $2$.
+    \item Apply the Chain Rule: $\deriv{y}{x} = 3(2x + 1)^2 \cdot 2 = 6(2x + 1)^2$.
+    \item This is exactly how backpropagation calculates gradients to update weights!
+\end{itemize}
+
+\section*{Week 9: Integration}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Pure Math: Evaluate the indefinite integral: $\int \left( 4x^3 - \frac{1}{x} + e^x \right) \dx$.}
+\begin{itemize}
+    \item Apply the Sum Rule to integrate term by term.
+    \item $\int 4x^3 \dx = 4 \left(\frac{x^4}{4}\right) = x^4$.
+    \item $\int -\frac{1}{x} \dx = -\ln|x|$.
+    \item $\int e^x \dx = e^x$.
+    \item Combine and add the integration constant: $x^4 - \ln|x| + e^x + C$.
+\end{itemize}
+
+\textbf{2. Pure Math: Use u-substitution to evaluate the integral: $\int x^2(x^3 + 5)^4 \dx$.}
+\begin{itemize}
+    \item Let $u = x^3 + 5$. Then $du = 3x^2 \dx$.
+    \item We have $x^2 \dx$ in the integral, so we can write $\frac{1}{3} du = x^2 \dx$.
+    \item Substitute into the integral: $\int u^4 \left(\frac{1}{3}\right) du = \frac{1}{3} \int u^4 du$.
+    \item Integrate with respect to $u$: $\frac{1}{3} \left(\frac{u^5}{5}\right) + C = \frac{u^5}{15} + C$.
+    \item Substitute back $u = x^3 + 5$: $\frac{(x^3 + 5)^5}{15} + C$.
+\end{itemize}
+
+\textbf{3. Data Science: The Probability Density Function of a uniform distribution is given by $p(x) = 0.5$ on the interval $[0, 2]$. Verify that the total probability over this entire interval is exactly $1$ by calculating $\int_{0}^{2} 0.5 \dx$.}
+\begin{itemize}
+    \item Find the antiderivative of $0.5$: $F(x) = 0.5x$.
+    \item Evaluate from $0$ to $2$: $F(2) - F(0) = (0.5 \cdot 2) - (0.5 \cdot 0)$.
+    \item $1 - 0 = 1$. The total probability is exactly $1$.
+\end{itemize}
+
+\textbf{4. Pure Math: Evaluate the definite integral using FTC Part 2: $\int_{1}^{2} \frac{1}{x^2} \dx$.}
+\begin{itemize}
+    \item Rewrite the integrand as $x^{-2}$.
+    \item Find the antiderivative using the Power Rule: $\int x^{-2} \dx = \frac{x^{-1}}{-1} = -\frac{1}{x}$.
+    \item Evaluate from $1$ to $2$: $\left[ -\frac{1}{2} \right] - \left[ -\frac{1}{1} \right]$.
+    \item $-\frac{1}{2} + 1 = \frac{1}{2}$.
+\end{itemize}
+
+\textbf{5. Pure Math: Find the area of the region enclosed between the curves $y = x^2$ and $y = x$ on the interval $[0, 1]$.}
+\begin{itemize}
+    \item On the interval $(0, 1)$, $x > x^2$, so the top curve is $f(x) = x$ and the bottom is $g(x) = x^2$.
+    \item Set up the integral: $\int_{0}^{1} (x - x^2) \dx$.
+    \item Antiderivative: $\frac{x^2}{2} - \frac{x^3}{3}$.
+    \item Evaluate at limits: $\left( \frac{1}{2} - \frac{1}{3} \right) - (0 - 0)$.
+    \item Common denominator is $6$: $\frac{3}{6} - \frac{2}{6} = \frac{1}{6}$.
+    \item The area is $\frac{1}{6}$.
+\end{itemize}
+
+\section*{Week 10: Graph Theory (I)}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Computer Science: An undirected graph has $6$ vertices and $15$ edges. Is it a simple graph, or must it contain multiple edges/loops?}
+\begin{itemize}
+    \item The maximum number of edges in a simple undirected graph is given by the combination formula $\binom{n}{2} = \frac{n(n-1)}{2}$.
+    \item For $n=6$, max edges = $\frac{6 \times 5}{2} = 15$.
+    \item Because the graph has exactly $15$ edges, it is fully connected (a complete graph $K_6$). It \textbf{can} be a simple graph (it does not require multiple edges or loops to fit 15 edges).
+\end{itemize}
+
+\textbf{2. Data Structure: A graph is represented by an Adjacency Matrix. What does it mean if the sum of all elements in the $i$-th row is $3$? Assume the graph is unweighted and directed.}
+\begin{itemize}
+    \item In a directed adjacency matrix, the $i$-th row represents all edges \textbf{leaving} vertex $i$.
+    \item Since the graph is unweighted, a $1$ represents an edge.
+    \item A sum of $3$ means there are exactly $3$ outgoing edges from vertex $i$. This is known as the \textbf{out-degree} of vertex $i$.
+\end{itemize}
+
+\textbf{3. Algorithms: You are traversing a graph to find the shortest path out of a maze. The graph is unweighted. Should you use BFS or DFS, and why?}
+\begin{itemize}
+    \item You should use \textbf{BFS (Breadth-First Search)}.
+    \item BFS guarantees finding the shortest path in an unweighted graph because it explores layer by layer. DFS will wander deeply into a path and might find a very long, convoluted way out before ever checking a much shorter branch.
+\end{itemize}
+
+\textbf{4. Algorithms: You have a DAG representing university course prerequisites. You want to generate a valid semester-by-semester graduation plan. Which graph algorithm should you use?}
+\begin{itemize}
+    \item You should use \textbf{Topological Sorting}.
+    \item This algorithm takes a Directed Acyclic Graph and returns a linear sequence of nodes where every prerequisite comes before its dependent course, guaranteeing a valid graduation plan.
+\end{itemize}
+
+\textbf{5. Complexity: An undirected graph $G = (V, E)$ has $|V| = 10,000$ and $|E| = 20,000$. Which storage representation is more memory efficient: an Adjacency Matrix or an Adjacency List? Justify mathematically.}
+\begin{itemize}
+    \item \textbf{Adjacency Matrix:} Requires $|V|^2$ entries. $10,000^2 = 100,000,000$ entries.
+    \item \textbf{Adjacency List:} Requires roughly $O(|V| + 2|E|)$ space for an undirected graph. $10,000 + 40,000 = 50,000$ entries.
+    \item The graph is extremely sparse ($50,000 \ll 100,000,000$). The \textbf{Adjacency List} is far more efficient, saving $99.95\%$ of the memory.
+\end{itemize}
+
+\section*{Week 11: Graph Theory (II)}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Algorithms: You are writing navigation software for a delivery drone. The drone battery drains faster if it flies into a headwind, which is modeled as an edge with a negative weight (cost). Which shortest-path algorithm \textit{must} you use?}
+\begin{itemize}
+    \item You must use the \textbf{Bellman-Ford Algorithm}.
+    \item Dijkstra's Algorithm will fail because its greedy logic assumes that adding more edges to a path can only increase the total cost. It cannot handle negative edge weights.
+\end{itemize}
+
+\textbf{2. Algorithms: An undirected graph has $8$ vertices. How many edges will its Minimum Spanning Tree have?}
+\begin{itemize}
+    \item By definition, any spanning tree of a connected graph with $|V|$ vertices will have exactly $|V| - 1$ edges.
+    \item Therefore, the MST will have $8 - 1 = 7$ edges.
+\end{itemize}
+
+\textbf{3. Pure Math: You apply Kruskal's algorithm to a graph. The next lightest edge connects Node A and Node B. However, Node A and Node B are already in the same connected component of your growing MST. Should you add the edge? Why or why not?}
+\begin{itemize}
+    \item You should \textbf{not} add the edge.
+    \item If two nodes are already in the same connected component, it means there is already a path between them. Adding a direct edge between them would create a \textbf{cycle}, which violates the definition of a tree.
+\end{itemize}
+
+\textbf{4. Complexity: Why is Floyd-Warshall ($\mathcal{O}(|V|^3)$) preferred over running Dijkstra's algorithm from every single node ($\mathcal{O}(|V| \cdot |E| \log |V|)$) for dense graphs when finding all-pairs shortest paths?}
+\begin{itemize}
+    \item In a dense graph, the number of edges $|E|$ approaches $|V|^2$.
+    \item Substituting $|E| = |V|^2$ into the repeated Dijkstra complexity gives $\mathcal{O}(|V| \cdot |V|^2 \log |V|) = \mathcal{O}(|V|^3 \log |V|)$.
+    \item $\mathcal{O}(|V|^3)$ (Floyd-Warshall) is faster than $\mathcal{O}(|V|^3 \log |V|)$ (Repeated Dijkstra). Additionally, Floyd-Warshall is much simpler to implement and handles negative weights, whereas Dijkstra does not.
+\end{itemize}
+
+\textbf{5. Graph Theory: What mathematical operation on an Adjacency Matrix $A$ calculates the number of walks of exactly length $k$ between any two nodes?}
+\begin{itemize}
+    \item You take the matrix $A$ to the power of $k$ (i.e., compute $A^k$).
+    \item The value in row $i$, column $j$ of the resulting matrix $A^k$ is exactly the number of walks of length $k$ from node $i$ to node $j$.
+\end{itemize}
+
+\section*{Week 12: Comprehensive Final Review}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Sets \& Logic: In a dataset of 100 users, 60 like Apples ($A$), 50 like Bananas ($B$), and 20 like neither. How many users like \textit{both} Apples and Bananas?}
+\begin{itemize}
+    \item Total users $N = 100$. Users who like neither is 20.
+    \item Therefore, the number of users who like at least one fruit is $|A \cup B| = 100 - 20 = 80$.
+    \item Using the Principle of Inclusion-Exclusion: $|A \cup B| = |A| + |B| - |A \cap B|$.
+    \item $80 = 60 + 50 - |A \cap B| \implies 80 = 110 - |A \cap B|$.
+    \item $|A \cap B| = 110 - 80 = 30$. Exactly 30 users like both.
+\end{itemize}
+
+\textbf{2. Functions \& Exponentials: Given $f(x) = e^{2x}$ and $g(x) = \ln(x)$, find the composite function $(f \circ g)(x)$ and simplify it completely.}
+\begin{itemize}
+    \item Substitute $g(x)$ into $f(x)$: $(f \circ g)(x) = f(\ln(x)) = e^{2\ln(x)}$.
+    \item Apply the logarithm power rule: $2\ln(x) = \ln(x^2)$.
+    \item The expression becomes $e^{\ln(x^2)}$.
+    \item Using the inverse property of exponentials and logarithms ($e^{\ln(y)} = y$), the simplified function is exactly $x^2$ (for $x > 0$).
+\end{itemize}
+
+\textbf{3. Calculus: Find the critical points of the loss function $L(w) = w^3 - 3w^2 - 9w + 15$. Use the Second Derivative Test to determine which point is a local minimum (the optimal weight).}
+\begin{itemize}
+    \item Find the first derivative: $L'(w) = 3w^2 - 6w - 9$.
+    \item Set to zero: $3(w^2 - 2w - 3) = 0 \implies 3(w - 3)(w + 1) = 0$.
+    \item The critical points are $w = 3$ and $w = -1$.
+    \item Find the second derivative: $L''(w) = 6w - 6$.
+    \item Test $w = -1$: $L''(-1) = 6(-1) - 6 = -12$. Since this is negative, $w=-1$ is a \textbf{maximum}.
+    \item Test $w = 3$: $L''(3) = 6(3) - 6 = 12$. Since this is positive, $w=3$ is the \textbf{local minimum}.
+\end{itemize}
+
+\textbf{4. Integration: Calculate the total probability area under the curve $p(x) = 3x^2$ between $x=0$ and $x=1$.}
+\begin{itemize}
+    \item Set up the definite integral: $\int_0^1 3x^2 \dx$.
+    \item Find the general antiderivative using the power rule: $\frac{3x^3}{3} = x^3$.
+    \item Evaluate at the limits (FTC Part 2): $F(1) - F(0) = 1^3 - 0^3 = 1 - 0 = 1$.
+    \item The total probability area is exactly $1$.
+\end{itemize}
+
+\textbf{5. Graph Theory: You are using Dijkstra's algorithm to find the fastest driving route. You discover a toll road that pays you \$5 to drive on it (a negative weight of $-5$). Will Dijkstra's algorithm still guarantee the correct shortest path? What algorithm should you use instead?}
+\begin{itemize}
+    \item \textbf{No}, Dijkstra's algorithm fundamentally assumes all edge weights are non-negative. It operates on a greedy strategy, locking in the shortest distance to a node and never looking back. A negative weight would invalidate previously locked distances.
+    \item You should use the \textbf{Bellman-Ford algorithm}, which systematically relaxes all edges multiple times and correctly handles negative edge weights.
+\end{itemize}

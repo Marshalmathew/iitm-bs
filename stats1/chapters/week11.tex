@@ -1,0 +1,90 @@
+\chapter{The Poisson Distribution}
+
+The Binomial distribution requires a fixed number of trials $n$. But what if we want to model events where $n$ is effectively infinite and $p$ is microscopically small? For example, how many emails will you receive in the next hour? The \textbf{Poisson Distribution} mathematically models the count of rare events occurring within a fixed interval of time or space.
+
+\section{The Poisson Limit of the Binomial}
+
+Imagine an e-commerce website with millions of daily visitors ($n$ is huge). The probability that any single visitor buys a specific $10,000 laptop is tiny ($p$ is near zero). Calculating $\binom{n}{k} p^k (1-p)^{n-k}$ with $n=1,000,000$ will crash most computers due to the massive factorials.
+
+In 1837, Siméon Denis Poisson proved that if you take the mathematical limit of the Binomial distribution as $n \to \infty$ and $p \to 0$, while keeping the expected value $\lambda = np$ constant, the impossible factorials beautifully cancel out into an elegant exponential function.
+
+\begin{theorembox}{Poisson Approximation to the Binomial}
+If $X \sim \text{Bin}(n,p)$ with $n \ge 20$ and $p \le 0.05$, you can safely approximate the probability using the Poisson distribution with parameter $\lambda = np$:
+$$\text{Bin}(n,p) \approx \text{Pois}(\lambda = np)$$
+\end{theorembox}
+
+\section{The Poisson Distribution}
+
+\begin{definitionbox}{Poisson Random Variable}
+Let $X$ be the number of events occurring in a fixed interval. $X$ follows a \textbf{Poisson Distribution}, denoted $X \sim \text{Pois}(\lambda)$, if the events occur with a known constant mean rate $\lambda$ (lambda), and each event occurs independently of the time since the last event.
+
+The Probability Mass Function (PMF) is:
+$$P(X=k) = \frac{e^{-\lambda}\lambda^k}{k!}, \quad \text{for } k = 0, 1, 2, \ldots$$
+Where $e$ is Euler's number ($\approx 2.71828$).
+\end{definitionbox}
+
+\begin{theorembox}{Expectation and Variance of Poisson}
+The Poisson distribution has a very unique and mathematically elegant property: its expected value and its variance are identical.
+\begin{itemize}
+    \item \textbf{Expectation:} $E[X] = \mathbf{\lambda}$
+    \item \textbf{Variance:} $Var(X) = \mathbf{\lambda}$
+\end{itemize}
+\end{theorembox}
+
+\textbf{Data Science Relevance:} The Poisson distribution is heavily used in \textbf{Operations Research} and \textbf{Queueing Theory}. Amazon AWS uses Poisson processes to mathematically predict how many servers they need to spin up to handle incoming server requests per minute. Traffic engineers use it to model the number of cars arriving at a toll booth per hour.
+
+\section{Changing the Interval}
+
+The parameter $\lambda$ is strictly tied to a specific interval length. If you change the length of the interval, you \emph{must} scale $\lambda$ linearly.
+
+\begin{examplebox}{Scaling Lambda}
+If a call center receives an average of $\lambda = 3$ calls per \emph{minute}:
+\begin{itemize}
+    \item What is the distribution for a \emph{2-minute} interval? \\
+    The new rate is $\lambda_{\text{new}} = 3 \times 2 = 6$. So, $X \sim \text{Pois}(6)$.
+    \item What is the distribution for a \emph{20-second} interval? \\
+    20 seconds is $1/3$ of a minute. $\lambda_{\text{new}} = 3 \times (1/3) = 1$. So, $X \sim \text{Pois}(1)$.
+\end{itemize}
+\end{examplebox}
+
+\section*{Supplementary Video Resources}
+\begin{itemize}
+    \item \href{https://www.youtube.com/watch?v=jmqZG6wccUg}{StatQuest: The Poisson Distribution, Clearly Explained}
+\end{itemize}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{Poisson Probabilities:} A bookstore sells an average of $2$ copies of a rare textbook per week ($\lambda = 2$). Assuming sales follow a Poisson distribution:
+    \begin{enumerate}
+        \item What is the exact probability that they sell exactly $3$ copies in a given week?
+        \item What is the probability that they sell exactly $0$ copies?
+    \end{enumerate}
+
+    \item \textbf{Scaling the Interval:} A server receives an average of $6$ malicious DDoS requests per minute. 
+    \begin{enumerate}
+        \item What is the probability of receiving exactly $10$ requests in a \textbf{2-minute} window? (Make sure to scale $\lambda$ first!).
+        \item What is the expected number of requests in a \textbf{10-second} window?
+    \end{enumerate}
+
+    \item \textbf{Poisson Approximation to Binomial:} A machine produces computer chips, and $1\%$ of them are defective ($p=0.01$). You randomly sample $100$ chips ($n=100$).
+    \begin{enumerate}
+        \item Calculate the exact Binomial probability of finding exactly $2$ defective chips.
+        \item Calculate the approximate Poisson probability of finding exactly $2$ defective chips. (What is $\lambda$?)
+        \item Compare the two answers. Are they close? Why is the Poisson calculation vastly preferred by computers?
+    \end{enumerate}
+
+    \item \textbf{Using the Complement Rule with Poisson:} On average, a website goes down $\lambda = 1.5$ times per month. 
+    \begin{enumerate}
+        \item What is the probability that the website goes down \textbf{at least once} this month? (Hint: Use the Complement rule $1 - P(0)$).
+    \end{enumerate}
+
+    \item \textbf{Expectation and Variance:} Let $Y \sim \text{Pois}(4)$. 
+    \begin{enumerate}
+        \item What is $E[Y]$?
+        \item What is $Var(Y)$?
+        \item What is $E[Y^2]$? (Hint: Remember the variance computational formula $Var(Y) = E[Y^2] - (E[Y])^2$).
+    \end{enumerate}
+\end{enumerate}

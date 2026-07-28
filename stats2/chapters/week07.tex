@@ -1,0 +1,79 @@
+\chapter{Statistics from Samples \& The Law of Large Numbers}
+
+Data science begins when we draw a finite sample of observations $X_1, X_2, \dots, X_n$ from an unknown underlying population. In this chapter, we master \textbf{Independent and Identically Distributed (i.i.d.) Samples}, the \textbf{Sample Mean $\bar{X}_n$}, the \textbf{Empirical CDF}, and the \textbf{Weak Law of Large Numbers (WLLN)}.
+
+\section{i.i.d. Samples and Sample Statistics}
+
+\begin{definitionbox}{i.i.d. Samples}
+Random variables $X_1, X_2, \dots, X_n$ are \textbf{Independent and Identically Distributed (i.i.d.)} if:
+\begin{enumerate}
+\item Each $X_i$ has the exact same marginal probability distribution (same mean $\mu$ and variance $\sigma^2$).
+2. The joint distribution factorizes: $f_{X_1,\dots,X_n}(x_1,\dots,x_n) = \prod_{i=1}^n f(x_i)$.
+\end{definitionbox}
+
+\begin{formulabox}{Sample Mean $\bar{X}_n$ Properties}
+For an i.i.d. sample $X_1, \dots, X_n$ with mean $\mu$ and variance $\sigma^2$:
+\begin{itemize}
+    \item \textbf{Sample Mean:} $\bar{X}_n = \frac{1}{n} \sum_{i=1}^n X_i$.
+    \item \textbf{Unbiased Expectation:} $\E[\bar{X}_n] = \mu$.
+    \item \textbf{Variance Vanishing Rate:} $\Var(\bar{X}_n) = \frac{\sigma^2}{n} \implies \text{Standard Error } \text{SE}(\bar{X}_n) = \frac{\sigma}{\sqrt{n}}$.
+\end{itemize}
+\end{formulabox}
+
+\begin{videocard}{IITM BS Lecture: Statistics from i.i.d. Samples}{https://www.youtube.com/watch?v=vcsSO5Gs2NE}
+Official lecture defining i.i.d. random variables and calculating expectation/variance of sample sums.
+\end{videocard}
+
+\section{Empirical Distribution Function}
+
+Given an observed sample $x_1, x_2, \dots, x_n$, we can estimate the true population CDF $F(x)$ without making parametric assumptions.
+
+\begin{definitionbox}{Empirical Cumulative Distribution Function (ECDF)}
+The \textbf{Empirical CDF} $\hat{F}_n(x)$ is the fraction of sample points less than or equal to $x$:
+$$\hat{F}_n(x) = \frac{1}{n} \sum_{i=1}^n \mathbb{I}(x_i \le x)$$
+where $\mathbb{I}(\cdot)$ is the indicator function. By the WLLN, $\hat{F}_n(x)$ converges pointwise to the true CDF $F(x)$ as $n \to \infty$.
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Empirical Distribution and Sample Mean}{https://www.youtube.com/watch?v=7pEE9GSZuIg}
+Official lecture constructing ECDFs and analyzing non-parametric distribution estimation.
+\end{videocard}
+
+\section{The Weak Law of Large Numbers (WLLN)}
+
+As the sample size $n$ increases, the sample mean $\bar{X}_n$ concentrates tightly around the true population mean $\mu$.
+
+\begin{theorembox}{Weak Law of Large Numbers (WLLN)}
+Let $X_1, X_2, \dots, X_n$ be i.i.d. random variables with finite mean $\mu$ and variance $\sigma^2$. For any margin of error $\epsilon > 0$:
+$$\lim_{n \to \infty} \P(|\bar{X}_n - \mu| \ge \epsilon) = 0 \iff \lim_{n \to \infty} \P(|\bar{X}_n - \mu| < \epsilon) = 1$$
+\textbf{Proof via Chebyshev's Inequality:}
+$$\P(|\bar{X}_n - \mu| \ge \epsilon) \le \frac{\Var(\bar{X}_n)}{\epsilon^2} = \frac{\sigma^2}{n \epsilon^2} \xrightarrow{n \to \infty} 0$$
+\end{theorembox}
+
+\textbf{Data Science Relevance:} The Law of Large Numbers guarantees that Monte Carlo simulations, A/B test metric estimations, and empirical risk minimization in Machine Learning converge to the true underlying population values as dataset size $n$ grows!
+
+\begin{videocard}{IITM BS Lecture: Concentration Phenomenon & Law of Large Numbers}{https://www.youtube.com/watch?v=kPaqp72La2o}
+Official lecture proving the Weak Law of Large Numbers using Chebyshev's inequality.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+\item \textbf{Sample Mean Standard Error:} An i.i.d. sample of size $n = 100$ is drawn from a population with mean $\mu = 80$ and variance $\sigma^2 = 400$.
+    \begin{enumerate}
+\item Compute $\E[\bar{X}_{100}]$.
+    2. Compute the standard error $\text{SE}(\bar{X}_{100}) = \sqrt{\Var(\bar{X}_{100})}$.
+
+\item \textbf{Chebyshev Sample Size Determination for WLLN:} How large a sample size $n$ is required to ensure that the sample mean $\bar{X}_n$ lies within $\epsilon = 0.5$ units of the true mean $\mu$ with probability at least $95\%$ ($\P(|\bar{X}_n - \mu| < 0.5) \ge 0.95$), if population variance $\sigma^2 = 4$?
+
+\item \textbf{Empirical CDF Evaluation:} Given a sample of 5 observations: $x = [2.1, 4.5, 1.8, 6.0, 4.5]$.
+    \begin{enumerate}
+\item Calculate the value of the Empirical CDF $\hat{F}_5(4.0)$.
+    2. Calculate $\hat{F}_5(4.5)$.
+
+\item \textbf{Sum of i.i.d. Uniform RVs:} Let $X_1, X_2, \dots, X_{12}$ be i.i.d. $\text{Uniform}(0, 1)$ random variables. Let $S = \sum_{i=1}^{12} X_i$. Find $\E[S]$ and $\Var(S)$.
+
+\item \textbf{Data Science Application (Monte Carlo Pi Estimation Bounds):} In a Monte Carlo algorithm, $n$ independent random points are dropped in a unit square. Let $I_i = 1$ if point $i$ falls inside a unit circle ($\P(I_i = 1) = p = \pi/4 \approx 0.7854$) and $0$ otherwise.
+    Use Chebyshev's inequality to find the sample size $n$ needed so that the Monte Carlo estimate $\hat{p}_n = \frac{1}{n} \sum_{i=1}^n I_i$ is within $0.01$ of $p$ with at least $90\%$ probability.
+\end{enumerate}

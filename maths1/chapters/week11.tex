@@ -1,0 +1,121 @@
+\chapter{Graph Theory (II): Shortest Paths and Spanning Trees}
+
+This chapter explores advanced structural graph algorithms, focusing on heavily weighted networks. We will learn how to find the most efficient paths between nodes and how to connect an entire network with the minimum possible cost. In data science and operations research, these algorithms solve massive logistics problems, network routing (like Google Maps), and cluster optimization.
+
+\section{Transitive Closure and Reachability}
+
+The \textbf{transitive closure} of a directed graph $G = (V, E)$ determines whether there exists a directed path from vertex $i$ to vertex $j$ for all pairs $i, j \in V$.
+
+\begin{theorembox}{Warshall's Algorithm}
+Warshall's algorithm is a dynamic programming approach that constructs a boolean reachability matrix $R^{(k)}$ where $R^{(k)}_{ij} = 1$ if there is a path from $i \to j$ using only intermediate vertices from the set $\{1, 2, \dots, k\}$.
+\begin{itemize}
+    \item \textbf{Recurrence Relation:}
+    $$R^{(k)}_{ij} = R^{(k-1)}_{ij} \lor \left( R^{(k-1)}_{ik} \land R^{(k-1)}_{kj} \right)$$
+    \item \textbf{Time Complexity:} $\mathcal{O}(|V|^3)$
+\end{itemize}
+\end{theorembox}
+
+\textbf{Data Science Relevance:} In social networks, if User A follows User B, and User B follows User C, the transitive closure tells the recommendation engine that User A might be interested in User C (a path exists).
+
+\begin{videocard}{IITM BS Lecture: W11\_L2 Transitive Closure \& Reachability}{https://www.youtube.com/watch?v=6Ax9K7gSuJE}
+Official IIT Madras lecture detailing the structural concept of reachability matrices.
+\end{videocard}
+
+\section{Shortest Path Algorithms}
+
+In weighted graphs, BFS no longer finds the shortest path because a path with more edges might have a lower total weight. We need specialized algorithms.
+
+\subsection{Single-Source Shortest Paths}
+
+These algorithms find the shortest path from a \textit{single starting vertex} to all other vertices in the graph.
+
+\begin{definitionbox}{Dijkstra's Algorithm}
+\textbf{Dijkstra's Algorithm} uses a greedy approach to find the shortest paths from a source node $S$.
+\begin{itemize}
+    \item \textbf{Mechanism:} Maintains a set of visited nodes and a priority queue of unvisited nodes, always expanding the node with the current shortest known distance from $S$.
+    \item \textbf{Constraint:} Fails if the graph contains \textbf{negative edge weights}.
+    \item \textbf{Complexity:} $\mathcal{O}(|E| \log |V|)$ using a min-heap priority queue.
+\end{itemize}
+\end{definitionbox}
+
+\begin{examplebox}{Dijkstra's Algorithm Conceptual Steps}
+Suppose we want to find the shortest path from start node $S$ to all other nodes.
+\begin{enumerate}
+    \item \textbf{Initialization:} Set the distance to $S$ to $0$. Set the distance to all other nodes to $\infty$. Mark all nodes as unvisited.
+    \item \textbf{Selection:} Pick the unvisited node with the smallest known distance. Initially, this is $S$ (distance $0$).
+    \item \textbf{Relaxation:} For the current node, examine all its unvisited neighbors. Calculate the tentative distance to each neighbor through the current node. If this tentative distance is smaller than the neighbor's currently known distance, update the neighbor's distance.
+    \item \textbf{Completion:} Mark the current node as visited. A visited node's shortest distance is now finalized and will never change (assuming no negative edges).
+    \item \textbf{Iteration:} Repeat steps 2-4 until all nodes are visited, or until the smallest known distance among unvisited nodes is $\infty$ (meaning the remaining nodes are unreachable).
+\end{enumerate}
+\end{examplebox}
+
+\begin{videocard}{IITM BS Lecture: W11\_L5 Dijkstra's Algorithm}{https://www.youtube.com/watch?v=XXFcZyP2KlM}
+Official IIT Madras lecture tracing Dijkstra's greedy path selection step-by-step.
+\end{videocard}
+
+\begin{definitionbox}{Bellman-Ford Algorithm}
+\textbf{Bellman-Ford} also finds single-source shortest paths, but is more robust than Dijkstra's.
+\begin{itemize}
+    \item \textbf{Mechanism:} Relaxes (updates) \textit{all} edges $|V|-1$ times. If distances still update on the $|V|$-th pass, it proves the graph has a negative weight cycle.
+    \item \textbf{Advantage:} Works perfectly with \textbf{negative edge weights} and detects negative cycles.
+    \item \textbf{Complexity:} $\mathcal{O}(|V| \cdot |E|)$ (slower than Dijkstra).
+\end{itemize}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: W11\_L6 Bellman-Ford Algorithm}{https://www.youtube.com/watch?v=FGGMybRD4O4}
+Official IIT Madras lecture explaining edge relaxation and negative cycle detection.
+\end{videocard}
+
+\subsection{All-Pairs Shortest Paths}
+If we want the shortest path between \textit{every} pair of vertices, we use the \textbf{Floyd-Warshall Algorithm}. It is a dynamic programming algorithm (an extension of Warshall's) that evaluates intermediate nodes to find all shortest paths in $\mathcal{O}(|V|^3)$ time.
+
+\section{Minimum Cost Spanning Trees (MST)}
+
+\begin{definitionbox}{Spanning Tree}
+Given a connected, undirected graph $G=(V, E)$, a \textbf{spanning tree} is a subgraph that is a tree (contains no cycles) and includes every single vertex from $V$. It will always have exactly $|V|-1$ edges.
+\end{definitionbox}
+
+If the graph is weighted, the \textbf{Minimum Spanning Tree (MST)} is the spanning tree whose total edge weight is as small as possible. This is used in network design (e.g., laying the minimum length of fiber optic cable to connect a series of cities).
+
+\begin{theorembox}{Algorithms for Finding the MST}
+\begin{itemize}
+    \item \textbf{Prim's Algorithm (Node-based):}
+        \begin{itemize}
+            \item Start at an arbitrary node.
+            \item Greedily add the cheapest edge that connects a visited node to an unvisited node.
+            \item Repeat until all nodes are visited.
+        \end{itemize}
+    \item \textbf{Kruskal's Algorithm (Edge-based):}
+        \begin{itemize}
+            \item Sort all edges in the graph from lightest to heaviest.
+            \item Iterate through the sorted edges, adding them to the MST \textit{only if} they do not create a cycle (usually tracked via a Disjoint-Set / Union-Find data structure).
+        \end{itemize}
+\end{itemize}
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: W11\_L8 Minimum Cost Spanning Trees}{https://www.youtube.com/watch?v=3GwJAstzzBk}
+Official IIT Madras lecture introducing the MST problem and comparing the mechanics of Prim and Kruskal.
+\end{videocard}
+
+\section*{Supplementary Lecture Videos}
+For further reinforcement and specialized topics, refer to the following official IIT Madras lectures:
+\begin{itemize}
+    \item \href{https://www.youtube.com/watch?v=934a17SB5NY}{W11\_L1: Longest paths in DAGs – task scheduling \& dependencies}
+    \item \href{https://www.youtube.com/watch?v=N_PvNrQXUg4}{W11\_L3: Matrix multiplication | graphs, boolean algebra \& transitive closure}
+    \item \href{https://www.youtube.com/watch?v=4l_g6IQz6Go}{W11\_L4: Shortest paths in weighted graphs | single source \& all pairs}
+    \item \href{https://www.youtube.com/watch?v=Rhm-0SD-NfE}{W11\_L7: All-pairs shortest paths | floyd-warshall algorithm}
+    \item \href{https://www.youtube.com/watch?v=btr8zJBgaQg}{W11\_L9: Minimum cost spanning trees | prim’s algorithm}
+    \item \href{https://www.youtube.com/watch?v=-0diRWTGgk8}{W11\_L10: Minimum cost spanning trees | kruskal’s algorithm}
+\end{itemize}
+
+\newpage
+\section{Practice Exercises}
+\textit{Try to solve these exercises independently. Detailed step-by-step solutions are available in the Appendix at the end of the book.}
+
+\begin{enumerate}
+    \item \textbf{Algorithms:} You are writing navigation software for a delivery drone. The drone battery drains faster if it flies into a headwind, which is modeled as an edge with a negative weight (cost). Which shortest-path algorithm \textit{must} you use?
+    \item \textbf{Algorithms:} An undirected graph has $8$ vertices. How many edges will its Minimum Spanning Tree have?
+    \item \textbf{Pure Math:} You apply Kruskal's algorithm to a graph. The next lightest edge connects Node A and Node B. However, Node A and Node B are already in the same connected component of your growing MST. Should you add the edge? Why or why not?
+    \item \textbf{Complexity:} Why is Floyd-Warshall ($\mathcal{O}(|V|^3)$) preferred over running Dijkstra's algorithm from every single node ($\mathcal{O}(|V| \cdot |E| \log |V|)$) for dense graphs when finding all-pairs shortest paths?
+    \item \textbf{Graph Theory:} What mathematical operation on an Adjacency Matrix $A$ calculates the number of walks of exactly length $k$ between any two nodes?
+\end{enumerate}

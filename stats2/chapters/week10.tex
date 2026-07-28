@@ -1,0 +1,61 @@
+\chapter{Bayesian Estimation: Prior, Posterior, MAP \& Bayes Risk}
+
+While Frequentist statistics treats parameters $\theta$ as fixed unknown constants, \textbf{Bayesian Statistics} treats $\theta$ as a random variable with its own probability distribution. In this chapter, we master \textbf{Prior Distributions}, \textbf{Bayes' Rule for Parameters}, \textbf{Posterior Distributions}, \textbf{Maximum A Posteriori (MAP)} estimation, and \textbf{Bayes Expected Loss/Risk}.
+
+\section{The Bayesian Framework and Bayes' Rule for Parameters}
+
+\begin{definitionbox}{Prior, Likelihood, and Posterior}
+\begin{itemize}
+    \item \textbf{Prior Distribution $f(\theta)$:} Represents prior belief/knowledge about parameter $\theta$ before observing data.
+    \item \textbf{Likelihood $f(\mathbf{x} \mid \theta)$:} The probability density of data $\mathbf{x} = (x_1, \dots, x_n)$ given parameter $\theta$.
+    \item \textbf{Posterior Distribution $f(\theta \mid \mathbf{x})$:} Updated probability density of $\theta$ after observing data $\mathbf{x}$:
+\end{itemize}
+  $$f(\theta \mid \mathbf{x}) = \frac{f(\mathbf{x} \mid \theta) f(\theta)}{f(\mathbf{x})} = \frac{f(\mathbf{x} \mid \theta) f(\theta)}{\int f(\mathbf{x} \mid \theta') f(\theta') \, d\theta'} \propto L(\theta) \cdot f(\theta)$$
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Bayesian Estimation}{https://www.youtube.com/watch?v=iMjDOTIb3-Q}
+Official lecture introducing Bayesian philosophy, updating priors to posteriors using Bayes' rule.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Choice of Prior and Examples}{https://www.youtube.com/watch?v=SFlzn-0YgV0}
+Official lecture discussing uninformative priors, Beta-Binomial conjugate priors, and Normal-Normal conjugate priors.
+\end{videocard}
+
+\section{Point Estimators: MAP and Posterior Mean}
+
+Once the posterior distribution $f(\theta \mid \mathbf{x})$ is computed, we extract point estimates for $\theta$:
+
+\begin{formulabox}{Bayesian Point Estimator Recipes}
+1. \textbf{Maximum A Posteriori (MAP) Estimator $\hat{\theta}_{\text{MAP}}$:}
+   The mode of the posterior distribution (maximizes $f(\theta \mid \mathbf{x})$):
+   $$\hat{\theta}_{\text{MAP}} = \arg\max_{\theta} f(\theta \mid \mathbf{x}) = \arg\max_{\theta} [\ln f(\mathbf{x} \mid \theta) + \ln f(\theta)]$$
+2. \textbf{Bayes Estimator (Posterior Mean $\hat{\theta}_{\text{Bayes}}$ under Squared Error Loss):}
+   The expectation of the posterior distribution:
+   $$\hat{\theta}_{\text{Bayes}} = \E[\theta \mid \mathbf{x}] = \int \theta \, f(\theta \mid \mathbf{x}) \, d\theta$$
+\end{formulabox}
+
+\textbf{Data Science Relevance:} MAP estimation is mathematically equivalent to \textbf{Regularized Machine Learning}! Specifically, MAP with a Gaussian prior is $L_2$ Ridge Regularization, while MAP with a Laplace prior is $L_1$ Lasso Regularization!
+
+\begin{videocard}{IITM BS Lecture: Bayesian Estimation: Finding Estimators}{https://www.youtube.com/watch?v=2owMxamj-Tc}
+Official lecture solving MAP and Bayes Mean estimators for Beta-Binomial and Normal conjugate models.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+\item \textbf{Beta-Binomial Conjugate Posterior:} Let coin flip success probability $p \sim \text{Beta}(\alpha = 2, \beta = 2)$ with prior PDF $f(p) = 6p(1-p)$ for $0 \le p \le 1$. In $n = 5$ coin flips, $k = 4$ heads are observed ($L(p) = \binom{5}{4} p^4 (1-p)^1$).
+    \begin{enumerate}
+\item Find the posterior distribution $f(p \mid k = 4)$.
+    2. Compute the MAP estimator $\hat{p}_{\text{MAP}}$.
+    3. Compute the Bayes posterior mean estimator $\hat{p}_{\text{Bayes}}$.
+
+\item \textbf{Normal-Normal Conjugate Model:} Let observation $X \mid \mu \sim \mathcal{N}(\mu, \sigma^2 = 4)$. A prior is placed on $\mu \sim \mathcal{N}(\mu_0 = 0, \sigma_0^2 = 1)$. Single observation $x = 5$ is made. Compute the posterior mean $\E[\mu \mid X = 5]$.
+
+\item \textbf{Uniform Prior MAP vs MLE Comparison:} Let $X \sim \text{Binomial}(n = 10, p)$. If we assume a uniform prior $p \sim \text{Uniform}(0, 1)$, show that $\hat{p}_{\text{MAP}} = \hat{p}_{\text{MLE}} = \frac{x}{10}$.
+
+\item \textbf{Laplace Prior and $L_1$ Regularization Equivalence:} Show that maximizing the log-posterior $\ln f(\mathbf{w} \mid \mathbf{x}, y) = \ln f(y \mid \mathbf{x}, \mathbf{w}) + \ln f(\mathbf{w})$ under a zero-mean Laplace prior $f(w_j) = \frac{\lambda}{2} e^{-\lambda |w_j|}$ adds an $L_1$ penalty term $-\lambda \|\mathbf{w}\|_1$ to the log-likelihood (Lasso regression).
+
+\item \textbf{Data Science Application (Bayesian AB Testing Click Probability):} In an email campaign, variant A conversion probability $p$ is assigned prior $\text{Beta}(1, 1)$ (Uniform). After sending $n = 100$ emails, $k = 15$ conversions occur. Compute the posterior distribution $\text{Beta}(\alpha', \beta')$ and the $95\%$ posterior mean estimate for conversion rate.
+\end{enumerate}

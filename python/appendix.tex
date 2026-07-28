@@ -1,0 +1,842 @@
+\appendix
+\chapter{Solutions to Practice Exercises}
+
+This appendix contains step-by-step solutions and explanations for all practice exercises across Weeks 1 to 12.
+
+\section*{Week 1: Introduction to Python, Variables, Data Types \& Operators}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Variable Types}
+\begin{itemize}
+    \item \textbf{(a)} `10 / 2`: \textbf{`float`}. In Python 3, standard division `/` always returns a floating-point number (`5.0`), even if the result is a whole number.
+    \item \textbf{(b)} `10 // 2`: \textbf{`int`}. Floor division `//` truncates the fractional part and returns an integer (`5`).
+    \item \textbf{(c)} `"100" + "200"`: \textbf{`str`}. Using `+` on two strings performs concatenation, producing `"100200"`.
+    \item \textbf{(d)} `(5 > 3) and (2 == 4)`: \textbf{`bool`}. `5 > 3` evaluates to `True`, and `2 == 4` evaluates to `False`. `True and False` evaluates to `False`.
+\end{itemize}
+
+\textbf{2. Arithmetic Logic}
+\begin{itemize}
+    \item \textbf{(a)} `2 + 3 * 4 ** 2`: Exponentiation has highest precedence ($4^2 = 16$). Next is multiplication ($3 \times 16 = 48$). Finally addition ($2 + 48 = \mathbf{50}$).
+    \item \textbf{(b)} `25 % 7`: Modulus gives the remainder of $25 \div 7$. $7 \times 3 = 21$, leaving a remainder of $\mathbf{4}$.
+    \item \textbf{(c)} `19 // 4`: Floor division of $19 \div 4 = 4.75$, dropping the decimal gives $\mathbf{4}$.
+\end{itemize}
+
+\textbf{3. String Slicing}
+\begin{itemize}
+    \item \textbf{(a)} `text[0:7]` or `text[:7]` returns `"Machine"`.
+    \item \textbf{(b)} `text[7:]` returns `"Learning"`.
+    \item \textbf{(c)} `text[-8:]` extracts the last 8 characters, which is `"Learning"`.
+    \item \textbf{(d)} `text[::-1]` reverses the string to `"gninraeLEnihcaM"`.
+\end{itemize}
+
+\textbf{4. Type Casting \& Input}
+\begin{lstlisting}
+age_str = "22"
+future_age = int(age_str) + 5
+print(f"In 5 years, you will be {future_age}")
+\end{lstlisting}
+
+\textbf{5. Data Science Application: BMI Calculation}
+\begin{lstlisting}
+weight = 75
+height = 1.75
+bmi = round(weight / (height ** 2), 2)
+print("Patient BMI:", bmi)  # Output: Patient BMI: 24.49
+\end{lstlisting}
+
+\section*{Week 2: Control Flow \& Conditionals}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Leap Year Logic}
+\begin{lstlisting}
+year = 2024
+if (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0):
+    print(f"{year} is a Leap Year")
+else:
+    print(f"{year} is NOT a Leap Year")
+\end{lstlisting}
+
+\textbf{2. Short-Circuit Evaluation}
+The output is \textbf{`Safe`}.
+Because `x = 0`, the first operand `x != 0` evaluates to `False`. Due to short-circuit evaluation, Python immediately knows the entire `and` expression is `False` without evaluating the second term `(10 / x > 2)`. Thus, division by zero never occurs, preventing a runtime crash.
+
+\textbf{3. Ternary Operator}
+\begin{lstlisting}
+result = "Pass" if score >= 50 else "Fail"
+\end{lstlisting}
+
+\textbf{4. Random Sampling}
+\begin{lstlisting}
+import random
+d1, d2 = random.randint(1, 6), random.randint(1, 6)
+print(f"Die 1: {d1}, Die 2: {d2}, Total: {d1 + d2}")
+\end{lstlisting}
+
+\textbf{5. Data Science Application: Anomaly Detection}
+\begin{lstlisting}
+temp = 31.5
+if 18 <= temp <= 28:
+    status = "Normal"
+elif temp < 18:
+    status = "Warning: Low Temp"
+else:
+    status = "Alert: Overheating"
+
+print(status)  # Output: Alert: Overheating
+\end{lstlisting}
+
+\section*{Week 3: Loops \& Iteration}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Factorial Calculation}
+\begin{lstlisting}
+N = 6
+factorial = 1
+curr = N
+while curr > 0:
+    factorial *= curr
+    curr -= 1
+
+print(f"{N}! = {factorial}")  # Output: 6! = 720
+\end{lstlisting}
+
+\textbf{2. Pattern Printing}
+\begin{lstlisting}
+N = 4
+for i in range(1, N + 1):
+    for j in range(i):
+        print("*", end="")
+    print()
+\end{lstlisting}
+
+\textbf{3. Sum of Evens}
+\begin{lstlisting}
+even_sum = 0
+for i in range(2, 51, 2):
+    even_sum += i
+
+print(f"Sum of evens from 1 to 50: {even_sum}")  # Output: 650
+\end{lstlisting}
+
+\textbf{4. Early Stopping (`break`)}
+\begin{lstlisting}
+scores = [12, 45, 67, 89, 92, 40]
+for score in scores:
+    if score >= 80:
+        print(f"Threshold Met: {score}")  # Prints 89
+        break
+\end{lstlisting}
+
+\textbf{5. Data Science Simulation: Convergence Check}
+\begin{lstlisting}
+x = 10.0
+iterations = 0
+while x >= 0.01:
+    x *= 0.5
+    iterations += 1
+
+print(f"Converged in {iterations} iterations. Final x: {x}")
+# Output: Converged in 10 iterations. Final x: 0.009765625
+\end{lstlisting}
+
+\section*{Week 4: Lists \& Basic Matrix Algorithms}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. List Operations}
+\begin{lstlisting}
+data = [15, 8, 42, 4, 23]
+data.append(16)   # [15, 8, 42, 4, 23, 16]
+data.sort()       # [4, 8, 15, 16, 23, 42]
+data.reverse()    # [42, 23, 16, 15, 8, 4]
+print(data)
+\end{lstlisting}
+
+\textbf{2. Vector Euclidean Distance}
+\begin{lstlisting}
+import math
+p = [1, 2]
+q = [4, 6]
+
+dist = math.sqrt((p[0] - q[0])**2 + (p[1] - q[1])**2)
+print("Euclidean Distance:", dist)  # Output: 5.0
+\end{lstlisting}
+
+\textbf{3. Matrix Transpose}
+\begin{lstlisting}
+A = [[1, 2, 3], 
+     [4, 5, 6]]
+
+AT = []
+for j in range(len(A[0])):  # Columns of A become rows of AT
+    row = []
+    for i in range(len(A)):
+        row.append(A[i][j])
+    AT.append(row)
+
+print("A Transposed:", AT)  # Output: [[1, 4], [2, 5], [3, 6]]
+\end{lstlisting}
+
+\textbf{4. Manual Selection Sort}
+\begin{lstlisting}
+arr = [64, 25, 12, 22, 11]
+n = len(arr)
+
+for i in range(n):
+    min_idx = i
+    for j in range(i + 1, n):
+        if arr[j] < arr[min_idx]:
+            min_idx = j
+    # Swap minimum found with first unsorted element
+    arr[i], arr[min_idx] = arr[min_idx], arr[i]
+
+print("Sorted Array:", arr)  # Output: [11, 12, 22, 25, 64]
+\end{lstlisting}
+
+\textbf{5. Data Science Application: Min-Max Normalization}
+\begin{lstlisting}
+features = [10, 20, 30, 40, 50]
+x_min = min(features)
+x_max = max(features)
+
+scaled = []
+for x in features:
+    x_scaled = (x - x_min) / (x_max - x_min)
+    scaled.append(round(x_scaled, 2))
+
+print("Normalized Features:", scaled)
+# Output: [0.0, 0.25, 0.5, 0.75, 1.0]
+\end{lstlisting}
+
+\section*{Week 5: Tuples, Dictionaries \& Sets}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Tuple Operations}
+\begin{lstlisting}
+student = ("Alice", 21, "Data Science", 3.8)
+name, age, major, gpa = student
+
+# Trying to modify student[1] = 22 raises:
+# TypeError: 'tuple' object does not support item assignment
+\end{lstlisting}
+
+\textbf{2. Dictionary Lookup \& Updating}
+\begin{lstlisting}
+stock_prices = {"AAPL": 175.5, "GOOGL": 140.2, "MSFT": 380.0}
+
+stock_prices["AAPL"] = 180.0
+stock_prices["AMZN"] = 150.0
+
+nvda_price = stock_prices.get("NVDA", 0.0)
+print("NVDA Price:", nvda_price)  # Output: 0.0
+\end{lstlisting}
+
+\textbf{3. Set Membership \& Deduplication}
+\begin{lstlisting}
+ids = [101, 102, 101, 105, 102, 108]
+unique_ids = set(ids)
+
+print("Unique IDs:", unique_ids)  # {101, 102, 105, 108}
+print("Is 105 present?", 105 in unique_ids)  # True
+\end{lstlisting}
+
+\textbf{4. Set Algebra}
+\begin{lstlisting}
+A = {"Alice", "Bob", "Charlie"}
+B = {"Bob", "David", "Alice"}
+
+intersection = A & B  # {"Alice", "Bob"}
+union = A | B         # {"Alice", "Bob", "Charlie", "David"}
+
+print("Both Cohorts:", intersection)
+print("All Unique Cohort Members:", union)
+\end{lstlisting}
+
+\textbf{5. Data Science Application: Categorical Encoding Map}
+\begin{lstlisting}
+labels = ["cat", "dog", "cat", "bird", "dog"]
+
+label2idx = {}
+for label in labels:
+    if label not in label2idx:
+        label2idx[label] = len(label2idx)
+
+print("Label Encoding Map:", label2idx)
+# Output: {'cat': 0, 'dog': 1, 'bird': 2}
+\end{lstlisting}
+
+\section*{Week 6: Functions, Arguments \& Scope}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Basic Function}
+\begin{lstlisting}
+def is_even(n):
+    return n % 2 == 0
+
+print(is_even(4))  # True
+print(is_even(7))  # False
+\end{lstlisting}
+
+\textbf{2. Default Arguments}
+\begin{lstlisting}
+def compute_power(base, exponent=2):
+    return base ** exponent
+
+print(compute_power(5))     # Output: 25 (5^2)
+print(compute_power(2, 3))  # Output: 8  (2^3)
+\end{lstlisting}
+
+\textbf{3. Flexible Aggregation (`*args`)}
+\begin{lstlisting}
+def calculate_mean(*args):
+    if not args:
+        return 0.0
+    return sum(args) / len(args)
+
+print(calculate_mean(10, 20, 30, 40))  # Output: 25.0
+print(calculate_mean())                # Output: 0.0
+\end{lstlisting}
+
+\textbf{4. Variable Scope}
+\begin{lstlisting}
+# Output:
+# Inside: 100
+# Outside: 50
+\end{lstlisting}
+\textbf{Explanation:} Inside `modify_val()`, the assignment `x = 100` creates a new \emph{local} variable `x` within the function scope. It shadows the global `x` without modifying it. Once the function finishes, the local variable is destroyed, and the global variable `x` remains `50`.
+
+\textbf{5. Data Science Application: Min-Max Scaler Function}
+\begin{lstlisting}
+def min_max_scaler(data):
+    if not data:
+        return []
+    x_min = min(data)
+    x_max = max(data)
+    if x_min == x_max:
+        return [0.0] * len(data)
+    
+    return [round((x - x_min) / (x_max - x_min), 3) for x in data]
+
+sample_data = [10, 25, 50, 75, 100]
+print(min_max_scaler(sample_data))
+# Output: [0.0, 0.167, 0.444, 0.722, 1.0]
+\end{lstlisting}
+
+\section*{Week 7: Functional Programming, Comprehensions \& Generators}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. List Comprehension Filtering}
+\begin{lstlisting}
+words = ["python", "data", "science", "ai", "machine", "ml"]
+filtered = [w.upper() for w in words if len(w) > 3]
+
+print(filtered)  # Output: ['PYTHON', 'DATA', 'SCIENCE', 'MACHINE']
+\end{lstlisting}
+
+\textbf{2. Lambda Sorting}
+\begin{lstlisting}
+students = [("Alice", 88), ("Bob", 95), ("Charlie", 78), ("David", 90)]
+
+sorted_students = sorted(students, key=lambda student: student[1], reverse=True)
+print(sorted_students)
+# Output: [('Bob', 95), ('David', 90), ('Alice', 88), ('Charlie', 78)]
+\end{lstlisting}
+
+\textbf{3. Zipping Vectors}
+\begin{lstlisting}
+x = [1, 2, 3]
+y = [10, 20, 30]
+
+elementwise_sum = [a + b for a, b in zip(x, y)]
+print(elementwise_sum)  # Output: [11, 22, 33]
+\end{lstlisting}
+
+\textbf{4. Squares Generator}
+\begin{lstlisting}
+def generate_squares(n):
+    for i in range(1, n + 1):
+        yield i ** 2
+
+for val in generate_squares(5):
+    print(val, end=" ")  # Output: 1 4 9 16 25
+print()
+\end{lstlisting}
+
+\textbf{5. Data Science Application: Text Preprocessing Pipeline}
+\begin{lstlisting}
+text = "   Data Science and Machine Learning 101   "
+
+# 1 & 2. Strip whitespace, lower case, tokenize
+tokens = text.strip().lower().split()
+
+# 3. Filter out numeric tokens
+clean_tokens = list(filter(lambda w: not w.isdigit(), tokens))
+
+print(clean_tokens)
+# Output: ['data', 'science', 'and', 'machine', 'learning']
+\end{lstlisting}
+
+\section*{Week 8: File Handling \& Exception Management}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. File Writing \& Reading}
+\begin{lstlisting}
+# Part A: Writing log lines
+with open("log.txt", "w") as f:
+    f.write("2026-07-26 INFO Model training started\n")
+    f.write("2026-07-26 INFO Epoch 1 complete\n")
+    f.write("2026-07-26 INFO Model saved\n")
+
+# Part B: Counting lines
+with open("log.txt", "r") as f:
+    line_count = sum(1 for _ in f)
+
+print(f"Total lines in log.txt: {line_count}")  # Output: 3
+\end{lstlisting}
+
+\textbf{2. Handling Missing Files}
+\begin{lstlisting}
+try:
+    with open("missing_dataset.csv", "r") as f:
+        content = f.read()
+except FileNotFoundError:
+    print("Dataset file not found. Please check filepath.")
+\end{lstlisting}
+
+\textbf{3. Safe Type Conversion Function}
+\begin{lstlisting}
+def safe_float(value):
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return None
+
+print(safe_float("3.14"))  # 3.14
+print(safe_float("abc"))   # None
+print(safe_float([1, 2]))  # None
+\end{lstlisting}
+
+\textbf{4. Parsing Log File Data}
+\begin{lstlisting}
+total_score = 0.0
+valid_count = 0
+
+with open("scores.txt", "r") as f:
+    for line in f:
+        try:
+            val = float(line.strip())
+            total_score += val
+            valid_count += 1
+        except ValueError:
+            # Skip invalid header or corrupted text lines
+            continue
+
+if valid_count > 0:
+    avg = total_score / valid_count
+    print(f"Average Score: {avg:.2f}")
+\end{lstlisting}
+
+\textbf{5. Data Science Application: CSV Line Cleaner}
+\begin{lstlisting}
+def clean_csv(input_path, output_path):
+    cleaned_lines = 0
+    with open(input_path, "r") as fin, open(output_path, "w") as fout:
+        for line in fin:
+            stripped = line.strip()
+            # Ignore empty lines and comment lines
+            if stripped and not stripped.startswith("#"):
+                fout.write(line)
+                cleaned_lines += 1
+    print(f"Cleaned CSV written with {cleaned_lines} valid rows.")
+\end{lstlisting}
+
+\section*{Week 9: Recursion \& Searching Algorithms}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Recursive Sum}
+\begin{lstlisting}
+def recursive_sum(n):
+    if n <= 1:
+        return n
+    return n + recursive_sum(n - 1)
+
+print(recursive_sum(10))  # Output: 55
+\end{lstlisting}
+
+\textbf{2. Recursive String Reversal}
+\begin{lstlisting}
+def reverse_string(s):
+    if len(s) <= 1:
+        return s
+    return s[-1] + reverse_string(s[:-1])
+
+print(reverse_string("python"))  # Output: "nohtyp"
+\end{lstlisting}
+
+\textbf{3. Binary Search Trace}
+Array: `[2, 5, 8, 12, 16, 23, 38, 56, 72, 91]`, Target: `23`.
+\begin{enumerate}
+    \item \textbf{Step 1:} `low = 0`, `high = 9`. `mid = (0 + 9) // 2 = 4`. `arr[4] = 16`. Since $23 > 16$, search right half: `low = 5`.
+    \item \textbf{Step 2:} `low = 5`, `high = 9`. `mid = (5 + 9) // 2 = 7`. `arr[7] = 56`. Since $23 < 56$, search left half: `high = 6`.
+    \item \textbf{Step 3:} `low = 5`, `high = 6`. `mid = (5 + 6) // 2 = 5`. `arr[5] = 23`. Match found!
+\end{enumerate}
+\textbf{Total Comparisons:} $\mathbf{3}$ comparison steps required.
+
+\textbf{4. Recursive Fibonacci with Memoization}
+\begin{lstlisting}
+def fib_memo(n, memo=None):
+    if memo is None:
+        memo = {}
+    if n in memo:
+        return memo[n]
+    if n <= 1:
+        return n
+    
+    memo[n] = fib_memo(n - 1, memo) + fib_memo(n - 2, memo)
+    return memo[n]
+
+print(fib_memo(50))  # Output: 12586269025 (computes instantly!)
+\end{lstlisting}
+
+\textbf{5. Data Science Application: Square Root via Binary Search}
+\begin{lstlisting}
+def sqrt_binary_search(val, tol=1e-5):
+    if val < 0:
+        return None
+    low, high = 0.0, max(1.0, val)
+    
+    while high - low > tol:
+        mid = (low + high) / 2.0
+        if mid * mid < val:
+            low = mid
+        else:
+            high = mid
+            
+    return round((low + high) / 2.0, 5)
+
+print("sqrt(25) =", sqrt_binary_search(25))  # Output: 5.0
+print("sqrt(2) =", sqrt_binary_search(2))    # Output: 1.41421
+\end{lstlisting}
+
+\section*{Week 10: Object-Oriented Programming (OOP)}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Basic Class Creation}
+\begin{lstlisting}
+import math
+
+class Circle:
+    def __init__(self, radius):
+        self.radius = radius
+
+    def area(self):
+        return round(math.pi * (self.radius ** 2), 2)
+
+    def circumference(self):
+        return round(2 * math.pi * self.radius, 2)
+
+c = Circle(5.0)
+print("Area:", c.area())                  # Output: 78.54
+print("Circumference:", c.circumference())  # Output: 31.42
+\end{lstlisting}
+
+\textbf{2. Class Encapsulation}
+\begin{lstlisting}
+class BankAccount:
+    def __init__(self, balance=0.0):
+        self.__balance = balance  # Private attribute
+
+    def deposit(self, amount):
+        if amount > 0:
+            self.__balance += amount
+
+    def withdraw(self, amount):
+        if 0 < amount <= self.__balance:
+            self.__balance -= amount
+            return True
+        return False
+
+    def get_balance(self):
+        return self.__balance
+
+acc = BankAccount(100.0)
+acc.deposit(50.0)
+acc.withdraw(30.0)
+print("Balance:", acc.get_balance())  # Output: 120.0
+\end{lstlisting}
+
+\textbf{3. Class vs Instance Variables}
+\textbf{Class variables} are shared by all instances of a class. \textbf{Instance variables} are bound to a specific object instance.
+\begin{lstlisting}
+class Dog:
+    species = "Canis lupus"  # Class Variable shared across all dogs
+
+    def __init__(self, name):
+        self.name = name     # Instance Variable unique to each dog
+
+d1, d2 = Dog("Buddy"), Dog("Max")
+print(d1.species, d1.name)  # Canis lupus Buddy
+print(d2.species, d2.name)  # Canis lupus Max
+\end{lstlisting}
+
+\textbf{4. Inheritance Hierarchy}
+\begin{lstlisting}
+class Vehicle:
+    def __init__(self, brand):
+        self.brand = brand
+
+    def drive(self):
+        print(f"Driving {self.brand} vehicle...")
+
+class ElectricCar(Vehicle):
+    def __init__(self, brand, battery_capacity):
+        super().__init__(brand)
+        self.battery_capacity = battery_capacity
+
+    def drive(self):  # Method Overriding
+        print(f"Driving {self.brand} silently on {self.battery_capacity} kWh battery")
+
+tesla = ElectricCar("Tesla", 85)
+tesla.drive()  # Output: Driving Tesla silently on 85 kWh battery
+\end{lstlisting}
+
+\textbf{5. Data Science Application: Custom StandardScaler Class}
+\begin{lstlisting}
+import math
+
+class StandardScaler:
+    def __init__(self):
+        self.mean = 0.0
+        self.std = 1.0
+
+    def fit(self, data):
+        self.mean = sum(data) / len(data)
+        variance = sum((x - self.mean) ** 2 for x in data) / len(data)
+        self.std = math.sqrt(variance)
+
+    def transform(self, data):
+        if self.std == 0:
+            return [0.0] * len(data)
+        return [round((x - self.mean) / self.std, 3) for x in data]
+
+scaler = StandardScaler()
+train_data = [10.0, 20.0, 30.0, 40.0, 50.0]
+scaler.fit(train_data)
+
+scaled = scaler.transform(train_data)
+print("Standardized Data:", scaled)
+# Output: [-1.414, -0.707, 0.0, 0.707, 1.414]
+\end{lstlisting}
+
+\section*{Week 11: Scientific Computing: NumPy \& Pandas}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. NumPy Vectorization}
+\begin{lstlisting}
+import numpy as np
+
+arr = np.arange(1, 11)
+
+# Part A: Boolean mask for odds
+mask = (arr % 2 != 0)
+
+# Part B: Extract odds
+odds = arr[mask]
+print("Odds:", odds)  # [1, 3, 5, 7, 9]
+
+# Part C: Replace evens with -1
+arr[arr % 2 == 0] = -1
+print("Modified Array:", arr)  # [ 1 -1  3 -1  5 -1  7 -1  9 -1]
+\end{lstlisting}
+
+\textbf{2. Matrix Statistics with NumPy}
+\begin{lstlisting}
+mat = np.arange(1, 10).reshape(3, 3)
+
+total_sum = mat.sum()
+col_means = mat.mean(axis=0)
+row_maxs = mat.max(axis=1)
+
+print("Total Sum:", total_sum)      # 45
+print("Column Means:", col_means)  # [4. 5. 6.]
+print("Row Maxima:", row_maxs)     # [3 6 9]
+\end{lstlisting}
+
+\textbf{3. Pandas Filtering \& Selection}
+\begin{lstlisting}
+import pandas as pd
+
+df = pd.DataFrame({
+    'City': ['Mumbai', 'Delhi', 'Bangalore', 'Chennai'],
+    'Temp': [32, 40, 24, 34],
+    'Humidity': [80, 45, 65, 75]
+})
+
+filtered_df = df[(df['Temp'] > 30) & (df['Humidity'] > 70)]
+print(filtered_df)
+# Output:
+#       City  Temp  Humidity
+# 0   Mumbai    32        80
+# 3  Chennai    34        75
+\end{lstlisting}
+
+\textbf{4. Pandas Missing Data Handling}
+\begin{lstlisting}
+import pandas as pd
+import numpy as np
+
+df = pd.DataFrame({
+    'A': [1.0, 2.0, np.nan, 4.0],
+    'B': [np.nan, 10.0, 20.0, 30.0]
+})
+
+df['A'] = df['A'].fillna(df['A'].mean())
+df['B'] = df['B'].fillna(0.0)
+
+print(df)
+# Output:
+#           A     B
+# 0  1.000000   0.0
+# 1  2.000000  10.0
+# 2  2.333333  20.0
+# 3  4.000000  30.0
+\end{lstlisting}
+
+\textbf{5. Data Science Application: Groupby Aggregation}
+\begin{lstlisting}
+sales_df = pd.DataFrame({
+    'Category': ['Tech', 'Tech', 'Office', 'Office', 'Tech'],
+    'Revenue': [1200, 800, 150, 300, 2000]
+})
+
+total_rev = sales_df.groupby('Category')['Revenue'].sum()
+print(total_rev)
+# Output:
+# Category
+# Office     450
+# Tech      4000
+# Name: Revenue, dtype: int64
+\end{lstlisting}
+
+\section*{Week 12: Data Visualization \& Course Summary}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Basic Line Plot}
+\begin{lstlisting}
+import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.linspace(-5, 5, 100)
+y = x ** 2
+
+plt.figure(figsize=(6, 4))
+plt.plot(x, y, color='blue', linewidth=2)
+plt.title("Quadratic Function")
+plt.xlabel("x")
+plt.ylabel("f(x) = x^2")
+plt.grid(True)
+plt.show()
+\end{lstlisting}
+
+\textbf{2. Comparing Distributions (Subplots)}
+\begin{lstlisting}
+import matplotlib.pyplot as plt
+import numpy as np
+
+fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+
+# Subplot 1: Bar Chart
+langs = ['Python', 'SQL', 'R']
+scores = [95, 80, 60]
+axes[0].bar(langs, scores, color='skyblue', edgecolor='black')
+axes[0].set_title("Language Popularity")
+
+# Subplot 2: Histogram
+data = np.random.uniform(0, 100, 500)
+axes[1].hist(data, bins=20, color='orange', edgecolor='black')
+axes[1].set_title("Uniform Distribution")
+
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+\textbf{3. Customizing Scatter Plots}
+\begin{lstlisting}
+import matplotlib.pyplot as plt
+import numpy as np
+
+np.random.seed(42)
+x = np.random.rand(20)
+y = np.random.rand(20)
+
+plt.scatter(x, y, color='green', marker='^', s=50)
+plt.title("Green Triangle Scatter Plot")
+plt.xlabel("X values")
+plt.ylabel("Y values")
+plt.show()
+\end{lstlisting}
+
+\textbf{4. Comprehensive Review Question: Data Pipeline Function}
+\begin{lstlisting}
+import numpy as np
+
+def analyze_dataset(data):
+    # 1. Clean negative numbers using list comprehension
+    clean_data = [x for x in data if x >= 0]
+    
+    if not clean_data:
+        return {"count": 0, "mean": 0.0, "std": 0.0}
+        
+    # 2. Convert to NumPy for stats
+    arr = np.array(clean_data)
+    
+    # 3. Return summary dict
+    return {
+        "count": len(arr),
+        "mean": round(float(arr.mean()), 2),
+        "std": round(float(arr.std()), 2)
+    }
+
+raw_measurements = [12.5, -4.0, 18.2, 22.0, -1.0, 15.8]
+print(analyze_dataset(raw_measurements))
+# Output: {'count': 4, 'mean': 17.12, 'std': 3.42}
+\end{lstlisting}
+
+\textbf{5. Data Science Application: Plotting a Loss Curve}
+\begin{lstlisting}
+import matplotlib.pyplot as plt
+
+epochs = list(range(1, 11))
+loss = [2.5, 1.8, 1.2, 0.8, 0.5, 0.35, 0.25, 0.18, 0.15, 0.12]
+
+plt.figure(figsize=(7, 4))
+plt.plot(epochs, loss, 'r-s', label="Training Loss", linewidth=2)
+plt.title("Deep Learning Model Loss Curve")
+plt.xlabel("Epochs")
+plt.ylabel("Cross-Entropy Loss")
+plt.legend()
+plt.grid(True)
+plt.show()
+\end{lstlisting}
+
+
+
+
+
+
+
+
+
+
+

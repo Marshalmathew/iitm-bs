@@ -1,0 +1,107 @@
+\chapter{Tuples, Dictionaries \& Sets}
+
+Python provides specialized container structures beyond lists, each tailored for performance, immutability, or fast lookup operations: \textbf{Tuples} (immutable sequences), \textbf{Dictionaries} (key-value hash maps), and \textbf{Sets} (unordered unique collections).
+
+\section{Tuples: Immutable Sequences}
+
+A \textbf{Tuple} is an ordered, immutable sequence of elements defined using parentheses `()`.
+
+\begin{definitionbox}{Tuple Properties}
+\begin{lstlisting}
+point = (10, 20, 30)
+print(point[0])    # 10
+
+# Tuple Unpacking
+x, y, z = point    # x=10, y=20, z=30
+
+# Immutability: point[0] = 99 raises a TypeError!
+\end{lstlisting}
+\end{definitionbox}
+
+\textbf{Data Science Relevance:} Tuples guarantee data integrity for fixed coordinates, dataset shapes (`df.shape` returns `(rows, cols)`), and function return values.
+
+\begin{videocard}{IITM BS Lecture: Tuples Explained}{https://www.youtube.com/watch?v=z-n9yQaWr7o}
+Official lecture explaining tuple immutability, packing, unpacking, and hashability.
+\end{videocard}
+
+\section{Dictionaries: Key-Value Mapping}
+
+A \textbf{Dictionary} store elements in `{key: value}` pairs. Dictionaries provide $\mathcal{O}(1)$ average-time complexity for retrieval by key.
+
+\begin{theorembox}{Dictionary Rules}
+\begin{itemize}
+    \item \textbf{Keys must be unique and immutable (hashable):} Strings, numbers, and tuples can be keys; lists cannot.
+    \item \textbf{Values can be anything:} Lists, nested dictionaries, functions, objects.
+\end{itemize}
+\end{theorembox}
+
+\begin{examplebox}{Word Frequency Counting}
+\begin{lstlisting}
+text = "apple banana apple orange banana apple"
+words = text.split()
+
+counts = {}
+for w in words:
+    counts[w] = counts.get(w, 0) + 1
+
+print(counts)  # Output: {'apple': 3, 'banana': 2, 'orange': 1}
+\end{lstlisting}
+\end{examplebox}
+
+\textbf{Data Science Relevance:} Dictionaries are used to represent JSON API responses, category-to-index mappings in Natural Language Processing (vocabularies), and model hyperparameter configuration dicts.
+
+\begin{videocard}{IITM BS Lecture: Dictionaries for Efficient Storage}{https://www.youtube.com/watch?v=X8Nj5cxaP9E}
+Official lecture detailing dictionary creation, `.keys()`, `.values()`, `.items()`, and `.get()` methods.
+\end{videocard}
+
+\section{Sets: Unordered Unique Collections}
+
+A \textbf{Set} is an unordered collection of unique elements defined using `{}` or `set()`.
+
+\begin{formulabox}{Set Operations}
+\begin{itemize}
+    \item \textbf{Union (`A | B`):} Elements in $A$, $B$, or both.
+    \item \textbf{Intersection (`A & B`):} Elements in both $A$ and $B$.
+    \item \textbf{Difference (`A - B`):} Elements in $A$ but not in $B$.
+    \item \textbf{Symmetric Difference (`A ^ B`):} Elements in $A$ or $B$ but not both.
+\end{itemize}
+\end{formulabox}
+
+\begin{videocard}{IITM BS Lecture: Sets and Set Operations}{https://www.youtube.com/watch?v=qoV4tdDD8zE}
+Official lecture explaining set mathematical operations, duplicate removal, and membership testing speed.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{Tuple Operations:} Given `student = ("Alice", 21, "Data Science", 3.8)`:
+    \begin{enumerate}
+        \item Unpack this tuple into variables `name`, `age`, `major`, and `gpa`.
+        \item What happens if you try to modify `student[1] = 22`?
+    \end{enumerate}
+
+    \item \textbf{Dictionary Lookup \& Updating:} Create a dictionary `stock_prices = {"AAPL": 175.5, "GOOGL": 140.2, "MSFT": 380.0}`:
+    \begin{enumerate}
+        \item Update the price of `"AAPL"` to `180.0`.
+        \item Add a new key `"AMZN"` with price `150.0`.
+        \item Safely fetch the price of `"NVDA"` using `.get()` without raising a `KeyError`, returning `0.0` if missing.
+    \end{enumerate}
+
+    \item \textbf{Set Membership \& Deduplication:} Given a raw customer ID list with duplicates `ids = [101, 102, 101, 105, 102, 108]`:
+    \begin{enumerate}
+        \item Convert the list to a set to remove all duplicates.
+        \item Check if customer `105` is in the set.
+    \end{enumerate}
+
+    \item \textbf{Set Algebra:} Given two user cohorts:
+    $$A = \{\text{"Alice"}, \text{"Bob"}, \text{"Charlie"}\}, \quad B = \{\text{"Bob"}, \text{"David"}, \text{"Alice"}\}$$
+    \begin{enumerate}
+        \item Find the intersection of $A$ and $B$.
+        \item Find the unique users across both cohorts (union).
+    \end{enumerate}
+
+    \item \textbf{Data Science Application (Categorical Encoding Map):} In preprocessing categorical labels into numeric indices for Machine Learning:
+    Given `labels = ["cat", "dog", "cat", "bird", "dog"]`, write a Python snippet to extract unique labels into a dictionary `label2idx` mapping each unique label to a unique integer index (e.g. `{"cat": 0, "dog": 1, "bird": 2}`).
+\end{enumerate}

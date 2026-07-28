@@ -1,0 +1,115 @@
+\chapter{Eigenvalues, Eigenvectors, Diagonalization \& SVD}
+
+Eigenvalues and Eigenvectors form the ultimate cornerstone of modern linear algebra and data science. In this capstone chapter, we master \textbf{Eigen-decomposition}, \textbf{Matrix Diagonalization}, and \textbf{Singular Value Decomposition (SVD)}.
+
+\section{Eigenvalues and Eigenvectors}
+
+When a matrix $A \in \mathbb{R}^{n \times n}$ acts on a vector $\mathbf{v}$, it typically changes both the magnitude and direction of $\mathbf{v}$. However, certain non-zero vectors maintain their original direction and are merely scaled by a factor $\lambda$.
+
+\begin{definitionbox}{Eigenvalue Problem}
+A non-zero vector $\mathbf{v} \neq \mathbf{0}$ is an \textbf{Eigenvector} of $A$ with corresponding \textbf{Eigenvalue} $\lambda \in \mathbb{R}$ (or $\mathbb{C}$) if:
+$$A \mathbf{v} = \lambda \mathbf{v}$$
+Equivalently:
+$$(A - \lambda I) \mathbf{v} = \mathbf{0}$$
+\end{definitionbox}
+
+\begin{theorembox}{The Characteristic Equation}
+Since $\mathbf{v} \neq \mathbf{0}$, the matrix $(A - \lambda I)$ must be singular ($\det(A - \lambda I) = 0$).
+1. \textbf{Characteristic Polynomial:} $p(\lambda) = \det(A - \lambda I) = 0$. Solve for roots $\lambda_1, \lambda_2, \dots, \lambda_n$.
+2. \textbf{Eigenspace:} For each $\lambda_i$, solve $(A - \lambda_i I)\mathbf{v} = \mathbf{0}$ to find the basis of eigenvectors $\text{Null}(A - \lambda_i I)$.
+\end{theorembox}
+
+\begin{videocard}{3Blue1Brown: Essence of Linear Algebra (Eigenvalues & Eigenvectors)}{https://www.youtube.com/watch?v=PFDu9oVAE-g}
+Visual intuition showing eigenvectors as axes of rotation/scaling during linear transformations.
+\end{videocard}
+
+\section{Matrix Diagonalization}
+
+\begin{definitionbox}{Diagonalization Theorem}
+An $n \times n$ matrix $A$ is \textbf{Diagonalizable} if it has $n$ linearly independent eigenvectors $\mathbf{v}_1, \dots, \mathbf{v}_n$.
+Form eigenvector matrix $P = [\mathbf{v}_1 \; \dots \; \mathbf{v}_n]$ and diagonal matrix $D = \operatorname{diag}(\lambda_1, \dots, \lambda_n)$. Then:
+$$A = P D P^{-1} \iff D = P^{-1} A P$$
+\textbf{Matrix Powers:} $A^k = P D^k P^{-1}$, making high-power matrix computations $\mathcal{O}(n)$ instead of $\mathcal{O}(n^k)$!
+\end{definitionbox}
+
+\begin{theorembox}{Spectral Theorem for Symmetric Matrices}
+If $A = A^T$ is a real symmetric matrix, then:
+1. All eigenvalues of $A$ are real numbers.
+2. Eigenvectors corresponding to distinct eigenvalues are \textbf{mutually orthogonal}.
+3. $A$ is \textbf{orthogonally diagonalizable}: $A = Q D Q^T$, where $Q$ is an orthogonal matrix ($Q^T Q = I$).
+\end{theorembox}
+
+\section{Singular Value Decomposition (SVD)}
+
+While Eigen-decomposition requires square matrices $A \in \mathbb{R}^{n \times n}$, \textbf{Singular Value Decomposition (SVD)} applies to \textbf{ANY rectangular matrix} $A \in \mathbb{R}^{m \times n}$.
+
+\begin{formulabox}{Singular Value Decomposition ($A = U \Sigma V^T$)}
+Every matrix $A \in \mathbb{R}^{m \times n}$ can be factored into:
+$$A = U \Sigma V^T$$
+where:
+\begin{itemize}
+    \item $U \in \mathbb{R}^{m \times m}$: Left singular vectors (orthonormal eigenvectors of $A A^T$).
+    \item $\Sigma \in \mathbb{R}^{m \times n}$: Diagonal matrix of singular values $\sigma_1 \ge \sigma_2 \ge \dots \ge \sigma_r > 0$ ($\sigma_i = \sqrt{\lambda_i(A^T A)}$).
+    \item $V \in \mathbb{R}^{n \times n}$: Right singular vectors (orthonormal eigenvectors of $A^T A$).
+\end{itemize}
+\end{formulabox}
+
+\index{Eigenvalue}\index{Eigenvector}\index{SVD}\index{PCA}
+
+\begin{lstlisting}[caption={NumPy Implementation of Eigen-decomposition and SVD}]
+import numpy as np
+
+# 1. Eigenvalue Decomposition
+A = np.array([[4.0, 1.0], 
+              [2.0, 3.0]])
+
+eigenvalues, eigenvectors = np.linalg.eig(A)
+print("Eigenvalues:", eigenvalues)
+print("Eigenvectors:\n", eigenvectors)
+
+# Verify A @ v = lambda * v for the first eigenvector
+v0 = eigenvectors[:, 0]
+lam0 = eigenvalues[0]
+print("A @ v0:    ", A @ v0)
+print("lambda * v0:", lam0 * v0)
+
+# 2. Singular Value Decomposition (SVD)
+X = np.array([[3.0, 1.0], 
+              [1.0, 3.0], 
+              [0.0, 2.0]])
+
+U, S, Vt = np.linalg.svd(X)
+print("\nLeft Singular Vectors U shape:", U.shape)
+print("Singular Values S:", S)
+print("Right Singular Vectors V^T shape:", Vt.shape)
+\end{lstlisting}
+
+\begin{videocard}{StatQuest: Singular Value Decomposition (SVD) & PCA}{https://www.youtube.com/watch?v=gXbThCXj4cA}
+Step-by-step visual explanation of SVD matrix factorization and dimensionality reduction.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Mathematics for Data Science II Review}{https://www.youtube.com/watch?v=_hLYDPQtDKY}
+Official comprehensive course summary reviewing Linear Algebra and Multivariable Calculus.
+\end{videocard}
+
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+\item \textbf{Eigenvalues & Eigenvectors ($2 \times 2$):} Find the eigenvalues $\lambda_1, \lambda_2$ and corresponding eigenvectors $\mathbf{v}_1, \mathbf{v}_2$ for the matrix:
+    $$A = \begin{bmatrix} 4 & 1 \\ 2 & 3 \end{bmatrix}$$
+
+\item \textbf{Matrix Diagonalization ($A = P D P^{-1}$):} Using the eigenvalues and eigenvectors from Exercise 1, construct the matrices $P$ and $D$ such that $A = P D P^{-1}$. Compute $A^4$ using $P D^4 P^{-1}$.
+
+\item \textbf{Symmetric Matrix Spectral Decomposition:} Verify that $A = \begin{bmatrix} 3 & 1 \\ 1 & 3 \end{bmatrix}$ is symmetric. Find its real eigenvalues and construct an orthogonal matrix $Q$ ($Q^T Q = I$) such that $A = Q D Q^T$.
+
+\item \textbf{Singular Values Calculation:} Given matrix $A = \begin{bmatrix} 3 & 0 \\ 0 & -2 \end{bmatrix}$, compute the matrix $A^T A$, find its eigenvalues $\lambda_i$, and determine the singular values $\sigma_1, \sigma_2$ of $A$.
+
+\item \textbf{Comprehensive Course Review Question (PCA via SVD):} A data matrix $X \in \mathbb{R}^{N \times d}$ has covariance matrix $C = \frac{1}{N} X^T X$.
+    \begin{enumerate}
+        \item Explain why the principal component directions are the eigenvectors of $C$.
+        \item If the eigenvalues of $C$ are $\lambda_1 = 80$, $\lambda_2 = 15$, $\lambda_3 = 5$, what percentage of total dataset variance is explained by keeping the first 2 principal components?
+    \end{enumerate}
+\end{enumerate}

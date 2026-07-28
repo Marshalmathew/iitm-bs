@@ -1,0 +1,68 @@
+\chapter{Null Space, Nullity \& Linear Mappings}
+
+Matrices are not merely static arrays of numbers—they act as dynamic geometric transformations between vector spaces. In this chapter, we explore the \textbf{Null Space} of a matrix and formalize \textbf{Linear Mappings} (Linear Transformations).
+
+\section{Null Space and Nullity}
+
+\begin{definitionbox}{Null Space ($\text{Null}(A)$ or $\kernel(A)$)}
+For a matrix $A \in \mathbb{R}^{m \times n}$, the \textbf{Null Space} (or Kernel) of $A$ is the set of all input vectors $\mathbf{x} \in \mathbb{R}^n$ that map to the zero vector $\mathbf{0} \in \mathbb{R}^m$:
+$$\text{Null}(A) = \left\{ \mathbf{x} \in \mathbb{R}^n \Big| A \mathbf{x} = \mathbf{0} \right\}$$
+The dimension of the null space is called the \textbf{Nullity} of $A$:
+$$\nullity(A) = \dim(\text{Null}(A))$$
+\end{definitionbox}
+
+\begin{theorembox}{Null Space is a Subspace}
+The null space $\text{Null}(A)$ is always a valid vector subspace of the domain $\mathbb{R}^n$.
+To find a basis for $\text{Null}(A)$, reduce $[A \mid \mathbf{0}]$ to REF/RREF, identify free variables, and solve for the basic variables in terms of the free variables.
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: The Null Space of a Matrix (Parts 1 \& 2)}{https://www.youtube.com/watch?v=3_U6oMJeklc}
+Official lectures defining null space, solving homogenous systems $A\mathbf{x}=\mathbf{0}$, and extracting a basis for $\text{Null}(A)$.
+\end{videocard}
+
+\section{Linear Mappings and Linear Transformations}
+
+A function $T: V \to W$ between two vector spaces $V$ and $W$ is a \textbf{Linear Mapping} (or Linear Transformation) if it preserves vector addition and scalar multiplication.
+
+\begin{definitionbox}{Linear Transformation Axioms}
+A mapping $T: V \to W$ is \textbf{Linear} if for all $\mathbf{u}, \mathbf{v} \in V$ and all scalars $c \in \mathbb{R}$:
+\begin{enumerate}
+    \item \textbf{Additivity:} $T(\mathbf{u} + \mathbf{v}) = T(\mathbf{u}) + T(\mathbf{v})$.
+    \item \textbf{Homogeneity (Scalar Scaling):} $T(c \mathbf{v}) = c T(\mathbf{v})$.
+\end{enumerate}
+Together, this implies $T(c_1 \mathbf{u} + c_2 \mathbf{v}) = c_1 T(\mathbf{u}) + c_2 T(\mathbf{v})$.
+Crucial consequence: $T(\mathbf{0}) = \mathbf{0}$ for any linear transformation.
+\end{definitionbox}
+
+\textbf{Data Science Relevance:} Linear layers in Deep Learning ($\mathbf{y} = W \mathbf{x}$), dimensionality reduction mappings, and continuous linear projections in SVMs are all formal linear transformations!
+
+\begin{videocard}{IITM BS Lecture: What is a Linear Mapping? (Parts 1 \& 2)}{https://www.youtube.com/watch?v=MvCkhmYhTkw}
+Official lectures defining linear mappings, testing additivity and scalar homogeneity.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: What is a Linear Transformation?}{https://www.youtube.com/watch?v=6jA-RRGbmOw}
+Official lecture demonstrating matrix-induced transformations $T(\mathbf{x}) = A \mathbf{x}$ and geometric transformations (rotations, reflections, shears).
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+\item \textbf{Null Space Calculation:} Find a basis for the null space $\text{Null}(A)$ and determine the nullity $\nullity(A)$ for:
+    $$A = \begin{bmatrix} 1 & 2 & -1 \\ 2 & 4 & 5 \end{bmatrix}$$
+
+\item \textbf{Testing Linearity of Mappings:} Determine whether each function $T: \mathbb{R}^2 \to \mathbb{R}^2$ is a linear transformation:
+    \begin{enumerate}
+        \item $T\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} 2x - y \\ x + 3y \end{bmatrix}$
+        \item $T\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} x^2 \\ y \end{bmatrix}$
+    \end{enumerate}
+
+\item \textbf{Matrix-Induced Transformation:} Let $T: \mathbb{R}^2 \to \mathbb{R}^3$ be defined by $T(\mathbf{x}) = A \mathbf{x}$, where:
+    $$A = \begin{bmatrix} 1 & 0 \\ -2 & 3 \\ 5 & 4 \end{bmatrix}$$
+    Compute $T\left(\begin{bmatrix} 3 \\ -1 \end{bmatrix}\right)$.
+
+\item \textbf{Homogenous System Solutions:} A matrix $A \in \mathbb{R}^{3 \times 5}$ has $\rank(A) = 3$. What is the dimension of the domain $\mathbb{R}^n$? What is the nullity $\nullity(A)$? Are there non-trivial solutions to $A \mathbf{x} = \mathbf{0}$?
+
+\item \textbf{Data Science Application (Lossless Linear Compression Null Space):} A linear projection layer $W \in \mathbb{R}^{10 \times 50}$ compresses a 50-dimensional input vector $\mathbf{x} \in \mathbb{R}^{50}$ into a 10-dimensional representation $\mathbf{y} = W \mathbf{x}$. What is the minimum possible dimension of information lost in the null space $\text{Null}(W)$?
+\end{enumerate}

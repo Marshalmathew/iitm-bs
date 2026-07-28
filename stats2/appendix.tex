@@ -1,0 +1,512 @@
+\appendix
+\chapter{Solutions to Practice Exercises}
+
+This appendix contains fully worked, step-by-step solutions for all practice exercises across Weeks 1 to 12.
+
+\section*{Week 1: Joint \& Marginal Discrete PMFs, Conditional Distributions}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Joint PMF Table Verification}
+For $p_{X,Y}$ to be a valid joint PMF, the sum of all cell probabilities must equal $1$:
+$$\sum_{x=0}^1 \sum_{y=1}^2 p_{X,Y}(x, y) = 0.1 + 0.3 + 0.2 + k = 1 \implies 0.6 + k = 1 \implies \mathbf{k = 0.4}$$
+
+\textbf{2. Marginal Distribution Computation}
+Using $k = 0.4$:
+\begin{itemize}
+    \item \textbf{(a) Marginal PMF of $X$:}
+    $$p_X(0) = p_{X,Y}(0, 1) + p_{X,Y}(0, 2) = 0.1 + 0.3 = \mathbf{0.4}$$
+    $$p_X(1) = p_{X,Y}(1, 1) + p_{X,Y}(1, 2) = 0.2 + 0.4 = \mathbf{0.6}$$
+    \item \textbf{(b) Marginal PMF of $Y$:}
+    $$p_Y(1) = p_{X,Y}(0, 1) + p_{X,Y}(1, 1) = 0.1 + 0.2 = \mathbf{0.3}$$
+    $$p_Y(2) = p_{X,Y}(0, 2) + p_{X,Y}(1, 2) = 0.3 + 0.4 = \mathbf{0.7}$$
+\end{itemize}
+
+\textbf{3. Conditional Probability Calculation}
+$$p_{X|Y}(1 \mid 2) = \frac{p_{X,Y}(1, 2)}{p_Y(2)} = \frac{0.4}{0.7} = \mathbf{\frac{4}{7} \approx 0.5714}$$
+
+\textbf{4. Triangular Domain Joint PMF}
+\begin{itemize}
+    \item \textbf{(a) Normalization Constant $c$:}
+    $$\sum_{x=1}^2 \sum_{y=1}^2 c(x+y) = c(1+1) + c(1+2) + c(2+1) + c(2+2) = 2c + 3c + 3c + 4c = 12c = 1 \implies \mathbf{c = \frac{1}{12}}$$
+    \item \textbf{(b) Marginal $p_X(1)$:}
+    $$p_X(1) = p_{X,Y}(1, 1) + p_{X,Y}(1, 2) = 2c + 3c = 5c = 5\left(\frac{1}{12}\right) = \mathbf{\frac{5}{12}}$$
+\end{itemize}
+
+\textbf{5. Data Science Application: A/B Testing Click-Through Distribution}
+\begin{itemize}
+    \item \textbf{Mobile CTR $\P(Y=1 \mid X=0)$:}
+    $$p_X(0) = p_{X,Y}(0, 0) + p_{X,Y}(0, 1) = 0.50 + 0.10 = 0.60$$
+    $$\P(Y=1 \mid X=0) = \frac{p_{X,Y}(0, 1)}{p_X(0)} = \frac{0.10}{0.60} = \mathbf{\frac{1}{6} \approx 16.67\%}$$
+    \item \textbf{Desktop CTR $\P(Y=1 \mid X=1)$:}
+    $$p_X(1) = p_{X,Y}(1, 0) + p_{X,Y}(1, 1) = 0.32 + 0.08 = 0.40$$
+    $$\P(Y=1 \mid X=1) = \frac{p_{X,Y}(1, 1)}{p_X(1)} = \frac{0.08}{0.40} = \mathbf{0.20 = 20.00\%}$$
+    Desktop users yield a higher click-through rate ($20.00\%$) than mobile users ($16.67\%$).
+\end{itemize}
+
+\section*{Week 2: Independence of RVs, Functions of RVs \& PMF Convolution}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Testing Independence from Joint PMF}
+Compute marginal probabilities:
+\begin{itemize}
+    \item $p_X(0) = p_{X,Y}(0, 0) + p_{X,Y}(0, 1) = 0.4 + 0.2 = 0.6$.
+    \item $p_Y(0) = p_{X,Y}(0, 0) + p_{X,Y}(1, 0) = 0.4 + 0.2 = 0.6$.
+\end{itemize}
+Now check the product: $p_X(0) \cdot p_Y(0) = 0.6 \times 0.6 = 0.36$.
+Since $p_{X,Y}(0, 0) = 0.4 \neq 0.36$, \textbf{$X$ and $Y$ are NOT independent}.
+
+\textbf{2. PMF Convolution of Independent Uniforms}
+$X, Y \in \{1, 2, 3\}$ with $p_X(k) = p_Y(k) = \frac{1}{3}$. $Z = X + Y \in \{2, 3, 4, 5, 6\}$.
+Out of $3 \times 3 = 9$ equally likely outcomes:
+\begin{itemize}
+    \item $p_Z(2) = \P((1,1)) = \mathbf{\frac{1}{9}}$
+    \item $p_Z(3) = \P(\{(1,2), (2,1)\}) = \mathbf{\frac{2}{9}}$
+    \item $p_Z(4) = \P(\{(1,3), (2,2), (3,1)\}) = \mathbf{\frac{3}{9} = \frac{1}{3}}$
+    \item $p_Z(5) = \P(\{(2,3), (3,2)\}) = \mathbf{\frac{2}{9}}$
+    \item $p_Z(6) = \P(\{(3,3)\}) = \mathbf{\frac{1}{9}}$
+
+\end{itemize}
+\textbf{3. Sum of Independent Poisson RVs}
+Since $X \sim \text{Poisson}(2)$ and $Y \sim \text{Poisson}(3)$ are independent, $Z = X + Y \sim \text{\textbf{Poisson}}(2 + 3 = 5)$.
+$$\P(Z = 1) = \frac{e^{-5} \cdot 5^1}{1!} = 5 e^{-5} \approx \mathbf{0.0337}$$
+
+\textbf{4. Maximum of Two Geometric RVs}
+For $p = 0.5$, the CDF is $F_X(k) = \P(X \le k) = 1 - (1 - 0.5)^k = 1 - 0.5^k$.
+For $k = 2$: $F_X(2) = 1 - 0.25 = 0.75$.
+$$F_W(2) = \P(\max(X, Y) \le 2) = F_X(2) \cdot F_Y(2) = (0.75) \cdot (0.75) = 0.5625 = \mathbf{\frac{9}{16}}$$
+
+\textbf{5. Data Science Application: Server Latency Redundancy Minimum}
+For $V = \min(X, Y)$, evaluate survival function $\P(V > v) = \P(X > v)^2$:
+\begin{itemize}
+    \item $\P(V > 0) = 1$
+    \item $\P(V > 1) = \P(X > 1)^2 = \left(\frac{2}{3}\right)^2 = \frac{4}{9}$
+    \item $\P(V > 2) = \P(X > 2)^2 = \left(\frac{1}{3}\right)^2 = \frac{1}{9}$
+    \item $\P(V > 3) = 0$
+\end{itemize}
+Computing individual PMF values:
+\begin{itemize}
+    \item $p_V(1) = \P(V > 0) - \P(V > 1) = 1 - \frac{4}{9} = \mathbf{\frac{5}{9}}$
+    \item $p_V(2) = \P(V > 1) - \P(V > 2) = \frac{4}{9} - \frac{1}{9} = \mathbf{\frac{3}{9} = \frac{1}{3}}$
+    \item $p_V(3) = \P(V > 2) - \P(V > 3) = \frac{1}{9} - 0 = \mathbf{\frac{1}{9}}$
+
+\end{itemize}
+\section*{Week 3: Expectation, Covariance, Correlation \& Probability Bounds}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Linearity of Expectation}
+For a single fair die $X_i \in \{1, \dots, 6\}$, $\E[X_i] = \frac{1+2+3+4+5+6}{6} = 3.5$.
+By Linearity of Expectation (holding regardless of independence):
+$$\E[S] = \E\left[ \sum_{i=1}^{10} X_i \right] = \sum_{i=1}^{10} \E[X_i] = 10 \times 3.5 = \mathbf{35}$$
+
+\textbf{2. Covariance Calculation from Joint PMF}
+Marginal probabilities: $p_X(0) = 0.2 + 0.3 = 0.5, \, p_X(1) = 0.1 + 0.4 = 0.5$.
+$p_Y(1) = 0.2 + 0.1 = 0.3, \, p_Y(2) = 0.3 + 0.4 = 0.7$.
+\begin{itemize}
+    \item $\E[X] = 0(0.5) + 1(0.5) = \mathbf{0.5}$
+    \item $\E[Y] = 1(0.3) + 2(0.7) = 0.3 + 1.4 = \mathbf{1.7}$
+    \item $\E[XY] = (0)(1)(0.2) + (0)(2)(0.3) + (1)(1)(0.1) + (1)(2)(0.4) = 0.1 + 0.8 = \mathbf{0.9}$
+\end{itemize}
+$$\Cov(X, Y) = \E[XY] - \E[X]\E[Y] = 0.9 - (0.5)(1.7) = 0.9 - 0.85 = \mathbf{0.05}$$
+
+\textbf{3. Correlation Coefficient}
+\begin{itemize}
+    \item \textbf{(a) Variances:}
+    $$\E[X^2] = 0^2(0.5) + 1^2(0.5) = 0.5 \implies \Var(X) = 0.5 - (0.5)^2 = \mathbf{0.25}$$
+    $$\E[Y^2] = 1^2(0.3) + 2^2(0.7) = 0.3 + 2.8 = 3.1 \implies \Var(Y) = 3.1 - (1.7)^2 = 3.1 - 2.89 = \mathbf{0.21}$$
+    \item \textbf{(b) Pearson Correlation Coefficient $\rho_{X,Y}$:}
+    $$\sigma_X = \sqrt{0.25} = 0.5, \quad \sigma_Y = \sqrt{0.21} \approx 0.4583$$
+    $$\rho_{X,Y} = \frac{\Cov(X, Y)}{\sigma_X \sigma_Y} = \frac{0.05}{0.5 \times 0.4583} \approx \mathbf{0.2182}$$
+\end{itemize}
+
+\textbf{4. Markov's Inequality Tail Bound}
+Since visits $X \ge 0$ is a non-negative random variable with $\E[X] = 500$:
+$$\P(X \ge 2000) \le \frac{\E[X]}{2000} = \frac{500}{2000} = \mathbf{0.25 = 25\%}$$
+
+\textbf{5. Data Science Application: Algorithmic Trading Risk Bound}
+Given $\mu = 100$ and $\sigma = 20$:
+The interval $\$60 < X < \$140$ corresponds to $|X - 100| < 40 = 2\sigma$ ($k = 2$).
+By Chebyshev's Inequality:
+$$\P(|X - 100| \ge 40) \le \frac{1}{k^2} = \frac{1}{2^2} = 0.25$$
+Taking the complement:
+$$\P(60 < X < 140) = 1 - \P(|X - 100| \ge 40) \ge 1 - 0.25 = \mathbf{0.75 = 75\%}$$
+The probability that daily return falls between $\$60$ and $\$140$ is at least $75\%$.
+
+\section*{Week 4: Continuous Random Variables, CDF, PDF \& Standard Distributions}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. PDF Normalization and Probability}
+\begin{itemize}
+    \item \textbf{(a) Constant $c$:}
+    $$\int_0^2 c x^2 \, dx = c \left[ \frac{x^3}{3} \right]_0^2 = c \left( \frac{8}{3} \right) = 1 \implies \mathbf{c = \frac{3}{8}}$$
+    \item \textbf{(b) Probability $\P(1 \le X \le 2)$:}
+    $$\P(1 \le X \le 2) = \int_1^2 \frac{3}{8} x^2 \, dx = \frac{3}{8} \left[ \frac{x^3}{3} \right]_1^2 = \frac{1}{8} (8 - 1) = \mathbf{\frac{7}{8} = 0.875}$$
+\end{itemize}
+
+\textbf{2. CDF to PDF Conversion}
+Given $F_X(x) = 1 - e^{-3x}$ for $x \ge 0$:
+\begin{itemize}
+    \item \textbf{Distribution:} $\text{Exponential}(\lambda = 3)$.
+    \item \textbf{PDF $f_X(x)$:} $f_X(x) = \frac{d}{dx} (1 - e^{-3x}) = \mathbf{3 e^{-3x} \quad \text{for } x \ge 0}$.
+    \item \textbf{Expected Value:} $\E[X] = \frac{1}{\lambda} = \mathbf{\frac{1}{3}}$.
+
+\end{itemize}
+\textbf{3. Exponential Memoryless Property}
+By the memoryless property of the exponential distribution:
+$$\P(T > 4 \mid T > 2) = \P(T > 4 - 2) = \P(T > 2)$$
+$$\P(T > 2) = 1 - F_T(2) = 1 - (1 - e^{-0.5 \times 2}) = e^{-1} \approx \mathbf{0.3679}$$
+
+\textbf{4. Standard Normal Z-Score Calculation}
+For $X \sim \mathcal{N}(50, 100)$, $\mu = 50, \sigma = \sqrt{100} = 10$.
+$$Z = \frac{X - 50}{10} \implies \P(X \ge 65) = \P\left(Z \ge \frac{65 - 50}{10}\right) = \P(Z \ge 1.5)$$
+$$\P(Z \ge 1.5) = 1 - \Phi(1.5) = 1 - 0.9332 = \mathbf{0.0668 = 6.68\%}$$
+
+\textbf{5. Data Science Application: Feature Normalization Range}
+For $X \sim \text{Uniform}(10, 50)$:
+\begin{itemize}
+    \item \textbf{(1) Mean \& Standard Deviation:}
+    $$\mu_X = \frac{10 + 50}{2} = \mathbf{30}, \quad \sigma_X = \frac{50 - 10}{\sqrt{12}} = \frac{40}{2\sqrt{3}} = \frac{20}{\sqrt{3}} \approx \mathbf{11.547}$$
+    \item \textbf{(2) 1-Sigma Interval Probability:}
+    $$\P(\mu_X - \sigma_X \le X \le \mu_X + \sigma_X) = \frac{(\mu_X + \sigma_X) - (\mu_X - \sigma_X)}{50 - 10} = \frac{2 \sigma_X}{40} = \frac{\sigma_X}{20} = \frac{20/\sqrt{3}}{20} = \mathbf{\frac{1}{\sqrt{3}} \approx 57.74\%}$$
+\end{itemize}
+
+\section*{Week 5: Functions of Continuous RVs, Expectations \& Mixed Distributions}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. CDF Transformation Method}
+Given $X \sim \text{Uniform}(0, 1)$ ($F_X(x) = x$ for $x \in [0, 1]$) and $Y = -\ln(X)$ for $y > 0$:
+$$F_Y(y) = \P(Y \le y) = \P(-\ln(X) \le y) = \P(\ln(X) \ge -y) = \P(X \ge e^{-y}) = 1 - F_X(e^{-y}) = 1 - e^{-y}$$
+Differentiating to get PDF:
+$$f_Y(y) = \frac{d}{dy} (1 - e^{-y}) = \mathbf{e^{-y} \quad \text{for } y > 0}$$
+$Y$ follows an \textbf{Exponential distribution with rate $\lambda = 1$} ($Y \sim \text{Exponential}(1)$).
+
+\textbf{2. Linear Transformation of Normal RV}
+For $X \sim \mathcal{N}(0, 1)$ and $Y = 3X + 5$:
+\begin{itemize}
+    \item $\E[Y] = 3\E[X] + 5 = 3(0) + 5 = \mathbf{5}$.
+    \item $\Var(Y) = 3^2 \Var(X) = 9(1) = \mathbf{9}$.
+\end{itemize}
+$Y \sim \mathbf{\mathcal{N}(5, 9)}$ with PDF:
+$$f_Y(y) = \mathbf{\frac{1}{3\sqrt{2\pi}} \exp\left( -\frac{(y - 5)^2}{18} \right)}$$
+
+\textbf{3. Continuous LOTUS Expectation}
+For $f_X(x) = 2x$ on $[0, 1]$:
+$$\E[X^2] = \int_0^1 x^2 (2x) \, dx = \int_0^1 2x^3 \, dx = \left[ \frac{2x^4}{4} \right]_0^1 = \frac{2}{4} = \mathbf{0.5}$$
+
+\textbf{4. Variance of Uniform RV}
+For $X \sim \text{Uniform}(0, 4)$, $f_X(x) = \frac{1}{4}$ on $[0, 4]$:
+\begin{itemize}
+    \item $\E[X] = \int_0^4 x \left(\frac{1}{4}\right) dx = \left[\frac{x^2}{8}\right]_0^4 = 2$.
+    \item $\E[X^2] = \int_0^4 x^2 \left(\frac{1}{4}\right) dx = \left[\frac{x^3}{12}\right]_0^4 = \frac{64}{12} = \frac{16}{3}$.
+\end{itemize}
+$$\Var(X) = \E[X^2] - (\E[X])^2 = \frac{16}{3} - 2^2 = \frac{16}{3} - \frac{12}{3} = \mathbf{\frac{4}{3} \approx 1.3333}$$
+
+\textbf{5. Data Science Application: Gaussian Mixture Model Marginal PDF}
+By the Law of Total Probability for mixed distributions:
+$$f_X(x) = f_{X \mid N}(x \mid 0) p_N(0) + f_{X \mid N}(x \mid 1) p_N(1)$$
+Substituting parameters ($\mu_0 = 50, \sigma_0 = 10$ and $\mu_1 = 300, \sigma_1 = 20$):
+$$f_X(x) = \mathbf{0.95 \left( \frac{1}{10\sqrt{2\pi}} e^{-\frac{(x - 50)^2}{200}} \right) + 0.05 \left( \frac{1}{20\sqrt{2\pi}} e^{-\frac{(x - 300)^2}{800}} \right)}$$
+
+\section*{Week 6: Joint Continuous RVs, Marginal Densities \& Conditional Densities}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Joint Density Normalization Constant}
+$$\int_0^1 \int_0^2 c x y \, dy \, dx = c \left(\int_0^1 x \, dx\right) \left(\int_0^2 y \, dy\right) = c \left( \frac{1}{2} \right) (2) = c = 1 \implies \mathbf{c = 1}$$
+$$\P(X \le 0.5, Y \le 1) = \int_0^{0.5} x \, dx \int_0^1 y \, dy = \left[ \frac{x^2}{2} \right]_0^{0.5} \left[ \frac{y^2}{2} \right]_0^1 = \left( \frac{1}{8} \right) \left( \frac{1}{2} \right) = \mathbf{\frac{1}{16} = 0.0625}$$
+
+\textbf{2. Marginal Densities Computation}
+Using $c = 1$:
+\begin{itemize}
+    \item \textbf{(1) Marginal Density $f_X(x)$:}
+    $$f_X(x) = \int_0^2 x y \, dy = x \left[ \frac{y^2}{2} \right]_0^2 = \mathbf{2x \quad \text{for } 0 \le x \le 1}$$
+    \item \textbf{(2) Marginal Density $f_Y(y)$:}
+    $$f_Y(y) = \int_0^1 x y \, dx = y \left[ \frac{x^2}{2} \right]_0^1 = \mathbf{\frac{y}{2} \quad \text{for } 0 \le y \le 2}$$
+    \item \textbf{(3) Independence Check:}
+    $$f_X(x) \cdot f_Y(y) = (2x) \left(\frac{y}{2}\right) = xy = f_{X,Y}(x, y)$$
+    Since the product of marginals equals the joint PDF everywhere, \textbf{$X$ and $Y$ are INDEPENDENT}.
+\end{itemize}
+
+\textbf{3. Triangular Region Joint PDF}
+For $f_{X,Y}(x, y) = 2$ on region $0 \le y \le x \le 1$:
+\begin{itemize}
+    \item $f_X(x) = \int_0^x 2 \, dy = \mathbf{2x \quad \text{for } 0 \le x \le 1}$.
+    \item $f_Y(y) = \int_y^1 2 \, dx = \mathbf{2(1 - y) \quad \text{for } 0 \le y \le 1}$.
+
+\end{itemize}
+\textbf{4. Conditional Density Calculation}
+For $0 \le y \le x$:
+$$f_{Y|X}(y \mid x) = \frac{f_{X,Y}(x, y)}{f_X(x)} = \frac{2}{2x} = \mathbf{\frac{1}{x} \quad \text{for } 0 \le y \le x}$$
+(Notice $Y \mid X=x \sim \text{Uniform}(0, x)$).
+Conditional Expectation:
+$$\E[Y \mid X = x] = \int_0^x y \left(\frac{1}{x}\right) dy = \frac{1}{x} \left[ \frac{y^2}{2} \right]_0^x = \mathbf{\frac{x}{2}}$$
+
+\textbf{5. Data Science Application: Bivariate Normal Feature Regression}
+Substitute values $\mu_X = 0, \mu_Y = 0, \sigma_X = 1, \sigma_Y = 1, \rho = 0.8$ into the linear regression function:
+$$\E[Y \mid X = x] = \mu_Y + \rho \frac{\sigma_Y}{\sigma_X} (x - \mu_X) = 0 + 0.8 \left(\frac{1}{1}\right) (x - 0) = 0.8 x$$
+For feature observation $X = 2.5$:
+$$\E[Y \mid X = 2.5] = 0.8(2.5) = \mathbf{2.0}$$
+
+\section*{Week 7: Statistics from Samples \& The Law of Large Numbers}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Sample Mean Standard Error}
+For $n = 100, \mu = 80, \sigma^2 = 400$:
+\begin{itemize}
+    \item \textbf{(1) Expectation:} $\E[\bar{X}_{100}] = \mu = \mathbf{80}$.
+    \item \textbf{(2) Standard Error:} $\Var(\bar{X}_{100}) = \frac{\sigma^2}{n} = \frac{400}{100} = 4 \implies \text{SE}(\bar{X}_{100}) = \sqrt{4} = \mathbf{2}$.
+\end{itemize}
+
+\textbf{2. Chebyshev Sample Size Determination for WLLN}
+We want $\P(|\bar{X}_n - \mu| \ge 0.5) \le 0.05$. By Chebyshev's Inequality:
+$$\P(|\bar{X}_n - \mu| \ge \epsilon) \le \frac{\sigma^2}{n \epsilon^2}$$
+Substitute $\sigma^2 = 4, \epsilon = 0.5$:
+$$\frac{4}{n (0.5)^2} \le 0.05 \implies \frac{4}{0.25 n} \le 0.05 \implies \frac{16}{n} \le 0.05 \implies n \ge \frac{16}{0.05} = \mathbf{320}$$
+A minimum sample size of $\mathbf{n = 320}$ is required.
+
+\textbf{3. Empirical CDF Evaluation}
+Sample of 5 data points sorted: $[1.8, 2.1, 4.5, 4.5, 6.0]$.
+\begin{itemize}
+    \item \textbf{(1) $\hat{F}_5(4.0)$:} Observations $\le 4.0$ are $\{1.8, 2.1\}$ (2 points).
+    $$\hat{F}_5(4.0) = \frac{2}{5} = \mathbf{0.4}$$
+    \item \textbf{(2) $\hat{F}_5(4.5)$:} Observations $\le 4.5$ are $\{1.8, 2.1, 4.5, 4.5\}$ (4 points).
+    $$\hat{F}_5(4.5) = \frac{4}{5} = \mathbf{0.8}$$
+\end{itemize}
+
+\textbf{4. Sum of i.i.d. Uniform RVs}
+For $X_i \sim \text{Uniform}(0, 1)$, $\E[X_i] = \frac{1}{2}$ and $\Var(X_i) = \frac{1}{12}$.
+For $S = \sum_{i=1}^{12} X_i$:
+\begin{itemize}
+    \item $\E[S] = 12 \times \left(\frac{1}{2}\right) = \mathbf{6}$.
+    \item $\Var(S) = 12 \times \left(\frac{1}{12}\right) = \mathbf{1}$.
+
+\end{itemize}
+\textbf{5. Data Science Application: Monte Carlo Pi Estimation Bounds}
+Each indicator $I_i \sim \text{Bernoulli}(p = \pi/4 \approx 0.7854)$ has variance $\Var(I_i) = p(1-p) = 0.7854(0.2146) \approx 0.1685$.
+We want $\P(|\hat{p}_n - p| \ge 0.01) \le 0.10$.
+By Chebyshev's Inequality:
+$$\frac{\Var(I_i)}{n (0.01)^2} \le 0.10 \implies \frac{0.1685}{0.0001 n} \le 0.10 \implies \frac{1685}{n} \le 0.10 \implies n \ge \frac{1685}{0.10} = \mathbf{16850}$$
+A minimum of $\mathbf{n = 16,850}$ Monte Carlo trials is needed.
+
+\section*{Week 8: Moment Generating Functions \& The Central Limit Theorem}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. MGF Derivative Moment Extraction}
+Given $M_X(t) = (1 - 2t)^{-1}$:
+\begin{itemize}
+    \item \textbf{(1) Expected Value $\E[X]$:}
+    $$M_X'(t) = -1(1 - 2t)^{-2}(-2) = 2(1 - 2t)^{-2} \implies \E[X] = M_X'(0) = 2(1)^{-2} = \mathbf{2}$$
+    \item \textbf{(2) Variance $\Var(X)$:}
+    $$M_X''(t) = 2(-2)(1 - 2t)^{-3}(-2) = 8(1 - 2t)^{-3} \implies \E[X^2] = M_X''(0) = 8(1)^{-3} = 8$$
+    $$\Var(X) = \E[X^2] - (\E[X])^2 = 8 - 2^2 = 8 - 4 = \mathbf{4}$$
+\end{itemize}
+
+\textbf{2. MGF of Independent Sums}
+For $X \sim \text{Poisson}(3)$ and $Y \sim \text{Poisson}(5)$:
+$$M_X(t) = \exp(3(e^t - 1)), \quad M_Y(t) = \exp(5(e^t - 1))$$
+By MGF factorization for independent variables:
+$$M_{X+Y}(t) = M_X(t) \cdot M_Y(t) = \exp(3(e^t - 1)) \cdot \exp(5(e^t - 1)) = \exp(8(e^t - 1))$$
+By the uniqueness property of MGFs, this is the MGF of $\mathbf{\text{\textbf{Poisson}}(8)}$. Thus $X + Y \sim \text{Poisson}(8)$.
+
+\textbf{3. CLT Probability Approximation for Sample Means}
+For $n = 64, \mu = 40, \sigma = 8$:
+$$\text{SE}(\bar{X}_{64}) = \frac{\sigma}{\sqrt{n}} = \frac{8}{\sqrt{64}} = \frac{8}{8} = 1$$
+By CLT, $\bar{X}_{64} \approx \mathcal{N}(40, 1^2)$:
+$$\P(\bar{X}_{64} > 41.5) = \P\left( Z > \frac{41.5 - 40}{1} \right) = \P(Z > 1.5) = 1 - \Phi(1.5) = 1 - 0.9332 = \mathbf{0.0668 = 6.68\%}$$
+
+\textbf{4. CLT Approximation for Binomial Counts}
+For Binomial sum $S = \sum_{i=1}^{100} X_i$ with $n = 100, p = 0.5$:
+$$\mu_S = np = 50, \quad \sigma_S = \sqrt{np(1-p)} = \sqrt{100(0.5)(0.5)} = \sqrt{25} = 5$$
+Using continuity correction for $\P(45 \le S \le 55) = \P(44.5 \le S \le 55.5)$:
+$$Z_1 = \frac{44.5 - 50}{5} = -1.1, \quad Z_2 = \frac{55.5 - 50}{5} = 1.1$$
+$$\P(-1.1 \le Z \le 1.1) = \Phi(1.1) - \Phi(-1.1) = \Phi(1.1) - (1 - \Phi(1.1)) = 2\Phi(1.1) - 1$$
+$$= 2(0.8643) - 1 = 1.7286 - 1 = \mathbf{0.7286 = 72.86\%}$$
+
+\textbf{5. Data Science Application: A/B Test Conversion Sample Size}
+Given $\sigma = 0.30$ and target standard error $\text{SE}(\bar{X}_n) \le 0.005$:
+$$\frac{\sigma}{\sqrt{n}} \le 0.005 \implies \frac{0.30}{\sqrt{n}} \le 0.005 \implies \sqrt{n} \ge \frac{0.30}{0.005} = 60 \implies n \ge 60^2 = \mathbf{3600}$$
+A minimum of $\mathbf{n = 3,600}$ visitor sessions is required per variant.
+
+\section*{Week 9: Parameter Estimation: MME, MLE \& Confidence Intervals}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Unbiasedness Verification}
+For $\hat{\mu} = \frac{1}{4} X_1 + \frac{1}{2} X_2 + \frac{1}{4} X_3$:
+\begin{itemize}
+    \item \textbf{Expectation:}
+\end{itemize}
+$$\E[\hat{\mu}] = \frac{1}{4}\E[X_1] + \frac{1}{2}\E[X_2] + \frac{1}{4}\E[X_3] = \frac{1}{4}\mu + \frac{1}{2}\mu + \frac{1}{4}\mu = \mathbf{\mu}$$
+Since $\E[\hat{\mu}] = \mu$, $\hat{\mu}$ is an \textbf{unbiased estimator}.
+\begin{itemize}
+    \item \textbf{Variance:} By independence of sample observations:
+\end{itemize}
+$$\Var(\hat{\mu}) = \left(\frac{1}{4}\right)^2 \sigma^2 + \left(\frac{1}{2}\right)^2 \sigma^2 + \left(\frac{1}{4}\right)^2 \sigma^2 = \left(\frac{1}{16} + \frac{4}{16} + \frac{1}{16}\right) \sigma^2 = \mathbf{\frac{3}{8} \sigma^2 = 0.375 \sigma^2}$$
+
+\textbf{2. MME Parameter Estimation}
+For $X \sim \text{Exponential}(\lambda)$, population first moment is $\E[X] = \frac{1}{\lambda}$.
+Set sample moment equal to population moment:
+$$\bar{X}_n = \frac{1}{\lambda} \implies \mathbf{\hat{\lambda}_{\text{MME}} = \frac{1}{\bar{X}_n}}$$
+
+\textbf{3. MLE Parameter Estimation}
+For $X_i \sim \text{Poisson}(\lambda)$, joint likelihood:
+$$L(\lambda) = \prod_{i=1}^n \frac{e^{-\lambda} \lambda^{x_i}}{x_i!} = \frac{e^{-n\lambda} \lambda^{\sum x_i}}{\prod x_i!}$$
+Log-likelihood function:
+$$\ell(\lambda) = \ln L(\lambda) = -n\lambda + \left(\sum_{i=1}^n x_i\right) \ln(\lambda) - \sum_{i=1}^n \ln(x_i!)$$
+Differentiate with respect to $\lambda$ and set to $0$:
+$$\frac{d\ell}{d\lambda} = -n + \frac{\sum x_i}{\lambda} = 0 \implies n \lambda = \sum_{i=1}^n x_i \implies \mathbf{\hat{\lambda}_{\text{MLE}} = \frac{1}{n} \sum_{i=1}^n x_i = \bar{X}_n}$$
+
+\textbf{4. 95\% Confidence Interval Construction}
+Given $n = 100, \bar{X} = 250, \sigma = 40, z_{0.025} = 1.96$:
+$$\text{Margin of Error } E = z_{0.025} \frac{\sigma}{\sqrt{n}} = 1.96 \left( \frac{40}{\sqrt{100}} \right) = 1.96 (4) = 7.84$$
+$$95\% \text{ CI} = [250 - 7.84, \; 250 + 7.84] = \mathbf{[\$242.16, \; \$257.84]}$$
+
+\textbf{5. Data Science Application: Logistic Regression MLE Loss}
+For $Y_i \sim \text{Bernoulli}(p_i)$ with $p_i = \sigma(\mathbf{w}^T \mathbf{x}_i)$:
+$$L(\mathbf{w}) = \prod_{i=1}^N p_i^{y_i} (1 - p_i)^{1 - y_i}$$
+Taking log-likelihood:
+$$\ell(\mathbf{w}) = \sum_{i=1}^N \left[ y_i \ln(p_i) + (1 - y_i) \ln(1 - p_i) \right]$$
+Multiplying by $-1$ yields the standard \textbf{Binary Cross-Entropy Loss} minimized by ML algorithms:
+$$J(\mathbf{w}) = -\ell(\mathbf{w}) = \mathbf{-\sum_{i=1}^N \left[ y_i \ln(p_i) + (1 - y_i) \ln(1 - p_i) \right]}$$
+
+\section*{Week 10: Bayesian Estimation: Prior, Posterior, MAP \& Bayes Risk}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Beta-Binomial Conjugate Posterior}
+Given prior $p \sim \text{Beta}(\alpha = 2, \beta = 2)$ and likelihood for $k = 4$ successes in $n = 5$ trials:
+\begin{itemize}
+    \item \textbf{(1) Posterior Distribution:}
+    By conjugate update rules, $p \mid k \sim \text{\textbf{Beta}}(\alpha + k, \, \beta + n - k) = \text{Beta}(2+4, \, 2+5-4) = \mathbf{\text{\textbf{Beta}}(6, 3)}$.
+    \item \textbf{(2) MAP Estimator $\hat{p}_{\text{MAP}}$:}
+    Mode of $\text{Beta}(6, 3)$:
+    $$\hat{p}_{\text{MAP}} = \frac{\alpha' - 1}{\alpha' + \beta' - 2} = \frac{6 - 1}{6 + 3 - 2} = \mathbf{\frac{5}{7} \approx 0.7143}$$
+    \item \textbf{(3) Bayes Posterior Mean Estimator $\hat{p}_{\text{Bayes}}$:}
+    $$\hat{p}_{\text{Bayes}} = \E[p \mid k] = \frac{\alpha'}{\alpha' + \beta'} = \frac{6}{6 + 3} = \mathbf{\frac{6}{9} = \frac{2}{3} \approx 0.6667}$$
+\end{itemize}
+
+\textbf{2. Normal-Normal Conjugate Model}
+For $X \mid \mu \sim \mathcal{N}(\mu, \sigma^2 = 4)$ and prior $\mu \sim \mathcal{N}(\mu_0 = 0, \sigma_0^2 = 1)$:
+\begin{itemize}
+    \item Posterior Precision: $\frac{1}{\sigma_{\text{post}}^2} = \frac{1}{\sigma_0^2} + \frac{1}{\sigma^2} = \frac{1}{1} + \frac{1}{4} = \frac{5}{4} \implies \sigma_{\text{post}}^2 = 0.8$.
+    \item Posterior Mean:
+\end{itemize}
+$$\E[\mu \mid X = 5] = \sigma_{\text{post}}^2 \left( \frac{\mu_0}{\sigma_0^2} + \frac{x}{\sigma^2} \right) = 0.8 \left( 0 + \frac{5}{4} \right) = 0.8(1.25) = \mathbf{1.0}$$
+
+\textbf{3. Uniform Prior MAP vs MLE Comparison}
+For $X \sim \text{Binomial}(10, p)$ with uniform prior $p \sim \text{Beta}(1, 1)$:
+Posterior: $p \mid x \sim \text{Beta}(1 + x, \; 1 + 10 - x) = \text{Beta}(x + 1, \; 11 - x)$.
+$$\hat{p}_{\text{MAP}} = \frac{(x + 1) - 1}{(x + 1) + (11 - x) - 2} = \mathbf{\frac{x}{10} = \hat{p}_{\text{MLE}}}$$
+
+\textbf{4. Laplace Prior and $L_1$ Regularization Equivalence}
+For prior $f(w_j) = \frac{\lambda}{2} e^{-\lambda |w_j|}$, log-prior is $\ln f(\mathbf{w}) = \sum_{j} \ln\left(\frac{\lambda}{2}\right) - \lambda \sum_{j} |w_j| = C - \lambda \|\mathbf{w}\|_1$.
+Log-posterior objective:
+$$\ln f(\mathbf{w} \mid \mathbf{x}, y) = \ln f(y \mid \mathbf{x}, \mathbf{w}) + \ln f(\mathbf{w}) = \ln L(\mathbf{w}) - \lambda \|\mathbf{w}\|_1 + C$$
+Maximizing the log-posterior is mathematically identical to minimizing the negative log-likelihood plus an \textbf{$L_1$ Lasso Penalty term $\lambda \|\mathbf{w}\|_1$}.
+
+\textbf{5. Data Science Application: Bayesian AB Testing Click Probability}
+Prior $p \sim \text{Beta}(1, 1)$, observations $n = 100, k = 15$:
+\begin{itemize}
+    \item \textbf{Posterior:} $\text{Beta}(1 + 15, \, 1 + 85) = \mathbf{\text{\textbf{Beta}}(16, 86)}$.
+    \item \textbf{Posterior Mean Estimate:}
+\end{itemize}
+$$\E[p \mid \text{data}] = \frac{16}{16 + 86} = \frac{16}{102} = \mathbf{\frac{8}{51} \approx 0.1569 = 15.69\%}$$
+
+\section*{Week 11: Hypothesis Testing: Size, Power, Z-Test \& p-Values}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Type I and Type II Error Identification}
+\begin{itemize}
+    \item \textbf{(1) Type I Error ($\alpha$):} False Positive — Concluding the patient has the disease ($H_1$) when they are actually healthy ($H_0$).
+    \item \textbf{(2) Type II Error ($\beta$):} False Negative — Concluding the patient is healthy ($H_0$) when they actually have the disease ($H_1$). A \textbf{Type II Error is much more dangerous} because a sick patient receives no medical treatment!
+\end{itemize}
+
+\textbf{2. One-Sample Right-Tailed Z-Test}
+\begin{itemize}
+    \item \textbf{(1) Hypotheses:} $H_0: \mu \le 48$ vs. $H_1: \mu > 48$.
+    \item \textbf{(2) Test Statistic:}
+    $$\text{SE} = \frac{\sigma}{\sqrt{n}} = \frac{12}{\sqrt{64}} = \frac{12}{8} = 1.5 \implies Z_{\text{calc}} = \frac{51 - 48}{1.5} = \frac{3}{1.5} = \mathbf{2.0}$$
+    \item \textbf{(3) Decision:} At $\alpha = 0.05$, critical value is $z_{0.05} = 1.645$. Since $Z_{\text{calc}} = 2.0 > 1.645$, we \textbf{REJECT $H_0$}. There is strong evidence that delivery time exceeds 48 hours.
+\end{itemize}
+
+\textbf{3. p-Value Calculation}
+For right-tailed $Z_{\text{calc}} = 2.0$:
+$$p\text{-value} = \P(Z \ge 2.0) = 1 - \Phi(2.0) = 1 - 0.9772 = \mathbf{0.0228 = 2.28\%}$$
+
+\textbf{4. Two-Tailed Z-Test with $p$-Value}
+$H_0: \mu = 500$ vs $H_1: \mu \neq 500$.
+\begin{itemize}
+    \item Test statistic: $Z_{\text{calc}} = \frac{496 - 500}{20 / \sqrt{100}} = \frac{-4}{2} = -2.0$.
+    \item Two-tailed $p$-value: $2 \times \P(Z \ge |-2.0|) = 2 \times (1 - \Phi(2.0)) = 2 \times 0.0228 = \mathbf{0.0456 = 4.56\%}$.
+    \item Decision at $\alpha = 0.05$: Since $p\text{-value} = 0.0456 \le 0.05$, we \textbf{REJECT $H_0$}. The boxes are misfilled.
+
+\end{itemize}
+\textbf{5. Data Science Application: A/B Test Significance Decision}
+For two-tailed $Z_{\text{calc}} = 2.33$:
+$$p\text{-value} = 2 \times (1 - \Phi(2.33)) = 2 \times (1 - 0.9901) = 2 \times 0.0099 = \mathbf{0.0198 = 1.98\%}$$
+At significance level $\alpha = 0.01$ (1\%):
+Since $p\text{-value} = 0.0198 > 0.01$, we \textbf{FAIL TO REJECT $H_0$ at the 1\% level} (the uplift is not statistically significant at $\alpha=0.01$, though it would be at $\alpha=0.05$).
+
+\section*{Week 12: Advanced Hypothesis Testing, LRT \& Goodness-of-Fit}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. One-Sample $t$-Test Calculation}
+For $n = 16, \bar{X} = 104, S = 8$:
+\begin{itemize}
+    \item \textbf{(1) Degrees of Freedom:} $df = n - 1 = 16 - 1 = \mathbf{15}$.
+    \item \textbf{(2) Test Statistic:} $\text{SE} = \frac{S}{\sqrt{n}} = \frac{8}{\sqrt{16}} = 2 \implies T_{\text{calc}} = \frac{104 - 100}{2} = \frac{4}{2} = \mathbf{2.0}$.
+    \item \textbf{(3) Decision at $\alpha = 0.05$:} Two-tailed critical value $t_{0.025, 15} = 2.131$.
+    Since $|T_{\text{calc}}| = 2.0 < 2.131$, we \textbf{FAIL TO REJECT $H_0$}. The sample mean does not differ significantly from 100.
+\end{itemize}
+
+\textbf{2. Two-Sample Pooled $t$-Test}
+Given $n_1 = 10, \bar{X}_1 = 15, S_1^2 = 4$ and $n_2 = 10, \bar{X}_2 = 12, S_2^2 = 6$:
+\begin{itemize}
+    \item Pooled Variance:
+\end{itemize}
+$$S_p^2 = \frac{(n_1 - 1)S_1^2 + (n_2 - 1)S_2^2}{n_1 + n_2 - 2} = \frac{9(4) + 9(6)}{10 + 10 - 2} = \frac{36 + 54}{18} = \frac{90}{18} = \mathbf{5}$$
+\begin{itemize}
+    \item Standard Error: $\text{SE} = \sqrt{S_p^2 \left(\frac{1}{n_1} + \frac{1}{n_2}\right)} = \sqrt{5 \left(\frac{1}{10} + \frac{1}{10}\right)} = \sqrt{5 \times 0.2} = \sqrt{1} = 1$.
+    \item Test Statistic: $T_{\text{calc}} = \frac{15 - 12}{1} = \mathbf{3.0}$.
+
+\end{itemize}
+\textbf{3. Chi-Squared Goodness of Fit (Die Fairness Test)}
+$N = 60, E_i = 10$ for all $i \in \{1,\dots,6\}$. Observed $O = [15, 7, 8, 12, 10, 8]$:
+$$\chi_{\text{calc}}^2 = \sum_{i=1}^6 \frac{(O_i - E_i)^2}{E_i} = \frac{(15-10)^2 + (7-10)^2 + (8-10)^2 + (12-10)^2 + (10-10)^2 + (8-10)^2}{10}$$
+$$\chi_{\text{calc}}^2 = \frac{25 + 9 + 4 + 4 + 0 + 4}{10} = \frac{46}{10} = \mathbf{4.6}$$
+At $\alpha = 0.05$ with $df = 6 - 1 = 5$, critical value $\chi_{0.05, 5}^2 = 11.07$.
+Since $\chi_{\text{calc}}^2 = 4.6 < 11.07$, we \textbf{FAIL TO REJECT $H_0$}. The die is consistent with being fair.
+
+\textbf{4. Wilks' Likelihood Ratio Test Stat}
+Given likelihood ratio $\Lambda = 0.05$:
+$$W = -2 \ln \Lambda = -2 \ln(0.05) = -2(-2.9957) \approx \mathbf{5.9914}$$
+
+\textbf{5. Comprehensive Course Review: $\chi^2$ Independence Test}
+Compute cell contributions $\frac{(O_{ij} - E_{ij})^2}{E_{ij}}$:
+\begin{itemize}
+    \item Free / Retained: $\frac{(80 - 90)^2}{90} = \frac{100}{90} \approx 1.111$
+    \item Free / Churned: $\frac{(40 - 30)^2}{30} = \frac{100}{30} \approx 3.333$
+    \item Premium / Retained: $\frac{(70 - 60)^2}{60} = \frac{100}{60} \approx 1.667$
+    \item Premium / Churned: $\frac{(10 - 20)^2}{20} = \frac{100}{20} = 5.000$
+\end{itemize}
+$$\chi_{\text{calc}}^2 = 1.111 + 3.333 + 1.667 + 5.000 = \mathbf{11.111}$$
+With $df = (2-1)(2-1) = 1$, critical value $\chi_{0.05, 1}^2 = 3.841$.
+Since $\chi_{\text{calc}}^2 = 11.111 > 3.841$, we \textbf{REJECT $H_0$}. Subscription Tier and Churn status are statistically significantly associated!
+
+
+
+
+
+
+
+
+
+

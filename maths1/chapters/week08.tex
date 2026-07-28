@@ -1,0 +1,156 @@
+\chapter{Differentiation}
+
+Differentiation formalizes the concept of the instantaneous rate of change of a function. In data science, differentiation is the mathematical engine behind optimization algorithms. For example, neural networks use a technique called "backpropagation" to learn, which is fundamentally just an application of the derivative chain rule across millions of parameters.
+
+\section{Limits, Continuity, and Differentiability}
+
+Let $f(x)$ be a function defined on an open interval containing $c$.
+
+\begin{definitionbox}{Limit, Continuity, and Derivative}
+\begin{itemize}
+    \item \textbf{Limit:} We say $\limit{x}{c} f(x) = L$ if we can make the values of $f(x)$ arbitrarily close to $L$ by taking $x$ sufficiently close to $c$. This requires the left-hand limit and right-hand limit to be equal:
+    $$\limit{x}{c^-} f(x) = \limit{x}{c^+} f(x) = L$$
+    \item \textbf{Continuity:} $f(x)$ is continuous at $x = c$ if the limit exists and equals the function's value:
+    $$\limit{x}{c} f(x) = f(c)$$
+    \item \index{Derivative}\textbf{Derivative:} The derivative of $f(x)$ at $x$, denoted $f'(x)$ or $\deriv{y}{x}$, is defined as the limit of the difference quotient:
+    $$f'(x) = \limit{h}{0} \frac{f(x + h) - f(x)}{h}$$
+    If this limit exists, $f$ is \textbf{differentiable} at $x$. Differentiability strictly implies continuity, but continuity does \textbf{not} guarantee differentiability (e.g., $f(x) = |x|$ is continuous at $x=0$, but has a sharp corner so the derivative is undefined).
+\end{itemize}
+\end{definitionbox}
+
+\section{Rules of Differentiation}
+
+Calculating limits manually is tedious. To differentiate efficiently, we use several established calculus rules.
+
+\begin{theorembox}{Calculus Differentiation Rules}
+Let $f$ and $g$ be differentiable functions, and let $c$ be a constant.
+\begin{itemize}
+    \item \textbf{Constant Rule:} $\deriv{}{x}(c) = 0$
+    \item \textbf{Power Rule:} $\deriv{}{x}(x^n) = n x^{n-1} \quad \forall n \in \R$
+    \item \textbf{Sum/Difference Rule:} $\deriv{}{x}(f(x) \pm g(x)) = f'(x) \pm g'(x)$
+    \item \textbf{Product Rule:} $\deriv{}{x}(f(x) \cdot g(x)) = f'(x)g(x) + f(x)g'(x)$
+    \item \textbf{Quotient Rule:} $\deriv{}{x}\left(\frac{f(x)}{g(x)}\right) = \frac{f'(x)g(x) - f(x)g'(x)}{(g(x))^2}$
+    \item \index{Chain Rule}\textbf{Chain Rule:} $\deriv{}{x}(f(g(x))) = f'(g(x)) \cdot g'(x)$
+\end{itemize}
+\end{theorembox}
+
+\textbf{Data Science Relevance (The Chain Rule):} When you train a Deep Neural Network, the output is a composite function of many layers: $L(W_3(W_2(W_1(X))))$. To find out how a weight $W_1$ in the very first layer affects the final loss $L$, the algorithm uses the \textbf{Chain Rule} to multiply the derivatives backward through the network. This is called \textbf{Backpropagation}.
+
+\subsection{Derivatives of Standard Transcendental Functions}
+\begin{itemize}
+    \item \textbf{Exponential:} $\deriv{}{x}(e^x) = e^x$
+    \item \textbf{Logarithm:} $\deriv{}{x}(\ln(x)) = \frac{1}{x}$
+\end{itemize}
+
+\begin{examplebox}{Differentiating with Chain and Quotient Rules}
+Find the derivative of $f(x) = \ln(x^2 + 3)$.
+\begin{itemize}
+    \item Let the outer function be $u(y) = \ln(y)$ and the inner function be $y(x) = x^2 + 3$.
+    \item Differentiate each component:
+    $$u'(y) = \frac{1}{y}, \quad y'(x) = 2x$$
+    \item Apply the Chain Rule:
+    $$f'(x) = u'(y(x)) \cdot y'(x) = \frac{1}{x^2 + 3} \cdot (2x) = \frac{2x}{x^2 + 3}$$
+\end{itemize}
+\end{examplebox}
+
+\begin{videocard}{3Blue1Brown: Derivative Rules Geometrically}{https://www.youtube.com/watch?v=S0_qX4VJhMQ}
+Presents brilliant visual explanations of the product, quotient, and chain rules using sliding area segments.
+\end{videocard}
+
+\section{L'Hôpital's Rule}
+\index{L'Hôpital's Rule}
+
+L'Hôpital's Rule provides an elegant method for evaluating limits that result in indeterminate forms (like $\frac{0}{0}$ or $\frac{\infty}{\infty}$).
+
+\begin{theorembox}{L'Hôpital's Rule}
+If $\limit{x}{c} f(x) = 0$ and $\limit{x}{c} g(x) = 0$ (or if both limits are $\pm\infty$), then:
+$$\limit{x}{c} \frac{f(x)}{g(x)} = \limit{x}{c} \frac{f'(x)}{g'(x)}$$
+provided the limit on the right exists (or is $\pm\infty$).
+\end{theorembox}
+
+\begin{examplebox}{Evaluating Indeterminate Limits}
+Find the limit: $\limit{x}{0} \frac{e^{3x} - 1}{x}$.
+\begin{itemize}
+    \item Direct substitution yields $\frac{e^0 - 1}{0} = \frac{1 - 1}{0} = \frac{0}{0}$, which is an indeterminate form.
+    \item Apply L'Hôpital's Rule by differentiating the numerator and the denominator separately:
+    $$\text{Numerator derivative: } \deriv{}{x}(e^{3x} - 1) = 3e^{3x}$$
+    $$\text{Denominator derivative: } \deriv{}{x}(x) = 1$$
+    \item Find the limit of the new quotient:
+    $$\limit{x}{0} \frac{e^{3x} - 1}{x} = \limit{x}{0} \frac{3e^{3x}}{1} = 3e^0 = 3$$
+\end{itemize}
+\end{examplebox}
+
+\section{Applications of Derivatives}
+
+\subsection{Optimization: Maxima and Minima}
+\index{Optimization}
+
+In data science, we always want to find the minimum of a cost function (to reduce errors) or the maximum of a likelihood function (to increase accuracy). Derivatives allow us to find these extrema analytically.
+
+\begin{definitionbox}{Critical Points and Extrema Tests}
+\begin{itemize}
+    \item \textbf{Critical Point:} A value $c$ in the domain of $f$ where $f'(c) = 0$ (horizontal tangent) or $f'(c)$ is undefined.
+    \item \textbf{First Derivative Test:} Let $c$ be a critical point of a continuous function $f$:
+        \begin{itemize}
+            \item If $f'(x)$ changes from positive (sloping up) to negative (sloping down) at $c$, then $f$ has a \textbf{local maximum} at $c$.
+            \item If $f'(x)$ changes from negative to positive at $c$, then $f$ has a \textbf{local minimum} at $c$.
+        \end{itemize}
+    \item \textbf{Second Derivative Test:} Suppose $f'(c) = 0$ and $f''(c)$ exists:
+        \begin{itemize}
+            \item If $f''(c) < 0$ (concave down), then $f$ has a \textbf{local maximum} at $c$.
+            \item If $f''(c) > 0$ (concave up), then $f$ has a \textbf{local minimum} at $c$.
+            \item If $f''(c) = 0$, the test is inconclusive (use the First Derivative Test).
+        \end{itemize}
+\end{itemize}
+\end{definitionbox}
+
+\textbf{Data Science Relevance (Gradient Descent):} Instead of solving $f'(x) = 0$ analytically (which is impossible for neural networks with billions of parameters), algorithms use \index{Gradient Descent}\textbf{Gradient Descent}. They compute the derivative at the current point, and take a small step in the \textit{opposite} direction of the slope, physically walking down the curve until they hit a minimum (where $f'(x) = 0$).
+
+\begin{lstlisting}[language=Python, caption=Data Science: Gradient Descent Step in Python]
+def f_prime(x):
+    # Derivative of a simple loss function f(x) = x^2
+    return 2 * x
+
+x_current = 5.0  # Starting guess
+learning_rate = 0.1
+
+# Take one step down the gradient
+step = learning_rate * f_prime(x_current)
+x_new = x_current - step
+
+print(f"Old x: {x_current}, New x: {x_new}")
+# The value moved closer to 0 (the minimum of x^2)
+\end{lstlisting}
+
+\begin{examplebox}{Optimization Problem}
+Find the dimensions of a rectangle with a fixed perimeter of $100$ meters that produces the maximum area.
+\begin{enumerate}
+    \item Let the width be $x$ and the length be $y$. The perimeter is:
+    $$2x + 2y = 100 \implies y = 50 - x$$
+    \item The area $A$ is:
+    $$A(x) = x \cdot y = x(50 - x) = 50x - x^2$$
+    We restrict $x \in (0, 50)$ since physical dimensions must be positive.
+    \item Find the critical points by setting the derivative to zero:
+    $$A'(x) = 50 - 2x = 0 \implies 2x = 50 \implies x = 25$$
+    \item Apply the Second Derivative Test to confirm it's a maximum:
+    $$A''(x) = -2$$
+    Since $A''(25) = -2 < 0$, the function achieves a local (and global) \textbf{maximum} at $x = 25$.
+    \item Find the length $y$:
+    $$y = 50 - 25 = 25$$
+\end{enumerate}
+So, the rectangle maximizing area is a \textbf{square} of dimensions $25\text{m} \times 25\text{m}$, yielding an area of $625\text{ m}^2$.
+\end{examplebox}
+
+
+
+\newpage
+\section{Practice Exercises}
+\textit{Try to solve these exercises independently. Detailed step-by-step solutions are available in the Appendix at the end of the book.}
+
+\begin{enumerate}
+    \item \textbf{Pure Math:} Differentiate $f(x) = x^3 e^x$ using the Product Rule.
+    \item \textbf{Data Science:} A machine learning Mean Squared Error cost function for a single parameter $w$ is given by $C(w) = (w - 3)^2 + 4$. Find the critical point $w$ where the gradient (derivative) is zero. Is this a maximum or minimum?
+    \item \textbf{Pure Math:} Find the derivative of $g(x) = \ln(3x^4 - 2x)$ using the Chain Rule.
+    \item \textbf{Pure Math:} Use L'Hôpital's Rule to evaluate the limit: $\limit{x}{0} \frac{\sin(x)}{x}$.
+    \item \textbf{Data Science:} A simple neural network maps input $x$ through two layers: $y = (2x + 1)^3$. Using the Chain Rule, what is $\deriv{y}{x}$?
+\end{enumerate}

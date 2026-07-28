@@ -1,0 +1,83 @@
+\chapter{Functions of Continuous RVs, Expectations \& Mixed Distributions}
+
+When we apply a mathematical function $Y = g(X)$ to a continuous random variable $X$, its probability density changes. In this chapter, we master the \textbf{CDF/PDF Methods for Transformations of Continuous RVs}, \textbf{Continuous Expectation ($\E[g(X)]$)}, and \textbf{Joint Discrete-Continuous Distributions}.
+
+\section{Transformations of Continuous Random Variables}
+
+To determine the PDF of $Y = g(X)$ given $f_X(x)$:
+
+\begin{formulabox}{The CDF Method for Transformations}
+1. Compute the CDF of $Y$:
+   $$F_Y(y) = \P(Y \le y) = \P(g(X) \le y) = \int_{\{x \mid g(x) \le y\}} f_X(x) \, dx$$
+2. Differentiate $F_Y(y)$ with respect to $y$ to get $f_Y(y) = \frac{d}{dy} F_Y(y)$.
+\end{formulabox}
+
+\begin{theorembox}{Change of Variables Formula for Monotonic $g(X)$}
+If $g(x)$ is strictly monotonic and differentiable with inverse $x = g^{-1}(y)$:
+$$f_Y(y) = f_X(g^{-1}(y)) \cdot \left| \frac{d}{dy} g^{-1}(y) \right|$$
+\end{theorembox}
+
+\begin{examplebox}{Linear Transformation $Y = aX + b$}
+If $X \sim \mathcal{N}(\mu, \sigma^2)$, then $Y = aX + b \sim \mathcal{N}(a\mu + b, a^2 \sigma^2)$.
+\end{examplebox}
+
+\begin{videocard}{IITM BS Lecture: Functions of Continuous Random Variables (CDF & PDF Methods)}{https://www.youtube.com/watch?v=EJjvm7rXswU}
+Official lecture deriving PDFs of transformed continuous random variables using CDF differentiation.
+\end{videocard}
+
+\section{Expectation and Variance of Continuous RVs}
+
+\begin{definitionbox}{Expectation $\E[g(X)]$ (LOTUS - Law of the Unconscious Statistician)}
+For a continuous random variable $X$ with PDF $f_X(x)$:
+$$\E[g(X)] = \int_{-\infty}^{\infty} g(x) f_X(x) \, dx$$
+Special cases:
+\begin{itemize}
+    \item Mean: $\mu = \E[X] = \int_{-\infty}^{\infty} x f_X(x) \, dx$.
+    \item Variance: $\sigma^2 = \Var(X) = \E[(X - \mu)^2] = \E[X^2] - (\E[X])^2$.
+\end{itemize}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Expectations of Continuous Random Variables}{https://www.youtube.com/watch?v=cyu51WEwo7w}
+Official lecture computing continuous means, variances, and applying LOTUS.
+\end{videocard}
+
+\section{Joint Distributions of Discrete and Continuous RVs}
+
+In many practical machine learning problems (e.g. classification), we observe a discrete class label $Y \in \{0, 1\}$ alongside continuous feature vector $X \in \mathbb{R}$.
+
+\begin{definitionbox}{Joint Discrete-Continuous PMF/PDF}
+Let $N$ be a discrete RV ($p_N(n)$) and $X$ be a continuous RV ($f_X(x)$).
+\begin{itemize}
+    \item \textbf{Conditional PDF of $X$ given $N=n$:} $f_{X \mid N}(x \mid n) = \frac{f_{X, N}(x, n)}{p_N(n)}$.
+    \item \textbf{Law of Total Probability:}
+\end{itemize}
+  $$f_X(x) = \sum_{n} f_{X \mid N}(x \mid n) \cdot p_N(n)$$
+\end{definitionbox}
+
+\textbf{Data Science Relevance:} The Law of Total Probability for mixed distributions forms the mathematical backbone of \textbf{Gaussian Mixture Models (GMM)} and generative classification models (Linear Discriminant Analysis)!
+
+\begin{videocard}{IITM BS Lecture: Joint Distribution of Discrete and Continuous RVs}{https://www.youtube.com/watch?v=s_VmvOWnPWs}
+Official lecture modeling mixed discrete-continuous pairs and computing marginal densities.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+\item \textbf{CDF Transformation Method:} Let $X \sim \text{Uniform}(0, 1)$ with $f_X(x) = 1$ for $x \in (0, 1)$. Find the PDF $f_Y(y)$ of $Y = -\ln(X)$ for $y > 0$. Identify the distribution of $Y$.
+
+\item \textbf{Linear Transformation of Normal RV:} Let $X \sim \mathcal{N}(0, 1)$ be a standard normal random variable. Define $Y = 3X + 5$. Write the PDF of $Y$ and state its mean and variance.
+
+\item \textbf{Continuous LOTUS Expectation:} Let $X$ have PDF $f_X(x) = 2x$ for $0 \le x \le 1$. Compute $\E[X^2]$.
+
+\item \textbf{Variance of Uniform RV:} Compute $\Var(X)$ for $X \sim \text{Uniform}(0, 4)$ using the integral definition $\E[X^2] - (\E[X])^2$.
+
+\item \textbf{Data Science Application (Gaussian Mixture Model Marginal PDF):} A binary classifier models customer transaction amount $X$ conditional on fraud status $N \in \{0, 1\}$.
+\begin{itemize}
+    \item Prior fraud probability: $p_N(1) = 0.05$, $p_N(0) = 0.95$.
+    \item Non-fraud distribution: $X \mid N=0 \sim \mathcal{N}(\mu_0 = 50, \sigma_0^2 = 100)$.
+    \item Fraud distribution: $X \mid N=1 \sim \mathcal{N}(\mu_1 = 300, \sigma_1^2 = 400)$.
+\end{itemize}
+    Write the overall marginal PDF expression $f_X(x)$ for transaction amounts across all customers.
+\end{enumerate}

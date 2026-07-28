@@ -1,0 +1,130 @@
+\chapter{Lists \& Basic Matrix Algorithms}
+
+A \textbf{List} is an ordered, mutable sequence of items. Lists are the most versatile built-in data structure in Python, capable of holding heterogeneous elements, including other lists (creating 2D and multi-dimensional matrices).
+
+\section{List Creation, Indexing, and Mutability}
+
+Unlike strings (which are immutable), lists are \textbf{mutable}, meaning you can change, add, or remove elements in place without creating a new object.
+
+\begin{definitionbox}{List Basics}
+\begin{lstlisting}
+numbers = [10, 20, 30, 40, 50]
+numbers[0] = 99          # Modify in place: [99, 20, 30, 40, 50]
+numbers.append(60)       # Add item to end: [99, 20, 30, 40, 50, 60]
+numbers.pop()            # Remove & return last item
+print(len(numbers))      # Length of list
+\end{lstlisting}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Warmup with Lists}{https://www.youtube.com/watch?v=toMhJJHSIYk}
+Official lecture introducing list initialization, indexing, append, and slice assignment.
+\end{videocard}
+
+\section{Linear Search and Basic Vector Operations}
+
+Linear search checks every element sequentially to find a target value or index. In linear algebra, a 1D list represents a \textbf{Vector}.
+
+\begin{examplebox}{Dot Product of Two Vectors}
+The dot product of two vectors $\mathbf{u} = [u_1, u_2, \dots, u_n]$ and $\mathbf{v} = [v_1, v_2, \dots, v_n]$ is:
+$$\mathbf{u} \cdot \mathbf{v} = \sum_{i=1}^{n} u_i v_i$$
+\begin{lstlisting}
+u = [1, 2, 3]
+v = [4, 5, 6]
+
+dot_product = 0
+for i in range(len(u)):
+    dot_product += u[i] * v[i]
+
+print("Dot Product:", dot_product)  # 1*4 + 2*5 + 3*6 = 32
+\end{lstlisting}
+\end{examplebox}
+
+\textbf{Data Science Relevance:} Vector dot products form the core of matrix multiplication, cosine similarity, neural network weights calculation ($\mathbf{w}^T \mathbf{x} + b$), and linear regression predictions.
+
+\begin{videocard}{IITM BS Lecture: Dot Product of Vectors}{https://www.youtube.com/watch?v=qSOoiWNplGo}
+Official lecture computing vector dot products using `for` loops.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Naive Linear Search}{https://www.youtube.com/watch?v=3huwiAPi-_I}
+Official lecture demonstrating linear search implementation and finding minimum/maximum values.
+\end{videocard}
+
+\section{2D Lists and Matrix Algorithms}
+
+A 2D matrix is represented in Python as a list of lists, where each inner list represents a row.
+
+\begin{formulabox}{Matrix Operations in Pure Python}
+Given $A$ ($m \times n$) and $B$ ($m \times n$), Matrix Addition $C = A + B$ is defined as $C_{ij} = A_{ij} + B_{ij}$.
+\begin{lstlisting}
+A = [[1, 2], [3, 4]]
+B = [[5, 6], [7, 8]]
+
+# Matrix Addition
+C = []
+for i in range(len(A)):
+    row = []
+    for j in range(len(A[0])):
+        row.append(A[i][j] + B[i][j])
+    C.append(row)
+# C becomes [[6, 8], [10, 12]]
+\end{lstlisting}
+\end{formulabox}
+
+\begin{examplebox}{Matrix Multiplication ($C = A \times B$)}
+For $A$ ($m \times k$) and $B$ ($k \times n$), $C_{ij} = \sum_{p=1}^{k} A_{ip} B_{pj}$.
+\begin{lstlisting}
+A = [[1, 2], [3, 4]]
+B = [[5, 6], [7, 8]]
+
+C = [[0, 0], [0, 0]]
+for i in range(len(A)):
+    for j in range(len(B[0])):
+        for k in range(len(B)):
+            C[i][j] += A[i][k] * B[k][j]
+# C becomes [[19, 22], [43, 50]]
+\end{lstlisting}
+\end{examplebox}
+
+\begin{videocard}{IITM BS Lecture: Matrix Addition from Scratch}{https://www.youtube.com/watch?v=CRhUooqcvcU}
+Official lecture implementing 2D matrix addition using nested lists and loops.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Matrix Multiplication Step-by-Step}{https://www.youtube.com/watch?v=seYP1F6Ct2g}
+Official lecture deriving the 3-loop matrix multiplication algorithm in Python.
+\end{videocard}
+
+\section{Selection Sort ("Obvious Sort")}
+
+\begin{theorembox}{Selection Sort Logic}
+Repeatedly find the minimum element from the unsorted portion of the list and swap it to the beginning.
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: The Obvious Sorting Algorithm}{https://www.youtube.com/watch?v=hkDAafi09yo}
+Official lecture stepping through selection sort logic and list element swapping.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{List Operations:} Start with `data = [15, 8, 42, 4, 23]`:
+    \begin{enumerate}
+        \item Append $16$ to the list.
+        \item Sort the list in ascending order using `.sort()`.
+        \item Reverse the sorted list.
+    \end{enumerate}
+
+    \item \textbf{Vector Euclidean Distance:} Given two 2D points $\mathbf{p} = [x_1, y_1]$ and $\mathbf{q} = [x_2, y_2]$, write a Python function or script to calculate the Euclidean distance:
+    $$d(\mathbf{p}, \mathbf{q}) = \sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2}$$
+    For $\mathbf{p} = [1, 2]$ and $\mathbf{q} = [4, 6]$.
+
+    \item \textbf{Matrix Transpose:} Write a Python script using nested `for` loops to compute the transpose $A^T$ of a $2 \times 3$ matrix:
+    $$A = \begin{bmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{bmatrix} \implies A^T = \begin{bmatrix} 1 & 4 \\ 2 & 5 \\ 3 & 6 \end{bmatrix}$$
+
+    \item \textbf{Manual Selection Sort:} Implement the selection sort algorithm in Python to sort `arr = [64, 25, 12, 22, 11]` without using built-in `.sort()` or `sorted()`.
+
+    \item \textbf{Data Science Application (Feature Scaling / Min-Max Normalization):} In Machine Learning, feature values $x$ are scaled between $0$ and $1$ using:
+    $$x_{\text{scaled}} = \frac{x - x_{\min}}{x_{\max} - x_{\min}}$$
+    Given `features = [10, 20, 30, 40, 50]`, write a `for` loop to compute the min-max normalized list.
+\end{enumerate}

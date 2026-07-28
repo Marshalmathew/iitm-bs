@@ -1,0 +1,88 @@
+\chapter{Expectation and Variance of Random Variables}
+
+Once we have defined a Random Variable and its Probability Mass Function (PMF), we want to summarize its behavior. Just like we summarized physical data using Mean and Variance in Chapter 3, we can mathematically summarize the theoretical distributions of Random Variables using \textbf{Expectation} and \textbf{Variance}.
+
+\section{Expectation (Expected Value)}
+
+\begin{definitionbox}{Expected Value (Mean) of a Random Variable}
+The \textbf{Expected Value}, denoted $E[X]$ or $\mu_X$, is the long-run average value of repetitions of the experiment it represents. For a discrete random variable, it is the probability-weighted sum of all possible values.
+$$E[X] = \sum_{x} x \cdot P(X=x)$$
+\textit{Note:} $E[X]$ is not necessarily a value that $X$ can actually take! For example, the expected value of a standard die roll is $3.5$.
+\end{definitionbox}
+
+\begin{theorembox}{Properties of Expectation (Linearity)}
+Expectation is a strictly linear operator. For any constants $a$ and $b$, and any random variables $X$ and $Y$:
+\begin{itemize}
+    \item \textbf{Constants:} $E[c] = c$
+    \item \textbf{Scaling and Shifting:} $E[aX + b] = aE[X] + b$
+    \item \textbf{Addition:} $E[X + Y] = E[X] + E[Y]$ (This holds true \emph{even if $X$ and $Y$ are dependent!})
+\end{itemize}
+\end{theorembox}
+
+\textbf{Data Science Relevance:} In Reinforcement Learning, an AI agent takes actions to maximize its "Expected Return". Because the environment is stochastic (random), the AI cannot predict exactly what reward it will get, so it calculates the mathematical Expected Value of all possible future states and chooses the path with the highest $E[X]$.
+
+\begin{videocard}{IITM BS Lecture: W9\_L2 \& L3 Expectation}{https://www.youtube.com/watch?v=NEgNVzox418}
+Official lectures defining $E[X]$ and proving the Linearity of Expectation.
+\end{videocard}
+
+\section{Variance of a Random Variable}
+
+While Expectation tells us the theoretical center, we also need to know the theoretical spread. 
+
+\begin{definitionbox}{Variance and Standard Deviation}
+The \textbf{Variance} of a random variable $X$, denoted $Var(X)$ or $\sigma_X^2$, measures the expected squared distance from the mean.
+$$Var(X) = E[(X - \mu)^2]$$
+A mathematically equivalent (and computationally faster) formula is:
+$$Var(X) = E[X^2] - (E[X])^2$$
+The \textbf{Standard Deviation} is simply the square root of the variance: $\sigma_X = \sqrt{Var(X)}$.
+\end{definitionbox}
+
+\begin{theorembox}{Properties of Variance (Non-Linearity)}
+Unlike Expectation, Variance is \textbf{NOT} linear. For any constants $a$ and $b$:
+\begin{itemize}
+    \item \textbf{Constants:} $Var(c) = 0$ (A constant has no spread, it never varies).
+    \item \textbf{Shifting:} $Var(X + b) = Var(X)$ (Adding a flat number to everything shifts the center, but does not change the spread).
+    \item \textbf{Scaling:} $Var(aX) = a^2 Var(X)$ (Multiplying by a constant scales the variance by the \emph{square} of that constant).
+    \item \textbf{Addition:} $Var(X + Y) = Var(X) + Var(Y)$ \textbf{ONLY IF} $X$ and $Y$ are strictly independent.
+\end{itemize}
+\end{theorembox}
+
+\textbf{Data Science Relevance:} In Finance and Quantitative Trading, Expected Value represents your projected profit, and Variance represents your \textbf{Risk}. Modern Portfolio Theory aims to construct a basket of stocks that maximizes $E[X]$ while minimizing $Var(X)$.
+
+\begin{videocard}{IITM BS Lecture: W9\_L4 \& L5 Variance Properties}{https://www.youtube.com/watch?v=KOBa-Y9pKD8}
+Official lectures deriving $Var(X)$ and proving why $Var(aX) = a^2Var(X)$.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{Calculating Expectation:} A lottery ticket costs ₹10 to play. You have a $1\%$ chance of winning ₹500, a $5\%$ chance of winning ₹50, and a $94\%$ chance of winning nothing (₹0). Let $X$ be the gross payout of the ticket.
+    \begin{enumerate}
+        \item What is the PMF of $X$?
+        \item Calculate the Expected Value $E[X]$.
+        \item Factoring in the ₹10 cost to play, what is your expected net profit?
+    \end{enumerate}
+
+    \item \textbf{Calculating Variance:} A discrete random variable $Y$ has the following PMF:
+    $P(Y=-1) = 0.2, \quad P(Y=0) = 0.5, \quad P(Y=1) = 0.3$.
+    \begin{enumerate}
+        \item Calculate the Expected Value $\mu = E[Y]$.
+        \item Calculate $E[Y^2]$.
+        \item Calculate the Variance $Var(Y)$ using the computational formula.
+    \end{enumerate}
+
+    \item \textbf{Properties of Expectation and Variance:} Let $X$ be a random variable representing the temperature in Celsius. You know $E[X] = 25^\circ$C and $Var(X) = 4$. You want to convert this to Fahrenheit using the formula $F = 1.8X + 32$.
+    \begin{enumerate}
+        \item What is the Expected Value of the temperature in Fahrenheit, $E[F]$?
+        \item What is the Variance of the temperature in Fahrenheit, $Var(F)$? (Be very careful with the properties).
+        \item What is the Standard Deviation in Fahrenheit?
+    \end{enumerate}
+
+    \item \textbf{Independence and Variance:} You flip a fair coin, where Heads = $1$ and Tails = $0$. Let this random variable be $X$. You roll a fair 6-sided die, yielding values 1 through 6. Let this random variable be $Y$.
+    \begin{enumerate}
+        \item $E[X] = 0.5$ and $E[Y] = 3.5$. What is $E[X + Y]$?
+        \item Are $X$ and $Y$ independent? What does this mean for $Var(X + Y)$?
+    \end{enumerate}
+\end{enumerate}

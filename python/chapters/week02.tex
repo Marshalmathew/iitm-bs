@@ -1,0 +1,104 @@
+\chapter{Control Flow \& Conditionals}
+
+Programs need to make decisions based on changing data. In Python, \textbf{Control Flow} allows you to execute specific blocks of code depending on whether a given condition evaluates to `True` or `False`.
+
+\section{Conditional Statements (`if`, `elif`, `else`)}
+
+Python uses indentation (4 spaces) to define code blocks instead of curly braces `{}`.
+
+\begin{theorembox}{Syntax of Conditional Blocks}
+\begin{lstlisting}
+if condition_1:
+    # Executed if condition_1 is True
+elif condition_2:
+    # Executed if condition_1 is False AND condition_2 is True
+else:
+    # Executed if all above conditions are False
+\end{lstlisting}
+\end{theorembox}
+
+\begin{examplebox}{Categorizing Credit Scores}
+\begin{lstlisting}
+credit_score = 720
+
+if credit_score >= 750:
+    status = "Excellent"
+elif credit_score >= 650:
+    status = "Good"
+elif credit_score >= 550:
+    status = "Fair"
+else:
+    status = "Poor"
+
+print(f"Credit Status: {status}")  # Output: Credit Status: Good
+\end{lstlisting}
+\end{examplebox}
+
+\textbf{Data Science Relevance:} Decision Tree models (like Random Forests and XGBoost) work under the hood as a giant hierarchy of `if-elif-else` checks on feature columns!
+
+\begin{videocard}{IITM BS Lecture: Introduction to the IF Statement}{https://www.youtube.com/watch?v=FTX5wF_3J9Q}
+Official lecture explaining logical branching, indentation rules, and conditional execution.
+\end{videocard}
+
+\begin{videocard}{IITM BS Tutorial: If, Else, and Elif Conditions}{https://www.youtube.com/watch?v=-dBqiRCHbNw}
+Hands-on tutorial with multiple practical examples of complex boolean expressions.
+\end{videocard}
+
+\section{Nested Conditionals and Short-Circuit Evaluation}
+
+You can nest `if` blocks inside other `if` blocks. When evaluating compound boolean expressions using `and` and `or`, Python uses \textbf{Short-Circuit Evaluation}:
+\begin{itemize}
+    \item In `A and B`, if `A` is `False`, Python stops immediately and returns `False` without evaluating `B`.
+    \item In `A or B`, if `A` is `True`, Python stops immediately and returns `True` without evaluating `B`.
+\end{itemize}
+
+\section{Importing Standard Libraries}
+
+Python comes with a rich standard library of useful modules (like `math` and `random`). You can import them using different import syntaxes.
+
+\begin{definitionbox}{Library Import Syntaxes}
+\begin{lstlisting}
+import math
+print(math.sqrt(16))  # 4.0
+
+import random as rd  # Using an alias
+print(rd.randint(1, 6)) # Random integer from 1 to 6
+
+from math import pi, log
+print(log(10))
+\end{lstlisting}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Importing Libraries in Python}{https://www.youtube.com/watch?v=eW58_ky7oc8}
+Official lecture comparing `import module`, `import module as alias`, and `from module import function`.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{Leap Year Logic:} A year is a leap year if it is divisible by 4, EXCEPT if it is divisible by 100 (unless it is also divisible by 400). Write a Python script with an `if-else` statement to determine whether `year = 2024` is a leap year.
+
+    \item \textbf{Short-Circuit Evaluation:} What will be printed by the following code snippet?
+\begin{lstlisting}
+x = 0
+if x != 0 and (10 / x > 2):
+    print("Valid")
+else:
+    print("Safe")
+\end{lstlisting}
+    Explain why Python does not crash with a `ZeroDivisionError`.
+
+    \item \textbf{Ternary Operator (Conditional Expression):} In Python, you can write concise 1-line conditionals: `val = A if condition else B`. Convert the following block into a 1-line ternary expression:
+\begin{lstlisting}
+if score >= 50:
+    result = "Pass"
+else:
+    result = "Fail"
+\end{lstlisting}
+
+    \item \textbf{Random Sampling:} Write a 3-line script that imports the `random` library and simulates rolling two 6-sided dice, printing their individual values and total sum.
+
+    \item \textbf{Data Science Application (Anomaly Detection):} An IoT sensor sends temperature readings. If the temperature is between $18^\circ$C and $28^\circ$C (inclusive), it is `"Normal"`. If it is below $18^\circ$C, it is `"Warning: Low Temp"`. If it exceeds $28^\circ$C, it is `"Alert: Overheating"`. Write the `if-elif-else` block for `temp = 31.5`.
+\end{enumerate}

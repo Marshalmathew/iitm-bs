@@ -1,0 +1,135 @@
+\chapter{Functions, Compositions, and Exponentials}
+
+This week deepens our understanding of functions, focusing on how functions can be combined (composites), reversed (inverses), and exponentially scaled.
+
+\section{Testing Functions: Vertical and Horizontal Lines}
+
+Graphs are an excellent way to visually analyze the properties of functions and mappings. We use two geometric tests:
+
+\begin{theorembox}{Line Tests for Functions}
+\begin{itemize}
+    \item \textbf{Vertical Line Test (Function Existence):} A curve in the Cartesian plane represents a valid function $y = f(x)$ if and only if \textbf{no vertical line} intersects the curve at more than one point. If a vertical line hits twice, one input $x$ is mapping to multiple outputs, which violates the definition of a function.
+    \item \textbf{Horizontal Line Test (One-to-One / Injectivity):} A function $y = f(x)$ is one-to-one (injective) if and only if \textbf{no horizontal line} intersects its graph at more than one point. If a horizontal line hits twice, multiple inputs map to the same output.
+\end{itemize}
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: W5\_L1 One-to-One Function Tests}{https://www.youtube.com/watch?v=CiZrP2-cpGM}
+Official IIT Madras lecture covering definitions and tests for injectivity.
+\end{videocard}
+
+\section{Composite Functions}
+
+Composition is the process of applying one function to the results of another.
+
+\begin{definitionbox}{Composite Function}
+Let $\func{g}{A}{B}$ and $\func{f}{B}{C}$ be functions. The \textbf{composite function} $f \circ g$ (read "$f$ of $g$") is a function from $A$ to $C$ defined by:
+$$(f \circ g)(x) = f(g(x))$$
+The domain of $f \circ g$ is the set of all $x$ in the domain of $g$ such that $g(x)$ lies in the domain of $f$:
+$$\text{Domain}(f \circ g) = \{ x \in \text{Domain}(g) \mid g(x) \in \text{Domain}(f) \}$$
+\end{definitionbox}
+
+\textbf{Data Science Relevance:} Artificial Neural Networks (Deep Learning) are fundamentally massive chains of composite functions. The output of one layer of neurons ($g(x)$) becomes the direct input for the next layer ($f(g(x))$). By chaining simple functions together, networks can approximate incredibly complex boundaries.
+
+\begin{examplebox}{Function Composition and Domain}
+Let $f(x) = \sqrt{x}$ and $g(x) = x - 3$. Find $(f \circ g)(x)$ and its domain.
+\begin{itemize}
+    \item Find the expression:
+    $$(f \circ g)(x) = f(g(x)) = f(x - 3) = \sqrt{x - 3}$$
+    \item Find the domain:
+    The domain of $g(x)$ is all real numbers $\R$.
+    The domain of $f(t) = \sqrt{t}$ requires $t \ge 0$.
+    Therefore, we require $g(x) \ge 0 \implies x - 3 \ge 0 \implies x \ge 3$.
+    Thus, the domain of $f \circ g$ is $[3, \infty)$.
+\end{itemize}
+\end{examplebox}
+
+\begin{videocard}{IITM BS Lecture: W5\_L6 Composite Functions}{https://www.youtube.com/watch?v=T4Q2bg0jQZ8}
+Official IIT Madras lecture covering the definitions, domains, and real-world examples of composites.
+\end{videocard}
+
+\section{Inverse Functions}
+
+An inverse function reverses the mapping of the original function.
+
+\begin{definitionbox}{Inverse Function}
+If $\func{f}{A}{B}$ is a \textbf{bijection} (both one-to-one and onto), then there exists a unique function $\func{f^{-1}}{B}{A}$ called the \textbf{inverse of $f$} such that:
+$$f^{-1}(y) = x \iff f(x) = y \quad \forall y \in B$$
+Key properties:
+\begin{itemize}
+    \item $\text{Domain}(f^{-1}) = \text{Range}(f)$ and $\text{Range}(f^{-1}) = \text{Domain}(f)$.
+    \item $f(f^{-1}(y)) = y$ and $f^{-1}(f(x)) = x$.
+    \item The graph of $f^{-1}$ is the reflection of the graph of $f$ across the diagonal line $y = x$.
+\end{itemize}
+\end{definitionbox}
+
+\begin{examplebox}{Finding an Inverse Function}
+Find the inverse of the function $f(x) = \frac{2x - 1}{x + 3}$ defined for $x \neq -3$.
+\begin{enumerate}
+    \item Write $y = f(x)$:
+    $$y = \frac{2x - 1}{x + 3}$$
+    \item Solve for $x$ in terms of $y$:
+    $$y(x + 3) = 2x - 1 \implies xy + 3y = 2x - 1$$
+    Collect all terms with $x$:
+    $$xy - 2x = -3y - 1 \implies x(y - 2) = -(3y + 1) \implies x = \frac{3y + 1}{2 - y}$$
+    \item Swap the variables to write $f^{-1}(x)$:
+    $$f^{-1}(x) = \frac{3x + 1}{2 - x} \quad (\text{defined for } x \neq 2)$$
+\end{enumerate}
+\end{examplebox}
+
+\begin{videocard}{IITM BS Lecture: W5\_L9 Inverse Functions}{https://www.youtube.com/watch?v=BpoWKCrLm14}
+Official IIT Madras lecture covering definitions and graphical symmetry of inverse functions.
+\end{videocard}
+
+\section{Exponential Functions}
+
+An exponential function is a function where the variable is placed in the exponent, leading to extremely rapid growth (or decay).
+
+\begin{definitionbox}{Exponential Function}
+An exponential function is of the form:
+$$f(x) = a^x \quad (\text{where } a > 0 \text{ and } a \neq 1)$$
+\begin{itemize}
+    \item \textbf{Domain:} $(-\infty, \infty)$ (all real numbers).
+    \item \textbf{Range:} $(0, \infty)$ (always strictly positive, never $0$).
+    \item \textbf{Natural Exponential Function:} When the base is Euler's number $e \approx 2.71828$:
+    $$f(x) = e^x$$
+\end{itemize}
+\end{definitionbox}
+
+\begin{theorembox}{Laws of Exponents}
+For $a > 0$ and any real numbers $x, y$:
+\begin{itemize}
+    \item $a^x \cdot a^y = a^{x+y}$
+    \item $\frac{a^x}{a^y} = a^{x-y}$
+    \item $(a^x)^y = a^{xy}$
+    \item $(ab)^x = a^x b^x$
+\end{itemize}
+\end{theorembox}
+
+\textbf{Data Science Relevance:} The natural exponential $e^x$ is pervasive in probability, statistics, and machine learning (especially Logistic Regression and the Softmax function) because its rate of growth is exactly equal to its current value—a unique and mathematically elegant property.
+
+\begin{videocard}{IITM BS Lecture: W5\_L3 Exponential Functions Definition}{https://www.youtube.com/watch?v=0l47NHJy-f4}
+Official IIT Madras lecture introducing exponential properties and growth.
+\end{videocard}
+
+\section*{Supplementary Lecture Videos}
+For further reinforcement and specialized topics, refer to the following official IIT Madras lectures:
+\begin{itemize}
+    \item \href{https://www.youtube.com/watch?v=em8Lw7g776M}{W5\_L2: One-to-one function examples, cubic cases \& theorems}
+    \item \href{https://www.youtube.com/watch?v=dMvBjIeJe80}{W5\_L4: Exponential functions graphing with examples \& analysis}
+    \item \href{https://www.youtube.com/watch?v=d_LJM7F33uo}{W5\_L5: Natural exponential function definition \& properties}
+    \item \href{https://www.youtube.com/watch?v=QfO-gh-Fpts}{W5\_L7: Composite functions step by step examples}
+    \item \href{https://www.youtube.com/watch?v=5u1OlsxuJnw}{W5\_L8: Composite functions finding the domain}
+    \item \href{https://www.youtube.com/watch?v=tVoe7VtZXK8}{W8: Additional lecture: inverse functions finding \& verifying}
+\end{itemize}
+
+\newpage
+\section{Practice Exercises}
+\textit{Try to solve these exercises independently. Detailed step-by-step solutions are available in the Appendix at the end of the book.}
+
+\begin{enumerate}
+    \item \textbf{Pure Math:} Use the horizontal line test conceptually to determine if $f(x) = x^2$ is one-to-one on the domain $\R$. What if the domain is restricted to $[0, \infty)$?
+    \item \textbf{Pure Math:} Let $f(x) = x^2 + 1$ and $g(x) = 2x - 3$. Find $(f \circ g)(x)$ and $(g \circ f)(x)$. Are they equal?
+    \item \textbf{Data Science:} In a neural network, a linear transformation $L(x) = 3x - 2$ is followed by a ReLU activation function $R(x) = \max(0, x)$. Evaluate the composite output $(R \circ L)(1)$ and $(R \circ L)(0)$.
+    \item \textbf{Pure Math:} Find the inverse function $f^{-1}(x)$ for $f(x) = \frac{4x}{x - 2}$.
+    \item \textbf{Pure Math:} Simplify the exponential expression: $\frac{(e^{2x})^3 \cdot e^{-x}}{e^{4x}}$.
+\end{enumerate}

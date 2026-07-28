@@ -1,0 +1,70 @@
+\chapter{Moment Generating Functions \& The Central Limit Theorem}
+
+Why does the Gaussian bell curve dominate statistics and machine learning? The answer lies in the \textbf{Central Limit Theorem (CLT)}. In this chapter, we master \textbf{Moment Generating Functions (MGF)} to track probability distributions and explore the asymptotic normality of sample averages.
+
+\section{Moment Generating Functions (MGF)}
+
+The \textbf{Moment Generating Function} $M_X(t)$ provides an elegant transform domain (analogous to Laplace/Fourier transforms) that uniquely characterizes a probability distribution.
+
+\begin{definitionbox}{Moment Generating Function $M_X(t)$}
+For a random variable $X$, its \textbf{Moment Generating Function (MGF)} is defined for $t$ in an open interval around $0$:
+$$M_X(t) = \E[e^{tX}] = \begin{cases} \sum_x e^{tx} p_X(x) & \text{(Discrete)} \\ \int_{-\infty}^{\infty} e^{tx} f_X(x) \, dx & \text{(Continuous)} \end{cases}$$
+\end{definitionbox}
+
+\begin{theorembox}{Generating Moments and Distribution Uniqueness}
+1. \textbf{Moment Extraction:} Derivatives at $t = 0$ yield the raw moments $\E[X^k]$:
+   $$\left. \frac{d^k M_X(t)}{dt^k} \right|_{t=0} = \E[X^k] \implies M_X'(0) = \E[X], \, M_X''(0) = \E[X^2]$$
+2. \textbf{Uniqueness Property:} If $M_X(t) = M_Y(t)$ for all $t$ near $0$, then $X$ and $Y$ have the exact same distribution!
+3. \textbf{MGF of Independent Sums:} If $X \perp\!\!\!\perp Y$, then $M_{X+Y}(t) = M_X(t) \cdot M_Y(t)$.
+\end{theorembox}
+
+\begin{formulabox}{Common MGF Formulas}
+\begin{itemize}
+    \item \textbf{Bernoulli($p$):} $M(t) = (1 - p) + p e^t$.
+    \item \textbf{Poisson($\lambda$):} $M(t) = \exp(\lambda(e^t - 1))$.
+    \item \textbf{Exponential($\lambda$):} $M(t) = \frac{\lambda}{\lambda - t}$ for $t < \lambda$.
+    \item \textbf{Normal($\mu, \sigma^2$):} $M(t) = \exp\left(\mu t + \frac{1}{2}\sigma^2 t^2\right)$.
+\end{itemize}
+\end{formulabox}
+
+\begin{videocard}{IITM BS Lecture: Moment Generating Functions (MGF)}{https://www.youtube.com/watch?v=OSL7bAmH6E4}
+Official lecture deriving MGFs, moment extraction derivatives, and MGF convolution for independent sums.
+\end{videocard}
+
+\section{The Central Limit Theorem (CLT)}
+
+\begin{theorembox}{The Central Limit Theorem (CLT)}
+Let $X_1, X_2, \dots, X_n$ be i.i.d. random variables with finite mean $\mu$ and variance $\sigma^2 > 0$.
+As $n \to \infty$, the normalized sample mean $Z_n$ converges in distribution to the \textbf{Standard Normal Distribution} $\mathcal{N}(0, 1)$:
+$$Z_n = \frac{\bar{X}_n - \mu}{\sigma / \sqrt{n}} = \frac{\sum_{i=1}^n X_i - n\mu}{\sigma \sqrt{n}} \xrightarrow{d} \mathcal{N}(0, 1)$$
+For large $n$ (typically $n \ge 30$), $\bar{X}_n \approx \mathcal{N}\left(\mu, \frac{\sigma^2}{n}\right)$ regardless of the shape of the original underlying distribution!
+\end{theorembox}
+
+\textbf{Data Science Relevance:} CLT is the reason why z-confidence intervals, hypothesis tests, and normal error approximations in generalized linear models (GLMs) work reliably on large datasets even when features are non-Gaussian!
+
+\begin{videocard}{IITM BS Lecture: The Central Limit Theorem (CLT)}{https://www.youtube.com/watch?v=o5wSSPcbp6U}
+Official lecture proving CLT via MGF limit expansion $\lim_{n\to\infty} M_{Z_n}(t) = e^{t^2/2}$.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Descriptive Statistics of Normal Samples}{https://www.youtube.com/watch?v=Jrw7dyC4D4I}
+Official lecture studying sample variance $S^2 = \frac{1}{n-1}\sum (X_i - \bar{X})^2$ and Chi-Squared distributions.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+\item \textbf{MGF Derivative Moment Extraction:} The MGF of a random variable $X$ is $M_X(t) = \frac{1}{1 - 2t}$ for $t < 0.5$.
+    \begin{enumerate}
+\item Compute $\E[X] = M_X'(0)$.
+    2. Compute $\E[X^2] = M_X''(0)$ and variance $\Var(X)$.
+
+\item \textbf{MGF of Independent Sums:} Let $X \sim \text{Poisson}(\lambda_1 = 3)$ and $Y \sim \text{Poisson}(\lambda_2 = 5)$ be independent. Use MGF product $M_{X+Y}(t) = M_X(t) M_Y(t)$ to prove that $X + Y \sim \text{Poisson}(8)$.
+
+\item \textbf{CLT Probability Approximation for Sample Means:} A battery's lifetime in hours has mean $\mu = 40$ and standard deviation $\sigma = 8$. A company tests an i.i.d. sample of $n = 64$ batteries. Given $\Phi(1.5) = 0.9332$, use the CLT to approximate the probability that the sample mean lifetime $\bar{X}_{64}$ exceeds $41.5$ hours.
+
+\item \textbf{CLT Approximation for Binomial Counts:} A coin with probability of heads $p = 0.5$ is tossed $n = 100$ times. Use the Normal approximation (CLT) to find $\P(45 \le S \le 55)$ where $S = \sum_{i=1}^{100} X_i$. Given $\Phi(1.1) = 0.8643$.
+
+\item \textbf{Data Science Application (A/B Test Conversion Sample Size):} An e-commerce platform compares conversion rates ($p = 0.10$, $\sigma = \sqrt{p(1-p)} = 0.30$). Using the CLT, how many visitor sessions $n$ are required so that the standard error of the sample conversion rate $\text{SE}(\bar{X}_n) = \frac{\sigma}{\sqrt{n}}$ is at most $0.005$?
+\end{enumerate}

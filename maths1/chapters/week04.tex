@@ -1,0 +1,167 @@
+\chapter{Algebra of Polynomials}
+
+A polynomial is a mathematical expression consisting of variables and coefficients, involving only addition, subtraction, multiplication, and non-negative integer exponents. Understanding polynomial algebra is critical for advanced regression techniques and kernel methods in machine learning, which use high-degree polynomials to capture complex, non-linear patterns in data.
+
+\section{Definitions and Classifications}
+
+A real polynomial $P(x)$ of degree $n$ is defined as:
+$$P(x) = a_n x^n + a_{n-1} x^{n-1} + \dots + a_1 x + a_0$$
+where $a_0, a_1, \dots, a_n \in \R$ with $a_n \neq 0$, and $n \in \{0, 1, 2, \dots\}$.
+
+\begin{itemize}
+    \item \textbf{Degree ($n$):} The highest exponent of the variable $x$ with a non-zero coefficient.
+    \item \textbf{Leading Coefficient ($a_n$):} The coefficient of the term with the highest degree.
+    \item \textbf{Constant Term ($a_0$):} The term of degree $0$.
+\end{itemize}
+
+\textbf{Data Science Relevance:} In \textbf{Polynomial Regression}, if a straight line (degree 1) doesn't fit the data well, we might fit a quadratic (degree 2) or cubic (degree 3) polynomial. However, choosing too high of a degree leads to "overfitting"—the model perfectly learns the training data but fails to generalize to new data.
+
+\begin{videocard}{IITM BS Lecture: W4\_L1 Introduction to Polynomials}{https://www.youtube.com/watch?v=2PTcxG8e6os}
+Official IIT Madras lecture covering the definition and types of polynomials.
+\end{videocard}
+
+\section{Polynomial Division and Theorems}
+
+Like integers, polynomials can be divided.
+
+\begin{theorembox}{Division Algorithm for Polynomials}
+For any dividend polynomial $P(x)$ and non-zero divisor polynomial $D(x)$, there exist unique polynomials $Q(x)$ (quotient) and $R(x)$ (remainder) such that:
+$$P(x) = D(x)Q(x) + R(x)$$
+where either $R(x) = 0$ or $\text{deg}(R) < \text{deg}(D)$.
+\end{theorembox}
+
+\begin{theorembox}{Remainder and Factor Theorems}
+Let $P(x)$ be a polynomial of degree $n \ge 1$ and let $c \in \R$.
+\begin{itemize}
+    \item \textbf{Remainder Theorem:} If $P(x)$ is divided by the linear term $(x - c)$, the remainder is exactly the value $P(c)$.
+    \item \textbf{Factor Theorem:} The linear term $(x - c)$ is a factor of $P(x)$ if and only if $P(c) = 0$.
+\end{itemize}
+\end{theorembox}
+
+\begin{examplebox}{Remainder Theorem and Factoring}
+Determine if $(x - 2)$ is a factor of $P(x) = x^3 - 3x^2 + 4x - 4$, and find the remainder when divided.
+\begin{itemize}
+    \item By the Remainder Theorem, the remainder $R$ is equal to $P(2)$:
+    $$P(2) = (2)^3 - 3(2)^2 + 4(2) - 4 = 8 - 3(4) + 8 - 4 = 8 - 12 + 8 - 4 = 0$$
+    \item Since $P(2) = 0$, the remainder is $0$.
+    \item By the Factor Theorem, because the remainder is $0$, $(x - 2)$ \textbf{is a factor} of $P(x)$.
+\end{itemize}
+\end{examplebox}
+
+\begin{videocard}{IITM BS Lecture: W4\_L6 Polynomial Division Algorithm}{https://www.youtube.com/watch?v=Y1_T6augNFo}
+Official IIT Madras lecture explaining long division with remainders.
+\end{videocard}
+
+\section{Graphing Polynomials}
+
+To sketch a polynomial function $P(x) = a_n x^n + \dots + a_0$, we analyze three key features: End Behavior, Intercepts/Multiplicities, and Turning Points.
+
+\subsection{End Behavior}
+
+The long-term behavior of $P(x)$ as $x \to \pm\infty$ is determined solely by its leading term $a_n x^n$.
+
+\begin{theorembox}{Leading Coefficient Test for End Behavior}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+ & \textbf{Even Degree ($n$ is even)} & \textbf{Odd Degree ($n$ is odd)} \\
+\hline
+\textbf{Positive $a_n$} & 
+\begin{tabular}{c}
+$x \to \infty, y \to \infty$ \\
+$x \to -\infty, y \to \infty$ \\
+(Up-Up)
+\end{tabular} & 
+\begin{tabular}{c}
+$x \to \infty, y \to \infty$ \\
+$x \to -\infty, y \to -\infty$ \\
+(Down-Up)
+\end{tabular} \\
+\hline
+\textbf{Negative $a_n$} & 
+\begin{tabular}{c}
+$x \to \infty, y \to -\infty$ \\
+$x \to -\infty, y \to -\infty$ \\
+(Down-Down)
+\end{tabular} & 
+\begin{tabular}{c}
+$x \to \infty, y \to -\infty$ \\
+$x \to -\infty, y \to \infty$ \\
+(Up-Down)
+\end{tabular} \\
+\hline
+\end{tabular}
+\end{center}
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: W4\_L9 End Behavior of Polynomials}{https://www.youtube.com/watch?v=cggv0rx2yBo}
+Official IIT Madras lecture explaining leading terms, degrees, and the asymptotic limits of polynomials.
+\end{videocard}
+
+\subsection{Intercepts and Root Multiplicities}
+
+If $P(c) = 0$, then $c$ is a real zero (root) of $P(x)$ and $(c, 0)$ is an x-intercept.
+If a factor $(x - c)$ appears repeated $k$ times (i.e., $(x - c)^k$ divides $P(x)$), then $c$ is a zero of \textbf{multiplicity $k$}.
+
+\begin{definitionbox}{Multiplicity Behavior at X-intercepts}
+\begin{itemize}
+    \item \textbf{Odd Multiplicity ($k$ is odd):} The graph \textbf{crosses} the x-axis at $x = c$. If $k > 1$, the graph also flattens (inflection point) as it crosses.
+    \item \textbf{Even Multiplicity ($k$ is even):} The graph is \textbf{tangent} to the x-axis (touches and bounces/turns back) at $x = c$.
+\end{itemize}
+\end{definitionbox}
+
+\subsection{Turning Points}
+
+A turning point is a point where the graph changes direction from increasing to decreasing, or vice versa (local extrema).
+\begin{theorembox}{Turning Points Bound}
+A polynomial of degree $n$ can have \textbf{at most} $n - 1$ turning points.
+\end{theorembox}
+
+\begin{examplebox}{Polynomial Sketching Analysis}
+Analyze the polynomial $f(x) = -(x - 1)^2(x + 2)$ for sketching.
+\begin{enumerate}
+    \item \textbf{Degree and Leading Coefficient:}
+    Expanding the leading term: $f(x) = -(x^2)(x) + \dots = -x^3 + \dots$.
+    The degree is $n = 3$ (odd), and the leading coefficient is $a_n = -1$ (negative).
+    End behavior: As $x \to \infty, y \to -\infty$. As $x \to -\infty, y \to \infty$ (Up-Down).
+    \item \textbf{Intercepts:}
+    \begin{itemize}
+        \item y-intercept: $f(0) = -(0-1)^2(0+2) = -1(1)(2) = -2 \implies (0, -2)$.
+        \item x-intercepts: Set $f(x) = 0 \implies (x-1)^2(x+2) = 0$.
+        Zeros: $x = 1$ (multiplicity 2) and $x = -2$ (multiplicity 1).
+    \end{itemize}
+    \item \textbf{Behavior at Zeros:}
+    \begin{itemize}
+        \item At $x = 1$ (even multiplicity): The graph touches and bounces off the x-axis.
+        \item At $x = -2$ (odd multiplicity): The graph crosses the x-axis.
+    \end{itemize}
+    \item \textbf{Turning Points:} At most $n - 1 = 2$ turning points.
+\end{enumerate}
+\end{examplebox}
+
+\section*{Supplementary Lecture Videos}
+For further reinforcement and specialized topics, refer to the following official IIT Madras lectures:
+\begin{itemize}
+    \item \href{https://www.youtube.com/watch?v=s9zDRWmgsb4}{W4\_L2: Degree of polynomials definition examples \& special cases}
+    \item \href{https://www.youtube.com/watch?v=KJXkTzKAZ6k}{W4\_L3: Algebra of polynomials addition \& subtraction}
+    \item \href{https://www.youtube.com/watch?v=WOqISzw8jYs}{W4\_L4: Algebra of polynomials multiplication methods}
+    \item \href{https://www.youtube.com/watch?v=2eWP19N8wn4}{W4\_L5: Algebra of polynomials division with remainders}
+    \item \href{https://www.youtube.com/watch?v=5M_oX0EjiEk}{W4\_L7: Graphs of polynomials identification \& characterization}
+    \item \href{https://www.youtube.com/watch?v=1t4-35dKUno}{W4\_L8: Graphs of polynomials behavior at x intercepts \& multiplicities}
+    \item \href{https://www.youtube.com/watch?v=8a--SspXSXU}{W4\_L10: Graphs of polynomials turning points \& relation to degree}
+    \item \href{https://www.youtube.com/watch?v=6IVf5Af1nO0}{W4\_L11: Graphs of polynomials graphing methods \& polynomial creation}
+    \item \href{https://www.youtube.com/watch?v=fbvj1w_NI9c}{W6: Weekly summary: polynomial definitions \& algebra operations}
+    \item \href{https://www.youtube.com/watch?v=Z7cwVjqdenE}{W7: Summary: polynomial graphs \& real-world applications}
+\end{itemize}
+
+\newpage
+\section{Practice Exercises}
+\textit{Try to solve these exercises independently. Detailed step-by-step solutions are available in the Appendix at the end of the book.}
+
+\begin{enumerate}
+    \item \textbf{Pure Math:} Use the Remainder Theorem to find the remainder when $P(x) = x^4 - 2x^3 + 5x - 7$ is divided by $(x - 1)$.
+    \item \textbf{Pure Math:} Determine the end behavior of the polynomial $f(x) = 3x^5 - 4x^3 + 2x - 1$.
+    \item \textbf{Data Science:} You are fitting a polynomial regression curve to 4 data points. What is the maximum number of turning points a degree-3 polynomial curve can have as it passes through the data?
+    \item \textbf{Pure Math:} Find the x-intercepts and state their multiplicities for the polynomial $g(x) = x^2(x + 3)^3(x - 5)$. Will the graph cross or bounce at $x = -3$?
+    \item \textbf{Data Science:} A complex machine learning boundary is defined by the polynomial equation $B(x) = -2x^6 + 5x^4 - 3x^2 + 1$. As $x \to \infty$ and $x \to -\infty$, in which direction does the boundary eventually head?
+\end{enumerate}

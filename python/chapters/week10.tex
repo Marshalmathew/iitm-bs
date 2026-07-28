@@ -1,0 +1,90 @@
+\chapter{Object-Oriented Programming (OOP)}
+
+\textbf{Object-Oriented Programming (OOP)} is a programming paradigm based on the concept of "objects", which contain data (attributes) and code (methods). OOP enables modularity, encapsulation, and code reuse when building large software systems.
+
+\section{Classes, Objects, `__init__`, and `self`}
+
+A \textbf{Class} is a blueprint for creating objects. An \textbf{Object} is an instance of a class.
+
+\begin{definitionbox}{Class Definition and Instance Attributes}
+- `__init__(self, ...)`: The constructor method automatically executed when a new object instance is created.
+- `self`: Represents the specific instance of the class being created or modified.
+\begin{lstlisting}
+class Student:
+    def __init__(self, name, roll_no, gpa):
+        self.name = name          # Instance attribute
+        self.roll_no = roll_no
+        self.gpa = gpa
+
+    def display_info(self):       # Instance method
+        return f"Student: {self.name} | GPA: {self.gpa}"
+
+# Instantiating objects
+s1 = Student("Alice", 101, 3.9)
+print(s1.display_info())  # Output: Student: Alice | GPA: 3.9
+\end{lstlisting}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Introduction to OOP Basics}{https://www.youtube.com/watch?v=X1mOrCwZUgQ}
+Official lecture introducing class concepts, objects, attributes, and methods.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Attributes, Methods, Init, and Self}{https://www.youtube.com/watch?v=n_jPQlWhGhM}
+Official lecture explaining the constructor `__init__` and instance binding via `self`.
+\end{videocard}
+
+\section{Inheritance and Method Overriding}
+
+\textbf{Inheritance} allows a child class to inherit attributes and methods from a parent class, promoting code reuse.
+
+\begin{theorembox}{Parent vs Child Classes}
+A child class can override methods from the parent class to specialize behavior, and call `super().__init__()` to reuse parent initialization logic.
+\end{theorembox}
+
+\begin{examplebox}{Model Inheritance Architecture}
+\begin{lstlisting}
+class BaseModel:
+    def __init__(self, model_name):
+        self.model_name = model_name
+
+    def fit(self, X, y):
+        raise NotImplementedError("Subclasses must implement fit()")
+
+class LinearRegressionModel(BaseModel):
+    def __init__(self, learning_rate=0.01):
+        super().__init__("Linear Regression")
+        self.lr = learning_rate
+
+    def fit(self, X, y):  # Method Overriding
+        print(f"Training {self.model_name} with lr={self.lr}...")
+
+model = LinearRegressionModel(learning_rate=0.05)
+model.fit([1, 2], [2, 4])
+\end{lstlisting}
+\end{examplebox}
+
+\textbf{Data Science Relevance:} Every major Machine Learning framework in Python—including PyTorch (`nn.Module`), scikit-learn (`BaseEstimator`), and TensorFlow (`tf.keras.Model`)—is built entirely around OOP class inheritance!
+
+\begin{videocard}{IITM BS Lecture: Inheritance and Method Overriding}{https://www.youtube.com/watch?v=RrFvcDjJptY}
+Official lecture demonstrating parent-child class structures, `super()`, and method overriding.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{Basic Class Creation:} Design a class `Circle` with an attribute `radius`. Include methods `area()` ($A = \pi r^2$) and `circumference()` ($C = 2 \pi r$). Test with `r = 5.0`.
+
+    \item \textbf{Class Encapsulation:} Create a `BankAccount` class with a private attribute `__balance`. Include methods `deposit(amount)`, `withdraw(amount)` (checking for sufficient funds), and `get_balance()`.
+
+    \item \textbf{Class vs Instance Variables:} Explain the difference between a class variable and an instance variable in Python. Provide a 5-line code snippet demonstrating a class variable `species = "Canis lupus"` shared across `Dog` instances.
+
+    \item \textbf{Inheritance Hierarchy:} Create a parent class `Vehicle` with attribute `brand` and method `drive()`. Create a child class `ElectricCar` that inherits from `Vehicle`, adds attribute `battery_capacity`, and overrides `drive()` to print `"Driving silently on electricity"`.
+
+    \item \textbf{Data Science Application (Custom Transformer Class):} In scikit-learn, data preprocessing transformers implement `.fit()` and `.transform()` methods. Create a class `StandardScaler` with attributes `mean` and `std`. Implement:
+    \begin{enumerate}
+        \item `fit(data)`: Calculates and stores the mean and standard deviation of a list of floats.
+        \item `transform(data)`: Returns a new list of $z$-score normalized values $z = \frac{x - \text{mean}}{\text{std}}$.
+    \end{enumerate}
+\end{enumerate}

@@ -1,0 +1,98 @@
+\chapter{Cramer's Rule, Row Echelon Form \& Gaussian Elimination}
+
+Solving large systems of linear equations $A \mathbf{x} = \mathbf{b}$ is the single most common computational operation in numerical algorithms. In this chapter, we master explicit solutions via Cramer's Rule and systematic algorithmic reduction via \textbf{Gaussian Elimination} and \textbf{Row Echelon Form (REF)}.
+
+\section{Cramer's Rule}
+
+For a square, non-singular linear system $A \mathbf{x} = \mathbf{b}$ with $\det(A) \neq 0$, \textbf{Cramer's Rule} gives an explicit formula for each variable $x_i$ using determinants.
+
+\begin{theorembox}{Cramer's Rule Formula}
+Let $A_i(\mathbf{b})$ be the matrix obtained by replacing the $i$-th column of $A$ with the constant vector $\mathbf{b}$. The unique solution for variable $x_i$ is:
+$$x_i = \frac{\det(A_i(\mathbf{b}))}{\det(A)}, \quad \text{for } i = 1, 2, \dots, n$$
+\end{theorembox}
+
+\begin{examplebox}{Solving $2 \times 2$ System via Cramer's Rule}
+Solve $\begin{cases} 2x + 3y = 8 \\ 5x - y = 3 \end{cases}$:
+$$\det(A) = \begin{vmatrix} 2 & 3 \\ 5 & -1 \end{vmatrix} = -2 - 15 = -17$$
+$$\det(A_x(\mathbf{b})) = \begin{vmatrix} 8 & 3 \\ 3 & -1 \end{vmatrix} = -8 - 9 = -17 \implies x = \frac{-17}{-17} = 1$$
+$$\det(A_y(\mathbf{b})) = \begin{vmatrix} 2 & 8 \\ 5 & 3 \end{vmatrix} = 6 - 40 = -34 \implies y = \frac{-34}{-17} = 2$$
+\end{examplebox}
+
+\begin{videocard}{IITM BS Lecture: Cramer's Rule}{https://www.youtube.com/watch?v=sOFHgNXXRFM}
+Official lecture deriving Cramer's Rule and applying it to non-singular linear systems.
+\end{videocard}
+
+\section{Elementary Row Operations \& Row Echelon Form (REF)}
+
+While Cramer's Rule is theoretically elegant, calculating determinants for large $n \times n$ matrices is computationally intractable ($\mathcal{O}(n!)$ time). Instead, we transform augmented matrices using \textbf{Elementary Row Operations (EROs)} without changing the solution set.
+
+\begin{definitionbox}{Elementary Row Operations (EROs)}
+1. \textbf{Row Swap ($R_i \leftrightarrow R_j$):} Swap two rows.
+2. \textbf{Scalar Multiplication ($R_i \to c R_i$):} Multiply a row by a non-zero scalar $c \neq 0$.
+3. \textbf{Row Addition ($R_i \to R_i + c R_j$):} Add a scalar multiple of row $j$ to row $i$.
+\end{definitionbox}
+
+\begin{definitionbox}{Row Echelon Form (REF) & Reduced REF (RREF)}
+A matrix is in \textbf{Row Echelon Form (REF)} if:
+\begin{enumerate}
+\item All zero rows are at the bottom of the matrix.
+2. The leading non-zero entry (pivot) of a non-zero row is strictly to the right of the pivot in the row above it.
+3. All entries below a pivot are zero.
+
+It is in \textbf{Reduced Row Echelon Form (RREF)} if, additionally, every pivot entry is $1$, and all entries above each pivot are zero.
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Row Echelon Form}{https://www.youtube.com/watch?v=6N8owlkf9AQ}
+Official lecture defining pivot entries, REF conditions, and RREF canonical form.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Row Reduction Techniques}{https://www.youtube.com/watch?v=ECRhKDTUxM8}
+Official lecture performing row operations step-by-step on rectangular matrices.
+\end{videocard}
+
+\section{Gaussian Elimination \& Back-Substitution}
+
+\textbf{Gaussian Elimination} reduces an augmented matrix $[A \mid \mathbf{b}]$ into REF using EROs, followed by \textbf{Back-Substitution} to solve for variables.
+
+\begin{formulabox}{Gaussian Elimination Algorithm ($\mathcal{O}(n^3)$)}
+1. \textbf{Forward Elimination:} Use EROs to create zeros below each pivot from left to right, producing REF.
+2. \textbf{Back-Substitution:} Starting from the bottom row, solve for each basic variable and substitute upwards.
+\end{formulabox}
+
+\textbf{Data Science Relevance:} Gaussian Elimination and LU Decomposition under grid computing power the solver engines of NumPy (`np.linalg.solve`), SciPy, and Linear Programming solvers.
+
+\begin{videocard}{IITM BS Lecture: The Gaussian Elimination Method}{https://www.youtube.com/watch?v=gdk1_aEe7j4}
+Official lecture executing full Gaussian elimination and identifying free vs pivot variables.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{Cramer's Rule ($2 \times 2$):} Use Cramer's Rule to solve the system:
+    $$\begin{aligned}
+    3x_1 + 4x_2 &= 10 \\
+    x_1 - 2x_2 &= -3
+    \end{aligned}$$
+
+    \item \textbf{Identifying REF:} State whether each of the following matrices is in REF, RREF, or neither:
+    $$\text{(a) } A = \begin{bmatrix} 1 & 3 & 2 \\ 0 & 1 & 4 \\ 0 & 0 & 0 \end{bmatrix}, \quad \text{(b) } B = \begin{bmatrix} 1 & 0 & 5 \\ 0 & 1 & -2 \\ 0 & 0 & 1 \end{bmatrix}, \quad \text{(c) } C = \begin{bmatrix} 0 & 1 & 2 \\ 1 & 0 & 3 \end{bmatrix}$$
+
+    \item \textbf{Gaussian Elimination ($3 \times 3$):} Solve the linear system using Gaussian Elimination (forward elimination to REF + back-substitution):
+    $$\begin{aligned}
+    x_1 + 2x_2 + x_3 &= 8 \\
+    2x_1 + 3x_2 + 4x_3 &= 20 \\
+    4x_1 + 3x_2 + 2x_3 &= 16
+    \end{aligned}$$
+
+    \item \textbf{Free Variables & Infinite Solutions:} Reduce the augmented matrix to REF and write the general parametric solution in terms of free variables:
+    $$\begin{aligned}
+    x_1 + 2x_2 - x_3 &= 4 \\
+    2x_1 + 4x_2 + x_3 &= 11
+    \end{aligned}$$
+
+    \item \textbf{Data Science Application (Least Squares Normal Equations):} In linear regression, the parameters $\mathbf{w}$ are found by solving $(X^T X) \mathbf{w} = X^T \mathbf{y}$. Given:
+    $$X^T X = \begin{bmatrix} 4 & 2 \\ 2 & 3 \end{bmatrix}, \quad X^T \mathbf{y} = \begin{bmatrix} 10 \\ 9 \end{bmatrix}$$
+    Solve for parameter vector $\mathbf{w} = \begin{bmatrix} w_0 \\ w_1 \end{bmatrix}$ using Gaussian Elimination or Cramer's Rule.
+\end{enumerate}

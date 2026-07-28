@@ -1,0 +1,83 @@
+\chapter{Vector Spaces, Subspaces \& Linear Independence}
+
+Abstract algebra generalizes $\mathbb{R}^n$ into the formal concept of a \textbf{Vector Space}. Understanding vector spaces and linear independence is crucial for recognizing feature redundancies and understanding high-dimensional data representations.
+
+\section{Definition of a Vector Space}
+
+\begin{definitionbox}{Vector Space Axioms}
+A \textbf{Vector Space} $(V, +, \cdot)$ over a field $\mathbb{R}$ is a set $V$ equipped with vector addition $+$ and scalar multiplication $\cdot$ satisfying 8 fundamental axioms:
+\begin{enumerate}
+    \item \textbf{Associativity of Addition:} $(\mathbf{u} + \mathbf{v}) + \mathbf{w} = \mathbf{u} + (\mathbf{v} + \mathbf{w})$.
+    \item \textbf{Commutativity of Addition:} $\mathbf{u} + \mathbf{v} = \mathbf{v} + \mathbf{u}$.
+    \item \textbf{Additive Identity:} There exists $\mathbf{0} \in V$ such that $\mathbf{v} + \mathbf{0} = \mathbf{v}$.
+    \item \textbf{Additive Inverse:} For every $\mathbf{v} \in V$, there exists $-\mathbf{v} \in V$ such that $\mathbf{v} + (-\mathbf{v}) = \mathbf{0}$.
+    \item \textbf{Distributivity I:} $c(\mathbf{u} + \mathbf{v}) = c\mathbf{u} + c\mathbf{v}$.
+    \item \textbf{Distributivity II:} $(c + d)\mathbf{v} = c\mathbf{v} + d\mathbf{v}$.
+    \item \textbf{Scalar Associativity:} $c(d\mathbf{v}) = (cd)\mathbf{v}$.
+    \item \textbf{Scalar Identity:} $1 \cdot \mathbf{v} = \mathbf{v}$.
+\end{enumerate}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Introduction to Vector Spaces}{https://www.youtube.com/watch?v=dAttVL9a5Go}
+Official lecture introducing vector space axioms and canonical examples ($\mathbb{R}^n$, matrix spaces $\mathbb{R}^{m \times n}$, polynomial spaces $\mathbb{P}_n$).
+\end{videocard}
+
+\section{Vector Subspaces}
+
+A subset $W \subseteq V$ of a vector space $V$ is a \textbf{Subspace} if $W$ is itself a valid vector space under the same operations.
+
+\begin{theorembox}{Subspace Test}
+A non-empty subset $W \subseteq V$ is a subspace of $V$ if and only if it satisfies \textbf{3 closure properties}:
+\begin{enumerate}
+\item \textbf{Zero Vector:} $\mathbf{0} \in W$.
+2. \textbf{Closure under Addition:} If $\mathbf{u}, \mathbf{v} \in W$, then $\mathbf{u} + \mathbf{v} \in W$.
+3. \textbf{Closure under Scalar Multiplication:} If $\mathbf{v} \in W$ and $c \in \mathbb{R}$, then $c\mathbf{v} \in W$.
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: Properties of Vector Spaces & Subspaces}{https://www.youtube.com/watch?y=yUISwV4LE20}
+Official lecture proving subspace criteria and geometric examples (lines/planes through the origin in $\mathbb{R}^3$).
+\end{videocard}
+
+\section{Linear Combinations, Span, and Linear Independence}
+
+\begin{definitionbox}{Linear Span and Independence}
+\begin{itemize}
+    \item \textbf{Linear Combination:} $\mathbf{v} = c_1 \mathbf{v}_1 + c_2 \mathbf{v}_2 + \dots + c_k \mathbf{v}_k$.
+    \item \textbf{Span:} $\vspan(\{\mathbf{v}_1, \dots, \mathbf{v}_k\})$ is the set of all possible linear combinations of the vectors.
+    \item \textbf{Linear Independence:} A set of vectors $\{\mathbf{v}_1, \dots, \mathbf{v}_k\}$ is \textbf{Linearly Independent} if the equation:
+\end{itemize}
+$$c_1 \mathbf{v}_1 + c_2 \mathbf{v}_2 + \dots + c_k \mathbf{v}_k = \mathbf{0}$$
+has \textbf{ONLY the trivial solution} $c_1 = c_2 = \dots = c_k = 0$.
+
+If a non-trivial solution exists (at least one $c_i \neq 0$), the vectors are \textbf{Linearly Dependent}.
+\end{definitionbox}
+
+\textbf{Data Science Relevance:} In Machine Learning, \textbf{multicollinearity} occurs when input feature vectors are linearly dependent (or nearly dependent). This causes severe instability in linear models and matrix inversion $(X^T X)^{-1}$.
+
+\begin{videocard}{IITM BS Lecture: Linear Dependence}{https://www.youtube.com/watch?v=1Krnnc6wKyk}
+Official lecture defining linear dependence and redundant vector identification.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Linear Independence (Parts 1 \& 2)}{https://www.youtube.com/watch?v=Uf5nqIJv1Fk}
+Official lectures testing linear independence using matrix rank and determinant of coefficient matrices.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{Subspace Test:} Determine whether $W = \left\{ \begin{bmatrix} x \\ y \end{bmatrix} \in \mathbb{R}^2 \Big| 2x - 3y = 0 \right\}$ is a valid subspace of $\mathbb{R}^2$. Prove using the 3 subspace criteria.
+
+    \item \textbf{Non-Subspace Counterexample:} Consider $W = \left\{ \begin{bmatrix} x \\ y \end{bmatrix} \in \mathbb{R}^2 \Big| x + y = 1 \right\}$. Show why $W$ fails to be a vector subspace of $\mathbb{R}^2$.
+
+    \item \textbf{Testing Linear Independence ($3 \times 3$):} Test whether the set of vectors:
+    $$\left\{ \mathbf{v}_1 = \begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix}, \, \mathbf{v}_2 = \begin{bmatrix} 0 \\ 1 & 4 \end{bmatrix}, \, \mathbf{v}_3 = \begin{bmatrix} 5 \\ 6 \\ 0 \end{bmatrix} \right\}$$
+    is linearly independent in $\mathbb{R}^3$ by computing the determinant of the matrix formed by placing them as columns.
+
+    \item \textbf{Linear Dependence & Redundancy:} Find the scalar value $k$ such that the vectors $\mathbf{u} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$ and $\mathbf{v} = \begin{bmatrix} 3 \\ k \end{bmatrix}$ are linearly dependent.
+
+    \item \textbf{Data Science Application (Feature Multicollinearity):} A data scientist collects three features for housing price prediction:
+    $x_1 = \text{size in sq ft}$, $x_2 = \text{size in sq meters}$, $x_3 = \text{number of bedrooms}$.
+    Since $1 \text{ sq ft} = 0.092903 \text{ sq meters}$, show mathematically that $\{x_1, x_2, x_3\}$ is a linearly dependent set of feature vectors, and explain why one must be removed before regression fitting.
+\end{enumerate}

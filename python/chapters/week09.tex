@@ -1,0 +1,101 @@
+\chapter{Recursion \& Searching Algorithms}
+
+\textbf{Recursion} is a programming technique where a function calls itself to solve smaller instances of the same problem. Combined with Divide-and-Conquer strategy, recursion enables highly efficient algorithms like \textbf{Binary Search} ($\mathcal{O}(\log N)$ time complexity).
+
+\section{The Core Mechanics of Recursion}
+
+Every valid recursive function must have two components:
+1. \textbf{Base Case:} The stopping condition that returns a value directly without further recursive calls (prevents `RecursionError: maximum recursion depth exceeded`).
+2. \textbf{Recursive Step:} The function calls itself with a reduced or smaller input parameter, moving towards the base case.
+
+\begin{definitionbox}{Recursive Factorial}
+$$N! = \begin{cases} 1 & \text{if } N = 0 \text{ or } N = 1 \quad \text{(Base Case)} \\ N \times (N-1)! & \text{if } N > 1 \quad \text{(Recursive Step)} \end{cases}$$
+\begin{lstlisting}
+def factorial(n):
+    if n <= 1:
+        return 1
+    return n * factorial(n - 1)
+
+print(factorial(5))  # Output: 120
+\end{lstlisting}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Theoretical Introduction to Recursion}{https://www.youtube.com/watch?v=htu4ZCW7hzA}
+Official lecture explaining the call stack, activation records, and base cases.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Recursion Illustration (Sum & Factorial)}{https://www.youtube.com/watch?v=PAUlGa9wAxA}
+Official lecture tracing recursive execution stacks step-by-step.
+\end{videocard}
+
+\section{Binary Search: Iterative vs Recursive}
+
+While Linear Search takes $\mathcal{O}(N)$ time, \textbf{Binary Search} searches a \textbf{sorted} array in $\mathcal{O}(\log N)$ time by repeatedly dividing the search space in half.
+
+\begin{theorembox}{Binary Search Algorithm ($\mathcal{O}(\log N)$)}
+Compare the target with the middle element `mid`:
+\begin{itemize}
+    \item If `target == arr[mid]`, return `mid`.
+    \item If `target < arr[mid]`, search the left sub-array (`high = mid - 1`).
+    \item If `target > arr[mid]`, search the right sub-array (`low = mid + 1`).
+\end{itemize}
+\end{theorembox}
+
+\begin{examplebox}{Iterative and Recursive Binary Search}
+\begin{lstlisting}
+# Iterative Binary Search
+def binary_search_iterative(arr, target):
+    low, high = 0, len(arr) - 1
+    while low <= high:
+        mid = (low + high) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            low = mid + 1
+        else:
+            high = mid - 1
+    return -1
+
+# Recursive Binary Search
+def binary_search_recursive(arr, target, low, high):
+    if low > high:
+        return -1
+    mid = (low + high) // 2
+    if arr[mid] == target:
+        return mid
+    elif arr[mid] < target:
+        return binary_search_recursive(arr, target, mid + 1, high)
+    else:
+        return binary_search_recursive(arr, target, low, mid - 1)
+\end{lstlisting}
+\end{examplebox}
+
+\textbf{Data Science Relevance:} Decision Trees, Decision Trees splitting algorithms (e.g. finding optimal thresholds), and database indexing (B-Trees) use recursive divide-and-conquer principles.
+
+\begin{videocard}{IITM BS Lecture: Introduction to Binary Search}{https://www.youtube.com/watch?v=WEJt1L7YTpM}
+Official lecture explaining the halving technique and $\mathcal{O}(\log N)$ efficiency.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Recursive Binary Search Implementation}{https://www.youtube.com/watch?v=v_WYTBhHONo}
+Official lecture implementing binary search recursively in Python.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{Recursive Sum:} Write a recursive function `recursive_sum(n)` that calculates the sum of integers from $1$ to $n$.
+
+    \item \textbf{Recursive String Reversal:} Write a recursive function `reverse_string(s)` that reverses a string without using loops or slicing `[::-1]`. (Base case: empty string or length 1).
+
+    \item \textbf{Binary Search Trace:} Given a sorted array `arr = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]`:
+    \begin{enumerate}
+        \item Trace the values of `low`, `high`, and `mid` when searching for `target = 23`.
+        \item How many comparison steps were required?
+    \end{enumerate}
+
+    \item \textbf{Recursive Fibonacci with Memoization:} The naïve recursive Fibonacci $F(n) = F(n-1) + F(n-2)$ takes $\mathcal{O}(2^n)$ exponential time. Write an optimized version `fib_memo(n, memo={})` that uses a dictionary to cache previously computed Fibonacci numbers in $\mathcal{O}(n)$ time.
+
+    \item \textbf{Data Science Application (Finding Square Root via Binary Search):} Write a function `sqrt_binary_search(val, tol=1e-5)` that uses binary search on the interval $[0, \text{val}]$ to find the square root of a non-negative float `val` within tolerance `tol`.
+\end{enumerate}

@@ -1,0 +1,97 @@
+\chapter{Matrix Similarity, Affine Spaces, Norms \& Inner Products}
+
+Geometric intuition in high-dimensional space requires measuring lengths, distances, and angles between vectors. In this chapter, we explore \textbf{Matrix Similarity} (change of basis), \textbf{Affine Spaces}, and formalize geometric measurement using \textbf{Norms} and \textbf{Inner Products}.
+
+\section{Matrix Similarity and Change of Basis}
+
+Two square matrices $A, B \in \mathbb{R}^{n \times n}$ are \textbf{Similar} if they represent the exact same linear operator $T: V \to V$ under two different choices of basis.
+
+\begin{theorembox}{Matrix Similarity}
+Matrix $B$ is \textbf{similar} to $A$ (written $B \sim A$) if there exists an invertible change-of-basis matrix $P \in \mathbb{R}^{n \times n}$ such that:
+$$B = P^{-1} A P$$
+\textbf{Invariants under Similarity:} Similar matrices share the exact same:
+\begin{enumerate}
+\item Determinant: $\det(B) = \det(A)$.
+2. Trace: $\trace(B) = \trace(A)$.
+3. Rank: $\rank(B) = \rank(A)$.
+4. Eigenvalues and characteristic polynomial.
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: Equivalence & Similarity of Matrices}{https://www.youtube.com/watch?v=ORWbVJ54hW8}
+Official lecture explaining change-of-basis transformations and similarity invariants.
+\end{videocard}
+
+\section{Affine Subspaces and Mappings}
+
+An \textbf{Affine Subspace} (or Flat) is a translated vector subspace: $\mathcal{A} = \mathbf{x}_0 + W$, where $\mathbf{x}_0 \in V$ is a fixed translation point and $W \subseteq V$ is a vector subspace.
+
+\begin{definitionbox}{Affine Subspace vs Vector Subspace}
+Unlike vector subspaces, an affine subspace $\mathbf{x}_0 + W$ does \textbf{NOT} need to pass through the origin $\mathbf{0}$ (unless $\mathbf{x}_0 \in W$).
+For example, lines and planes in $\mathbb{R}^3$ that do not pass through $(0,0,0)$ are affine subspaces.
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Affine Subspaces & Mappings}{https://www.youtube.com/watch?v=RUJInY6skG0}
+Official lecture contrasting vector subspaces with shifted affine spaces and hyperplanes.
+\end{videocard}
+
+\section{Inner Products and Norms}
+
+An \textbf{Inner Product} $\langle \mathbf{u}, \mathbf{v} \rangle$ generalizes the dot product, providing a rigorous concept of length and angle for any vector space.
+
+\begin{definitionbox}{Inner Product Space Axioms}
+An \textbf{Inner Product} $\langle \cdot, \cdot \rangle : V \times V \to \mathbb{R}$ satisfies:
+\begin{enumerate}
+    \item \textbf{Symmetry:} $\langle \mathbf{u}, \mathbf{v} \rangle = \langle \mathbf{v}, \mathbf{u} \rangle$.
+    \item \textbf{Linearity in first argument:} $\langle c\mathbf{u} + d\mathbf{v}, \mathbf{w} \rangle = c\langle \mathbf{u}, \mathbf{w} \rangle + d\langle \mathbf{v}, \mathbf{w} \rangle$.
+    \item \textbf{Positive Definiteness:} $\langle \mathbf{v}, \mathbf{v} \rangle \ge 0$, and $\langle \mathbf{v}, \mathbf{v} \rangle = 0 \iff \mathbf{v} = \mathbf{0}$.
+\end{enumerate}
+Every inner product defines an \textbf{Induced Norm}: $\|\mathbf{v}\| = \sqrt{\langle \mathbf{v}, \mathbf{v} \rangle}$.
+\end{definitionbox}
+
+\begin{formulabox}{Cauchy-Schwarz Inequality \& Angle}
+For any inner product space:
+$$|\langle \mathbf{u}, \mathbf{v} \rangle| \le \|\mathbf{u}\| \|\mathbf{v}\|$$
+The angle $\theta$ between non-zero vectors $\mathbf{u}, \mathbf{v}$ is defined by:
+$$\cos(\theta) = \frac{\langle \mathbf{u}, \mathbf{v} \rangle}{\|\mathbf{u}\| \|\mathbf{v}\|}$$
+\end{formulabox}
+
+\textbf{Data Science Relevance:} $L_1$ norm (Manhattan distance, Lasso regularization), $L_2$ norm (Euclidean distance, Ridge regularization), and Cosine Similarity are core tools in clustering (K-Means), text retrieval, and model loss formulation!
+
+\begin{videocard}{IITM BS Lecture: Lengths, Angles & Inner Products}{https://www.youtube.com/watch?v=TtQ6AQUlwl0}
+Official lecture deriving lengths, unit vectors $\hat{\mathbf{v}} = \frac{\mathbf{v}}{\|\mathbf{v}\|}$, and Cauchy-Schwarz inequality.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Inner Products and Norms on a Vector Space}{https://www.youtube.com/watch?v=HH2Md3dBlq4}
+Official lecture introducing weighted inner products $\langle \mathbf{u}, \mathbf{v} \rangle_Q = \mathbf{u}^T Q \mathbf{v}$ with positive-definite $Q$.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+\item \textbf{Matrix Similarity Check:} Given $A = \begin{bmatrix} 1 & 2 \\ 0 & 3 \end{bmatrix}$ and $B = \begin{bmatrix} 3 & 0 \\ 1 & 1 \end{bmatrix}$:
+    \begin{enumerate}
+        \item Compute $\det(A)$ and $\det(B)$.
+        \item Compute $\trace(A)$ and $\trace(B)$.
+        \item Are $A$ and $B$ similar matrices?
+    \end{enumerate}
+
+\item \textbf{Weighted Inner Product:} Define a weighted inner product on $\mathbb{R}^2$ by $\langle \mathbf{u}, \mathbf{v} \rangle_Q = 2 u_1 v_1 + 5 u_2 v_2$.
+    \begin{enumerate}
+        \item Compute $\left\langle \begin{bmatrix} 1 \\ 2 \end{bmatrix}, \begin{bmatrix} 3 \\ -1 \end{bmatrix} \right\rangle_Q$.
+        \item Compute the induced norm $\left\| \begin{bmatrix} 1 \\ 2 \end{bmatrix} \right\|_Q$.
+    \end{enumerate}
+
+\item \textbf{Cosine Similarity:} In natural language processing, word embeddings for two documents are:
+    $$\mathbf{d}_1 = \begin{bmatrix} 1 \\ 2 \\ 0 \\ 2 \end{bmatrix}, \quad \mathbf{d}_2 = \begin{bmatrix} 0 \\ 1 & 1 \\ 1 \end{bmatrix}$$
+    Compute the Cosine Similarity $\cos(\theta) = \frac{\mathbf{d}_1 \cdot \mathbf{d}_2}{\|\mathbf{d}_1\| \|\mathbf{d}_2\|}$.
+
+\item \textbf{Cauchy-Schwarz Verification:} For $\mathbf{u} = \begin{bmatrix} 3 \\ 4 \end{bmatrix}$ and $\mathbf{v} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$ in standard $\mathbb{R}^2$, verify that $|\mathbf{u} \cdot \mathbf{v}| \le \|\mathbf{u}\| \|\mathbf{v}\|$.
+
+\item \textbf{Data Science Application ($L_1$ vs $L_2$ Norm Regularization):} A weights vector in a sparse ML model is $\mathbf{w} = \begin{bmatrix} 3 \\ -4 \\ 0 \\ 12 \end{bmatrix}$.
+    \begin{enumerate}
+        \item Calculate the $L_1$ norm $\|\mathbf{w}\|_1 = \sum |w_i|$ (Lasso penalty).
+        \item Calculate the $L_2$ norm $\|\mathbf{w}\|_2 = \sqrt{\sum w_i^2}$ (Ridge penalty).
+    \end{enumerate}
+\end{enumerate}

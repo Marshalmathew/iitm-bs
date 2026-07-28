@@ -1,0 +1,137 @@
+\chapter{Quadratic Functions}
+
+Quadratic functions are second-degree polynomials. Geometrically, they represent parabolas. In data science, quadratic functions are widely used in loss functions (like mean squared error) and optimization problems, as they possess a single local (and global) extremum.
+
+\section{Quadratic Equations and Solving Methods}
+
+A quadratic equation is of the form:
+$$ax^2 + bx + c = 0 \quad (\text{where } a, b, c \in \R \text{ and } a \neq 0)$$
+
+\begin{formulabox}{Solving Quadratic Equations}
+We can find the roots (solutions) using three main approaches:
+\begin{enumerate}
+    \item \textbf{Factoring:} Rewriting the equation as $a(x-r_1)(x-r_2) = 0$.
+    \item \textbf{Completing the Square:} Expressing the equation in the form $(x-h)^2 = k$.
+    \item \textbf{The Quadratic Formula:}
+    $$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$
+\end{enumerate}
+\end{formulabox}
+
+\textbf{Data Science Relevance:} Many optimization algorithms, such as Gradient Descent, are designed to find the roots or extrema of functions. While quadratics can be solved analytically using the formula above, more complex functions require iterative numeric solvers.
+
+\begin{videocard}{IITM BS Lecture: W3\_L3A Solution by Factorization}{https://www.youtube.com/watch?v=ZRXWkzFSZzU}
+Official IIT Madras lecture covering the factorization method for quadratic roots.
+\end{videocard}
+
+\subsection{Nature of Roots (The Discriminant)}
+
+The term under the square root in the quadratic formula is the \textbf{discriminant}, denoted by $D$ (or $\Delta$):
+$$D = b^2 - 4ac$$
+
+\begin{theorembox}{Discriminant Properties}
+For a quadratic equation with real coefficients:
+\begin{itemize}
+    \item If $D > 0$: The equation has \textbf{two distinct real roots}. The parabola crosses the x-axis twice.
+    \item If $D = 0$: The equation has \textbf{one repeated real root} at $x = -\frac{b}{2a}$. The parabola just touches the x-axis.
+    \item If $D < 0$: The equation has \textbf{two complex conjugate roots} ($x = \frac{-b \pm i\sqrt{|D|}}{2a}$). The graph does not touch the x-axis.
+\end{itemize}
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: W3\_L4 Quadratic Formula \& Discriminant}{https://www.youtube.com/watch?v=1shGS3xfmwc}
+Official IIT Madras lecture discussing completing the square, the discriminant, and the nature of roots.
+\end{videocard}
+
+\section{Geometry of the Parabola}
+
+The graph of a quadratic function $f(x) = ax^2 + bx + c$ is a \textbf{parabola}.
+
+\begin{definitionbox}{Parabolic Characteristics}
+\begin{itemize}
+    \item \textbf{Direction of Opening:} 
+        \begin{itemize}
+            \item If $a > 0$, the parabola opens \textbf{upward} (convex).
+            \item If $a < 0$, the parabola opens \textbf{downward} (concave).
+        \end{itemize}
+    \item \textbf{Vertex ($V$):} The turning point of the parabola. The vertex coordinates are:
+    $$V(h, k) = \left( -\frac{b}{2a}, \, f\left(-\frac{b}{2a}\right) \right) = \left( -\frac{b}{2a}, \, -\frac{b^2 - 4ac}{4a} \right)$$
+    \item \textbf{Vertex Form:} Any quadratic function can be written as:
+    $$f(x) = a(x - h)^2 + k$$
+    where $(h, k)$ is the vertex.
+    \item \textbf{Axis of Symmetry:} The vertical line passing through the vertex:
+    $$x = -\frac{b}{2a}$$
+\end{itemize}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: W4\_L1A Quadratic Functions \& Parabolas}{https://www.youtube.com/watch?v=U4gr4zMosMk}
+Official IIT Madras lecture analyzing the vertex, graphs, and overall shape of a parabola.
+\end{videocard}
+
+\begin{examplebox}{Completing the Square and Graphing}
+Convert the function $f(x) = 2x^2 - 8x + 6$ into vertex form, find its vertex, axis of symmetry, and intercepts.
+\begin{enumerate}
+    \item Factor out the coefficient $a=2$ from the variable terms:
+    $$f(x) = 2(x^2 - 4x) + 6$$
+    \item Complete the square inside the parenthesis. Half of $-4$ is $-2$, and $(-2)^2 = 4$. Add and subtract $4$:
+    $$f(x) = 2(x^2 - 4x + 4 - 4) + 6 = 2((x-2)^2 - 4) + 6$$
+    $$f(x) = 2(x-2)^2 - 8 + 6 \implies f(x) = 2(x-2)^2 - 2$$
+    \item \textbf{Vertex ($h, k$):} The vertex is $(2, -2)$. Since $a = 2 > 0$, it is a minimum point.
+    \item \textbf{Axis of Symmetry:} The vertical line $x = 2$.
+    \item \textbf{Intercepts:}
+    \begin{itemize}
+        \item y-intercept: $f(0) = 2(0)^2 - 8(0) + 6 = 6 \implies (0, 6)$.
+        \item x-intercepts: Set $f(x) = 0 \implies 2(x-2)^2 - 2 = 0 \implies 2(x-2)^2 = 2 \implies (x-2)^2 = 1 \implies x-2 = \pm 1$.
+        So $x = 3$ or $x = 1$. Thus, intercepts are $(1, 0)$ and $(3, 0)$.
+    \end{itemize}
+\end{enumerate}
+\end{examplebox}
+
+\section{Optimization Applications}
+
+Because quadratics have a single extremum at their vertex, optimization is straightforward. This is why loss functions like Mean Squared Error (MSE) are formulated quadratically: they guarantee a single, easily discoverable minimum.
+
+\begin{theorembox}{Quadratic Extremum}
+For the function $f(x) = ax^2 + bx + c$:
+\begin{itemize}
+    \item If $a > 0$, $f(x)$ achieves its \textbf{global minimum} value of $-\frac{D}{4a}$ at $x = -\frac{b}{2a}$.
+    \item If $a < 0$, $f(x)$ achieves its \textbf{global maximum} value of $-\frac{D}{4a}$ at $x = -\frac{b}{2a}$.
+\end{itemize}
+\end{theorembox}
+
+\begin{examplebox}{Business Revenue Optimization}
+A company's daily profit is modeled by $P(x) = -10x^2 + 1200x - 2000$, where $x$ is the price of their product in dollars. Find the price that maximizes profit, and calculate that maximum profit.
+\begin{itemize}
+    \item Here, $a = -10 < 0$ and $b = 1200$. Since $a < 0$, the profit function is a downward-opening parabola, meaning it has a maximum at its vertex.
+    \item The maximizing price $x$ is:
+    $$x = -\frac{b}{2a} = -\frac{1200}{2(-10)} = \frac{1200}{20} = 60 \text{ dollars}$$
+    \item The maximum profit is $P(60)$:
+    $$P(60) = -10(60)^2 + 1200(60) - 2000 = -10(3600) + 72000 - 2000$$
+    $$P(60) = -36000 + 72000 - 2000 = 34000 \text{ dollars}$$
+\end{itemize}
+So, setting the price to $\$60$ maximizes daily profit at $\$34,000$.
+\end{examplebox}
+
+\section*{Supplementary Lecture Videos}
+For further reinforcement and specialized topics, refer to the following official IIT Madras lectures:
+\begin{itemize}
+    \item \href{https://www.youtube.com/watch?v=nS5csm4GRNo}{W3\_Part B: Surface of revolution | cone formation by rotating a line}
+    \item \href{https://www.youtube.com/watch?v=JkbFTVFw1yQ}{W3\_L2B: Summary lecture}
+    \item \href{https://www.youtube.com/watch?v=qvUX-jgtogg}{W3\_L3B: Solution of a quadratic equation using square method}
+    \item \href{https://www.youtube.com/watch?v=rfj8d3FrEU4}{W3\_Part A: Additional lecture | standard form \& vertex form of parabola}
+    \item \href{https://www.youtube.com/watch?v=J8uQvJN_UWY}{W3\_L4A: Summary}
+    \item \href{https://www.youtube.com/watch?v=dvJKbgIPG8Q}{W4\_L1B: Examples of quadratic functions}
+    \item \href{https://www.youtube.com/watch?v=1_Y2cZMrcfY}{W4\_L1C: Slope of a quadratic function}
+    \item \href{https://www.youtube.com/watch?v=RzIBZbGov4w}{W4\_L2: Solution of a quadratic equation using graph}
+    \item \href{https://www.youtube.com/watch?v=kaByg1VQxqk}{W4\_L2A: Slope line \& parabola}
+\end{itemize}
+
+\newpage
+\section{Practice Exercises}
+\textit{Try to solve these exercises independently. Detailed step-by-step solutions are available in the Appendix at the end of the book.}
+
+\begin{enumerate}
+    \item \textbf{Pure Math:} Find the roots of the quadratic equation $3x^2 - 5x - 2 = 0$ using factorization.
+    \item \textbf{Pure Math:} Calculate the discriminant of $4x^2 + 12x + 9 = 0$ and state the nature of its roots.
+    \item \textbf{Data Science:} A Mean Squared Error loss function for a single parameter $w$ is defined as $L(w) = 2w^2 - 16w + 35$. Find the value of $w$ that minimizes the loss, and the minimum loss value itself.
+    \item \textbf{Pure Math:} Convert the quadratic function $y = x^2 + 6x + 5$ into vertex form and identify its vertex.
+    \item \textbf{Data Science:} A manufacturing algorithm predicts that producing $n$ items yields a cost $C(n) = 0.5n^2 - 50n + 1500$. How many items should be produced to minimize the cost?
+\end{enumerate}

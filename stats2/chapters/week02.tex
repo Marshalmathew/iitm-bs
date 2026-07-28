@@ -1,0 +1,73 @@
+\chapter{Independence of RVs, Functions of RVs \& PMF Convolution}
+
+Independence is the bedrock of statistical modeling and machine learning assumptions (e.g. Naive Bayes, i.i.d. sampling). In this chapter, we master \textbf{Independence of Random Variables}, \textbf{Functions of Random Variables}, \textbf{PMF Convolution} for sums of independent RVs, and distributions of \textbf{Extreme Values} ($\min(X, Y)$ and $\max(X, Y)$).
+
+\section{Independence of Discrete Random Variables}
+
+Two random variables $X$ and $Y$ are independent if knowing the value of $Y$ gives zero information about the probability distribution of $X$.
+
+\begin{definitionbox}{Independence Criterion}
+Discrete random variables $X$ and $Y$ are \textbf{Independent} (written $X \perp\!\!\!\perp Y$) if and only if their joint PMF factorizes into the product of their marginal PMFs for all $(x, y)$:
+$$p_{X,Y}(x, y) = p_X(x) \cdot p_Y(y) \quad \forall x, y$$
+Equivalently, $p_{X|Y}(x \mid y) = p_X(x)$ for all $y$ where $p_Y(y) > 0$.
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Independence of Two Random Variables}{https://www.youtube.com/watch?v=YXaYJths2Ts}
+Official lecture defining pairwise independence and testing factorization across joint PMF tables.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Independence of Multiple Random Variables}{https://www.youtube.com/watch?v=Ndy0KTpmJAI}
+Official lecture extending independence to $n$ random variables: $p_{X_1,\dots,X_n}(x_1,\dots,x_n) = \prod_{i=1}^n p_{X_i}(x_i)$.
+\end{videocard}
+
+\section{Functions of Random Variables and PMF Convolution}
+
+If $X$ and $Y$ are random variables and $Z = g(X, Y)$, then $Z$ is also a random variable. To find the PMF of $Z$, we sum the joint probabilities of all outcome pairs $(x, y)$ that map to $z$:
+$$p_Z(z) = \sum_{\{(x,y) \mid g(x,y)=z\}} p_{X,Y}(x, y)$$
+
+\begin{formulabox}{Convolution Formula for Sum $Z = X + Y$}
+If $X$ and $Y$ are \textbf{independent} discrete random variables, the PMF of $Z = X + Y$ is the \textbf{Discrete Convolution} of $p_X$ and $p_Y$:
+$$p_Z(z) = \P(X + Y = z) = \sum_{x} p_X(x) \cdot p_Y(z - x)$$
+\end{formulabox}
+
+\textbf{Data Science Relevance:} Sums of independent Poisson variables ($\text{Poisson}(\lambda_1) + \text{Poisson}(\lambda_2) \sim \text{Poisson}(\lambda_1 + \lambda_2)$) and Binomial variables are used in modeling queuing arrivals and ensemble predictions!
+
+\begin{videocard}{IITM BS Lecture: Functions of Random Variables & PMF Convolution}{https://www.youtube.com/watch?v=I2S7nlCBkA8}
+Official lecture computing PMFs of transformations $g(X,Y)$ and deriving discrete convolutions.
+\end{videocard}
+
+\section{Minimum and Maximum of Random Variables}
+
+Extreme values $V = \min(X, Y)$ and $W = \max(X, Y)$ appear frequently in system reliability, latency modeling, and auction theory.
+
+\begin{formulabox}{Min and Max CDF Formulas for Independent RVs}
+For independent random variables $X$ and $Y$:
+\begin{itemize}
+    \item \textbf{Maximum $W = \max(X, Y)$:}
+      $$F_W(w) = \P(\max(X,Y) \le w) = \P(X \le w \text{ and } Y \le w) = F_X(w) \cdot F_Y(w)$$
+    \item \textbf{Minimum $V = \min(X, Y)$:}
+      $$\P(V > v) = \P(\min(X,Y) > v) = \P(X > v \text{ and } Y > v) = (1 - F_X(v)) \cdot (1 - F_Y(v))$$
+\end{itemize}
+\end{formulabox}
+
+\begin{videocard}{IITM BS Lecture: Minimum & Maximum of Two Random Variables}{https://www.youtube.com/watch?v=sgzr8rTaAcI}
+Official lecture deriving probability mass functions and cumulative distributions for $\min(X,Y)$ and $\max(X,Y)$.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+\item \textbf{Testing Independence from Joint PMF:} Let $X \in \{0, 1\}$ and $Y \in \{0, 1\}$ have joint PMF:
+    $$p_{X,Y}(0,0) = 0.4, \quad p_{X,Y}(0,1) = 0.2, \quad p_{X,Y}(1,0) = 0.2, \quad p_{X,Y}(1,1) = 0.2$$
+    Are $X$ and $Y$ independent? Justify by comparing $p_{X,Y}(0,0)$ with $p_X(0) \cdot p_Y(0)$.
+
+\item \textbf{PMF Convolution of Independent Uniforms:} Let $X$ and $Y$ be independent discrete uniform random variables on $\{1, 2, 3\}$. Find the PMF of $Z = X + Y$.
+
+\item \textbf{Sum of Independent Poisson RVs:} Let $X \sim \text{Poisson}(\lambda_1 = 2)$ and $Y \sim \text{Poisson}(\lambda_2 = 3)$ be independent. State the distribution of $Z = X + Y$ and compute $\P(Z = 1)$.
+
+\item \textbf{Maximum of Two Geometric RVs:} Let $X$ and $Y$ be independent geometric random variables with success probability $p = 0.5$ ($\P(X \le k) = 1 - (1-p)^k$). Find the CDF $F_W(2)$ for $W = \max(X, Y)$.
+
+\item \textbf{Data Science Application (Server Latency Redundancy Minimum):} A high-availability web app routes queries to two parallel microservices. Let $X, Y \in \{1, 2, 3\}$ seconds be independent service response times with $p_X(k) = p_Y(k) = 1/3$. Compute the PMF of the overall system response time $V = \min(X, Y)$.
+\end{enumerate}

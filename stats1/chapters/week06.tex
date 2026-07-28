@@ -1,0 +1,112 @@
+\chapter{Probability Basics}
+
+With a firm grasp of counting principles, we now cross over from descriptive statistics into the realm of uncertainty: Probability. In data science, probability is the mathematical language we use to quantify confidence in our model's predictions.
+
+\section{Random Experiments and Sample Space}
+
+\begin{definitionbox}{Random Experiment and Sample Space}
+\begin{itemize}
+    \item \textbf{Random Experiment:} Any process or action whose exact outcome cannot be predicted with certainty, but whose set of all possible outcomes is known. (Example: Flipping a coin, rolling a die, a user clicking on an ad).
+    \item \textbf{Sample Space ($S$ or $\Omega$):} The set of \emph{all} possible outcomes of a random experiment.
+    \item \textbf{Sample Point ($\omega$):} A single, specific outcome within the sample space.
+\end{itemize}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: W6\_L1 \& L3 Basic Definitions \& Sample Space}{https://www.youtube.com/watch?v=A4SWpP5As1M}
+Official lectures defining random experiments, outcomes, and building the Sample Space $S$.
+\end{videocard}
+
+\section{Events and Set Operations}
+
+\begin{definitionbox}{Events}
+An \textbf{Event ($A$)} is any subset of the sample space ($A \subseteq S$). We say the event $A$ \emph{occurred} if the final outcome of the experiment is an element of $A$.
+\begin{itemize}
+    \item \textbf{Simple Event:} An event consisting of exactly one outcome.
+    \item \textbf{Compound Event:} An event consisting of more than one outcome.
+    \item \textbf{Impossible Event ($\emptyset$):} The empty set. An event that contains no outcomes.
+    \item \textbf{Certain Event ($S$):} The entire sample space. It contains all outcomes and must occur.
+\end{itemize}
+\end{definitionbox}
+
+Because events are sets, we manipulate them using Set Theory operations:
+\begin{theorembox}{Set Operations on Events}
+\begin{itemize}
+    \item \textbf{Union ($A \cup B$):} The event that $A$ occurs, OR $B$ occurs, OR both occur.
+    \item \textbf{Intersection ($A \cap B$):} The event that BOTH $A$ and $B$ occur simultaneously.
+    \item \textbf{Complement ($A^c$ or $A'$):} The event that $A$ does \emph{not} occur. ($A^c = S - A$).
+    \item \textbf{Mutually Exclusive (Disjoint):} Two events that cannot happen at the same time. Mathematically, $A \cap B = \emptyset$.
+\end{itemize}
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: W6\_L2 Events \& Basic Operations}{https://www.youtube.com/watch?v=G-ex734RB1Q}
+Official lecture explaining how to map English language logic (AND, OR, NOT) into Set Theory operations ($\cap, \cup, ^c$).
+\end{videocard}
+
+\section{Axioms and Properties of Probability}
+
+Probability is a function that assigns a real number $P(A)$ to every event $A$, quantifying how likely it is to occur. To be a mathematically valid probability, the function must satisfy Kolmogorov's Axioms.
+
+\begin{formulabox}{The Three Axioms of Probability}
+\begin{enumerate}
+    \item \textbf{Non-negativity:} For any event $A$, the probability is at least zero: $$P(A) \ge 0$$
+    \item \textbf{Normalization:} The probability of the entire sample space is exactly one: $$P(S) = 1$$
+    \item \textbf{Additivity:} If $A$ and $B$ are mutually exclusive ($A \cap B = \emptyset$), then the probability of their union is the sum of their probabilities: $$P(A \cup B) = P(A) + P(B)$$
+\end{enumerate}
+\end{formulabox}
+
+From these three fundamental axioms, we can logically derive several critical properties used constantly in data science.
+
+\begin{theorembox}{Derived Properties of Probability}
+\begin{itemize}
+    \item \textbf{Probability Bounds:} $0 \le P(A) \le 1$.
+    \item \textbf{Complement Rule:} $P(A^c) = 1 - P(A)$. (Extremely useful when calculating $P(A)$ directly is too difficult, but calculating the probability of it \emph{not} happening is easy).
+    \item \textbf{General Addition Rule (Inclusion-Exclusion):} For \emph{any} two events $A$ and $B$ (even if they are not mutually exclusive):
+    $$P(A \cup B) = P(A) + P(B) - P(A \cap B)$$
+    We subtract the intersection so we don't double-count the outcomes where both occur!
+\end{itemize}
+\end{theorembox}
+
+\textbf{Data Science Relevance:} Machine Learning classifiers (like Logistic Regression) output predictions as probabilities between $0$ and $1$. The \textbf{Softmax function} in Neural Networks specifically forces the output layer to obey Kolmogorov's Second Axiom: the sum of the probabilities for all possible predicted classes (the Sample Space $S$) must equal exactly $1.0$.
+
+\begin{videocard}{IITM BS Lecture: W6\_L4 Properties of Probability}{https://www.youtube.com/watch?v=pvOPnPaSRuM}
+Official lecture deriving the Complement Rule and the General Addition Rule from the three axioms.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{Sample Spaces:} Define the sample space $S$ for the following random experiments:
+    \begin{enumerate}
+        \item Flipping a coin three times.
+        \item Counting the number of cars that pass through a toll booth in an hour.
+        \item Measuring the exact lifespan of a lightbulb (in hours).
+    \end{enumerate}
+    
+    \item \textbf{Set Operations:} You roll a standard 6-sided die. Let $S = \{1, 2, 3, 4, 5, 6\}$. 
+    Let Event $A$ be rolling an even number. Let Event $B$ be rolling a number greater than $3$.
+    \begin{enumerate}
+        \item Define the sets for $A$ and $B$.
+        \item Find $A \cap B$ and describe it in plain English.
+        \item Find $A \cup B$.
+        \item Find $A^c$.
+        \item Are $A$ and $B$ mutually exclusive? Why or why not?
+    \end{enumerate}
+
+    \item \textbf{Complement Rule:} A cybersecurity system is monitoring 5 independent incoming network packets. The probability that a specific packet gets dropped by the firewall is $0.1$. You want to find the probability that \textbf{at least one} packet gets dropped. 
+    \begin{enumerate}
+        \item Why is calculating this directly using the Addition Rule extremely tedious?
+        \item Use the Complement Rule to solve this elegantly. (Hint: What is the complement of "at least one packet drops"?)
+    \end{enumerate}
+
+    \item \textbf{General Addition Rule:} In a class of 100 students, 60 study Python ($P$), 50 study R ($R$), and 20 study both.
+    \begin{enumerate}
+        \item What is the probability that a randomly selected student studies Python OR R?
+        \item What is the probability that a student studies neither?
+    \end{enumerate}
+
+    \item \textbf{Axioms Check:} A machine learning model outputs the following probabilities for classifying an image of an animal:
+    $$P(\text{Dog}) = 0.5, \quad P(\text{Cat}) = 0.4, \quad P(\text{Bird}) = 0.2$$
+    Assuming these are the only three possible classes, which of Kolmogorov's Axioms does this model violate? Explain why.
+\end{enumerate}

@@ -1,0 +1,87 @@
+\chapter{Expectation, Covariance, Correlation \& Probability Bounds}
+
+Summary statistics—such as the mean (center) and variance (spread)—compress complex probability distributions into single numbers. In this chapter, we master \textbf{Joint Expectation}, \textbf{Covariance}, Pearson's \textbf{Correlation Coefficient}, and distribution-free probability bounds via \textbf{Markov's} and \textbf{Chebyshev's Inequalities}.
+
+\section{Expected Value and Linearity of Expectation}
+
+\begin{definitionbox}{Expected Value $\E[g(X, Y)]$}
+For joint discrete random variables $X$ and $Y$, the expected value of any function $g(X, Y)$ is:
+$$\E[g(X, Y)] = \sum_{x} \sum_{y} g(x, y) \cdot p_{X,Y}(x, y)$$
+\end{definitionbox}
+
+\begin{theorembox}{Linearity of Expectation}
+For any random variables $X_1, X_2, \dots, X_n$ (whether independent or dependent!) and constants $a_i, b$:
+$$\E\left[ \sum_{i=1}^n a_i X_i + b \right] = \sum_{i=1}^n a_i \E[X_i] + b$$
+If $X$ and $Y$ are \textbf{independent}, then $\E[X Y] = \E[X] \E[Y]$.
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: Expected Value & Properties of Expectation}{https://www.youtube.com/watch?v=q6Zj54UZqYg}
+Official lecture introducing expectation for joint distributions and proving linearity of expectation.
+\end{videocard}
+
+\section{Covariance and Correlation}
+
+To measure how two random variables co-vary together, we define \textbf{Covariance} and normalized \textbf{Correlation}.
+
+\begin{definitionbox}{Covariance $\Cov(X, Y)$}
+$$\Cov(X, Y) = \E[(X - \E[X])(Y - \E[Y])] = \E[XY] - \E[X]\E[Y]$$
+\begin{itemize}
+    \item If $X$ and $Y$ are independent $\implies \Cov(X, Y) = 0$. (Note: Zero covariance does \textbf{not} guarantee independence!)
+    \item Variance of a sum: $\Var(X + Y) = \Var(X) + \Var(Y) + 2\Cov(X, Y)$.
+\end{itemize}
+\end{definitionbox}
+
+\begin{formulabox}{Pearson Correlation Coefficient $\rho_{X,Y}$}
+$$\rho_{X,Y} = \frac{\Cov(X, Y)}{\sigma_X \sigma_Y} \quad \text{where } \sigma_X = \sqrt{\Var(X)}, \, \sigma_Y = \sqrt{\Var(Y)}$$
+\begin{itemize}
+    \item Always bounded: $-1 \le \rho_{X,Y} \le 1$.
+    \item $\rho = +1$: Perfect positive linear relationship; $\rho = -1$: Perfect negative linear relationship.
+\end{itemize}
+\end{formulabox}
+
+\textbf{Data Science Relevance:} Feature correlation matrices are inspected before building linear regression models to detect multicollinearity, and covariance matrices $\Sigma$ form the foundation of Principal Component Analysis (PCA)!
+
+\begin{videocard}{IITM BS Lecture: Covariance & Correlation Coefficient}{https://www.youtube.com/watch?v=UoZc81wNK4I}
+Official lecture deriving covariance properties, variance of linear combinations, and correlation bounds.
+\end{videocard}
+
+\section{Markov and Chebyshev Inequalities}
+
+When the exact probability distribution is unknown, we can bound tail probabilities using only the mean and variance.
+
+\begin{theorembox}{Markov's Inequality}
+For a non-negative random variable $X \ge 0$ with finite mean $\mu = \E[X]$:
+$$\P(X \ge a) \le \frac{\E[X]}{a} \quad \text{for any } a > 0$$
+\end{theorembox}
+
+\begin{theorembox}{Chebyshev's Inequality}
+For any random variable $X$ with mean $\mu$ and variance $\sigma^2$:
+$$\P(|X - \mu| \ge k \sigma) \le \frac{1}{k^2} \quad \text{for any } k > 0$$
+Equivalently: $\P(|X - \mu| \ge \epsilon) \le \frac{\Var(X)}{\epsilon^2}$.
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: Bounds in Probabilities (Markov & Chebyshev)}{https://www.youtube.com/watch?v=NTGLrewi_uY}
+Official lecture proving Markov's and Chebyshev's inequalities and applying them to tail probability bounds.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+\item \textbf{Linearity of Expectation:} Roll 10 fair 6-sided dice. Let $X_i$ be the score on die $i$, and $S = \sum_{i=1}^{10} X_i$ be the total sum. Find $\E[S]$.
+
+\item \textbf{Covariance Calculation from Joint PMF:} The joint PMF of $X \in \{0, 1\}$ and $Y \in \{1, 2\}$ is:
+    $$p_{X,Y}(0,1) = 0.2, \quad p_{X,Y}(0,2) = 0.3, \quad p_{X,Y}(1,1) = 0.1, \quad p_{X,Y}(1,2) = 0.4$$
+    Compute $\E[X]$, $\E[Y]$, $\E[XY]$, and the covariance $\Cov(X, Y)$.
+
+\item \textbf{Correlation Coefficient:} For the variables $X$ and $Y$ in Exercise 2:
+    \begin{enumerate}
+        \item Compute $\Var(X)$ and $\Var(Y)$.
+        \item Compute the Pearson correlation coefficient $\rho_{X,Y}$.
+    \end{enumerate}
+
+\item \textbf{Markov's Inequality Tail Bound:} The average daily website visits for a blog is $\E[X] = 500$. Using Markov's inequality, find an upper bound for the probability that on a given day the blog receives at least 2,000 visits ($\P(X \ge 2000)$).
+
+\item \textbf{Data Science Application (Algorithmic Trading Risk Bound):} An automated trading strategy has expected daily return $\mu = \$100$ with standard deviation $\sigma = \$20$. Use Chebyshev's inequality to find a lower bound for the probability that daily return falls between $\$60$ and $\$140$.
+\end{enumerate}

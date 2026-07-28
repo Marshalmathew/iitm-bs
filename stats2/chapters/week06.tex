@@ -1,0 +1,77 @@
+\chapter{Joint Continuous RVs, Marginal Densities \& Conditional Densities}
+
+Extending single continuous distributions to multiple continuous random variables requires 2D double integrals over regions in $\mathbb{R}^2$. In this chapter, we master \textbf{Joint PDFs $f_{X,Y}(x, y)$}, \textbf{Marginal Densities}, \textbf{Continuous Independence}, and \textbf{Conditional Densities $f_{X|Y}(x \mid y)$}.
+
+\section{Joint Probability Density Function}
+
+\begin{definitionbox}{Joint PDF $f_{X,Y}(x, y)$}
+Two continuous random variables $X$ and $Y$ have a \textbf{Joint PDF} $f_{X,Y}(x, y) \ge 0$ such that for any region $R \subseteq \mathbb{R}^2$:
+$$\P((X, Y) \in R) = \iint_R f_{X,Y}(x, y) \, dx \, dy$$
+\textbf{Normalization Condition:}
+$$\int_{-\infty}^{\infty} \int_{-\infty}^{\infty} f_{X,Y}(x, y) \, dx \, dy = 1$$
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Joint Continuous Random Variables}{https://www.youtube.com/watch?v=CIyqDJG-U9Q}
+Official lecture introducing 2D density surfaces, double integrals over regions, and normalization.
+\end{videocard}
+
+\section{Marginal Densities and Independence}
+
+\begin{formulabox}{Marginal Density Formulas}
+To extract the individual PDF of $X$ (or $Y$) from the joint PDF $f_{X,Y}(x, y)$, integrate out the other variable:
+\begin{itemize}
+    \item \textbf{Marginal PDF of $X$:} $f_X(x) = \int_{-\infty}^{\infty} f_{X,Y}(x, y) \, dy$
+    \item \textbf{Marginal PDF of $Y$:} $f_Y(y) = \int_{-\infty}^{\infty} f_{X,Y}(x, y) \, dx$
+\end{itemize}
+\end{formulabox}
+
+\begin{definitionbox}{Continuous Independence Criterion}
+Continuous random variables $X$ and $Y$ are \textbf{Independent} ($X \perp\!\!\!\perp Y$) if and only if:
+$$f_{X,Y}(x, y) = f_X(x) \cdot f_Y(y) \quad \text{for all } (x, y)$$
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Marginal Densities of Continuous Random Variables}{https://www.youtube.com/watch?v=TirRvH4PiiA}
+Official lecture deriving marginal PDF slices via partial integration.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Independence of Multiple Continuous Random Variables}{https://www.youtube.com/watch?v=cms_2NGMiHY}
+Official lecture testing product factorization for joint continuous density functions.
+\end{videocard}
+
+\section{Conditional Densities and Conditional Expectation}
+
+\begin{definitionbox}{Conditional PDF $f_{X|Y}(x \mid y)$}
+For any $y$ where $f_Y(y) > 0$, the \textbf{Conditional Density} of $X$ given $Y = y$ is:
+$$f_{X|Y}(x \mid y) = \frac{f_{X,Y}(x, y)}{f_Y(y)}$$
+\textbf{Conditional Expectation:} $\E[X \mid Y = y] = \int_{-\infty}^{\infty} x f_{X|Y}(x \mid y) \, dx$.
+\end{definitionbox}
+
+\textbf{Data Science Relevance:} Conditional expectation $\E[Y \mid X = \mathbf{x}]$ is the mathematically optimal prediction function under Mean Squared Error loss—forming the foundational goal of Regression Trees, Kernel Regression, and Neural Networks!
+
+\begin{videocard}{IITM BS Lecture: Conditional Density of Continuous Random Variables}{https://www.youtube.com/watch?v=lTCc9oYRwr8}
+Official lecture constructing conditional density curves and computing conditional expectations.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+\item \textbf{Joint Density Normalization Constant:} Let $X$ and $Y$ have joint PDF:
+    $$f_{X,Y}(x, y) = \begin{cases} c x y & \text{for } 0 \le x \le 1, \, 0 \le y \le 2 \\ 0 & \text{otherwise} \end{cases}$$
+    Find constant $c$ and compute $\P(X \le 0.5, Y \le 1)$.
+
+\item \textbf{Marginal Densities Computation:} For the joint PDF $f_{X,Y}(x, y) = c xy$ on $0 \le x \le 1, 0 \le y \le 2$ from Exercise 1:
+    \begin{enumerate}
+\item Compute marginal density $f_X(x)$.
+    2. Compute marginal density $f_Y(y)$.
+    3. Are $X$ and $Y$ independent?
+
+\item \textbf{Triangular Region Joint PDF:} Let $X$ and $Y$ be uniformly distributed over the triangle $0 \le y \le x \le 1$ with joint PDF $f_{X,Y}(x, y) = 2$ for $0 \le y \le x \le 1$.
+    Find marginal density $f_X(x)$ and $f_Y(y)$.
+
+\item \textbf{Conditional Density Calculation:} For the triangular joint PDF in Exercise 3:
+    Find conditional density $f_{Y|X}(y \mid x)$ and calculate conditional expectation $\E[Y \mid X = x]$.
+
+\item \textbf{Data Science Application (Bivariate Normal Feature Regression):} Standardized features $(X, Y)$ follow a Bivariate Normal distribution with $\mu_X = 0, \mu_Y = 0, \sigma_X = 1, \sigma_Y = 1$ and correlation $\rho = 0.8$. Given the formula $\E[Y \mid X = x] = \mu_Y + \rho \frac{\sigma_Y}{\sigma_X} (x - \mu_X)$, predict the expected value of $Y$ when feature $X = 2.5$.
+\end{enumerate}

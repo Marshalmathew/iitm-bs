@@ -1,0 +1,80 @@
+\chapter{Basis, Dimension \& Matrix Rank}
+
+A \textbf{Basis} is a minimal generating set of linearly independent vectors that spans a vector space. The number of vectors in any basis defines the unique \textbf{Dimension} of the vector space, while \textbf{Matrix Rank} counts the dimension of its row and column spaces.
+
+\section{Basis for a Vector Space}
+
+\begin{definitionbox}{Basis Definition}
+A set of vectors $\mathcal{B} = \{\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_n\} \subset V$ is a \textbf{Basis} for a vector space $V$ if it satisfies two conditions:
+\begin{enumerate}
+    \item $\mathcal{B}$ is \textbf{Linearly Independent}.
+    \item $\mathcal{B}$ \textbf{Spans} $V$, i.e., $\vspan(\mathcal{B}) = V$.
+\end{enumerate}
+Every vector $\mathbf{x} \in V$ can be expressed as a \textbf{unique} linear combination of the basis vectors.
+\end{definitionbox}
+
+\begin{examplebox}{Standard Basis for $\mathbb{R}^n$}
+The standard basis for $\mathbb{R}^3$ is $\mathcal{E} = \{\mathbf{e}_1, \mathbf{e}_2, \mathbf{e}_3\} = \left\{ \begin{bmatrix} 1 \\ 0 \\ 0 \end{bmatrix}, \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix}, \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix} \right\}$.
+Any vector $[x, y, z]^T = x \mathbf{e}_1 + y \mathbf{e}_2 + z \mathbf{e}_3$.
+\end{examplebox}
+
+\begin{videocard}{IITM BS Lecture: What is a Basis for a Vector Space?}{https://www.youtube.com/watch?v=lhAQIaFOPxA}
+Official lecture introducing basis criteria and unique coordinate representations.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Finding Bases for Vector Spaces}{https://www.youtube.com/watch?v=SxPhClO9zSU}
+Official lecture demonstrating methods to extract bases from spanning sets.
+\end{videocard}
+
+\section{Dimension of a Vector Space}
+
+\begin{theorembox}{Dimension Theorem}
+All bases for a given finite-dimensional vector space $V$ contain the \textbf{exact same number of vectors}. This invariant number is called the \textbf{Dimension} of $V$, denoted $\dim(V)$.
+\begin{itemize}
+    \item $\dim(\mathbb{R}^n) = n$.
+    \item $\dim(\mathbb{R}^{m \times n}) = m \cdot n$.
+    \item The zero subspace $\{\mathbf{0}\}$ has dimension $0$.
+\end{itemize}
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: Rank and Dimension for Vector Spaces}{https://www.youtube.com/watch?v=oATXqim4F5Q}
+Official lecture defining dimension, subspace dimension bounds ($\dim(W) \le \dim(V)$), and basis extensions.
+\end{videocard}
+
+\section{Matrix Rank via Gaussian Elimination}
+
+\begin{formulabox}{Column Rank, Row Rank, and Matrix Rank}
+For any matrix $A \in \mathbb{R}^{m \times n}$:
+\begin{itemize}
+    \item \textbf{Column Rank:} The dimension of the column space $\vspan(\text{columns of } A)$.
+    \item \textbf{Row Rank:} The dimension of the row space $\vspan(\text{rows of } A)$.
+    \item \textbf{Fundamental Theorem:} $\text{Row Rank}(A) = \text{Column Rank}(A) = \mathbf{\rank(A)}$.
+    \item \textbf{REF Calculation:} $\rank(A)$ is equal to the \textbf{number of non-zero rows (or pivot columns)} in the Row Echelon Form (REF) of $A$.
+\end{itemize}
+\end{formulabox}
+
+\textbf{Data Science Relevance:} In \textbf{Principal Component Analysis (PCA)} and low-rank matrix approximations (SVD), matrix rank tells us the effective number of independent latent signals in a dataset!
+
+\begin{videocard}{IITM BS Lecture: Rank and Dimension using Gaussian Elimination}{https://www.youtube.com/watch?v=0yEKEavVQJE}
+Official lecture computing matrix rank by row reducing matrices to REF.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+\item \textbf{Basis Verification:} Check whether $\mathcal{B} = \left\{ \begin{bmatrix} 1 \\ 1 \end{bmatrix}, \begin{bmatrix} 1 \\ -1 \end{bmatrix} \right\}$ forms a valid basis for $\mathbb{R}^2$. If so, express $\mathbf{v} = \begin{bmatrix} 5 \\ 1 \end{bmatrix}$ as a linear combination of $\mathcal{B}$.
+
+\item \textbf{Finding a Basis for a Subspace:} Find a basis and the dimension for the subspace of $\mathbb{R}^3$:
+$$W = \left\{ \begin{bmatrix} x \\ y \\ z \end{bmatrix} \in \mathbb{R}^3 \Big| x + 2y - z = 0 \right\}$$
+
+\item \textbf{Matrix Rank Calculation:} Compute the rank of the $3 \times 4$ matrix $A$ by reducing it to REF:
+$$A = \begin{bmatrix} 1 & 2 & 1 & 4 \\ 2 & 4 & 3 & 11 \\ 3 & 6 & 4 & 15 \end{bmatrix}$$
+
+\item \textbf{Full Rank vs Rank Deficient:} A dataset matrix $X \in \mathbb{R}^{100 \times 5}$ has 100 samples and 5 features. What is the maximum possible rank of $X$? If $\rank(X) = 3$, what does this reveal about the features?
+
+\item \textbf{Data Science Application (Collinear Feature Removal):} Given 3 feature vectors:
+$$\mathbf{f}_1 = \begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix}, \quad \mathbf{f}_2 = \begin{bmatrix} 2 \\ 4 \\ 6 \end{bmatrix}, \quad \mathbf{f}_3 = \begin{bmatrix} 0 \\ 1 \\ 5 \end{bmatrix}$$
+Find the rank of the matrix $F = [\mathbf{f}_1 \; \mathbf{f}_2 \; \mathbf{f}_3]$, extract a minimal basis of independent feature vectors, and identify which feature is redundant.
+\end{enumerate}

@@ -1,0 +1,79 @@
+\chapter{Course Revision and Final Review}
+
+Congratulations on reaching the final week! This chapter serves as a comprehensive synthesis of the entire Maths 1 curriculum. We will review the core conceptual pillars that form the foundation for all subsequent Data Science and Machine Learning coursework. 
+
+\section{Core Concept Cheat Sheet}
+
+\subsection{1. Set Theory and Relations}
+\begin{itemize}
+    \item \textbf{Sets:} Collections of distinct objects. Operations include Union ($\cup$), Intersection ($\cap$), Difference ($-$), and Complement ($A^c$).
+    \item \textbf{Relations:} Subsets of Cartesian products ($A \times B$). Equivalence relations must be \textit{Reflexive}, \textit{Symmetric}, and \textit{Transitive}.
+    \item \textbf{Data Science Link:} Relational databases (SQL) are entirely built on set theory operations (e.g., INNER JOIN is an intersection).
+\end{itemize}
+
+\subsection{2. Functions and Polynomials}
+\begin{itemize}
+    \item \textbf{Functions:} A mapping where each input has exactly one output. Checked via the Vertical Line Test.
+    \item \textbf{Polynomials:} $P(x) = a_n x^n + \dots + a_0$. The degree determines the maximum number of roots ($n$) and turning points ($n-1$).
+    \item \textbf{Data Science Link:} Polynomial Regression captures non-linear trends, but high-degree polynomials risk "overfitting" the training data.
+\end{itemize}
+
+\subsection{3. Exponentials and Logarithms}
+\begin{itemize}
+    \item \textbf{Exponentials ($e^x$):} Represent rapid, compounding growth.
+    \item \textbf{Logarithms ($\ln x$):} The inverse of exponentials. They scale massive numbers down and turn multiplication into addition ($\ln(xy) = \ln(x) + \ln(y)$).
+    \item \textbf{Data Science Link:} Log transformations normalize skewed datasets. The natural logarithm is the engine of the Cross-Entropy Loss function in classification tasks.
+\end{itemize}
+
+\subsection{4. Calculus (Limits and Derivatives)}
+\begin{itemize}
+    \item \textbf{Derivative ($f'(x)$):} The instantaneous rate of change (slope of the tangent line), defined by the limit $\limit{h}{0} \frac{f(x+h) - f(x)}{h}$.
+    \item \textbf{Chain Rule:} $\deriv{}{x} f(g(x)) = f'(g(x))g'(x)$.
+    \item \textbf{Data Science Link:} The Chain Rule is the exact mechanism of \textbf{Backpropagation}, the algorithm used to train deep neural networks via \textbf{Gradient Descent} (finding where $f'(x) = 0$).
+\end{itemize}
+
+\subsection{5. Graph Theory and Algorithms}
+\begin{itemize}
+    \item \textbf{Representations:} Adjacency Matrices (dense) vs. Adjacency Lists (sparse).
+    \item \textbf{Algorithms:} BFS (shortest paths unweighted), DFS (cycles/topological sort), Dijkstra (shortest paths positive weights), Kruskal/Prim (Minimum Spanning Trees).
+    \item \textbf{Data Science Link:} Directed Acyclic Graphs (DAGs) model workflow dependencies (Apache Airflow) and causal networks.
+\end{itemize}
+
+\section{Official IITM Revision Lectures}
+
+To solidify your understanding before the final exam, the official IIT Madras curriculum provides dedicated revision lectures for every core topic. 
+
+\begin{videocard}{IITM BS Lecture: W12\_L4 Revision on Functions}{https://www.youtube.com/watch?v=sHPX4vwNplo}
+A complete review of domains, ranges, injectivity, and mapping types.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: W12\_L3 Revision on Polynomials}{https://www.youtube.com/watch?v=PBqfqFqnvpw}
+A complete review of roots, turning points, and end behavior visualization.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: W12\_L5 Revision on Logarithms}{https://www.youtube.com/watch?v=9jbRtJjuNiY}
+A complete review of logarithmic laws, equation solving, and inverse properties.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: W12\_L6 Revision on Graph Theory}{https://www.youtube.com/watch?v=jCe_9qtCv7k}
+A complete review of adjacency matrices, topological sorting, and shortest path logic.
+\end{videocard}
+
+\section*{Supplementary Revision Lectures}
+\begin{itemize}
+    \item \href{https://www.youtube.com/watch?v=n514TARtjyA}{W12\_L1: Revision lecture on set theory | venn diagrams, operations}
+    \item \href{https://www.youtube.com/watch?v=7YA4CwJeUNw}{W12\_L2: Revision lecture on relations | properties, representations}
+    \item \href{https://www.youtube.com/watch?v=3B63uAVzs08}{W12\_L7: Revision lecture on exponential \& composite function}
+\end{itemize}
+
+\newpage
+\section{Comprehensive Final Practice Exam}
+\textit{Test your mastery of the entire course. Detailed step-by-step solutions are available in the Appendix at the end of the book.}
+
+\begin{enumerate}
+    \item \textbf{Sets \& Logic:} In a dataset of 100 users, 60 like Apples ($A$), 50 like Bananas ($B$), and 20 like neither. How many users like \textit{both} Apples and Bananas?
+    \item \textbf{Functions \& Exponentials:} Given $f(x) = e^{2x}$ and $g(x) = \ln(x)$, find the composite function $(f \circ g)(x)$ and simplify it completely.
+    \item \textbf{Calculus:} Find the critical points of the loss function $L(w) = w^3 - 3w^2 - 9w + 15$. Use the Second Derivative Test to determine which point is a local minimum (the optimal weight).
+    \item \textbf{Integration:} Calculate the total probability area under the curve $p(x) = 3x^2$ between $x=0$ and $x=1$.
+    \item \textbf{Graph Theory:} You are using Dijkstra's algorithm to find the fastest driving route. You discover a toll road that pays you \$5 to drive on it (a negative weight of $-5$). Will Dijkstra's algorithm still guarantee the correct shortest path? What algorithm should you use instead?
+\end{enumerate}

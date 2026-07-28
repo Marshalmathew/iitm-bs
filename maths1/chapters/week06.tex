@@ -1,0 +1,148 @@
+\chapter{Logarithmic Functions}
+\index{Logarithms}
+
+Logarithms are the mathematical inverses of exponential operations. While exponentials represent rapid compound growth, logarithms scale that growth back down, effectively compressing large spans of numbers into manageable ranges. They are fundamental in data science for creating metrics like entropy, cross-entropy loss, and for stabilizing computationally large datasets.
+
+\section{Definition of Logarithmic Functions}
+
+\begin{definitionbox}{Logarithmic Function}
+For $a > 0$ and $a \neq 1$, the logarithmic function with base $a$, denoted $\log_a(x)$, is defined as the inverse of the exponential function $y = a^x$:
+$$y = \log_a(x) \iff a^y = x \quad (\text{for } x > 0)$$
+\begin{itemize}
+    \item \index{Domain}\textbf{Domain:} $(0, \infty)$ (you cannot take the log of a negative number or zero).
+    \item \index{Range}\textbf{Range:} $(-\infty, \infty)$ (can output any real number).
+    \item \textbf{Vertical Asymptote:} The line $x = 0$ (y-axis) is a vertical asymptote because as $x \to 0^+$, $y \to -\infty$ (for $a > 1$).
+    \item \index{Natural Logarithm}\textbf{Natural Logarithm:} The log with base $e$:
+    $$\ln(x) = \log_e(x)$$
+    \item \index{Common Logarithm}\textbf{Common Logarithm:} The log with base $10$:
+    $$\log(x) = \log_{10}(x)$$
+\end{itemize}
+\end{definitionbox}
+
+\textbf{Data Science Relevance:} In data preprocessing, if a dataset has a heavily right-skewed distribution (like income data where a few billionaires warp the scale), applying a \index{Log Transformation}\textbf{Log Transformation} ($y = \log(x)$) compresses the massive outliers and expands the smaller values, often resulting in a more normal, bell-shaped distribution that machine learning models prefer.
+
+\begin{lstlisting}[language=Python, caption=Data Science: Log Transformation in Python]
+import numpy as np
+
+# Highly skewed income data
+incomes = np.array([30000, 45000, 1000000, 50000, 2500000])
+
+# Apply Natural Log transformation to compress outliers
+log_incomes = np.log(incomes)
+print("Original:", incomes)
+print("Log transformed:", np.round(log_incomes, 2))
+\end{lstlisting}
+
+\begin{videocard}{IITM BS Lecture: W6\_L1 Logarithms \& Inverses}{https://www.youtube.com/watch?v=G5A7imv2Otc}
+Official IIT Madras lecture defining logarithmic functions as the direct inverse of exponentials.
+\end{videocard}
+
+\section{Laws of Logarithms}
+\index{Laws of Logarithms}
+
+Because logarithms are essentially exponents, they follow algebraic rules derived directly from the laws of exponents. These rules are computationally powerful because they turn multiplication into addition, which computers can process much faster and with less risk of numerical overflow.
+
+\begin{theorembox}{Laws of Logarithms}
+For any positive numbers $x, y$, base $a > 0, a \neq 1$, and real number $p$:
+\begin{itemize}
+    \item \textbf{Product Rule:} $\log_a(xy) = \log_a(x) + \log_a(y)$
+    \item \textbf{Quotient Rule:} $\log_a\left(\frac{x}{y}\right) = \log_a(x) - \log_a(y)$
+    \item \textbf{Power Rule:} $\log_a(x^p) = p \log_a(x)$
+    \item \textbf{Base Identity:} $\log_a(a) = 1$ and $\log_a(1) = 0$
+    \item \textbf{Inverse Properties:} $\log_a(a^x) = x$ and $a^{\log_a(x)} = x$
+    \item \textbf{Change of Base Formula:} For any new positive base $b$:
+    $$\log_a(x) = \frac{\log_b(x)}{\log_b(a)} = \frac{\ln(x)}{\ln(a)}$$
+\end{itemize}
+\end{theorembox}
+
+\begin{examplebox}{Simplifying Logarithmic Expressions}
+Simplify the expression: $3\ln(x) + \frac{1}{2}\ln(y) - 2\ln(z)$ into a single logarithm.
+\begin{enumerate}
+    \item Apply the power rule first to move the coefficients into the exponents:
+    $$\ln(x^3) + \ln(y^{1/2}) - \ln(z^2)$$
+    \item Apply the product rule to combine the first two terms being added:
+    $$\ln(x^3 \cdot \sqrt{y}) - \ln(z^2)$$
+    \item Apply the quotient rule to incorporate the subtracted term:
+    $$\ln\left(\frac{x^3\sqrt{y}}{z^2}\right)$$
+\end{enumerate}
+\end{examplebox}
+
+\begin{videocard}{IITM BS Lecture: W6\_L4 Logarithmic Laws \& Properties}{https://www.youtube.com/watch?v=0WQFcv-wjiI}
+Official IIT Madras lecture proving and demonstrating the fundamental laws of logarithms.
+\end{videocard}
+
+\section{Solving Equations}
+
+We use the inverse relationship between exponentials and logarithms to isolate variables that are trapped inside exponents or log functions.
+
+\subsection{Solving Exponential Equations}
+When the variable is in the exponent, we take the logarithm of both sides to bring the variable down.
+
+\begin{examplebox}{Solving Exponential Equations}
+Solve the equation: $5^{2x-1} = 3^x$.
+\begin{enumerate}
+    \item Take the natural logarithm ($\ln$) of both sides:
+    $$\ln(5^{2x-1}) = \ln(3^x)$$
+    \item Apply the power rule to bring down the exponents:
+    $$(2x - 1)\ln(5) = x\ln(3)$$
+    \item Expand the left side:
+    $$2x\ln(5) - \ln(5) = x\ln(3)$$
+    \item Gather all terms containing $x$ on one side:
+    $$2x\ln(5) - x\ln(3) = \ln(5)$$
+    \item Factor out $x$:
+    $$x(2\ln(5) - \ln(3)) = \ln(5)$$
+    \item Solve for $x$:
+    $$x = \frac{\ln(5)}{2\ln(5) - \ln(3)} = \frac{\ln(5)}{\ln(25) - \ln(3)} = \frac{\ln(5)}{\ln(25/3)}$$
+\end{enumerate}
+\end{examplebox}
+
+\begin{videocard}{IITM BS Lecture: W6\_L3 Solving Exponential Equations}{https://www.youtube.com/watch?v=Q5ef_uFX7ug}
+Official IIT Madras lecture showing how to use logarithms to solve complex exponential formulas.
+\end{videocard}
+
+\subsection{Solving Logarithmic Equations}
+When the variable is inside a logarithm, we isolate the logarithm and then rewrite the equation in its exponential form.
+
+\begin{examplebox}{Solving Logarithmic Equations}
+Solve the equation: $\log_2(x) + \log_2(x-2) = 3$.
+\begin{enumerate}
+    \item Combine the logarithms using the product rule:
+    $$\log_2(x(x-2)) = 3 \implies \log_2(x^2 - 2x) = 3$$
+    \item Convert to exponential form to eliminate the log:
+    $$x^2 - 2x = 2^3 \implies x^2 - 2x = 8$$
+    \item Move terms to one side to form a standard quadratic equation:
+    $$x^2 - 2x - 8 = 0 \implies (x-4)(x+2) = 0$$
+    So the potential solutions are $x = 4$ or $x = -2$.
+    \item \index{Extraneous Solutions}\textbf{Check for extraneous solutions (Crucial!):}
+    \begin{itemize}
+        \item If $x = 4$: The original terms $\log_2(4)$ and $\log_2(2)$ are both evaluating positive numbers, which is valid.
+        \item If $x = -2$: The original term $\log_2(-2)$ is undefined because the domain of logs is strictly positive. So $x=-2$ is an extraneous solution.
+    \end{itemize}
+\end{enumerate}
+Thus, the only valid solution is $x = 4$.
+\end{examplebox}
+
+\begin{videocard}{IITM BS Lecture: W6\_L7 Solving Logarithmic Equations}{https://www.youtube.com/watch?v=bB1um2s0NDE}
+Official IIT Madras lecture applying properties to solve logarithmic equations and checking domains.
+\end{videocard}
+
+\section*{Supplementary Lecture Videos}
+For further reinforcement and specialized topics, refer to the following official IIT Madras lectures:
+\begin{itemize}
+    \item \href{https://www.youtube.com/watch?v=NL8MlTO-Yf8}{W6\_L2: Graphs \& properties of logarithmic functions}
+    \item \href{https://www.youtube.com/watch?v=XSJ1QZ0MHOs}{W6\_L5: Logarithmic functions – applications of log laws}
+    \item \href{https://www.youtube.com/watch?v=eMt8xq0Fuww}{W6\_L6: Logarithmic functions – change of base theorem}
+\end{itemize}
+
+\newpage
+\section{Practice Exercises}
+\textit{Try to solve these exercises independently. Detailed step-by-step solutions are available in the Appendix at the end of the book.}
+
+\begin{enumerate}
+    \item \textbf{Pure Math:} Evaluate the expression without a calculator: $\log_3(81) - \log_2\left(\frac{1}{8}\right)$.
+    \item \textbf{Data Science:} In binary classification, the Cross-Entropy loss for a true label $y=1$ and predicted probability $p$ is defined as $L = -\ln(p)$. If the predicted probability is $p = e^{-2}$, what is the loss? 
+    \item \textbf{Pure Math:} Use the laws of logarithms to expand the expression completely: $\ln\left(\frac{x^4 \sqrt{y^3}}{e^2}\right)$.
+    \item \textbf{Data Science:} A dataset feature $X$ ranges from $1$ to $1,000,000$. A data scientist applies a base-10 log transformation to create a new feature $X' = \log_{10}(X)$. What is the new range of $X'$?
+    \item \textbf{Pure Math:} Solve the equation for $x$: $e^{2x} - 3e^x + 2 = 0$. (Hint: treat it as a quadratic in form).
+    \item \textbf{Pure Math:} Solve the logarithmic equation: $\log(x + 3) - \log(x) = 1$.
+\end{enumerate}

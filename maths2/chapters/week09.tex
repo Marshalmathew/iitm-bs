@@ -1,0 +1,80 @@
+\chapter{Multivariable Functions, Partial Derivatives \& Gradient}
+
+Transitioning from 1D single-variable calculus to \textbf{Multivariable Calculus} allows us to model functions with multiple input features: $f(\mathbf{x}) = f(x_1, x_2, \dots, x_n)$. In this chapter, we master \textbf{Partial Derivatives}, \textbf{Directional Derivatives}, and the \textbf{Gradient Vector} $\nabla f$.
+
+\section{Multivariable Functions and Visualizations}
+
+A scalar-valued multivariable function maps a feature vector in $\mathbb{R}^n$ to a real number output:
+$$f: \mathbb{R}^n \to \mathbb{R}$$
+
+\begin{definitionbox}{Level Sets and Contour Curves}
+For $f(x, y)$, a \textbf{Level Curve} (or Contour) is the set of all points $(x, y)$ where the function takes a constant value $c$:
+$$\{(x, y) \in \mathbb{R}^2 \mid f(x, y) = c\}$$
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Multivariable Functions & Visualization}{https://www.youtube.com/watch?v=MfrAPZRrqxw}
+Official lecture visualizing 3D surface plots $z = f(x,y)$ and 2D contour lines.
+\end{videocard}
+
+\section{Partial Derivatives}
+
+The \textbf{Partial Derivative} of $f(x_1, x_2, \dots, x_n)$ with respect to $x_i$ measures the rate of change of $f$ along the $x_i$ coordinate axis, holding all other variables constant.
+
+\begin{theorembox}{Partial Derivative Calculation}
+To compute $\frac{\partial f}{\partial x_i}$ (or $f_{x_i}$), treat all variables except $x_i$ as constants and differentiate using standard 1D calculus rules.
+$$\frac{\partial f}{\partial x_1} = \lim_{h \to 0} \frac{f(x_1 + h, x_2, \dots, x_n) - f(x_1, x_2, \dots, x_n)}{h}$$
+\end{theorembox}
+
+\begin{examplebox}{Computing Partial Derivatives}
+For $f(x, y) = x^3 y^2 + 5x^2 - 4y$:
+$$\frac{\partial f}{\partial x} = 3x^2 y^2 + 10x$$
+$$\frac{\partial f}{\partial y} = 2x^3 y - 4$$
+\end{examplebox}
+
+\begin{videocard}{IITM BS Lecture: Partial Derivatives}{https://www.youtube.com/watch?v=GoJoNFBuCJ8}
+Official lecture defining partial derivatives geometrically as tangent slopes along coordinate grid slices.
+\end{videocard}
+
+\section{The Gradient Vector and Directional Derivatives}
+
+The \textbf{Gradient} $\nabla f(\mathbf{x})$ packs all first-order partial derivatives into a single column vector.
+
+\begin{definitionbox}{The Gradient Vector ($\nabla f$)}
+For $f: \mathbb{R}^n \to \mathbb{R}$, the \textbf{Gradient Vector} is:
+$$\nabla f(\mathbf{x}) = \begin{bmatrix} \frac{\partial f}{\partial x_1} \\ \frac{\partial f}{\partial x_2} \\ \vdots \\ \frac{\partial f}{\partial x_n} \end{bmatrix} \in \mathbb{R}^n$$
+\end{definitionbox}
+
+\begin{formulabox}{Directional Derivative via Gradient}
+The \textbf{Directional Derivative} $D_{\mathbf{u}} f(\mathbf{x})$ measures the rate of change of $f$ in the direction of a \textbf{unit vector} $\mathbf{u}$ ($\|\mathbf{u}\| = 1$):
+$$D_{\mathbf{u}} f(\mathbf{x}) = \nabla f(\mathbf{x}) \cdot \mathbf{u} = \|\nabla f(\mathbf{x})\| \cos \theta$$
+\end{formulabox}
+
+\textbf{Data Science Relevance:} The gradient $\nabla f(\mathbf{x})$ points in the direction of \textbf{steepest increase} of the function, while $-\nabla f(\mathbf{x})$ points in the direction of \textbf{steepest descent}—the core mechanism behind updating neural network weights during Gradient Descent training!
+
+\begin{videocard}{IITM BS Lecture: Directional Derivatives}{https://www.youtube.com/watch?v=uhUqybTaGns}
+Official lecture defining rate of change along arbitrary unit vector directions.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Directional Derivatives in Terms of Gradient}{https://www.youtube.com/watch?v=2eYER90_4wA}
+Official lecture proving $D_{\mathbf{u}} f = \nabla f \cdot \mathbf{u}$ and geometric properties of gradients.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+\item \textbf{First-Order Partial Derivatives:} Compute $\frac{\partial f}{\partial x}$ and $\frac{\partial f}{\partial y}$ for:
+    $$f(x, y) = x^2 y^3 + e^{2x} \sin(y)$$
+
+\item \textbf{Gradient Vector Evaluation:} Compute the gradient vector $\nabla f(1, 2)$ for:
+    $$f(x, y) = 4x^2 y - 3y^2 + 5x$$
+
+\item \textbf{Directional Derivative:} Calculate the directional derivative $D_{\mathbf{u}} f(2, 1)$ for $f(x, y) = x^2 + 3xy + y^2$ in the direction of vector $\mathbf{v} = \begin{bmatrix} 3 \\ 4 \end{bmatrix}$. (Remember to normalize $\mathbf{v}$ into a unit vector $\mathbf{u}$).
+
+\item \textbf{Steepest Ascent Direction:} At the point $(1, -1)$, in which unit vector direction does $f(x, y) = x^3 y - 2x y^2$ increase most rapidly? What is the maximum rate of increase?
+
+\item \textbf{Data Science Application (MSE Loss Gradient):} In linear regression with 1 sample $(x_i, y_i)$, the Mean Squared Error loss as a function of slope $m$ and bias $b$ is:
+    $$L(m, b) = (m x_i + b - y_i)^2$$
+    Compute the gradient vector $\nabla L(m, b) = \begin{bmatrix} \frac{\partial L}{\partial m} \\ \frac{\partial L}{\partial b} \end{bmatrix}$.
+\end{enumerate}

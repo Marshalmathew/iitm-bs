@@ -1,0 +1,101 @@
+\chapter{Joint \& Marginal Discrete PMFs, Conditional Distributions}
+
+In real-world data science, outcomes rarely depend on a single variable in isolation. We often observe pairs or vectors of random variables simultaneously. In this chapter, we extend single-variable probability concepts to \textbf{Joint Probability Mass Functions (Joint PMFs)}, \textbf{Marginal Distributions}, and \textbf{Conditional Distributions} for discrete random variables.
+
+\section{Joint Probability Mass Function (Joint PMF)}
+
+When two discrete random variables $X$ and $Y$ are defined on the same sample space, their combined behavior is specified by their \textbf{Joint PMF}.
+
+\begin{definitionbox}{Joint PMF $p_{X,Y}(x, y)$}
+The \textbf{Joint Probability Mass Function} of discrete random variables $X$ and $Y$ is defined as:
+$$p_{X,Y}(x, y) = \P(X = x \text{ and } Y = y) = \P(X = x, Y = y)$$
+A valid joint PMF must satisfy two fundamental conditions:
+\begin{enumerate}
+    \item Non-negativity: $p_{X,Y}(x, y) \ge 0$ for all $(x, y)$.
+    \item Normalization: $\sum_{x} \sum_{y} p_{X,Y}(x, y) = 1$.
+\end{enumerate}
+\end{definitionbox}
+
+\begin{examplebox}{Two Dice Roll Joint PMF}
+Let $X$ be the number shown on die 1 and $Y$ be the number on die 2. Since the dice are independent and fair:
+$$p_{X,Y}(x, y) = \frac{1}{36} \quad \text{for } x \in \{1,\dots,6\}, y \in \{1,\dots,6\}$$
+The sum of all 36 probabilities is $36 \times \frac{1}{36} = 1$.
+\end{examplebox}
+
+\begin{videocard}{IITM BS Lecture: Joint PMF of Two Discrete Random Variables}{https://www.youtube.com/watch?v=MNwap6ewego}
+Official lecture introducing joint probability tables, bivariate discrete distributions, and properties.
+\end{videocard}
+
+\section{Marginal PMFs}
+
+Given the joint PMF $p_{X,Y}(x, y)$, we can recover the individual distribution of $X$ alone (or $Y$ alone) by summing over all possible values of the other variable. This process is called \textbf{Marginalization}.
+
+\begin{formulabox}{Marginal PMF Formulas}
+\begin{itemize}
+    \item \textbf{Marginal PMF of $X$:}
+\end{itemize}
+  $$p_X(x) = \P(X = x) = \sum_{y} p_{X,Y}(x, y)$$
+\begin{itemize}
+    \item \textbf{Marginal PMF of $Y$:}
+\end{itemize}
+  $$p_Y(y) = \P(Y = y) = \sum_{x} p_{X,Y}(x, y)$$
+\end{formulabox}
+
+\textbf{Data Science Relevance:} In tabular data (e.g. customer churn vs age bracket), computing column totals or row totals in a contingency table corresponds directly to finding marginal PMFs!
+
+\begin{videocard}{IITM BS Lecture: Marginal PMF of Discrete Random Variables}{https://www.youtube.com/watch?v=exwWKHFV3GA}
+Official lecture deriving row/column marginal distributions from joint probability tables.
+\end{videocard}
+
+\section{Conditional PMFs}
+
+How does knowing the value of $Y$ update our belief about the distribution of $X$? This is captured by the \textbf{Conditional PMF}.
+
+\begin{definitionbox}{Conditional PMF $p_{X|Y}(x \mid y)$}
+For any $y$ such that $p_Y(y) > 0$, the \textbf{Conditional PMF} of $X$ given $Y = y$ is:
+$$p_{X|Y}(x \mid y) = \P(X = x \mid Y = y) = \frac{p_{X,Y}(x, y)}{p_Y(y)}$$
+For a fixed $y$, $\sum_{x} p_{X|Y}(x \mid y) = 1$, making $p_{X|Y}(\cdot \mid y)$ a valid probability distribution over $x$.
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Conditional Distribution of One Random Variable Given Another}{https://www.youtube.com/watch?v=6eQxA6ElXOo}
+Official lecture defining conditional PMFs and constructing conditional probability slices.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Joint PMF of More Than Two Random Variables}{https://www.youtube.com/watch?v=1d-6FI33HmY}
+Official lecture extending joint PMFs and conditional distributions to multivariate vectors $(X_1, X_2, \dots, X_n)$.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+\item \textbf{Joint PMF Table Verification:} The joint PMF of $X \in \{0, 1\}$ and $Y \in \{1, 2\}$ is given by the table:
+\begin{center}
+\begin{tabular}{c|cc}
+$p_{X,Y}(x, y)$ & $Y = 1$ & $Y = 2$ \\
+\hline
+$X = 0$ & $0.1$ & $0.3$ \\
+$X = 1$ & $0.2$ & $k$ \\
+\end{tabular}
+\end{center}
+Find the value of constant $k$ so that $p_{X,Y}$ is a valid joint PMF.
+
+\item \textbf{Marginal Distribution Computation:} Using the completed table from Exercise 1:
+    \begin{enumerate}
+        \item Find the marginal PMF $p_X(x)$ for $x \in \{0, 1\}$.
+        \item Find the marginal PMF $p_Y(y)$ for $y \in \{1, 2\}$.
+    \end{enumerate}
+
+\item \textbf{Conditional Probability Calculation:} Calculate $p_{X|Y}(1 \mid 2)$, the conditional probability that $X = 1$ given $Y = 2$.
+
+\item \textbf{Triangular Domain Joint PMF:} Let $X$ and $Y$ have joint PMF $p_{X,Y}(x, y) = c(x + y)$ for $x \in \{1, 2\}$ and $y \in \{1, 2\}$.
+    \begin{enumerate}
+        \item Find the normalization constant $c$.
+        \item Find $p_X(1)$.
+    \end{enumerate}
+
+\item \textbf{Data Science Application (A/B Testing Click-Through Distribution):} In an online ad campaign, $X \in \{0, 1\}$ represents device type ($0 = \text{Mobile}, 1 = \text{Desktop}$) and $Y \in \{0, 1\}$ represents click outcome ($0 = \text{No Click}, 1 = \text{Click}$). Given joint probabilities:
+$$p_{X,Y}(0,0) = 0.50, \quad p_{X,Y}(0,1) = 0.10, \quad p_{X,Y}(1,0) = 0.32, \quad p_{X,Y}(1,1) = 0.08$$
+Compare the Click-Through Rate (CTR) for Mobile users $\P(Y=1 \mid X=0)$ versus Desktop users $\P(Y=1 \mid X=1)$.
+\end{enumerate}

@@ -1,0 +1,122 @@
+\chapter{Introduction and Types of Data}
+
+Statistics is the science of collecting, organising, analysing, and interpreting data to make decisions. In the context of the IITM BS Degree, statistics forms the foundational grammar of Data Science and Machine Learning. Before algorithms can learn from data, we must understand how to classify, measure, and describe that data.
+
+\section{What is Statistics?}
+
+At its core, statistics helps us understand the world by managing uncertainty and variation in data. We divide the field into two major branches.
+
+\begin{definitionbox}{Descriptive vs. Inferential Statistics}
+\begin{itemize}
+    \item \textbf{Descriptive Statistics:} Methods for \emph{summarising and presenting} data from a dataset you already have. This involves organizing data into tables, graphs (like histograms or scatter plots), and calculating summary numbers (like the average or variance).
+    \item \textbf{Inferential Statistics:} Methods for drawing \emph{conclusions about an entire population} based on a smaller sample drawn from it. This involves probability, hypothesis testing, and building predictive models.
+\end{itemize}
+\end{definitionbox}
+
+\begin{definitionbox}{Population and Sample}
+\begin{itemize}
+    \item \textbf{Population:} The complete, exhaustive set of all individuals or items of interest. Its size is typically denoted by $N$.
+    \item \textbf{Sample:} A subset of the population that is actually observed or measured. Its size is denoted by $n$. A \textbf{representative sample} accurately reflects the characteristics of the population.
+    \item \textbf{Parameter:} A numerical summary of a \emph{population} (e.g., population mean $\mu$, which is usually unknown).
+    \item \textbf{Statistic:} A numerical summary of a \emph{sample} (e.g., sample mean $\bar{x}$, which is calculated from the data).
+\end{itemize}
+\end{definitionbox}
+
+\textbf{Data Science Relevance:} In machine learning, your training dataset is just a \emph{sample}. Your goal is to train a model that generalizes to the \emph{population} of all future unseen data. If your sample is biased, your model's inference will be completely flawed (a phenomenon known as "garbage in, garbage out").
+
+\begin{videocard}{IITM BS Lecture: W0 Introduction to Statistics for Data Science}{https://www.youtube.com/watch?v=V5fqShLVpoI}
+Course introduction laying out how statistical thinking ties directly into data science applications.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: W1\_L1 Introduction \& Basic Definitions}{https://www.youtube.com/watch?v=0w2rKt-G6ws}
+Official lecture defining Descriptive vs. Inferential statistics, populations, and samples.
+\end{videocard}
+
+\section{Types of Data}
+
+Before analyzing data, we must classify what type of data we are looking at. A \textbf{variable} is any characteristic that can differ from individual to individual.
+
+\begin{definitionbox}{Variable Classification}
+\begin{itemize}
+    \item \textbf{Categorical (Qualitative):} Values are labels or categories describing attributes.
+        \begin{itemize}
+            \item \textit{Nominal} — No natural or logical ordering. (Example: Blood type (A, B, AB, O), City name, Gender).
+            \item \textit{Ordinal} — A natural ordering exists, but the physical differences between values are not necessarily equal or meaningful. (Example: Customer satisfaction rating (Poor, Fair, Good, Excellent), T-shirt sizes (S, M, L)).
+        \end{itemize}
+    \item \textbf{Numerical (Quantitative):} Values are actual numbers representing quantities on which arithmetic is meaningful.
+        \begin{itemize}
+            \item \textit{Discrete} — Countable values with distinct gaps between them. Usually results from counting. (Example: Number of children in a family (0, 1, 2...), number of cars passing a toll).
+            \item \textit{Continuous} — Can take any value within a given interval. Usually results from measuring. (Example: Height, weight, temperature, exact time).
+        \end{itemize}
+\end{itemize}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: W1\_L3 Classification of Data}{https://www.youtube.com/watch?v=6w71IUzKz2o}
+Official lecture breaking down Nominal, Ordinal, Discrete, and Continuous data with extensive examples.
+\end{videocard}
+
+\section{Scales of Measurement}
+
+The \textbf{scale of measurement} is a critical concept that strictly determines which statistical operations (mean, median, mode) and which ML algorithms are mathematically valid to use.
+
+\begin{theorembox}{Four Scales of Measurement}
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{lllll}
+\toprule
+\textbf{Scale} & \textbf{Order?} & \textbf{Equal gaps?} & \textbf{True zero?} & \textbf{Example} \\
+\midrule
+Nominal   & No  & No  & No  & Pincodes, Colors \\
+Ordinal   & Yes & No  & No  & Movie Ratings (1--5 stars) \\
+Interval  & Yes & Yes & No  & Temperature (°C), Year (e.g. 2024) \\
+Ratio     & Yes & Yes & Yes & Height, Weight, Salary, Age \\
+\bottomrule
+\end{tabular}
+\end{center}
+\textit{Note:} For Interval scales, a zero is arbitrary (0°C does not mean "no temperature"). For Ratio scales, a zero represents the total absence of the quantity, meaning statements like ``twice as heavy'' or ``half as expensive'' are mathematically valid.
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: W1\_L4 Scales of Measurement}{https://www.youtube.com/watch?v=EVGVlzMuhIo}
+Official lecture detailing the operations allowed on Nominal, Ordinal, Interval, and Ratio scales.
+\end{videocard}
+
+\section{Cross-Sectional vs. Time Series Data}
+
+Data is also classified by how it is collected with respect to time.
+
+\begin{definitionbox}{Data Structures by Time}
+\begin{itemize}
+    \item \textbf{Cross-Sectional Data:} Observations taken on multiple subjects at a \emph{single point in time}. (Example: A survey of 500 students' heights taken today, or current stock prices of 50 companies).
+    \item \textbf{Time Series Data:} Observations taken on a \emph{single subject over multiple time periods}. (Example: The monthly GDP of India from 2010 to 2025, or a single patient's daily blood pressure).
+    \item \textbf{Panel (Longitudinal) Data:} A combination of both; observing multiple subjects over multiple time periods.
+\end{itemize}
+\end{definitionbox}
+
+\section*{Supplementary Lecture Videos}
+\begin{itemize}
+    \item \href{https://www.youtube.com/watch?v=PXYtFNTVeVY}{W1\_L2: Introduction \& types of data - understanding data}
+\end{itemize}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{Concepts:} A medical researcher tests a new blood pressure drug on 500 patients and finds their average blood pressure dropped by 12 points. She concludes the drug will lower blood pressure for the general population. Identify the sample, population, statistic, and parameter in this scenario. Which part is descriptive, and which is inferential?
+    \item \textbf{Data Classification:} Classify the following variables as Categorical (Nominal/Ordinal) or Numerical (Discrete/Continuous):
+    \begin{enumerate}
+        \item The number of emails you receive in a day.
+        \item The letter grades (A, B, C, D, F) of a class.
+        \item The exact volume of water in a bottle (in ml).
+        \item The brand of laptop you use (Apple, Dell, Lenovo).
+    \end{enumerate}
+    \item \textbf{Scales of Measurement:} You are analyzing a dataset of used cars. Identify the scale of measurement (Nominal, Ordinal, Interval, Ratio) for each column:
+    \begin{enumerate}
+        \item \texttt{Manufacturing\_Year} (e.g., 2015, 2018)
+        \item \texttt{Mileage\_Driven} (e.g., 45000 km, 0 km)
+        \item \texttt{Color} (e.g., Red, Silver)
+        \item \texttt{Condition\_Rating} (1 = Poor, 2 = Fair, 3 = Excellent)
+    \end{enumerate}
+    \item \textbf{Data Structures:} A hospital records the daily body temperature of Patient X for a week. Meanwhile, a different researcher records the body temperatures of 100 different patients entering the ER on a Monday morning. Which dataset is Time Series, and which is Cross-Sectional?
+    \item \textbf{Data Science Application:} You are building a machine learning model to predict house prices. You have a feature called \texttt{Pincode} (e.g., 600036). Even though it is made of numbers, explain why treating it as a Numerical Continuous variable on a Ratio scale is a catastrophic statistical error.
+\end{enumerate}

@@ -1,0 +1,120 @@
+\chapter{Describing Categorical Data}
+
+This chapter focuses on organizing and visualizing categorical variables — variables whose values are labels or group memberships rather than continuous numbers. In data science, categorical data is extremely common (e.g., predicting if an email is "Spam" or "Not Spam", classifying images as "Dog" or "Cat").
+
+\section{Frequency Distribution Tables}
+
+To make sense of raw categorical data, we must first summarize it into counts.
+
+\begin{definitionbox}{Frequency, Relative Frequency, and Percentage}
+Given a categorical variable observed $n$ times:
+\begin{itemize}
+    \item \textbf{Frequency ($f_i$):} The absolute count of observations falling into category $i$.
+    \item \textbf{Relative Frequency ($rf_i$):} The proportion of observations falling into category $i$:
+    $$rf_i = \frac{f_i}{n}$$
+    \item \textbf{Percentage:} Simply $rf_i \times 100\%$.
+    \item \textbf{Mathematical Axiom:} The sum of all frequencies equals the total sample size $n$. The sum of all relative frequencies must exactly equal $1$.
+\end{itemize}
+\end{definitionbox}
+
+\textbf{Data Science Relevance:} In classification algorithms, checking the relative frequency of your target categories is the most important first step. If you have a dataset with 99\% "Not Spam" and 1\% "Spam", your dataset suffers from \textbf{Class Imbalance}. An algorithm could achieve 99\% accuracy simply by guessing "Not Spam" every time, without actually learning anything!
+
+\begin{videocard}{IITM BS Lecture: W2\_L1 Frequency Distributions}{https://www.youtube.com/watch?v=0-PO41B6zL0}
+Official lecture detailing how to build frequency and relative frequency tables from raw categorical data.
+\end{videocard}
+
+\begin{examplebox}{Frequency Table for a Categorical Variable}
+50 students chose their favourite subject: Maths (18), Stats (14), CS (12), English (6). Let's build a frequency table.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Subject} & \textbf{Frequency} & \textbf{Relative Freq.} & \textbf{Percentage} \\
+\midrule
+Maths   & 18 & 0.36 & 36\% \\
+Stats   & 14 & 0.28 & 28\% \\
+CS      & 12 & 0.24 & 24\% \\
+English &  6 & 0.12 & 12\% \\
+\midrule
+\textbf{Total} & \textbf{50} & \textbf{1.00} & \textbf{100\%} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{examplebox}
+
+\section{Charts for Categorical Data}
+
+Visualizing categorical data helps humans instantly grasp the distribution.
+
+\begin{theorembox}{Choosing the Right Chart}
+\begin{itemize}
+    \item \textbf{Bar Chart:} Displays frequency or relative frequency on the y-axis; each category gets a separate bar. There are always gaps between the bars to indicate the categories are distinct. Best for comparing magnitudes across categories.
+    \item \textbf{Pie Chart:} Shows each category as a sector proportional to its relative frequency. Best for showing part-to-whole relationships. Use sparingly — human perception of exact angles is notoriously poor compared to perceiving heights.
+    \item \textbf{Pareto Chart:} A specialized bar chart sorted in descending order of frequency, with a cumulative frequency curve overlaid. Useful for identifying the "vital few" categories that cause the most impact (e.g., the 80/20 rule in defect analysis).
+\end{itemize}
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: W2\_L2 Charts of Categorical Data}{https://www.youtube.com/watch?v=OFDJTgEKLbE}
+Official lecture demonstrating how to properly construct Bar Charts and Pie Charts.
+\end{videocard}
+
+\section{Mode and Median for Categorical Variables}
+
+How do we find the "average" of categorical data? We cannot mathematically sum "Maths" + "English" and divide by two. Instead, we rely on the Mode and Median.
+
+\begin{definitionbox}{Mode and Median for Categorical Data}
+\begin{itemize}
+    \item \textbf{Mode:} The category that appears most frequently (has the highest $f_i$). It is always defined for categorical data. A dataset can be \textit{unimodal} (one mode), \textit{bimodal}, or \textit{multimodal}.
+    \item \textbf{Median for Ordinal Data:} The middle category when observations are arranged in their natural, logical order. Because ordinal data has a meaningful ordering (e.g., Small, Medium, Large), a median is mathematically defined. \textbf{The median is NEVER defined for nominal data.}
+\end{itemize}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: W2\_L5 Mode \& Median}{https://www.youtube.com/watch?v=5Z8mhCgGkcE}
+Official lecture on calculating central tendencies for Nominal vs. Ordinal categorical variables.
+\end{videocard}
+
+\begin{examplebox}{Mode and Median of Ordinal Data}
+40 customer satisfaction ratings on the scale Poor/Fair/Good/Excellent were recorded: Poor (5), Fair (8), Good (18), Excellent (9).
+\begin{itemize}
+    \item \textbf{Mode:} Good (highest frequency = 18).
+    \item \textbf{Median:} First, arrange the categories in order. Total $n = 40$, so the median lies between the 20th and 21st observations.
+    Cumulative counts: Poor (5), Fair (5+8=13), Good (13+18=31). 
+    Because both the 20th and 21st values fall within the "Good" category (which spans from the 14th to 31st observation), the Median = \textbf{Good}.
+\end{itemize}
+\end{examplebox}
+
+\section{Best Practices for Graphing}
+
+Data visualizations can be highly misleading if not constructed ethically and correctly.
+
+\begin{theorembox}{Graph Design Principles}
+\begin{itemize}
+    \item Always label both axes with variable names and units.
+    \item \textbf{Start the y-axis at zero} for bar charts. Truncating the y-axis exaggerates tiny differences between categories, leading to misleading visual comparisons.
+    \item Use consistent color schemes and avoid using color \emph{alone} to convey information (for accessibility/color-blindness).
+    \item Avoid 3-D effects and unnecessary "chart junk" (excessive gridlines, borders, shadows) that obscure the data.
+\end{itemize}
+\end{theorembox}
+
+\section*{Supplementary Lecture Videos}
+\begin{itemize}
+    \item \href{https://www.youtube.com/watch?v=Peh-G_M6Two}{W2\_L3: Describing categorical data - best practices while graphing data - 1}
+    \item \href{https://www.youtube.com/watch?v=4MwZ2_iTkoo}{W2\_L4: Describing categorical data - best practices while graphing data - 2}
+\end{itemize}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{Frequency Calculations:} In a survey of 200 people regarding their preferred smartphone OS, 110 chose Android, 80 chose iOS, and the rest chose Other. Calculate the relative frequency and percentage for each category.
+    \item \textbf{Charting Logic:} You are tasked with presenting the market share of 5 different car companies. You want your audience to quickly grasp that Company A holds exactly half (50\%) of the total market. Which chart (Bar Chart or Pie Chart) is better suited to convey this specific message? Why?
+    \item \textbf{Graphing Ethics:} A company releases a bar chart comparing its sales to a competitor's. The competitor's bar has a height of $10,000$, and the company's bar has a height of $11,000$. However, the company's bar looks visually twice as tall as the competitor's bar. What cardinal rule of graphing did they violate?
+    \item \textbf{Mode and Median:} A t-shirt store sells 50 shirts in the following sizes: Small (10), Medium (20), Large (15), Extra Large (5). 
+    \begin{enumerate}
+        \item What is the mode?
+        \item What is the median?
+    \end{enumerate}
+    \item \textbf{Data Science Application:} You are classifying tumor images as Benign or Malignant. In your dataset of 10,000 images, 9,800 are Benign and 200 are Malignant. You write a terrible AI model that simply outputs "Benign" for every single image it sees, without even analyzing the picture. What is the accuracy of your model? What is this dataset problem called?
+\end{enumerate}

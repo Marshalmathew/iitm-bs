@@ -1,0 +1,106 @@
+\chapter{Scientific Computing: NumPy \& Pandas}
+
+While standard Python lists are versatile, they are slow for massive numerical data because elements are pointers scattered in memory. The scientific Python ecosystem—led by \textbf{NumPy} and \textbf{Pandas}—provides contiguous memory layout, vectorization, and fast C-level execution for data manipulation.
+
+\section{NumPy Arrays vs Python Lists}
+
+\textbf{NumPy} (Numerical Python) introduces the `ndarray` (N-dimensional array), an array of homogeneous elements stored contiguously in memory.
+
+\begin{definitionbox}{NumPy Arrays and Vectorization}
+\textbf{Vectorization} allows mathematical operations to operate on entire arrays simultaneously without explicit Python `for` loops.
+\begin{lstlisting}
+import numpy as np
+
+# Creating NDArrays
+arr = np.array([1, 2, 3, 4, 5])
+
+# Vectorized Arithmetic
+print(arr * 2)       # Output: [ 2  4  6  8 10]
+print(arr ** 2)      # Output: [ 1  4  9 16 25]
+
+# Broadcasting: Matrix + Scalar
+matrix = np.ones((2, 3))  # 2x3 matrix of ones
+print(matrix + 5)
+\end{lstlisting}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Introduction to NumPy (Arrays vs Lists)}{https://www.youtube.com/watch?v=O0IrNk1qoUE}
+Official lecture explaining memory layout, performance comparisons, and vectorization benefits.
+\end{videocard}
+
+\section{Pandas Series and DataFrames}
+
+\textbf{Pandas} provides high-performance tabular data structures: the 1D \textbf{Series} (labeled column) and the 2D \textbf{DataFrame} (tabular dataset with labeled rows and columns).
+
+\begin{theorembox}{Pandas DataFrame Mechanics}
+\begin{lstlisting}
+import pandas as pd
+
+# Creating a DataFrame from a Dictionary
+data = {
+    "Name": ["Alice", "Bob", "Charlie"],
+    "Age": [25, 30, 35],
+    "Salary": [70000, 80000, 95000]
+}
+df = pd.DataFrame(data)
+
+# Accessing Columns and Filtering Rows
+print(df["Name"])
+high_earners = df[df["Salary"] >= 80000]
+print(high_earners)
+\end{lstlisting}
+\end{theorembox}
+
+\textbf{Data Science Relevance:} Pandas is the default tool for Exploratory Data Analysis (EDA), CSV/Parquet loading (`pd.read_csv()`), handling missing values (`df.fillna()`), and feature engineering.
+
+\begin{videocard}{IITM BS Lecture: Why Pandas? Data Analysis Made Easy}{https://www.youtube.com/watch?v=HCxhHo8tV4U}
+Official lecture introducing Pandas for data manipulation and tabular alignment.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Pandas Series and DataFrames}{https://www.youtube.com/watch?v=aPjiMs7CR7s}
+Official lecture detailing indexing, row selection (`.loc`, `.iloc`), and column operations.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{NumPy Vectorization:} Given `arr = np.arange(1, 11)` (integers $1$ to $10$):
+    \begin{enumerate}
+        \item Compute a boolean mask for all odd numbers.
+        \item Use the boolean mask to extract only the odd elements.
+        \item Replace all even numbers in `arr` with $-1$.
+    \end{enumerate}
+
+    \item \textbf{Matrix Statistics with NumPy:} Create a $3 \times 3$ matrix with values $1$ through $9$ using `np.arange(1, 10).reshape(3, 3)`. Calculate:
+    \begin{enumerate}
+        \item Sum of all elements in the matrix.
+        \item Column-wise means (`axis=0`).
+        \item Row-wise maximums (`axis=1`).
+    \end{enumerate}
+
+    \item \textbf{Pandas Filtering \& Selection:} Given the DataFrame:
+\begin{lstlisting}
+import pandas as pd
+df = pd.DataFrame({
+    'City': ['Mumbai', 'Delhi', 'Bangalore', 'Chennai'],
+    'Temp': [32, 40, 24, 34],
+    'Humidity': [80, 45, 65, 75]
+})
+\end{lstlisting}
+    Filter and print rows where `Temp > 30` AND `Humidity > 70`.
+
+    \item \textbf{Pandas Missing Data Handling:} Create a DataFrame with missing values `np.nan`:
+    `df = pd.DataFrame({'A': [1.0, 2.0, np.nan, 4.0], 'B': [np.nan, 10.0, 20.0, 30.0]})`.
+    Fill missing values in column `'A'` with its mean, and column `'B'` with `0.0`.
+
+    \item \textbf{Data Science Application (Groupby Aggregation):} Given sales transaction data:
+\begin{lstlisting}
+sales_df = pd.DataFrame({
+    'Category': ['Tech', 'Tech', 'Office', 'Office', 'Tech'],
+    'Revenue': [1200, 800, 150, 300, 2000]
+})
+\end{lstlisting}
+    Write a 1-line Pandas expression using `.groupby()` to calculate the total revenue per category.
+\end{enumerate}

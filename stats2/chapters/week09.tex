@@ -1,0 +1,81 @@
+\chapter{Parameter Estimation: MME, MLE \& Confidence Intervals}
+
+In Statistical Inference, we use observed data $x_1, \dots, x_n$ to estimate unknown population parameters $\theta$. In this chapter, we master point estimation via \textbf{Method of Moments (MME)}, \textbf{Maximum Likelihood Estimation (MLE)}, evaluate estimator quality via \textbf{Bias and Variance}, and construct \textbf{Confidence Intervals}.
+
+\section{Point Estimators: Bias, Variance, and MSE}
+
+An \textbf{Estimator} $\hat{\theta}_n = g(X_1, \dots, X_n)$ is a statistic (a random variable) used to estimate unknown parameter $\theta$.
+
+\begin{definitionbox}{Bias, Variance, and Mean Squared Error (MSE)}
+\begin{itemize}
+    \item \textbf{Bias:} $\Bias(\hat{\theta}) = \E[\hat{\theta}] - \theta$. An estimator is \textbf{Unbiased} if $\E[\hat{\theta}] = \theta$.
+    \item \textbf{Variance:} $\Var(\hat{\theta}) = \E[(\hat{\theta} - \E[\hat{\theta}])^2]$.
+    \item \textbf{Mean Squared Error (MSE):}
+\end{itemize}
+  $$\MSE(\hat{\theta}) = \E[(\hat{\theta} - \theta)^2] = \Var(\hat{\theta}) + [\Bias(\hat{\theta})]^2$$
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Bias, Variance & Risk of an Estimator}{https://www.youtube.com/watch?v=fZjMovn18YE}
+Official lecture proving the Bias-Variance tradeoff decomposition for point estimators.
+\end{videocard}
+
+\section{Method of Moments Estimator (MME)}
+
+The \textbf{Method of Moments} equates sample moments $\mu_k = \frac{1}{n} \sum_{i=1}^n X_i^k$ to population theoretical moments $\E[X^k] = g_k(\theta)$ and solves for $\theta$.
+
+\begin{formulabox}{Method of Moments Recipe}
+1. First Moment: Set $\bar{X} = \E[X]$. Solve for $\hat{\theta}_{\text{MME}}$.
+2. Second Moment (if 2 parameters): Set $\frac{1}{n} \sum X_i^2 = \E[X^2]$.
+\end{formulabox}
+
+\begin{videocard}{IITM BS Lecture: Estimator Design: Method of Moments (MME)}{https://www.youtube.com/watch?v=XMX3lesags8}
+Official lecture deriving MME point estimators for Poisson, Exponential, and Uniform parameters.
+\end{videocard}
+
+\section{Maximum Likelihood Estimator (MLE)}
+
+The \textbf{Maximum Likelihood Estimator} finds the parameter value $\hat{\theta}_{\text{MLE}}$ that maximizes the probability density of observing the sample data.
+
+\begin{definitionbox}{Likelihood Function $L(\theta)$ and Log-Likelihood $\ell(\theta)$}
+For an i.i.d. sample $x_1, \dots, x_n$:
+$$L(\theta) = \prod_{i=1}^n f(x_i \mid \theta) \implies \ell(\theta) = \ln L(\theta) = \sum_{i=1}^n \ln f(x_i \mid \theta)$$
+Solve the first-order optimization condition $\frac{d\ell(\theta)}{d\theta} = 0$ for $\hat{\theta}_{\text{MLE}}$.
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Maximum Likelihood Estimation (MLE)}{https://www.youtube.com/watch?v=0qnRu8GNxBg}
+Official lecture constructing log-likelihood functions and solving likelihood equations.
+\end{videocard}
+
+\section{Confidence Intervals}
+
+A \textbf{$(1-\alpha)$ Confidence Interval} provides a range $[L, U]$ constructed from sample data that traps the true parameter $\theta$ with probability $1 - \alpha$.
+
+\begin{formulabox}{Confidence Interval Formulas for Population Mean $\mu$}
+\begin{itemize}
+    \item \textbf{Known Variance $\sigma^2$ (or large $n$ via CLT):}
+\end{itemize}
+  $$\left[ \bar{X}_n - z_{\alpha/2} \frac{\sigma}{\sqrt{n}}, \; \bar{X}_n + z_{\alpha/2} \frac{\sigma}{\sqrt{n}} \right]$$
+  For $95\%$ confidence ($\alpha = 0.05$), $z_{0.025} = 1.96$.
+\end{formulabox}
+
+\textbf{Data Science Relevance:} Maximum Likelihood Estimation is the foundational optimization objective behind Logistic Regression, Gaussian Mixture Models, and Neural Network Cross-Entropy loss minimization!
+
+\begin{videocard}{IITM BS Lecture: Confidence Intervals}{https://www.youtube.com/watch?v=Yq1YQawB2VY}
+Official lecture constructing two-sided z-confidence intervals and margin of error bounds.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+\item \textbf{Unbiasedness Verification:} Let $X_1, X_2, X_3$ be an i.i.d. sample from a population with mean $\mu$. Show that $\hat{\mu} = \frac{1}{4} X_1 + \frac{1}{2} X_2 + \frac{1}{4} X_3$ is an unbiased estimator for $\mu$. Calculate its variance in terms of $\sigma^2$.
+
+\item \textbf{MME Parameter Estimation:} An i.i.d. sample of sizes $X_1, \dots, X_n$ is drawn from an $\text{Exponential}(\lambda)$ distribution ($\E[X] = \frac{1}{\lambda}$). Derive the MME estimator $\hat{\lambda}_{\text{MME}}$.
+
+\item \textbf{MLE Parameter Estimation:} An i.i.d. sample $x_1, \dots, x_n$ is drawn from a $\text{Poisson}(\lambda)$ distribution ($f(x) = \frac{e^{-\lambda} \lambda^x}{x!}$). Derive the log-likelihood $\ell(\lambda)$ and prove that $\hat{\lambda}_{\text{MLE}} = \bar{X}_n$.
+
+\item \textbf{95\% Confidence Interval Construction:} A sample of $n = 100$ customer purchases has sample mean $\bar{X} = \$250$ with known population standard deviation $\sigma = \$40$. Construct a $95\%$ confidence interval for the true mean purchase amount $\mu$. (Use $z_{0.025} = 1.96$).
+
+\item \textbf{Data Science Application (Logistic Regression MLE Loss):} In binary classification, $Y_i \in \{0, 1\}$ follows a $\text{Bernoulli}(p_i)$ distribution where $p_i = \sigma(\mathbf{w}^T \mathbf{x}_i)$. Write out the negative log-likelihood loss function $J(\mathbf{w}) = -\ell(\mathbf{w})$ for an $N$-sample dataset (Binary Cross-Entropy Loss).
+\end{enumerate}

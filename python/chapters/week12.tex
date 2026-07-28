@@ -1,0 +1,105 @@
+\chapter{Data Visualization \& Course Summary}
+
+Data Visualization turns raw numerical data into intuitive charts, graphs, and interactive dashboards. In this final chapter, we cover \textbf{Matplotlib} (the fundamental plotting library in Python) and review the core programming concepts mastered throughout the course.
+
+\section{Introduction to Matplotlib}
+
+`matplotlib.pyplot` provides a MATLAB-like plotting framework for building line plots, scatter plots, bar charts, histograms, and heatmaps.
+
+\begin{definitionbox}{Matplotlib Figure and Axes}
+A \textbf{Figure} represents the entire canvas window. An \textbf{Axes} represents an individual plot or subplot inside the figure.
+\begin{lstlisting}
+import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+
+plt.figure(figsize=(8, 4))
+plt.plot(x, y, label="Sine Wave", color="blue", linestyle="--")
+plt.title("Trigonometric Sine Function")
+plt.xlabel("X values")
+plt.ylabel("sin(x)")
+plt.legend()
+plt.grid(True)
+plt.show()
+\end{lstlisting}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Introduction to Matplotlib}{https://www.youtube.com/watch?v=hk6NsCfvftY}
+Official lecture demonstrating plot creation, line charts, scatter plots, titles, labels, and legends.
+\end{videocard}
+
+\section{Common Chart Types for Data Science}
+
+\begin{theorembox}{Plot Types and Use Cases}
+\begin{itemize}
+    \item \textbf{Line Plot (`plt.plot`):} Trends over continuous time or ordered variables.
+    \item \textbf{Scatter Plot (`plt.scatter`):} Relationship and correlation between two numerical variables.
+    \item \textbf{Bar Chart (`plt.bar`):} Comparing numerical measurements across discrete categories.
+    \item \textbf{Histogram (`plt.hist`):} Frequency distribution of a single continuous variable.
+\end{itemize}
+\end{theorembox}
+
+\begin{examplebox}{Scatter Plot and Histogram Example}
+\begin{lstlisting}
+# Scatter Plot for Feature Association
+heights = [160, 165, 170, 175, 180]
+weights = [55, 62, 68, 74, 82]
+plt.scatter(heights, weights, color='purple')
+plt.title("Height vs Weight Scatter Plot")
+
+# Histogram for Distribution Analysis
+data = np.random.normal(loc=0, scale=1, size=1000)
+plt.hist(data, bins=30, color='teal', edgecolor='black')
+plt.title("Normal Distribution Histogram")
+\end{lstlisting}
+\end{examplebox}
+
+\index{Matplotlib}\index{Scatter Plot}\index{Histogram}\index{EDA}
+
+\textbf{Data Science Relevance:} Data visualization is critical during Exploratory Data Analysis (EDA) to detect outliers, assess skewness, inspect feature correlations, and present findings to business stakeholders.
+
+
+\section{Course Summary and Next Steps}
+
+Congratulations! You have completed the foundational Python programming curriculum for Data Science.
+
+\begin{formulabox}{Core Curriculum Overview}
+\begin{enumerate}
+    \item \textbf{Weeks 1–3:} Variables, Types, Control Flow, and Loops.
+    \item \textbf{Weeks 4–5:} Data Structures (Lists, Tuples, Dicts, Sets) and Matrix Operations.
+    \item \textbf{Weeks 6–7:} Modular Design with Functions, Scopes, Comprehensions, and Generators.
+    \item \textbf{Weeks 8–9:} File Processing, Robust Exception Handling, Recursion, and Binary Search.
+    \item \textbf{Weeks 10–12:} Object-Oriented Architecture, Scientific Computing (NumPy/Pandas), and Visualization (Matplotlib).
+\end{enumerate}
+\end{formulabox}
+
+\begin{videocard}{IITM BS Lecture: Course Summary and Next Steps}{https://www.youtube.com/watch?v=XYDiGqzVKyo}
+Official course summary reviewing core concepts and outlining advanced topics in Data Science.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{Basic Line Plot:} Write a Matplotlib script to plot $y = x^2$ for $x \in [-5, 5]$ with $100$ points. Add title `"Quadratic Function"`, x-label `"x"`, y-label `"f(x) = x^2"`, and display a grid.
+
+    \item \textbf{Comparing Distributions (Subplots):} Write a Matplotlib script using `plt.subplots(1, 2)` to display two side-by-side plots:
+    \begin{enumerate}
+        \item Left Subplot: A bar chart of top 3 programming languages `['Python', 'SQL', 'R']` with popularity scores `[95, 80, 60]`.
+        \item Right Subplot: A histogram of $500$ random points drawn from a uniform distribution between $0$ and $100$.
+    \end{enumerate}
+
+    \item \textbf{Customizing Scatter Plots:} Create a scatter plot of $20$ random $(x, y)$ points. Set point color to green, marker style to `'^'` (triangle), and marker size to $50$.
+
+    \item \textbf{Comprehensive Review Question (Data Pipeline):} Write a Python function `analyze_dataset(data)` that takes a list of raw numeric measurements:
+    \begin{enumerate}
+        \item Cleans the list by removing negative values using list comprehension.
+        \item Calculates the mean and standard deviation of the valid numbers using NumPy.
+        \item Returns a dictionary `{"count": N, "mean": M, "std": S}`.
+    \end{enumerate}
+
+    \item \textbf{Data Science Application (Plotting a Loss Curve):} In deep learning, model loss decreases over training epochs. Given `epochs = range(1, 11)` and `loss = [2.5, 1.8, 1.2, 0.8, 0.5, 0.35, 0.25, 0.18, 0.15, 0.12]`, write a Matplotlib script to plot the training loss curve with a red line and square markers.
+\end{enumerate}

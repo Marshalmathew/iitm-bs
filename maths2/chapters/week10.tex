@@ -1,0 +1,77 @@
+\chapter{Tangent Planes, Steepest Descent \& Critical Points}
+
+Optimization is the heart of Machine Learning. Training a model means finding parameter values that minimize a loss function $L(\mathbf{w})$. In this chapter, we master \textbf{Tangent Planes/Hyperplanes}, the \textbf{Gradient Descent Update Rule}, and \textbf{Critical Points} ($\nabla f(\mathbf{x}) = \mathbf{0}$).
+
+\section{Tangent Planes and Hyperplanes}
+
+The 1D tangent line generalizes in higher dimensions to a \textbf{Tangent Plane} (for $f: \mathbb{R}^2 \to \mathbb{R}$) or a \textbf{Tangent Hyperplane} (for $f: \mathbb{R}^n \to \mathbb{R}$).
+
+\begin{definitionbox}{Tangent Plane Formula}
+For a surface $z = f(x, y)$, the tangent plane at point $(x_0, y_0, z_0)$ where $z_0 = f(x_0, y_0)$ is given by:
+$$z - z_0 = f_x(x_0, y_0)(x - x_0) + f_y(x_0, y_0)(y - y_0)$$
+In general for $f: \mathbb{R}^n \to \mathbb{R}$, the linear approximation (tangent hyperplane) at $\mathbf{x}_0$ is:
+$$L(\mathbf{x}) = f(\mathbf{x}_0) + \nabla f(\mathbf{x}_0)^T (\mathbf{x} - \mathbf{x}_0)$$
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Tangents for Scalar-Valued Functions}{https://www.youtube.com/watch?v=9yeyc472W5Q}
+Official lecture deriving tangent plane equations and linear approximations.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Finding the Tangent Hyperplane}{https://www.youtube.com/watch?v=bz1gtPvNIAg}
+Official lecture extending tangent planes to $n$-dimensional hyperplanes $\nabla f(\mathbf{x}_0)^T (\mathbf{x} - \mathbf{x}_0) = 0$.
+\end{videocard}
+
+\section{Steepest Descent and Gradient Descent Algorithm}
+
+\begin{theorembox}{Direction of Steepest Descent}
+\begin{itemize}
+    \item \textbf{Steepest Ascent:} The unit vector direction along which $f(\mathbf{x})$ increases fastest is $\frac{\nabla f(\mathbf{x})}{\|\nabla f(\mathbf{x})\|}$.
+    \item \textbf{Steepest Descent:} The unit vector direction along which $f(\mathbf{x})$ decreases fastest is $-\frac{\nabla f(\mathbf{x})}{\|\nabla f(\mathbf{x})\|}$.
+\end{itemize}
+\end{theorembox}
+
+\begin{formulabox}{Gradient Descent Update Rule}
+To minimize a cost function $L(\mathbf{w})$, start at an initial point $\mathbf{w}^{(0)}$ and iteratively update:
+$$\mathbf{w}^{(k+1)} = \mathbf{w}^{(k)} - \alpha \nabla L(\mathbf{w}^{(k)})$$
+where $\alpha > 0$ is the \textbf{Learning Rate} (step size).
+\end{formulabox}
+
+\textbf{Data Science Relevance:} Gradient Descent (and its variants like Adam, RMSprop, SGD) is used to train almost all modern Machine Learning models, from Logistic Regression to 70-Billion parameter Large Language Models!
+
+\begin{videocard}{IITM BS Lecture: The Direction of Steepest Ascent / Descent}{https://www.youtube.com/watch?v=0H7ca6dFvQ8}
+Official lecture proving why $-\nabla f$ is the optimal search direction for loss minimization.
+\end{videocard}
+
+\section{Critical Points}
+
+\begin{definitionbox}{Critical Points}
+An interior point $\mathbf{x}_0$ in the domain of $f$ is a \textbf{Critical Point} (or Stationary Point) if:
+$$\nabla f(\mathbf{x}_0) = \mathbf{0} \iff \frac{\partial f}{\partial x_1}(\mathbf{x}_0) = 0, \, \frac{\partial f}{\partial x_2}(\mathbf{x}_0) = 0, \, \dots, \, \frac{\partial f}{\partial x_n}(\mathbf{x}_0) = 0$$
+Critical points can be \textbf{Local Minima}, \textbf{Local Maxima}, or \textbf{Saddle Points}.
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Critical Points for Multivariable Functions}{https://www.youtube.com/watch?v=9pciPOO19wQ}
+Official lecture finding critical points by setting all first partial derivatives to zero simultaneously.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+\item \textbf{Tangent Plane Equation:} Find the equation of the tangent plane to the surface $z = x^2 + 3y^2 - 4x$ at the point $(x_0, y_0) = (2, 1)$.
+
+\item \textbf{Gradient Descent Iteration Step:} A 2D loss function is $L(w_1, w_2) = w_1^2 + 4 w_2^2$.
+    \begin{enumerate}
+        \item Compute the gradient $\nabla L(w_1, w_2)$.
+        \item Starting from $\mathbf{w}^{(0)} = \begin{bmatrix} 3 \\ 2 \end{bmatrix}$ with learning rate $\alpha = 0.1$, compute the next weight vector $\mathbf{w}^{(1)}$.
+    \end{enumerate}
+
+\item \textbf{Finding Critical Points ($2 \times 2$):} Find all critical points of the function:
+    $$f(x, y) = x^3 + y^3 - 3xy$$
+    by setting $f_x = 0$ and $f_y = 0$.
+
+\item \textbf{Linear Approximation:} Use the tangent plane linear approximation of $f(x, y) = \sqrt{x^2 + y^2}$ at $(3, 4)$ to estimate $f(3.06, 3.92)$.
+
+\item \textbf{Data Science Application (Least Squares Gradient Descent Update):} For a simple regression model with loss $L(w) = (2w - 6)^2$, start at $w^{(0)} = 0$ with learning rate $\alpha = 0.05$. Perform $2$ steps of Gradient Descent to find $w^{(1)}$ and $w^{(2)}$. Show that $w$ moves towards the true minimum $w^* = 3$.
+\end{enumerate}

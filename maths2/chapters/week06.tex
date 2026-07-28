@@ -1,0 +1,73 @@
+\chapter{Matrix Representation, Kernel, Image \& Rank-Nullity}
+
+Every linear transformation between finite-dimensional vector spaces can be uniquely represented as a matrix multiplication with respect to chosen ordered bases. Furthermore, the fundamental relationship between domain dimension, image dimension, and kernel dimension is governed by the celebrated \textbf{Rank-Nullity Theorem}.
+
+\section{Matrix Representation of Linear Transformations}
+
+Let $T: V \to W$ be a linear transformation, where $\mathcal{B}_V = \{\mathbf{v}_1, \dots, \mathbf{v}_n\}$ is an ordered basis for domain $V$, and $\mathcal{B}_W = \{\mathbf{w}_1, \dots, \mathbf{w}_m\}$ is an ordered basis for codomain $W$.
+
+\begin{definitionbox}{Matrix of Transformation $[T]_{\mathcal{B}_V, \mathcal{B}_W}$}
+The $m \times n$ matrix representing $T$ with respect to bases $\mathcal{B}_V$ and $\mathcal{B}_W$ is constructed by taking the coordinate vectors of $T(\mathbf{v}_j)$ relative to $\mathcal{B}_W$ as its $j$-th column:
+$$A = [T]_{\mathcal{B}_V, \mathcal{B}_W} = \begin{bmatrix} [T(\mathbf{v}_1)]_{\mathcal{B}_W} & [T(\mathbf{v}_2)]_{\mathcal{B}_W} & \dots & [T(\mathbf{v}_n)]_{\mathcal{B}_W} \end{bmatrix} \in \mathbb{R}^{m \times n}$$
+Then for any $\mathbf{x} \in V$, coordinate transformation is matrix-vector multiplication: $[T(\mathbf{x})]_{\mathcal{B}_W} = A [\mathbf{x}]_{\mathcal{B}_V}$.
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Linear Transformations, Ordered Bases & Matrices}{https://www.youtube.com/watch?v=lVX2mih3mcQ}
+Official lecture constructing transformation matrices relative to non-standard ordered bases.
+\end{videocard}
+
+\section{Kernel and Image of Linear Transformations}
+
+\begin{definitionbox}{Kernel ($\kernel(T)$) and Image ($\image(T)$)}
+\begin{itemize}
+    \item \textbf{Kernel (Null Space):} The set of domain vectors mapping to zero:
+\end{itemize}
+$$\kernel(T) = \left\{ \mathbf{v} \in V \Big| T(\mathbf{v}) = \mathbf{0}_W \right\} \subseteq V$$
+\begin{itemize}
+    \item \textbf{Image (Range / Column Space):} The set of all output vectors in codomain $W$:
+\end{itemize}
+$$\image(T) = \left\{ \mathbf{w} \in W \Big| \exists \, \mathbf{v} \in V \text{ such that } T(\mathbf{v}) = \mathbf{w} \right\} \subseteq W$$
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Image & Kernel of Linear Transformations}{https://www.youtube.com/watch?v=e4BXKGcntiQ}
+Official lecture defining image and kernel subspaces and their geometric interpretations.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Finding Bases for Kernel and Image}{https://www.youtube.com/watch?v=5slY2FjErkc}
+Official lecture computing bases for $\kernel(T)$ and $\image(T)$ using REF pivot columns.
+\end{videocard}
+
+\section{The Rank-Nullity Theorem}
+
+\begin{theorembox}{The Fundamental Rank-Nullity Theorem}
+For any linear transformation $T: V \to W$ on a finite-dimensional domain $V$:
+$$\dim(\kernel(T)) + \dim(\image(T)) = \dim(V)$$
+In matrix terms for $A \in \mathbb{R}^{m \times n}$:
+$$\nullity(A) + \rank(A) = n \quad (\text{number of columns / input features})$$
+\end{theorembox}
+
+\textbf{Data Science Relevance:} The Rank-Nullity Theorem guarantees conservation of dimension when passing data through linear autoencoders and neural network linear layers.
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+\item \textbf{Matrix Representation Construction:} Let $T: \mathbb{R}^2 \to \mathbb{R}^2$ be defined by $T\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} 3x + y \\ 2x - 4y \end{bmatrix}$. Find the matrix representation $A = [T]_{\mathcal{E}}$ relative to the standard basis $\mathcal{E}$.
+
+\item \textbf{Non-Standard Basis Matrix Representation:} Find the matrix $[T]_{\mathcal{B}}$ for the linear operator $T\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} x + y \\ 2x - y \end{bmatrix}$ using the ordered basis $\mathcal{B} = \left\{ \begin{bmatrix} 1 \\ 1 \end{bmatrix}, \begin{bmatrix} 1 \\ 0 \end{bmatrix} \right\}$.
+
+\item \textbf{Bases for Kernel and Image:} Given linear transformation matrix $A = \begin{bmatrix} 1 & 2 & 3 \\ 2 & 4 & 6 \\ 1 & 1 & 1 \end{bmatrix}$:
+    \begin{enumerate}
+        \item Find a basis for $\image(A)$ (Column Space).
+        \item Find a basis for $\kernel(A)$ (Null Space).
+    \end{enumerate}
+
+\item \textbf{Rank-Nullity Verification:} Verify the Rank-Nullity Theorem for the matrix $A$ in Exercise 3 by showing $\nullity(A) + \rank(A) = 3$.
+
+\item \textbf{Data Science Application (Linear Autoencoder Information Loss):} A linear autoencoder compresses 100-dimensional audio feature vectors $\mathbf{x} \in \mathbb{R}^{100}$ into a bottleneck feature space of dimension 20 using matrix $W \in \mathbb{R}^{20 \times 100}$. If $\rank(W) = 18$, calculate:
+    \begin{enumerate}
+        \item The dimension of the compressed code space ($\dim(\image(W))$).
+        \item The dimension of unrecoverable lost features ($\dim(\kernel(W))$).
+    \end{enumerate}
+\end{enumerate}

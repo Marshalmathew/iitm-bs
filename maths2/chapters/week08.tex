@@ -1,0 +1,83 @@
+\chapter{Orthogonality, Gram-Schmidt Process \& Projections}
+
+Orthogonality is the mathematical formalization of perpendicularity. Orthogonal vectors provide independent, uncorrelated coordinates. In this chapter, we master \textbf{Orthonormal Bases}, \textbf{Orthogonal Projections}, and the \textbf{Gram-Schmidt Process}.
+
+\section{Orthogonality and Orthonormal Bases}
+
+\begin{definitionbox}{Orthogonality & Orthonormal Basis}
+\begin{itemize}
+    \item Two vectors $\mathbf{u}, \mathbf{v}$ are \textbf{Orthogonal} if $\langle \mathbf{u}, \mathbf{v} \rangle = 0$ (written $\mathbf{u} \perp \mathbf{v}$).
+    \item A set of vectors $\{\mathbf{q}_1, \dots, \mathbf{q}_k\}$ is an \textbf{Orthonormal Basis (ONB)} if:
+\end{itemize}
+$$\langle \mathbf{q}_i, \mathbf{q}_j \rangle = \delta_{ij} = \begin{cases} 1 & \text{if } i = j \quad (\text{Unit Norm: } \|\mathbf{q}_i\| = 1) \\ 0 & \text{if } i \neq j \quad (\text{Mutually Orthogonal}) \end{cases}$$
+\end{definitionbox}
+
+\begin{theorembox}{Coordinate Computation with ONB}
+If $\mathcal{B} = \{\mathbf{q}_1, \dots, \mathbf{q}_n\}$ is an ONB for $V$, the coordinates of any $\mathbf{v} \in V$ are obtained simply by taking inner products without solving linear systems!
+$$\mathbf{v} = \sum_{i=1}^{n} \langle \mathbf{v}, \mathbf{q}_i \rangle \mathbf{q}_i = \langle \mathbf{v}, \mathbf{q}_1 \rangle \mathbf{q}_1 + \dots + \langle \mathbf{v}, \mathbf{q}_n \rangle \mathbf{q}_n$$
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: Orthogonality & Linear Independence}{https://www.youtube.com/watch?v=G9bYPb-qSfw}
+Official lecture proving that any set of non-zero mutually orthogonal vectors is automatically linearly independent.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: What is an Orthonormal Basis?}{https://www.youtube.com/watch?v=T646BdbrRm0}
+Official lecture defining ONB and showing simple coordinate extraction via inner products.
+\end{videocard}
+
+\section{Orthogonal Projections}
+
+The \textbf{Orthogonal Projection} of a vector $\mathbf{v}$ onto a subspace $W$ finds the unique point $\mathbf{p} = \proj_W(\mathbf{v}) \in W$ that minimizes the distance $\|\mathbf{v} - \mathbf{p}\|$.
+
+\begin{formulabox}{Projection onto Subspace $W$ with ONB $\{\mathbf{q}_1, \dots, \mathbf{q}_k\}$}
+$$\proj_W(\mathbf{v}) = \sum_{i=1}^{k} \langle \mathbf{v}, \mathbf{q}_i \rangle \mathbf{q}_i$$
+The error vector $\mathbf{e} = \mathbf{v} - \proj_W(\mathbf{v})$ is strictly orthogonal to $W$ ($\mathbf{e} \perp W$).
+\end{formulabox}
+
+\begin{videocard}{IITM BS Lecture: Projections Using Inner Products}{https://www.youtube.com/watch?v=Qyiw4opSG9U}
+Official lecture deriving projection formulas, best approximation theorem, and error orthogonality.
+\end{videocard}
+
+\section{The Gram-Schmidt Orthogonalization Process}
+
+The \textbf{Gram-Schmidt Process} converts an arbitrary linearly independent basis $\{\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_k\}$ into an orthonormal basis $\{\mathbf{q}_1, \mathbf{q}_2, \dots, \mathbf{q}_k\}$.
+
+\begin{formulabox}{Gram-Schmidt Algorithm}
+1. \textbf{First Vector:} $\mathbf{u}_1 = \mathbf{v}_1, \quad \mathbf{q}_1 = \frac{\mathbf{u}_1}{\|\mathbf{u}_1\|}$
+2. \textbf{Second Vector:} Subtract projection onto $\mathbf{q}_1$:
+   $$\mathbf{u}_2 = \mathbf{v}_2 - \langle \mathbf{v}_2, \mathbf{q}_1 \rangle \mathbf{q}_1, \quad \mathbf{q}_2 = \frac{\mathbf{u}_2}{\|\mathbf{u}_2\|}$$
+3. \textbf{$k$-th Vector:} Subtract projections onto all previous $\mathbf{q}_j$:
+   $$\mathbf{u}_k = \mathbf{v}_k - \sum_{j=1}^{k-1} \langle \mathbf{v}_k, \mathbf{q}_j \rangle \mathbf{q}_j, \quad \mathbf{q}_k = \frac{\mathbf{u}_k}{\|\mathbf{u}_k\|}$$
+\end{formulabox}
+
+\textbf{Data Science Relevance:} The Gram-Schmidt process is the foundation of \textbf{QR Factorization} ($A = QR$) used in stable Ordinary Least Squares regression and numerical eigenvalue algorithms!
+
+\begin{videocard}{IITM BS Lecture: The Gram-Schmidt Process}{https://www.youtube.com/watch?v=WEpy57pYKH4}
+Official lecture executing Gram-Schmidt step-by-step to construct orthonormal bases.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Orthogonal Transformations & Rotations}{https://www.youtube.com/watch?v=2qruaPxQUJU}
+Official lecture introducing orthogonal matrices $Q^T Q = I$ (preserves lengths and angles) and rotation matrices.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+\item \textbf{Projection onto a Vector:} Compute the orthogonal projection of vector $\mathbf{v} = \begin{bmatrix} 4 \\ 3 \end{bmatrix}$ onto the line spanned by $\mathbf{u} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$.
+
+\item \textbf{Gram-Schmidt Process ($2 \times 2$):} Use the Gram-Schmidt process to convert the basis $\mathcal{B} = \left\{ \mathbf{v}_1 = \begin{bmatrix} 3 \\ 4 \end{bmatrix}, \mathbf{v}_2 = \begin{bmatrix} 1 \\ 0 \end{bmatrix} \right\}$ into an orthonormal basis $\{\mathbf{q}_1, \mathbf{q}_2\}$.
+
+\item \textbf{Gram-Schmidt Process ($3 \times 3$):} Apply Gram-Schmidt to orthogonalize $\mathbf{v}_1 = \begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix}, \mathbf{v}_2 = \begin{bmatrix} 1 \\ 0 \\ 1 \end{bmatrix}, \mathbf{v}_3 = \begin{bmatrix} 0 \\ 1 \\ 1 \end{bmatrix}$.
+
+\item \textbf{Orthogonal Matrix Properties:} Let $Q = \begin{bmatrix} \cos \theta & -\sin \theta \\ \sin \theta & \cos \theta \end{bmatrix}$ be a 2D rotation matrix.
+    \begin{enumerate}
+        \item Compute $Q^T Q$.
+        \item Show that $\|Q \mathbf{x}\| = \|\mathbf{x}\|$ for any $\mathbf{x} \in \mathbb{R}^2$ (preserves norm).
+    \end{enumerate}
+
+\item \textbf{Data Science Application (Least Squares via Projection):} In linear regression, the best fit prediction vector $\hat{\mathbf{y}} = X \mathbf{w}$ is the orthogonal projection of target vector $\mathbf{y}$ onto the column space of feature matrix $X$:
+    $$\hat{\mathbf{y}} = P \mathbf{y}, \quad \text{where } P = X(X^T X)^{-1} X^T$$
+    Show that the projection matrix $P$ is symmetric ($P^T = P$) and idempotent ($P^2 = P$).
+\end{enumerate}

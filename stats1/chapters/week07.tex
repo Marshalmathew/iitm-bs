@@ -1,0 +1,98 @@
+\chapter{Conditional Probability and Bayes' Theorem}
+
+In the real world, probabilities do not exist in a vacuum. The probability of an event drastically changes when you receive new information. This chapter covers how to update probabilities based on new evidence, a concept that forms the absolute core of modern Machine Learning (Bayesian Inference).
+
+\section{Conditional Probability}
+
+\begin{definitionbox}{Conditional Probability}
+The \textbf{conditional probability} of event $A$ occurring \emph{given} that event $B$ has already occurred is denoted as $P(A \mid B)$.
+It is calculated by restricting the sample space to only the outcomes where $B$ occurs:
+$$P(A \mid B) = \frac{P(A \cap B)}{P(B)}, \quad \text{provided } P(B) > 0$$
+\end{definitionbox}
+
+\textbf{Data Science Relevance:} In natural language processing, predictive text uses conditional probability. What is the probability the next word is "Learning", \emph{given} that the previous word was "Machine"? $P(\text{Learning} \mid \text{Machine})$. 
+
+\begin{videocard}{IITM BS Lecture: W7\_L1 \& L2 Conditional Probability}{https://www.youtube.com/watch?v=cuA7R64v7MI}
+Official lectures defining conditional probability using contingency tables and deriving the formula.
+\end{videocard}
+
+\section{The Multiplication Rule}
+
+By rearranging the conditional probability formula, we get the Multiplication Rule, which tells us how to find the probability of both events occurring simultaneously (their intersection).
+
+\begin{formulabox}{The Multiplication Rule}
+$$P(A \cap B) = P(B) \times P(A \mid B)$$
+Alternatively, because $A \cap B = B \cap A$:
+$$P(A \cap B) = P(A) \times P(B \mid A)$$
+\end{formulabox}
+
+\begin{videocard}{IITM BS Lecture: W7\_L3 Multiplication Rule}{https://www.youtube.com/watch?v=0T-tLoKevQE}
+Official lecture showing how to cascade the multiplication rule across multiple dependent events (like drawing cards without replacement).
+\end{videocard}
+
+\section{Independent Events}
+
+What if knowing that event $B$ occurred gives you absolutely zero information about whether event $A$ will occur? (e.g., flipping a coin, then rolling a die). 
+
+\begin{theorembox}{Mathematical Independence}
+Two events $A$ and $B$ are \textbf{independent} if and only if:
+$$P(A \mid B) = P(A)$$
+Substituting this into the Multiplication Rule gives the ultimate test for independence:
+$$P(A \cap B) = P(A) \times P(B)$$
+If this equation holds true, the events are independent. If it does not, they are dependent.
+\end{theorembox}
+
+\textbf{Data Science Relevance:} The popular ML algorithm \textbf{Naive Bayes} assumes that all input features are strictly independent of each other given the target class. This assumption is "naive" (often false in real life), but makes the algorithm incredibly fast and computationally cheap.
+
+\begin{videocard}{IITM BS Lecture: W7\_L4 \& L6 Independent Events}{https://www.youtube.com/watch?v=PO7Jam90Wmc}
+Official lectures covering the mathematical definition and properties of independent events.
+\end{videocard}
+
+\section{Law of Total Probability and Bayes' Theorem}
+
+Often, an event $A$ can happen through several different, mutually exclusive paths (partitions of the sample space). The \textbf{Law of Total Probability} allows us to sum up the probabilities of these paths.
+
+\begin{formulabox}{Law of Total Probability}
+If $B_1, B_2, \ldots, B_k$ form a partition of the sample space (they are mutually exclusive and their union is the whole space), then for any event $A$:
+$$P(A) = \sum_{i=1}^{k} P(A \cap B_i) = \sum_{i=1}^{k} P(B_i)P(A \mid B_i)$$
+\end{formulabox}
+
+What if we know $A$ occurred, and we want to work \emph{backwards} to find the probability that it came from path $B_i$? This reverse-engineering is the most important theorem in all of statistics.
+
+\begin{theorembox}{Bayes' Theorem}
+$$P(B_i \mid A) = \frac{P(B_i) \times P(A \mid B_i)}{P(A)}$$
+Using the Law of Total Probability to expand the denominator:
+$$P(B_i \mid A) = \frac{P(B_i) \times P(A \mid B_i)}{\sum_{j=1}^{k} P(B_j)P(A \mid B_j)}$$
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: W7\_L7 Bayes' Rule}{https://www.youtube.com/watch?v=JoqqvK3MDRw}
+Official lecture deriving Bayes' Theorem and applying it to real-world scenarios.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{Conditional Probability:} A standard 52-card deck is shuffled. You draw one card. 
+    \begin{enumerate}
+        \item What is the probability it is a King ($K$)?
+        \item Your friend peeks at the card and says, "It is a face card" ($F$). Given this new information, what is the new conditional probability $P(K \mid F)$? (A deck has 12 face cards: 4 Jacks, 4 Queens, 4 Kings).
+    \end{enumerate}
+    
+    \item \textbf{Multiplication Rule:} A bag contains 5 Red marbles and 3 Blue marbles. You draw two marbles consecutively \emph{without replacement}. What is the probability of drawing a Red marble first, AND a Blue marble second?
+    
+    \item \textbf{Checking for Independence:} In a sample space, $P(A) = 0.4$, $P(B) = 0.5$, and $P(A \cup B) = 0.7$. 
+    \begin{enumerate}
+        \item Use the General Addition Rule to find $P(A \cap B)$.
+        \item Are events $A$ and $B$ mathematically independent? Prove it.
+    \end{enumerate}
+
+    \item \textbf{Bayes' Theorem (Medical Testing):} A rare disease affects $1\%$ of the population ($P(D) = 0.01$). A test for the disease is $90\%$ accurate for positive patients ($P(+ \mid D) = 0.90$), but has a $5\%$ false positive rate for healthy patients ($P(+ \mid H) = 0.05$). 
+    \begin{enumerate}
+        \item Find the total probability that a random person tests positive, $P(+)$.
+        \item If a random person tests positive, what is the actual probability they have the disease, $P(D \mid +)$?
+    \end{enumerate}
+
+    \item \textbf{Data Science Application:} You are building a spam filter. $20\%$ of all incoming emails are spam. $80\%$ of spam emails contain the word "Free". However, $10\%$ of legitimate emails also contain the word "Free". An email arrives containing the word "Free". What is the exact probability that it is spam?
+\end{enumerate}

@@ -1,0 +1,112 @@
+\chapter{Permutations and Combinations}
+
+Before we can compute probabilities, we must master the art of counting. In Data Science, if you want to know the probability of an event occurring by random chance, you must mathematically count the total number of possible scenarios. This chapter develops the foundational counting tools: the Addition/Multiplication principles, Factorials, Permutations, and Combinations.
+
+\section{Fundamental Counting Principles}
+
+At the heart of all complex counting are two simple, logical rules.
+
+\begin{theorembox}{Addition and Multiplication Principles}
+\begin{itemize}
+    \item \textbf{Addition Principle (OR Rule):} If Task A can be done in $m$ ways, and Task B can be done in $n$ ways, and the two tasks \emph{cannot} be done simultaneously (they are mutually exclusive), then doing either Task A \textbf{OR} Task B can be done in $m + n$ ways.
+    \item \textbf{Multiplication Principle (AND Rule):} If Task A can be done in $m$ ways, and for \emph{each} of those ways, a subsequent Task B can be done in $n$ ways, then doing both Task A \textbf{AND} Task B together can be done in $m \times n$ ways. 
+    
+    This cascades across $k$ consecutive tasks:
+    $$\text{Total ways} = n_1 \times n_2 \times \cdots \times n_k$$
+\end{itemize}
+\end{theorembox}
+
+\textbf{Data Science Relevance:} Machine Learning engineers use the Multiplication Principle constantly when performing \textbf{Grid Search Hyperparameter Tuning}. If you want to test an algorithm across $3$ Learning Rates, $4$ Batch Sizes, and $2$ Optimizer types, the Multiplication Principle dictates you must train exactly $3 \times 4 \times 2 = 24$ distinct models to test every combination.
+
+\begin{videocard}{IITM BS Lecture: W5\_L1 Basic Principles of Counting}{https://www.youtube.com/watch?v=TeARzjZMra0}
+Official lecture explaining the Addition and Multiplication principles with everyday examples.
+\end{videocard}
+
+\section{Factorials}
+
+The Multiplication Principle naturally leads to factorials when we want to arrange a set of objects where we use one up at each step.
+
+\begin{definitionbox}{Factorial ($n!$)}
+For a non-negative integer $n$, the \textbf{factorial} $n!$ represents the number of ways to arrange $n$ distinct objects in a sequence.
+$$n! = n \times (n-1) \times (n-2) \times \cdots \times 2 \times 1$$
+\textbf{Special Rule:} $0! = 1$ (There is exactly one way to arrange zero objects: doing nothing).
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: W5\_L2 Factorials}{https://www.youtube.com/watch?v=kV1nGXR7c0I}
+Official lecture on calculating and simplifying ratios of factorials.
+\end{videocard}
+
+\section{Permutations (Order Matters)}
+
+A permutation is an arrangement of a subset of items where the \textbf{order matters}. (e.g., selecting a President, Vice President, and Secretary from a 10-person committee).
+
+\begin{formulabox}{Permutations of Distinct Objects ($^nP_r$)}
+The number of ways to choose and arrange $r$ distinct objects from a pool of $n$ distinct objects is:
+$$^nP_r = \frac{n!}{(n-r)!}$$
+\textit{Why?} You start with $n!$ (total arrangements), but divide out $(n-r)!$ to mathematically erase the arrangements of the items you didn't pick.
+\end{formulabox}
+
+\begin{videocard}{IITM BS Lecture: W5\_L3 Permutations (Distinct)}{https://www.youtube.com/watch?v=7qSuq3jUxwY}
+Official lecture on $^nP_r$ and calculating ordered subsets.
+\end{videocard}
+
+\begin{theorembox}{Permutations with Identical Objects}
+If you want to arrange $n$ total objects, but some objects are identical indistinguishable copies of each other (e.g., arranging the letters in the word "MISSISSIPPI"), the formula is:
+$$\frac{n!}{n_1! \times n_2! \times \cdots \times n_k!}$$
+where $n_i$ is the count of each identical subset. We divide by $n_i!$ because swapping identical letters doesn't create a "new" arrangement.
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: W5\_L4 Permutations (Not Distinct)}{https://www.youtube.com/watch?v=Zrhz44TVc14}
+Official lecture detailing the exact math for arranging words with repeating letters.
+\end{videocard}
+
+\section{Combinations (Order Doesn't Matter)}
+
+A combination is a selection of items where the \textbf{order does NOT matter}. (e.g., selecting a 3-person cleaning crew from a 10-person committee; picking Person A, B, and C is the exact same crew as picking B, C, and A).
+
+\begin{formulabox}{Combinations ($^nC_r$ or $\binom{n}{r}$)}
+The number of ways to choose $r$ objects from a pool of $n$ objects, regardless of order, is:
+$$^nC_r = \binom{n}{r} = \frac{n!}{r!(n-r)!}$$
+\textit{Why?} It is exactly the Permutation formula $^nP_r$, but we additionally divide by $r!$ to erase the internal ordering of the $r$ chosen items, collapsing all their permutations into a single "Combination".
+\end{formulabox}
+
+\begin{videocard}{IITM BS Lecture: W5\_L5 Combinations}{https://www.youtube.com/watch?v=s-cKQV5UwTU}
+Official lecture explaining $^nC_r$ and the mathematical relationship between Permutations and Combinations.
+\end{videocard}
+
+\section*{Supplementary Lecture Videos}
+\begin{itemize}
+    \item \href{https://www.youtube.com/watch?v=aE9yBQ9BWhQ}{W5\_L6: Permutations \& combinations - applications}
+\end{itemize}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item \textbf{Basic Counting:} A restaurant offers a "Build a Burger" menu. You must choose exactly 1 type of bun (out of 3 options), exactly 1 type of meat (out of 4 options), and either choose to add a side of fries OR a side of onion rings (but not both). How many distinct burger meals can you build?
+    
+    \item \textbf{Permutations (Distinct):} A track race has 8 runners. 
+    \begin{enumerate}
+        \item How many different ways can the runners finish the race in 1st, 2nd, and 3rd place? (Assuming no ties).
+        \item Which formula did you use and why?
+    \end{enumerate}
+
+    \item \textbf{Permutations (Non-Distinct):} You are trying to train a text generation model. To test it, you ask it to generate every unique anagram of the word \textbf{STATISTICS}. 
+    \begin{enumerate}
+        \item How many unique arrangements of the word exist?
+        \item Explain mathematically why dividing by the factorials in the denominator is necessary.
+    \end{enumerate}
+
+    \item \textbf{Combinations:} You are building an ensemble Machine Learning model. You have trained 10 different baseline algorithms (Decision Tree, SVM, Logistic Regression, etc.). You want to randomly select exactly 4 of them to vote together in your ensemble.
+    \begin{enumerate}
+        \item How many different combinations of 4 models can you create?
+        \item If you decided to pick 6 models instead of 4, how many combinations would exist? Why is this number identical to the previous answer?
+    \end{enumerate}
+
+    \item \textbf{Advanced Application:} A committee of 5 people is to be formed from a group of 6 men and 7 women. 
+    \begin{enumerate}
+        \item How many committees can be formed if there are no restrictions?
+        \item How many committees can be formed that contain exactly 3 men and 2 women?
+    \end{enumerate}
+\end{enumerate}

@@ -1,0 +1,91 @@
+\chapter{Continuous Random Variables, CDF, PDF \& Standard Distributions}
+
+Unlike discrete random variables taking distinct point values, \textbf{Continuous Random Variables} can take any real value in an interval. In this chapter, we master the \textbf{Cumulative Distribution Function (CDF)}, \textbf{Probability Density Function (PDF)}, and the fundamental benchmark distributions: \textbf{Uniform}, \textbf{Exponential}, and \textbf{Gaussian (Normal)}.
+
+\section{Cumulative Distribution Function (CDF) and Probability Density Function (PDF)}
+
+\beginbegin{definitionbox}{Cumulative Distribution Function $F_X(x)$}
+The \textbf{Cumulative Distribution Function (CDF)} of any random variable $X$ is defined for all $x \in \mathbb{R}$ by:
+$$F_X(x) = \P(X \le x)$$
+\textbf{Properties of $F_X(x)$:}
+\begin{enumerate}
+    \item Non-decreasing: $x_1 < x_2 \implies F_X(x_1) \le F_X(x_2)$.
+    \item Limits: $\lim_{x \to -\infty} F_X(x) = 0$ and $\lim_{x \to \infty} F_X(x) = 1$.
+    \item Right-continuous: $\lim_{h \to 0^+} F_X(x + h) = F_X(x)$.
+\end{enumerate}
+\end{definitionbox}
+
+\begin{definitionbox}{Probability Density Function $f_X(x)$}
+A random variable $X$ is \textbf{Continuous} if there exists a non-negative function $f_X(x) \ge 0$ such that for all $x$:
+$$F_X(x) = \int_{-\infty}^{x} f_X(t) \, dt \implies f_X(x) = \frac{d}{dx} F_X(x)$$
+\textbf{Key Probability Rule:} For continuous $X$, the probability at any single point is zero ($\P(X = c) = 0$). Interval probabilities are areas under the PDF curve:
+$$\P(a \le X \le b) = \int_{a}^{b} f_X(x) \, dx = F_X(b) - F_X(a)$$
+Normalizing condition: $\int_{-\infty}^{\infty} f_X(x) \, dx = 1$.
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Cumulative Distribution Function (CDF)}{https://www.youtube.com/watch?v=bjQmbMOIL4Q}
+Official lecture defining CDF properties, right-continuity, and interval probability calculation.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Probability Density Function (PDF)}{https://www.youtube.com/watch?v=YgCBemBF3pg}
+Official lecture introducing continuous densities $f_X(x)$ and integration rules.
+\end{videocard}
+
+\section{Standard Continuous Distributions}
+
+\begin{formulabox}{1. Uniform Distribution $\text{Uniform}(a, b)$}
+\begin{itemize}
+    \item \textbf{PDF:} $f(x) = \frac{1}{b - a}$ for $x \in [a, b]$.
+    \item \textbf{CDF:} $F(x) = \frac{x - a}{b - a}$ for $x \in [a, b]$.
+    \item \textbf{Mean & Variance:} $\E[X] = \frac{a + b}{2}, \quad \Var(X) = \frac{(b - a)^2}{12}$.
+\end{itemize}
+\end{formulabox}
+
+\begin{formulabox}{2. Exponential Distribution $\text{Exponential}(\lambda)$}
+\begin{itemize}
+    \item \textbf{PDF:} $f(x) = \lambda e^{-\lambda x}$ for $x \ge 0$ ($\lambda > 0$).
+    \item \textbf{CDF:} $F(x) = 1 - e^{-\lambda x}$ for $x \ge 0$.
+    \item \textbf{Mean & Variance:} $\E[X] = \frac{1}{\lambda}, \quad \Var(X) = \frac{1}{\lambda^2}$.
+    \item \textbf{Memoryless Property:} $\P(X > s + t \mid X > s) = \P(X > t)$.
+\end{itemize}
+\end{formulabox}
+
+\begin{formulabox}{3. Normal (Gaussian) Distribution $\mathcal{N}(\mu, \sigma^2)$}
+\begin{itemize}
+    \item \textbf{PDF:} $f(x) = \frac{1}{\sigma \sqrt{2\pi}} \exp\left( -\frac{(x - \mu)^2}{2\sigma^2} \right)$ for $x \in \mathbb{R}$.
+    \item \textbf{Standard Normal $Z = \frac{X - \mu}{\sigma} \sim \mathcal{N}(0, 1)$:} CDF denoted $\Phi(z) = \P(Z \le z)$.
+\end{itemize}
+\end{formulabox}
+
+\textbf{Data Science Relevance:} Normal distributions appear in Gaussian Naive Bayes, Linear Regression noise assumptions ($\epsilon \sim \mathcal{N}(0, \sigma^2)$), and standardized feature scaling (Z-score normalization $z = \frac{x - \mu}{\sigma}$)!
+
+\begin{videocard}{IITM BS Lecture: Common Continuous Distributions (Uniform, Exponential, Normal)}{https://www.youtube.com/watch?v=Sr_oC-iaXIs}
+Official lecture deriving properties of uniform, exponential, and Gaussian random variables.
+\end{videocard}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+\item \textbf{PDF Normalization and Probability:} A continuous random variable $X$ has PDF:
+    $$f_X(x) = \begin{cases} c x^2 & \text{for } 0 \le x \le 2 \\ 0 & \text{otherwise} \end{cases}$$
+    \begin{enumerate}
+        \item Find the constant $c$.
+        \item Compute $\P(1 \le X \le 2)$.
+    \end{enumerate}
+
+\item \textbf{CDF to PDF Conversion:} The CDF of a continuous random variable $X$ is:
+    $$F_X(x) = \begin{cases} 0 & \text{if } x < 0 \\ 1 - e^{-3x} & \text{if } x \ge 0 \end{cases}$$
+    Identify the distribution of $X$, write its PDF $f_X(x)$, and calculate $\E[X]$.
+
+\item \textbf{Exponential Memoryless Property:} Let $T \sim \text{Exponential}(\lambda = 0.5)$ represent customer service call duration in minutes. Compute $\P(T > 4 \mid T > 2)$.
+
+\item \textbf{Standard Normal Z-Score Calculation:} Let $X \sim \mathcal{N}(\mu = 50, \sigma^2 = 100)$. Given $\Phi(1.5) = 0.9332$, compute $\P(X \ge 65)$.
+
+\item \textbf{Data Science Application (Feature Normalization Range):} A model feature $X$ follows a $\text{Uniform}(10, 50)$ distribution.
+    \begin{enumerate}
+\item Find the mean $\mu_X$ and standard deviation $\sigma_X$.
+    2. Compute the probability that a random feature observation falls within 1 standard deviation of the mean ($\P(\mu_X - \sigma_X \le X \le \mu_X + \sigma_X)$).
+    \end{enumerate}
+\end{enumerate}

@@ -1,0 +1,69 @@
+\documentclass[11pt,a4paper,oneside]{book}
+
+% Load all styling and custom packages
+\input{preamble.tex}
+
+\title{
+    \Huge \bfseries \sffamily \color{primarydark} Mathematics for Data Science 1 \\
+    \large \vspace{0.3cm} \color{tealdef} Comprehensive Textbook \& NPTEL Lecture Companion
+}
+\author{
+    \textbf{IIT Madras BS in Data Science and Applications} \\
+    \small Prepared for Beginner-Friendly Learning, Deep Concept Mastery, \& Data Science Application
+}
+\date{July 2026}
+
+\makeindex
+
+\begin{document}
+
+\maketitle
+
+\frontmatter
+\tableofcontents
+\newpage
+
+\chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction}
+
+Welcome to the \textbf{Mathematics for Data Science 1 (MDS1)} Comprehensive Textbook. This document is designed to serve as a complete, beginner-friendly resource to help you learn, practice, and master every single topic covered in the IIT Madras Foundational Level course.
+
+\section*{Structure of this Guide}
+The book is divided into \textbf{12 Chapters}, corresponding to the 12 weeks of the official course curriculum:
+\begin{itemize}
+    \item \textbf{Chapters 1--4 (Quiz 1 Content):} Sets, Relations, Functions, Coordinate Geometry, Straight Lines, Quadratic Equations, and Polynomial Algebra.
+    \item \textbf{Chapters 5--8 (Quiz 2 Content):} Functions, Logarithms, Exponential Equations, Sequences, Limits, Continuity, and the foundations of Differentiation.
+    \item \textbf{Chapters 9--12 (End-Term Content):} Integration (area under a curve), and an extensive, algorithm-focused dive into Graph Theory and Shortest Path/MST Algorithms.
+\end{itemize}
+
+\section*{Key Design Elements}
+Throughout this textbook, key ideas are categorized in visually distinct, colored cards:
+\begin{itemize}
+    \item \textcolor{tealdef}{\textbf{Teal Cards}} contain definitions, terminology, and core concepts.
+    \item \textcolor{primaryborder}{\textbf{Slate Blue Cards}} contain theorems, rules, and mathematical properties.
+    \item \textcolor{purpleex}{\textbf{Purple Cards}} contain detailed step-by-step solved examples.
+    \item \textcolor{coralformula}{\textbf{Orange Cards}} highlight crucial formulas you must commit to memory.
+    \item \textcolor{yttext}{\textbf{Video Resource Cards}} provide direct clickable links to official IIT Madras NPTEL lecture videos and handpicked visual explanation videos.
+\end{itemize}
+
+\mainmatter
+
+% Include all 12 weekly chapters
+\include{chapters/week01}
+\include{chapters/week02}
+\include{chapters/week03}
+\include{chapters/week04}
+\include{chapters/week05}
+\include{chapters/week06}
+\include{chapters/week07}
+\include{chapters/week08}
+\include{chapters/week09}
+\include{chapters/week10}
+\include{chapters/week11}
+\include{chapters/week12}
+
+\backmatter
+\printindex
+\include{appendix}
+
+\end{document}
