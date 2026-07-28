@@ -4,7 +4,7 @@ A \textbf{Function} is a reusable block of code designed to perform a specific t
 
 \section{Defining and Calling Functions}
 
-Functions are defined using the `def` keyword, followed by the function name, parentheses `()`, and a colon `:`.
+Functions are defined using the \lstinline|def| keyword, followed by the function name, parentheses \lstinline|()|, and a colon \lstinline|:|.
 
 \begin{definitionbox}{Function Definition Syntax}
 \begin{lstlisting}
@@ -20,18 +20,18 @@ print(result)
 \end{definitionbox}
 
 \begin{videocard}{IITM BS Lecture: Introduction to Functions}{https://www.youtube.com/watch?v=zDZRfWWetg0}
-Official lecture defining `def`, parameters, `return` values, and docstrings.
+Official lecture defining \lstinline|def|, parameters, \lstinline|return| values, and docstrings.
 \end{videocard}
 
 \section{Types of Function Arguments}
 
 Python functions support several types of parameters:
 1. \textbf{Positional Arguments:} Passed in the exact order declared.
-2. \textbf{Keyword Arguments:} Passed by explicitly naming parameter names (`name="Alice"`).
+2. \textbf{Keyword Arguments:} Passed by explicitly naming parameter names (\lstinline|name="Alice"|).
 3. \textbf{Default Arguments:} Parameters with fallback default values if omitted by the caller.
-4. \textbf{Variable-length Arguments (`*args` and `**kwargs`):}
-   - `*args`: Collects extra positional arguments into a tuple.
-   - `**kwargs`: Collects extra keyword arguments into a dictionary.
+4. \textbf{Variable-length Arguments (\lstinline|*args| and \lstinline|**kwargs|):}
+   - \lstinline|*args|: Collects extra positional arguments into a tuple.
+   - \lstinline|**kwargs|: Collects extra keyword arguments into a dictionary.
 
 \begin{theorembox}{Argument Types Syntax}
 \begin{lstlisting}
@@ -48,10 +48,10 @@ print(custom_sum(1, 2, 3, 4))             # 10
 \end{lstlisting}
 \end{theorembox}
 
-\textbf{Data Science Relevance:} Machine Learning functions in scikit-learn heavily use default and keyword arguments (e.g., `RandomForestClassifier(n_estimators=100, max_depth=5)`).
+\textbf{Data Science Relevance:} Machine Learning functions in scikit-learn heavily use default and keyword arguments (e.g., \lstinline|RandomForestClassifier(n_estimators=100, max_depth=5)|).
 
 \begin{videocard}{IITM BS Lecture: Types of Function Arguments}{https://www.youtube.com/watch?v=NqjnCY2qQWU}
-Official lecture explaining positional, keyword, default, `*args`, and `**kwargs`.
+Official lecture explaining positional, keyword, default, \lstinline|*args|, and \lstinline|**kwargs|.
 \end{videocard}
 
 \section{Scope of Variables (LEGB Rule)}
@@ -63,7 +63,7 @@ Official lecture explaining positional, keyword, default, `*args`, and `**kwargs
     \item \textbf{L (Local):} Variables defined inside the current function body.
     \item \textbf{E (Enclosing):} Variables in enclosing/outer functions (nested functions).
     \item \textbf{G (Global):} Variables defined at the top-level of the script/module.
-    \item \textbf{B (Built-in):} Built-in names in Python (`len`, `sum`, `range`, etc.).
+    \item \textbf{B (Built-in):} Built-in names in Python (\lstinline|len|, \lstinline|sum|, \lstinline|range|, etc.).
 \end{enumerate}
 \end{formulabox}
 
@@ -81,7 +81,7 @@ print(counter)  # Output: 1
 \end{examplebox}
 
 \begin{videocard}{IITM BS Lecture: Scope of Variables}{https://www.youtube.com/watch?v=4q5rGHfR-ic}
-Official lecture explaining Local vs Global scope, `global` keyword, and namespace resolution.
+Official lecture explaining Local vs Global scope, \lstinline|global| keyword, and namespace resolution.
 \end{videocard}
 
 \newpage
@@ -89,11 +89,11 @@ Official lecture explaining Local vs Global scope, `global` keyword, and namespa
 \textit{Detailed step-by-step solutions are available in the Appendix.}
 
 \begin{enumerate}
-    \item \textbf{Basic Function:} Write a function `is_even(n)` that returns `True` if an integer $n$ is even, and `False` otherwise.
+    \item \textbf{Basic Function:} Write a function \lstinline|is_even(n)| that returns \lstinline|True| if an integer $n$ is even, and \lstinline|False| otherwise.
 
-    \item \textbf{Default Arguments:} Write a function `compute_power(base, exponent=2)` that returns $\text{base}^{\text{exponent}}$. Test it with `compute_power(5)` and `compute_power(2, 3)`.
+    \item \textbf{Default Arguments:} Write a function \lstinline|compute_power(base, exponent=2)| that returns $\text{base}^{\text{exponent}}$. Test it with \lstinline|compute_power(5)| and \lstinline|compute_power(2, 3)|.
 
-    \item \textbf{Flexible Aggregation (`*args`):} Write a function `calculate_mean(*args)` that accepts any number of numeric arguments and returns their arithmetic mean. Handle the edge case of no arguments passed by returning `0.0`.
+    \item \textbf{Flexible Aggregation (\lstinline|*args|):} Write a function \lstinline|calculate_mean(*args)| that accepts any number of numeric arguments and returns their arithmetic mean. Handle the edge case of no arguments passed by returning \lstinline|0.0|.
 
     \item \textbf{Variable Scope:} What will be the output of the following script? Explain why.
 \begin{lstlisting}
@@ -107,5 +107,5 @@ modify_val()
 print("Outside:", x)
 \end{lstlisting}
 
-    \item \textbf{Data Science Application (Min-Max Scaling Function):} Write a modular function `min_max_scaler(data)` that takes a list of numbers, calculates its min and max, and returns a new list of min-max normalized values rounded to 3 decimal places.
+    \item \textbf{Data Science Application (Min-Max Scaling Function):} Write a modular function \lstinline|min_max_scaler(data)| that takes a list of numbers, calculates its min and max, and returns a new list of min-max normalized values rounded to 3 decimal places.
 \end{enumerate}

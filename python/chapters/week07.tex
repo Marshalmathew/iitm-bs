@@ -1,6 +1,6 @@
 \chapter{Functional Programming, Comprehensions \& Generators}
 
-Python supports \textbf{Functional Programming} idioms. Instead of explicitly writing multi-line `for` loops, functional Python allows developers to write concise, expressive expressions using list comprehensions, anonymous `lambda` functions, higher-order utilities (`map`, `filter`, `zip`), and memory-efficient `yield` generators.
+Python supports \textbf{Functional Programming} idioms. Instead of explicitly writing multi-line \lstinline|for| loops, functional Python allows developers to write concise, expressive expressions using list comprehensions, anonymous \lstinline|lambda| functions, higher-order utilities (\lstinline|map|, \lstinline|filter|, \lstinline|zip|), and memory-efficient \lstinline|yield| generators.
 
 \section{List, Dictionary, and Set Comprehensions}
 
@@ -29,15 +29,15 @@ print(cubes)  # Output: {1: 1, 2: 8, 3: 27, 4: 64, 5: 125}
 Official lecture explaining syntax, conditional filtering, and nested list comprehensions.
 \end{videocard}
 
-\section{Lambda Functions, `map()`, `filter()`, `zip()`, and `enumerate()`}
+\section{Lambda Functions, \lstinline|map()|, \lstinline|filter()|, \lstinline|zip()|, and \lstinline|enumerate()|}
 
 \begin{definitionbox}{Lambda and Higher-Order Functions}
 \begin{itemize}
-    \item \textbf{Lambda (`lambda x: expr`):} Small anonymous 1-line inline functions.
-    \item \textbf{`map(func, iterable`):} Applies `func` to every item in `iterable`.
-    \item \textbf{`filter(predicate, iterable`):} Retains items where `predicate(item)` is `True`.
-    \item \textbf{`zip(seq1, seq2`):} Pairs elements from multiple sequences element-wise into tuples.
-    \item \textbf{`enumerate(seq`):} Yields `(index, item)` pairs during iteration.
+    \item \textbf{Lambda (\lstinline|lambda x: expr|):} Small anonymous 1-line inline functions.
+    \item \textbf{\lstinline|map(func, iterable|):} Applies \lstinline|func| to every item in \lstinline|iterable|.
+    \item \textbf{\lstinline|filter(predicate, iterable|):} Retains items where \lstinline|predicate(item)| is \lstinline|True|.
+    \item \textbf{\lstinline|zip(seq1, seq2|):} Pairs elements from multiple sequences element-wise into tuples.
+    \item \textbf{\lstinline|enumerate(seq|):} Yields \lstinline|(index, item)| pairs during iteration.
 \end{itemize}
 \end{definitionbox}
 
@@ -58,18 +58,18 @@ paired = list(zip(names, scores))  # [('Alice', 85), ('Bob', 92)]
 \end{lstlisting}
 \end{examplebox}
 
-\textbf{Data Science Relevance:} Feature extraction pipelines (like `df['col'].apply(lambda x: clean(x))`) and model training loops (`for idx, (batch_x, batch_y) in enumerate(dataloader)`) heavily utilize these exact tools.
+\textbf{Data Science Relevance:} Feature extraction pipelines (like \lstinline|df['col'].apply(lambda x: clean(x))|) and model training loops (\lstinline|for idx, (batch_x, batch_y) in enumerate(dataloader)|) heavily utilize these exact tools.
 
 \begin{videocard}{IITM BS Lecture: Lambda, Enumerate, Zip, Map, and Filter}{https://www.youtube.com/watch?v=ueIignqReDY}
 Official lecture covering functional iteration helpers and lambda syntax.
 \end{videocard}
 
-\section{Generators and the `yield` Keyword}
+\section{Generators and the \lstinline|yield| Keyword}
 
-Unlike regular functions that return a full dataset at once (storing everything in RAM), \textbf{Generators} compute items lazily on demand using the `yield` keyword.
+Unlike regular functions that return a full dataset at once (storing everything in RAM), \textbf{Generators} compute items lazily on demand using the \lstinline|yield| keyword.
 
 \begin{theorembox}{Generators vs Functions}
-A function with `yield` pauses execution after sending a value back and resumes right where it left off when the next item is requested via `next()` or a `for` loop.
+A function with \lstinline|yield| pauses execution after sending a value back and resumes right where it left off when the next item is requested via \lstinline|next()| or a \lstinline|for| loop.
 \end{theorembox}
 
 \begin{examplebox}{Infinite Stream Generator}
@@ -88,7 +88,7 @@ print()
 \end{examplebox}
 
 \begin{videocard}{IITM BS Lecture: Iterators, Generators, and Yield}{https://www.youtube.com/watch?v=29A7HhnzxPU}
-Official lecture explaining memory optimization, lazy evaluation, and `yield` semantics.
+Official lecture explaining memory optimization, lazy evaluation, and \lstinline|yield| semantics.
 \end{videocard}
 
 \newpage
@@ -96,18 +96,18 @@ Official lecture explaining memory optimization, lazy evaluation, and `yield` se
 \textit{Detailed step-by-step solutions are available in the Appendix.}
 
 \begin{enumerate}
-    \item \textbf{List Comprehension Filtering:} Given `words = ["python", "data", "science", "ai", "machine", "ml"]`, write a 1-line list comprehension to extract words that have a length greater than $3$ characters, converted to UPPERCASE.
+    \item \textbf{List Comprehension Filtering:} Given \lstinline|words = ["python", "data", "science", "ai", "machine", "ml"]|, write a 1-line list comprehension to extract words that have a length greater than $3$ characters, converted to UPPERCASE.
 
-    \item \textbf{Lambda Sorting:} Given a list of tuples representing student names and test scores `students = [("Alice", 88), ("Bob", 95), ("Charlie", 78), ("David", 90)]`, sort the list in descending order based on their test scores using `sorted()` and a `lambda` key.
+    \item \textbf{Lambda Sorting:} Given a list of tuples representing student names and test scores \lstinline|students = [("Alice", 88), ("Bob", 95), ("Charlie", 78), ("David", 90)]|, sort the list in descending order based on their test scores using \lstinline|sorted()| and a \lstinline|lambda| key.
 
-    \item \textbf{Zipping Vectors:} Given two lists `x = [1, 2, 3]` and `y = [10, 20, 30]`, write a 1-line list comprehension using `zip(x, y)` to compute the element-wise sum `[11, 22, 33]`.
+    \item \textbf{Zipping Vectors:} Given two lists \lstinline|x = [1, 2, 3]| and \lstinline|y = [10, 20, 30]|, write a 1-line list comprehension using \lstinline|zip(x, y)| to compute the element-wise sum \lstinline|[11, 22, 33]|.
 
-    \item \textbf{Fibonacci Generator:} Write a generator function `generate_squares(n)` that yields the squares of numbers from $1$ up to $n$ one by one. Iterate over it using a `for` loop.
+    \item \textbf{Fibonacci Generator:} Write a generator function \lstinline|generate_squares(n)| that yields the squares of numbers from $1$ up to $n$ one by one. Iterate over it using a \lstinline|for| loop.
 
-    \item \textbf{Data Science Application (Text Preprocessing Pipeline):} In Natural Language Processing (NLP), a raw text string `text = "   Data Science and Machine Learning 101   "` needs cleaning. Write a functional pipeline using `map()`, `filter()`, and string methods to:
+    \item \textbf{Data Science Application (Text Preprocessing Pipeline):} In Natural Language Processing (NLP), a raw text string \lstinline|text = "   Data Science and Machine Learning 101   "| needs cleaning. Write a functional pipeline using \lstinline|map()|, \lstinline|filter()|, and string methods to:
     \begin{enumerate}
         \item Strip whitespace and convert to lowercase.
         \item Tokenize into words.
-        \item Filter out words that are numbers (using `.isdigit()`).
+        \item Filter out words that are numbers (using \lstinline|.isdigit()|).
     \end{enumerate}
 \end{enumerate}

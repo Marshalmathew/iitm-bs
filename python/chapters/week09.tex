@@ -5,7 +5,7 @@
 \section{The Core Mechanics of Recursion}
 
 Every valid recursive function must have two components:
-1. \textbf{Base Case:} The stopping condition that returns a value directly without further recursive calls (prevents `RecursionError: maximum recursion depth exceeded`).
+1. \textbf{Base Case:} The stopping condition that returns a value directly without further recursive calls (prevents \lstinline|RecursionError: maximum recursion depth exceeded|).
 2. \textbf{Recursive Step:} The function calls itself with a reduced or smaller input parameter, moving towards the base case.
 
 \begin{definitionbox}{Recursive Factorial}
@@ -33,11 +33,11 @@ Official lecture tracing recursive execution stacks step-by-step.
 While Linear Search takes $\mathcal{O}(N)$ time, \textbf{Binary Search} searches a \textbf{sorted} array in $\mathcal{O}(\log N)$ time by repeatedly dividing the search space in half.
 
 \begin{theorembox}{Binary Search Algorithm ($\mathcal{O}(\log N)$)}
-Compare the target with the middle element `mid`:
+Compare the target with the middle element \lstinline|mid|:
 \begin{itemize}
-    \item If `target == arr[mid]`, return `mid`.
-    \item If `target < arr[mid]`, search the left sub-array (`high = mid - 1`).
-    \item If `target > arr[mid]`, search the right sub-array (`low = mid + 1`).
+    \item If \lstinline|target == arr[mid]|, return \lstinline|mid|.
+    \item If \lstinline|target < arr[mid]|, search the left sub-array (\lstinline|high = mid - 1|).
+    \item If \lstinline|target > arr[mid]|, search the right sub-array (\lstinline|low = mid + 1|).
 \end{itemize}
 \end{theorembox}
 
@@ -85,17 +85,17 @@ Official lecture implementing binary search recursively in Python.
 \textit{Detailed step-by-step solutions are available in the Appendix.}
 
 \begin{enumerate}
-    \item \textbf{Recursive Sum:} Write a recursive function `recursive_sum(n)` that calculates the sum of integers from $1$ to $n$.
+    \item \textbf{Recursive Sum:} Write a recursive function \lstinline|recursive_sum(n)| that calculates the sum of integers from $1$ to $n$.
 
-    \item \textbf{Recursive String Reversal:} Write a recursive function `reverse_string(s)` that reverses a string without using loops or slicing `[::-1]`. (Base case: empty string or length 1).
+    \item \textbf{Recursive String Reversal:} Write a recursive function \lstinline|reverse_string(s)| that reverses a string without using loops or slicing \lstinline|[::-1]|. (Base case: empty string or length 1).
 
-    \item \textbf{Binary Search Trace:} Given a sorted array `arr = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]`:
+    \item \textbf{Binary Search Trace:} Given a sorted array \lstinline|arr = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]|:
     \begin{enumerate}
-        \item Trace the values of `low`, `high`, and `mid` when searching for `target = 23`.
+        \item Trace the values of \lstinline|low|, \lstinline|high|, and \lstinline|mid| when searching for \lstinline|target = 23|.
         \item How many comparison steps were required?
     \end{enumerate}
 
-    \item \textbf{Recursive Fibonacci with Memoization:} The naïve recursive Fibonacci $F(n) = F(n-1) + F(n-2)$ takes $\mathcal{O}(2^n)$ exponential time. Write an optimized version `fib_memo(n, memo={})` that uses a dictionary to cache previously computed Fibonacci numbers in $\mathcal{O}(n)$ time.
+    \item \textbf{Recursive Fibonacci with Memoization:} The naïve recursive Fibonacci $F(n) = F(n-1) + F(n-2)$ takes $\mathcal{O}(2^n)$ exponential time. Write an optimized version \lstinline|fib_memo(n, memo={})| that uses a dictionary to cache previously computed Fibonacci numbers in $\mathcal{O}(n)$ time.
 
-    \item \textbf{Data Science Application (Finding Square Root via Binary Search):} Write a function `sqrt_binary_search(val, tol=1e-5)` that uses binary search on the interval $[0, \text{val}]$ to find the square root of a non-negative float `val` within tolerance `tol`.
+    \item \textbf{Data Science Application (Finding Square Root via Binary Search):} Write a function \lstinline|sqrt_binary_search(val, tol=1e-5)| that uses binary search on the interval $[0, \text{val}]$ to find the square root of a non-negative float \lstinline|val| within tolerance \lstinline|tol|.
 \end{enumerate}

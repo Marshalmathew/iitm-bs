@@ -4,7 +4,7 @@ Python provides specialized container structures beyond lists, each tailored for
 
 \section{Tuples: Immutable Sequences}
 
-A \textbf{Tuple} is an ordered, immutable sequence of elements defined using parentheses `()`.
+A \textbf{Tuple} is an ordered, immutable sequence of elements defined using parentheses \lstinline|()|.
 
 \begin{definitionbox}{Tuple Properties}
 \begin{lstlisting}
@@ -18,7 +18,7 @@ x, y, z = point    # x=10, y=20, z=30
 \end{lstlisting}
 \end{definitionbox}
 
-\textbf{Data Science Relevance:} Tuples guarantee data integrity for fixed coordinates, dataset shapes (`df.shape` returns `(rows, cols)`), and function return values.
+\textbf{Data Science Relevance:} Tuples guarantee data integrity for fixed coordinates, dataset shapes (\lstinline|df.shape| returns \lstinline|(rows, cols)|), and function return values.
 
 \begin{videocard}{IITM BS Lecture: Tuples Explained}{https://www.youtube.com/watch?v=z-n9yQaWr7o}
 Official lecture explaining tuple immutability, packing, unpacking, and hashability.
@@ -26,7 +26,7 @@ Official lecture explaining tuple immutability, packing, unpacking, and hashabil
 
 \section{Dictionaries: Key-Value Mapping}
 
-A \textbf{Dictionary} store elements in `{key: value}` pairs. Dictionaries provide $\mathcal{O}(1)$ average-time complexity for retrieval by key.
+A \textbf{Dictionary} store elements in \lstinline|{key: value}| pairs. Dictionaries provide $\mathcal{O}(1)$ average-time complexity for retrieval by key.
 
 \begin{theorembox}{Dictionary Rules}
 \begin{itemize}
@@ -51,19 +51,19 @@ print(counts)  # Output: {'apple': 3, 'banana': 2, 'orange': 1}
 \textbf{Data Science Relevance:} Dictionaries are used to represent JSON API responses, category-to-index mappings in Natural Language Processing (vocabularies), and model hyperparameter configuration dicts.
 
 \begin{videocard}{IITM BS Lecture: Dictionaries for Efficient Storage}{https://www.youtube.com/watch?v=X8Nj5cxaP9E}
-Official lecture detailing dictionary creation, `.keys()`, `.values()`, `.items()`, and `.get()` methods.
+Official lecture detailing dictionary creation, \lstinline|.keys()|, \lstinline|.values()|, \lstinline|.items()|, and \lstinline|.get()| methods.
 \end{videocard}
 
 \section{Sets: Unordered Unique Collections}
 
-A \textbf{Set} is an unordered collection of unique elements defined using `{}` or `set()`.
+A \textbf{Set} is an unordered collection of unique elements defined using \lstinline|{}| or \lstinline|set()|.
 
 \begin{formulabox}{Set Operations}
 \begin{itemize}
-    \item \textbf{Union (`A | B`):} Elements in $A$, $B$, or both.
-    \item \textbf{Intersection (`A \& B`):} Elements in both $A$ and $B$.
-    \item \textbf{Difference (`A - B`):} Elements in $A$ but not in $B$.
-    \item \textbf{Symmetric Difference (`A \textasciicircum{} B`):} Elements in $A$ or $B$ but not both.
+    \item \textbf{Union (\lstinline|A | B|):} Elements in $A$, $B$, or both.
+    \item \textbf{Intersection (\lstinline|A \& B|):} Elements in both $A$ and $B$.
+    \item \textbf{Difference (\lstinline|A - B|):} Elements in $A$ but not in $B$.
+    \item \textbf{Symmetric Difference (\lstinline|A \textasciicircum{} B|):} Elements in $A$ or $B$ but not both.
 \end{itemize}
 \end{formulabox}
 
@@ -76,23 +76,23 @@ Official lecture explaining set mathematical operations, duplicate removal, and 
 \textit{Detailed step-by-step solutions are available in the Appendix.}
 
 \begin{enumerate}
-    \item \textbf{Tuple Operations:} Given `student = ("Alice", 21, "Data Science", 3.8)`:
+    \item \textbf{Tuple Operations:} Given \lstinline|student = ("Alice", 21, "Data Science", 3.8)|:
     \begin{enumerate}
-        \item Unpack this tuple into variables `name`, `age`, `major`, and `gpa`.
-        \item What happens if you try to modify `student[1] = 22`?
+        \item Unpack this tuple into variables \lstinline|name|, \lstinline|age|, \lstinline|major|, and \lstinline|gpa|.
+        \item What happens if you try to modify \lstinline|student[1] = 22|?
     \end{enumerate}
 
-    \item \textbf{Dictionary Lookup \& Updating:} Create a dictionary `stock_prices = {"AAPL": 175.5, "GOOGL": 140.2, "MSFT": 380.0}`:
+    \item \textbf{Dictionary Lookup \& Updating:} Create a dictionary \lstinline|stock_prices = {"AAPL": 175.5, "GOOGL": 140.2, "MSFT": 380.0}|:
     \begin{enumerate}
-        \item Update the price of `"AAPL"` to `180.0`.
-        \item Add a new key `"AMZN"` with price `150.0`.
-        \item Safely fetch the price of `"NVDA"` using `.get()` without raising a `KeyError`, returning `0.0` if missing.
+        \item Update the price of \lstinline|"AAPL"| to \lstinline|180.0|.
+        \item Add a new key \lstinline|"AMZN"| with price \lstinline|150.0|.
+        \item Safely fetch the price of \lstinline|"NVDA"| using \lstinline|.get()| without raising a \lstinline|KeyError|, returning \lstinline|0.0| if missing.
     \end{enumerate}
 
-    \item \textbf{Set Membership \& Deduplication:} Given a raw customer ID list with duplicates `ids = [101, 102, 101, 105, 102, 108]`:
+    \item \textbf{Set Membership \& Deduplication:} Given a raw customer ID list with duplicates \lstinline|ids = [101, 102, 101, 105, 102, 108]|:
     \begin{enumerate}
         \item Convert the list to a set to remove all duplicates.
-        \item Check if customer `105` is in the set.
+        \item Check if customer \lstinline|105| is in the set.
     \end{enumerate}
 
     \item \textbf{Set Algebra:} Given two user cohorts:
@@ -103,5 +103,5 @@ Official lecture explaining set mathematical operations, duplicate removal, and 
     \end{enumerate}
 
     \item \textbf{Data Science Application (Categorical Encoding Map):} In preprocessing categorical labels into numeric indices for Machine Learning:
-    Given `labels = ["cat", "dog", "cat", "bird", "dog"]`, write a Python snippet to extract unique labels into a dictionary `label2idx` mapping each unique label to a unique integer index (e.g. `{"cat": 0, "dog": 1, "bird": 2}`).
+    Given \lstinline|labels = ["cat", "dog", "cat", "bird", "dog"]|, write a Python snippet to extract unique labels into a dictionary \lstinline|label2idx| mapping each unique label to a unique integer index (e.g. \lstinline|{"cat": 0, "dog": 1, "bird": 2}|).
 \end{enumerate}

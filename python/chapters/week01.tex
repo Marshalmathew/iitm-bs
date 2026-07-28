@@ -7,7 +7,7 @@ Welcome to Programming in Python! Python is the undisputed language of modern Da
 In Python, a \textbf{variable} is a named location in memory used to store data. Unlike languages like C++ or Java, Python uses \textbf{dynamic typing}, meaning you do not need to explicitly declare a variable's data type when creating it.
 
 \begin{definitionbox}{Variables and Assignment}
-A variable is created the moment you first assign a value to it using the assignment operator (`=`).
+A variable is created the moment you first assign a value to it using the assignment operator (\lstinline|=|).
 \begin{lstlisting}
 x = 10          # An integer variable
 name = "IITM"   # A string variable
@@ -32,12 +32,12 @@ Python has four primary built-in primitive data types:
 
 \begin{definitionbox}{Primitive Data Types}
 \begin{itemize}
-    \item \textbf{Integer (`int`):} Whole numbers without decimals (e.g., `-5`, `0`, `42`).
-    \item \textbf{Float (`float`):} Real numbers with decimal points or scientific notation (e.g., `3.14`, `-0.001`, `2.5e-4`).
-    \item \textbf{String (`str`):} Sequences of text characters enclosed in single, double, or triple quotes (e.g., `"data"`, `'Python'`).
-    \item \textbf{Boolean (`bool`):} Truth values: `True` or `False`.
+    \item \textbf{Integer (\lstinline|int|):} Whole numbers without decimals (e.g., \lstinline|-5|, \lstinline|0|, \lstinline|42|).
+    \item \textbf{Float (\lstinline|float|):} Real numbers with decimal points or scientific notation (e.g., \lstinline|3.14|, \lstinline|-0.001|, \lstinline|2.5e-4|).
+    \item \textbf{String (\lstinline|str|):} Sequences of text characters enclosed in single, double, or triple quotes (e.g., \lstinline|"data"|, \lstinline|'Python'|).
+    \item \textbf{Boolean (\lstinline|bool|):} Truth values: \lstinline|True| or \lstinline|False|.
 \end{itemize}
-You can inspect the type of any variable using the built-in `type()` function.
+You can inspect the type of any variable using the built-in \lstinline|type()| function.
 \end{definitionbox}
 
 \begin{examplebox}{Checking Types and Type Casting}
@@ -58,15 +58,15 @@ Official lectures covering numeric data types, type conversion, and character st
 
 \section{String Slicing and Basic String Operations}
 
-Strings are immutable sequences of characters. You can access individual characters using 0-based indexing or slice sub-strings using the bracket syntax `[start:stop:step]`.
+Strings are immutable sequences of characters. You can access individual characters using 0-based indexing or slice sub-strings using the bracket syntax \lstinline|[start:stop:step]|.
 
 \begin{formulabox}{String Slicing Syntax}
-Given `s = "DataScience"`:
+Given \lstinline|s = "DataScience"|:
 \begin{itemize}
-    \item `s[0]` $\to$ `'D'` (First character)
-    \item `s[-1]` $\to$ `'e'` (Last character via negative indexing)
-    \item `s[0:4]` $\to$ `'Data'` (Slice from index 0 up to, but not including, index 4)
-    \item `s[::-1]` $\to$ `'ecneicSataD'` (Reverse the string)
+    \item \lstinline|s[0]| $\to$ \lstinline|'D'| (First character)
+    \item \lstinline|s[-1]| $\to$ \lstinline|'e'| (Last character via negative indexing)
+    \item \lstinline|s[0:4]| $\to$ \lstinline|'Data'| (Slice from index 0 up to, but not including, index 4)
+    \item \lstinline|s[::-1]| $\to$ \lstinline|'ecneicSataD'| (Reverse the string)
 \end{itemize}
 \end{formulabox}
 
@@ -80,9 +80,9 @@ Python supports arithmetic, comparison (relational), logical, and assignment ope
 
 \begin{theorembox}{Arithmetic and Logical Operators}
 \begin{itemize}
-    \item \textbf{Arithmetic:} `+` (add), `-` (subtract), `*` (multiply), `/` (float division), `//` (floor division), `%` (modulus / remainder), `\textbf{` (exponentiation).
-    \item \textbf{Comparison:} `==` (equal), `!=` (not equal), `>`, `<`, `>=`, `<=`.
-    \item \textbf{Logical:} `and`, `or`, `not`.
+    \item \textbf{Arithmetic:} \lstinline|+| (add), \lstinline|-| (subtract), \lstinline|*| (multiply), \lstinline|/| (float division), \lstinline|//| (floor division), \lstinline|%| (modulus / remainder), \lstinline|\textbf{| (exponentiation).
+    \item \textbf{Comparison:} \lstinline|==| (equal), \lstinline|!=| (not equal), \lstinline|>|, \lstinline|<|, \lstinline|>=|, \lstinline|<=|.
+    \item \textbf{Logical:} \lstinline|and|, \lstinline|or|, \lstinline|not|.
 \end{itemize}
 \end{theorembox}
 
@@ -107,32 +107,32 @@ Official lecture detailing operator precedence, modulus, floor division, and log
 \textit{Detailed step-by-step solutions are available in the Appendix.}
 
 \begin{enumerate}
-    \item \textbf{Variable Types:} Identify the data type (`int`, `float`, `str`, or `bool`) of the following Python expressions:
+    \item \textbf{Variable Types:} Identify the data type (\lstinline|int|, \lstinline|float|, \lstinline|str|, or \lstinline|bool|) of the following Python expressions:
     \begin{enumerate}
-        \item `x = 10 / 2`
-        \item `y = 10 // 2`
-        \item `z = "100" + "200"`
-        \item `w = (5 > 3) and (2 == 4)`
+        \item \lstinline|x = 10 / 2|
+        \item \lstinline|y = 10 // 2|
+        \item \lstinline|z = "100" + "200"|
+        \item \lstinline|w = (5 > 3) and (2 == 4)|
     \end{enumerate}
 
     \item \textbf{Arithmetic Logic:} Calculate the exact numerical output of the following Python expressions without running the code:
     \begin{enumerate}
-        \item `2 + 3 * 4 ** 2`
-        \item `25 % 7`
-        \item `19 // 4`
+        \item \lstinline|2 + 3 * 4 ** 2|
+        \item \lstinline|25 % 7|
+        \item \lstinline|19 // 4|
     \end{enumerate}
 
-    \item \textbf{String Slicing:} Given the string `text = "MachineLearning"`:
+    \item \textbf{String Slicing:} Given the string \lstinline|text = "MachineLearning"|:
     \begin{enumerate}
-        \item Write a slice to extract `"Machine"`.
-        \item Write a slice to extract `"Learning"`.
-        \item What is the output of `text[-8:]`?
+        \item Write a slice to extract \lstinline|"Machine"|.
+        \item Write a slice to extract \lstinline|"Learning"|.
+        \item What is the output of \lstinline|text[-8:]|?
         \item Write a slice to reverse the entire string.
     \end{enumerate}
 
-    \item \textbf{Type Casting \& Input:} A user enters their age as a string `"22"`. Write a 2-line Python script that converts this input into an integer, adds $5$ years, and prints: `"In 5 years, you will be 27"`.
+    \item \textbf{Type Casting \& Input:} A user enters their age as a string \lstinline|"22"|. Write a 2-line Python script that converts this input into an integer, adds $5$ years, and prints: \lstinline|"In 5 years, you will be 27"|.
 
     \item \textbf{Data Science Application:} You are calculating the Body Mass Index (BMI) of a patient. The formula is:
     $$\text{BMI} = \frac{\text{weight in kg}}{(\text{height in meters})^2}$$
-    Given `weight = 75` and `height = 1.75`, write a Python snippet to compute the BMI and round it to 2 decimal places using `round(bmi, 2)`.
+    Given \lstinline|weight = 75| and \lstinline|height = 1.75|, write a Python snippet to compute the BMI and round it to 2 decimal places using \lstinline|round(bmi, 2)|.
 \end{enumerate}

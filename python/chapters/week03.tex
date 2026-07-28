@@ -1,12 +1,12 @@
 \chapter{Loops \& Iteration}
 
-In computer science, \textbf{Iteration} is the repetition of a process in order to generate a sequence of outcomes. Python provides two primary loop constructs: the `while` loop (condition-driven) and the `for` loop (sequence-driven).
+In computer science, \textbf{Iteration} is the repetition of a process in order to generate a sequence of outcomes. Python provides two primary loop constructs: the \lstinline|while| loop (condition-driven) and the \lstinline|for| loop (sequence-driven).
 
-\section{The `while` Loop}
+\section{The \lstinline|while| Loop}
 
-A `while` loop repeatedly executes a block of code as long as a specified boolean condition remains `True`.
+A \lstinline|while| loop repeatedly executes a block of code as long as a specified boolean condition remains \lstinline|True|.
 
-\begin{definitionbox}{Syntax of `while` Loop}
+\begin{definitionbox}{Syntax of \lstinline|while| Loop}
 \begin{lstlisting}
 count = 1
 while count <= 5:
@@ -16,22 +16,22 @@ while count <= 5:
 \end{definitionbox}
 
 \begin{videocard}{IITM BS Lecture: Introduction to While Loop}{https://www.youtube.com/watch?v=KTvVNN7ia8o}
-Official lecture defining `while` loops, termination criteria, and preventing infinite loops.
+Official lecture defining \lstinline|while| loops, termination criteria, and preventing infinite loops.
 \end{videocard}
 
-\section{The `for` Loop and `range()` Function}
+\section{The \lstinline|for| Loop and \lstinline|range()| Function}
 
-Python's `for` loop is designed to iterate directly over the elements of any sequence (such as a string, range, list, or tuple).
+Python's \lstinline|for| loop is designed to iterate directly over the elements of any sequence (such as a string, range, list, or tuple).
 
-\begin{formulabox}{The `range(start, stop, step)` Function}
+\begin{formulabox}{The \lstinline|range(start, stop, step)| Function}
 \begin{itemize}
-    \item `range(n)` $\to$ generates integers from $0$ up to $n-1$.
-    \item `range(a, b)` $\to$ generates integers from $a$ up to $b-1$.
-    \item `range(a, b, s)` $\to$ generates integers from $a$ to $b-1$ stepping by $s$.
+    \item \lstinline|range(n)| $\to$ generates integers from $0$ up to $n-1$.
+    \item \lstinline|range(a, b)| $\to$ generates integers from $a$ up to $b-1$.
+    \item \lstinline|range(a, b, s)| $\to$ generates integers from $a$ to $b-1$ stepping by $s$.
 \end{itemize}
 \end{formulabox}
 
-\begin{examplebox}{Summing Numbers with a `for` Loop}
+\begin{examplebox}{Summing Numbers with a \lstinline|for| Loop}
 \begin{lstlisting}
 n = 100
 total_sum = 0
@@ -46,11 +46,11 @@ print(f"Sum of 1 to 100: {total_sum}")  # Output: 5050
 \textbf{Data Science Relevance:} Loops allow data scientists to process rows of datasets, compute iterative optimization steps (like Gradient Descent in Machine Learning), and run Monte Carlo simulations.
 
 \begin{videocard}{IITM BS Lecture: Introduction to For Loop}{https://www.youtube.com/watch?v=lvXuQ_x7EsI}
-Official lecture explaining sequence iteration using the `for` loop.
+Official lecture explaining sequence iteration using the \lstinline|for| loop.
 \end{videocard}
 
 \begin{videocard}{IITM BS Lecture: Range Function and Iteration}{https://www.youtube.com/watch?v=ihL3Eac9tFc}
-Official lecture demonstrating `range()` start, stop, step parameters and iterating over strings directly.
+Official lecture demonstrating \lstinline|range()| start, stop, step parameters and iterating over strings directly.
 \end{videocard}
 
 \section{Nested Loops}
@@ -70,18 +70,18 @@ for i in range(1, 4):
 Official lecture demonstrating multi-dimensional iteration using nested loops.
 \end{videocard}
 
-\section{Loop Control Statements: `break`, `continue`, and `pass`}
+\section{Loop Control Statements: \lstinline|break|, \lstinline|continue|, and \lstinline|pass|}
 
 \begin{theorembox}{Loop Controls}
 \begin{itemize}
-    \item \textbf{`break`:} Immediately terminates the loop and jumps to the code outside.
-    \item \textbf{`continue`:} Skips the rest of the current iteration and moves directly to the next iteration.
-    \item \textbf{`pass`:} A null statement used as a placeholder when syntax requires a statement but no action is needed.
+    \item \textbf{\lstinline|break|:} Immediately terminates the loop and jumps to the code outside.
+    \item \textbf{\lstinline|continue|:} Skips the rest of the current iteration and moves directly to the next iteration.
+    \item \textbf{\lstinline|pass|:} A null statement used as a placeholder when syntax requires a statement but no action is needed.
 \end{itemize}
 \end{theorembox}
 
 \begin{videocard}{IITM BS Lecture: Break, Continue, and Pass}{https://www.youtube.com/watch?v=SVAVQHfJbE0}
-Official lecture explaining loop control flow modification using `break`, `continue`, and `pass`.
+Official lecture explaining loop control flow modification using \lstinline|break|, \lstinline|continue|, and \lstinline|pass|.
 \end{videocard}
 
 \newpage
@@ -89,9 +89,9 @@ Official lecture explaining loop control flow modification using `break`, `conti
 \textit{Detailed step-by-step solutions are available in the Appendix.}
 
 \begin{enumerate}
-    \item \textbf{Factorial Calculation:} Write a `while` loop that calculates the factorial of a number $N = 6$ ($6! = 6 \times 5 \times 4 \times 3 \times 2 \times 1 = 720$).
+    \item \textbf{Factorial Calculation:} Write a \lstinline|while| loop that calculates the factorial of a number $N = 6$ ($6! = 6 \times 5 \times 4 \times 3 \times 2 \times 1 = 720$).
 
-    \item \textbf{Pattern Printing:} Write nested `for` loops to print the following triangle pattern for $N = 4$ rows:
+    \item \textbf{Pattern Printing:} Write nested \lstinline|for| loops to print the following triangle pattern for $N = 4$ rows:
 \begin{lstlisting}
 *
 **
@@ -99,9 +99,9 @@ Official lecture explaining loop control flow modification using `break`, `conti
 ****
 \end{lstlisting}
 
-    \item \textbf{Sum of Evens:} Write a `for` loop using `range()` that computes the sum of all \emph{even} numbers between $1$ and $50$ (inclusive).
+    \item \textbf{Sum of Evens:} Write a \lstinline|for| loop using \lstinline|range()| that computes the sum of all \emph{even} numbers between $1$ and $50$ (inclusive).
 
-    \item \textbf{Early Stopping (`break`):} Given a list of search scores `scores = [12, 45, 67, 89, 92, 40]`, write a `for` loop that iterates through scores and prints `"Threshold Met: X"` for the first score $\ge 80$, then immediately stops using `break`.
+    \item \textbf{Early Stopping (\lstinline|break|):} Given a list of search scores \lstinline|scores = [12, 45, 67, 89, 92, 40]|, write a \lstinline|for| loop that iterates through scores and prints \lstinline|"Threshold Met: X"| for the first score $\ge 80$, then immediately stops using \lstinline|break|.
 
-    \item \textbf{Data Science Simulation (Convergence Check):} In optimization, an algorithm updates a parameter $x$ until the difference between consecutive values is smaller than a tolerance $\epsilon = 0.001$. Simulate this using a `while` loop starting with `x = 10.0`, repeatedly updating `x = x * 0.5` until `x < 0.01`, counting the total iterations taken.
+    \item \textbf{Data Science Simulation (Convergence Check):} In optimization, an algorithm updates a parameter $x$ until the difference between consecutive values is smaller than a tolerance $\epsilon = 0.001$. Simulate this using a \lstinline|while| loop starting with \lstinline|x = 10.0|, repeatedly updating \lstinline|x = x * 0.5| until \lstinline|x < 0.01|, counting the total iterations taken.
 \end{enumerate}
