@@ -7,8 +7,8 @@ This chapter covers the foundational building blocks of mathematical language: n
 Before we can organize items into sets, we need to establish the standard sets of numbers used in mathematical analysis. In data science, understanding number systems helps you decide how to represent features in memory (e.g., integers vs. floating-point numbers) and dictates what kind of statistical models you can apply.
 
 \begin{itemize}
-    \item \textbf{Natural Numbers ($\N$):} $\N = \{1, 2, 3, \dots\}$. These are counting numbers. In a dataset, the number of clicks on a website or the number of words in an email would be represented using natural numbers. (Note: Some contexts include $0$).
-    \item \textbf{Integers ($\Z$):} $\Z = \{\dots, -2, -1, 0, 1, 2, \dots\}$. Integers include negative values. We often use integers to represent changes in stock prices (up or down by whole amounts) or differences in counts over time.
+    \item \textbf{Natural Numbers ($\N$):} $\N = \set{1, 2, 3, \dots}$. These are counting numbers. In a dataset, the number of clicks on a website or the number of words in an email would be represented using natural numbers. (Note: Some contexts include $0$).
+    \item \textbf{Integers ($\Z$):} $\Z = \set{\dots, -2, -1, 0, 1, 2, \dots}$. Integers include negative values. We often use integers to represent changes in stock prices (up or down by whole amounts) or differences in counts over time.
     \item \textbf{Rational Numbers ($\Q$):} $\Q = \{ \frac{p}{q} \mid p, q \in \Z, q \neq 0 \}$. These are numbers with terminating or repeating decimal representations. 
     \item \textbf{Real Numbers ($\R$):} The set of all rational and irrational numbers (such as $\sqrt{2}, \pi, e$). $\R$ represents the entire continuous line of numbers. In machine learning, continuous features like temperature, weight, or calculated probabilities (between 0 and 1) are treated as real numbers.
 \end{itemize}
@@ -50,8 +50,53 @@ Just as we can add and multiply numbers, we can combine sets using specific oper
     \item \index{Intersection}\textbf{Intersection ($A \cap B$):} Elements in both $A$ and $B$. Logically equivalent to the "AND" operation.
     \item \index{Difference}\textbf{Difference ($A \setminus B$ or $A - B$):} Elements in $A$ but not in $B$. This is like saying "Give me users who bought a laptop ($A$) but did NOT buy a mouse ($B$)."
     \item \index{Complement}\textbf{Complement ($A^c$ or $A'$):} Elements in the universal set $U$ that are not in $A$.
-    \item \index{Cartesian Product}\textbf{Cartesian Product ($A \times B$):} The set of all possible ordered pairs where the first element is from $A$ and the second is from $B$: $\{(a, b) \mid a \in A, b \in B\}$.
+    \item \index{Cartesian Product}\textbf{Cartesian Product ($A \times B$):} The set of all possible ordered pairs where the first element is from $A$ and the second is from $B$: $\set{(a, b) \mid a \in A, b \in B}$.
 \end{itemize}
+
+\vspace{0.5cm}
+\noindent
+\begin{minipage}{0.24\textwidth}
+\centering
+\begin{venndiagram2sets}[tikzoptions={scale=0.6, transform shape}]
+\fillA \fillB
+\end{venndiagram2sets}\\
+\textbf{Union} $A \cup B$
+\end{minipage}%
+\begin{minipage}{0.24\textwidth}
+\centering
+\begin{venndiagram2sets}[tikzoptions={scale=0.6, transform shape}]
+\fillACapB
+\end{venndiagram2sets}\\
+\textbf{Intersection} $A \cap B$
+\end{minipage}%
+\begin{minipage}{0.24\textwidth}
+\centering
+\begin{venndiagram2sets}[tikzoptions={scale=0.6, transform shape}]
+\fillOnlyA
+\end{venndiagram2sets}\\
+\textbf{Difference} $A \setminus B$
+\end{minipage}%
+\begin{minipage}{0.24\textwidth}
+\centering
+\begin{venndiagram2sets}[tikzoptions={scale=0.6, transform shape}]
+\fillNotA
+\end{venndiagram2sets}\\
+\textbf{Complement} $A^c$
+\end{minipage}
+\vspace{0.5cm}
+
+\begin{examplebox}{Set Operations in Python}
+In Data Science, we routinely perform these exact mathematical operations using Python's \texttt{set} object:
+\begin{lstlisting}[style=pystyle]
+A = {1, 2, 3}
+B = {3, 4, 5}
+
+union = A | B          # {1, 2, 3, 4, 5}
+intersection = A & B   # {3}
+difference = A - B     # {1, 2}
+sym_diff = A ^ B       # {1, 2, 4, 5}
+\end{lstlisting}
+\end{examplebox}
 
 \begin{theorembox}{Laws of Set Algebra}
 For any sets $A, B$, and $C$:
@@ -92,18 +137,18 @@ Let's prove the first of De Morgan's Laws: $(A \cup B)^c = A^c \cap B^c$. To pro
 \end{enumerate}
 
 \begin{examplebox}{Pure Math: Power Set Calculation}
-Find the power set of $S = \{a, b, c\}$.
+Find the power set of $S = \set{a, b, c}$.
 \begin{itemize}
     \item Since $|S| = 3$, the power set must contain $2^3 = 8$ elements.
     \item The subsets are:
     \begin{align*}
         \text{0-element subsets:} & \quad \emptyset \\
-        \text{1-element subsets:} & \quad \{a\}, \{b\}, \{c\} \\
-        \text{2-element subsets:} & \quad \{a,b\}, \{b,c\}, \{a,c\} \\
-        \text{3-element subsets:} & \quad \{a,b,c\}
+        \text{1-element subsets:} & \quad \set{a}, \set{b}, \set{c} \\
+        \text{2-element subsets:} & \quad \set{a,b}, \set{b,c}, \set{a,c} \\
+        \text{3-element subsets:} & \quad \set{a,b,c}
     \end{align*}
     \item Thus, the power set is:
-    $$\mathcal{P}(S) = \Big\{ \emptyset, \{a\}, \{b\}, \{c\}, \{a,b\}, \{b,c\}, \{a,c\}, \{a,b,c\} \Big\}$$
+    $$\mathcal{P}(S) = \Big\{ \emptyset, \set{a}, \set{b}, \set{c}, \set{a,b}, \set{b,c}, \set{a,c}, \set{a,b,c} \Big\}$$
 \end{itemize}
 \end{examplebox}
 
@@ -163,7 +208,7 @@ Let $\func{f}{A}{B}$.
 \begin{itemize}
     \item \index{Domain}\textbf{Domain:} The set of all valid inputs ($A$).
     \item \index{Codomain}\textbf{Codomain:} The target set containing all possible outputs ($B$).
-    \item \index{Range}\textbf{Range/Image:} The set of actual outputs produced by the function: $\text{Im}(f) = \{ f(x) \mid x \in A \}$. Note that the range is a subset of the codomain ($\text{Im}(f) \subseteq B$).
+    \item \index{Range}\textbf{Range/Image:} The set of actual outputs produced by the function: $\text{Im}(f) = \set{ f(x) \mid x \in A }$. Note that the range is a subset of the codomain ($\text{Im}(f) \subseteq B$).
     \item \index{Injective}\textbf{One-to-One (Injective):} $f$ maps distinct inputs to distinct outputs. No two inputs share the same output:
     $$\forall x_1, x_2 \in A \, (f(x_1) = f(x_2) \implies x_1 = x_2)$$
     \item \index{Surjective}\textbf{Onto (Surjective):} The range equals the codomain. Every element in $B$ has at least one pre-image in $A$:
@@ -213,7 +258,7 @@ For further reinforcement and specialized topics, refer to the following officia
 \textit{Try to solve these exercises independently. Detailed step-by-step solutions are available in the Appendix at the end of the book.}
 
 \begin{enumerate}
-    \item \textbf{Pure Math:} Let $A = \{1, 2, 3\}$ and $B = \{3, 4, 5\}$. Find $(A \cup B) \setminus (A \cap B)$. This operation is known as the symmetric difference.
+    \item \textbf{Pure Math:} Let $A = \set{1, 2, 3}$ and $B = \set{3, 4, 5}$. Find $(A \cup B) \setminus (A \cap B)$. This operation is known as the symmetric difference.
     \item \textbf{Data Science:} A dataset contains a set of users who clicked an ad ($C$) and users who bought a product ($B$). Express "Users who clicked the ad but did not buy the product" using set notation.
     \item \textbf{Pure Math:} Determine if the relation $R$ on $\R$ defined by $x R y \iff x < y$ is an equivalence relation. Explain why or why not.
     \item \textbf{Data Science:} You define a relation $R$ among users in a database: User A is related to User B if they live in the same city. Is this an equivalence relation?

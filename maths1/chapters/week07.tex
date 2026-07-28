@@ -5,21 +5,21 @@ Calculus is the mathematical study of continuous change. It is entirely built up
 \section{Sequences and Convergence}
 
 A \textbf{sequence} is an ordered list of numbers. Formally, it can be viewed as a function whose domain is the set of natural numbers $\N$, written as:
-$$a_1, a_2, a_3, \dots, a_n, \dots \quad \text{or } \{a_n\}_{n=1}^{\infty}$$
+$$a_1, a_2, a_3, \dots, a_n, \dots \quad \text{or } \set{a_n}_{n=1}^{\infty}$$
 where $a_n$ represents the $n$-th term of the sequence.
 
 \begin{definitionbox}{Limit of a Sequence}
-A sequence $\{a_n\}$ has the limit $L$ (written as $\limit{n}{\infty} a_n = L$) if the terms $a_n$ get arbitrarily close to $L$ as $n$ grows to infinity.
+A sequence $\set{a_n}$ has the limit $L$ (written as $\limit{n}{\infty} a_n = L$) if the terms $a_n$ get arbitrarily close to $L$ as $n$ grows to infinity.
 \begin{itemize}
     \item \textbf{Convergent:} If the limit exists and is a finite real number $L$.
     \item \textbf{Divergent:} If the limit does not exist (e.g., the terms grow without bound toward $\pm\infty$, or they oscillate back and forth indefinitely).
 \end{itemize}
 \end{definitionbox}
 
-\textbf{Data Science Relevance:} In machine learning, training an algorithm like a neural network involves minimizing a loss function over multiple iterations (epochs). The sequence of loss values $\{L_1, L_2, L_3, \dots, L_n\}$ as training progresses must ideally \textbf{converge} to a minimum value. If the loss sequence \textit{diverges}, the model has failed to learn (often due to a learning rate that is too high).
+\textbf{Data Science Relevance:} In machine learning, training an algorithm like a neural network involves minimizing a loss function over multiple iterations (epochs). The sequence of loss values $\set{L_1, L_2, L_3, \dots, L_n}$ as training progresses must ideally \textbf{converge} to a minimum value. If the loss sequence \textit{diverges}, the model has failed to learn (often due to a learning rate that is too high).
 
 \begin{theorembox}{Limit Laws for Sequences}
-If $\{a_n\}$ and $\{b_n\}$ are convergent sequences with $\limit{n}{\infty} a_n = A$ and $\limit{n}{\infty} b_n = B$:
+If $\set{a_n}$ and $\set{b_n}$ are convergent sequences with $\limit{n}{\infty} a_n = A$ and $\limit{n}{\infty} b_n = B$:
 \begin{itemize}
     \item $\limit{n}{\infty} (a_n \pm b_n) = A \pm B$
     \item $\limit{n}{\infty} (a_n \cdot b_n) = A \cdot B$

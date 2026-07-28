@@ -7,7 +7,7 @@ This chapter explores advanced structural graph algorithms, focusing on heavily 
 The \textbf{transitive closure} of a directed graph $G = (V, E)$ determines whether there exists a directed path from vertex $i$ to vertex $j$ for all pairs $i, j \in V$.
 
 \begin{theorembox}{Warshall's Algorithm}
-Warshall's algorithm is a dynamic programming approach that constructs a boolean reachability matrix $R^{(k)}$ where $R^{(k)}_{ij} = 1$ if there is a path from $i \to j$ using only intermediate vertices from the set $\{1, 2, \dots, k\}$.
+Warshall's algorithm is a dynamic programming approach that constructs a boolean reachability matrix $R^{(k)}$ where $R^{(k)}_{ij} = 1$ if there is a path from $i \to j$ using only intermediate vertices from the set $\set{1, 2, \dots, k}$.
 \begin{itemize}
     \item \textbf{Recurrence Relation:}
     $$R^{(k)}_{ij} = R^{(k-1)}_{ij} \lor \left( R^{(k-1)}_{ik} \land R^{(k-1)}_{kj} \right)$$

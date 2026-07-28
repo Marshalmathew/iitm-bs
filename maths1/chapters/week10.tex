@@ -8,7 +8,7 @@ A \textbf{graph} $G$ is a pair $G = (V, E)$, where $V$ is a non-empty set of ver
 
 \begin{definitionbox}{Graph Classifications}
 \begin{itemize}
-    \item \textbf{Undirected Graph:} Edges have no orientation. An edge is an unordered pair $\{u, v\}$.
+    \item \textbf{Undirected Graph:} Edges have no orientation. An edge is an unordered pair $\set{u, v}$.
     \item \textbf{Directed Graph (Digraph):} Edges have orientation. An edge is an ordered pair $(u, v)$, representing a one-way flow from $u \to v$.
     \item \textbf{Simple Graph:} A graph with no loops (edges from a vertex to itself) and no multiple edges (parallel edges between the same two vertices).
     \item \textbf{Weighted Graph:} A graph where each edge is assigned a numerical weight/cost (like distance or time).
@@ -24,7 +24,7 @@ Official IIT Madras lecture introducing vertices, edges, connectivity, and basic
 How we store graphs in memory dictates algorithm performance.
 
 \begin{definitionbox}{Graph Storage Representations}
-Let $G = (V, E)$ with $V = \{1, 2, \dots, n\}$.
+Let $G = (V, E)$ with $V = \set{1, 2, \dots, n}$.
 \begin{itemize}
     \item \textbf{Adjacency Matrix ($A$):} A square $n \times n$ matrix where $A_{ij} = 1$ if $(i, j) \in E$, and $0$ otherwise.
     \begin{itemize}
@@ -62,26 +62,26 @@ To analyze or search a graph, we must visit all its vertices systematically.
 \end{theorembox}
 
 \begin{examplebox}{BFS Algorithm Trace}
-Consider a simple graph with vertices $\{0, 1, 2, 3\}$ and edges $\{(0,1), (0,2), (1,2), (2,3)\}$. Let's trace BFS starting at node $0$.
+Consider a simple graph with vertices $\set{0, 1, 2, 3}$ and edges $\set{(0,1), (0,2), (1,2), (2,3)}$. Let's trace BFS starting at node $0$.
 
 \begin{center}
 \begin{tabular}{|c|c|c|l|}
 \hline
 \textbf{Step} & \textbf{Current Node} & \textbf{Queue (Front to Back)} & \textbf{Visited Set} \\
 \hline
-1 & (Start) & $[0]$ & $\{0\}$ \\
+1 & (Start) & $[0]$ & $\set{0}$ \\
 \hline
-2 & Pop $0$ & $[\,]$ & $\{0\}$ \\
-  & Push neighbors $1, 2$ & $[1, 2]$ & $\{0, 1, 2\}$ \\
+2 & Pop $0$ & $[\,]$ & $\set{0}$ \\
+  & Push neighbors $1, 2$ & $[1, 2]$ & $\set{0, 1, 2}$ \\
 \hline
-3 & Pop $1$ & $[2]$ & $\{0, 1, 2\}$ \\
-  & Neighbors already visited & $[2]$ & $\{0, 1, 2\}$ \\
+3 & Pop $1$ & $[2]$ & $\set{0, 1, 2}$ \\
+  & Neighbors already visited & $[2]$ & $\set{0, 1, 2}$ \\
 \hline
-4 & Pop $2$ & $[\,]$ & $\{0, 1, 2\}$ \\
-  & Push neighbor $3$ & $[3]$ & $\{0, 1, 2, 3\}$ \\
+4 & Pop $2$ & $[\,]$ & $\set{0, 1, 2}$ \\
+  & Push neighbor $3$ & $[3]$ & $\set{0, 1, 2, 3}$ \\
 \hline
-5 & Pop $3$ & $[\,]$ & $\{0, 1, 2, 3\}$ \\
-  & Neighbors already visited & $[\,]$ & $\{0, 1, 2, 3\}$ \\
+5 & Pop $3$ & $[\,]$ & $\set{0, 1, 2, 3}$ \\
+  & Neighbors already visited & $[\,]$ & $\set{0, 1, 2, 3}$ \\
 \hline
 \end{tabular}
 \end{center}
