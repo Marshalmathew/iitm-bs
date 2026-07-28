@@ -1,10 +1,10 @@
 \chapter{Control Flow \& Conditionals}
 
-Programs need to make decisions based on changing data. In Python, \textbf{Control Flow} allows you to execute specific blocks of code depending on whether a given condition evaluates to \lstinline|True| or \lstinline|False|.
+Programs need to make decisions based on changing data. In Python, \textbf{Control Flow} allows you to execute specific blocks of code depending on whether a given condition evaluates to \texttt{True} or \texttt{False}.
 
-\section{Conditional Statements (\lstinline|if|, \lstinline|elif|, \lstinline|else|)}
+\section{Conditional Statements (\texttt{if}, \texttt{elif}, \texttt{else})}
 
-Python uses indentation (4 spaces) to define code blocks instead of curly braces \lstinline|{}|.
+Python uses indentation (4 spaces) to define code blocks instead of curly braces \texttt{\{\}}.
 
 \begin{theorembox}{Syntax of Conditional Blocks}
 \begin{lstlisting}
@@ -34,7 +34,7 @@ print(f"Credit Status: {status}")  # Output: Credit Status: Good
 \end{lstlisting}
 \end{examplebox}
 
-\textbf{Data Science Relevance:} Decision Tree models (like Random Forests and XGBoost) work under the hood as a giant hierarchy of \lstinline|if-elif-else| checks on feature columns!
+\textbf{Data Science Relevance:} Decision Tree models (like Random Forests and XGBoost) work under the hood as a giant hierarchy of \texttt{if-elif-else} checks on feature columns!
 
 \begin{videocard}{IITM BS Lecture: Introduction to the IF Statement}{https://www.youtube.com/watch?v=FTX5wF_3J9Q}
 Official lecture explaining logical branching, indentation rules, and conditional execution.
@@ -46,15 +46,15 @@ Hands-on tutorial with multiple practical examples of complex boolean expression
 
 \section{Nested Conditionals and Short-Circuit Evaluation}
 
-You can nest \lstinline|if| blocks inside other \lstinline|if| blocks. When evaluating compound boolean expressions using \lstinline|and| and \lstinline|or|, Python uses \textbf{Short-Circuit Evaluation}:
+You can nest \texttt{if} blocks inside other \texttt{if} blocks. When evaluating compound boolean expressions using \texttt{and} and \texttt{or}, Python uses \textbf{Short-Circuit Evaluation}:
 \begin{itemize}
-    \item In \lstinline|A and B|, if \lstinline|A| is \lstinline|False|, Python stops immediately and returns \lstinline|False| without evaluating \lstinline|B|.
-    \item In \lstinline|A or B|, if \lstinline|A| is \lstinline|True|, Python stops immediately and returns \lstinline|True| without evaluating \lstinline|B|.
+    \item In \texttt{A and B}, if \texttt{A} is \texttt{False}, Python stops immediately and returns \texttt{False} without evaluating \texttt{B}.
+    \item In \texttt{A or B}, if \texttt{A} is \texttt{True}, Python stops immediately and returns \texttt{True} without evaluating \texttt{B}.
 \end{itemize}
 
 \section{Importing Standard Libraries}
 
-Python comes with a rich standard library of useful modules (like \lstinline|math| and \lstinline|random|). You can import them using different import syntaxes.
+Python comes with a rich standard library of useful modules (like \texttt{math} and \texttt{random}). You can import them using different import syntaxes.
 
 \begin{definitionbox}{Library Import Syntaxes}
 \begin{lstlisting}
@@ -70,7 +70,7 @@ print(log(10))
 \end{definitionbox}
 
 \begin{videocard}{IITM BS Lecture: Importing Libraries in Python}{https://www.youtube.com/watch?v=eW58_ky7oc8}
-Official lecture comparing \lstinline|import module|, \lstinline|import module as alias|, and \lstinline|from module import function|.
+Official lecture comparing \texttt{import module}, \texttt{import module as alias}, and \texttt{from module import function}.
 \end{videocard}
 
 \newpage
@@ -78,7 +78,7 @@ Official lecture comparing \lstinline|import module|, \lstinline|import module a
 \textit{Detailed step-by-step solutions are available in the Appendix.}
 
 \begin{enumerate}
-    \item \textbf{Leap Year Logic:} A year is a leap year if it is divisible by 4, EXCEPT if it is divisible by 100 (unless it is also divisible by 400). Write a Python script with an \lstinline|if-else| statement to determine whether \lstinline|year = 2024| is a leap year.
+    \item \textbf{Leap Year Logic:} A year is a leap year if it is divisible by 4, EXCEPT if it is divisible by 100 (unless it is also divisible by 400). Write a Python script with an \texttt{if-else} statement to determine whether \texttt{year = 2024} is a leap year.
 
     \item \textbf{Short-Circuit Evaluation:} What will be printed by the following code snippet?
 \begin{lstlisting}
@@ -88,9 +88,9 @@ if x != 0 and (10 / x > 2):
 else:
     print("Safe")
 \end{lstlisting}
-    Explain why Python does not crash with a \lstinline|ZeroDivisionError|.
+    Explain why Python does not crash with a \texttt{ZeroDivisionError}.
 
-    \item \textbf{Ternary Operator (Conditional Expression):} In Python, you can write concise 1-line conditionals: \lstinline|val = A if condition else B|. Convert the following block into a 1-line ternary expression:
+    \item \textbf{Ternary Operator (Conditional Expression):} In Python, you can write concise 1-line conditionals: \texttt{val = A if condition else B}. Convert the following block into a 1-line ternary expression:
 \begin{lstlisting}
 if score >= 50:
     result = "Pass"
@@ -98,7 +98,7 @@ else:
     result = "Fail"
 \end{lstlisting}
 
-    \item \textbf{Random Sampling:} Write a 3-line script that imports the \lstinline|random| library and simulates rolling two 6-sided dice, printing their individual values and total sum.
+    \item \textbf{Random Sampling:} Write a 3-line script that imports the \texttt{random} library and simulates rolling two 6-sided dice, printing their individual values and total sum.
 
-    \item \textbf{Data Science Application (Anomaly Detection):} An IoT sensor sends temperature readings. If the temperature is between $18^\circ$C and $28^\circ$C (inclusive), it is \lstinline|"Normal"|. If it is below $18^\circ$C, it is \lstinline|"Warning: Low Temp"|. If it exceeds $28^\circ$C, it is \lstinline|"Alert: Overheating"|. Write the \lstinline|if-elif-else| block for \lstinline|temp = 31.5|.
+    \item \textbf{Data Science Application (Anomaly Detection):} An IoT sensor sends temperature readings. If the temperature is between $18^\circ$C and $28^\circ$C (inclusive), it is \texttt{"Normal"}. If it is below $18^\circ$C, it is \texttt{"Warning: Low Temp"}. If it exceeds $28^\circ$C, it is \texttt{"Alert: Overheating"}. Write the \texttt{if-elif-else} block for \texttt{temp = 31.5}.
 \end{enumerate}

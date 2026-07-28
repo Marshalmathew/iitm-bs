@@ -4,7 +4,7 @@ Data Visualization turns raw numerical data into intuitive charts, graphs, and i
 
 \section{Introduction to Matplotlib}
 
-\lstinline|matplotlib.pyplot| provides a MATLAB-like plotting framework for building line plots, scatter plots, bar charts, histograms, and heatmaps.
+\texttt{matplotlib.pyplot} provides a MATLAB-like plotting framework for building line plots, scatter plots, bar charts, histograms, and heatmaps.
 
 \begin{definitionbox}{Matplotlib Figure and Axes}
 A \textbf{Figure} represents the entire canvas window. An \textbf{Axes} represents an individual plot or subplot inside the figure.
@@ -34,10 +34,10 @@ Official lecture demonstrating plot creation, line charts, scatter plots, titles
 
 \begin{theorembox}{Plot Types and Use Cases}
 \begin{itemize}
-    \item \textbf{Line Plot (\lstinline|plt.plot|):} Trends over continuous time or ordered variables.
-    \item \textbf{Scatter Plot (\lstinline|plt.scatter|):} Relationship and correlation between two numerical variables.
-    \item \textbf{Bar Chart (\lstinline|plt.bar|):} Comparing numerical measurements across discrete categories.
-    \item \textbf{Histogram (\lstinline|plt.hist|):} Frequency distribution of a single continuous variable.
+    \item \textbf{Line Plot (\texttt{plt.plot}):} Trends over continuous time or ordered variables.
+    \item \textbf{Scatter Plot (\texttt{plt.scatter}):} Relationship and correlation between two numerical variables.
+    \item \textbf{Bar Chart (\texttt{plt.bar}):} Comparing numerical measurements across discrete categories.
+    \item \textbf{Histogram (\texttt{plt.hist}):} Frequency distribution of a single continuous variable.
 \end{itemize}
 \end{theorembox}
 
@@ -84,22 +84,22 @@ Official course summary reviewing core concepts and outlining advanced topics in
 \textit{Detailed step-by-step solutions are available in the Appendix.}
 
 \begin{enumerate}
-    \item \textbf{Basic Line Plot:} Write a Matplotlib script to plot $y = x^2$ for $x \in [-5, 5]$ with $100$ points. Add title \lstinline|"Quadratic Function"|, x-label \lstinline|"x"|, y-label \lstinline|"f(x) = x^2"|, and display a grid.
+    \item \textbf{Basic Line Plot:} Write a Matplotlib script to plot $y = x^2$ for $x \in [-5, 5]$ with $100$ points. Add title \texttt{"Quadratic Function"}, x-label \texttt{"x"}, y-label \texttt{"f(x) = x\textasciicircum{}2"}, and display a grid.
 
-    \item \textbf{Comparing Distributions (Subplots):} Write a Matplotlib script using \lstinline|plt.subplots(1, 2)| to display two side-by-side plots:
+    \item \textbf{Comparing Distributions (Subplots):} Write a Matplotlib script using \texttt{plt.subplots(1, 2)} to display two side-by-side plots:
     \begin{enumerate}
-        \item Left Subplot: A bar chart of top 3 programming languages \lstinline|['Python', 'SQL', 'R']| with popularity scores \lstinline|[95, 80, 60]|.
+        \item Left Subplot: A bar chart of top 3 programming languages \texttt{['Python', 'SQL', 'R']} with popularity scores \texttt{[95, 80, 60]}.
         \item Right Subplot: A histogram of $500$ random points drawn from a uniform distribution between $0$ and $100$.
     \end{enumerate}
 
-    \item \textbf{Customizing Scatter Plots:} Create a scatter plot of $20$ random $(x, y)$ points. Set point color to green, marker style to \lstinline|'^'| (triangle), and marker size to $50$.
+    \item \textbf{Customizing Scatter Plots:} Create a scatter plot of $20$ random $(x, y)$ points. Set point color to green, marker style to \texttt{'\textasciicircum{}'} (triangle), and marker size to $50$.
 
-    \item \textbf{Comprehensive Review Question (Data Pipeline):} Write a Python function \lstinline|analyze_dataset(data)| that takes a list of raw numeric measurements:
+    \item \textbf{Comprehensive Review Question (Data Pipeline):} Write a Python function \texttt{analyze\_dataset(data)} that takes a list of raw numeric measurements:
     \begin{enumerate}
         \item Cleans the list by removing negative values using list comprehension.
         \item Calculates the mean and standard deviation of the valid numbers using NumPy.
-        \item Returns a dictionary \lstinline|{"count": N, "mean": M, "std": S}|.
+        \item Returns a dictionary \texttt{\{"count": N, "mean": M, "std": S\}}.
     \end{enumerate}
 
-    \item \textbf{Data Science Application (Plotting a Loss Curve):} In deep learning, model loss decreases over training epochs. Given \lstinline|epochs = range(1, 11)| and \lstinline|loss = [2.5, 1.8, 1.2, 0.8, 0.5, 0.35, 0.25, 0.18, 0.15, 0.12]|, write a Matplotlib script to plot the training loss curve with a red line and square markers.
+    \item \textbf{Data Science Application (Plotting a Loss Curve):} In deep learning, model loss decreases over training epochs. Given \texttt{epochs = range(1, 11)} and \texttt{loss = [2.5, 1.8, 1.2, 0.8, 0.5, 0.35, 0.25, 0.18, 0.15, 0.12]}, write a Matplotlib script to plot the training loss curve with a red line and square markers.
 \end{enumerate}

@@ -2,13 +2,13 @@
 
 \textbf{Object-Oriented Programming (OOP)} is a programming paradigm based on the concept of "objects", which contain data (attributes) and code (methods). OOP enables modularity, encapsulation, and code reuse when building large software systems.
 
-\section{Classes, Objects, \lstinline|\_\_init\_\_|, and \lstinline|self|}
+\section{Classes, Objects, \texttt{\textbackslash\{\}\_\textbackslash\{\}\_init\textbackslash\{\}\_\textbackslash\{\}\_}, and \texttt{self}}
 
 A \textbf{Class} is a blueprint for creating objects. An \textbf{Object} is an instance of a class.
 
 \begin{definitionbox}{Class Definition and Instance Attributes}
-- \lstinline|__init__(self, ...)|: The constructor method automatically executed when a new object instance is created.
-- \lstinline|self|: Represents the specific instance of the class being created or modified.
+- \texttt{\_\_init\_\_(self, ...)}: The constructor method automatically executed when a new object instance is created.
+- \texttt{self}: Represents the specific instance of the class being created or modified.
 \begin{lstlisting}
 class Student:
     def __init__(self, name, roll_no, gpa):
@@ -30,7 +30,7 @@ Official lecture introducing class concepts, objects, attributes, and methods.
 \end{videocard}
 
 \begin{videocard}{IITM BS Lecture: Attributes, Methods, Init, and Self}{https://www.youtube.com/watch?v=n_jPQlWhGhM}
-Official lecture explaining the constructor \lstinline|__init__| and instance binding via \lstinline|self|.
+Official lecture explaining the constructor \texttt{\_\_init\_\_} and instance binding via \texttt{self}.
 \end{videocard}
 
 \section{Inheritance and Method Overriding}
@@ -38,7 +38,7 @@ Official lecture explaining the constructor \lstinline|__init__| and instance bi
 \textbf{Inheritance} allows a child class to inherit attributes and methods from a parent class, promoting code reuse.
 
 \begin{theorembox}{Parent vs Child Classes}
-A child class can override methods from the parent class to specialize behavior, and call \lstinline|super().__init__()| to reuse parent initialization logic.
+A child class can override methods from the parent class to specialize behavior, and call \texttt{super().\_\_init\_\_()} to reuse parent initialization logic.
 \end{theorembox}
 
 \begin{examplebox}{Model Inheritance Architecture}
@@ -63,10 +63,10 @@ model.fit([1, 2], [2, 4])
 \end{lstlisting}
 \end{examplebox}
 
-\textbf{Data Science Relevance:} Every major Machine Learning framework in Python—including PyTorch (\lstinline|nn.Module|), scikit-learn (\lstinline|BaseEstimator|), and TensorFlow (\lstinline|tf.keras.Model|)—is built entirely around OOP class inheritance!
+\textbf{Data Science Relevance:} Every major Machine Learning framework in Python—including PyTorch (\texttt{nn.Module}), scikit-learn (\texttt{BaseEstimator}), and TensorFlow (\texttt{tf.keras.Model})—is built entirely around OOP class inheritance!
 
 \begin{videocard}{IITM BS Lecture: Inheritance and Method Overriding}{https://www.youtube.com/watch?v=RrFvcDjJptY}
-Official lecture demonstrating parent-child class structures, \lstinline|super()|, and method overriding.
+Official lecture demonstrating parent-child class structures, \texttt{super()}, and method overriding.
 \end{videocard}
 
 \newpage
@@ -74,17 +74,17 @@ Official lecture demonstrating parent-child class structures, \lstinline|super()
 \textit{Detailed step-by-step solutions are available in the Appendix.}
 
 \begin{enumerate}
-    \item \textbf{Basic Class Creation:} Design a class \lstinline|Circle| with an attribute \lstinline|radius|. Include methods \lstinline|area()| ($A = \pi r^2$) and \lstinline|circumference()| ($C = 2 \pi r$). Test with \lstinline|r = 5.0|.
+    \item \textbf{Basic Class Creation:} Design a class \texttt{Circle} with an attribute \texttt{radius}. Include methods \texttt{area()} ($A = \pi r^2$) and \texttt{circumference()} ($C = 2 \pi r$). Test with \texttt{r = 5.0}.
 
-    \item \textbf{Class Encapsulation:} Create a \lstinline|BankAccount| class with a private attribute \lstinline|__balance|. Include methods \lstinline|deposit(amount)|, \lstinline|withdraw(amount)| (checking for sufficient funds), and \lstinline|get_balance()|.
+    \item \textbf{Class Encapsulation:} Create a \texttt{BankAccount} class with a private attribute \texttt{\_\_balance}. Include methods \texttt{deposit(amount)}, \texttt{withdraw(amount)} (checking for sufficient funds), and \texttt{get\_balance()}.
 
-    \item \textbf{Class vs Instance Variables:} Explain the difference between a class variable and an instance variable in Python. Provide a 5-line code snippet demonstrating a class variable \lstinline|species = "Canis lupus"| shared across \lstinline|Dog| instances.
+    \item \textbf{Class vs Instance Variables:} Explain the difference between a class variable and an instance variable in Python. Provide a 5-line code snippet demonstrating a class variable \texttt{species = "Canis lupus"} shared across \texttt{Dog} instances.
 
-    \item \textbf{Inheritance Hierarchy:} Create a parent class \lstinline|Vehicle| with attribute \lstinline|brand| and method \lstinline|drive()|. Create a child class \lstinline|ElectricCar| that inherits from \lstinline|Vehicle|, adds attribute \lstinline|battery_capacity|, and overrides \lstinline|drive()| to print \lstinline|"Driving silently on electricity"|.
+    \item \textbf{Inheritance Hierarchy:} Create a parent class \texttt{Vehicle} with attribute \texttt{brand} and method \texttt{drive()}. Create a child class \texttt{ElectricCar} that inherits from \texttt{Vehicle}, adds attribute \texttt{battery\_capacity}, and overrides \texttt{drive()} to print \texttt{"Driving silently on electricity"}.
 
-    \item \textbf{Data Science Application (Custom Transformer Class):} In scikit-learn, data preprocessing transformers implement \lstinline|.fit()| and \lstinline|.transform()| methods. Create a class \lstinline|StandardScaler| with attributes \lstinline|mean| and \lstinline|std|. Implement:
+    \item \textbf{Data Science Application (Custom Transformer Class):} In scikit-learn, data preprocessing transformers implement \texttt{.fit()} and \texttt{.transform()} methods. Create a class \texttt{StandardScaler} with attributes \texttt{mean} and \texttt{std}. Implement:
     \begin{enumerate}
-        \item \lstinline|fit(data)|: Calculates and stores the mean and standard deviation of a list of floats.
-        \item \lstinline|transform(data)|: Returns a new list of $z$-score normalized values $z = \frac{x - \text{mean}}{\text{std}}$.
+        \item \texttt{fit(data)}: Calculates and stores the mean and standard deviation of a list of floats.
+        \item \texttt{transform(data)}: Returns a new list of $z$-score normalized values $z = \frac{x - \text{mean}}{\text{std}}$.
     \end{enumerate}
 \end{enumerate}

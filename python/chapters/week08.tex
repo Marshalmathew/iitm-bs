@@ -4,10 +4,10 @@ Data science datasets rarely start in memory—they live on disk as CSV, JSON, t
 
 \section{Reading and Writing Files}
 
-Python uses the built-in \lstinline|open(filename, mode)| function to interact with files on disk. Using the Context Manager \lstinline|with| guarantees that file handles are automatically closed, even if errors occur.
+Python uses the built-in \texttt{open(filename, mode)} function to interact with files on disk. Using the Context Manager \texttt{with} guarantees that file handles are automatically closed, even if errors occur.
 
 \begin{definitionbox}{File Modes and Context Managers}
-Common modes: \lstinline|'r'| (read), \lstinline|'w'| (write / overwrite), \lstinline|'a'| (append), \lstinline|'b'| (binary mode).
+Common modes: \texttt{'r'} (read), \texttt{'w'} (write / overwrite), \texttt{'a'} (append), \texttt{'b'} (binary mode).
 \begin{lstlisting}
 # Writing to a text file
 with open("data.txt", "w") as f:
@@ -22,22 +22,22 @@ with open("data.txt", "r") as f:
 \end{definitionbox}
 
 \begin{videocard}{IITM BS Lecture: Reading and Writing to a File}{https://www.youtube.com/watch?v=rYLJaAdgLhI}
-Official lecture demonstrating file modes, \lstinline|open()|, \lstinline|.read()|, \lstinline|.readline()|, and \lstinline|with| context blocks.
+Official lecture demonstrating file modes, \texttt{open()}, \texttt{.read()}, \texttt{.readline()}, and \texttt{with} context blocks.
 \end{videocard}
 
 \section{Processing Large Datasets}
 
-When log files or text datasets exceed available RAM, loading the entire file with \lstinline|.read()| causes an Out-Of-Memory (OOM) crash. Instead, stream the file line by line using an iterator or chunked reads.
+When log files or text datasets exceed available RAM, loading the entire file with \texttt{.read()} causes an Out-Of-Memory (OOM) crash. Instead, stream the file line by line using an iterator or chunked reads.
 
 \begin{theorembox}{Line-by-Line Streaming}
-Iterating over a file object \lstinline|for line in f:| streams one line at a time into memory ($\mathcal{O}(1)$ memory complexity).
+Iterating over a file object \texttt{for line in f:} streams one line at a time into memory ($\mathcal{O}(1)$ memory complexity).
 \end{theorembox}
 
 \begin{videocard}{IITM BS Lecture: Handling Very Big Files}{https://www.youtube.com/watch?v=NwFpo_KGvOA}
 Official lecture discussing memory considerations when searching and processing massive files.
 \end{videocard}
 
-\section{Exception Handling (\lstinline|try|, \lstinline|except|, \lstinline|else|, \lstinline|finally|)}
+\section{Exception Handling (\texttt{try}, \texttt{except}, \texttt{else}, \texttt{finally})}
 
 An \textbf{Exception} is a runtime error that halts program execution. Exception handling allows Python to catch runtime errors gracefully.
 
@@ -60,10 +60,10 @@ finally:
 \end{lstlisting}
 \end{formulabox}
 
-\textbf{Data Science Relevance:} Web scrapers, data loaders, and model training loops use \lstinline|try-except| blocks to skip corrupted rows or bad images without crashing overnight training runs.
+\textbf{Data Science Relevance:} Web scrapers, data loaders, and model training loops use \texttt{try-except} blocks to skip corrupted rows or bad images without crashing overnight training runs.
 
 \begin{videocard}{IITM BS Lecture: Exception Handling Explained}{https://www.youtube.com/watch?v=me3_XR7Iz60}
-Official lecture explaining \lstinline|try|, \lstinline|except|, \lstinline|finally|, built-in exception types, and raising custom errors.
+Official lecture explaining \texttt{try}, \texttt{except}, \texttt{finally}, built-in exception types, and raising custom errors.
 \end{videocard}
 
 \newpage
@@ -73,15 +73,15 @@ Official lecture explaining \lstinline|try|, \lstinline|except|, \lstinline|fina
 \begin{enumerate}
     \item \textbf{File Writing \& Reading:} Write a Python script that:
     \begin{enumerate}
-        \item Creates a file named \lstinline|log.txt| and writes $3$ lines of sample log entries.
-        \item Reopens \lstinline|log.txt| in read mode and counts the total number of lines in the file.
+        \item Creates a file named \texttt{log.txt} and writes $3$ lines of sample log entries.
+        \item Reopens \texttt{log.txt} in read mode and counts the total number of lines in the file.
     \end{enumerate}
 
-    \item \textbf{Handling Missing Files:} Write a script using \lstinline|try-except| that attempts to open \lstinline|"missing_dataset.csv"|. If the file does not exist, catch \lstinline|FileNotFoundError| and print \lstinline|"Dataset file not found. Please check filepath."|.
+    \item \textbf{Handling Missing Files:} Write a script using \texttt{try-except} that attempts to open \texttt{"missing\_dataset.csv"}. If the file does not exist, catch \texttt{FileNotFoundError} and print \texttt{"Dataset file not found. Please check filepath."}.
 
-    \item \textbf{Safe Type Conversion Function:} Write a function \lstinline|safe_float(value)| that attempts to convert \lstinline|value| to a \lstinline|float|. If a \lstinline|ValueError| or \lstinline|TypeError| occurs, return \lstinline|None|. Test with \lstinline|"3.14"|, \lstinline|"abc"|, and \lstinline|[1, 2]|.
+    \item \textbf{Safe Type Conversion Function:} Write a function \texttt{safe\_float(value)} that attempts to convert \texttt{value} to a \texttt{float}. If a \texttt{ValueError} or \texttt{TypeError} occurs, return \texttt{None}. Test with \texttt{"3.14"}, \texttt{"abc"}, and \texttt{[1, 2]}.
 
-    \item \textbf{Parsing Log File Data:} Suppose a text file \lstinline|scores.txt| contains numeric test scores, one per line. Write a script to read the file, convert each line to float inside a \lstinline|try| block (skipping invalid lines), and calculate the average score.
+    \item \textbf{Parsing Log File Data:} Suppose a text file \texttt{scores.txt} contains numeric test scores, one per line. Write a script to read the file, convert each line to float inside a \texttt{try} block (skipping invalid lines), and calculate the average score.
 
-    \item \textbf{Data Science Application (CSV Line Counter \& Cleaner):} Write a script \lstinline|clean_csv(input_path, output_path)| that reads a CSV file line by line, removes empty lines or lines starting with \lstinline|#| (comments), and writes clean lines to \lstinline|output_path|.
+    \item \textbf{Data Science Application (CSV Line Counter \& Cleaner):} Write a script \texttt{clean\_csv(input\_path, output\_path)} that reads a CSV file line by line, removes empty lines or lines starting with \texttt{\#} (comments), and writes clean lines to \texttt{output\_path}.
 \end{enumerate}

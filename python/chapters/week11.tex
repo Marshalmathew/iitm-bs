@@ -4,10 +4,10 @@ While standard Python lists are versatile, they are slow for massive numerical d
 
 \section{NumPy Arrays vs Python Lists}
 
-\textbf{NumPy} (Numerical Python) introduces the \lstinline|ndarray| (N-dimensional array), an array of homogeneous elements stored contiguously in memory.
+\textbf{NumPy} (Numerical Python) introduces the \texttt{ndarray} (N-dimensional array), an array of homogeneous elements stored contiguously in memory.
 
 \begin{definitionbox}{NumPy Arrays and Vectorization}
-\textbf{Vectorization} allows mathematical operations to operate on entire arrays simultaneously without explicit Python \lstinline|for| loops.
+\textbf{Vectorization} allows mathematical operations to operate on entire arrays simultaneously without explicit Python \texttt{for} loops.
 \begin{lstlisting}
 import numpy as np
 
@@ -51,14 +51,14 @@ print(high_earners)
 \end{lstlisting}
 \end{theorembox}
 
-\textbf{Data Science Relevance:} Pandas is the default tool for Exploratory Data Analysis (EDA), CSV/Parquet loading (\lstinline|pd.read_csv()|), handling missing values (\lstinline|df.fillna()|), and feature engineering.
+\textbf{Data Science Relevance:} Pandas is the default tool for Exploratory Data Analysis (EDA), CSV/Parquet loading (\texttt{pd.read\_csv()}), handling missing values (\texttt{df.fillna()}), and feature engineering.
 
 \begin{videocard}{IITM BS Lecture: Why Pandas? Data Analysis Made Easy}{https://www.youtube.com/watch?v=HCxhHo8tV4U}
 Official lecture introducing Pandas for data manipulation and tabular alignment.
 \end{videocard}
 
 \begin{videocard}{IITM BS Lecture: Pandas Series and DataFrames}{https://www.youtube.com/watch?v=aPjiMs7CR7s}
-Official lecture detailing indexing, row selection (\lstinline|.loc|, \lstinline|.iloc|), and column operations.
+Official lecture detailing indexing, row selection (\texttt{.loc}, \texttt{.iloc}), and column operations.
 \end{videocard}
 
 \newpage
@@ -66,18 +66,18 @@ Official lecture detailing indexing, row selection (\lstinline|.loc|, \lstinline
 \textit{Detailed step-by-step solutions are available in the Appendix.}
 
 \begin{enumerate}
-    \item \textbf{NumPy Vectorization:} Given \lstinline|arr = np.arange(1, 11)| (integers $1$ to $10$):
+    \item \textbf{NumPy Vectorization:} Given \texttt{arr = np.arange(1, 11)} (integers $1$ to $10$):
     \begin{enumerate}
         \item Compute a boolean mask for all odd numbers.
         \item Use the boolean mask to extract only the odd elements.
-        \item Replace all even numbers in \lstinline|arr| with $-1$.
+        \item Replace all even numbers in \texttt{arr} with $-1$.
     \end{enumerate}
 
-    \item \textbf{Matrix Statistics with NumPy:} Create a $3 \times 3$ matrix with values $1$ through $9$ using \lstinline|np.arange(1, 10).reshape(3, 3)|. Calculate:
+    \item \textbf{Matrix Statistics with NumPy:} Create a $3 \times 3$ matrix with values $1$ through $9$ using \texttt{np.arange(1, 10).reshape(3, 3)}. Calculate:
     \begin{enumerate}
         \item Sum of all elements in the matrix.
-        \item Column-wise means (\lstinline|axis=0|).
-        \item Row-wise maximums (\lstinline|axis=1|).
+        \item Column-wise means (\texttt{axis=0}).
+        \item Row-wise maximums (\texttt{axis=1}).
     \end{enumerate}
 
     \item \textbf{Pandas Filtering \& Selection:} Given the DataFrame:
@@ -89,11 +89,11 @@ df = pd.DataFrame({
     'Humidity': [80, 45, 65, 75]
 })
 \end{lstlisting}
-    Filter and print rows where \lstinline|Temp > 30| AND \lstinline|Humidity > 70|.
+    Filter and print rows where \texttt{Temp > 30} AND \texttt{Humidity > 70}.
 
-    \item \textbf{Pandas Missing Data Handling:} Create a DataFrame with missing values \lstinline|np.nan|:
-    \lstinline|df = pd.DataFrame({'A': [1.0, 2.0, np.nan, 4.0], 'B': [np.nan, 10.0, 20.0, 30.0]})|.
-    Fill missing values in column \lstinline|'A'| with its mean, and column \lstinline|'B'| with \lstinline|0.0|.
+    \item \textbf{Pandas Missing Data Handling:} Create a DataFrame with missing values \texttt{np.nan}:
+    \texttt{df = pd.DataFrame(\{'A': [1.0, 2.0, np.nan, 4.0], 'B': [np.nan, 10.0, 20.0, 30.0]\})}.
+    Fill missing values in column \texttt{'A'} with its mean, and column \texttt{'B'} with \texttt{0.0}.
 
     \item \textbf{Data Science Application (Groupby Aggregation):} Given sales transaction data:
 \begin{lstlisting}
@@ -102,5 +102,5 @@ sales_df = pd.DataFrame({
     'Revenue': [1200, 800, 150, 300, 2000]
 })
 \end{lstlisting}
-    Write a 1-line Pandas expression using \lstinline|.groupby()| to calculate the total revenue per category.
+    Write a 1-line Pandas expression using \texttt{.groupby()} to calculate the total revenue per category.
 \end{enumerate}

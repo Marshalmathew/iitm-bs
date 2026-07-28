@@ -42,7 +42,7 @@ print("Dot Product:", dot_product)  # 1*4 + 2*5 + 3*6 = 32
 \textbf{Data Science Relevance:} Vector dot products form the core of matrix multiplication, cosine similarity, neural network weights calculation ($\mathbf{w}^T \mathbf{x} + b$), and linear regression predictions.
 
 \begin{videocard}{IITM BS Lecture: Dot Product of Vectors}{https://www.youtube.com/watch?v=qSOoiWNplGo}
-Official lecture computing vector dot products using \lstinline|for| loops.
+Official lecture computing vector dot products using \texttt{for} loops.
 \end{videocard}
 
 \begin{videocard}{IITM BS Lecture: Naive Linear Search}{https://www.youtube.com/watch?v=3huwiAPi-_I}
@@ -108,10 +108,10 @@ Official lecture stepping through selection sort logic and list element swapping
 \textit{Detailed step-by-step solutions are available in the Appendix.}
 
 \begin{enumerate}
-    \item \textbf{List Operations:} Start with \lstinline|data = [15, 8, 42, 4, 23]|:
+    \item \textbf{List Operations:} Start with \texttt{data = [15, 8, 42, 4, 23]}:
     \begin{enumerate}
         \item Append $16$ to the list.
-        \item Sort the list in ascending order using \lstinline|.sort()|.
+        \item Sort the list in ascending order using \texttt{.sort()}.
         \item Reverse the sorted list.
     \end{enumerate}
 
@@ -119,12 +119,12 @@ Official lecture stepping through selection sort logic and list element swapping
     $$d(\mathbf{p}, \mathbf{q}) = \sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2}$$
     For $\mathbf{p} = [1, 2]$ and $\mathbf{q} = [4, 6]$.
 
-    \item \textbf{Matrix Transpose:} Write a Python script using nested \lstinline|for| loops to compute the transpose $A^T$ of a $2 \times 3$ matrix:
+    \item \textbf{Matrix Transpose:} Write a Python script using nested \texttt{for} loops to compute the transpose $A^T$ of a $2 \times 3$ matrix:
     $$A = \begin{bmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{bmatrix} \implies A^T = \begin{bmatrix} 1 & 4 \\ 2 & 5 \\ 3 & 6 \end{bmatrix}$$
 
-    \item \textbf{Manual Selection Sort:} Implement the selection sort algorithm in Python to sort \lstinline|arr = [64, 25, 12, 22, 11]| without using built-in \lstinline|.sort()| or \lstinline|sorted()|.
+    \item \textbf{Manual Selection Sort:} Implement the selection sort algorithm in Python to sort \texttt{arr = [64, 25, 12, 22, 11]} without using built-in \texttt{.sort()} or \texttt{sorted()}.
 
     \item \textbf{Data Science Application (Feature Scaling / Min-Max Normalization):} In Machine Learning, feature values $x$ are scaled between $0$ and $1$ using:
     $$x_{\text{scaled}} = \frac{x - x_{\min}}{x_{\max} - x_{\min}}$$
-    Given \lstinline|features = [10, 20, 30, 40, 50]|, write a \lstinline|for| loop to compute the min-max normalized list.
+    Given \texttt{features = [10, 20, 30, 40, 50]}, write a \texttt{for} loop to compute the min-max normalized list.
 \end{enumerate}
