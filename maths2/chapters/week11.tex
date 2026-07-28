@@ -36,6 +36,29 @@ $$D = \det(H(f)(x_0, y_0)) = f_{xx} f_{yy} - (f_{xy})^2$$
 \end{enumerate}
 \end{theorembox}
 
+\vspace{0.5cm}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+    title={Visualization of a Saddle Point: $f(x,y) = x^2 - y^2$},
+    xlabel=$x$, ylabel=$y$, zlabel=$z$,
+    colormap/viridis,
+    view={35}{30},
+    mesh/interior colormap name=hot,
+    domain=-2:2,
+    y domain=-2:2,
+    samples=21,
+    width=0.7\textwidth,
+    height=0.5\textwidth
+]
+\addplot3[surf, opacity=0.8] {x^2 - y^2};
+% Mark the critical point at the origin
+\addplot3[mark=*, mark size=3pt, mark options={color=red}] coordinates {(0,0,0)};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\vspace{0.5cm}
+
 \textbf{Data Science Relevance:} In Optimization and Deep Learning, Newton-Raphson optimization uses the inverse Hessian $H^{-1} \nabla f$ for second-order gradient updates. Convex loss functions (where $H(L)$ is positive semi-definite everywhere) guarantee that any local minimum is a global minimum!
 
 \begin{videocard}{IITM BS Lecture: Hessian Matrix \& Local Extrema for f(x,y)}{https://www.youtube.com/watch?v=XJH8RJ5m3OU}

@@ -62,6 +62,24 @@ Official lecture performing row operations step-by-step on rectangular matrices.
 
 \textbf{Data Science Relevance:} Gaussian Elimination and LU Decomposition under grid computing power the solver engines of NumPy (`np.linalg.solve`), SciPy, and Linear Programming solvers.
 
+\begin{examplebox}{Solving Linear Systems in Python}
+While Gaussian Elimination is vital to understand theoretically, Data Scientists never perform Row Echelon reductions by hand. We use optimized BLAS/LAPACK libraries via NumPy:
+\begin{lstlisting}[style=pystyle]
+import numpy as np
+
+# Solve the system:
+# 2x + 3y = 8
+# 5x -  y = 3
+A = np.array([[2,  3], 
+              [5, -1]])
+b = np.array([8, 3])
+
+# np.linalg.solve uses highly optimized LU decomposition (which is just Gaussian elimination)
+x = np.linalg.solve(A, b)
+print(f"Solution: x = {x[0]:.1f}, y = {x[1]:.1f}")  # Solution: x = 1.0, y = 2.0
+\end{lstlisting}
+\end{examplebox}
+
 \begin{videocard}{IITM BS Lecture: The Gaussian Elimination Method}{https://www.youtube.com/watch?v=gdk1_aEe7j4}
 Official lecture executing full Gaussian elimination and identifying free vs pivot variables.
 \end{videocard}
