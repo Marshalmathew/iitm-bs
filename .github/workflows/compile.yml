@@ -21,14 +21,14 @@ jobs:
       - name: Install TeX Live
         run: |
           sudo apt-get update
-          sudo apt-get install -y texlive-latex-extra texlive-fonts-recommended texlive-pictures qrencode
+          sudo apt-get install -y texlive-latex-extra texlive-fonts-recommended texlive-pictures texlive-xetex qrencode
 
       - name: Compile LaTeX Document
         run: |
           cd ${{ matrix.course }}
-          pdflatex -interaction=nonstopmode main.tex || true
+          xelatex -interaction=nonstopmode main.tex || true
           if [ -f main.idx ]; then makeindex main.idx; fi
-          pdflatex -halt-on-error -interaction=nonstopmode main.tex
+          xelatex -halt-on-error -interaction=nonstopmode main.tex
 
       - name: Verify PDF Generation
         run: |

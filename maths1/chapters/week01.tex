@@ -240,6 +240,30 @@ Analyze the function $\func{f}{\R}{\R}$ defined by $f(x) = 2x + 5$.
 \end{itemize}
 \end{examplebox}
 
+\begin{intuitionbox}{Visualizing Injectivity: The Horizontal Line Test}
+A quick way to determine if a function $\func{f}{\R}{\R}$ is injective is to graph it. Since an injective function can only have one unique $x$ input for any $y$ output, \textbf{no horizontal line can intersect the graph more than once}.
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+    width=7cm, height=5cm,
+    axis lines=middle,
+    xmin=-3, xmax=3,
+    ymin=-1, ymax=9,
+    xlabel={$x$}, ylabel={$f(x)$},
+    ticks=none,
+    title={Not Injective: $f(x) = x^2$}
+]
+\addplot[blue, thick, domain=-2.8:2.8, samples=50] {x^2};
+\addplot[red, thick, dashed, domain=-3:3] {4};
+\node[red, above] at (axis cs: 1.5, 4) {Horizontal Line $y=4$};
+\fill[red] (axis cs: 2, 4) circle (2pt) node[right, black] {$(2, 4)$};
+\fill[red] (axis cs: -2, 4) circle (2pt) node[left, black] {$(-2, 4)$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+Notice how $f(2) = 4$ and $f(-2) = 4$. Two distinct inputs map to the exact same output, violating injectivity!
+\end{intuitionbox}
+
 \begin{videocard}{IITM BS Lecture: W1\_L7 Functions}{https://www.youtube.com/watch?v=M-nlI2fgaWI}
 Official IIT Madras lecture specifically covering domain, codomain, range, and properties of mappings.
 \end{videocard}
