@@ -4,7 +4,7 @@ The Binomial distribution requires a fixed number of trials $n$. But what if we 
 
 \section{The Poisson Limit of the Binomial}
 
-Imagine an e-commerce website with millions of daily visitors ($n$ is huge). The probability that any single visitor buys a specific $10,000 laptop is tiny ($p$ is near zero). Calculating $\binom{n}{k} p^k (1-p)^{n-k}$ with $n=1,000,000$ will crash most computers due to the massive factorials.
+Imagine an e-commerce website with millions of daily visitors ($n$ is huge). The probability that any single visitor buys a specific \$10,000 laptop is tiny ($p$ is near zero). Calculating $\binom{n}{k} p^k (1-p)^{n-k}$ with $n=1,000,000$ will crash most computers due to the massive factorials.
 
 In 1837, Siméon Denis Poisson proved that if you take the mathematical limit of the Binomial distribution as $n \to \infty$ and $p \to 0$, while keeping the expected value $\lambda = np$ constant, the impossible factorials beautifully cancel out into an elegant exponential function.
 
