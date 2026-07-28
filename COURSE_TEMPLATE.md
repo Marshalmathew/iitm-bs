@@ -22,7 +22,7 @@ iitm-bs/
 ---
 
 ## 2. LaTeX Preamble & Styling Setup (`preamble.tex`)
-To maintain a cohesive visual identity across all textbooks, include the following custom `tcolorbox` environments and packages in your `preamble.tex`. Ensure you have `\usepackage{tcolorbox}`, `\usepackage{hyperref}`, `\usepackage{qrcode}`, `\usepackage{imakeidx}`, `\usepackage{listings}`, and `\tcbuselibrary{skins}` loaded.
+To maintain a cohesive visual identity across all textbooks, include the following custom `tcolorbox` environments and packages in your `preamble.tex`. Ensure you have `\usepackage{tcolorbox}`, `\usepackage{hyperref}`, `\usepackage{qrcode}`, `\usepackage{imakeidx}`, `\usepackage{listings}`, `\usepackage{pgfplots}` (with `\pgfplotsset{compat=1.18}`), `\usepackage{venndiagram}`, and `\tcbuselibrary{skins}` loaded.
 
 ```latex
 % --- Video Card Environment (with QR for print) ---
@@ -44,6 +44,9 @@ To maintain a cohesive visual identity across all textbooks, include the followi
     colback=orange!5!white, colframe=orange!75!black, fonttitle=\bfseries, title={Example: #1}
 }
 
+% --- Semantic Macros ---
+\newcommand{\set}[1]{\left\{#1\right\}}
+
 % --- Python Code Snippets Styling ---
 \definecolor{codegreen}{HTML}{10B981}
 \definecolor{codegray}{HTML}{6B7280}
@@ -62,7 +65,7 @@ To maintain a cohesive visual identity across all textbooks, include the followi
 \lstset{style=pystyle}
 ```
 
-*Note: Remember to include `\makeindex` before `\begin{document}` and `\printindex` at the end of your `main.tex`.*
+*Note: Remember to include `\makeindex` before `\begin{document}` and `\printindex` at the end of your `main.tex`. To handle dynamic sizing of mathematical delimiters, always use semantic macros (e.g., `\set{x}`) within the chapters instead of manually escaping brackets (e.g., `\{x\}`).*
 
 ---
 
