@@ -62,18 +62,21 @@ Official lecture proving the Weak Law of Large Numbers using Chebyshev's inequal
 \begin{enumerate}
 \item \textbf{Sample Mean Standard Error:} An i.i.d. sample of size $n = 100$ is drawn from a population with mean $\mu = 80$ and variance $\sigma^2 = 400$.
     \begin{enumerate}
-\item Compute $\E[\bar{X}_{100}]$.
-    2. Compute the standard error $\text{SE}(\bar{X}_{100}) = \sqrt{\Var(\bar{X}_{100})}$.
+        \item Compute $\E[\bar{X}_{100}]$.
+        \item Compute the standard error $\text{SE}(\bar{X}_{100}) = \sqrt{\Var(\bar{X}_{100})}$.
+    \end{enumerate}
 
 \item \textbf{Chebyshev Sample Size Determination for WLLN:} How large a sample size $n$ is required to ensure that the sample mean $\bar{X}_n$ lies within $\epsilon = 0.5$ units of the true mean $\mu$ with probability at least $95\%$ ($\P(|\bar{X}_n - \mu| < 0.5) \ge 0.95$), if population variance $\sigma^2 = 4$?
 
 \item \textbf{Empirical CDF Evaluation:} Given a sample of 5 observations: $x = [2.1, 4.5, 1.8, 6.0, 4.5]$.
     \begin{enumerate}
-\item Calculate the value of the Empirical CDF $\hat{F}_5(4.0)$.
-    2. Calculate $\hat{F}_5(4.5)$.
+        \item Calculate the value of the Empirical CDF $\hat{F}_5(4.0)$.
+        \item Calculate $\hat{F}_5(4.5)$.
+    \end{enumerate}
 
 \item \textbf{Sum of i.i.d. Uniform RVs:} Let $X_1, X_2, \dots, X_{12}$ be i.i.d. $\text{Uniform}(0, 1)$ random variables. Let $S = \sum_{i=1}^{12} X_i$. Find $\E[S]$ and $\Var(S)$.
 
 \item \textbf{Data Science Application (Monte Carlo Pi Estimation Bounds):} In a Monte Carlo algorithm, $n$ independent random points are dropped in a unit square. Let $I_i = 1$ if point $i$ falls inside a unit circle ($\P(I_i = 1) = p = \pi/4 \approx 0.7854$) and $0$ otherwise.
     Use Chebyshev's inequality to find the sample size $n$ needed so that the Monte Carlo estimate $\hat{p}_n = \frac{1}{n} \sum_{i=1}^n I_i$ is within $0.01$ of $p$ with at least $90\%$ probability.
+\end{enumerate}
 \end{enumerate}

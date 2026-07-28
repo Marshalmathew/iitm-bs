@@ -30,9 +30,10 @@ Let $(x_0, y_0)$ be a critical point ($\nabla f(x_0, y_0) = \mathbf{0}$). Define
 $$D = \det(H(f)(x_0, y_0)) = f_{xx} f_{yy} - (f_{xy})^2$$
 \begin{enumerate}
 \item If $D > 0$ and $f_{xx} > 0$ (Hessian is Positive Definite): $(x_0, y_0)$ is a \textbf{Local Minimum}.
-2. If $D > 0$ and $f_{xx} < 0$ (Hessian is Negative Definite): $(x_0, y_0)$ is a \textbf{Local Maximum}.
-3. If $D < 0$ (Hessian is Indefinite): $(x_0, y_0)$ is a \textbf{Saddle Point}.
-4. If $D = 0$: Test is \textbf{Inconclusive}.
+\item If $D > 0$ and $f_{xx} < 0$ (Hessian is Negative Definite): $(x_0, y_0)$ is a \textbf{Local Maximum}.
+\item If $D < 0$ (Hessian is Indefinite): $(x_0, y_0)$ is a \textbf{Saddle Point}.
+\item If $D = 0$: Test is \textbf{Inconclusive}.
+\end{enumerate}
 \end{theorembox}
 
 \textbf{Data Science Relevance:} In Optimization and Deep Learning, Newton-Raphson optimization uses the inverse Hessian $H^{-1} \nabla f$ for second-order gradient updates. Convex loss functions (where $H(L)$ is positive semi-definite everywhere) guarantee that any local minimum is a global minimum!
