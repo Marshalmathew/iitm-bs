@@ -50,8 +50,53 @@ Let $X$ be the total number of successes in $n$ IID Bernoulli trials, each with 
 
 The Probability Mass Function (PMF) of $X$ is:
 $$P(X=k) = \binom{n}{k} p^k (1-p)^{n-k}$$
-\textit{Why?} $p^k$ is the probability of getting exactly $k$ successes. $(1-p)^{n-k}$ is the probability of getting exactly $n-k$ failures. We multiply by the combination $\binom{n}{k}$ to account for all the different possible orders those successes and failures could happen in.
+\begin{intuitionbox}{Why the Combinations Term?}
+$p^k$ gives the probability of $k$ successes. $(1-p)^{n-k}$ gives the probability of $n-k$ failures. But if we just multiply those, we are calculating the probability of a \emph{specific sequence} (e.g. S-S-F-F). 
+
+But what if we flipped S-F-S-F? Or F-S-S-F? To find the probability of exactly $k$ successes occurring in \emph{any order}, we must multiply by the number of different ways to arrange $k$ successes among $n$ slots. That's exactly what the combinations formula $\binom{n}{k}$ does!
+\end{intuitionbox}
 \end{definitionbox}
+
+\begin{figure}[htpb]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            ybar,
+            bar width=15pt,
+            xlabel={$k$ (Number of Successes)},
+            ylabel={$P(X=k)$},
+            title={Binomial PMF ($n=10, p=0.5$)},
+            ymin=0, ymax=0.3,
+            xmin=-0.5, xmax=10.5,
+            xtick={0,1,2,3,4,5,6,7,8,9,10},
+            nodes near coords,
+            every node near coord/.append style={font=\tiny, anchor=south},
+            grid=major,
+            width=12cm,
+            height=7cm,
+            fill=tealdef
+        ]
+        \addplot[ybar, fill=tealdef!80, draw=tealdef!100, thick] coordinates {
+            (0, 0.001) (1, 0.010) (2, 0.044) (3, 0.117) (4, 0.205) (5, 0.246) 
+            (6, 0.205) (7, 0.117) (8, 0.044) (9, 0.010) (10, 0.001)
+        };
+        \end{axis}
+    \end{tikzpicture}
+    \caption{The beautiful symmetric bell-shape of the Binomial Distribution when $p=0.5$.}
+\end{figure}
+
+\begin{lstlisting}[caption={Calculating Binomial Probabilities in SciPy}]
+from scipy.stats import binom
+
+# Parameters: n=10, p=0.5
+# What is the exact probability of getting exactly 5 successes?
+prob = binom.pmf(k=5, n=10, p=0.5)
+print(f"P(X=5) = {prob:.4f}")
+
+# What is the probability of getting AT MOST 5 successes? (CDF)
+cum_prob = binom.cdf(k=5, n=10, p=0.5)
+print(f"P(X<=5) = {cum_prob:.4f}")
+\end{lstlisting}
 
 \begin{theorembox}{Expectation and Variance of Binomial}
 Because a Binomial random variable is simply the sum of $n$ independent Bernoulli random variables ($X = X_1 + X_2 + \ldots + X_n$), we can use the linearity of expectation and variance!

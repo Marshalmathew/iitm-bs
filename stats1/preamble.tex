@@ -9,6 +9,10 @@
 \usepackage[scaled]{helvet}
 \usepackage{microtype}
 
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{venndiagram}
+
 % Math & Stats Packages
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -96,6 +100,24 @@
     enhanced, attach boxed title to top left={yshift=-2mm, xshift=4mm},
     boxed title style={colback=coralformula, colframe=coralborder, arc=1mm},
     arc=2mm, boxrule=0.8mm, top=4mm, bottom=3mm, left=3mm, right=3mm,
+    drop shadow={opacity=0.1, color=black}
+}
+
+\newtcolorbox{intuitionbox}[1]{
+    colback=purple!5!white,
+    colframe=purple!75!black,
+    coltitle=white,
+    fonttitle=\bfseries\sffamily,
+    title={Core Intuition: #1},
+    enhanced,
+    attach boxed title to top left={yshift=-2mm, xshift=4mm},
+    boxed title style={colback=purple!75!black, colframe=purple!90!black, arc=1mm},
+    arc=2mm,
+    boxrule=0.8mm,
+    top=4mm,
+    bottom=3mm,
+    left=3mm,
+    right=3mm,
     drop shadow={opacity=0.1, color=black}
 }
 

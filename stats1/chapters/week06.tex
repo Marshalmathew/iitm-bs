@@ -38,6 +38,33 @@ Because events are sets, we manipulate them using Set Theory operations:
 \end{itemize}
 \end{theorembox}
 
+\begin{figure}[htpb]
+    \centering
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \begin{venndiagram2sets}[radius=1.2cm, labelA=$A$, labelB=$B$]
+            \fillA \fillB
+        \end{venndiagram2sets}
+        \caption*{Union ($A \cup B$)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \begin{venndiagram2sets}[radius=1.2cm, labelA=$A$, labelB=$B$]
+            \fillACapB
+        \end{venndiagram2sets}
+        \caption*{Intersection ($A \cap B$)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \begin{venndiagram2sets}[radius=1.2cm, labelA=$A$, labelB=$B$]
+            \fillNotA
+        \end{venndiagram2sets}
+        \caption*{Complement ($A^c$)}
+    \end{minipage}
+\end{figure}
+
 \begin{videocard}{IITM BS Lecture: W6\_L2 Events \& Basic Operations}{https://www.youtube.com/watch?v=G-ex734RB1Q}
 Official lecture explaining how to map English language logic (AND, OR, NOT) into Set Theory operations ($\cap, \cup, ^c$).
 \end{videocard}
@@ -53,6 +80,12 @@ Probability is a function that assigns a real number $P(A)$ to every event $A$, 
     \item \textbf{Additivity:} If $A$ and $B$ are mutually exclusive ($A \cap B = \emptyset$), then the probability of their union is the sum of their probabilities: $$P(A \cup B) = P(A) + P(B)$$
 \end{enumerate}
 \end{formulabox}
+
+\begin{intuitionbox}{Probability as a Mass}
+To intuitively understand Kolmogorov's Axioms, think of probability as \textbf{physical mass}. You are handed exactly 1.0 kg of modeling clay (the total probability, Axiom 2). You must distribute this clay across all the possible outcomes in your sample space. 
+
+You can give an outcome zero clay, or some positive amount, but you cannot give an outcome "negative" clay (Axiom 1). If you want to know the weight of a combined event (like "rolling an even number"), you simply put the 2-outcome, 4-outcome, and 6-outcome on a scale and add their weights together (Axiom 3).
+\end{intuitionbox}
 
 From these three fundamental axioms, we can logically derive several critical properties used constantly in data science.
 

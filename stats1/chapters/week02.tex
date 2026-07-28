@@ -43,6 +43,21 @@ English &  6 & 0.12 & 12\% \\
 \end{center}
 \end{examplebox}
 
+\begin{lstlisting}[caption={Calculating Frequencies in Pandas}]
+import pandas as pd
+
+# Create a Series of categorical data
+subjects = pd.Series(['Maths']*18 + ['Stats']*14 + ['CS']*12 + ['English']*6)
+
+# Calculate Absolute Frequencies
+freq_table = subjects.value_counts()
+print(freq_table)
+
+# Calculate Relative Frequencies (Proportions)
+rel_freq_table = subjects.value_counts(normalize=True)
+print(rel_freq_table)
+\end{lstlisting}
+
 \section{Charts for Categorical Data}
 
 Visualizing categorical data helps humans instantly grasp the distribution.
@@ -73,6 +88,12 @@ How do we find the "average" of categorical data? We cannot mathematically sum "
 \begin{videocard}{IITM BS Lecture: W2\_L5 Mode \& Median}{https://www.youtube.com/watch?v=5Z8mhCgGkcE}
 Official lecture on calculating central tendencies for Nominal vs. Ordinal categorical variables.
 \end{videocard}
+
+\begin{intuitionbox}{The Robustness of the Median}
+The Median is often preferred over the Mean (average) because it is highly \textbf{robust to outliers}. Imagine 5 people in a room making \$40k, \$50k, \$60k, \$70k, and \$80k. Both the median and mean are \$60k.
+
+Now, Elon Musk walks in (making \$20 Billion). The mean skyrockets to over \$3 Billion, completely misrepresenting the typical person in the room! But the median simply shifts from the 3rd person (\$60k) to between the 3rd and 4th person (\$65k). The median doesn't care \emph{how} extreme the edges are, it only cares about the physical order of the data.
+\end{intuitionbox}
 
 \begin{examplebox}{Mode and Median of Ordinal Data}
 40 customer satisfaction ratings on the scale Poor/Fair/Good/Excellent were recorded: Poor (5), Fair (8), Good (18), Excellent (9).
