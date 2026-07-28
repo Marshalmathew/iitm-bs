@@ -164,7 +164,15 @@ Let universal set $U$ be the catalog of movies on a streaming platform. Let $A$ 
 
 A binary relation $R$ from a set $A$ to a set $B$ is a subset of the Cartesian product $A \times B$. If the ordered pair $(a, b) \in R$, we say "$a$ is related to $b$" and write $a R b$. 
 
-Relations help us formalize connections. For instance, in a relational database, tables are linked by relations (like "Customer $A$ placed Order $B$"). 
+\begin{intuitionbox}{Relations as Database Joins}
+Mathematically, saying a relation is a "subset of a Cartesian product" sounds abstract. Think of it visually like a table in a database:
+\begin{itemize}
+    \item Let $A$ be a set of Students, and $B$ be a set of Courses.
+    \item The Cartesian product $A \times B$ generates every possible combination of every student with every course.
+    \item A \textbf{Relation} $R$ (e.g., "Enrolled In") simply filters out the nonsense. It picks out only the specific $(Student, Course)$ pairs that actually exist in the real world.
+\end{itemize}
+When you perform an \texttt{INNER JOIN} in SQL, you are quite literally computing a mathematical relation!
+\end{intuitionbox}
 
 \begin{definitionbox}{Properties of Relations on a Set $A$}
 A relation $R \subseteq A \times A$ (a relation from set A to itself) is:

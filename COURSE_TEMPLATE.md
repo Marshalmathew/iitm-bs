@@ -43,6 +43,9 @@ To maintain a cohesive visual identity across all textbooks, include the followi
 \newtcolorbox{examplebox}[1]{
     colback=orange!5!white, colframe=orange!75!black, fonttitle=\bfseries, title={Example: #1}
 }
+\newtcolorbox{intuitionbox}[1]{
+    colback=purple!5!white, colframe=purple!75!black, fonttitle=\bfseries, title={💡 Core Intuition: #1}
+}
 
 % --- Semantic Macros ---
 \newcommand{\set}[1]{\left\{#1\right\}}
@@ -102,7 +105,8 @@ When expanding a weekly chapter, strictly adhere to this logical flow:
 
 1. **Chapter Introduction:** 1-2 paragraphs introducing the core concept.
 2. **Theory & Definitions:** Use `\begin{definitionbox}` and `\begin{theorembox}` to break down the math/logic step-by-step. Avoid making it a dry summary; write it as an approachable textbook.
-3. **Indexing:** Liberally use `\index{Term}` tags next to important keywords and definitions so they appear in the final glossary.
+3. **Core Intuition:** Following dense mathematical definitions, explicitly inject a `\begin{intuitionbox}` to bridge the gap between dry theory and real-world geometric/conceptual understanding.
+4. **Indexing:** Liberally use `\index{Term}` tags next to important keywords and definitions so they appear in the final glossary.
 4. **Data Science Relevance & Code Snippets:** Always include an explicit paragraph (often bolded as **Data Science Relevance:**) explaining *why* a Data Science student needs this concept. Support this with practical Python/NumPy code snippets using the `lstlisting` environment to demonstrate the math in code.
 5. **Primary Video Embeds:** Insert `\begin{videocard}` environments immediately after major topic explanations. This positions the text as the primary source of truth, with the video acting as a robust fallback.
     *   *External Fallbacks:* If the official IITM playlist is missing formal lectures for a core topic (or if a concept desperately needs visual intuition), it is highly encouraged to embed gold-standard external videos (e.g., 3Blue1Brown, Khan Academy, Abdul Bari) to maintain the textbook's pedagogical quality.

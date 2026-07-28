@@ -61,6 +61,13 @@ To analyze or search a graph, we must visit all its vertices systematically.
 \textbf{Complexity:} Both algorithms run in $O(|V| + |E|)$ time when using an Adjacency List.
 \end{theorembox}
 
+\begin{intuitionbox}{BFS vs DFS Traversals}
+\begin{itemize}
+    \item \textbf{BFS Intuition:} Imagine dropping a stone in a pond. The ripples explore everything 1 unit away, then 2 units away. It guarantees you find the shortest path.
+    \item \textbf{DFS Intuition:} Imagine walking through a physical maze. You keep your hand on the right wall and walk as deep as you can until you hit a dead end, then backtrack.
+\end{itemize}
+\end{intuitionbox}
+
 \begin{examplebox}{BFS Algorithm Trace}
 Consider a simple graph with vertices $\set{0, 1, 2, 3}$ and edges $\set{(0,1), (0,2), (1,2), (2,3)}$. Let's trace BFS starting at node $0$.
 
