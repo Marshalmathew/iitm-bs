@@ -14,7 +14,7 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
-      courses: ${{ steps.filter.outputs.changes }}
+      courses: ${{ steps.set-courses.outputs.courses }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -23,13 +23,32 @@ jobs:
         uses: dorny/paths-filter@v3
         with:
           filters: |
-            maths1: maths1/**
-            maths2: maths2/**
-            python: python/**
-            stats1: stats1/**
-            stats2: stats2/**
+            maths1:
+              - 'maths1/**'
+            maths2:
+              - 'maths2/**'
+            python:
+              - 'python/**'
+            stats1:
+              - 'stats1/**'
+            stats2:
+              - 'stats2/**'
+            all:
+              - '.github/**'
+              - '.gitignore'
+              - 'COURSE_TEMPLATE.md'
+              - 'compile_all.*'
+      - name: Determine courses to build
+        id: set-courses
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ steps.filter.outputs.all }}" = "true" ]; then
+            echo 'courses=["maths1","maths2","python","stats1","stats2"]' >> $GITHUB_OUTPUT
+          else
+            echo 'courses=${{ steps.filter.outputs.changes }}' >> $GITHUB_OUTPUT
+          fi
 
   build:
+
     needs: changes
     if: ${{ needs.changes.outputs.courses != '[]' && needs.changes.outputs.courses != '' }}
     runs-on: ubuntu-latest
@@ -98,4 +117,5 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: update compiled PDFs [skip ci]"
-          file_pattern: "compiled_pdfs/*.pdf"
+          file_pattern: "compiled_pdfs/*"
+

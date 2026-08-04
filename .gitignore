@@ -16,6 +16,11 @@
 *.pdf
 *.zip
 
+# Exception: Allow tracking compiled PDFs in compiled_pdfs/
+!compiled_pdfs/
+!compiled_pdfs/*.pdf
+
+
 # OS & Editor metadata
 .DS_Store
 Thumbs.db
