@@ -38,9 +38,34 @@ where $\alpha > 0$ is the \textbf{Learning Rate} (step size).
 
 \textbf{Data Science Relevance:} Gradient Descent (and its variants like Adam, RMSprop, SGD) is used to train almost all modern Machine Learning models, from Logistic Regression to 70-Billion parameter Large Language Models!
 
+\begin{intuitionbox}{Gradient Descent Step Trajectory on Contour Map}
+Gradient descent takes steps perpendicular to contour curves, moving in the direction of $-\nabla f$ toward the global minimum.
+\begin{center}
+\begin{tikzpicture}[scale=0.8]
+% Concentric contour ellipses
+\draw[thick, teal!70] (0,0) circle (0.6cm);
+\draw[thick, teal!60] (0,0) circle (1.2cm);
+\draw[thick, teal!40] (0,0) circle (2.0cm);
+\draw[thick, teal!20] (0,0) circle (2.8cm);
+
+% Center minimum
+\fill[red] (0,0) circle (2pt) node[below right] {$\mathbf{w}^*$ (Minimum)};
+
+% GD Path
+\fill[blue] (2.4, 1.4) circle (2.5pt) node[above right] {$\mathbf{w}^{(0)}$};
+\draw[->, very thick, red!80!black] (2.4, 1.4) -- (1.2, 0.4) node[midway, above] {$-\alpha \nabla L$};
+\fill[blue] (1.2, 0.4) circle (2.5pt) node[above right] {$\mathbf{w}^{(1)}$};
+\draw[->, very thick, red!80!black] (1.2, 0.4) -- (0.4, 0.1);
+\fill[blue] (0.4, 0.1) circle (2.5pt) node[above] {$\mathbf{w}^{(2)}$};
+\draw[->, dashed, red] (0.4, 0.1) -- (0.05, 0.02);
+\end{tikzpicture}
+\end{center}
+\end{intuitionbox}
+
 \begin{videocard}{IITM BS Lecture: The Direction of Steepest Ascent / Descent}{https://www.youtube.com/watch?v=0H7ca6dFvQ8}
 Official lecture proving why $-\nabla f$ is the optimal search direction for loss minimization.
 \end{videocard}
+
 
 \section{Critical Points}
 

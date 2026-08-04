@@ -65,9 +65,31 @@ Using the Law of Total Probability to expand the denominator:
 $$P(B_i \mid A) = \frac{P(B_i) \times P(A \mid B_i)}{\sum_{j=1}^{k} P(B_j)P(A \mid B_j)}$$
 \end{theorembox}
 
+\begin{examplebox}{Bayes' Theorem in Python (Medical Diagnosis / Spam Filter)}
+We can programmatically evaluate Bayesian posterior updates using a clean Python function:
+\begin{lstlisting}[style=pystyle]
+def bayes_update(prior, likelihood_true, likelihood_false):
+    """
+    Computes P(Event | Evidence) using Bayes' Theorem
+    """
+    p_evidence = (prior * likelihood_true) + ((1 - prior) * likelihood_false)
+    posterior = (prior * likelihood_true) / p_evidence
+    return posterior
+
+# Example: Disease prevalence 1%, Sensitivity 90%, False Positive 5%
+prior_disease = 0.01
+p_pos_given_disease = 0.90
+p_pos_given_healthy = 0.05
+
+post_disease = bayes_update(prior_disease, p_pos_given_disease, p_pos_given_healthy)
+print(f"P(Disease | Positive Test): {post_disease:.4f}")  # Output: ~0.1538 (15.38%)
+\end{lstlisting}
+\end{examplebox}
+
 \begin{videocard}{IITM BS Lecture: W7\_L7 Bayes' Rule}{https://www.youtube.com/watch?v=JoqqvK3MDRw}
 Official lecture deriving Bayes' Theorem and applying it to real-world scenarios.
 \end{videocard}
+
 
 \newpage
 \section{Practice Exercises}

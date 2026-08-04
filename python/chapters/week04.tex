@@ -16,9 +16,22 @@ print(len(numbers))      # Length of list
 \end{lstlisting}
 \end{definitionbox}
 
+\begin{intuitionbox}{List Memory References and Shallow Copy Aliasing}
+When you assign a list to a new variable (\texttt{b = a}), Python creates an \textbf{alias} referencing the exact same object in memory! Modifying \texttt{b} will unexpectedly modify \texttt{a}:
+\begin{lstlisting}[style=pystyle]
+a = [1, 2, 3]
+b = a          # Reference copy (aliasing)
+b[0] = 999     # Modifies both b AND a!
+
+# To create a independent copy, use slicing or copy():
+c = a.copy()   # Independent shallow copy
+\end{lstlisting}
+\end{intuitionbox}
+
 \begin{videocard}{IITM BS Lecture: Warmup with Lists}{https://www.youtube.com/watch?v=toMhJJHSIYk}
 Official lecture introducing list initialization, indexing, append, and slice assignment.
 \end{videocard}
+
 
 \section{Linear Search and Basic Vector Operations}
 

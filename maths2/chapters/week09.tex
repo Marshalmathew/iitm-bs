@@ -12,9 +12,28 @@ For $f(x, y)$, a \textbf{Level Curve} (or Contour) is the set of all points $(x,
 $$\{(x, y) \in \mathbb{R}^2 \mid f(x, y) = c\}$$
 \end{definitionbox}
 
+\begin{intuitionbox}{3D Surface Loss Bowl and Contour Map}
+Below is a 3D visualization of a convex loss surface $z = f(x,y) = x^2 + y^2$ alongside its 2D concentric circular contour map.
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+    width=7cm, height=6cm,
+    title={$z = f(x,y) = x^2 + y^2$},
+    xlabel={$x$}, ylabel={$y$}, zlabel={$z$},
+    view={60}{30},
+    colormap/viridis,
+    grid=major
+]
+\addplot3[surf, domain=-2:2, domain y=-2:2, samples=20] {x^2 + y^2};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\end{intuitionbox}
+
 \begin{videocard}{IITM BS Lecture: Multivariable Functions \& Visualization}{https://www.youtube.com/watch?v=MfrAPZRrqxw}
 Official lecture visualizing 3D surface plots $z = f(x,y)$ and 2D contour lines.
 \end{videocard}
+
 
 \section{Partial Derivatives}
 

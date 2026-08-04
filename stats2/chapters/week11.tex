@@ -46,6 +46,33 @@ For $H_0: \mu = \mu_0$ with test statistic $Z_{\text{calc}} = \frac{\bar{X}_n - 
 Common Critical Values: For $\alpha = 0.05 \implies z_{0.025} = 1.96$ (two-tailed), $z_{0.05} = 1.645$ (one-tailed).
 \end{formulabox}
 
+\begin{intuitionbox}{Visualizing Rejection Region and $p$-Value Tail Area}
+Below is the standard normal sampling distribution under $H_0$, highlighting the critical rejection regions ($\alpha/2$) for a two-tailed test.
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+    width=8cm, height=4.5cm,
+    axis lines=left,
+    xlabel={$Z$}, ylabel={$f(z)$},
+    xmin=-3.2, xmax=3.2, ymin=0, ymax=0.42,
+    ticks=none
+]
+% Gaussian curve
+\addplot[thick, statsdark, domain=-3.2:3.2, samples=100] {exp(-x^2/2)/sqrt(2*pi)};
+% Left rejection tail
+\addplot[fill=red!40, draw=none, domain=-3.2:-1.96, samples=50] {exp(-x^2/2)/sqrt(2*pi)} \closedcycle;
+% Right rejection tail
+\addplot[fill=red!40, draw=none, domain=1.96:3.2, samples=50] {exp(-x^2/2)/sqrt(2*pi)} \closedcycle;
+% Dashed critical value lines
+\draw[dashed, red!80!black] (axis cs:-1.96,0) -- (axis cs:-1.96,0.058) node[above=8pt] {$-z_{\alpha/2}$};
+\draw[dashed, red!80!black] (axis cs:1.96,0) -- (axis cs:1.96,0.058) node[above=8pt] {$+z_{\alpha/2}$};
+\node at (axis cs:0,0.15) {\small Accept $H_0$ ($1-\alpha$)};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\end{intuitionbox}
+
+
 \begin{videocard}{IITM BS Lecture: Standard Testing Methods: Z-Test}{https://www.youtube.com/watch?v=ZLj66E1Ue5Q}
 Official lecture executing one-sample and two-sample Z-tests on numerical dataset examples.
 \end{videocard}

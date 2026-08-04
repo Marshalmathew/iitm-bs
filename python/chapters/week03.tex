@@ -66,9 +66,18 @@ for i in range(1, 4):
 \end{lstlisting}
 \end{examplebox}
 
+\begin{intuitionbox}{Loop Execution Count and Big-$O$ Time Complexity}
+\begin{itemize}
+    \item \textbf{Single Loop:} A loop running $N$ times executes $O(N)$ operations (Linear Time).
+    \item \textbf{Nested Loops:} If an outer loop runs $N$ times and an inner loop runs $N$ times, the total number of body executions is $N \times N = N^2$, yielding $O(N^2)$ time complexity (Quadratic Time).
+\end{itemize}
+When working with millions of rows in Data Science, nested loops ($O(N^2)$) become very slow—which is why we use vectorized operations in NumPy!
+\end{intuitionbox}
+
 \begin{videocard}{IITM BS Lecture: Nested For Loops}{https://www.youtube.com/watch?v=-4MRaWABCuo}
 Official lecture demonstrating multi-dimensional iteration using nested loops.
 \end{videocard}
+
 
 \section{Loop Control Statements: \texttt{break}, \texttt{continue}, and \texttt{pass}}
 

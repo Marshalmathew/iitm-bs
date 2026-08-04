@@ -97,6 +97,34 @@ If the graph is weighted, the \textbf{Minimum Spanning Tree (MST)} is the spanni
 Official IIT Madras lecture introducing the MST problem and comparing the mechanics of Prim and Kruskal.
 \end{videocard}
 
+\begin{examplebox}{NetworkX Implementation: Dijkstra \& Kruskal MST}
+In Data Science, graph algorithms are efficiently executed using the \texttt{networkx} Python library:
+\begin{lstlisting}[style=pystyle]
+import networkx as nx
+
+# Build a weighted graph
+G = nx.Graph()
+edges = [
+    ('A', 'B', 4), ('A', 'C', 2),
+    ('B', 'C', 1), ('B', 'D', 5),
+    ('C', 'D', 8), ('C', 'E', 10),
+    ('D', 'E', 2)
+]
+for u, v, w in edges:
+    G.add_edge(u, v, weight=w)
+
+# 1. Single-Source Shortest Path (Dijkstra)
+path = nx.dijkstra_path(G, source='A', target='E')
+length = nx.dijkstra_path_length(G, source='A', target='E')
+print(f"Shortest path A -> E: {path} with weight {length}")
+
+# 2. Minimum Spanning Tree (Kruskal)
+mst = nx.minimum_spanning_tree(G, algorithm='kruskal')
+print("MST Edges:", list(mst.edges(data=True)))
+\end{lstlisting}
+\end{examplebox}
+
+
 \section*{Supplementary Lecture Videos}
 For further reinforcement and specialized topics, refer to the following official IIT Madras lectures:
 \begin{itemize}

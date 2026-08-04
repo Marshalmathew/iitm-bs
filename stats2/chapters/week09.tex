@@ -42,9 +42,20 @@ $$L(\theta) = \prod_{i=1}^n f(x_i \mid \theta) \implies \ell(\theta) = \ln L(\th
 Solve the first-order optimization condition $\frac{d\ell(\theta)}{d\theta} = 0$ for $\hat{\theta}_{\text{MLE}}$.
 \end{definitionbox}
 
+\begin{examplebox}{Step-by-Step Derivation of Poisson MLE}
+Let $X_1, \dots, X_n \stackrel{iid}{\sim} \text{Poisson}(\lambda)$.
+\begin{enumerate}
+    \item \textbf{Likelihood Function:} $L(\lambda) = \prod_{i=1}^n \frac{e^{-\lambda} \lambda^{x_i}}{x_i!} = \frac{e^{-n\lambda} \lambda^{\sum x_i}}{\prod x_i!}$.
+    \item \textbf{Log-Likelihood:} $\ell(\lambda) = \ln L(\lambda) = -n\lambda + \left(\sum_{i=1}^n x_i\right) \ln \lambda - \ln \left(\prod x_i!\right)$.
+    \item \textbf{First Derivative (Score Function):} $\frac{d\ell}{d\lambda} = -n + \frac{\sum x_i}{\lambda} = 0$.
+    \item \textbf{Solve for $\lambda$:} $\frac{\sum x_i}{\lambda} = n \implies \hat{\lambda}_{\text{MLE}} = \frac{1}{n}\sum_{i=1}^n x_i = \bar{X}_n$.
+\end{enumerate}
+\end{examplebox}
+
 \begin{videocard}{IITM BS Lecture: Maximum Likelihood Estimation (MLE)}{https://www.youtube.com/watch?v=0qnRu8GNxBg}
 Official lecture constructing log-likelihood functions and solving likelihood equations.
 \end{videocard}
+
 
 \section{Confidence Intervals}
 

@@ -21,6 +21,31 @@ Because probabilities must be valid, a mathematically legal PDF $f(x)$ must sati
 \emph{Crucial Distinction:} Unlike a PMF, the value of $f(x)$ can absolutely be greater than $1$. It is a \emph{density}, not a probability. Only the \emph{area} under it must be $\le 1$.
 \end{theorembox}
 
+\begin{intuitionbox}{Visualizing Probability as Area Under the Density Curve}
+Below is a Gaussian curve showing how probability $P(a \le X \le b)$ corresponds to the shaded area under the curve.
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+    width=8cm, height=5cm,
+    axis lines=left,
+    xlabel={$x$}, ylabel={$f(x)$},
+    xmin=-3.5, xmax=3.5, ymin=0, ymax=0.45,
+    ticks=none
+]
+% Density curve
+\addplot[thick, primaryborder, domain=-3.5:3.5, samples=100] {exp(-x^2/2)/sqrt(2*pi)};
+% Shaded probability area between -1 and 1
+\addplot[fill=primarylight, draw=none, domain=-1:1, samples=100] {exp(-x^2/2)/sqrt(2*pi)} \closedcycle;
+% Vertical markers
+\draw[dashed] (axis cs:-1,0) -- (axis cs:-1,0.242) node[below=15pt] {$a$};
+\draw[dashed] (axis cs:1,0) -- (axis cs:1,0.242) node[below=15pt] {$b$};
+\node at (axis cs:0,0.1) {\small Area = $P(a \le X \le b)$};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\end{intuitionbox}
+
+
 \begin{videocard}{StatQuest: Probability Density Functions (PDFs)}{https://www.youtube.com/watch?v=79953_-VFzQ}
 A visually clear explanation of what a PDF is, why $f(x)$ is not a probability, and how to compute probabilities from it using integrals.
 \end{videocard}
