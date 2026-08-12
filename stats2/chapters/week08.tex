@@ -68,8 +68,7 @@ $$Z_n = \frac{\bar{X}_n - \mu}{\sigma / \sqrt{n}} = \frac{\sum_{i=1}^n X_i - n\m
 For large $n$ (typically $n \ge 30$), $\bar{X}_n \approx \mathcal{N}\left(\mu, \frac{\sigma^2}{n}\right)$ regardless of the shape of the original underlying distribution!
 \index{Data Science Relevance:}\textbf{Data Science Relevance:} CLT is the reason why z-confidence intervals, hypothesis tests, and normal error approximations in generalized linear models (GLMs) work reliably on large datasets even when features are non-Gaussian!
 
-\begin{figure}[htpb]
-\centering
+\begin{center}
 \begin{tikzpicture}
 \begin{axis}[
     width=10cm, height=5cm,
@@ -87,7 +86,7 @@ For large $n$ (typically $n \ge 30$), $\bar{X}_n \approx \mathcal{N}\left(\mu, \
 \addplot [thick, primaryborder, fill=primarylight!50!white] {exp(-x^2/2) / sqrt(2*pi)};
 \end{axis}
 \end{tikzpicture}
-\end{figure}
+\end{center}
 \end{theorembox}
 
 \begin{videocard}{IITM BS Lecture: The Central Limit Theorem (CLT)}{https://www.youtube.com/watch?v=o5wSSPcbp6U}
