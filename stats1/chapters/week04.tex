@@ -2,11 +2,21 @@
 
 Real-world data science problems almost always involve studying \emph{relationships} between variables. Does smoking cause lung cancer? Does square footage predict house price? This chapter covers the mathematical tools to quantify association between two variables, depending on whether they are categorical or numerical.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Two Categorical Variables: Contingency Tables
+    \item Two Numerical Variables: Covariance and Correlation
+    \item Categorical \& Numerical: Point Biserial Correlation
+\end{itemize}
+\end{tcolorbox}
 \section{Two Categorical Variables: Contingency Tables}
 
-When both variables are categorical, we use a \textbf{contingency table} (also known as a cross-tabulation or two-way table) to map their joint frequencies.
+When both variables are categorical, we use a \index{contingency table}\textbf{contingency table} (also known as a cross-tabulation or two-way table) to map their joint frequencies.
 
 \begin{definitionbox}{Contingency Table Frequencies}
+\index{Contingency Table Frequencies}
 Let $f_{ij}$ be the frequency in row $i$ and column $j$, and let $n$ be the total sample size.
 \begin{itemize}
     \item \textbf{Joint Relative Frequency:} $\frac{f_{ij}}{n}$ — The proportion of the total sample that falls into both row $i$ AND column $j$.
@@ -16,7 +26,7 @@ Let $f_{ij}$ be the frequency in row $i$ and column $j$, and let $n$ be the tota
 \end{definitionbox}
 
 \begin{theorembox}{Defining Association for Categorical Variables}
-Two categorical variables are \textbf{associated} (dependent) if the conditional relative frequencies of one variable \emph{change} depending on the category of the other variable. If the conditional distributions are identical across all rows, the variables are \textbf{independent}.
+Two categorical variables are \index{associated}\textbf{associated} (dependent) if the conditional relative frequencies of one variable \emph{change} depending on the category of the other variable. If the conditional distributions are identical across all rows, the variables are \index{independent}\textbf{independent}.
 \end{theorembox}
 
 \begin{videocard}{IITM BS Lecture: W4\_L2 \& L3 Two Categorical Variables}{https://www.youtube.com/watch?v=iG9ATr_t_ZE}
@@ -30,12 +40,12 @@ Official lectures covering contingency tables and calculating relative frequenci
 \renewcommand{\arraystretch}{1.3}
 \begin{tabular}{lcccc}
 \toprule
- & \textbf{Product A} & \textbf{Product B} & \textbf{Product C} & \textbf{Total} \\
+ & \index{Product A}\textbf{Product A} & \index{Product B}\textbf{Product B} & \index{Product C}\textbf{Product C} & \index{Total}\textbf{Total} \\
 \midrule
-Male   & 40 & 30 & 50 & \textbf{120} \\
-Female & 20 & 40 & 20 &  \textbf{80} \\
+Male   & 40 & 30 & 50 & \index{120}\textbf{120} \\
+Female & 20 & 40 & 20 &  \index{80}\textbf{80} \\
 \midrule
-\textbf{Total} & \textbf{60} & \textbf{70} & \textbf{70} & \textbf{200} \\
+\index{Total}\textbf{Total} & \index{60}\textbf{60} & \index{70}\textbf{70} & \index{70}\textbf{70} & \index{200}\textbf{200} \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -45,15 +55,31 @@ Female & 20 & 40 & 20 &  \textbf{80} \\
     \item Conditional distribution of preference \emph{given Male}: A = $40/120 \approx 33\%$, B = $25\%$, C = $42\%$. 
     \item Conditional distribution of preference \emph{given Female}: A = $20/80 = 25\%$, B = $50\%$, C = $25\%$. 
 \end{itemize}
-Because $33\% \neq 25\%$ (for Product A), the conditional distributions differ. Therefore, Gender and Product Preference are \textbf{associated}.
+Because $33\% \neq 25\%$ (for Product A), the conditional distributions differ. Therefore, Gender and Product Preference are \index{associated}\textbf{associated}.
 \end{examplebox}
 
 \section{Two Numerical Variables: Covariance and Correlation}
 
-When both variables are numerical, we first visualize them using a \textbf{scatterplot}. Then, we quantify their linear relationship using Covariance and Correlation.
+\begin{intuitionbox}{Correlation does not imply Causation}
+Ice cream sales and shark attacks have a strong positive correlation ($r = 0.85$). Does eating ice cream attract sharks? No. Both are caused by a third, hidden "confounding" variable: Summer heat. People swim more and eat more ice cream in the summer. Correlation only measures mathematical alignment, not cause-and-effect!
+\end{intuitionbox}
+
+\begin{lstlisting}[language=Python, caption=Data Science: Correlation in Pandas]
+import pandas as pd
+
+df = pd.DataFrame({
+    "IceCream_Sales": [10, 20, 30, 40, 50],
+    "Shark_Attacks":  [1,  2,  3,  4,  5]
+})
+
+# Calculate Pearson Correlation
+print(df.corr()) 
+\end{lstlisting}
+
+When both variables are numerical, we first visualize them using a \index{scatterplot}\textbf{scatterplot}. Then, we quantify their linear relationship using Covariance and Correlation.
 
 \begin{formulabox}{Covariance}
-The \textbf{covariance} between $X$ and $Y$ measures how much they vary together:
+The \index{covariance}\textbf{covariance} between $X$ and $Y$ measures how much they vary together:
 $$s_{XY} = \frac{1}{n-1}\sum_{i=1}^{n}(x_i - \bar{x})(y_i - \bar{y})$$
 \begin{itemize}
     \item $s_{XY} > 0$: $X$ and $Y$ tend to increase together (positive association).
@@ -75,11 +101,11 @@ $$r = \frac{s_{XY}}{s_X \cdot s_Y} = \frac{\displaystyle\sum_{i=1}^{n}(x_i-\bar{
     \item $-1 \le r \le 1$ always.
     \item $r = +1$: Perfect positive linear relationship (all points lie exactly on an upward line).
     \item $r = -1$: Perfect negative linear relationship.
-    \item $r = 0$: No \textbf{linear} relationship. (Warning: they could still have a perfect non-linear relationship, like a U-shape parabola!)
+    \item $r = 0$: No \index{linear}\textbf{linear} relationship. (Warning: they could still have a perfect non-linear relationship, like a U-shape parabola!)
 \end{itemize}
 \end{formulabox}
 
-\textbf{Data Science Relevance:} Correlation is the foundation of \textbf{Feature Selection}. If a feature has $r \approx 0$ with your target variable, it's generally useless for a linear regression model and should be dropped. Conversely, if two input features have $r \approx 1$ with each other, they are redundant. This is called \textbf{Multicollinearity}, and you should drop one of them to simplify your model.
+\textbf{Data Science Relevance:} Correlation is the foundation of \index{Feature Selection}\textbf{Feature Selection}. If a feature has $r \approx 0$ with your target variable, it's generally useless for a linear regression model and should be dropped. Conversely, if two input features have $r \approx 1$ with each other, they are redundant. This is called \index{Multicollinearity}\textbf{Multicollinearity}, and you should drop one of them to simplify your model.
 
 \begin{videocard}{IITM BS Lecture: W4\_L7 Correlation}{https://www.youtube.com/watch?v=v0CaodTv8zw}
 Official lecture on calculating Pearson's $r$ and understanding bounds of $-1$ to $1$.
@@ -88,18 +114,11 @@ Official lecture on calculating Pearson's $r$ and understanding bounds of $-1$ t
 \section{Categorical \& Numerical: Point Biserial Correlation}
 
 What if one variable is Categorical (specifically, binary) and the other is Numerical? 
-We encode the binary variable as $0$ and $1$, and apply the exact same Pearson formula. Algebraically, this simplifies into the \textbf{Point Biserial Correlation} ($r_{pb}$):
+We encode the binary variable as $0$ and $1$, and apply the exact same Pearson formula. Algebraically, this simplifies into the \index{Point Biserial Correlation}\textbf{Point Biserial Correlation} ($r_{pb}$):
 
 $$r_{pb} = \frac{\bar{x}_1 - \bar{x}_0}{s_X}\sqrt{\frac{n_1 n_0}{n^2}}$$
 
 Where $\bar{x}_1, \bar{x}_0$ are the means of the continuous variable for group 1 and group 0, $n_1, n_0$ are the group sizes, and $s_X$ is the overall standard deviation of the continuous variable.
-
-\section*{Supplementary Lecture Videos}
-\begin{itemize}
-    \item \href{https://www.youtube.com/watch?v=38019YAFyN8}{W4\_L4: Association between two numerical variables - scatterplot}
-    \item \href{https://www.youtube.com/watch?v=1-9_vRZV-ck}{W4\_L8: Association between two numerical variables - fitting a line}
-    \item \href{https://www.youtube.com/watch?v=0q40C-Qu5TE}{W4\_L9: Association between categorical \& numerical variables}
-\end{itemize}
 
 \newpage
 \section{Practice Exercises}

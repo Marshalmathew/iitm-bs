@@ -1,8 +1,22 @@
 \chapter{Graph Theory (II): Shortest Paths and Spanning Trees}
+\index{Graph Theory (II): Shortest Paths and Spanning Trees}
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Transitive Closure and Reachability
+    \item Shortest Path Algorithms
+    \item Minimum Cost Spanning Trees (MST)
+\end{itemize}
+\end{tcolorbox}
 This chapter explores advanced structural graph algorithms, focusing on heavily weighted networks. We will learn how to find the most efficient paths between nodes and how to connect an entire network with the minimum possible cost. In data science and operations research, these algorithms solve massive logistics problems, network routing (like Google Maps), and cluster optimization.
 
 \section{Transitive Closure and Reachability}
+
+\begin{intuitionbox}{The Ripple Effect}
+If you want to know who can influence whom in a network, you don't just look at direct connections; you look at the ripple effect. If A connects to B, and B connects to C, A can reach C. Transitive closure is the mathematical way of finding every possible ripple across the entire graph.
+\end{intuitionbox}
 
 The \textbf{transitive closure} of a directed graph $G = (V, E)$ determines whether there exists a directed path from vertex $i$ to vertex $j$ for all pairs $i, j \in V$.
 
@@ -124,17 +138,6 @@ print("MST Edges:", list(mst.edges(data=True)))
 \end{lstlisting}
 \end{examplebox}
 
-
-\section*{Supplementary Lecture Videos}
-For further reinforcement and specialized topics, refer to the following official IIT Madras lectures:
-\begin{itemize}
-    \item \href{https://www.youtube.com/watch?v=934a17SB5NY}{W11\_L1: Longest paths in DAGs – task scheduling \& dependencies}
-    \item \href{https://www.youtube.com/watch?v=N_PvNrQXUg4}{W11\_L3: Matrix multiplication | graphs, boolean algebra \& transitive closure}
-    \item \href{https://www.youtube.com/watch?v=4l_g6IQz6Go}{W11\_L4: Shortest paths in weighted graphs | single source \& all pairs}
-    \item \href{https://www.youtube.com/watch?v=Rhm-0SD-NfE}{W11\_L7: All-pairs shortest paths | floyd-warshall algorithm}
-    \item \href{https://www.youtube.com/watch?v=btr8zJBgaQg}{W11\_L9: Minimum cost spanning trees | prim’s algorithm}
-    \item \href{https://www.youtube.com/watch?v=-0diRWTGgk8}{W11\_L10: Minimum cost spanning trees | kruskal’s algorithm}
-\end{itemize}
 
 \newpage
 \section{Practice Exercises}

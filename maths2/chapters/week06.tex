@@ -1,8 +1,22 @@
 \chapter{Matrix Representation, Kernel, Image \& Rank-Nullity}
 
-Every linear transformation between finite-dimensional vector spaces can be uniquely represented as a matrix multiplication with respect to chosen ordered bases. Furthermore, the fundamental relationship between domain dimension, image dimension, and kernel dimension is governed by the celebrated \textbf{Rank-Nullity Theorem}.
+Every linear transformation between finite-dimensional vector spaces can be uniquely represented as a matrix multiplication with respect to chosen ordered bases. Furthermore, the fundamental relationship between domain dimension, image dimension, and kernel dimension is governed by the celebrated \index{Rank-Nullity Theorem}\textbf{Rank-Nullity Theorem}.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Matrix Representation of Linear Transformations
+    \item Kernel and Image of Linear Transformations
+    \item The Rank-Nullity Theorem
+\end{itemize}
+\end{tcolorbox}
 \section{Matrix Representation of Linear Transformations}
+
+\begin{intuitionbox}{Partial Derivatives as Slices}
+Imagine standing on a hilly terrain. A partial derivative with respect to X is like locking your feet so you can only walk East/West, and asking 'How steep is the hill in this specific direction?' It ignores the North/South completely by treating Y as a constant.
+\end{intuitionbox}
+
 
 Let $T: V \to W$ be a linear transformation, where $\mathcal{B}_V = \{\mathbf{v}_1, \dots, \mathbf{v}_n\}$ is an ordered basis for domain $V$, and $\mathcal{B}_W = \{\mathbf{w}_1, \dots, \mathbf{w}_m\}$ is an ordered basis for codomain $W$.
 
@@ -47,6 +61,19 @@ $$\nullity(A) + \rank(A) = n \quad (\text{number of columns / input features})$$
 \end{theorembox}
 
 \textbf{Data Science Relevance:} The Rank-Nullity Theorem guarantees conservation of dimension when passing data through linear autoencoders and neural network linear layers.
+
+\begin{lstlisting}[language=Python, caption=Data Science: Rank-Nullity Verification]
+import numpy as np
+from scipy.linalg import null_space
+
+A = np.array([[1, 2, 3], [2, 4, 6], [1, 1, 1]])
+n_cols = A.shape[1]
+rank = np.linalg.matrix_rank(A)
+nullity = null_space(A).shape[1]
+
+print(f"Rank ({rank}) + Nullity ({nullity}) = {rank + nullity}")
+print(f"Number of columns: {n_cols}")
+\end{lstlisting}
 
 \newpage
 \section{Practice Exercises}

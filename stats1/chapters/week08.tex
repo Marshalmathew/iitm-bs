@@ -1,7 +1,16 @@
 \chapter{Random Variables}
 
-Until now, our sample spaces have been arbitrary sets of outcomes, like \{Heads, Tails\} or \{Spam, Legit\}. But mathematics requires numbers. A \textbf{Random Variable} acts as a bridge, translating physical outcomes into numbers so we can do algebra and calculus on them.
+Until now, our sample spaces have been arbitrary sets of outcomes, like \{Heads, Tails\} or \{Spam, Legit\}. But mathematics requires numbers. A \index{Random Variable}\textbf{Random Variable} acts as a bridge, translating physical outcomes into numbers so we can do algebra and calculus on them.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Introduction to Random Variables
+    \item The Probability Mass Function (PMF)
+    \item The Cumulative Distribution Function (CDF)
+\end{itemize}
+\end{tcolorbox}
 \section{Introduction to Random Variables}
 
 \begin{definitionbox}{Random Variable}
@@ -18,7 +27,7 @@ $X(HH) = 2$, $X(HT) = 1$, $X(TH) = 1$, $X(TT) = 0$.
 \end{itemize}
 \end{theorembox}
 
-\textbf{Data Science Relevance:} In Machine Learning, classifying a label (like predicting whether a tumor is Malignant or Benign) is modeling a \textbf{Discrete Random Variable}. Predicting an exact numerical value (like predicting the future price of a stock) is modeling a \textbf{Continuous Random Variable}.
+\textbf{Data Science Relevance:} In Machine Learning, classifying a label (like predicting whether a tumor is Malignant or Benign) is modeling a \index{Discrete Random Variable}\textbf{Discrete Random Variable}. Predicting an exact numerical value (like predicting the future price of a stock) is modeling a \index{Continuous Random Variable}\textbf{Continuous Random Variable}.
 
 \begin{videocard}{IITM BS Lecture: W8\_L1 \& L3 Random Variables}{https://www.youtube.com/watch?v=6EPAFA3orpA}
 Official lectures defining random variables and clearly separating Discrete from Continuous.
@@ -29,7 +38,8 @@ Official lectures defining random variables and clearly separating Discrete from
 For discrete random variables, we want to know the probability of hitting a specific numerical value.
 
 \begin{definitionbox}{Probability Mass Function (PMF)}
-The \textbf{Probability Mass Function} of a discrete random variable $X$, denoted $f(x)$ or $P(X=x)$, gives the exact probability that $X$ will take on the value $x$.
+\index{Probability Mass Function (PMF)}
+The \index{Probability Mass Function}\textbf{Probability Mass Function} of a discrete random variable $X$, denoted $f(x)$ or $P(X=x)$, gives the exact probability that $X$ will take on the value $x$.
 \end{definitionbox}
 
 \begin{formulabox}{Properties of a Valid PMF}
@@ -48,7 +58,24 @@ Official lectures detailing the properties of PMFs and how to graph them as stic
 
 Sometimes we don't just want $P(X = x)$. We want to know the probability that $X$ is \emph{less than or equal to} $x$. (e.g., What is the probability a server goes down in 5 days \emph{or less}?).
 
+\begin{intuitionbox}{The Snowball Effect}
+If PMF is the amount of snow falling on exactly one specific day, the CDF is the total depth of snow accumulated on the ground up to that day. As the days go on, the total depth (CDF) can only stay the same (if no snow falls) or increase. It can never decrease, eventually reaching 100\% of the winter's total snowfall.
+\end{intuitionbox}
+
+\begin{lstlisting}[language=Python, caption=Data Science: PMF and CDF from Data]
+import pandas as pd
+
+# Simulating discrete dice rolls
+rolls = pd.Series([2, 3, 3, 4, 4, 4, 5, 5, 6])
+pmf = rolls.value_counts(normalize=True).sort_index()
+cdf = pmf.cumsum()
+
+print("PMF:\n", pmf)
+print("CDF:\n", cdf)
+\end{lstlisting}
+
 \begin{definitionbox}{Cumulative Distribution Function (CDF)}
+\index{Cumulative Distribution Function (CDF)}
 The \textbf{Cumulative Distribution Function}, denoted $F(x)$, gives the accumulating probability up to and including $x$.
 $$F(x) = P(X \le x) = \sum_{k \le x} P(X = k)$$
 \end{definitionbox}
@@ -58,7 +85,7 @@ $$F(x) = P(X \le x) = \sum_{k \le x} P(X = k)$$
     \item \textbf{Bounds:} $0 \le F(x) \le 1$.
     \item \textbf{Non-Decreasing:} If $x_1 < x_2$, then $F(x_1) \le F(x_2)$. (It can only go up, never down).
     \item \textbf{Limits:} As $x \to -\infty$, $F(x) \to 0$. As $x \to \infty$, $F(x) \to 1$.
-    \item For a discrete variable, the CDF graph looks like a \textbf{step function}, jumping up exactly at the values where the PMF has mass.
+    \item For a discrete variable, the CDF graph looks like a \index{step function}\textbf{step function}, jumping up exactly at the values where the PMF has mass.
 \end{enumerate}
 \end{theorembox}
 

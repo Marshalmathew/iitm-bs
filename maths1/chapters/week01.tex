@@ -2,6 +2,16 @@
 
 This chapter covers the foundational building blocks of mathematical language: number systems, sets, relations, and functions. While these topics might seem entirely abstract at first glance, they are the very same tools used to formalize data structures, database tables, and the mapping of inputs to outputs in machine learning models. 
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Number Systems
+    \item Set Theory
+    \item Relations
+    \item Functions
+\end{itemize}
+\end{tcolorbox}
 \section{Number Systems}
 
 Before we can organize items into sets, we need to establish the standard sets of numbers used in mathematical analysis. In data science, understanding number systems helps you decide how to represent features in memory (e.g., integers vs. floating-point numbers) and dictates what kind of statistical models you can apply.
@@ -20,6 +30,10 @@ Official IIT Madras lecture explaining rational and irrational numbers in depth.
 \end{videocard}
 
 \section{Set Theory}
+
+\begin{intuitionbox}{Understanding Sets}
+Think of a set as a labeled box into which you can put distinct items. A subset is simply taking a smaller box and placing some of those same items inside it. In Data Science, this "box" is often a dataset, and the items are your data points!
+\end{intuitionbox}
 
 A \index{Sets}\textbf{set} is a well-defined, unordered collection of distinct objects. The objects contained within a set are called its \textit{elements} or \textit{members}. Sets are usually denoted by uppercase letters ($A, B, C$) and elements by lowercase letters ($a, b, x, y$).
 
@@ -52,6 +66,10 @@ Just as we can add and multiply numbers, we can combine sets using specific oper
     \item \index{Complement}\textbf{Complement ($A^c$ or $A'$):} Elements in the universal set $U$ that are not in $A$.
     \item \index{Cartesian Product}\textbf{Cartesian Product ($A \times B$):} The set of all possible ordered pairs where the first element is from $A$ and the second is from $B$: $\set{(a, b) \mid a \in A, b \in B}$.
 \end{itemize}
+
+\begin{warningbox}{Order Matters!}
+Remember that sets are unordered, meaning $\set{1, 2} = \set{2, 1}$. However, the Cartesian Product creates \textit{ordered pairs} $(a, b)$. The pair $(1, 2)$ is NOT the same as the pair $(2, 1)$. Therefore, $A \times B \neq B \times A$ unless $A=B$ or one of them is empty.
+\end{warningbox}
 
 \vspace{0.5cm}
 \noindent
@@ -268,22 +286,19 @@ Notice how $f(2) = 4$ and $f(-2) = 4$. Two distinct inputs map to the exact same
 Official IIT Madras lecture specifically covering domain, codomain, range, and properties of mappings.
 \end{videocard}
 
-\section*{Supplementary Lecture Videos}
-For further reinforcement and specialized topics, refer to the following official IIT Madras lectures:
-\begin{itemize}
-    \item \href{https://www.youtube.com/watch?v=F9BZ5JsnjYM}{W1\_L0: Introduction to the course basics}
-    \item \href{https://www.youtube.com/watch?v=WEC6jPWvoj8}{W1\_L1: Natural numbers \& their operations}
-    \item \href{https://www.youtube.com/watch?v=jHBIJ50DhJQ}{W1\_L2: Rational numbers - fractions \& their properties}
-    \item \href{https://www.youtube.com/watch?v=Ue3y-OE_2lE}{W1\_L5: Construction of subsets \& set operations}
-    \item \href{https://www.youtube.com/watch?v=bW5O7a1VX4w}{W1\_L5A: Sets examples - membership subsets \& comprehension}
-    \item \href{https://www.youtube.com/watch?v=NwYHojyw3SU}{W1\_L5B: Examples of set operations \& counting problems}
-    \item \href{https://www.youtube.com/watch?v=6CyagSq3fWA}{W1\_L7A: Relations examples - cartesian products tables \& join operations}
-    \item \href{https://www.youtube.com/watch?v=6YrUx0bAnuQ}{W1\_L7B: Function examples - domains ranges \& growth of functions}
-    \item \href{https://www.youtube.com/watch?v=98NeCye2i3k}{W1\_L8: Prime numbers - euclids proof infinitude \& applications in cryptography}
-    \item \href{https://www.youtube.com/watch?v=xUZeskT6WiQ}{W1\_L9: Why is a number irrational - proof of sqrt2}
-    \item \href{https://www.youtube.com/watch?v=kM9nVJks1a8}{W1\_L10: Sets versus collections - russells paradox \& mathematical foundations}
-    \item \href{https://www.youtube.com/watch?v=yjJ_pualJr4}{W1\_L11: Degrees of infinity - countable \& uncountable sets}
-\end{itemize}
+\vspace{0.3cm}
+\textbf{Checkpoint:} If a function $\func{f}{A}{B}$ is injective but not surjective, how does the size (cardinality) of set $A$ compare to set $B$?
+\vspace{0.3cm}
+
+\section{Capstone: Data Modeling with Sets and Functions}
+
+Let's tie the abstract math to a concrete data engineering task. Imagine you are building a database for a university. 
+
+\begin{enumerate}
+    \item \textbf{Sets:} You define a set $S$ of all students and a set $C$ of all courses. 
+    \item \textbf{Relations:} You create an "Enrollment" table. Mathematically, this is a relation $R \subseteq S \times C$. If student $s_1$ takes course $c_1$, the ordered pair $(s_1, c_1) \in R$. Because a student can take multiple courses, this is just a relation, \textit{not} a function from $S$ to $C$.
+    \item \textbf{Functions:} You assign every student exactly one unique ID. Let $I$ be the set of all possible 8-digit IDs. The mapping $\func{f}{S}{I}$ is a \textbf{function} because every student gets exactly one ID. Furthermore, it must be \textbf{injective} because no two students can share the same ID!
+\end{enumerate}
 
 \newpage
 \section{Practice Exercises}

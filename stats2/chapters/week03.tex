@@ -1,7 +1,16 @@
 \chapter{Expectation, Covariance, Correlation \& Probability Bounds}
 
-Summary statistics—such as the mean (center) and variance (spread)—compress complex probability distributions into single numbers. In this chapter, we master \textbf{Joint Expectation}, \textbf{Covariance}, Pearson's \textbf{Correlation Coefficient}, and distribution-free probability bounds via \textbf{Markov's} and \textbf{Chebyshev's Inequalities}.
+Summary statistics—such as the mean (center) and variance (spread)—compress complex probability distributions into single numbers. In this chapter, we master \index{Joint Expectation}\textbf{Joint Expectation}, \index{Covariance}\textbf{Covariance}, Pearson's \index{Correlation Coefficient}\textbf{Correlation Coefficient}, and distribution-free probability bounds via \index{Markov's}\textbf{Markov's} and \index{Chebyshev's Inequalities}\textbf{Chebyshev's Inequalities}.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Expected Value and Linearity of Expectation
+    \item Covariance and Correlation
+    \item Markov and Chebyshev Inequalities
+\end{itemize}
+\end{tcolorbox}
 \section{Expected Value and Linearity of Expectation}
 
 \begin{definitionbox}{Expected Value $\E[g(X, Y)]$}
@@ -12,7 +21,7 @@ $$\E[g(X, Y)] = \sum_{x} \sum_{y} g(x, y) \cdot p_{X,Y}(x, y)$$
 \begin{theorembox}{Linearity of Expectation}
 For any random variables $X_1, X_2, \dots, X_n$ (whether independent or dependent!) and constants $a_i, b$:
 $$\E\left[ \sum_{i=1}^n a_i X_i + b \right] = \sum_{i=1}^n a_i \E[X_i] + b$$
-If $X$ and $Y$ are \textbf{independent}, then $\E[X Y] = \E[X] \E[Y]$.
+If $X$ and $Y$ are \index{independent}\textbf{independent}, then $\E[X Y] = \E[X] \E[Y]$.
 \end{theorembox}
 
 \begin{videocard}{IITM BS Lecture: Expected Value \& Properties of Expectation}{https://www.youtube.com/watch?v=q6Zj54UZqYg}
@@ -21,12 +30,28 @@ Official lecture introducing expectation for joint distributions and proving lin
 
 \section{Covariance and Correlation}
 
-To measure how two random variables co-vary together, we define \textbf{Covariance} and normalized \textbf{Correlation}.
+\begin{intuitionbox}{Visualizing Covariance}
+Imagine a scatterplot with the center point $(\mu_X, \mu_Y)$. This splits the plot into 4 quadrants. Points in the top-right and bottom-left quadrants have a positive $(X-\mu_X)(Y-\mu_Y)$ product, contributing positive covariance. Points in the top-left and bottom-right contribute negative covariance. The final Covariance is essentially a tug-of-war between these quadrants!
+\end{intuitionbox}
+
+\begin{lstlisting}[language=Python, caption=Data Science: Covariance matrix in numpy]
+import numpy as np
+
+x = [1, 2, 3, 4, 5]
+y = [2, 4, 5, 4, 5]
+
+# Calculate the full Covariance Matrix
+cov_matrix = np.cov(x, y, ddof=0)
+print("Covariance Matrix:\n", cov_matrix)
+print("Cov(X,Y):", cov_matrix[0][1])
+\end{lstlisting}
+
+To measure how two random variables co-vary together, we define \index{Covariance}\textbf{Covariance} and normalized \index{Correlation}\textbf{Correlation}.
 
 \begin{definitionbox}{Covariance $\Cov(X, Y)$}
 $$\Cov(X, Y) = \E[(X - \E[X])(Y - \E[Y])] = \E[XY] - \E[X]\E[Y]$$
 \begin{itemize}
-    \item If $X$ and $Y$ are independent $\implies \Cov(X, Y) = 0$. (Note: Zero covariance does \textbf{not} guarantee independence!)
+    \item If $X$ and $Y$ are independent $\implies \Cov(X, Y) = 0$. (Note: Zero covariance does \index{not}\textbf{not} guarantee independence!)
     \item Variance of a sum: $\Var(X + Y) = \Var(X) + \Var(Y) + 2\Cov(X, Y)$.
 \end{itemize}
 \end{definitionbox}

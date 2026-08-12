@@ -1,10 +1,20 @@
 \chapter{Hypothesis Testing: Size, Power, Z-Test \& p-Values}
 
-Hypothesis testing provides a formal mathematical framework for decision-making under uncertainty. In this chapter, we master \textbf{Null vs. Alternative Hypotheses}, \textbf{Type I Error ($\alpha$, Size)}, \textbf{Type II Error ($\beta$, Power $1-\beta$)}, the \textbf{Z-Test}, and \textbf{$p$-values}.
+Hypothesis testing provides a formal mathematical framework for decision-making under uncertainty. In this chapter, we master \textbf{Null vs. Alternative Hypotheses}, \textbf{Type I Error ($\alpha$, Size)}, \textbf{Type II Error ($\beta$, Power $1-\beta$)}, the \index{Z-Test}\textbf{Z-Test}, and \textbf{$p$-values}.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Null and Alternative Hypotheses, Errors, and Power
+    \item The One-Sample Z-Test
+    \item The p-Value
+\end{itemize}
+\end{tcolorbox}
 \section{Null and Alternative Hypotheses, Errors, and Power}
 
 \begin{definitionbox}{Hypotheses and Decision Matrix}
+\index{Hypotheses and Decision Matrix}
 \begin{itemize}
     \item \textbf{Null Hypothesis ($H_0$):} Baseline assumption of no effect or no difference (e.g. $H_0: \mu = \mu_0$).
     \item \textbf{Alternative Hypothesis ($H_1$ or $H_a$):} Claim of interest we seek to prove (e.g. $H_1: \mu \neq \mu_0$ or $H_1: \mu > \mu_0$).
@@ -78,6 +88,28 @@ Official lecture executing one-sample and two-sample Z-tests on numerical datase
 \end{videocard}
 
 \section{The $p$-Value}
+
+\begin{intuitionbox}{What is a $p$-Value really?}
+A $p$-value is NOT the probability that $H_0$ is true. A $p$-value answers a very specific hypothetical question: "IF the null hypothesis were absolutely true, how weird is the data I just collected?" If $p = 0.01$, it means "If $H_0$ is true, there is only a 1\% chance of seeing data this extreme." Because that is so incredibly unlikely, we choose to reject the premise that $H_0$ is true.
+\end{intuitionbox}
+
+\begin{lstlisting}[language=Python, caption=Data Science: Calculating p-values with SciPy]
+import scipy.stats as stats
+
+# Z-test calculation
+z_calc = 2.5 
+
+# Two-tailed p-value (we multiply by 2 because extreme could be positive or negative)
+p_value = 2 * (1 - stats.norm.cdf(abs(z_calc)))
+print(f"p-value for Z={z_calc}: {p_value:.4f}")
+
+# Decision rule
+alpha = 0.05
+if p_value < alpha:
+    print("Reject Null Hypothesis!")
+else:
+    print("Fail to Reject Null Hypothesis.")
+\end{lstlisting}
 
 \begin{definitionbox}{The $p$-Value Definition}
 The \textbf{$p$-value} is the probability of observing a test statistic at least as extreme as the one actually calculated from the sample, assuming $H_0$ is true.

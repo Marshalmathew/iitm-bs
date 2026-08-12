@@ -1,14 +1,24 @@
 \chapter{Multivariable Functions, Partial Derivatives \& Gradient}
 
-Transitioning from 1D single-variable calculus to \textbf{Multivariable Calculus} allows us to model functions with multiple input features: $f(\mathbf{x}) = f(x_1, x_2, \dots, x_n)$. In this chapter, we master \textbf{Partial Derivatives}, \textbf{Directional Derivatives}, and the \textbf{Gradient Vector} $\nabla f$.
+Transitioning from 1D single-variable calculus to \index{Multivariable Calculus}\textbf{Multivariable Calculus} allows us to model functions with multiple input features: $f(\mathbf{x}) = f(x_1, x_2, \dots, x_n)$. In this chapter, we master \index{Partial Derivatives}\textbf{Partial Derivatives}, \index{Directional Derivatives}\textbf{Directional Derivatives}, and the \index{Gradient Vector}\textbf{Gradient Vector} $\nabla f$.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Multivariable Functions and Visualizations
+    \item Partial Derivatives
+    \item The Gradient Vector and Directional Derivatives
+\end{itemize}
+\end{tcolorbox}
 \section{Multivariable Functions and Visualizations}
 
 A scalar-valued multivariable function maps a feature vector in $\mathbb{R}^n$ to a real number output:
 $$f: \mathbb{R}^n \to \mathbb{R}$$
 
 \begin{definitionbox}{Level Sets and Contour Curves}
-For $f(x, y)$, a \textbf{Level Curve} (or Contour) is the set of all points $(x, y)$ where the function takes a constant value $c$:
+\index{Level Sets and Contour Curves}
+For $f(x, y)$, a \index{Level Curve}\textbf{Level Curve} (or Contour) is the set of all points $(x, y)$ where the function takes a constant value $c$:
 $$\{(x, y) \in \mathbb{R}^2 \mid f(x, y) = c\}$$
 \end{definitionbox}
 
@@ -37,7 +47,7 @@ Official lecture visualizing 3D surface plots $z = f(x,y)$ and 2D contour lines.
 
 \section{Partial Derivatives}
 
-The \textbf{Partial Derivative} of $f(x_1, x_2, \dots, x_n)$ with respect to $x_i$ measures the rate of change of $f$ along the $x_i$ coordinate axis, holding all other variables constant.
+The \index{Partial Derivative}\textbf{Partial Derivative} of $f(x_1, x_2, \dots, x_n)$ with respect to $x_i$ measures the rate of change of $f$ along the $x_i$ coordinate axis, holding all other variables constant.
 
 \begin{theorembox}{Partial Derivative Calculation}
 To compute $\frac{\partial f}{\partial x_i}$ (or $f_{x_i}$), treat all variables except $x_i$ as constants and differentiate using standard 1D calculus rules.
@@ -56,19 +66,33 @@ Official lecture defining partial derivatives geometrically as tangent slopes al
 
 \section{The Gradient Vector and Directional Derivatives}
 
-The \textbf{Gradient} $\nabla f(\mathbf{x})$ packs all first-order partial derivatives into a single column vector.
+The \index{Gradient}\textbf{Gradient} $\nabla f(\mathbf{x})$ packs all first-order partial derivatives into a single column vector.
 
 \begin{definitionbox}{The Gradient Vector ($\nabla f$)}
-For $f: \mathbb{R}^n \to \mathbb{R}$, the \textbf{Gradient Vector} is:
+For $f: \mathbb{R}^n \to \mathbb{R}$, the \index{Gradient Vector}\textbf{Gradient Vector} is:
 $$\nabla f(\mathbf{x}) = \begin{bmatrix} \frac{\partial f}{\partial x_1} \\ \frac{\partial f}{\partial x_2} \\ \vdots \\ \frac{\partial f}{\partial x_n} \end{bmatrix} \in \mathbb{R}^n$$
 \end{definitionbox}
 
 \begin{formulabox}{Directional Derivative via Gradient}
-The \textbf{Directional Derivative} $D_{\mathbf{u}} f(\mathbf{x})$ measures the rate of change of $f$ in the direction of a \textbf{unit vector} $\mathbf{u}$ ($\|\mathbf{u}\| = 1$):
+The \index{Directional Derivative}\textbf{Directional Derivative} $D_{\mathbf{u}} f(\mathbf{x})$ measures the rate of change of $f$ in the direction of a \index{unit vector}\textbf{unit vector} $\mathbf{u}$ ($\|\mathbf{u}\| = 1$):
 $$D_{\mathbf{u}} f(\mathbf{x}) = \nabla f(\mathbf{x}) \cdot \mathbf{u} = \|\nabla f(\mathbf{x})\| \cos \theta$$
 \end{formulabox}
 
-\textbf{Data Science Relevance:} The gradient $\nabla f(\mathbf{x})$ points in the direction of \textbf{steepest increase} of the function, while $-\nabla f(\mathbf{x})$ points in the direction of \textbf{steepest descent}—the core mechanism behind updating neural network weights during Gradient Descent training!
+\textbf{Data Science Relevance:} The gradient $\nabla f(\mathbf{x})$ points in the direction of \index{steepest increase}\textbf{steepest increase} of the function, while $-\nabla f(\mathbf{x})$ points in the direction of \index{steepest descent}\textbf{steepest descent}—the core mechanism behind updating neural network weights during Gradient Descent training!
+
+\begin{lstlisting}[language=Python, caption=Data Science: Numerical Gradients]
+import numpy as np
+
+# Simple gradient calculation via finite differences
+def f(w): return w[0]**2 + 3*w[1]**2
+
+w = np.array([2.0, 1.0])
+h = 1e-5
+
+grad_w0 = (f([w[0] + h, w[1]]) - f(w)) / h
+grad_w1 = (f([w[0], w[1] + h]) - f(w)) / h
+print("Numerical Gradient:", [grad_w0, grad_w1])
+\end{lstlisting}
 
 \begin{videocard}{IITM BS Lecture: Directional Derivatives}{https://www.youtube.com/watch?v=uhUqybTaGns}
 Official lecture defining rate of change along arbitrary unit vector directions.

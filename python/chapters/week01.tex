@@ -2,11 +2,26 @@
 
 Welcome to Programming in Python! Python is the undisputed language of modern Data Science, Machine Learning, and Artificial Intelligence. Its clean, human-readable syntax makes it easy to write code, while its powerful ecosystem of libraries (like NumPy, Pandas, and PyTorch) allows data scientists to build cutting-edge intelligent systems.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Variables and Literals
+    \item Core Primitive Data Types
+    \item String Slicing and Basic String Operations
+    \item Operators and Expressions
+\end{itemize}
+\end{tcolorbox}
 \section{Variables and Literals}
 
-In Python, a \textbf{variable} is a named location in memory used to store data. Unlike languages like C++ or Java, Python uses \textbf{dynamic typing}, meaning you do not need to explicitly declare a variable's data type when creating it.
+\begin{intuitionbox}{The Post Office Box}
+Think of variables like P.O. Boxes in a post office. You put a label (the variable name) on a box, and you place something inside it (the data). When you want to use that data later, you just ask for the contents of the box with that specific label.
+\end{intuitionbox}
+
+In Python, a \index{variable}\textbf{variable} is a named location in memory used to store data. Unlike languages like C++ or Java, Python uses \index{dynamic typing}\textbf{dynamic typing}, meaning you do not need to explicitly declare a variable's data type when creating it.
 
 \begin{definitionbox}{Variables and Assignment}
+\index{Variables and Assignment}
 A variable is created the moment you first assign a value to it using the assignment operator (\texttt{=}).
 \begin{lstlisting}
 x = 10          # An integer variable
@@ -15,6 +30,10 @@ pi = 3.14159    # A floating-point variable
 is_valid = True # A boolean variable
 \end{lstlisting}
 \end{definitionbox}
+
+\begin{warningbox}{Dynamic Typing Pitfalls}
+Because Python uses dynamic typing, a variable's type can change if you reassign it (e.g., \texttt{x = 10} then \texttt{x = "hello"}). This flexibility can lead to hidden bugs if you accidentally overwrite an integer with a string and try to perform math on it later!
+\end{warningbox}
 
 \textbf{Data Science Relevance:} In data science, variables hold feature columns, target labels, model hyperparameters (like learning rate $\alpha = 0.01$), and dataset paths.
 
@@ -26,11 +45,16 @@ Official lecture introducing Python variables, assignment statements, and memory
 Official lecture explaining literals, variable naming rules, and assignment mechanics.
 \end{videocard}
 
+\vspace{0.3cm}
+\textbf{Checkpoint:} What happens if you try to create a variable named \texttt{1st\_name = "John"}? (Hint: Think about variable naming rules).
+\vspace{0.3cm}
+
 \section{Core Primitive Data Types}
 
 Python has four primary built-in primitive data types:
 
 \begin{definitionbox}{Primitive Data Types}
+\index{Primitive Data Types}
 \begin{itemize}
     \item \textbf{Integer (\texttt{int}):} Whole numbers without decimals (e.g., \texttt{-5}, \texttt{0}, \texttt{42}).
     \item \textbf{Float (\texttt{float}):} Real numbers with decimal points or scientific notation (e.g., \texttt{3.14}, \texttt{-0.001}, \texttt{2.5e-4}).
@@ -80,7 +104,7 @@ Python supports arithmetic, comparison (relational), logical, and assignment ope
 
 \begin{theorembox}{Arithmetic and Logical Operators}
 \begin{itemize}
-    \item \textbf{Arithmetic:} \texttt{+} (add), \texttt{-} (subtract), \texttt{*} (multiply), \texttt{/} (float division), \texttt{//} (floor division), \texttt{\%} (modulus / remainder), \texttt{\textbackslash\{\}textbf\{} (exponentiation).
+    \item \textbf{Arithmetic:} \texttt{+} (add), \texttt{-} (subtract), \texttt{*} (multiply), \texttt{/} (float division), \texttt{//} (floor division), \texttt{\%} (modulus / remainder), \texttt{**} (exponentiation).
     \item \textbf{Comparison:} \texttt{==} (equal), \texttt{!=} (not equal), \texttt{>}, \texttt{<}, \texttt{>=}, \texttt{<=}.
     \item \textbf{Logical:} \texttt{and}, \texttt{or}, \texttt{not}.
 \end{itemize}
@@ -94,13 +118,37 @@ b = 5
 print(a / b)   # 3.4   (Float Division)
 print(a // b)  # 3     (Floor Division: drops decimal part)
 print(a % b)   # 2     (Modulus: remainder of 17 / 5)
-print(a } b)  # 1419857 (17 raised to the power of 5)
+print(a ** b)  # 1419857 (17 raised to the power of 5)
 \end{lstlisting}
 \end{examplebox}
 
 \begin{videocard}{IITM BS Lecture: Operators and Expressions}{https://www.youtube.com/watch?v=8pu73HKzNOE}
 Official lecture detailing operator precedence, modulus, floor division, and logical expressions.
 \end{videocard}
+
+\section{Capstone: Your First Data Script}
+
+Let's tie everything together. Suppose we have a user's age, height, and weight as strings from an input form. We need to cast them to the correct types, calculate their Body Mass Index (BMI), and use boolean logic to determine if they are in the healthy range (18.5 to 24.9).
+
+\begin{lstlisting}
+# Raw string inputs from a form
+age_input = "25"
+height_input = "1.75"
+weight_input = "70"
+
+# 1. Type Casting
+age = int(age_input)
+height = float(height_input)
+weight = float(weight_input)
+
+# 2. Arithmetic Operations
+bmi = weight / (height ** 2)
+print("Calculated BMI:", round(bmi, 2))
+
+# 3. Boolean Logic
+is_healthy = (bmi >= 18.5) and (bmi <= 24.9)
+print("Is Healthy?", is_healthy)
+\end{lstlisting}
 
 \newpage
 \section{Practice Exercises}

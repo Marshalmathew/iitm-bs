@@ -1,13 +1,26 @@
 \chapter{Scientific Computing: NumPy \& Pandas}
 
-While standard Python lists are versatile, they are slow for massive numerical data because elements are pointers scattered in memory. The scientific Python ecosystem—led by \textbf{NumPy} and \textbf{Pandas}—provides contiguous memory layout, vectorization, and fast C-level execution for data manipulation.
+While standard Python lists are versatile, they are slow for massive numerical data because elements are pointers scattered in memory. The scientific Python ecosystem—led by \index{NumPy}\textbf{NumPy} and \index{Pandas}\textbf{Pandas}—provides contiguous memory layout, vectorization, and fast C-level execution for data manipulation.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item NumPy Arrays vs Python Lists
+    \item Pandas Series and DataFrames
+\end{itemize}
+\end{tcolorbox}
 \section{NumPy Arrays vs Python Lists}
 
-\textbf{NumPy} (Numerical Python) introduces the \texttt{ndarray} (N-dimensional array), an array of homogeneous elements stored contiguously in memory.
+\begin{intuitionbox}{Contiguous Memory: The Bookshelf}
+Standard Python lists are like having books scattered across different rooms in your house; to read them in order, you waste time walking around (pointer jumping). NumPy arrays are like having all your books lined up tightly on a single, continuous bookshelf. Reading them in sequence is incredibly fast because the CPU always knows exactly where the next book is.
+\end{intuitionbox}
+
+\index{NumPy}\textbf{NumPy} (Numerical Python) introduces the \texttt{ndarray} (N-dimensional array), an array of homogeneous elements stored contiguously in memory.
 
 \begin{definitionbox}{NumPy Arrays and Vectorization}
-\textbf{Vectorization} allows mathematical operations to operate on entire arrays simultaneously without explicit Python \texttt{for} loops.
+\index{NumPy Arrays and Vectorization}
+\index{Vectorization}\textbf{Vectorization} allows mathematical operations to operate on entire arrays simultaneously without explicit Python \texttt{for} loops.
 \begin{lstlisting}
 import numpy as np
 
@@ -30,7 +43,7 @@ Official lecture explaining memory layout, performance comparisons, and vectoriz
 
 \section{Pandas Series and DataFrames}
 
-\textbf{Pandas} provides high-performance tabular data structures: the 1D \textbf{Series} (labeled column) and the 2D \textbf{DataFrame} (tabular dataset with labeled rows and columns).
+\index{Pandas}\textbf{Pandas} provides high-performance tabular data structures: the 1D \index{Series}\textbf{Series} (labeled column) and the 2D \index{DataFrame}\textbf{DataFrame} (tabular dataset with labeled rows and columns).
 
 \begin{theorembox}{Pandas DataFrame Mechanics}
 \begin{lstlisting}

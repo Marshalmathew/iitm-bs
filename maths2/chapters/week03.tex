@@ -1,11 +1,21 @@
 \chapter{Vector Spaces, Subspaces \& Linear Independence}
 
-Abstract algebra generalizes $\mathbb{R}^n$ into the formal concept of a \textbf{Vector Space}. Understanding vector spaces and linear independence is crucial for recognizing feature redundancies and understanding high-dimensional data representations.
+Abstract algebra generalizes $\mathbb{R}^n$ into the formal concept of a \index{Vector Space}\textbf{Vector Space}. Understanding vector spaces and linear independence is crucial for recognizing feature redundancies and understanding high-dimensional data representations.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Definition of a Vector Space
+    \item Vector Subspaces
+    \item Linear Combinations, Span, and Linear Independence
+\end{itemize}
+\end{tcolorbox}
 \section{Definition of a Vector Space}
 
 \begin{definitionbox}{Vector Space Axioms}
-A \textbf{Vector Space} $(V, +, \cdot)$ over a field $\mathbb{R}$ is a set $V$ equipped with vector addition $+$ and scalar multiplication $\cdot$ satisfying 8 fundamental axioms:
+\index{Vector Space Axioms}
+A \index{Vector Space}\textbf{Vector Space} $(V, +, \cdot)$ over a field $\mathbb{R}$ is a set $V$ equipped with vector addition $+$ and scalar multiplication $\cdot$ satisfying 8 fundamental axioms:
 \begin{enumerate}
     \item \textbf{Associativity of Addition:} $(\mathbf{u} + \mathbf{v}) + \mathbf{w} = \mathbf{u} + (\mathbf{v} + \mathbf{w})$.
     \item \textbf{Commutativity of Addition:} $\mathbf{u} + \mathbf{v} = \mathbf{v} + \mathbf{u}$.
@@ -24,10 +34,10 @@ Official lecture introducing vector space axioms and canonical examples ($\mathb
 
 \section{Vector Subspaces}
 
-A subset $W \subseteq V$ of a vector space $V$ is a \textbf{Subspace} if $W$ is itself a valid vector space under the same operations.
+A subset $W \subseteq V$ of a vector space $V$ is a \index{Subspace}\textbf{Subspace} if $W$ is itself a valid vector space under the same operations.
 
 \begin{theorembox}{Subspace Test}
-A non-empty subset $W \subseteq V$ is a subspace of $V$ if and only if it satisfies \textbf{3 closure properties}:
+A non-empty subset $W \subseteq V$ is a subspace of $V$ if and only if it satisfies \index{3 closure properties}\textbf{3 closure properties}:
 \begin{enumerate}
 \item \textbf{Zero Vector:} $\mathbf{0} \in W$.
 \item \textbf{Closure under Addition:} If $\mathbf{u}, \mathbf{v} \in W$, then $\mathbf{u} + \mathbf{v} \in W$.
@@ -42,26 +52,39 @@ Official lecture proving subspace criteria and geometric examples (lines/planes 
 \section{Linear Combinations, Span, and Linear Independence}
 
 \begin{definitionbox}{Linear Span and Independence}
+\index{Linear Span and Independence}
 \begin{itemize}
     \item \textbf{Linear Combination:} $\mathbf{v} = c_1 \mathbf{v}_1 + c_2 \mathbf{v}_2 + \dots + c_k \mathbf{v}_k$.
     \item \textbf{Span:} $\vspan(\{\mathbf{v}_1, \dots, \mathbf{v}_k\})$ is the set of all possible linear combinations of the vectors.
-    \item \textbf{Linear Independence:} A set of vectors $\{\mathbf{v}_1, \dots, \mathbf{v}_k\}$ is \textbf{Linearly Independent} if the equation:
+    \item \textbf{Linear Independence:} A set of vectors $\{\mathbf{v}_1, \dots, \mathbf{v}_k\}$ is \index{Linearly Independent}\textbf{Linearly Independent} if the equation:
 \end{itemize}
 $$c_1 \mathbf{v}_1 + c_2 \mathbf{v}_2 + \dots + c_k \mathbf{v}_k = \mathbf{0}$$
-has \textbf{ONLY the trivial solution} $c_1 = c_2 = \dots = c_k = 0$.
+has \index{ONLY the trivial solution}\textbf{ONLY the trivial solution} $c_1 = c_2 = \dots = c_k = 0$.
 
-If a non-trivial solution exists (at least one $c_i \neq 0$), the vectors are \textbf{Linearly Dependent}.
+If a non-trivial solution exists (at least one $c_i \neq 0$), the vectors are \index{Linearly Dependent}\textbf{Linearly Dependent}.
 \end{definitionbox}
 
 \begin{intuitionbox}{Degrees of Freedom \& Redundancy}
 Think of vectors as giving you directions to move in space.
 \begin{itemize}
-    \item A \textbf{Linearly Independent} vector unlocks a brand new dimension. If you have two independent vectors in 3D space, you can travel anywhere on a flat 2D plane. A third independent vector would allow you to step off that plane and explore the entire 3D space.
-    \item A \textbf{Linearly Dependent} vector is completely redundant. It's like being given a third direction that just points somewhere on the 2D plane you can already reach using the first two vectors. It provides zero new ``degrees of freedom''.
+    \item A \index{Linearly Independent}\textbf{Linearly Independent} vector unlocks a brand new dimension. If you have two independent vectors in 3D space, you can travel anywhere on a flat 2D plane. A third independent vector would allow you to step off that plane and explore the entire 3D space.
+    \item A \index{Linearly Dependent}\textbf{Linearly Dependent} vector is completely redundant. It's like being given a third direction that just points somewhere on the 2D plane you can already reach using the first two vectors. It provides zero new ``degrees of freedom''.
 \end{itemize}
 \end{intuitionbox}
 
-\textbf{Data Science Relevance:} In Machine Learning, \textbf{multicollinearity} occurs when input feature vectors are linearly dependent (or nearly dependent). This causes severe instability in linear models and matrix inversion $(X^T X)^{-1}$.
+\textbf{Data Science Relevance:} In Machine Learning, \index{multicollinearity}\textbf{multicollinearity} occurs when input feature vectors are linearly dependent (or nearly dependent). This causes severe instability in linear models and matrix inversion $(X^T X)^{-1}$.
+
+\begin{lstlisting}[language=Python, caption=Data Science: Testing Linear Independence]
+import numpy as np
+
+# A matrix where columns are vectors. 
+# Rank equals the number of columns if they are linearly independent.
+matrix = np.array([[1, 2, 3], 
+                   [4, 5, 6], 
+                   [7, 8, 9]])
+rank = np.linalg.matrix_rank(matrix)
+print("Rank:", rank) # Rank is 2, meaning the 3 vectors are linearly dependent!
+\end{lstlisting}
 
 \begin{videocard}{IITM BS Lecture: Linear Dependence}{https://www.youtube.com/watch?v=1Krnnc6wKyk}
 Official lecture defining linear dependence and redundant vector identification.

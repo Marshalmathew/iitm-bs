@@ -2,6 +2,15 @@
 
 This chapter focuses on organizing and visualizing categorical variables — variables whose values are labels or group memberships rather than continuous numbers. In data science, categorical data is extremely common (e.g., predicting if an email is "Spam" or "Not Spam", classifying images as "Dog" or "Cat").
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Frequency Distribution Tables
+    \item Charts for Categorical Data
+    \item Mode and Median for Categorical Variables
+\end{itemize}
+\end{tcolorbox}
 \section{Frequency Distribution Tables}
 
 To make sense of raw categorical data, we must first summarize it into counts.
@@ -17,7 +26,7 @@ Given a categorical variable observed $n$ times:
 \end{itemize}
 \end{definitionbox}
 
-\textbf{Data Science Relevance:} In classification algorithms, checking the relative frequency of your target categories is the most important first step. If you have a dataset with 99\% "Not Spam" and 1\% "Spam", your dataset suffers from \textbf{Class Imbalance}. An algorithm could achieve 99\% accuracy simply by guessing "Not Spam" every time, without actually learning anything!
+\textbf{Data Science Relevance:} In classification algorithms, checking the relative frequency of your target categories is the most important first step. If you have a dataset with 99\% "Not Spam" and 1\% "Spam", your dataset suffers from \index{Class Imbalance}\textbf{Class Imbalance}. An algorithm could achieve 99\% accuracy simply by guessing "Not Spam" every time, without actually learning anything!
 
 \begin{videocard}{IITM BS Lecture: W2\_L1 Frequency Distributions}{https://www.youtube.com/watch?v=0-PO41B6zL0}
 Official lecture detailing how to build frequency and relative frequency tables from raw categorical data.
@@ -30,14 +39,14 @@ Official lecture detailing how to build frequency and relative frequency tables 
 \renewcommand{\arraystretch}{1.3}
 \begin{tabular}{lccc}
 \toprule
-\textbf{Subject} & \textbf{Frequency} & \textbf{Relative Freq.} & \textbf{Percentage} \\
+\index{Subject}\textbf{Subject} & \index{Frequency}\textbf{Frequency} & \index{Relative Freq.}\textbf{Relative Freq.} & \index{Percentage}\textbf{Percentage} \\
 \midrule
 Maths   & 18 & 0.36 & 36\% \\
 Stats   & 14 & 0.28 & 28\% \\
 CS      & 12 & 0.24 & 24\% \\
 English &  6 & 0.12 & 12\% \\
 \midrule
-\textbf{Total} & \textbf{50} & \textbf{1.00} & \textbf{100\%} \\
+\index{Total}\textbf{Total} & \index{50}\textbf{50} & \index{1.00}\textbf{1.00} & \textbf{100\%} \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -79,6 +88,7 @@ Official lecture demonstrating how to properly construct Bar Charts and Pie Char
 How do we find the "average" of categorical data? We cannot mathematically sum "Maths" + "English" and divide by two. Instead, we rely on the Mode and Median.
 
 \begin{definitionbox}{Mode and Median for Categorical Data}
+\index{Mode and Median for Categorical Data}
 \begin{itemize}
     \item \textbf{Mode:} The category that appears most frequently (has the highest $f_i$). It is always defined for categorical data. A dataset can be \textit{unimodal} (one mode), \textit{bimodal}, or \textit{multimodal}.
     \item \textbf{Median for Ordinal Data:} The middle category when observations are arranged in their natural, logical order. Because ordinal data has a meaningful ordering (e.g., Small, Medium, Large), a median is mathematically defined. \textbf{The median is NEVER defined for nominal data.}
@@ -90,7 +100,7 @@ Official lecture on calculating central tendencies for Nominal vs. Ordinal categ
 \end{videocard}
 
 \begin{intuitionbox}{The Robustness of the Median}
-The Median is often preferred over the Mean (average) because it is highly \textbf{robust to outliers}. Imagine 5 people in a room making \$40k, \$50k, \$60k, \$70k, and \$80k. Both the median and mean are \$60k.
+The Median is often preferred over the Mean (average) because it is highly \index{robust to outliers}\textbf{robust to outliers}. Imagine 5 people in a room making \$40k, \$50k, \$60k, \$70k, and \$80k. Both the median and mean are \$60k.
 
 Now, Elon Musk walks in (making \$20 Billion). The mean skyrockets to over \$3 Billion, completely misrepresenting the typical person in the room! But the median simply shifts from the 3rd person (\$60k) to between the 3rd and 4th person (\$65k). The median doesn't care \emph{how} extreme the edges are, it only cares about the physical order of the data.
 \end{intuitionbox}
@@ -101,7 +111,7 @@ Now, Elon Musk walks in (making \$20 Billion). The mean skyrockets to over \$3 B
     \item \textbf{Mode:} Good (highest frequency = 18).
     \item \textbf{Median:} First, arrange the categories in order. Total $n = 40$, so the median lies between the 20th and 21st observations.
     Cumulative counts: Poor (5), Fair (5+8=13), Good (13+18=31). 
-    Because both the 20th and 21st values fall within the "Good" category (which spans from the 14th to 31st observation), the Median = \textbf{Good}.
+    Because both the 20th and 21st values fall within the "Good" category (which spans from the 14th to 31st observation), the Median = \index{Good}\textbf{Good}.
 \end{itemize}
 \end{examplebox}
 
@@ -112,17 +122,11 @@ Data visualizations can be highly misleading if not constructed ethically and co
 \begin{theorembox}{Graph Design Principles}
 \begin{itemize}
     \item Always label both axes with variable names and units.
-    \item \textbf{Start the y-axis at zero} for bar charts. Truncating the y-axis exaggerates tiny differences between categories, leading to misleading visual comparisons.
+    \item \index{Start the y-axis at zero}\textbf{Start the y-axis at zero} for bar charts. Truncating the y-axis exaggerates tiny differences between categories, leading to misleading visual comparisons.
     \item Use consistent color schemes and avoid using color \emph{alone} to convey information (for accessibility/color-blindness).
     \item Avoid 3-D effects and unnecessary "chart junk" (excessive gridlines, borders, shadows) that obscure the data.
 \end{itemize}
 \end{theorembox}
-
-\section*{Supplementary Lecture Videos}
-\begin{itemize}
-    \item \href{https://www.youtube.com/watch?v=Peh-G_M6Two}{W2\_L3: Describing categorical data - best practices while graphing data - 1}
-    \item \href{https://www.youtube.com/watch?v=4MwZ2_iTkoo}{W2\_L4: Describing categorical data - best practices while graphing data - 2}
-\end{itemize}
 
 \newpage
 \section{Practice Exercises}

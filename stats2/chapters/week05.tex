@@ -2,6 +2,15 @@
 
 When we apply a mathematical function $Y = g(X)$ to a continuous random variable $X$, its probability density changes. In this chapter, we master the \textbf{CDF/PDF Methods for Transformations of Continuous RVs}, \textbf{Continuous Expectation ($\E[g(X)]$)}, and \textbf{Joint Discrete-Continuous Distributions}.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Transformations of Continuous Random Variables
+    \item Expectation and Variance of Continuous RVs
+    \item Joint Distributions of Discrete and Continuous RVs
+\end{itemize}
+\end{tcolorbox}
 \section{Transformations of Continuous Random Variables}
 
 To determine the PDF of $Y = g(X)$ given $f_X(x)$:
@@ -43,9 +52,30 @@ Official lecture computing continuous means, variances, and applying LOTUS.
 
 \section{Joint Distributions of Discrete and Continuous RVs}
 
+\begin{intuitionbox}{Gaussian Mixtures}
+If you plot the heights of all adults in a city, you get a strange, wide curve that isn't quite Normal. Why? Because you are mixing two different continuous distributions! Heights are heavily dependent on the discrete variable $N \in \{\text{Male}, \text{Female}\}$. The overall density $f_X(x)$ is a \textbf{Mixture} of the two conditional PDFs, weighted by the percentage of males and females in the city.
+\end{intuitionbox}
+
+\begin{lstlisting}[language=Python, caption=Data Science: Gaussian Mixture Sampling]
+import numpy as np
+
+# Simulate a mixed distribution
+n_samples = 10000
+
+# 1. Sample the discrete variable (Male=0, Female=1)
+# 48% Male, 52% Female
+N = np.random.choice([0, 1], size=n_samples, p=[0.48, 0.52])
+
+# 2. Sample the continuous variable given N
+heights = np.where(N == 0,
+                   np.random.normal(loc=175, scale=7, size=n_samples), # Males
+                   np.random.normal(loc=162, scale=6, size=n_samples)) # Females
+\end{lstlisting}
+
 In many practical machine learning problems (e.g. classification), we observe a discrete class label $Y \in \{0, 1\}$ alongside continuous feature vector $X \in \mathbb{R}$.
 
 \begin{definitionbox}{Joint Discrete-Continuous PMF/PDF}
+\index{Joint Discrete-Continuous PMF/PDF}
 Let $N$ be a discrete RV ($p_N(n)$) and $X$ be a continuous RV ($f_X(x)$).
 \begin{itemize}
     \item \textbf{Conditional PDF of $X$ given $N=n$:} $f_{X \mid N}(x \mid n) = \frac{f_{X, N}(x, n)}{p_N(n)}$.
@@ -54,7 +84,7 @@ Let $N$ be a discrete RV ($p_N(n)$) and $X$ be a continuous RV ($f_X(x)$).
   $$f_X(x) = \sum_{n} f_{X \mid N}(x \mid n) \cdot p_N(n)$$
 \end{definitionbox}
 
-\textbf{Data Science Relevance:} The Law of Total Probability for mixed distributions forms the mathematical backbone of \textbf{Gaussian Mixture Models (GMM)} and generative classification models (Linear Discriminant Analysis)!
+\textbf{Data Science Relevance:} The Law of Total Probability for mixed distributions forms the mathematical backbone of \index{Gaussian Mixture Models (GMM)}\textbf{Gaussian Mixture Models (GMM)} and generative classification models (Linear Discriminant Analysis)!
 
 \begin{videocard}{IITM BS Lecture: Joint Distribution of Discrete and Continuous RVs}{https://www.youtube.com/watch?v=s_VmvOWnPWs}
 Official lecture modeling mixed discrete-continuous pairs and computing marginal densities.

@@ -2,12 +2,23 @@
 
 Welcome to Mathematics for Data Science 2! Linear algebra is the foundational mathematical backbone of modern Machine Learning, Artificial Intelligence, and Data Science. From storing high-dimensional feature spaces to computing neural network transformations and performing dimensionality reduction, vectors and matrices are the fundamental building blocks.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Vectors in R
+    \item Matrices and Matrix Operations
+    \item Systems of Linear Equations
+    \item Determinants
+\end{itemize}
+\end{tcolorbox}
 \section{Vectors in $\mathbb{R}^n$}
 
-A \textbf{Vector} in $n$-dimensional real space $\mathbb{R}^n$ is an ordered sequence of $n$ real numbers, written as a column matrix:
+A \index{Vector}\textbf{Vector} in $n$-dimensional real space $\mathbb{R}^n$ (first introduced in \hyperref[chap:CoordinateGeometry]{Maths 1: Coordinate Geometry}) is an ordered sequence of $n$ real numbers, written as a column matrix:
 $$\mathbf{v} = \begin{bmatrix} v_1 \\ v_2 \\ \vdots \\ v_n \end{bmatrix} \in \mathbb{R}^n$$
 
 \begin{definitionbox}{Vector Operations}
+\index{Vector Operations}
 For vectors $\mathbf{u}, \mathbf{v} \in \mathbb{R}^n$ and scalar $c \in \mathbb{R}$:
 \begin{itemize}
     \item \textbf{Vector Addition:} $\mathbf{u} + \mathbf{v} = \begin{bmatrix} u_1 + v_1 \\ u_2 + v_2 \\ \vdots \\ u_n + v_n \end{bmatrix}$
@@ -44,29 +55,60 @@ While vector addition is just adding numbers row-by-row, geometrically it repres
 
 \textbf{Data Science Relevance:} In data science, a sample (e.g. a user profile with age, income, credit score) is represented as a feature vector $\mathbf{x} \in \mathbb{R}^d$. The linear combination $\mathbf{w}^T \mathbf{x} + b$ forms the prediction score in Linear and Logistic Regression!
 
+\begin{lstlisting}[language=Python, caption=Data Science: Vector Operations in NumPy]
+import numpy as np
+
+# Define vectors
+u = np.array([1, 2, 3])
+v = np.array([4, 5, 6])
+
+# Vector addition and Dot product
+print("Addition:", u + v)
+print("Dot Product:", np.dot(u, v))
+\end{lstlisting}
+
 \begin{videocard}{IITM BS Lecture: Vectors}{https://www.youtube.com/watch?v=1So2VV9Tm_A}
 Official lecture defining vector spaces, geometric interpretations, and algebraic operations in $\mathbb{R}^n$.
 \end{videocard}
 
 \section{Matrices and Matrix Operations}
 
-A \textbf{Matrix} $A \in \mathbb{R}^{m \times n}$ is a rectangular array of $m$ rows and $n$ columns:
+A \index{Matrix}\textbf{Matrix} $A \in \mathbb{R}^{m \times n}$ is a rectangular array of $m$ rows and $n$ columns:
 $$A = \begin{bmatrix} a_{11} & a_{12} & \dots & a_{1n} \\ a_{21} & a_{22} & \dots & a_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ a_{m1} & a_{m2} & \dots & a_{mn} \end{bmatrix}$$
 
 \begin{theorembox}{Matrix Multiplication}
 If $A \in \mathbb{R}^{m \times k}$ and $B \in \mathbb{R}^{k \times n}$, their product $C = AB \in \mathbb{R}^{m \times n}$ has entries:
 $$c_{ij} = \sum_{p=1}^{k} a_{ip} b_{pj}$$
-Matrix multiplication is associative $(AB)C = A(BC)$ and distributive, but \textbf{NOT commutative} ($AB \neq BA$ in general).
+Matrix multiplication is associative $(AB)C = A(BC)$ and distributive, but \index{NOT commutative}\textbf{NOT commutative} ($AB \neq BA$ in general).
 \end{theorembox}
+
+\begin{examplebox}{Matrix Multiplication Step-by-Step}
+Let $A = \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}$ and $B = \begin{bmatrix} 5 & 6 \\ 7 & 8 \end{bmatrix}$. Find $C = AB$.
+\begin{itemize}
+    \item $c_{11} = (1)(5) + (2)(7) = 5 + 14 = 19$
+    \item $c_{12} = (1)(6) + (2)(8) = 6 + 16 = 22$
+    \item $c_{21} = (3)(5) + (4)(7) = 15 + 28 = 43$
+    \item $c_{22} = (3)(6) + (4)(8) = 18 + 32 = 50$
+\end{itemize}
+Result: $C = \begin{bmatrix} 19 & 22 \\ 43 & 50 \end{bmatrix}$. 
+
+Now, let's test commutativity by calculating $BA$:
+$c_{11}$ of $BA = (5)(1) + (6)(3) = 23$. 
+Since $19 \neq 23$, we immediately see $AB \neq BA$!
+\end{examplebox}
 
 \begin{intuitionbox}{Matrix Multiplication as Geometric Transformation}
 Matrix multiplication isn't just an arbitrary set of dot products---it's a geometric transformation of space!
 \begin{itemize}
     \item When you multiply a vector $\mathbf{v}$ by a matrix $A$ ($A\mathbf{v}$), the matrix $A$ grabs the vector and rotates, scales, or shears it to a new location in space.
     \item When you multiply two matrices together ($C = AB$), you are composing two transformations. First apply transformation $B$, then apply transformation $A$.
-    \item Because doing Transformation $B$ then $A$ is usually different than doing $A$ then $B$, matrix multiplication is \textbf{not commutative} ($AB \neq BA$).
+    \item Because doing Transformation $B$ then $A$ is usually different than doing $A$ then $B$, matrix multiplication is \index{not commutative}\textbf{not commutative} ($AB \neq BA$).
 \end{itemize}
 \end{intuitionbox}
+
+\begin{warningbox}{The Commutativity Trap}
+Because we are taught from a young age that $3 \times 4 = 4 \times 3$, it is incredibly easy to accidentally rearrange matrices in an equation (e.g., rewriting $A^{-1} B A$ as $A^{-1} A B = B$). \textbf{Never} change the order of matrices when doing algebraic manipulations unless you are explicitly given that $A$ and $B$ commute!
+\end{warningbox}
 
 \begin{videocard}{IITM BS Lecture: Matrices}{https://www.youtube.com/watch?v=rnIDlZnrCc0}
 Official lecture explaining matrix algebra, transposition $A^T$, symmetric matrices ($A = A^T$), and matrix-vector products.
@@ -79,11 +121,12 @@ $$A \mathbf{x} = \mathbf{b}$$
 where $A \in \mathbb{R}^{m \times n}$ is the coefficient matrix, $\mathbf{x} \in \mathbb{R}^n$ is the vector of unknowns, and $\mathbf{b} \in \mathbb{R}^m$ is the target output.
 
 \begin{definitionbox}{Types of Solutions}
+\index{Types of Solutions}
 Every linear system $A \mathbf{x} = \mathbf{b}$ has either:
 \begin{enumerate}
-    \item Exactly \textbf{one unique solution} (consistent, non-singular).
-    \item \textbf{Infinitely many solutions} (consistent, dependent).
-    \item \textbf{No solution} (inconsistent, parallel constraints).
+    \item Exactly \index{one unique solution}\textbf{one unique solution} (consistent, non-singular).
+    \item \index{Infinitely many solutions}\textbf{Infinitely many solutions} (consistent, dependent).
+    \item \index{No solution}\textbf{No solution} (inconsistent, parallel constraints).
 \end{enumerate}
 \end{definitionbox}
 
@@ -91,9 +134,13 @@ Every linear system $A \mathbf{x} = \mathbf{b}$ has either:
 Official lecture introducing linear systems, augmented matrices $[A \mid \mathbf{b}]$, and geometric interpretations of solutions.
 \end{videocard}
 
+\vspace{0.3cm}
+\textbf{Checkpoint:} If a system has 3 equations and 3 unknowns, and the equations represent three parallel planes in space, which type of solution does it have?
+\vspace{0.3cm}
+
 \section{Determinants}
 
-The \textbf{Determinant} $\det(A)$ or $|A|$ is a scalar value associated with a square matrix $A \in \mathbb{R}^{n \times n}$ that measures the scaling factor of transformation area/volume.
+The \index{Determinant}\textbf{Determinant} $\det(A)$ or $|A|$ is a scalar value associated with a square matrix $A \in \mathbb{R}^{n \times n}$ that measures the scaling factor of transformation area/volume.
 
 \begin{formulabox}{Determinant Computation ($2 \times 2$ and $3 \times 3$)}
 For $A = \begin{bmatrix} a & b \\ c & d \end{bmatrix}$:
@@ -112,7 +159,7 @@ Official lectures explaining cofactor expansion, properties of determinants, and
 \textit{Detailed step-by-step solutions are available in the Appendix.}
 
 \begin{enumerate}
-    \item \textbf{Vector Dot Product \& Angle:} Given vectors $\mathbf{u} = \begin{bmatrix} 2 \\ 3 \\ -1 \end{bmatrix}$ and $\mathbf{v} = \begin{bmatrix} 1 \\ -2 & 4 \end{bmatrix}^T$:
+    \item \textbf{Vector Dot Product \& Angle:} Given vectors $\mathbf{u} = \begin{bmatrix} 2 \\ 3 \\ -1 \end{bmatrix}$ and $\mathbf{v} = \begin{bmatrix} 1 & -2 & 4 \end{bmatrix}^T$:
     \begin{enumerate}
         \item Compute the dot product $\mathbf{u} \cdot \mathbf{v}$.
         \item Compute the norms $\|\mathbf{u}\|$ and $\|\mathbf{v}\|$.

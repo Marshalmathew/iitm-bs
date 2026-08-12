@@ -1,13 +1,27 @@
 \chapter{Orthogonality, Gram-Schmidt Process \& Projections}
 
-Orthogonality is the mathematical formalization of perpendicularity. Orthogonal vectors provide independent, uncorrelated coordinates. In this chapter, we master \textbf{Orthonormal Bases}, \textbf{Orthogonal Projections}, and the \textbf{Gram-Schmidt Process}.
+Orthogonality is the mathematical formalization of perpendicularity. Orthogonal vectors provide independent, uncorrelated coordinates. In this chapter, we master \index{Orthonormal Bases}\textbf{Orthonormal Bases}, \index{Orthogonal Projections}\textbf{Orthogonal Projections}, and the \index{Gram-Schmidt Process}\textbf{Gram-Schmidt Process}.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Orthogonality and Orthonormal Bases
+    \item Orthogonal Projections
+    \item The Gram-Schmidt Orthogonalization Process
+\end{itemize}
+\end{tcolorbox}
 \section{Orthogonality and Orthonormal Bases}
+
+\begin{intuitionbox}{Double Integrals as Volume}
+While a single integral measures the 2D area under a curve, a double integral measures the 3D volume under a surface! You are essentially chopping the floor into tiny squares  \, dy$, finding the height (x,y)$ at each square to form a thin pillar, and adding up the volumes of all pillars.
+\end{intuitionbox}
+
 
 \begin{definitionbox}{Orthogonality \& Orthonormal Basis}
 \begin{itemize}
-    \item Two vectors $\mathbf{u}, \mathbf{v}$ are \textbf{Orthogonal} if $\langle \mathbf{u}, \mathbf{v} \rangle = 0$ (written $\mathbf{u} \perp \mathbf{v}$).
-    \item A set of vectors $\{\mathbf{q}_1, \dots, \mathbf{q}_k\}$ is an \textbf{Orthonormal Basis (ONB)} if:
+    \item Two vectors $\mathbf{u}, \mathbf{v}$ are \index{Orthogonal}\textbf{Orthogonal} if $\langle \mathbf{u}, \mathbf{v} \rangle = 0$ (written $\mathbf{u} \perp \mathbf{v}$).
+    \item A set of vectors $\{\mathbf{q}_1, \dots, \mathbf{q}_k\}$ is an \index{Orthonormal Basis (ONB)}\textbf{Orthonormal Basis (ONB)} if:
 \end{itemize}
 $$\langle \mathbf{q}_i, \mathbf{q}_j \rangle = \delta_{ij} = \begin{cases} 1 & \text{if } i = j \quad (\text{Unit Norm: } \|\mathbf{q}_i\| = 1) \\ 0 & \text{if } i \neq j \quad (\text{Mutually Orthogonal}) \end{cases}$$
 \end{definitionbox}
@@ -27,7 +41,7 @@ Official lecture defining ONB and showing simple coordinate extraction via inner
 
 \section{Orthogonal Projections}
 
-The \textbf{Orthogonal Projection} of a vector $\mathbf{v}$ onto a subspace $W$ finds the unique point $\mathbf{p} = \proj_W(\mathbf{v}) \in W$ that minimizes the distance $\|\mathbf{v} - \mathbf{p}\|$.
+The \index{Orthogonal Projection}\textbf{Orthogonal Projection} of a vector $\mathbf{v}$ onto a subspace $W$ finds the unique point $\mathbf{p} = \proj_W(\mathbf{v}) \in W$ that minimizes the distance $\|\mathbf{v} - \mathbf{p}\|$.
 
 \begin{formulabox}{Projection onto Subspace $W$ with ONB $\{\mathbf{q}_1, \dots, \mathbf{q}_k\}$}
 $$\proj_W(\mathbf{v}) = \sum_{i=1}^{k} \langle \mathbf{v}, \mathbf{q}_i \rangle \mathbf{q}_i$$
@@ -40,7 +54,7 @@ Official lecture deriving projection formulas, best approximation theorem, and e
 
 \section{The Gram-Schmidt Orthogonalization Process}
 
-The \textbf{Gram-Schmidt Process} converts an arbitrary linearly independent basis $\{\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_k\}$ into an orthonormal basis $\{\mathbf{q}_1, \mathbf{q}_2, \dots, \mathbf{q}_k\}$.
+The \index{Gram-Schmidt Process}\textbf{Gram-Schmidt Process} converts an arbitrary linearly independent basis $\{\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_k\}$ into an orthonormal basis $\{\mathbf{q}_1, \mathbf{q}_2, \dots, \mathbf{q}_k\}$.
 
 \begin{formulabox}{Gram-Schmidt Algorithm}
 1. \textbf{First Vector:} $\mathbf{u}_1 = \mathbf{v}_1, \quad \mathbf{q}_1 = \frac{\mathbf{u}_1}{\|\mathbf{u}_1\|}$
@@ -50,7 +64,19 @@ The \textbf{Gram-Schmidt Process} converts an arbitrary linearly independent bas
    $$\mathbf{u}_k = \mathbf{v}_k - \sum_{j=1}^{k-1} \langle \mathbf{v}_k, \mathbf{q}_j \rangle \mathbf{q}_j, \quad \mathbf{q}_k = \frac{\mathbf{u}_k}{\|\mathbf{u}_k\|}$$
 \end{formulabox}
 
-\textbf{Data Science Relevance:} The Gram-Schmidt process is the foundation of \textbf{QR Factorization} ($A = QR$) used in stable Ordinary Least Squares regression and numerical eigenvalue algorithms!
+\textbf{Data Science Relevance:} The Gram-Schmidt process is the foundation of \index{QR Factorization}\textbf{QR Factorization} ($A = QR$) used in stable Ordinary Least Squares regression and numerical eigenvalue algorithms!
+
+\begin{lstlisting}[language=Python, caption=Data Science: QR Factorization]
+import numpy as np
+
+# Create a matrix with linearly independent columns
+A = np.array([[1, 2], [3, 4], [5, 6]])
+
+# QR Factorization (Gram-Schmidt)
+Q, R = np.linalg.qr(A)
+print("Orthonormal Basis Q:\n", Q)
+print("Upper Triangular R:\n", R)
+\end{lstlisting}
 
 \begin{videocard}{IITM BS Lecture: The Gram-Schmidt Process}{https://www.youtube.com/watch?v=WEpy57pYKH4}
 Official lecture executing Gram-Schmidt step-by-step to construct orthonormal bases.

@@ -1,8 +1,21 @@
 \chapter{Functional Programming, Comprehensions \& Generators}
 
-Python supports \textbf{Functional Programming} idioms. Instead of explicitly writing multi-line \texttt{for} loops, functional Python allows developers to write concise, expressive expressions using list comprehensions, anonymous \texttt{lambda} functions, higher-order utilities (\texttt{map}, \texttt{filter}, \texttt{zip}), and memory-efficient \texttt{yield} generators.
+Python supports \index{Functional Programming}\textbf{Functional Programming} idioms. Instead of explicitly writing multi-line \texttt{for} loops, functional Python allows developers to write concise, expressive expressions using list comprehensions, anonymous \texttt{lambda} functions, higher-order utilities (\texttt{map}, \texttt{filter}, \texttt{zip}), and memory-efficient \texttt{yield} generators.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item List, Dictionary, and Set Comprehensions
+    \item Lambda Functions, map()
+    \item Generators and the yield
+\end{itemize}
+\end{tcolorbox}
 \section{List, Dictionary, and Set Comprehensions}
+
+\begin{intuitionbox}{Reading Comprehensions Aloud}
+Comprehensions look intimidating at first, but they read exactly like standard English mathematics. $[x^2 \text{ for } x \text{ in } \text{numbers} \text{ if } x > 5]$ reads as: "Give me $x$ squared, for every $x$ in the numbers list, but only if $x$ is greater than 5." It combines a map and a filter into a single, beautiful sentence.
+\end{intuitionbox}
 
 Comprehensions provide a compact 1-line syntax to construct new sequences from existing iterables.
 
@@ -32,6 +45,7 @@ Official lecture explaining syntax, conditional filtering, and nested list compr
 \section{Lambda Functions, \texttt{map()}, \texttt{filter()}, \texttt{zip()}, and \texttt{enumerate()}}
 
 \begin{definitionbox}{Lambda and Higher-Order Functions}
+\index{Lambda and Higher-Order Functions}
 \begin{itemize}
     \item \textbf{Lambda (\texttt{lambda x: expr}):} Small anonymous 1-line inline functions.
     \item \textbf{\texttt{map(func, iterable}):} Applies \texttt{func} to every item in \texttt{iterable}.
@@ -66,7 +80,7 @@ Official lecture covering functional iteration helpers and lambda syntax.
 
 \section{Generators and the \texttt{yield} Keyword}
 
-Unlike regular functions that return a full dataset at once (storing everything in RAM), \textbf{Generators} compute items lazily on demand using the \texttt{yield} keyword.
+Unlike regular functions that return a full dataset at once (storing everything in RAM), \index{Generators}\textbf{Generators} compute items lazily on demand using the \texttt{yield} keyword.
 
 \begin{theorembox}{Generators vs Functions}
 A function with \texttt{yield} pauses execution after sending a value back and resumes right where it left off when the next item is requested via \texttt{next()} or a \texttt{for} loop.

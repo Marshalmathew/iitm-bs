@@ -1,13 +1,22 @@
 \chapter{Matrix Similarity, Affine Spaces, Norms \& Inner Products}
 
-Geometric intuition in high-dimensional space requires measuring lengths, distances, and angles between vectors. In this chapter, we explore \textbf{Matrix Similarity} (change of basis), \textbf{Affine Spaces}, and formalize geometric measurement using \textbf{Norms} and \textbf{Inner Products}.
+Geometric intuition in high-dimensional space requires measuring lengths, distances, and angles between vectors. In this chapter, we explore \index{Matrix Similarity}\textbf{Matrix Similarity} (change of basis), \index{Affine Spaces}\textbf{Affine Spaces}, and formalize geometric measurement using \index{Norms}\textbf{Norms} and \index{Inner Products}\textbf{Inner Products}.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Matrix Similarity and Change of Basis
+    \item Affine Subspaces and Mappings
+    \item Inner Products and Norms
+\end{itemize}
+\end{tcolorbox}
 \section{Matrix Similarity and Change of Basis}
 
-Two square matrices $A, B \in \mathbb{R}^{n \times n}$ are \textbf{Similar} if they represent the exact same linear operator $T: V \to V$ under two different choices of basis.
+Two square matrices $A, B \in \mathbb{R}^{n \times n}$ are \index{Similar}\textbf{Similar} if they represent the exact same linear operator $T: V \to V$ under two different choices of basis.
 
 \begin{theorembox}{Matrix Similarity}
-Matrix $B$ is \textbf{similar} to $A$ (written $B \sim A$) if there exists an invertible change-of-basis matrix $P \in \mathbb{R}^{n \times n}$ such that:
+Matrix $B$ is \index{similar}\textbf{similar} to $A$ (written $B \sim A$) if there exists an invertible change-of-basis matrix $P \in \mathbb{R}^{n \times n}$ such that:
 $$B = P^{-1} A P$$
 \textbf{Invariants under Similarity:} Similar matrices share the exact same:
 \begin{enumerate}
@@ -23,7 +32,7 @@ If matrix $B$ is similar to matrix $A$, they are fundamentally doing the exact s
 \begin{itemize}
     \item Imagine you are giving a robot directions. You might say ``move 2 meters North, 1 meter East'' (Standard Basis).
     \item Your friend, standing at an angle, might say ``move 1 meter Forward, 2 meters Right'' (New Basis).
-    \item You are both describing the \textbf{exact same physical movement}, just using different coordinate systems. 
+    \item You are both describing the \index{exact same physical movement}\textbf{exact same physical movement}, just using different coordinate systems. 
     \item The matrix $P$ translates between your languages. $B = P^{-1} A P$ means: translate to your friend's language ($P$), do the movement ($A$), and translate back ($P^{-1}$).
 \end{itemize}
 \end{intuitionbox}
@@ -34,10 +43,11 @@ Official lecture explaining change-of-basis transformations and similarity invar
 
 \section{Affine Subspaces and Mappings}
 
-An \textbf{Affine Subspace} (or Flat) is a translated vector subspace: $\mathcal{A} = \mathbf{x}_0 + W$, where $\mathbf{x}_0 \in V$ is a fixed translation point and $W \subseteq V$ is a vector subspace.
+An \index{Affine Subspace}\textbf{Affine Subspace} (or Flat) is a translated vector subspace: $\mathcal{A} = \mathbf{x}_0 + W$, where $\mathbf{x}_0 \in V$ is a fixed translation point and $W \subseteq V$ is a vector subspace.
 
 \begin{definitionbox}{Affine Subspace vs Vector Subspace}
-Unlike vector subspaces, an affine subspace $\mathbf{x}_0 + W$ does \textbf{NOT} need to pass through the origin $\mathbf{0}$ (unless $\mathbf{x}_0 \in W$).
+\index{Affine Subspace vs Vector Subspace}
+Unlike vector subspaces, an affine subspace $\mathbf{x}_0 + W$ does \index{NOT}\textbf{NOT} need to pass through the origin $\mathbf{0}$ (unless $\mathbf{x}_0 \in W$).
 For example, lines and planes in $\mathbb{R}^3$ that do not pass through $(0,0,0)$ are affine subspaces.
 \end{definitionbox}
 
@@ -47,16 +57,17 @@ Official lecture contrasting vector subspaces with shifted affine spaces and hyp
 
 \section{Inner Products and Norms}
 
-An \textbf{Inner Product} $\langle \mathbf{u}, \mathbf{v} \rangle$ generalizes the dot product, providing a rigorous concept of length and angle for any vector space.
+An \index{Inner Product}\textbf{Inner Product} $\langle \mathbf{u}, \mathbf{v} \rangle$ generalizes the dot product, providing a rigorous concept of length and angle for any vector space.
 
 \begin{definitionbox}{Inner Product Space Axioms}
-An \textbf{Inner Product} $\langle \cdot, \cdot \rangle : V \times V \to \mathbb{R}$ satisfies:
+\index{Inner Product Space Axioms}
+An \index{Inner Product}\textbf{Inner Product} $\langle \cdot, \cdot \rangle : V \times V \to \mathbb{R}$ satisfies:
 \begin{enumerate}
     \item \textbf{Symmetry:} $\langle \mathbf{u}, \mathbf{v} \rangle = \langle \mathbf{v}, \mathbf{u} \rangle$.
     \item \textbf{Linearity in first argument:} $\langle c\mathbf{u} + d\mathbf{v}, \mathbf{w} \rangle = c\langle \mathbf{u}, \mathbf{w} \rangle + d\langle \mathbf{v}, \mathbf{w} \rangle$.
     \item \textbf{Positive Definiteness:} $\langle \mathbf{v}, \mathbf{v} \rangle \ge 0$, and $\langle \mathbf{v}, \mathbf{v} \rangle = 0 \iff \mathbf{v} = \mathbf{0}$.
 \end{enumerate}
-Every inner product defines an \textbf{Induced Norm}: $\|\mathbf{v}\| = \sqrt{\langle \mathbf{v}, \mathbf{v} \rangle}$.
+Every inner product defines an \index{Induced Norm}\textbf{Induced Norm}: $\|\mathbf{v}\| = \sqrt{\langle \mathbf{v}, \mathbf{v} \rangle}$.
 \end{definitionbox}
 
 \begin{formulabox}{Cauchy-Schwarz Inequality \& Angle}
@@ -67,6 +78,21 @@ $$\cos(\theta) = \frac{\langle \mathbf{u}, \mathbf{v} \rangle}{\|\mathbf{u}\| \|
 \end{formulabox}
 
 \textbf{Data Science Relevance:} $L_1$ norm (Manhattan distance, Lasso regularization), $L_2$ norm (Euclidean distance, Ridge regularization), and Cosine Similarity are core tools in clustering (K-Means), text retrieval, and model loss formulation!
+
+\begin{lstlisting}[language=Python, caption=Data Science: Norms and Similarity]
+import numpy as np
+from numpy.linalg import norm
+
+u = np.array([1, 2, 0])
+v = np.array([0, 1, 1])
+
+# L2 Norm (Euclidean distance)
+print("L2 Norm of u:", norm(u))
+
+# Cosine Similarity
+cos_sim = np.dot(u, v) / (norm(u) * norm(v))
+print("Cosine Similarity:", cos_sim)
+\end{lstlisting}
 
 \begin{videocard}{IITM BS Lecture: Lengths, Angles \& Inner Products}{https://www.youtube.com/watch?v=TtQ6AQUlwl0}
 Official lecture deriving lengths, unit vectors $\hat{\mathbf{v}} = \frac{\mathbf{v}}{\|\mathbf{v}\|}$, and Cauchy-Schwarz inequality.

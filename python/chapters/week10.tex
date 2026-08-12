@@ -2,11 +2,24 @@
 
 \textbf{Object-Oriented Programming (OOP)} is a programming paradigm based on the concept of "objects", which contain data (attributes) and code (methods). OOP enables modularity, encapsulation, and code reuse when building large software systems.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Classes, Objects, \\
+    \item Inheritance and Method Overriding
+\end{itemize}
+\end{tcolorbox}
 \section{Classes, Objects, \texttt{\textbackslash\{\}\_\textbackslash\{\}\_init\textbackslash\{\}\_\textbackslash\{\}\_}, and \texttt{self}}
 
-A \textbf{Class} is a blueprint for creating objects. An \textbf{Object} is an instance of a class.
+\begin{intuitionbox}{Cookie Cutters and Cookies}
+A Class is a cookie cutter; it doesn't taste like a cookie, and you can't eat it, but it defines the exact shape and properties of what a cookie should be. An Object is the actual cookie baked from that cutter. You can use the same class (cutter) to create thousands of independent objects (cookies), each with their own unique flavor (data).
+\end{intuitionbox}
+
+A \index{Class}\textbf{Class} is a blueprint for creating objects. An \index{Object}\textbf{Object} is an instance of a class.
 
 \begin{definitionbox}{Class Definition and Instance Attributes}
+\index{Class Definition and Instance Attributes}
 - \texttt{\_\_init\_\_(self, ...)}: The constructor method automatically executed when a new object instance is created.
 - \texttt{self}: Represents the specific instance of the class being created or modified.
 \begin{lstlisting}
@@ -35,7 +48,7 @@ Official lecture explaining the constructor \texttt{\_\_init\_\_} and instance b
 
 \section{Inheritance and Method Overriding}
 
-\textbf{Inheritance} allows a child class to inherit attributes and methods from a parent class, promoting code reuse.
+\index{Inheritance}\textbf{Inheritance} allows a child class to inherit attributes and methods from a parent class, promoting code reuse.
 
 \begin{theorembox}{Parent vs Child Classes}
 A child class can override methods from the parent class to specialize behavior, and call \texttt{super().\_\_init\_\_()} to reuse parent initialization logic.

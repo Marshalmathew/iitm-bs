@@ -1,8 +1,29 @@
 \chapter{Algebra of Polynomials}
+\index{Algebra of Polynomials}
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Definitions and Classifications
+    \item Polynomial Division and Theorems
+    \item Graphing Polynomials
+\end{itemize}
+\end{tcolorbox}
 A polynomial is a mathematical expression consisting of variables and coefficients, involving only addition, subtraction, multiplication, and non-negative integer exponents. Understanding polynomial algebra is critical for advanced regression techniques and kernel methods in machine learning, which use high-degree polynomials to capture complex, non-linear patterns in data.
 
 \section{Definitions and Classifications}
+
+\begin{lstlisting}[language=Python, caption=Data Science: Evaluating Polynomials]
+import numpy as np
+
+# Create a polynomial p(x) = x^3 - 2x^2 + x - 5
+p = np.poly1d([1, -2, 1, -5])
+
+# Evaluate at x=3
+print(f'p(3) = {p(3)}') # Outputs 7
+\end{lstlisting}
+
 
 A real polynomial $P(x)$ of degree $n$ is defined as:
 $$P(x) = a_n x^n + a_{n-1} x^{n-1} + \dots + a_1 x + a_0$$
@@ -149,21 +170,6 @@ Analyze the polynomial $f(x) = -(x - 1)^2(x + 2)$ for sketching.
     \item \textbf{Turning Points:} At most $n - 1 = 2$ turning points.
 \end{enumerate}
 \end{examplebox}
-
-\section*{Supplementary Lecture Videos}
-For further reinforcement and specialized topics, refer to the following official IIT Madras lectures:
-\begin{itemize}
-    \item \href{https://www.youtube.com/watch?v=s9zDRWmgsb4}{W4\_L2: Degree of polynomials definition examples \& special cases}
-    \item \href{https://www.youtube.com/watch?v=KJXkTzKAZ6k}{W4\_L3: Algebra of polynomials addition \& subtraction}
-    \item \href{https://www.youtube.com/watch?v=WOqISzw8jYs}{W4\_L4: Algebra of polynomials multiplication methods}
-    \item \href{https://www.youtube.com/watch?v=2eWP19N8wn4}{W4\_L5: Algebra of polynomials division with remainders}
-    \item \href{https://www.youtube.com/watch?v=5M_oX0EjiEk}{W4\_L7: Graphs of polynomials identification \& characterization}
-    \item \href{https://www.youtube.com/watch?v=1t4-35dKUno}{W4\_L8: Graphs of polynomials behavior at x intercepts \& multiplicities}
-    \item \href{https://www.youtube.com/watch?v=8a--SspXSXU}{W4\_L10: Graphs of polynomials turning points \& relation to degree}
-    \item \href{https://www.youtube.com/watch?v=6IVf5Af1nO0}{W4\_L11: Graphs of polynomials graphing methods \& polynomial creation}
-    \item \href{https://www.youtube.com/watch?v=fbvj1w_NI9c}{W6: Weekly summary: polynomial definitions \& algebra operations}
-    \item \href{https://www.youtube.com/watch?v=Z7cwVjqdenE}{W7: Summary: polynomial graphs \& real-world applications}
-\end{itemize}
 
 \newpage
 \section{Practice Exercises}

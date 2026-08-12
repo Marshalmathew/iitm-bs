@@ -1,10 +1,20 @@
 \chapter{Statistics from Samples \& The Law of Large Numbers}
 
-Data science begins when we draw a finite sample of observations $X_1, X_2, \dots, X_n$ from an unknown underlying population. In this chapter, we master \textbf{Independent and Identically Distributed (i.i.d.) Samples}, the \textbf{Sample Mean $\bar{X}_n$}, the \textbf{Empirical CDF}, and the \textbf{Weak Law of Large Numbers (WLLN)}.
+Data science begins when we draw a finite sample of observations $X_1, X_2, \dots, X_n$ from an unknown underlying population. In this chapter, we master \textbf{Independent and Identically Distributed (i.i.d.) Samples}, the \textbf{Sample Mean $\bar{X}_n$}, the \index{Empirical CDF}\textbf{Empirical CDF}, and the \textbf{Weak Law of Large Numbers (WLLN)}.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item i.i.d. Samples and Sample Statistics
+    \item Empirical Distribution Function
+    \item The Weak Law of Large Numbers (WLLN)
+\end{itemize}
+\end{tcolorbox}
 \section{i.i.d. Samples and Sample Statistics}
 
 \begin{definitionbox}{i.i.d. Samples}
+\index{i.i.d. Samples}
 Random variables $X_1, X_2, \dots, X_n$ are \textbf{Independent and Identically Distributed (i.i.d.)} if:
 \begin{enumerate}
 \item Each $X_i$ has the exact same marginal probability distribution (same mean $\mu$ and variance $\sigma^2$).
@@ -30,7 +40,7 @@ Official lecture defining i.i.d. random variables and calculating expectation/va
 Given an observed sample $x_1, x_2, \dots, x_n$, we can estimate the true population CDF $F(x)$ without making parametric assumptions.
 
 \begin{definitionbox}{Empirical Cumulative Distribution Function (ECDF)}
-The \textbf{Empirical CDF} $\hat{F}_n(x)$ is the fraction of sample points less than or equal to $x$:
+The \index{Empirical CDF}\textbf{Empirical CDF} $\hat{F}_n(x)$ is the fraction of sample points less than or equal to $x$:
 $$\hat{F}_n(x) = \frac{1}{n} \sum_{i=1}^n \mathbb{I}(x_i \le x)$$
 where $\mathbb{I}(\cdot)$ is the indicator function. By the WLLN, $\hat{F}_n(x)$ converges pointwise to the true CDF $F(x)$ as $n \to \infty$.
 \end{definitionbox}
@@ -40,6 +50,26 @@ Official lecture constructing ECDFs and analyzing non-parametric distribution es
 \end{videocard}
 
 \section{The Weak Law of Large Numbers (WLLN)}
+
+\begin{intuitionbox}{Why Casino "House Edge" works because of WLLN}
+If you play Roulette once, anything can happen. The variance is massive. If you play 10 times, you might walk away rich. But a Casino doesn't play 10 times. A Casino plays millions of times a day. As $n \to \infty$, the Casino's sample mean profit mathematically locks exactly onto the true population mean (the House Edge of $\approx 5.26\%$). The WLLN is the mathematical guarantee that Casinos can never go bankrupt.
+\end{intuitionbox}
+
+\begin{lstlisting}[language=Python, caption=Data Science: Simulating the Law of Large Numbers]
+import numpy as np
+import matplotlib.pyplot as plt
+
+# True mean of a die is 3.5
+n_rolls = 1000
+rolls = np.random.randint(1, 7, size=n_rolls)
+
+# Calculate expanding sample mean
+expanding_means = np.cumsum(rolls) / np.arange(1, n_rolls + 1)
+
+print("Sample mean at n=10:", expanding_means[9])
+print(f"Sample mean at n={n_rolls}:", expanding_means[-1]) 
+# Will be extremely close to 3.5
+\end{lstlisting}
 
 As the sample size $n$ increases, the sample mean $\bar{X}_n$ concentrates tightly around the true population mean $\mu$.
 

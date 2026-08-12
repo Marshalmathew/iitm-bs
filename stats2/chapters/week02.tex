@@ -1,13 +1,39 @@
 \chapter{Independence of RVs, Functions of RVs \& PMF Convolution}
 
-Independence is the bedrock of statistical modeling and machine learning assumptions (e.g. Naive Bayes, i.i.d. sampling). In this chapter, we master \textbf{Independence of Random Variables}, \textbf{Functions of Random Variables}, \textbf{PMF Convolution} for sums of independent RVs, and distributions of \textbf{Extreme Values} ($\min(X, Y)$ and $\max(X, Y)$).
+Independence is the bedrock of statistical modeling and machine learning assumptions (e.g. Naive Bayes, i.i.d. sampling). In this chapter, we master \textbf{Independence of Random Variables}, \index{Functions of Random Variables}\textbf{Functions of Random Variables}, \index{PMF Convolution}\textbf{PMF Convolution} for sums of independent RVs, and distributions of \index{Extreme Values}\textbf{Extreme Values} ($\min(X, Y)$ and $\max(X, Y)$).
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Independence of Discrete Random Variables
+    \item Functions of Random Variables and PMF Convolution
+    \item Minimum and Maximum of Random Variables
+\end{itemize}
+\end{tcolorbox}
 \section{Independence of Discrete Random Variables}
+
+\begin{intuitionbox}{Checking Independence with Matrices}
+In linear algebra, an Outer Product of two vectors creates a matrix where every cell is the multiplication of the respective row and column. The independence criterion $p_{X,Y}(x, y) = p_X(x) \cdot p_Y(y)$ essentially says: "A Joint PMF is independent IF AND ONLY IF the entire 2D probability matrix is just the outer product of its 1D margins."
+\end{intuitionbox}
+
+\begin{lstlisting}[language=Python, caption=Data Science: Independence Check in numpy]
+import numpy as np
+
+# Marginal distributions
+p_X = np.array([0.4, 0.6])
+p_Y = np.array([0.3, 0.7])
+
+# Construct an independent Joint PMF via outer product
+joint_pmf = np.outer(p_X, p_Y)
+print("Independent Joint PMF:\n", joint_pmf)
+\end{lstlisting}
 
 Two random variables $X$ and $Y$ are independent if knowing the value of $Y$ gives zero information about the probability distribution of $X$.
 
 \begin{definitionbox}{Independence Criterion}
-Discrete random variables $X$ and $Y$ are \textbf{Independent} (written $X \perp\!\!\!\perp Y$) if and only if their joint PMF factorizes into the product of their marginal PMFs for all $(x, y)$:
+\index{Independence Criterion}
+Discrete random variables $X$ and $Y$ are \index{Independent}\textbf{Independent} (written $X \perp\!\!\!\perp Y$) if and only if their joint PMF factorizes into the product of their marginal PMFs for all $(x, y)$:
 $$p_{X,Y}(x, y) = p_X(x) \cdot p_Y(y) \quad \forall x, y$$
 Equivalently, $p_{X|Y}(x \mid y) = p_X(x)$ for all $y$ where $p_Y(y) > 0$.
 \end{definitionbox}
@@ -26,7 +52,7 @@ If $X$ and $Y$ are random variables and $Z = g(X, Y)$, then $Z$ is also a random
 $$p_Z(z) = \sum_{\{(x,y) \mid g(x,y)=z\}} p_{X,Y}(x, y)$$
 
 \begin{formulabox}{Convolution Formula for Sum $Z = X + Y$}
-If $X$ and $Y$ are \textbf{independent} discrete random variables, the PMF of $Z = X + Y$ is the \textbf{Discrete Convolution} of $p_X$ and $p_Y$:
+If $X$ and $Y$ are \index{independent}\textbf{independent} discrete random variables, the PMF of $Z = X + Y$ is the \index{Discrete Convolution}\textbf{Discrete Convolution} of $p_X$ and $p_Y$:
 $$p_Z(z) = \P(X + Y = z) = \sum_{x} p_X(x) \cdot p_Y(z - x)$$
 \end{formulabox}
 

@@ -2,14 +2,24 @@
 
 Before we can compute probabilities, we must master the art of counting. In Data Science, if you want to know the probability of an event occurring by random chance, you must mathematically count the total number of possible scenarios. This chapter develops the foundational counting tools: the Addition/Multiplication principles, Factorials, Permutations, and Combinations.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Fundamental Counting Principles
+    \item Factorials
+    \item Permutations (Order Matters)
+    \item Combinations (Order Doesn't Matter)
+\end{itemize}
+\end{tcolorbox}
 \section{Fundamental Counting Principles}
 
 At the heart of all complex counting are two simple, logical rules.
 
 \begin{theorembox}{Addition and Multiplication Principles}
 \begin{itemize}
-    \item \textbf{Addition Principle (OR Rule):} If Task A can be done in $m$ ways, and Task B can be done in $n$ ways, and the two tasks \emph{cannot} be done simultaneously (they are mutually exclusive), then doing either Task A \textbf{OR} Task B can be done in $m + n$ ways.
-    \item \textbf{Multiplication Principle (AND Rule):} If Task A can be done in $m$ ways, and for \emph{each} of those ways, a subsequent Task B can be done in $n$ ways, then doing both Task A \textbf{AND} Task B together can be done in $m \times n$ ways. 
+    \item \textbf{Addition Principle (OR Rule):} If Task A can be done in $m$ ways, and Task B can be done in $n$ ways, and the two tasks \emph{cannot} be done simultaneously (they are mutually exclusive), then doing either Task A \index{OR}\textbf{OR} Task B can be done in $m + n$ ways.
+    \item \textbf{Multiplication Principle (AND Rule):} If Task A can be done in $m$ ways, and for \emph{each} of those ways, a subsequent Task B can be done in $n$ ways, then doing both Task A \index{AND}\textbf{AND} Task B together can be done in $m \times n$ ways. 
     
     This cascades across $k$ consecutive tasks:
     $$\text{Total ways} = n_1 \times n_2 \times \cdots \times n_k$$
@@ -27,7 +37,7 @@ Official lecture explaining the Addition and Multiplication principles with ever
 The Multiplication Principle naturally leads to factorials when we want to arrange a set of objects where we use one up at each step.
 
 \begin{definitionbox}{Factorial ($n!$)}
-For a non-negative integer $n$, the \textbf{factorial} $n!$ represents the number of ways to arrange $n$ distinct objects in a sequence.
+For a non-negative integer $n$, the \index{factorial}\textbf{factorial} $n!$ represents the number of ways to arrange $n$ distinct objects in a sequence.
 $$n! = n \times (n-1) \times (n-2) \times \cdots \times 2 \times 1$$
 \textbf{Special Rule:} $0! = 1$ (There is exactly one way to arrange zero objects: doing nothing).
 \end{definitionbox}
@@ -38,7 +48,7 @@ Official lecture on calculating and simplifying ratios of factorials.
 
 \section{Permutations (Order Matters)}
 
-A permutation is an arrangement of a subset of items where the \textbf{order matters}. (e.g., selecting a President, Vice President, and Secretary from a 10-person committee).
+A permutation is an arrangement of a subset of items where the \index{order matters}\textbf{order matters}. (e.g., selecting a President, Vice President, and Secretary from a 10-person committee).
 
 \begin{formulabox}{Permutations of Distinct Objects ($^nP_r$)}
 The number of ways to choose and arrange $r$ distinct objects from a pool of $n$ distinct objects is:
@@ -62,7 +72,26 @@ Official lecture detailing the exact math for arranging words with repeating let
 
 \section{Combinations (Order Doesn't Matter)}
 
-A combination is a selection of items where the \textbf{order does NOT matter}. (e.g., selecting a 3-person cleaning crew from a 10-person committee; picking Person A, B, and C is the exact same crew as picking B, C, and A).
+\begin{intuitionbox}{Permutations vs Combinations}
+If you lock your suitcase with a 3-digit code (like 1-2-3), the code 3-2-1 won't open it. Therefore, your suitcase actually has a "Permutation Lock", not a "Combination Lock"! A true combination lock would open no matter what order you pressed 1, 2, and 3.
+\end{intuitionbox}
+
+\begin{lstlisting}[language=Python, caption=Data Science: Combinatorics in Python]
+import math
+
+n = 10
+r = 3
+
+# Permutations (10P3)
+perms = math.perm(n, r)
+print("Permutations:", perms)
+
+# Combinations (10C3)
+combs = math.comb(n, r)
+print("Combinations:", combs)
+\end{lstlisting}
+
+A combination is a selection of items where the \index{order does NOT matter}\textbf{order does NOT matter}. (e.g., selecting a 3-person cleaning crew from a 10-person committee; picking Person A, B, and C is the exact same crew as picking B, C, and A).
 
 \begin{formulabox}{Combinations ($^nC_r$ or $\binom{n}{r}$)}
 The number of ways to choose $r$ objects from a pool of $n$ objects, regardless of order, is:
@@ -73,11 +102,6 @@ $$^nC_r = \binom{n}{r} = \frac{n!}{r!(n-r)!}$$
 \begin{videocard}{IITM BS Lecture: W5\_L5 Combinations}{https://www.youtube.com/watch?v=s-cKQV5UwTU}
 Official lecture explaining $^nC_r$ and the mathematical relationship between Permutations and Combinations.
 \end{videocard}
-
-\section*{Supplementary Lecture Videos}
-\begin{itemize}
-    \item \href{https://www.youtube.com/watch?v=aE9yBQ9BWhQ}{W5\_L6: Permutations \& combinations - applications}
-\end{itemize}
 
 \newpage
 \section{Practice Exercises}
@@ -92,7 +116,7 @@ Official lecture explaining $^nC_r$ and the mathematical relationship between Pe
         \item Which formula did you use and why?
     \end{enumerate}
 
-    \item \textbf{Permutations (Non-Distinct):} You are trying to train a text generation model. To test it, you ask it to generate every unique anagram of the word \textbf{STATISTICS}. 
+    \item \textbf{Permutations (Non-Distinct):} You are trying to train a text generation model. To test it, you ask it to generate every unique anagram of the word \index{STATISTICS}\textbf{STATISTICS}. 
     \begin{enumerate}
         \item How many unique arrangements of the word exist?
         \item Explain mathematically why dividing by the factorials in the denominator is necessary.

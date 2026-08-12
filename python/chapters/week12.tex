@@ -2,12 +2,26 @@
 
 Data Visualization turns raw numerical data into intuitive charts, graphs, and interactive dashboards. In this final chapter, we cover \textbf{Matplotlib} (the fundamental plotting library in Python) and review the core programming concepts mastered throughout the course.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Introduction to Matplotlib
+    \item Common Chart Types for Data Science
+    \item Course Summary and Next Steps
+\end{itemize}
+\end{tcolorbox}
 \section{Introduction to Matplotlib}
+
+\begin{intuitionbox}{The Painter's Canvas}
+Think of Matplotlib like a painter's setup. The Figure (\texttt{plt.figure()}) is the wooden easel that holds everything. The Axes (or subplot) is the blank canvas pinned to the easel. And \texttt{plt.plot()} is the paintbrush you use to actually draw the data onto the canvas. You must have a canvas to paint!
+\end{intuitionbox}
 
 \texttt{matplotlib.pyplot} provides a MATLAB-like plotting framework for building line plots, scatter plots, bar charts, histograms, and heatmaps.
 
 \begin{definitionbox}{Matplotlib Figure and Axes}
-A \textbf{Figure} represents the entire canvas window. An \textbf{Axes} represents an individual plot or subplot inside the figure.
+\index{Matplotlib Figure and Axes}
+A \index{Figure}\textbf{Figure} represents the entire canvas window. An \index{Axes}\textbf{Axes} represents an individual plot or subplot inside the figure.
 \begin{lstlisting}
 import matplotlib.pyplot as plt
 import numpy as np

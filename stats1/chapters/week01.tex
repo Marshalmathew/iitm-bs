@@ -2,11 +2,41 @@
 
 Statistics is the science of collecting, organising, analysing, and interpreting data to make decisions. In the context of the IITM BS Degree, statistics forms the foundational grammar of Data Science and Machine Learning. Before algorithms can learn from data, we must understand how to classify, measure, and describe that data.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item What is Statistics?
+    \item Types of Data
+    \item Scales of Measurement
+    \item Cross-Sectional vs. Time Series Data
+\end{itemize}
+\end{tcolorbox}
 \section{What is Statistics?}
+
+\begin{lstlisting}[language=Python, caption=Data Science: Classifying Data in Pandas]
+import pandas as pd
+
+# Creating a dataframe with different data types
+df = pd.DataFrame({
+    'City': ['Mumbai', 'Delhi'],       # Nominal Categorical
+    'Rating': ['Good', 'Excellent'],   # Ordinal Categorical
+    'Children': [2, 1],                # Discrete Numerical
+    'Height_cm': [170.5, 165.2]        # Continuous Numerical
+})
+print(df.dtypes)
+\end{lstlisting}
+
+
+\begin{intuitionbox}{The Soup Analogy}
+If you want to know if a large pot of soup is too salty, you don't need to drink the entire pot. You just stir it well and taste one spoonful. 
+The entire pot is the \textbf{Population}. The spoonful is the \textbf{Sample}. \textbf{Descriptive Statistics} is describing the exact saltiness of that one spoonful. \textbf{Inferential Statistics} is using that spoonful to confidently conclude that the entire pot is too salty.
+\end{intuitionbox}
 
 At its core, statistics helps us understand the world by managing uncertainty and variation in data. We divide the field into two major branches.
 
 \begin{definitionbox}{Descriptive vs. Inferential Statistics}
+\index{Descriptive vs. Inferential Statistics}
 \begin{itemize}
     \item \textbf{Descriptive Statistics:} Methods for \emph{summarising and presenting} data from a dataset you already have. This involves organizing data into tables, graphs (like histograms or scatter plots), and calculating summary numbers (like the average or variance).
     \item \textbf{Inferential Statistics:} Methods for drawing \emph{conclusions about an entire population} based on a smaller sample drawn from it. This involves probability, hypothesis testing, and building predictive models.
@@ -14,15 +44,30 @@ At its core, statistics helps us understand the world by managing uncertainty an
 \end{definitionbox}
 
 \begin{definitionbox}{Population and Sample}
+\index{Population and Sample}
 \begin{itemize}
     \item \textbf{Population:} The complete, exhaustive set of all individuals or items of interest. Its size is typically denoted by $N$.
-    \item \textbf{Sample:} A subset of the population that is actually observed or measured. Its size is denoted by $n$. A \textbf{representative sample} accurately reflects the characteristics of the population.
+    \item \textbf{Sample:} A subset of the population that is actually observed or measured. Its size is denoted by $n$. A \index{representative sample}\textbf{representative sample} accurately reflects the characteristics of the population.
     \item \textbf{Parameter:} A numerical summary of a \emph{population} (e.g., population mean $\mu$, which is usually unknown).
     \item \textbf{Statistic:} A numerical summary of a \emph{sample} (e.g., sample mean $\bar{x}$, which is calculated from the data).
 \end{itemize}
 \end{definitionbox}
 
 \textbf{Data Science Relevance:} In machine learning, your training dataset is just a \emph{sample}. Your goal is to train a model that generalizes to the \emph{population} of all future unseen data. If your sample is biased, your model's inference will be completely flawed (a phenomenon known as "garbage in, garbage out").
+
+\begin{examplebox}{Identifying the Components}
+\textbf{Scenario:} A quality control manager at a lightbulb factory wants to know the average lifespan of the 10,000 bulbs produced today. She tests 50 bulbs and finds their average lifespan is 1,020 hours.
+\begin{itemize}
+    \item \textbf{Population:} All 10,000 bulbs produced today.
+    \item \textbf{Sample:} The 50 bulbs that were actually tested.
+    \item \textbf{Parameter ($\mu$):} The true (but unknown) average lifespan of all 10,000 bulbs.
+    \item \textbf{Statistic ($\bar{x}$):} 1,020 hours (the average computed strictly from the 50 tested bulbs).
+\end{itemize}
+\end{examplebox}
+
+\vspace{0.3cm}
+\textbf{Checkpoint:} If you measure the height of every single student in your class to find the class average, is that average a \textit{statistic} or a \textit{parameter}? 
+\vspace{0.3cm}
 
 \begin{videocard}{IITM BS Lecture: W0 Introduction to Statistics for Data Science}{https://www.youtube.com/watch?v=V5fqShLVpoI}
 Course introduction laying out how statistical thinking ties directly into data science applications.
@@ -34,9 +79,10 @@ Official lecture defining Descriptive vs. Inferential statistics, populations, a
 
 \section{Types of Data}
 
-Before analyzing data, we must classify what type of data we are looking at. A \textbf{variable} is any characteristic that can differ from individual to individual.
+Before analyzing data, we must classify what type of data we are looking at. A \index{variable}\textbf{variable} is any characteristic that can differ from individual to individual.
 
 \begin{definitionbox}{Variable Classification}
+\index{Variable Classification}
 \begin{itemize}
     \item \textbf{Categorical (Qualitative):} Values are labels or categories describing attributes.
         \begin{itemize}
@@ -57,14 +103,14 @@ Official lecture breaking down Nominal, Ordinal, Discrete, and Continuous data w
 
 \section{Scales of Measurement}
 
-The \textbf{scale of measurement} is a critical concept that strictly determines which statistical operations (mean, median, mode) and which ML algorithms are mathematically valid to use.
+The \index{scale of measurement}\textbf{scale of measurement} is a critical concept that strictly determines which statistical operations (mean, median, mode) and which ML algorithms are mathematically valid to use.
 
 \begin{theorembox}{Four Scales of Measurement}
 \begin{center}
 \renewcommand{\arraystretch}{1.3}
 \begin{tabular}{lllll}
 \toprule
-\textbf{Scale} & \textbf{Order?} & \textbf{Equal gaps?} & \textbf{True zero?} & \textbf{Example} \\
+\index{Scale}\textbf{Scale} & \index{Order?}\textbf{Order?} & \index{Equal gaps?}\textbf{Equal gaps?} & \index{True zero?}\textbf{True zero?} & \index{Example}\textbf{Example} \\
 \midrule
 Nominal   & No  & No  & No  & Pincodes, Colors \\
 Ordinal   & Yes & No  & No  & Movie Ratings (1--5 stars) \\
@@ -76,6 +122,10 @@ Ratio     & Yes & Yes & Yes & Height, Weight, Salary, Age \\
 \textit{Note:} For Interval scales, a zero is arbitrary (0°C does not mean "no temperature"). For Ratio scales, a zero represents the total absence of the quantity, meaning statements like ``twice as heavy'' or ``half as expensive'' are mathematically valid.
 \end{theorembox}
 
+\begin{warningbox}{The Interval vs. Ratio Pitfall}
+A classic mistake is treating Interval data like Ratio data. Because Temperature (°C) is an Interval scale, 20°C is \textbf{not} "twice as hot" as 10°C. However, because Kelvin is a Ratio scale (0 K is absolute zero), 200 K actually is twice as hot as 100 K! Always verify the presence of a \textit{true zero} before calculating percentages or ratios.
+\end{warningbox}
+
 \begin{videocard}{IITM BS Lecture: W1\_L4 Scales of Measurement}{https://www.youtube.com/watch?v=EVGVlzMuhIo}
 Official lecture detailing the operations allowed on Nominal, Ordinal, Interval, and Ratio scales.
 \end{videocard}
@@ -85,6 +135,7 @@ Official lecture detailing the operations allowed on Nominal, Ordinal, Interval,
 Data is also classified by how it is collected with respect to time.
 
 \begin{definitionbox}{Data Structures by Time}
+\index{Data Structures by Time}
 \begin{itemize}
     \item \textbf{Cross-Sectional Data:} Observations taken on multiple subjects at a \emph{single point in time}. (Example: A survey of 500 students' heights taken today, or current stock prices of 50 companies).
     \item \textbf{Time Series Data:} Observations taken on a \emph{single subject over multiple time periods}. (Example: The monthly GDP of India from 2010 to 2025, or a single patient's daily blood pressure).
@@ -92,10 +143,29 @@ Data is also classified by how it is collected with respect to time.
 \end{itemize}
 \end{definitionbox}
 
-\section*{Supplementary Lecture Videos}
-\begin{itemize}
-    \item \href{https://www.youtube.com/watch?v=PXYtFNTVeVY}{W1\_L2: Introduction \& types of data - understanding data}
-\end{itemize}
+\section{Capstone: Exploratory Data Analysis (EDA)}
+
+Let's apply these concepts to a real-world scenario. You are given a dataset of employees. Before computing anything, you must classify the data.
+
+\begin{lstlisting}[language=Python]
+import pandas as pd
+
+# 1. Load the dataset
+data = {
+    'Employee_ID': [101, 102, 103],    # Nominal (Identifier)
+    'Department': ['IT', 'HR', 'IT'],  # Categorical Nominal
+    'Performance': [4, 5, 3],          # Categorical Ordinal (1-5 scale)
+    'Salary_USD': [85000, 92000, 78000] # Numerical Continuous (Ratio)
+}
+df = pd.DataFrame(data)
+
+# 2. Descriptive Statistics (Only valid on certain scales!)
+# MEAN is valid for Ratio data (Salary), but mathematically meaningless for Nominal (Employee_ID)!
+print("Average Salary:", df['Salary_USD'].mean()) 
+
+# MODE is valid for Categorical data
+print("Most Common Dept:", df['Department'].mode()[0])
+\end{lstlisting}
 
 \newpage
 \section{Practice Exercises}

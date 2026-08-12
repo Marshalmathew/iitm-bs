@@ -1,8 +1,21 @@
 \chapter{Advanced Hypothesis Testing, LRT \& Goodness-of-Fit}
 
-In practical data science applications, population variance $\sigma^2$ is almost never known, requiring \textbf{Student's $t$-test}. Additionally, we frequently compare two populations or test if categorical data fits a theoretical model. In this final capstone chapter, we master \textbf{One-Sample and Two-Sample $t$-Tests}, \textbf{Chi-Squared ($\chi^2$) Goodness-of-Fit Tests}, and the general \textbf{Likelihood Ratio Test (LRT)}.
+In practical data science applications, population variance $\sigma^2$ is almost never known, requiring \textbf{Student's $t$-test}. Additionally, we frequently compare two populations or test if categorical data fits a theoretical model. In this final capstone chapter, we master \textbf{One-Sample and Two-Sample $t$-Tests}, \textbf{Chi-Squared ($\chi^2$) Goodness-of-Fit Tests}, and the general \index{Likelihood Ratio Test (LRT)}\textbf{Likelihood Ratio Test (LRT)}.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Student's t-Test for Variance Unknown
+    \item Two-Sample Tests
+    \item Likelihood Ratio Test (LRT) and Chi-Squared Goodness of Fit
+\end{itemize}
+\end{tcolorbox}
 \section{Student's $t$-Test for Variance Unknown}
+
+\begin{intuitionbox}{Why Student's $t$ instead of Normal $Z$?}
+When calculating a Z-score, you must divide by the true population standard deviation $\sigma$. But in reality, you almost never know $\sigma$! You have to estimate it using the sample standard deviation $S$. This estimation introduces extra uncertainty (especially for small samples). William Sealy Gosset (writing under the pen name "Student") proved that because of this extra uncertainty, the distribution gets "fatter tails", creating the $t$-distribution. As sample size $n \to \infty$, the uncertainty vanishes, and the $t$-distribution becomes identical to the Normal distribution.
+\end{intuitionbox}
 
 When $\sigma^2$ is unknown, we substitute the sample variance $S^2 = \frac{1}{n-1} \sum_{i=1}^n (X_i - \bar{X})^2$.
 

@@ -1,13 +1,26 @@
 \chapter{Null Space, Nullity \& Linear Mappings}
 
-Matrices are not merely static arrays of numbers—they act as dynamic geometric transformations between vector spaces. In this chapter, we explore the \textbf{Null Space} of a matrix and formalize \textbf{Linear Mappings} (Linear Transformations).
+Matrices are not merely static arrays of numbers—they act as dynamic geometric transformations between vector spaces. In this chapter, we explore the \index{Null Space}\textbf{Null Space} of a matrix and formalize \index{Linear Mappings}\textbf{Linear Mappings} (Linear Transformations).
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Null Space and Nullity
+    \item Linear Mappings and Linear Transformations
+\end{itemize}
+\end{tcolorbox}
 \section{Null Space and Nullity}
 
+\begin{intuitionbox}{Eigenvalues are Scaling Factors}
+If a matrix represents a complex rotation and stretch of space, the Eigenvectors are the few special directions that don't get knocked off their span during the transformation. They only get stretched or squished! The Eigenvalue is simply the factor by which they are stretched or squished.
+\end{intuitionbox}
+
+
 \begin{definitionbox}{Null Space ($\text{Null}(A)$ or $\kernel(A)$)}
-For a matrix $A \in \mathbb{R}^{m \times n}$, the \textbf{Null Space} (or Kernel) of $A$ is the set of all input vectors $\mathbf{x} \in \mathbb{R}^n$ that map to the zero vector $\mathbf{0} \in \mathbb{R}^m$:
+For a matrix $A \in \mathbb{R}^{m \times n}$, the \index{Null Space}\textbf{Null Space} (or Kernel) of $A$ is the set of all input vectors $\mathbf{x} \in \mathbb{R}^n$ that map to the zero vector $\mathbf{0} \in \mathbb{R}^m$:
 $$\text{Null}(A) = \left\{ \mathbf{x} \in \mathbb{R}^n \Big| A \mathbf{x} = \mathbf{0} \right\}$$
-The dimension of the null space is called the \textbf{Nullity} of $A$:
+The dimension of the null space is called the \index{Nullity}\textbf{Nullity} of $A$:
 $$\nullity(A) = \dim(\text{Null}(A))$$
 \end{definitionbox}
 
@@ -22,10 +35,11 @@ Official lectures defining null space, solving homogenous systems $A\mathbf{x}=\
 
 \section{Linear Mappings and Linear Transformations}
 
-A function $T: V \to W$ between two vector spaces $V$ and $W$ is a \textbf{Linear Mapping} (or Linear Transformation) if it preserves vector addition and scalar multiplication.
+A function $T: V \to W$ between two vector spaces $V$ and $W$ is a \index{Linear Mapping}\textbf{Linear Mapping} (or Linear Transformation) if it preserves vector addition and scalar multiplication.
 
 \begin{definitionbox}{Linear Transformation Axioms}
-A mapping $T: V \to W$ is \textbf{Linear} if for all $\mathbf{u}, \mathbf{v} \in V$ and all scalars $c \in \mathbb{R}$:
+\index{Linear Transformation Axioms}
+A mapping $T: V \to W$ is \index{Linear}\textbf{Linear} if for all $\mathbf{u}, \mathbf{v} \in V$ and all scalars $c \in \mathbb{R}$:
 \begin{enumerate}
     \item \textbf{Additivity:} $T(\mathbf{u} + \mathbf{v}) = T(\mathbf{u}) + T(\mathbf{v})$.
     \item \textbf{Homogeneity (Scalar Scaling):} $T(c \mathbf{v}) = c T(\mathbf{v})$.
@@ -35,6 +49,17 @@ Crucial consequence: $T(\mathbf{0}) = \mathbf{0}$ for any linear transformation.
 \end{definitionbox}
 
 \textbf{Data Science Relevance:} Linear layers in Deep Learning ($\mathbf{y} = W \mathbf{x}$), dimensionality reduction mappings, and continuous linear projections in SVMs are all formal linear transformations!
+
+\begin{lstlisting}[language=Python, caption=Data Science: Finding Null Space]
+import numpy as np
+from scipy.linalg import null_space
+
+# Define a transformation matrix
+A = np.array([[1, 2, -1], [2, 4, 5]])
+# Compute the basis for the null space
+ns = null_space(A)
+print("Null Space Basis:\n", ns)
+\end{lstlisting}
 
 \begin{videocard}{IITM BS Lecture: What is a Linear Mapping? (Parts 1 \& 2)}{https://www.youtube.com/watch?v=MvCkhmYhTkw}
 Official lectures defining linear mappings, testing additivity and scalar homogeneity.

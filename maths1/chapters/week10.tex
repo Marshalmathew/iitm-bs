@@ -1,8 +1,29 @@
 \chapter{Graph Theory (I): BFS, DFS, and Topo Sort}
+\index{Graph Theory (I): BFS, DFS, and Topo Sort}
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Introduction and Classifications
+    \item Representations of Graphs
+    \item Graph Traversals: BFS and DFS
+    \item Directed Acyclic Graphs (DAGs) and Topological Sorting
+\end{itemize}
+\end{tcolorbox}
 Graph theory is the study of networks consisting of points (vertices) connected by lines (edges). In data science, graphs model relations between data points, such as social networks, recommendation systems, page ranking (PageRank), and dependencies between variables in probabilistic models (like Bayesian Networks).
 
 \section{Introduction and Classifications}
+
+\begin{lstlisting}[language=Python, caption=Data Science: Working with Graphs]
+import networkx as nx
+
+G = nx.Graph()
+G.add_edges_from([(1, 2), (2, 3), (3, 1)])
+
+print(f'Number of nodes: {G.number_of_nodes()}') # Outputs 3
+\end{lstlisting}
+
 
 A \textbf{graph} $G$ is a pair $G = (V, E)$, where $V$ is a non-empty set of vertices (or nodes) and $E$ is a set of edges (connections between vertices).
 
@@ -118,15 +139,6 @@ Official IIT Madras lecture detailing the recursive stack mechanism and backtrac
 \begin{videocard}{IITM BS Lecture: W10\_L9 Topological Sorting}{https://www.youtube.com/watch?v=Rax3k-rCYkY}
 Official IIT Madras lecture showing how to use DFS (or Kahn's Algorithm) to generate a valid topological order.
 \end{videocard}
-
-\section*{Supplementary Lecture Videos}
-For further reinforcement and specialized topics, refer to the following official IIT Madras lectures:
-\begin{itemize}
-    \item \href{https://www.youtube.com/watch?v=4K2wZkFKqIY}{W10\_L2: Some general graph problems}
-    \item \href{https://www.youtube.com/watch?v=l56BfAgi5LA}{W10\_L6: Applications of BFS \& DFS | part 1}
-    \item \href{https://www.youtube.com/watch?v=yD4mk9nD_-s}{W10\_L7: Applications of BFS \& DFS | part 2}
-    \item \href{https://www.youtube.com/watch?v=rCiV-4ceYRU}{W10\_L8: Complexity of BFS \& DFS}
-\end{itemize}
 
 \newpage
 \section{Practice Exercises}

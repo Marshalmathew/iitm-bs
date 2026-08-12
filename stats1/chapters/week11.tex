@@ -1,8 +1,21 @@
 \chapter{The Poisson Distribution}
 
-The Binomial distribution requires a fixed number of trials $n$. But what if we want to model events where $n$ is effectively infinite and $p$ is microscopically small? For example, how many emails will you receive in the next hour? The \textbf{Poisson Distribution} mathematically models the count of rare events occurring within a fixed interval of time or space.
+The Binomial distribution requires a fixed number of trials $n$. But what if we want to model events where $n$ is effectively infinite and $p$ is microscopically small? For example, how many emails will you receive in the next hour? The \index{Poisson Distribution}\textbf{Poisson Distribution} mathematically models the count of rare events occurring within a fixed interval of time or space.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item The Poisson Limit of the Binomial
+    \item The Poisson Distribution
+    \item Changing the Interval
+\end{itemize}
+\end{tcolorbox}
 \section{The Poisson Limit of the Binomial}
+
+\begin{intuitionbox}{Poisson is just Binomial in Fast-Forward}
+Imagine breaking an hour into 60 minutes and doing a Binomial check (Did a customer arrive? Yes/No) every minute. That's $n=60, p=1/60$. But multiple customers could arrive in the same minute! To fix this, break the hour into 3,600 seconds. $n=3600, p=1/3600$. The Poisson limit is what happens when you break the hour into \emph{infinitely} small milliseconds. The "slots" disappear, $n \to \infty$, $p \to 0$, and all you are left with is the pure arrival rate $\lambda$.
+\end{intuitionbox}
 
 Imagine an e-commerce website with millions of daily visitors ($n$ is huge). The probability that any single visitor buys a specific \$10,000 laptop is tiny ($p$ is near zero). Calculating $\binom{n}{k} p^k (1-p)^{n-k}$ with $n=1,000,000$ will crash most computers due to the massive factorials.
 
@@ -16,7 +29,8 @@ $$\text{Bin}(n,p) \approx \text{Pois}(\lambda = np)$$
 \section{The Poisson Distribution}
 
 \begin{definitionbox}{Poisson Random Variable}
-Let $X$ be the number of events occurring in a fixed interval. $X$ follows a \textbf{Poisson Distribution}, denoted $X \sim \text{Pois}(\lambda)$, if the events occur with a known constant mean rate $\lambda$ (lambda), and each event occurs independently of the time since the last event.
+\index{Poisson Random Variable}
+Let $X$ be the number of events occurring in a fixed interval. $X$ follows a \index{Poisson Distribution}\textbf{Poisson Distribution}, denoted $X \sim \text{Pois}(\lambda)$, if the events occur with a known constant mean rate $\lambda$ (lambda), and each event occurs independently of the time since the last event.
 
 The Probability Mass Function (PMF) is:
 $$P(X=k) = \frac{e^{-\lambda}\lambda^k}{k!}, \quad \text{for } k = 0, 1, 2, \ldots$$
@@ -31,7 +45,20 @@ The Poisson distribution has a very unique and mathematically elegant property: 
 \end{itemize}
 \end{theorembox}
 
-\textbf{Data Science Relevance:} The Poisson distribution is heavily used in \textbf{Operations Research} and \textbf{Queueing Theory}. Amazon AWS uses Poisson processes to mathematically predict how many servers they need to spin up to handle incoming server requests per minute. Traffic engineers use it to model the number of cars arriving at a toll booth per hour.
+\begin{lstlisting}[language=Python, caption=Data Science: Poisson Distribution in SciPy]
+from scipy.stats import poisson
+
+# Average rate is 6 requests per minute
+lmbda = 6
+
+# Exact probability of receiving exactly 10 requests
+print("P(X=10):", poisson.pmf(k=10, mu=lmbda))
+
+# Probability of receiving 10 or FEWER requests
+print("P(X<=10):", poisson.cdf(k=10, mu=lmbda))
+\end{lstlisting}
+
+\textbf{Data Science Relevance:} The Poisson distribution is heavily used in \index{Operations Research}\textbf{Operations Research} and \index{Queueing Theory}\textbf{Queueing Theory}. Amazon AWS uses Poisson processes to mathematically predict how many servers they need to spin up to handle incoming server requests per minute. Traffic engineers use it to model the number of cars arriving at a toll booth per hour.
 
 \section{Changing the Interval}
 
@@ -65,8 +92,8 @@ If a call center receives an average of $\lambda = 3$ calls per \emph{minute}:
 
     \item \textbf{Scaling the Interval:} A server receives an average of $6$ malicious DDoS requests per minute. 
     \begin{enumerate}
-        \item What is the probability of receiving exactly $10$ requests in a \textbf{2-minute} window? (Make sure to scale $\lambda$ first!).
-        \item What is the expected number of requests in a \textbf{10-second} window?
+        \item What is the probability of receiving exactly $10$ requests in a \index{2-minute}\textbf{2-minute} window? (Make sure to scale $\lambda$ first!).
+        \item What is the expected number of requests in a \index{10-second}\textbf{10-second} window?
     \end{enumerate}
 
     \item \textbf{Poisson Approximation to Binomial:} A machine produces computer chips, and $1\%$ of them are defective ($p=0.01$). You randomly sample $100$ chips ($n=100$).
@@ -78,7 +105,7 @@ If a call center receives an average of $\lambda = 3$ calls per \emph{minute}:
 
     \item \textbf{Using the Complement Rule with Poisson:} On average, a website goes down $\lambda = 1.5$ times per month. 
     \begin{enumerate}
-        \item What is the probability that the website goes down \textbf{at least once} this month? (Hint: Use the Complement rule $1 - P(0)$).
+        \item What is the probability that the website goes down \index{at least once}\textbf{at least once} this month? (Hint: Use the Complement rule $1 - P(0)$).
     \end{enumerate}
 
     \item \textbf{Expectation and Variance:} Let $Y \sim \text{Pois}(4)$. 

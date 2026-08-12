@@ -2,11 +2,22 @@
 
 Numerical data requires a richer mathematical toolkit than categorical data. Because the data consists of actual numbers on an interval or ratio scale, we can perform arithmetic. When analyzing numerical data, we generally want to capture three things: the \emph{centre} (where is the middle?), the \emph{spread} (how scattered is it?), and the \emph{shape} (is it symmetric or skewed?).
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Frequency Tables and Histograms
+    \item Measures of Central Tendency
+    \item Measures of Dispersion (Spread)
+    \item Quartiles and the Five-Number Summary
+\end{itemize}
+\end{tcolorbox}
 \section{Frequency Tables and Histograms}
 
-For discrete data with a massive range, or for continuous data (which has infinite possible values), we cannot simply list every unique value like we did for categorical data. Instead, we must group values into \textbf{class intervals} (or "bins").
+For discrete data with a massive range, or for continuous data (which has infinite possible values), we cannot simply list every unique value like we did for categorical data. Instead, we must group values into \index{class intervals}\textbf{class intervals} (or "bins").
 
 \begin{definitionbox}{Class Intervals and Histograms}
+\index{Class Intervals and Histograms}
 \begin{itemize}
     \item \textbf{Class Intervals:} Divide the total range of the data into $k$ non-overlapping, equal-width bins (e.g., $0-10, 10-20, 20-30$).
     \item \textbf{Histogram:} A bar chart specifically designed for numerical data. The x-axis is a continuous number line. Crucially, the bars are \emph{adjacent} (no gaps between them) to represent the continuous nature of the data.
@@ -38,21 +49,34 @@ Let $x_1, x_2, \ldots, x_n$ be $n$ numerical observations.
 
 \begin{theorembox}{Mean vs. Median: The Impact of Outliers}
 \begin{itemize}
-    \item The \textbf{mean} incorporates the exact value of \emph{every single data point} into its calculation. Therefore, it is highly sensitive to \textbf{outliers} (extreme values).
-    \item The \textbf{median} depends \emph{only} on the rank-ordering of the data. Changing the largest value in the dataset from $100$ to $1,000,000$ does not change the median at all. Thus, the median is \textbf{robust} to outliers.
+    \item The \index{mean}\textbf{mean} incorporates the exact value of \emph{every single data point} into its calculation. Therefore, it is highly sensitive to \index{outliers}\textbf{outliers} (extreme values).
+    \item The \index{median}\textbf{median} depends \emph{only} on the rank-ordering of the data. Changing the largest value in the dataset from $100$ to $1,000,000$ does not change the median at all. Thus, the median is \index{robust}\textbf{robust} to outliers.
     \item \textbf{Right-Skewed (Long Right Tail):} Mean $>$ Median. (The few huge values pull the mean up).
     \item \textbf{Left-Skewed (Long Left Tail):} Mean $<$ Median. (The few tiny values pull the mean down).
     \item \textbf{Symmetric:} Mean $\approx$ Median.
 \end{itemize}
 \end{theorembox}
 
-\textbf{Data Science Relevance:} In data science, replacing missing values (NaNs) is called \textbf{Imputation}. If your feature has extreme outliers (like Income), imputing missing values with the \emph{Mean} will severely distort your dataset. You must impute using the \emph{Median}.
+\textbf{Data Science Relevance:} In data science, replacing missing values (NaNs) is called \index{Imputation}\textbf{Imputation}. If your feature has extreme outliers (like Income), imputing missing values with the \emph{Mean} will severely distort your dataset. You must impute using the \emph{Median}.
 
 \begin{videocard}{IITM BS Lecture: W3\_L2 \& L3 Mean, Median, and Mode}{https://www.youtube.com/watch?v=2qTdQjFGA94}
 Official lectures comparing the formulas and structural differences between Mean and Median.
 \end{videocard}
 
 \section{Measures of Dispersion (Spread)}
+
+\begin{intuitionbox}{Why Standard Deviation?}
+Why do we square the distances from the mean, average them, and then take the square root? Why not just take the absolute values? Squaring heavily penalizes large outliers. If a point is 10 units away, squaring it adds 100 to the variance. This means Standard Deviation specifically flags datasets that have extreme, volatile outliers.
+\end{intuitionbox}
+
+\begin{lstlisting}[language=Python, caption=Data Science: Dispersion in Pandas]
+import pandas as pd
+
+df = pd.DataFrame({"Temperatures": [25, 26, 24, 25, 50, 0]})
+print("Variance:", df["Temperatures"].var())
+print("Std Dev:", df["Temperatures"].std())
+print("IQR:", df["Temperatures"].quantile(0.75) - df["Temperatures"].quantile(0.25))
+\end{lstlisting}
 
 Knowing the centre isn't enough. A city where the temperature is exactly $25^\circ$C every day has a mean of 25. A city where the temperature violently swings between $0^\circ$C and $50^\circ$C also has a mean of 25. We need to measure the spread.
 
@@ -65,7 +89,7 @@ Knowing the centre isn't enough. A city where the temperature is exactly $25^\ci
     \item \textbf{Standard Deviation ($s$):} $s = \sqrt{s^2}$. This returns the spread back to the original units of the data.
     \item \textbf{Interquartile Range (IQR):}
     $$\mathrm{IQR} = Q_3 - Q_1$$
-    This measures the exact spread of the \emph{middle 50\%} of the data. Because it ignores the top 25\% and bottom 25\%, it is highly \textbf{robust} to outliers.
+    This measures the exact spread of the \emph{middle 50\%} of the data. Because it ignores the top 25\% and bottom 25\%, it is highly \index{robust}\textbf{robust} to outliers.
 \end{itemize}
 \end{formulabox}
 
@@ -80,6 +104,7 @@ Official lecture deriving the Variance and explaining why we square the distance
 We can slice ordered data into percentages to understand its structure deeply.
 
 \begin{definitionbox}{Percentiles and Quartiles}
+\index{Percentiles and Quartiles}
 \begin{itemize}
     \item \textbf{$p$-th Percentile:} The value below which $p\%$ of the observations fall.
     \item \textbf{Quartiles:} Specific percentiles that divide the sorted data into four equal quarters (25\% each).

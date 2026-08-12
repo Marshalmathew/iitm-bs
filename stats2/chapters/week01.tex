@@ -1,10 +1,19 @@
 \chapter{Joint \& Marginal Discrete PMFs, Conditional Distributions}
 
-In real-world data science, outcomes rarely depend on a single variable in isolation. We often observe pairs or vectors of random variables simultaneously. In this chapter, we extend single-variable probability concepts to \textbf{Joint Probability Mass Functions (Joint PMFs)}, \textbf{Marginal Distributions}, and \textbf{Conditional Distributions} for discrete random variables.
+In real-world data science, outcomes rarely depend on a single variable in isolation. We often observe pairs or vectors of random variables simultaneously. In this chapter, we extend single-variable probability concepts to \textbf{Joint Probability Mass Functions (Joint PMFs)}, \index{Marginal Distributions}\textbf{Marginal Distributions}, and \index{Conditional Distributions}\textbf{Conditional Distributions} for discrete random variables.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Joint Probability Mass Function (Joint PMF)
+    \item Marginal PMFs
+    \item Conditional PMFs
+\end{itemize}
+\end{tcolorbox}
 \section{Joint Probability Mass Function (Joint PMF)}
 
-When two discrete random variables $X$ and $Y$ are defined on the same sample space, their combined behavior is specified by their \textbf{Joint PMF}.
+When two discrete random variables $X$ and $Y$ are defined on the same sample space, their combined behavior is specified by their \index{Joint PMF}\textbf{Joint PMF}.
 
 \begin{definitionbox}{Joint PMF $p_{X,Y}(x, y)$}
 The \textbf{Joint Probability Mass Function} of discrete random variables $X$ and $Y$ is defined as:
@@ -28,7 +37,23 @@ Official lecture introducing joint probability tables, bivariate discrete distri
 
 \section{Marginal PMFs}
 
-Given the joint PMF $p_{X,Y}(x, y)$, we can recover the individual distribution of $X$ alone (or $Y$ alone) by summing over all possible values of the other variable. This process is called \textbf{Marginalization}.
+\begin{intuitionbox}{Marginalization is "Squashing" Data}
+Imagine a 3D bar chart where $X$ is on the floor pointing left, $Y$ is on the floor pointing forward, and the bars grow upwards representing probability. "Marginalizing out Y" is like shining a flashlight from the front so that all the bars squash against the back wall. You lose the specific $Y$ information, but you perfectly preserve the total probability of each $X$ slice!
+\end{intuitionbox}
+
+\begin{lstlisting}[language=Python, caption=Data Science: Marginal distributions via pandas crosstab]
+import pandas as pd
+
+# Creating a joint frequency table
+df = pd.DataFrame({"Device": ["Mobile", "Mobile", "Desktop", "Desktop"],
+                   "Click":  [0, 1, 0, 1]})
+
+# 'margins=True' computes the Marginal Distributions!
+joint_pmf = pd.crosstab(df['Device'], df['Click'], margins=True, normalize=True)
+print(joint_pmf)
+\end{lstlisting}
+
+Given the joint PMF $p_{X,Y}(x, y)$, we can recover the individual distribution of $X$ alone (or $Y$ alone) by summing over all possible values of the other variable. This process is called \index{Marginalization}\textbf{Marginalization}.
 
 \begin{formulabox}{Marginal PMF Formulas}
 \begin{itemize}
@@ -41,6 +66,15 @@ Given the joint PMF $p_{X,Y}(x, y)$, we can recover the individual distribution 
   $$p_Y(y) = \P(Y = y) = \sum_{x} p_{X,Y}(x, y)$$
 \end{formulabox}
 
+\begin{examplebox}{Step-by-Step Marginalization}
+Consider a joint PMF table for $X$ (rows: 0, 1) and $Y$ (cols: 1, 2):
+$p_{X,Y}(0,1) = 0.1, \quad p_{X,Y}(0,2) = 0.3$
+$p_{X,Y}(1,1) = 0.4, \quad p_{X,Y}(1,2) = 0.2$
+To find the marginal probability $p_X(0) = \P(X=0)$, we sum across the row for $X=0$:
+$$p_X(0) = p_{X,Y}(0,1) + p_{X,Y}(0,2) = 0.1 + 0.3 = 0.4$$
+Similarly, $p_X(1) = 0.4 + 0.2 = 0.6$. Note that $0.4 + 0.6 = 1$.
+\end{examplebox}
+
 \textbf{Data Science Relevance:} In tabular data (e.g. customer churn vs age bracket), computing column totals or row totals in a contingency table corresponds directly to finding marginal PMFs!
 
 \begin{videocard}{IITM BS Lecture: Marginal PMF of Discrete Random Variables}{https://www.youtube.com/watch?v=exwWKHFV3GA}
@@ -49,13 +83,17 @@ Official lecture deriving row/column marginal distributions from joint probabili
 
 \section{Conditional PMFs}
 
-How does knowing the value of $Y$ update our belief about the distribution of $X$? This is captured by the \textbf{Conditional PMF}.
+How does knowing the value of $Y$ update our belief about the distribution of $X$? This is captured by the \index{Conditional PMF}\textbf{Conditional PMF}.
 
 \begin{definitionbox}{Conditional PMF $p_{X|Y}(x \mid y)$}
-For any $y$ such that $p_Y(y) > 0$, the \textbf{Conditional PMF} of $X$ given $Y = y$ is:
+For any $y$ such that $p_Y(y) > 0$, the \index{Conditional PMF}\textbf{Conditional PMF} of $X$ given $Y = y$ is:
 $$p_{X|Y}(x \mid y) = \P(X = x \mid Y = y) = \frac{p_{X,Y}(x, y)}{p_Y(y)}$$
 For a fixed $y$, $\sum_{x} p_{X|Y}(x \mid y) = 1$, making $p_{X|Y}(\cdot \mid y)$ a valid probability distribution over $x$.
 \end{definitionbox}
+
+\begin{warningbox}{Conditioning vs Marginalizing}
+A very common mistake is confusing $p_{X|Y}(x \mid y)$ with $p_{X,Y}(x, y)$. The joint probability $p_{X,Y}(x, y)$ is the probability that \textbf{both} $X=x$ and $Y=y$ happen out of the entire sample space. The conditional probability $p_{X|Y}(x \mid y)$ is the probability that $X=x$ happens, \textbf{restricting the universe only to cases where $Y=y$ has already happened}. The denominator $p_Y(y)$ is the scaling factor that forces the new restricted universe to sum to 1!
+\end{warningbox}
 
 \begin{videocard}{IITM BS Lecture: Conditional Distribution of One Random Variable Given Another}{https://www.youtube.com/watch?v=6eQxA6ElXOo}
 Official lecture defining conditional PMFs and constructing conditional probability slices.
@@ -64,6 +102,10 @@ Official lecture defining conditional PMFs and constructing conditional probabil
 \begin{videocard}{IITM BS Lecture: Joint PMF of More Than Two Random Variables}{https://www.youtube.com/watch?v=1d-6FI33HmY}
 Official lecture extending joint PMFs and conditional distributions to multivariate vectors $(X_1, X_2, \dots, X_n)$.
 \end{videocard}
+
+\vspace{0.3cm}
+\textbf{Checkpoint:} If $X$ and $Y$ are independent random variables, what does the conditional PMF $p_{X|Y}(x \mid y)$ equal?
+\vspace{0.3cm}
 
 \newpage
 \section{Practice Exercises}

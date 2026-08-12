@@ -1,12 +1,22 @@
 \chapter{Tangent Planes, Steepest Descent \& Critical Points}
 
-Optimization is the heart of Machine Learning. Training a model means finding parameter values that minimize a loss function $L(\mathbf{w})$. In this chapter, we master \textbf{Tangent Planes/Hyperplanes}, the \textbf{Gradient Descent Update Rule}, and \textbf{Critical Points} ($\nabla f(\mathbf{x}) = \mathbf{0}$).
+Optimization is the heart of Machine Learning. Training a model means finding parameter values that minimize a loss function $L(\mathbf{w})$. In this chapter, we master \index{Tangent Planes/Hyperplanes}\textbf{Tangent Planes/Hyperplanes}, the \index{Gradient Descent Update Rule}\textbf{Gradient Descent Update Rule}, and \index{Critical Points}\textbf{Critical Points} ($\nabla f(\mathbf{x}) = \mathbf{0}$).
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Tangent Planes and Hyperplanes
+    \item Steepest Descent and Gradient Descent Algorithm
+    \item Critical Points
+\end{itemize}
+\end{tcolorbox}
 \section{Tangent Planes and Hyperplanes}
 
-The 1D tangent line generalizes in higher dimensions to a \textbf{Tangent Plane} (for $f: \mathbb{R}^2 \to \mathbb{R}$) or a \textbf{Tangent Hyperplane} (for $f: \mathbb{R}^n \to \mathbb{R}$).
+The 1D tangent line generalizes in higher dimensions to a \index{Tangent Plane}\textbf{Tangent Plane} (for $f: \mathbb{R}^2 \to \mathbb{R}$) or a \index{Tangent Hyperplane}\textbf{Tangent Hyperplane} (for $f: \mathbb{R}^n \to \mathbb{R}$).
 
 \begin{definitionbox}{Tangent Plane Formula}
+\index{Tangent Plane Formula}
 For a surface $z = f(x, y)$, the tangent plane at point $(x_0, y_0, z_0)$ where $z_0 = f(x_0, y_0)$ is given by:
 $$z - z_0 = f_x(x_0, y_0)(x - x_0) + f_y(x_0, y_0)(y - y_0)$$
 In general for $f: \mathbb{R}^n \to \mathbb{R}$, the linear approximation (tangent hyperplane) at $\mathbf{x}_0$ is:
@@ -33,10 +43,23 @@ Official lecture extending tangent planes to $n$-dimensional hyperplanes $\nabla
 \begin{formulabox}{Gradient Descent Update Rule}
 To minimize a cost function $L(\mathbf{w})$, start at an initial point $\mathbf{w}^{(0)}$ and iteratively update:
 $$\mathbf{w}^{(k+1)} = \mathbf{w}^{(k)} - \alpha \nabla L(\mathbf{w}^{(k)})$$
-where $\alpha > 0$ is the \textbf{Learning Rate} (step size).
+where $\alpha > 0$ is the \index{Learning Rate}\textbf{Learning Rate} (step size).
 \end{formulabox}
 
 \textbf{Data Science Relevance:} Gradient Descent (and its variants like Adam, RMSprop, SGD) is used to train almost all modern Machine Learning models, from Logistic Regression to 70-Billion parameter Large Language Models!
+
+\begin{lstlisting}[language=Python, caption=Data Science: Gradient Descent]
+import numpy as np
+
+w = np.array([3.0, 2.0]) # Initial weights
+alpha = 0.1 # Learning rate
+
+# Simulate 3 steps of Gradient Descent for L = w1^2 + 4w2^2
+for step in range(3):
+    grad = np.array([2 * w[0], 8 * w[1]])
+    w = w - alpha * grad
+    print(f"Step {step+1}: w = {w}")
+\end{lstlisting}
 
 \begin{intuitionbox}{Gradient Descent Step Trajectory on Contour Map}
 Gradient descent takes steps perpendicular to contour curves, moving in the direction of $-\nabla f$ toward the global minimum.
@@ -70,9 +93,9 @@ Official lecture proving why $-\nabla f$ is the optimal search direction for los
 \section{Critical Points}
 
 \begin{definitionbox}{Critical Points}
-An interior point $\mathbf{x}_0$ in the domain of $f$ is a \textbf{Critical Point} (or Stationary Point) if:
+An interior point $\mathbf{x}_0$ in the domain of $f$ is a \index{Critical Point}\textbf{Critical Point} (or Stationary Point) if:
 $$\nabla f(\mathbf{x}_0) = \mathbf{0} \iff \frac{\partial f}{\partial x_1}(\mathbf{x}_0) = 0, \, \frac{\partial f}{\partial x_2}(\mathbf{x}_0) = 0, \, \dots, \, \frac{\partial f}{\partial x_n}(\mathbf{x}_0) = 0$$
-Critical points can be \textbf{Local Minima}, \textbf{Local Maxima}, or \textbf{Saddle Points}.
+Critical points can be \index{Local Minima}\textbf{Local Minima}, \index{Local Maxima}\textbf{Local Maxima}, or \index{Saddle Points}\textbf{Saddle Points}.
 \end{definitionbox}
 
 \begin{videocard}{IITM BS Lecture: Critical Points for Multivariable Functions}{https://www.youtube.com/watch?v=9pciPOO19wQ}

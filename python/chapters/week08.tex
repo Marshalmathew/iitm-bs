@@ -1,12 +1,26 @@
 \chapter{File Handling \& Exception Management}
 
-Data science datasets rarely start in memory—they live on disk as CSV, JSON, text logs, or database dumps. In this chapter, we cover \textbf{File I/O} (Input/Output) operations and \textbf{Exception Handling} to ensure robust data ingestion pipelines that don't crash when encountering missing or corrupted data.
+Data science datasets rarely start in memory—they live on disk as CSV, JSON, text logs, or database dumps. In this chapter, we cover \index{File I/O}\textbf{File I/O} (Input/Output) operations and \index{Exception Handling}\textbf{Exception Handling} to ensure robust data ingestion pipelines that don't crash when encountering missing or corrupted data.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Reading and Writing Files
+    \item Processing Large Datasets
+    \item Exception Handling (try
+\end{itemize}
+\end{tcolorbox}
 \section{Reading and Writing Files}
+
+\begin{intuitionbox}{Context Managers and Resource Cleanup}
+Think of opening a file like borrowing a book from a library. If you don't return it, no one else can read it, and the library eventually runs out of books (a memory leak!). The \texttt{with open()} block in Python acts as an automatic librarian: the moment your code exits the block, it instantly forces the file to close and be returned, guaranteeing safe resource management.
+\end{intuitionbox}
 
 Python uses the built-in \texttt{open(filename, mode)} function to interact with files on disk. Using the Context Manager \texttt{with} guarantees that file handles are automatically closed, even if errors occur.
 
 \begin{definitionbox}{File Modes and Context Managers}
+\index{File Modes and Context Managers}
 Common modes: \texttt{'r'} (read), \texttt{'w'} (write / overwrite), \texttt{'a'} (append), \texttt{'b'} (binary mode).
 \begin{lstlisting}
 # Writing to a text file
@@ -39,7 +53,7 @@ Official lecture discussing memory considerations when searching and processing 
 
 \section{Exception Handling (\texttt{try}, \texttt{except}, \texttt{else}, \texttt{finally})}
 
-An \textbf{Exception} is a runtime error that halts program execution. Exception handling allows Python to catch runtime errors gracefully.
+An \index{Exception}\textbf{Exception} is a runtime error that halts program execution. Exception handling allows Python to catch runtime errors gracefully.
 
 \begin{formulabox}{The Exception Handling Block}
 \begin{lstlisting}

@@ -1,10 +1,24 @@
 \chapter{Cramer's Rule, Row Echelon Form \& Gaussian Elimination}
 
-Solving large systems of linear equations $A \mathbf{x} = \mathbf{b}$ is the single most common computational operation in numerical algorithms. In this chapter, we master explicit solutions via Cramer's Rule and systematic algorithmic reduction via \textbf{Gaussian Elimination} and \textbf{Row Echelon Form (REF)}.
+Solving large systems of linear equations $A \mathbf{x} = \mathbf{b}$ is the single most common computational operation in numerical algorithms. In this chapter, we master explicit solutions via Cramer's Rule and systematic algorithmic reduction via \index{Gaussian Elimination}\textbf{Gaussian Elimination} and \index{Row Echelon Form (REF)}\textbf{Row Echelon Form (REF)}.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Cramer's Rule
+    \item Elementary Row Operations \& Row Echelon Form (REF)
+    \item Gaussian Elimination \& Back-Substitution
+\end{itemize}
+\end{tcolorbox}
 \section{Cramer's Rule}
 
-For a square, non-singular linear system $A \mathbf{x} = \mathbf{b}$ with $\det(A) \neq 0$, \textbf{Cramer's Rule} gives an explicit formula for each variable $x_i$ using determinants.
+\begin{intuitionbox}{Matrices as Transformations}
+Think of a matrix not just as a grid of numbers, but as an action! When a matrix multiplies a vector, it stretches, rotates, or shears that vector in space. The columns of the matrix tell you exactly where the fundamental unit vectors (i-hat and j-hat) land after the transformation.
+\end{intuitionbox}
+
+
+For a square, non-singular linear system $A \mathbf{x} = \mathbf{b}$ with $\det(A) \neq 0$, \index{Cramer's Rule}\textbf{Cramer's Rule} gives an explicit formula for each variable $x_i$ using determinants.
 
 \begin{theorembox}{Cramer's Rule Formula}
 Let $A_i(\mathbf{b})$ be the matrix obtained by replacing the $i$-th column of $A$ with the constant vector $\mathbf{b}$. The unique solution for variable $x_i$ is:
@@ -27,13 +41,14 @@ Official lecture deriving Cramer's Rule and applying it to non-singular linear s
 While Cramer's Rule is theoretically elegant, calculating determinants for large $n \times n$ matrices is computationally intractable ($\mathcal{O}(n!)$ time). Instead, we transform augmented matrices using \textbf{Elementary Row Operations (EROs)} without changing the solution set.
 
 \begin{definitionbox}{Elementary Row Operations (EROs)}
+\index{Elementary Row Operations (EROs)}
 1. \textbf{Row Swap ($R_i \leftrightarrow R_j$):} Swap two rows.
 2. \textbf{Scalar Multiplication ($R_i \to c R_i$):} Multiply a row by a non-zero scalar $c \neq 0$.
 3. \textbf{Row Addition ($R_i \to R_i + c R_j$):} Add a scalar multiple of row $j$ to row $i$.
 \end{definitionbox}
 
 \begin{definitionbox}{Row Echelon Form (REF) \& Reduced REF (RREF)}
-A matrix is in \textbf{Row Echelon Form (REF)} if:
+A matrix is in \index{Row Echelon Form (REF)}\textbf{Row Echelon Form (REF)} if:
 \begin{enumerate}
 \item All zero rows are at the bottom of the matrix.
 \item The leading non-zero entry (pivot) of a non-zero row is strictly to the right of the pivot in the row above it.
@@ -53,7 +68,7 @@ Official lecture performing row operations step-by-step on rectangular matrices.
 
 \section{Gaussian Elimination \& Back-Substitution}
 
-\textbf{Gaussian Elimination} reduces an augmented matrix $[A \mid \mathbf{b}]$ into REF using EROs, followed by \textbf{Back-Substitution} to solve for variables.
+\index{Gaussian Elimination}\textbf{Gaussian Elimination} reduces an augmented matrix $[A \mid \mathbf{b}]$ into REF using EROs, followed by \index{Back-Substitution}\textbf{Back-Substitution} to solve for variables.
 
 \begin{formulabox}{Gaussian Elimination Algorithm ($\mathcal{O}(n^3)$)}
 1. \textbf{Forward Elimination:} Use EROs to create zeros below each pivot from left to right, producing REF.

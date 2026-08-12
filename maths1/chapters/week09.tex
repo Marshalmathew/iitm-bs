@@ -1,8 +1,35 @@
 \chapter{Integration}
+\index{Integration}
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Riemann Sums and the Definite Integral
+    \item The Fundamental Theorem of Calculus (FTC)
+    \item Indefinite Integrals and Basic Techniques
+    \item Area Between Curves
+\end{itemize}
+\end{tcolorbox}
 Integration is the inverse operation of differentiation. While differentiation measures the instantaneous slope of a curve, integration calculates the continuous accumulation of quantities, geometrically represented as the area under a curve. In data science, integration is the mathematical cornerstone for probability. Specifically, it is used to calculate cumulative probability distributions, find expected values (means) of continuous random variables, and determine expected loss over distributions.
 
 \section{Riemann Sums and the Definite Integral}
+
+\begin{lstlisting}[language=Python, caption=Data Science: Numerical Optimization]
+from scipy.optimize import minimize
+
+def f(x):
+    return (x - 3)**2 + 4
+
+# Find minimum of f(x)
+res = minimize(f, x0=0)
+print(f'Minimum is at x = {res.x[0]:.2f}') # Outputs 3.00
+\end{lstlisting}
+
+
+\begin{intuitionbox}{Adding Up the Slices}
+Integration is like finding the area of an irregular shape by cutting it into thousands of tiny, thin rectangular slices. We know how to find the area of a rectangle (base $\times$ height). By making the slices infinitely thin (a limit!) and adding them all up, we get the exact area of the smooth shape.
+\end{intuitionbox}
 
 Consider a continuous function $f(x)$ defined on a closed interval $[a, b]$. We want to find the exact area bounded by the curve $y = f(x)$, the x-axis, and the vertical boundaries $x = a$ and $x = b$.
 

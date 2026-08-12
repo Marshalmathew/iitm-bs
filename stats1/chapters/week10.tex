@@ -1,15 +1,25 @@
 \chapter{The Binomial Distribution}
 
-So far, we have looked at generic, custom-built Random Variables. However, many real-world problems follow the exact same mathematical structure. Instead of recalculating probabilities from scratch every time, statisticians have derived standard \textbf{Probability Distributions} that act as mathematical templates. The most fundamental of these is the Binomial Distribution.
+So far, we have looked at generic, custom-built Random Variables. However, many real-world problems follow the exact same mathematical structure. Instead of recalculating probabilities from scratch every time, statisticians have derived standard \index{Probability Distributions}\textbf{Probability Distributions} that act as mathematical templates. The most fundamental of these is the Binomial Distribution.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item The Bernoulli Distribution
+    \item Independent and Identically Distributed (IID) Trials
+    \item The Binomial Distribution
+\end{itemize}
+\end{tcolorbox}
 \section{The Bernoulli Distribution}
 
 Before we can build a Binomial Distribution, we must define its basic building block: a Bernoulli Trial.
 
 \begin{definitionbox}{Bernoulli Trial and Distribution}
-A \textbf{Bernoulli Trial} is a random experiment that has exactly two possible outcomes: "Success" (mapped to $1$) and "Failure" (mapped to $0$). Let the probability of success be $p$, and the probability of failure be $1-p$ (often denoted $q$).
+\index{Bernoulli Trial and Distribution}
+A \index{Bernoulli Trial}\textbf{Bernoulli Trial} is a random experiment that has exactly two possible outcomes: "Success" (mapped to $1$) and "Failure" (mapped to $0$). Let the probability of success be $p$, and the probability of failure be $1-p$ (often denoted $q$).
 
-A Random Variable $X$ follows a \textbf{Bernoulli Distribution}, denoted $X \sim \text{Bernoulli}(p)$, if its PMF is:
+A Random Variable $X$ follows a \index{Bernoulli Distribution}\textbf{Bernoulli Distribution}, denoted $X \sim \text{Bernoulli}(p)$, if its PMF is:
 $$P(X=1) = p, \quad P(X=0) = 1-p$$
 \end{definitionbox}
 
@@ -27,7 +37,7 @@ Official lecture defining the Bernoulli random variable and calculating its expe
 
 \section{Independent and Identically Distributed (IID) Trials}
 
-A single coin flip is a Bernoulli trial. But what if we flip the coin $10$ times? To mathematically chain these trials together, we must make two strict assumptions, known as \textbf{IID}.
+A single coin flip is a Bernoulli trial. But what if we flip the coin $10$ times? To mathematically chain these trials together, we must make two strict assumptions, known as \index{IID}\textbf{IID}.
 
 \begin{definitionbox}{IID (Independent and Identically Distributed)}
 A sequence of random variables $X_1, X_2, \ldots, X_n$ is IID if:
@@ -43,7 +53,7 @@ Official lecture explaining the vital assumptions of Independence and Identical 
 
 \section{The Binomial Distribution}
 
-If we run $n$ IID Bernoulli trials and count the \emph{total} number of successes, that total count follows a \textbf{Binomial Distribution}.
+If we run $n$ IID Bernoulli trials and count the \emph{total} number of successes, that total count follows a \index{Binomial Distribution}\textbf{Binomial Distribution}.
 
 \begin{definitionbox}{Binomial Distribution}
 Let $X$ be the total number of successes in $n$ IID Bernoulli trials, each with success probability $p$. We write this as $X \sim \text{Bin}(n, p)$.
@@ -106,7 +116,7 @@ Because a Binomial random variable is simply the sum of $n$ independent Bernoull
 \end{itemize}
 \end{theorembox}
 
-\textbf{Data Science Relevance:} The Binomial distribution is the foundation of \textbf{A/B Testing} and measuring \textbf{Conversion Rates}. If an e-commerce website has a conversion rate of $p=0.05$, and $n=1000$ users visit the site, the number of purchases made follows a Binomial Distribution. Furthermore, the most popular classification algorithm, \textbf{Logistic Regression}, is mathematically derived directly from the Bernoulli/Binomial distribution!
+\textbf{Data Science Relevance:} The Binomial distribution is the foundation of \index{A/B Testing}\textbf{A/B Testing} and measuring \index{Conversion Rates}\textbf{Conversion Rates}. If an e-commerce website has a conversion rate of $p=0.05$, and $n=1000$ users visit the site, the number of purchases made follows a Binomial Distribution. Furthermore, the most popular classification algorithm, \index{Logistic Regression}\textbf{Logistic Regression}, is mathematically derived directly from the Bernoulli/Binomial distribution!
 
 \begin{videocard}{IITM BS Lecture: W10\_L3, L4, L5 Binomial Distribution}{https://www.youtube.com/watch?v=BjepdIsKBNI}
 Official lectures deriving the Binomial PMF, modeling real-world situations, and proving the Expectation/Variance formulas.
@@ -138,8 +148,8 @@ Official lectures deriving the Binomial PMF, modeling real-world situations, and
 
     \item \textbf{Using the Complement Rule with Binomial:} A medical treatment has a $60\%$ success rate. It is administered to $10$ patients. 
     \begin{enumerate}
-        \item What is the probability that \textbf{at least one} patient is successfully cured? (Hint: Use the Complement rule!).
+        \item What is the probability that \index{at least one}\textbf{at least one} patient is successfully cured? (Hint: Use the Complement rule!).
     \end{enumerate}
 
-    \item \textbf{Data Science Application:} You are running an A/B test on a website. You show a new checkout button to $100$ users. You want to model the number of clicks using a Binomial distribution. What two \textbf{IID assumptions} must you mathematically make about the users for the Binomial model to be valid? Give an example of how one of those assumptions could be violated in real life.
+    \item \textbf{Data Science Application:} You are running an A/B test on a website. You show a new checkout button to $100$ users. You want to model the number of clicks using a Binomial distribution. What two \index{IID assumptions}\textbf{IID assumptions} must you mathematically make about the users for the Binomial model to be valid? Give an example of how one of those assumptions could be violated in real life.
 \end{enumerate}

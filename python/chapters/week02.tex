@@ -1,8 +1,21 @@
 \chapter{Control Flow \& Conditionals}
 
-Programs need to make decisions based on changing data. In Python, \textbf{Control Flow} allows you to execute specific blocks of code depending on whether a given condition evaluates to \texttt{True} or \texttt{False}.
+Programs need to make decisions based on changing data. In Python, \index{Control Flow}\textbf{Control Flow} allows you to execute specific blocks of code depending on whether a given condition evaluates to \texttt{True} or \texttt{False}.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Conditional Statements (if
+    \item Nested Conditionals and Short-Circuit Evaluation
+    \item Importing Standard Libraries
+\end{itemize}
+\end{tcolorbox}
 \section{Conditional Statements (\texttt{if}, \texttt{elif}, \texttt{else})}
+
+\begin{intuitionbox}{Forks in the Road}
+Conditionals are simply forks in the road of your program. Without them, a program runs straight from top to bottom doing the exact same thing every time. With conditionals, the program becomes dynamic, choosing a different path based on the data it receives (like turning left if the light is green, and stopping if it is red).
+\end{intuitionbox}
 
 Python uses indentation (4 spaces) to define code blocks instead of curly braces \texttt{\{\}}.
 
@@ -46,7 +59,7 @@ Hands-on tutorial with multiple practical examples of complex boolean expression
 
 \section{Nested Conditionals and Short-Circuit Evaluation}
 
-You can nest \texttt{if} blocks inside other \texttt{if} blocks. When evaluating compound boolean expressions using \texttt{and} and \texttt{or}, Python uses \textbf{Short-Circuit Evaluation}:
+You can nest \texttt{if} blocks inside other \texttt{if} blocks. When evaluating compound boolean expressions using \texttt{and} and \texttt{or}, Python uses \index{Short-Circuit Evaluation}\textbf{Short-Circuit Evaluation}:
 \begin{itemize}
     \item In \texttt{A and B}, if \texttt{A} is \texttt{False}, Python stops immediately and returns \texttt{False} without evaluating \texttt{B}.
     \item In \texttt{A or B}, if \texttt{A} is \texttt{True}, Python stops immediately and returns \texttt{True} without evaluating \texttt{B}.
@@ -57,6 +70,7 @@ You can nest \texttt{if} blocks inside other \texttt{if} blocks. When evaluating
 Python comes with a rich standard library of useful modules (like \texttt{math} and \texttt{random}). You can import them using different import syntaxes.
 
 \begin{definitionbox}{Library Import Syntaxes}
+\index{Library Import Syntaxes}
 \begin{lstlisting}
 import math
 print(math.sqrt(16))  # 4.0

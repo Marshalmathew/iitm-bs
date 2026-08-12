@@ -1,14 +1,24 @@
 \chapter{Parameter Estimation: MME, MLE \& Confidence Intervals}
 
-In Statistical Inference, we use observed data $x_1, \dots, x_n$ to estimate unknown population parameters $\theta$. In this chapter, we master point estimation via \textbf{Method of Moments (MME)}, \textbf{Maximum Likelihood Estimation (MLE)}, evaluate estimator quality via \textbf{Bias and Variance}, and construct \textbf{Confidence Intervals}.
+In Statistical Inference, we use observed data $x_1, \dots, x_n$ to estimate unknown population parameters $\theta$. In this chapter, we master point estimation via \index{Method of Moments (MME)}\textbf{Method of Moments (MME)}, \textbf{Maximum Likelihood Estimation (MLE)}, evaluate estimator quality via \index{Bias and Variance}\textbf{Bias and Variance}, and construct \index{Confidence Intervals}\textbf{Confidence Intervals}.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Point Estimators: Bias, Variance, and MSE
+    \item Method of Moments Estimator (MME)
+    \item Maximum Likelihood Estimator (MLE)
+    \item Confidence Intervals
+\end{itemize}
+\end{tcolorbox}
 \section{Point Estimators: Bias, Variance, and MSE}
 
-An \textbf{Estimator} $\hat{\theta}_n = g(X_1, \dots, X_n)$ is a statistic (a random variable) used to estimate unknown parameter $\theta$.
+An \index{Estimator}\textbf{Estimator} $\hat{\theta}_n = g(X_1, \dots, X_n)$ is a statistic (a random variable) used to estimate unknown parameter $\theta$.
 
 \begin{definitionbox}{Bias, Variance, and Mean Squared Error (MSE)}
 \begin{itemize}
-    \item \textbf{Bias:} $\Bias(\hat{\theta}) = \E[\hat{\theta}] - \theta$. An estimator is \textbf{Unbiased} if $\E[\hat{\theta}] = \theta$.
+    \item \textbf{Bias:} $\Bias(\hat{\theta}) = \E[\hat{\theta}] - \theta$. An estimator is \index{Unbiased}\textbf{Unbiased} if $\E[\hat{\theta}] = \theta$.
     \item \textbf{Variance:} $\Var(\hat{\theta}) = \E[(\hat{\theta} - \E[\hat{\theta}])^2]$.
     \item \textbf{Mean Squared Error (MSE):}
 \end{itemize}
@@ -21,7 +31,7 @@ Official lecture proving the Bias-Variance tradeoff decomposition for point esti
 
 \section{Method of Moments Estimator (MME)}
 
-The \textbf{Method of Moments} equates sample moments $\mu_k = \frac{1}{n} \sum_{i=1}^n X_i^k$ to population theoretical moments $\E[X^k] = g_k(\theta)$ and solves for $\theta$.
+The \index{Method of Moments}\textbf{Method of Moments} equates sample moments $\mu_k = \frac{1}{n} \sum_{i=1}^n X_i^k$ to population theoretical moments $\E[X^k] = g_k(\theta)$ and solves for $\theta$.
 
 \begin{formulabox}{Method of Moments Recipe}
 1. First Moment: Set $\bar{X} = \E[X]$. Solve for $\hat{\theta}_{\text{MME}}$.
@@ -34,7 +44,29 @@ Official lecture deriving MME point estimators for Poisson, Exponential, and Uni
 
 \section{Maximum Likelihood Estimator (MLE)}
 
-The \textbf{Maximum Likelihood Estimator} finds the parameter value $\hat{\theta}_{\text{MLE}}$ that maximizes the probability density of observing the sample data.
+\begin{intuitionbox}{MLE is Reverse Engineering}
+Imagine you find a coin and flip it 10 times, getting 9 Heads. What is the probability $p$ that the coin lands on Heads? It could be a fair coin ($p=0.5$) that just got really lucky. Or it could be a rigged coin ($p=0.9$). MLE says: "Let's assume the parameter is whatever value makes the data we just saw most likely to happen." So, MLE concludes the coin is rigged at $p=0.9$.
+\end{intuitionbox}
+
+\begin{lstlisting}[language=Python, caption=Data Science: Numerical MLE Optimization in SciPy]
+import numpy as np
+from scipy.optimize import minimize
+
+# Observed data: 9 Heads, 1 Tail
+data = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 0])
+
+# Negative Log-Likelihood for Bernoulli
+def neg_log_likelihood(p):
+    # Clip p to avoid log(0)
+    p = np.clip(p, 1e-10, 1 - 1e-10)
+    return -np.sum(data * np.log(p) + (1 - data) * np.log(1 - p))
+
+# Minimize the NEGATIVE log likelihood
+result = minimize(neg_log_likelihood, x0=[0.5], bounds=[(0, 1)])
+print("MLE Estimate for p:", result.x[0]) # Exactly 0.9!
+\end{lstlisting}
+
+The \index{Maximum Likelihood Estimator}\textbf{Maximum Likelihood Estimator} finds the parameter value $\hat{\theta}_{\text{MLE}}$ that maximizes the probability density of observing the sample data.
 
 \begin{definitionbox}{Likelihood Function $L(\theta)$ and Log-Likelihood $\ell(\theta)$}
 For an i.i.d. sample $x_1, \dots, x_n$:

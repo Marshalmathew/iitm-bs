@@ -1,7 +1,15 @@
 \chapter{Continuous Random Variables, CDF, PDF \& Standard Distributions}
 
-Unlike discrete random variables taking distinct point values, \textbf{Continuous Random Variables} can take any real value in an interval. In this chapter, we master the \textbf{Cumulative Distribution Function (CDF)}, \textbf{Probability Density Function (PDF)}, and the fundamental benchmark distributions: \textbf{Uniform}, \textbf{Exponential}, and \textbf{Gaussian (Normal)}.
+Unlike discrete random variables taking distinct point values, \index{Continuous Random Variables}\textbf{Continuous Random Variables} can take any real value in an interval. In this chapter, we master the \textbf{Cumulative Distribution Function (CDF)}, \textbf{Probability Density Function (PDF)}, and the fundamental benchmark distributions: \index{Uniform}\textbf{Uniform}, \index{Exponential}\textbf{Exponential}, and \index{Gaussian (Normal)}\textbf{Gaussian (Normal)}.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Cumulative Distribution Function (CDF) and Probability Density Function (PDF)
+    \item Standard Continuous Distributions
+\end{itemize}
+\end{tcolorbox}
 \section{Cumulative Distribution Function (CDF) and Probability Density Function (PDF)}
 
 \begin{definitionbox}{Cumulative Distribution Function $F_X(x)$}
@@ -16,7 +24,7 @@ $$F_X(x) = \P(X \le x)$$
 \end{definitionbox}
 
 \begin{definitionbox}{Probability Density Function $f_X(x)$}
-A random variable $X$ is \textbf{Continuous} if there exists a non-negative function $f_X(x) \ge 0$ such that for all $x$:
+A random variable $X$ is \index{Continuous}\textbf{Continuous} if there exists a non-negative function $f_X(x) \ge 0$ such that for all $x$:
 $$F_X(x) = \int_{-\infty}^{x} f_X(t) \, dt \implies f_X(x) = \frac{d}{dx} F_X(x)$$
 \textbf{Key Probability Rule:} For continuous $X$, the probability at any single point is zero ($\P(X = c) = 0$). Interval probabilities are areas under the PDF curve:
 $$\P(a \le X \le b) = \int_{a}^{b} f_X(x) \, dx = F_X(b) - F_X(a)$$
@@ -32,6 +40,23 @@ Official lecture introducing continuous densities $f_X(x)$ and integration rules
 \end{videocard}
 
 \section{Standard Continuous Distributions}
+
+\begin{intuitionbox}{The Standard Normal $Z$}
+Why is $Z = \frac{X - \mu}{\sigma}$ so important? Because before modern computers, statisticians had to calculate normal integrals by hand. To avoid re-calculating the integral for every possible $\mu$ and $\sigma$, they created a master "lookup table" for just $\mu=0, \sigma=1$. The Z-score just translates your custom distribution into the master template so you can look up the answer!
+\end{intuitionbox}
+
+\begin{lstlisting}[language=Python, caption=Data Science: Normal Distribution Probabilities]
+from scipy.stats import norm
+
+# Standard Normal Z probabilities
+z_score = 1.96
+prob = norm.cdf(z_score)
+print(f"P(Z <= 1.96) = {prob:.4f}") # 0.9750
+
+# Custom Normal probabilities X ~ N(50, 10^2)
+prob_custom = norm.cdf(65, loc=50, scale=10)
+print(f"P(X <= 65) = {prob_custom:.4f}") 
+\end{lstlisting}
 
 \begin{formulabox}{1. Uniform Distribution $\text{Uniform}(a, b)$}
 \begin{itemize}

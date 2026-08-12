@@ -1,8 +1,35 @@
 \chapter{Functions, Compositions, and Exponentials}
+\index{Functions, Compositions, and Exponentials}
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Testing Functions: Vertical and Horizontal Lines
+    \item Composite Functions
+    \item Inverse Functions
+    \item Exponential Functions
+\end{itemize}
+\end{tcolorbox}
 This week deepens our understanding of functions, focusing on how functions can be combined (composites), reversed (inverses), and exponentially scaled.
 
 \section{Testing Functions: Vertical and Horizontal Lines}
+
+\begin{lstlisting}[language=Python, caption=Data Science: Plotting Functions]
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.linspace(-5, 5, 100)
+y = np.exp(x) # Exponential function
+
+# plt.plot(x, y)
+# plt.show()
+\end{lstlisting}
+
+
+\begin{intuitionbox}{Visualizing the Rules of Functions}
+A function is like a reliable machine: if you give it the same input, it must always produce the same output. Geometrically, the Vertical Line Test is just checking if any $x$-value (input) accidentally spits out two different $y$-values (outputs). If it does, the machine is broken (it's not a function)!
+\end{intuitionbox}
 
 Graphs are an excellent way to visually analyze the properties of functions and mappings. We use two geometric tests:
 
@@ -110,17 +137,6 @@ For $a > 0$ and any real numbers $x, y$:
 \begin{videocard}{IITM BS Lecture: W5\_L3 Exponential Functions Definition}{https://www.youtube.com/watch?v=0l47NHJy-f4}
 Official IIT Madras lecture introducing exponential properties and growth.
 \end{videocard}
-
-\section*{Supplementary Lecture Videos}
-For further reinforcement and specialized topics, refer to the following official IIT Madras lectures:
-\begin{itemize}
-    \item \href{https://www.youtube.com/watch?v=em8Lw7g776M}{W5\_L2: One-to-one function examples, cubic cases \& theorems}
-    \item \href{https://www.youtube.com/watch?v=dMvBjIeJe80}{W5\_L4: Exponential functions graphing with examples \& analysis}
-    \item \href{https://www.youtube.com/watch?v=d_LJM7F33uo}{W5\_L5: Natural exponential function definition \& properties}
-    \item \href{https://www.youtube.com/watch?v=QfO-gh-Fpts}{W5\_L7: Composite functions step by step examples}
-    \item \href{https://www.youtube.com/watch?v=5u1OlsxuJnw}{W5\_L8: Composite functions finding the domain}
-    \item \href{https://www.youtube.com/watch?v=tVoe7VtZXK8}{W8: Additional lecture: inverse functions finding \& verifying}
-\end{itemize}
 
 \newpage
 \section{Practice Exercises}

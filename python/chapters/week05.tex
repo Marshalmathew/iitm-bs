@@ -1,12 +1,26 @@
 \chapter{Tuples, Dictionaries \& Sets}
 
-Python provides specialized container structures beyond lists, each tailored for performance, immutability, or fast lookup operations: \textbf{Tuples} (immutable sequences), \textbf{Dictionaries} (key-value hash maps), and \textbf{Sets} (unordered unique collections).
+Python provides specialized container structures beyond lists, each tailored for performance, immutability, or fast lookup operations: \index{Tuples}\textbf{Tuples} (immutable sequences), \index{Dictionaries}\textbf{Dictionaries} (key-value hash maps), and \index{Sets}\textbf{Sets} (unordered unique collections).
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Tuples: Immutable Sequences
+    \item Dictionaries: Key-Value Mapping
+    \item Sets: Unordered Unique Collections
+\end{itemize}
+\end{tcolorbox}
 \section{Tuples: Immutable Sequences}
 
-A \textbf{Tuple} is an ordered, immutable sequence of elements defined using parentheses \texttt{()}.
+\begin{intuitionbox}{Why Use Immutable Data?}
+Why use a tuple if you can't change it? Because sometimes you want a guarantee that the data won't change! If you store coordinates (latitude, longitude) or a date (year, month, day) in a tuple, no rogue line of code can accidentally overwrite the month without triggering an error. Tuples enforce data safety.
+\end{intuitionbox}
+
+A \index{Tuple}\textbf{Tuple} is an ordered, immutable sequence of elements defined using parentheses \texttt{()}.
 
 \begin{definitionbox}{Tuple Properties}
+\index{Tuple Properties}
 \begin{lstlisting}
 point = (10, 20, 30)
 print(point[0])    # 10
@@ -26,7 +40,7 @@ Official lecture explaining tuple immutability, packing, unpacking, and hashabil
 
 \section{Dictionaries: Key-Value Mapping}
 
-A \textbf{Dictionary} store elements in \texttt{\{key: value\}} pairs. Dictionaries provide $\mathcal{O}(1)$ average-time complexity for retrieval by key.
+A \index{Dictionary}\textbf{Dictionary} store elements in \texttt{\{key: value\}} pairs. Dictionaries provide $\mathcal{O}(1)$ average-time complexity for retrieval by key.
 
 \begin{theorembox}{Dictionary Rules}
 \begin{itemize}
@@ -56,7 +70,7 @@ Official lecture detailing dictionary creation, \texttt{.keys()}, \texttt{.value
 
 \section{Sets: Unordered Unique Collections}
 
-A \textbf{Set} is an unordered collection of unique elements defined using \texttt{\{\}} or \texttt{set()}.
+A \index{Set}\textbf{Set} is an unordered collection of unique elements defined using \texttt{\{\}} or \texttt{set()}.
 
 \begin{formulabox}{Set Operations}
 \begin{itemize}

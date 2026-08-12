@@ -2,9 +2,19 @@
 
 With a firm grasp of counting principles, we now cross over from descriptive statistics into the realm of uncertainty: Probability. In data science, probability is the mathematical language we use to quantify confidence in our model's predictions.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Random Experiments and Sample Space
+    \item Events and Set Operations
+    \item Axioms and Properties of Probability
+\end{itemize}
+\end{tcolorbox}
 \section{Random Experiments and Sample Space}
 
 \begin{definitionbox}{Random Experiment and Sample Space}
+\index{Random Experiment and Sample Space}
 \begin{itemize}
     \item \textbf{Random Experiment:} Any process or action whose exact outcome cannot be predicted with certainty, but whose set of all possible outcomes is known. (Example: Flipping a coin, rolling a die, a user clicking on an ad).
     \item \textbf{Sample Space ($S$ or $\Omega$):} The set of \emph{all} possible outcomes of a random experiment.
@@ -19,6 +29,7 @@ Official lectures defining random experiments, outcomes, and building the Sample
 \section{Events and Set Operations}
 
 \begin{definitionbox}{Events}
+\index{Events}
 An \textbf{Event ($A$)} is any subset of the sample space ($A \subseteq S$). We say the event $A$ \emph{occurred} if the final outcome of the experiment is an element of $A$.
 \begin{itemize}
     \item \textbf{Simple Event:} An event consisting of exactly one outcome.
@@ -65,6 +76,20 @@ Because events are sets, we manipulate them using Set Theory operations:
     \end{minipage}
 \end{figure}
 
+\begin{lstlisting}[language=Python, caption=Data Science: Event Operations using Sets]
+# Define sample space S (rolling a die)
+S = {1, 2, 3, 4, 5, 6}
+
+# Event A: Roll an Even number
+A = {2, 4, 6}
+# Event B: Roll a number greater than 3
+B = {4, 5, 6}
+
+print("Union (A or B):", A | B)
+print("Intersection (A and B):", A & B)
+print("Complement of A:", S - A)
+\end{lstlisting}
+
 \begin{videocard}{IITM BS Lecture: W6\_L2 Events \& Basic Operations}{https://www.youtube.com/watch?v=G-ex734RB1Q}
 Official lecture explaining how to map English language logic (AND, OR, NOT) into Set Theory operations ($\cap, \cup, ^c$).
 \end{videocard}
@@ -82,7 +107,7 @@ Probability is a function that assigns a real number $P(A)$ to every event $A$, 
 \end{formulabox}
 
 \begin{intuitionbox}{Probability as a Mass}
-To intuitively understand Kolmogorov's Axioms, think of probability as \textbf{physical mass}. You are handed exactly 1.0 kg of modeling clay (the total probability, Axiom 2). You must distribute this clay across all the possible outcomes in your sample space. 
+To intuitively understand Kolmogorov's Axioms, think of probability as \index{physical mass}\textbf{physical mass}. You are handed exactly 1.0 kg of modeling clay (the total probability, Axiom 2). You must distribute this clay across all the possible outcomes in your sample space. 
 
 You can give an outcome zero clay, or some positive amount, but you cannot give an outcome "negative" clay (Axiom 1). If you want to know the weight of a combined event (like "rolling an even number"), you simply put the 2-outcome, 4-outcome, and 6-outcome on a scale and add their weights together (Axiom 3).
 \end{intuitionbox}
@@ -99,7 +124,7 @@ From these three fundamental axioms, we can logically derive several critical pr
 \end{itemize}
 \end{theorembox}
 
-\textbf{Data Science Relevance:} Machine Learning classifiers (like Logistic Regression) output predictions as probabilities between $0$ and $1$. The \textbf{Softmax function} in Neural Networks specifically forces the output layer to obey Kolmogorov's Second Axiom: the sum of the probabilities for all possible predicted classes (the Sample Space $S$) must equal exactly $1.0$.
+\textbf{Data Science Relevance:} Machine Learning classifiers (like Logistic Regression) output predictions as probabilities between $0$ and $1$. The \index{Softmax function}\textbf{Softmax function} in Neural Networks specifically forces the output layer to obey Kolmogorov's Second Axiom: the sum of the probabilities for all possible predicted classes (the Sample Space $S$) must equal exactly $1.0$.
 
 \begin{videocard}{IITM BS Lecture: W6\_L4 Properties of Probability}{https://www.youtube.com/watch?v=pvOPnPaSRuM}
 Official lecture deriving the Complement Rule and the General Addition Rule from the three axioms.
@@ -127,7 +152,7 @@ Official lecture deriving the Complement Rule and the General Addition Rule from
         \item Are $A$ and $B$ mutually exclusive? Why or why not?
     \end{enumerate}
 
-    \item \textbf{Complement Rule:} A cybersecurity system is monitoring 5 independent incoming network packets. The probability that a specific packet gets dropped by the firewall is $0.1$. You want to find the probability that \textbf{at least one} packet gets dropped. 
+    \item \textbf{Complement Rule:} A cybersecurity system is monitoring 5 independent incoming network packets. The probability that a specific packet gets dropped by the firewall is $0.1$. You want to find the probability that \index{at least one}\textbf{at least one} packet gets dropped. 
     \begin{enumerate}
         \item Why is calculating this directly using the Addition Rule extremely tedious?
         \item Use the Complement Rule to solve this elegantly. (Hint: What is the complement of "at least one packet drops"?)

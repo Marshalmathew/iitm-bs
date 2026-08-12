@@ -1,16 +1,31 @@
 \chapter{Basis, Dimension \& Matrix Rank}
 
-A \textbf{Basis} is a minimal generating set of linearly independent vectors that spans a vector space. The number of vectors in any basis defines the unique \textbf{Dimension} of the vector space, while \textbf{Matrix Rank} counts the dimension of its row and column spaces.
+A \index{Basis}\textbf{Basis} is a minimal generating set of linearly independent vectors that spans a vector space. The number of vectors in any basis defines the unique \index{Dimension}\textbf{Dimension} of the vector space, while \index{Matrix Rank}\textbf{Matrix Rank} counts the dimension of its row and column spaces.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Basis for a Vector Space
+    \item Dimension of a Vector Space
+    \item Matrix Rank via Gaussian Elimination
+\end{itemize}
+\end{tcolorbox}
 \section{Basis for a Vector Space}
 
+\begin{intuitionbox}{What is a Vector Space?}
+A vector space is just a mathematical sandbox where you can add things together and scale them up or down without ever leaving the sandbox. Whether those things are arrows, polynomials, or audio signals, as long as they obey the rules of scaling and addition, the math works exactly the same!
+\end{intuitionbox}
+
+
 \begin{definitionbox}{Basis Definition}
-A set of vectors $\mathcal{B} = \{\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_n\} \subset V$ is a \textbf{Basis} for a vector space $V$ if it satisfies two conditions:
+\index{Basis Definition}
+A set of vectors $\mathcal{B} = \{\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_n\} \subset V$ is a \index{Basis}\textbf{Basis} for a vector space $V$ if it satisfies two conditions:
 \begin{enumerate}
-    \item $\mathcal{B}$ is \textbf{Linearly Independent}.
-    \item $\mathcal{B}$ \textbf{Spans} $V$, i.e., $\vspan(\mathcal{B}) = V$.
+    \item $\mathcal{B}$ is \index{Linearly Independent}\textbf{Linearly Independent}.
+    \item $\mathcal{B}$ \index{Spans}\textbf{Spans} $V$, i.e., $\vspan(\mathcal{B}) = V$.
 \end{enumerate}
-Every vector $\mathbf{x} \in V$ can be expressed as a \textbf{unique} linear combination of the basis vectors.
+Every vector $\mathbf{x} \in V$ can be expressed as a \index{unique}\textbf{unique} linear combination of the basis vectors.
 \end{definitionbox}
 
 \begin{examplebox}{Standard Basis for $\mathbb{R}^n$}
@@ -29,7 +44,7 @@ Official lecture demonstrating methods to extract bases from spanning sets.
 \section{Dimension of a Vector Space}
 
 \begin{theorembox}{Dimension Theorem}
-All bases for a given finite-dimensional vector space $V$ contain the \textbf{exact same number of vectors}. This invariant number is called the \textbf{Dimension} of $V$, denoted $\dim(V)$.
+All bases for a given finite-dimensional vector space $V$ contain the \index{exact same number of vectors}\textbf{exact same number of vectors}. This invariant number is called the \index{Dimension}\textbf{Dimension} of $V$, denoted $\dim(V)$.
 \begin{itemize}
     \item $\dim(\mathbb{R}^n) = n$.
     \item $\dim(\mathbb{R}^{m \times n}) = m \cdot n$.
@@ -54,6 +69,17 @@ For any matrix $A \in \mathbb{R}^{m \times n}$:
 \end{formulabox}
 
 \textbf{Data Science Relevance:} In \textbf{Principal Component Analysis (PCA)} and low-rank matrix approximations (SVD), matrix rank tells us the effective number of independent latent signals in a dataset!
+
+\begin{lstlisting}[language=Python, caption=Data Science: PCA and Basis]
+import numpy as np
+from sklearn.decomposition import PCA
+
+X = np.array([[1, 2], [3, 4], [5, 6]])
+# PCA identifies the dominant basis vectors (principal components)
+pca = PCA(n_components=1)
+pca.fit(X)
+print("Principal Basis Vector:", pca.components_)
+\end{lstlisting}
 
 \begin{videocard}{IITM BS Lecture: Rank and Dimension using Gaussian Elimination}{https://www.youtube.com/watch?v=0yEKEavVQJE}
 Official lecture computing matrix rank by row reducing matrices to REF.

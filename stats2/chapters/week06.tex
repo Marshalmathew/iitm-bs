@@ -1,11 +1,20 @@
 \chapter{Joint Continuous RVs, Marginal Densities \& Conditional Densities}
 
-Extending single continuous distributions to multiple continuous random variables requires 2D double integrals over regions in $\mathbb{R}^2$. In this chapter, we master \textbf{Joint PDFs $f_{X,Y}(x, y)$}, \textbf{Marginal Densities}, \textbf{Continuous Independence}, and \textbf{Conditional Densities $f_{X|Y}(x \mid y)$}.
+Extending single continuous distributions to multiple continuous random variables requires 2D double integrals over regions in $\mathbb{R}^2$. In this chapter, we master \textbf{Joint PDFs $f_{X,Y}(x, y)$}, \index{Marginal Densities}\textbf{Marginal Densities}, \index{Continuous Independence}\textbf{Continuous Independence}, and \textbf{Conditional Densities $f_{X|Y}(x \mid y)$}.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Joint Probability Density Function
+    \item Marginal Densities and Independence
+    \item Conditional Densities and Conditional Expectation
+\end{itemize}
+\end{tcolorbox}
 \section{Joint Probability Density Function}
 
 \begin{definitionbox}{Joint PDF $f_{X,Y}(x, y)$}
-Two continuous random variables $X$ and $Y$ have a \textbf{Joint PDF} $f_{X,Y}(x, y) \ge 0$ such that for any region $R \subseteq \mathbb{R}^2$:
+Two continuous random variables $X$ and $Y$ have a \index{Joint PDF}\textbf{Joint PDF} $f_{X,Y}(x, y) \ge 0$ such that for any region $R \subseteq \mathbb{R}^2$:
 $$\P((X, Y) \in R) = \iint_R f_{X,Y}(x, y) \, dx \, dy$$
 \textbf{Normalization Condition:}
 $$\int_{-\infty}^{\infty} \int_{-\infty}^{\infty} f_{X,Y}(x, y) \, dx \, dy = 1$$
@@ -17,6 +26,23 @@ Official lecture introducing 2D density surfaces, double integrals over regions,
 
 \section{Marginal Densities and Independence}
 
+\begin{intuitionbox}{Marginalization as a Shadow}
+For a 2D continuous joint PDF, think of the probability surface as a mountain range. The Marginal PDF $f_X(x)$ is exactly the silhouette (the shadow) of that mountain range if you were to stand infinitely far down the Y-axis and look back. By integrating out the $Y$ variable, you are mathematically compressing the 3D volume into a 2D area!
+\end{intuitionbox}
+
+\begin{lstlisting}[language=Python, caption=Data Science: Numerical Integration for Marginals in SciPy]
+import numpy as np
+from scipy import integrate
+
+# Define a joint continuous PDF f(x,y) = x + y for x,y in [0,1]
+def joint_pdf(x, y):
+    return x + y
+
+# To find Marginal f_X(0.5), we integrate joint_pdf(0.5, y) over dy from 0 to 1
+marginal_X_at_05, error = integrate.quad(lambda y: joint_pdf(0.5, y), 0, 1)
+print("f_X(0.5) =", marginal_X_at_05) # = 0.5 + 0.5(1)^2 = 1.0
+\end{lstlisting}
+
 \begin{formulabox}{Marginal Density Formulas}
 To extract the individual PDF of $X$ (or $Y$) from the joint PDF $f_{X,Y}(x, y)$, integrate out the other variable:
 \begin{itemize}
@@ -26,7 +52,8 @@ To extract the individual PDF of $X$ (or $Y$) from the joint PDF $f_{X,Y}(x, y)$
 \end{formulabox}
 
 \begin{definitionbox}{Continuous Independence Criterion}
-Continuous random variables $X$ and $Y$ are \textbf{Independent} ($X \perp\!\!\!\perp Y$) if and only if:
+\index{Continuous Independence Criterion}
+Continuous random variables $X$ and $Y$ are \index{Independent}\textbf{Independent} ($X \perp\!\!\!\perp Y$) if and only if:
 $$f_{X,Y}(x, y) = f_X(x) \cdot f_Y(y) \quad \text{for all } (x, y)$$
 \end{definitionbox}
 
@@ -41,7 +68,7 @@ Official lecture testing product factorization for joint continuous density func
 \section{Conditional Densities and Conditional Expectation}
 
 \begin{definitionbox}{Conditional PDF $f_{X|Y}(x \mid y)$}
-For any $y$ where $f_Y(y) > 0$, the \textbf{Conditional Density} of $X$ given $Y = y$ is:
+For any $y$ where $f_Y(y) > 0$, the \index{Conditional Density}\textbf{Conditional Density} of $X$ given $Y = y$ is:
 $$f_{X|Y}(x \mid y) = \frac{f_{X,Y}(x, y)}{f_Y(y)}$$
 \textbf{Conditional Expectation:} $\E[X \mid Y = y] = \int_{-\infty}^{\infty} x f_{X|Y}(x \mid y) \, dx$.
 \end{definitionbox}

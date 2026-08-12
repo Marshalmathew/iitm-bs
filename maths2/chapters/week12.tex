@@ -1,12 +1,27 @@
 \chapter{Eigenvalues, Eigenvectors, Diagonalization \& SVD}
 
-Eigenvalues and Eigenvectors form the ultimate cornerstone of modern linear algebra and data science. In this capstone chapter, we master \textbf{Eigen-decomposition}, \textbf{Matrix Diagonalization}, and \textbf{Singular Value Decomposition (SVD)}.
+Eigenvalues and Eigenvectors form the ultimate cornerstone of modern linear algebra and data science. In this capstone chapter, we master \index{Eigen-decomposition}\textbf{Eigen-decomposition}, \index{Matrix Diagonalization}\textbf{Matrix Diagonalization}, and \textbf{Singular Value Decomposition (SVD)}.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Eigenvalues and Eigenvectors
+    \item Matrix Diagonalization
+    \item Singular Value Decomposition (SVD)
+\end{itemize}
+\end{tcolorbox}
 \section{Eigenvalues and Eigenvectors}
+
+\begin{intuitionbox}{The Big Picture of Advanced Math}
+All of this calculus and linear algebra converges into Data Science. Gradients push neural networks down loss surfaces. Eigenvectors reduce the dimensionality of massive datasets in PCA. Matrices process thousands of images simultaneously. You now have the mathematical engine that powers modern AI!
+\end{intuitionbox}
+
 
 When a matrix $A \in \mathbb{R}^{n \times n}$ acts on a vector $\mathbf{v}$, it typically changes both the magnitude and direction of $\mathbf{v}$. However, certain non-zero vectors maintain their original direction and are merely scaled by a factor $\lambda$.
 
 \begin{definitionbox}{Eigenvalue Problem}
+\index{Eigenvalue Problem}
 A non-zero vector $\mathbf{v} \neq \mathbf{0}$ is an \textbf{Eigenvector} of $A$ with corresponding \textbf{Eigenvalue} $\lambda \in \mathbb{R}$ (or $\mathbb{C}$) if:
 $$A \mathbf{v} = \lambda \mathbf{v}$$
 Equivalently:
@@ -26,7 +41,8 @@ Visual intuition showing eigenvectors as axes of rotation/scaling during linear 
 \section{Matrix Diagonalization}
 
 \begin{definitionbox}{Diagonalization Theorem}
-An $n \times n$ matrix $A$ is \textbf{Diagonalizable} if it has $n$ linearly independent eigenvectors $\mathbf{v}_1, \dots, \mathbf{v}_n$.
+\index{Diagonalization Theorem}
+An $n \times n$ matrix $A$ is \index{Diagonalizable}\textbf{Diagonalizable} if it has $n$ linearly independent eigenvectors $\mathbf{v}_1, \dots, \mathbf{v}_n$.
 Form eigenvector matrix $P = [\mathbf{v}_1 \; \dots \; \mathbf{v}_n]$ and diagonal matrix $D = \operatorname{diag}(\lambda_1, \dots, \lambda_n)$. Then:
 $$A = P D P^{-1} \iff D = P^{-1} A P$$
 \textbf{Matrix Powers:} $A^k = P D^k P^{-1}$, making high-power matrix computations $\mathcal{O}(n)$ instead of $\mathcal{O}(n^k)$!
@@ -35,13 +51,13 @@ $$A = P D P^{-1} \iff D = P^{-1} A P$$
 \begin{theorembox}{Spectral Theorem for Symmetric Matrices}
 If $A = A^T$ is a real symmetric matrix, then:
 1. All eigenvalues of $A$ are real numbers.
-2. Eigenvectors corresponding to distinct eigenvalues are \textbf{mutually orthogonal}.
-3. $A$ is \textbf{orthogonally diagonalizable}: $A = Q D Q^T$, where $Q$ is an orthogonal matrix ($Q^T Q = I$).
+2. Eigenvectors corresponding to distinct eigenvalues are \index{mutually orthogonal}\textbf{mutually orthogonal}.
+3. $A$ is \index{orthogonally diagonalizable}\textbf{orthogonally diagonalizable}: $A = Q D Q^T$, where $Q$ is an orthogonal matrix ($Q^T Q = I$).
 \end{theorembox}
 
 \section{Singular Value Decomposition (SVD)}
 
-While Eigen-decomposition requires square matrices $A \in \mathbb{R}^{n \times n}$, \textbf{Singular Value Decomposition (SVD)} applies to \textbf{ANY rectangular matrix} $A \in \mathbb{R}^{m \times n}$.
+While Eigen-decomposition requires square matrices $A \in \mathbb{R}^{n \times n}$, \textbf{Singular Value Decomposition (SVD)} applies to \index{ANY rectangular matrix}\textbf{ANY rectangular matrix} $A \in \mathbb{R}^{m \times n}$.
 
 \begin{formulabox}{Singular Value Decomposition ($A = U \Sigma V^T$)}
 Every matrix $A \in \mathbb{R}^{m \times n}$ can be factored into:

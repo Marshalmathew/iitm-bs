@@ -1,10 +1,18 @@
 \chapter{Moment Generating Functions \& The Central Limit Theorem}
 
-Why does the Gaussian bell curve dominate statistics and machine learning? The answer lies in the \textbf{Central Limit Theorem (CLT)}. In this chapter, we master \textbf{Moment Generating Functions (MGF)} to track probability distributions and explore the asymptotic normality of sample averages.
+Why does the Gaussian bell curve dominate statistics and machine learning? The answer lies in the \index{Central Limit Theorem (CLT)}\textbf{Central Limit Theorem (CLT)}. In this chapter, we master \textbf{Moment Generating Functions (MGF)} to track probability distributions and explore the asymptotic normality of sample averages.
 
+
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{itemize}
+    \item Moment Generating Functions (MGF)
+    \item The Central Limit Theorem (CLT)
+\end{itemize}
+\end{tcolorbox}
 \section{Moment Generating Functions (MGF)}
 
-The \textbf{Moment Generating Function} $M_X(t)$ provides an elegant transform domain (analogous to Laplace/Fourier transforms) that uniquely characterizes a probability distribution.
+The \index{Moment Generating Function}\textbf{Moment Generating Function} $M_X(t)$ provides an elegant transform domain (analogous to Laplace/Fourier transforms) that uniquely characterizes a probability distribution.
 
 \begin{definitionbox}{Moment Generating Function $M_X(t)$}
 For a random variable $X$, its \textbf{Moment Generating Function (MGF)} is defined for $t$ in an open interval around $0$:
@@ -33,14 +41,54 @@ Official lecture deriving MGFs, moment extraction derivatives, and MGF convoluti
 
 \section{The Central Limit Theorem (CLT)}
 
+\begin{intuitionbox}{The Miracle of the CLT}
+The CLT is arguably the most magical result in all of mathematics. Take ANY distribution—a bizarre bimodal curve, an exponential decay, a uniform block. If you draw samples from it, calculate their mean, and plot that mean, it will ALWAYS form a perfect, smooth Gaussian Bell Curve. The chaos of individual random variables always cancels out into the beautiful symmetry of the Normal Distribution.
+\end{intuitionbox}
+
+\begin{lstlisting}[language=Python, caption=Data Science: Proving the CLT with Code]
+import numpy as np
+
+n_simulations = 10000
+sample_size = 50
+
+# Draw from a heavily skewed Exponential distribution!
+samples = np.random.exponential(scale=2.0, size=(n_simulations, sample_size))
+
+# Calculate the mean of each sample (compressing 50 values into 1)
+sample_means = np.mean(samples, axis=1)
+
+# If you plot a histogram of `sample_means`, it will be a perfect Gaussian Bell Curve!
+print("Mean of sample means (should be ~2.0):", np.mean(sample_means))
+\end{lstlisting}
+
 \begin{theorembox}{The Central Limit Theorem (CLT)}
 Let $X_1, X_2, \dots, X_n$ be i.i.d. random variables with finite mean $\mu$ and variance $\sigma^2 > 0$.
-As $n \to \infty$, the normalized sample mean $Z_n$ converges in distribution to the \textbf{Standard Normal Distribution} $\mathcal{N}(0, 1)$:
+As $n \to \infty$, the normalized sample mean $Z_n$ converges in distribution to the \index{Standard Normal Distribution}\textbf{Standard Normal Distribution} $\mathcal{N}(0, 1)$:
 $$Z_n = \frac{\bar{X}_n - \mu}{\sigma / \sqrt{n}} = \frac{\sum_{i=1}^n X_i - n\mu}{\sigma \sqrt{n}} \xrightarrow{d} \mathcal{N}(0, 1)$$
 For large $n$ (typically $n \ge 30$), $\bar{X}_n \approx \mathcal{N}\left(\mu, \frac{\sigma^2}{n}\right)$ regardless of the shape of the original underlying distribution!
-\end{theorembox}
+\index{Data Science Relevance:}\textbf{Data Science Relevance:} CLT is the reason why z-confidence intervals, hypothesis tests, and normal error approximations in generalized linear models (GLMs) work reliably on large datasets even when features are non-Gaussian!
 
-\textbf{Data Science Relevance:} CLT is the reason why z-confidence intervals, hypothesis tests, and normal error approximations in generalized linear models (GLMs) work reliably on large datasets even when features are non-Gaussian!
+\begin{figure}[htpb]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=10cm, height=5cm,
+    axis lines=left,
+    xmin=-4, xmax=4,
+    ymin=0, ymax=0.5,
+    xtick={-3, -2, -1, 0, 1, 2, 3},
+    ytick=\empty,
+    xlabel={$z$},
+    ylabel={Density},
+    title={Standard Normal Distribution $\mathcal{N}(0,1)$},
+    domain=-4:4,
+    samples=100
+]
+\addplot [thick, statsaccent, fill=statslight!50!white] {exp(-x^2/2) / sqrt(2*pi)};
+\end{axis}
+\end{tikzpicture}
+\end{figure}
+\end{theorembox}
 
 \begin{videocard}{IITM BS Lecture: The Central Limit Theorem (CLT)}{https://www.youtube.com/watch?v=o5wSSPcbp6U}
 Official lecture proving CLT via MGF limit expansion $\lim_{n\to\infty} M_{Z_n}(t) = e^{t^2/2}$.
