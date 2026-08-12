@@ -68,7 +68,7 @@ Below is the standard normal sampling distribution under $H_0$, highlighting the
     ticks=none
 ]
 % Gaussian curve
-\addplot[thick, statsdark, domain=-3.2:3.2, samples=100] {exp(-x^2/2)/sqrt(2*pi)};
+\addplot[thick, primarydark, domain=-3.2:3.2, samples=100] {exp(-x^2/2)/sqrt(2*pi)};
 % Left rejection tail
 \addplot[fill=red!40, draw=none, domain=-3.2:-1.96, samples=50] {exp(-x^2/2)/sqrt(2*pi)} \closedcycle;
 % Right rejection tail
