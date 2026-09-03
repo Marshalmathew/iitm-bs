@@ -1,0 +1,78 @@
+\documentclass[11pt,a4paper,oneside]{book}
+
+% Load all styling and custom packages
+\input{preamble.tex}
+
+\title{
+    \Huge \bfseries \sffamily \color{primarydark} Financial Forensics \\
+    \large \vspace{0.3cm} \color{tealdef} Comprehensive Textbook \& NPTEL Lecture Companion \\
+    \vspace{0.2cm} \normalsize \color{primarydark} Course ID: BSMS4003
+}
+\author{
+    \textbf{IIT Madras BS in Data Science and Applications} \\
+    \small Based on Lectures by Dr.~Arun Kumar G (Department of Management Studies, IIT Madras) \\
+    \small Prepared for Beginner-Friendly Learning, Forensic Accounting, and Applied Machine Learning
+}
+\date{September 2026}
+
+\makeindex
+
+\begin{document}
+
+\maketitle
+
+\frontmatter
+\tableofcontents
+\newpage
+
+\chapter*{Introduction to Financial Forensics}
+\addcontentsline{toc}{chapter}{Introduction to Financial Forensics}
+
+Welcome to the \textbf{Financial Forensics (BSMS4003)} Comprehensive Textbook for the IIT Madras BS Degree Programme. Financial Forensics sits at the vital intersection of accounting principles, financial investigation, data analysis, and regulatory law. As economic transactions increasingly migrate to complex digital networks, the ability to identify deceptive financial reporting, investigate asset misappropriation, evaluate credit risk, and detect sophisticated fraud using advanced machine learning models is an indispensable capability for modern data scientists.
+
+\section*{Course Organization \& Assessment Mapping}
+The course is structured into \textbf{12 Weeks} spanning core accounting foundations to cutting-edge AI explainability:
+\begin{itemize}
+    \item \textbf{Weeks 1--4 (Accounting Foundations \& Forensic Scoping):} Double-entry bookkeeping, Balance Sheets, Income Statements, Cash Flow statements, financial statement manipulation, and the forensic accountant's investigative workflow.
+    \item \textbf{Weeks 5--8 (Financial Analytics \& Transaction Risks):} Ratio analysis, Benford's Law leading-digit distribution, corporate finance principles, receivables aging, Pareto analysis, transaction lifecycles, and credit risk probability of default modeling.
+    \item \textbf{Weeks 9--12 (Machine Learning, NLP \& Regulatory Governance):} Supervised and unsupervised fraud detection, temporal anomaly detection in time series, forensic NLP and entity resolution, and explainable AI (SHAP/LIME) within regulated banking environments.
+\end{itemize}
+
+\section*{Pedagogical Design \& Interactive Features}
+Throughout this textbook, concepts are structured using intuitive visual containers:
+\begin{itemize}
+    \item \textcolor{tealdef}{\textbf{Definition Boxes:}} Rigorous definitions of accounting principles, statutory rules, and mathematical algorithms.
+    \item \textcolor{purpleex}{\textbf{Intuition Boxes:}} Plain-English mental models connecting abstract accounting and machine learning concepts to real-world scenarios.
+    \item \textcolor{primaryborder}{\textbf{Theorem and Rule Boxes:}} Financial accounting conventions, statistical laws, and modeling assumptions.
+    \item \textcolor{coralformula}{\textbf{Key Formula Boxes:}} High-priority formulas (e.g., Benford's distribution, DuPont decomposition, WoE/IV, Shapley values).
+    \item \textcolor{amberwarning}{\textbf{Warning Callouts:}} Critical analytical pitfalls, regulatory boundaries, and common data science missteps in financial domains.
+    \item \textcolor{yttext}{\textbf{Interactive Video Cards:}} Direct hyperlinks and high-resolution QR codes mapped to official IIT Madras lectures and select external visual masterclasses.
+\end{itemize}
+
+\include{cheatsheet}
+
+\mainmatter
+
+% Include all 12 weekly chapters
+\include{chapters/week01}
+\include{chapters/week02}
+\include{chapters/week03}
+\include{chapters/week04}
+\include{chapters/week05}
+\include{chapters/week06}
+\include{chapters/week07}
+\include{chapters/week08}
+\include{chapters/week09}
+\include{chapters/week10}
+\include{chapters/week11}
+\include{chapters/week12}
+
+\backmatter
+
+% Comprehensive Appendix with Exercise Solutions
+\include{appendix}
+
+% Subject & Concept Index
+\printindex
+
+\end{document}

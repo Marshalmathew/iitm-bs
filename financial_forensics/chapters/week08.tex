@@ -1,0 +1,223 @@
+\chapter{Credit Risk, Probability of Default \& Reject Inferencing}
+
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You Will Learn in this Chapter}}]
+\begin{itemize}
+    \item Fundamentals of Credit Risk and the Basel regulatory capital framework
+    \item The Expected Loss formulation ($EL = PD \times LGD \times EAD$)
+    \item Mathematical development of Probability of Default (PD) via Logistic Regression
+    \item Feature engineering with Weight of Evidence (WoE) and Information Value (IV)
+    \item Selection bias in credit models and Reject Inferencing techniques (Parceling, Augmentation)
+    \item Python implementation of a credit scorecard with WoE transforms and ROC-AUC validation
+\end{itemize}
+\end{tcolorbox}
+
+\section{The Foundations of Credit Risk}
+
+\index{credit risk}\textbf{Credit risk} is the probability of financial loss resulting from a borrower's failure to repay loan principal or contractual interest obligations. Under the Basel regulatory accord (Basel II/III), financial institutions evaluate credit portfolios using three core risk parameters.
+
+\begin{definitionbox}{The Expected Loss Equation}
+\index{Expected Loss}\index{Probability of Default}\index{Loss Given Default}\index{Exposure at Default}
+\begin{equation}
+\text{Expected Loss (EL)} = \text{PD} \times \text{LGD} \times \text{EAD}
+\end{equation}
+\begin{itemize}
+    \item \textbf{Probability of Default (PD):} The statistical likelihood that the borrower will default within a 1-year horizon ($0 \le \text{PD} \le 1$).
+    \item \textbf{Loss Given Default (LGD):} The percentage of the loan exposure that the bank loses if default occurs ($1 - \text{Recovery Rate}$).
+    \item \textbf{Exposure at Default (EAD):} The total gross monetary exposure outstanding at the exact moment of borrower default.
+\end{itemize}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Introduction to Transaction Lifecycle}{https://www.youtube.com/watch?v=OO0VpntKrPg}
+Foundational lecture bridging operational transaction workflows to institutional credit evaluation systems.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Introduction to Credit Risk -- Part 1}{https://www.youtube.com/watch?v=l4svQYt8qSs}
+The 5 C's of Credit (Character, Capacity, Capital, Collateral, Conditions) and qualitative scoring frameworks.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Introduction to Credit Risk -- Part 2}{https://www.youtube.com/watch?v=NQsnU3QUhuY}
+Transitioning from subjective credit underwriting to quantitative statistical risk engines.
+\end{videocard}
+
+\section{Building Probability of Default (PD) Models}
+
+The benchmark statistical framework for calculating borrower default probability is \index{logistic regression}\textbf{Logistic Regression}.
+
+\begin{formulabox}{Logistic Regression for Default Modeling}
+For a borrower vector $\mathbf{x} = [x_1, x_2, \dots, x_k]^T$, the log-odds (logit) of default ($Y=1$) is modeled as:
+\begin{equation}
+z = \ln\left(\frac{p}{1-p}\right) = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \dots + \beta_k x_k = \boldsymbol{\beta}^T \mathbf{x}
+\end{equation}
+Inverting the logit gives the sigmoid activation function:
+\begin{equation}
+\text{PD} = p(Y=1 \mid \mathbf{x}) = \frac{1}{1 + e^{-\boldsymbol{\beta}^T \mathbf{x}}} = \sigma(\boldsymbol{\beta}^T \mathbf{x})
+\end{equation}
+\end{formulabox}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.85\textwidth,
+    height=5.2cm,
+    xmin=-6, xmax=6,
+    ymin=0, ymax=1,
+    xlabel={Log-Odds ($z = \boldsymbol{\beta}^T \mathbf{x}$)},
+    ylabel={Probability of Default ($\text{PD}$)},
+    grid=major,
+    grid style={dashed, gray!30},
+    legend style={at={(0.05,0.95)}, anchor=north west, font=\footnotesize}
+]
+\addplot[domain=-6:6, samples=100, ultra thick, primaryborder] {1 / (1 + exp(-x))};
+\addplot[dashed, thick, red] coordinates {(-6,0.5) (6,0.5)};
+\addplot[dotted, thick, gray] coordinates {(0,0) (0,1)};
+\legend{$\sigma(z) = \frac{1}{1 + e^{-z}}$, Cut-off Threshold ($p=0.5$)}
+\end{axis}
+\end{tikzpicture}
+\caption{The Logistic Sigmoid Function: Mapping Unbounded Log-Odds to Probability of Default.}
+\end{figure}
+
+\begin{videocard}{IITM BS Lecture: Building a Probability of Default Model}{https://www.youtube.com/watch?v=K547q11kZsw}
+Step-by-step model building: data extraction, target definition (90+ days past due), and maximum likelihood estimation.
+\end{videocard}
+
+\begin{videocard}{Masterclass Video: Logistic Regression -- StatQuest}{https://www.youtube.com/watch?v=yIYKR4gTd5c}
+Josh Starmer's visual masterclass breaking down the conversion from probabilities to odds, log-odds, and maximum likelihood fitting.
+\end{videocard}
+
+\begin{videocard}{Masterclass Video: ROC and AUC Curves -- StatQuest}{https://www.youtube.com/watch?v=4jRBRDbJemM}
+Visual explanation of True Positive Rates, False Positive Rates, and why the Receiver Operating Characteristic is vital for credit models.
+\end{videocard}
+
+\section{Weight of Evidence (WoE) and Information Value (IV)}
+
+In banking, continuous attributes are transformed into discrete risk bins using \index{Weight of Evidence}\textbf{Weight of Evidence (WoE)}:
+\begin{equation}
+\text{WoE}_i = \ln\left(\frac{\% \text{ Non-Defaulters in bin } i}{\% \text{ Defaulters in bin } i}\right) = \ln\left(\frac{G_i / G_{\text{total}}}{B_i / B_{\text{total}}}\right)
+\end{equation}
+The predictive power of each variable is quantified by its \index{Information Value}\textbf{Information Value (IV)}:
+\begin{equation}
+\text{IV} = \sum_{i=1}^m \left(\frac{G_i}{G_{\text{total}}} - \frac{B_i}{B_{\text{total}}}\right) \times \text{WoE}_i
+\end{equation}
+
+\begin{theorembox}{Information Value (IV) Benchmarks}
+\begin{itemize}
+    \item $\text{IV} < 0.02$: Unpredictive; discard variable.
+    \item $0.02 \le \text{IV} < 0.10$: Weak predictive power.
+    \item $0.10 \le \text{IV} < 0.30$: Medium predictive power.
+    \item $0.30 \le \text{IV} < 0.50$: Strong predictive power (ideal for scorecards).
+    \item $\text{IV} \ge 0.50$: Suspiciously high; check for target leakage!
+\end{itemize}
+\end{theorembox}
+
+\section{The Selection Bias Dilemma: Reject Inferencing}
+
+When a model is trained exclusively on accepted loan applicants, it suffers from severe \index{selection bias}\textbf{selection bias}. Defaulters among rejected applicants are never observed because rejected applicants never received loans!
+
+\begin{videocard}{IITM BS Lecture: Reject Inferencing in Credit Risk Modeling}{https://www.youtube.com/watch?v=yXDNy-e-cdM}
+Methodologies for imputing default labels on rejected populations: Hard cut-off, Parceling, and Bivariate models.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Optimizing Credit Risk Evaluation using Credit Propensity}{https://www.youtube.com/watch?v=bleg9xgQNxo}
+Balancing credit risk probability against borrower take-up propensity to optimize net portfolio profitability.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Credit Propensity Tutorial -- Hands-On}{https://www.youtube.com/watch?v=9KtSEUnrifk}
+Practical hands-on coding tutorial implementing propensity models and credit limit allocation engines.
+\end{videocard}
+
+\begin{intuitionbox}{The Analogy of the Shield and the Arrow}
+Imagine a castle that only fights off weak invaders at its front gate, while archers shoot down any heavily armored invaders before they reach the courtyard. If military historians only study the battles that took place inside the courtyard, they might falsely conclude that heavily armored knights don't exist! Reject inferencing reconstructs what would have happened to the rejected applicants had they been allowed through the gate.
+\end{intuitionbox}
+
+\section{Data Science Relevance: Credit Scorecard Engineering}
+
+\begin{lstlisting}[caption={Credit Probability of Default \& WoE Pipeline in Python}]
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import roc_auc_score, roc_curve
+
+def calculate_woe_iv(df: pd.DataFrame, feature: str, target: str) -> tuple:
+    """
+    Computes Weight of Evidence and Information Value for a categorical/binned feature.
+    """
+    grouped = df.groupby(feature)[target].agg(
+        total='count',
+        bads='sum'
+    ).reset_index()
+    grouped['goods'] = grouped['total'] - grouped['bads']
+    
+    total_goods = grouped['goods'].sum()
+    total_bads = grouped['bads'].sum()
+    
+    grouped['pct_goods'] = (grouped['goods'] + 0.5) / (total_goods + 1.0)
+    grouped['pct_bads'] = (grouped['bads'] + 0.5) / (total_bads + 1.0)
+    
+    grouped['WoE'] = np.log(grouped['pct_goods'] / grouped['pct_bads'])
+    grouped['IV_bin'] = (grouped['pct_goods'] - grouped['pct_bads']) * grouped['WoE']
+    total_iv = grouped['IV_bin'].sum()
+    
+    return grouped[[feature, 'WoE']], total_iv
+
+# Synthetic Credit Applicant Dataset
+np.random.seed(42)
+n_samples = 2000
+age = np.random.randint(21, 65, size=n_samples)
+income_k = np.random.uniform(20, 150, size=n_samples)
+debt_ratio = np.random.uniform(0.1, 0.9, size=n_samples)
+
+# True default latent logit
+z = -3.0 - 0.03 * (age - 35) - 0.02 * (income_k - 60) + 4.5 * debt_ratio
+true_p = 1.0 / (1.0 + np.exp(-z))
+y_default = (np.random.rand(n_samples) < true_p).astype(int)
+
+df_credit = pd.DataFrame({'age': age, 'income_k': income_k, 'debt_ratio': debt_ratio, 'default': y_default})
+df_credit['debt_bin'] = pd.qcut(df_credit['debt_ratio'], q=4, labels=['Low', 'Med-Low', 'Med-High', 'High'])
+
+woe_table, iv_score = calculate_woe_iv(df_credit, 'debt_bin', 'default')
+print(f"Debt Ratio Information Value: {iv_score:.4f}")
+
+# Train Logistic Regression PD Model
+X = df_credit[['age', 'income_k', 'debt_ratio']]
+clf = LogisticRegression()
+clf.fit(X, y_default)
+preds = clf.predict_proba(X)[:, 1]
+auc = roc_auc_score(y_default, preds)
+print(f"Probability of Default Model ROC-AUC: {auc:.4f}")
+\end{lstlisting}
+
+\section*{Supplementary Lecture Videos}
+\begin{itemize}
+    \item \href{https://www.youtube.com/watch?v=l4svQYt8qSs}{W8\_L2: Introduction to Credit Risk -- Part 1}
+    \item \href{https://www.youtube.com/watch?v=NQsnU3QUhuY}{W8\_L3: Introduction to Credit Risk -- Part 2}
+    \item \href{https://www.youtube.com/watch?v=K547q11kZsw}{W8\_L4: Building a Probability of Default Model}
+    \item \href{https://www.youtube.com/watch?v=yXDNy-e-cdM}{W8\_L5: Reject Inferencing in Credit Risk Modeling}
+    \item \href{https://www.youtube.com/watch?v=bleg9xgQNxo}{W8\_L6: Optimizing Credit Risk Evaluation using Credit Propensity}
+    \item \href{https://www.youtube.com/watch?v=9KtSEUnrifk}{W8\_L7: Optimizing Credit Risk Evaluation -- Hands-On Tutorial}
+    \item \href{https://www.youtube.com/watch?v=yIYKR4gTd5c}{External Masterclass: Logistic Regression (StatQuest)}
+    \item \href{https://www.youtube.com/watch?v=4jRBRDbJemM}{External Masterclass: ROC and AUC Curves (StatQuest)}
+\end{itemize}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item An retail banking loan portfolio has Rs.~500 Crores in total loan commitments. Historical analysis indicates that the 1-year Probability of Default is $\text{PD} = 3.5\%$, the estimated Loss Given Default is $\text{LGD} = 45\%$, and average Exposure at Default is $\text{EAD} = \text{Rs.~480 Crores}$. Calculate the expected dollar loss ($\text{EL}$) of the portfolio.
+    
+    \item A logistic regression default model yields estimated coefficients: intercept $\beta_0 = -2.8$, $\beta_{\text{DTI}} = +3.2$ (Debt-to-Income), and $\beta_{\text{Delinq}} = +0.75$ (number of historical delinquencies). For an applicant with $\text{DTI} = 0.40$ and $2$ prior delinquencies, calculate:
+    \begin{enumerate}
+        \item The logit value $z$.
+        \item The borrower's estimated Probability of Default ($\text{PD}$).
+    \end{enumerate}
+    
+    \item Explain the mechanics of the ``parceling'' method in Reject Inferencing. How does an analyst assign default probabilities to previously rejected applicants before pooling them into the retrained scoring dataset?
+    
+    \item For a loan feature divided into two categories (Category A and Category B), the dataset contains:
+    Category A: 800 non-defaulters, 200 defaulters.
+    Category B: 400 non-defaulters, 300 defaulters.
+    Compute the Weight of Evidence ($\text{WoE}$) for Category A and Category B, and compute the total Information Value ($\text{IV}$).
+    
+    \item Describe how credit propensity models prevent adverse selection when an automated bank pricing algorithm offers variable interest rates to loan applicants.
+\end{enumerate}

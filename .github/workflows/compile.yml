@@ -33,6 +33,8 @@ jobs:
               - 'stats1/**'
             stats2:
               - 'stats2/**'
+            financial_forensics:
+              - 'financial_forensics/**'
             all:
               - '.github/**'
               - '.gitignore'
@@ -42,13 +44,12 @@ jobs:
         id: set-courses
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ steps.filter.outputs.all }}" = "true" ]; then
-            echo 'courses=["maths1","maths2","python","stats1","stats2"]' >> $GITHUB_OUTPUT
+            echo 'courses=["maths1","maths2","python","stats1","stats2","financial_forensics"]' >> $GITHUB_OUTPUT
           else
             echo 'courses=${{ steps.filter.outputs.changes }}' >> $GITHUB_OUTPUT
           fi
 
   build:
-
     needs: changes
     if: ${{ needs.changes.outputs.courses != '[]' && needs.changes.outputs.courses != '' }}
     runs-on: ubuntu-latest
@@ -106,7 +107,7 @@ jobs:
         run: |
           mkdir -p compiled_pdfs
           # Only copy the ones that were just built and downloaded
-          for course in maths1 maths2 python stats1 stats2; do
+          for course in maths1 maths2 python stats1 stats2 financial_forensics; do
             if [ -f "downloaded-pdfs/${course}-textbook/main.pdf" ]; then
               echo "Updating PDF for ${course}..."
               cp "downloaded-pdfs/${course}-textbook/main.pdf" "compiled_pdfs/${course}.pdf"
@@ -118,4 +119,3 @@ jobs:
         with:
           commit_message: "chore: update compiled PDFs [skip ci]"
           file_pattern: "compiled_pdfs/*"
-

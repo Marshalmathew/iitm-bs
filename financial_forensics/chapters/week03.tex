@@ -1,0 +1,180 @@
+\chapter{Cash Flow Statement \& Forensic Accounting Fundamentals}
+
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You Will Learn in this Chapter}}]
+\begin{itemize}
+    \item Structural breakdown of the Statement of Cash Flows (CFO, CFI, CFF)
+    \item Direct vs.~Indirect Method of calculating Cash Flow from Operations
+    \item The critical forensic divergence: Net Income vs.~Operating Cash Flow
+    \item Principles of Forensic Accounting: Objectives, referrals, and engagement scoping
+    \item The forensic accountant as an expert witness: legal admissibility and conflict management
+    \item Data Science detection of earnings quality decay using accrual ratios
+\end{itemize}
+\end{tcolorbox}
+
+\section{The Statement of Cash Flows}
+
+While the income statement measures profitability on an accrual basis, the \index{statement of cash flows}\textbf{Statement of Cash Flows} reconciles beginning and ending cash balances by tracking actual physical cash receipts and disbursements across three operational categories.
+
+\begin{definitionbox}{The Tripartite Cash Flow Model}
+\index{Cash Flow from Operations}\index{Cash Flow from Investing}\index{Cash Flow from Financing}
+\begin{equation}
+\Delta \text{Cash} = \text{CFO} + \text{CFI} + \text{CFF}
+\end{equation}
+\begin{itemize}
+    \item \textbf{Cash Flow from Operating Activities (CFO):} Cash generated or consumed by the enterprise's core revenue-producing operations (collections from customers, supplier payments, employee wages, income taxes).
+    \item \textbf{Cash Flow from Investing Activities (CFI):} Cash spent or received from acquiring and disposing of non-current productive assets and investment securities (capital expenditures, acquisitions, sale of equipment).
+    \item \textbf{Cash Flow from Financing Activities (CFF):} Cash flows between the enterprise and its capital providers (issuance/repurchase of equity, debt borrowing/repayment, dividends paid).
+\end{itemize}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Cash Flow Statement -- Part 1}{https://www.youtube.com/watch?v=WHULit4PEmI}
+Conceptual foundation of cash flow reporting and distinction from accrual profitability.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Cash Flow Statement -- Part 2}{https://www.youtube.com/watch?v=TeUg7xgT0QQ}
+Dissection of operating cash flow mechanics under the direct vs.~indirect accounting methods.
+\end{videocard}
+
+\section{The Indirect Method: The Forensic Bridge}
+
+Under the commonly adopted \index{indirect method}\textbf{indirect method}, CFO begins with Net Income and systematically reverses non-cash expenses and working capital shifts:
+\begin{equation}
+\text{CFO} = \text{Net Income} + \text{Non-Cash Charges} - \Delta\text{Operating Working Capital}
+\end{equation}
+
+\begin{formulabox}{Operating Cash Flow Adjustments}
+\begin{align}
+\text{CFO} &= \text{Net Income} \nonumber \\
+&\quad + \text{Depreciation \& Amortization} \nonumber \\
+&\quad + \text{Loss on Sale of Assets (or } - \text{Gain on Sale)} \nonumber \\
+&\quad - \Delta\text{Accounts Receivable} \nonumber \\
+&\quad - \Delta\text{Inventory} \nonumber \\
+&\quad + \Delta\text{Accounts Payable} \nonumber \\
+&\quad \pm \Delta\text{Other Operating Assets/Liabilities}
+\end{align}
+\end{formulabox}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  node distance=1.8cm,
+  block/.style={rectangle, draw=primarydark, fill=primarylight, rounded corners, minimum width=3.2cm, minimum height=0.9cm, font=\footnotesize\bfseries, align=center},
+  adj/.style={rectangle, draw=coralborder, fill=coralbg, rounded corners, minimum width=3.2cm, minimum height=0.9cm, font=\footnotesize\bfseries, align=center},
+  target/.style={rectangle, draw=tealborder, fill=tealbg, rounded corners, minimum width=3.2cm, minimum height=0.9cm, font=\footnotesize\bfseries, align=center}
+]
+\node[block] (ni) {Accrual Net Income\\(Income Statement)};
+\node[adj, below of=ni, yshift=-0.3cm] (noncash) {+ Non-Cash Charges\\(Depreciation / Amortization)};
+\node[adj, below of=noncash, yshift=-0.3cm] (wc) {$\pm$ Working Capital Shifts\\($-\Delta\text{AR} - \Delta\text{Inv} + \Delta\text{AP}$)};
+\node[target, below of=wc, yshift=-0.3cm] (cfo) {Cash Flow from Operations\\(Actual Cash Generated)};
+
+\draw[->, very thick, primaryborder] (ni) -- (noncash);
+\draw[->, very thick, primaryborder] (noncash) -- (wc);
+\draw[->, very thick, tealborder] (wc) -- (cfo);
+\end{tikzpicture}
+\caption{The Indirect Method Bridge: Reconciling Accrual Net Income to Physical Operating Cash.}
+\end{figure}
+
+\begin{videocard}{IITM BS Lecture: Cash Flow Statement -- Part 3}{https://www.youtube.com/watch?v=BUvF6PhBQnA}
+Detailed walkthrough of investing and financing activities, capital expenditure tracking, and free cash flow.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Cash Flow Statement -- Part 4}{https://www.youtube.com/watch?v=vYVodIap1_4}
+Synthesizing all three statements and forensic analysis of cash flow manipulation strategies.
+\end{videocard}
+
+\begin{intuitionbox}{The Golden Rule of Forensic Accounting: ``Cash Doesn't Lie''}
+A dishonest management team can fabricate revenues by creating fictitious invoices in accounts receivable, or artificially depress cost of goods sold by capitalizing routine expenses into ending inventory. Both maneuvers instantly inflate reported Net Income. However, because no fictitious customer actually transfers physical funds into the bank account, Cash Flow from Operations remains stubbornly stagnant or negative. A persistent widening divergence between Net Income and CFO is the single most reliable indicator of financial statement manipulation.
+\end{intuitionbox}
+
+\section{Forensic Accounting Engagements and the Expert Witness}
+
+\index{forensic accounting}\textbf{Forensic accounting} is the specialized integration of accounting, auditing, and investigative capabilities to resolve allegations of financial wrongdoing and present findings admissible in a court of law.
+
+\begin{theorembox}{Forensic Accountant vs. Statutory Auditor}
+\begin{center}
+\begin{tabularx}{\textwidth}{lXX}
+\toprule
+\textbf{Dimension} & \textbf{Statutory Auditor} & \textbf{Forensic Accountant} \\
+\midrule
+\textbf{Core Objective} & Express reasonable assurance on true and fair financial view & Determine if fraud occurred, identify perpetrators, quantify damages \\
+\textbf{Scope of Work} & Periodic, high-level sampling of transactions & Specific, targeted, deep-dive examination of entire datasets \\
+\textbf{Presumption} & Professional skepticism without assuming fraud & Investigates under the hypothesis that deliberate deceit may exist \\
+\textbf{Final Deliverable} & Standardized Audit Report & Detailed investigative dossier and expert witness testimony \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{theorembox}
+
+\begin{warningbox}{Independence and Conflict of Interest}
+An expert witness must maintain strict objectivity. If an investigator holds an economic stake in the litigation outcome (e.g., a contingency fee) or has pre-existing familial or advisory ties with the subject of the investigation, their testimony will be disqualified by the judiciary for conflict of interest.
+\end{warningbox}
+
+\section{Data Science Relevance: Sloan Accrual Anomaly Detector}
+
+In 1996, accounting researcher Richard Sloan demonstrated that firms with high accrual components in their earnings exhibit poor future stock performance and elevated earnings restatements. Forensic data science teams compute the \index{Sloan Accrual Ratio}\textbf{Balance Sheet and Cash Flow Accrual Ratios}:
+\begin{equation}
+\text{Accrual Ratio}_{\text{CF}} = \frac{\text{Net Income} - \text{CFO}}{\text{Average Total Assets}}
+\end{equation}
+
+\begin{lstlisting}[caption={Automated Earnings Quality \& Accrual Anomaly Screener}]
+import pandas as pd
+import numpy as np
+
+def calculate_accrual_anomaly(financial_records: pd.DataFrame) -> pd.DataFrame:
+    """
+    Computes Sloan's Cash Flow Accrual Ratio and flags abnormal earnings divergence.
+    """
+    df = financial_records.copy()
+    
+    # Calculate Average Total Assets over consecutive periods
+    df['Avg_Total_Assets'] = (df['Total_Assets'] + df['Total_Assets'].shift(1)) / 2.0
+    
+    # Calculate Total Accruals = Net Income - CFO
+    df['Total_Accruals'] = df['Net_Income'] - df['CFO']
+    
+    # Normalized Accrual Ratio
+    df['Accrual_Ratio'] = df['Total_Accruals'] / df['Avg_Total_Assets']
+    
+    # Forensic Flag: Accrual ratio exceeding +10% of total assets indicates high risk
+    df['Earnings_Quality_Alert'] = df['Accrual_Ratio'] > 0.10
+    return df
+
+# Sample enterprise financial history (Rs. Crores)
+data = {
+    'Fiscal_Year': [2021, 2022, 2023, 2024],
+    'Total_Assets': [500.0, 580.0, 690.0, 850.0],
+    'Net_Income': [40.0, 55.0, 75.0, 110.0],
+    'CFO': [38.0, 42.0, 20.0, -15.0]  # Clear divergence in 2023-2024!
+}
+df_firm = pd.DataFrame(data)
+evaluated_df = calculate_accrual_anomaly(df_firm)
+print(evaluated_df[['Fiscal_Year', 'Net_Income', 'CFO', 'Accrual_Ratio', 'Earnings_Quality_Alert']])
+\end{lstlisting}
+
+\section*{Supplementary Lecture Videos}
+\begin{itemize}
+    \item \href{https://www.youtube.com/watch?v=WHULit4PEmI}{W3\_L1: Cash Flow Statement -- Part 1 (Conceptual Framework \& Accrual Bridge)}
+    \item \href{https://www.youtube.com/watch?v=TeUg7xgT0QQ}{W3\_L2: Cash Flow Statement -- Part 2 (Operating Cash Flow Indirect Method)}
+    \item \href{https://www.youtube.com/watch?v=BUvF6PhBQnA}{W3\_L3: Cash Flow Statement -- Part 3 (Investing \& Financing Cash Flows)}
+    \item \href{https://www.youtube.com/watch?v=vYVodIap1_4}{W3\_L4: Cash Flow Statement -- Part 4 (Three-Statement Synthesis \& Red Flags)}
+\end{itemize}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item Given the following data for Orion Technologies for the year ended December 31: Net Income Rs.~4,50,000; Depreciation Expense Rs.~80,000; Increase in Accounts Receivable Rs.~60,000; Decrease in Inventory Rs.~35,000; Decrease in Accounts Payable Rs.~25,000; Gain on Sale of Equipment Rs.~15,000. Calculate Cash Flow from Operating Activities (CFO) using the indirect method.
+    
+    \item Explain why an enterprise might simultaneously report record Net Income and face bankruptcy due to acute cash starvation. Describe how aggressive revenue recognition on long-term contracts (percentage of completion) can distort this relationship.
+    
+    \item Contrast the legal standards governing the admissibility of expert witness testimony in court (e.g., the Daubert standard and Frye standard). What specific requirements must a forensic data scientist's statistical machine learning methodology satisfy to be admitted as evidence?
+    
+    \item An investigator reviews a corporate statement of cash flows and observes that while CFO declined sharply, Cash Flow from Investing Activities showed large inflows from ``Sale of Receivables (Factoring without Recourse).'' How can management manipulate cash flow categorization to mask deteriorating core operations?
+    
+    \item For a portfolio of 50 companies, write out the formula for the modified balance sheet accrual ratio:
+    \begin{equation*}
+    \text{Accrual}_{\text{BS}} = \frac{\Delta\text{Current Assets} - \Delta\text{Cash} - (\Delta\text{Current Liabilities} - \Delta\text{Short-Term Debt}) - \text{Depreciation}}{\text{Average Total Assets}}
+    \end{equation*}
+    and explain how each component accounts for managerial discretion.
+\end{enumerate}

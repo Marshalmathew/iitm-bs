@@ -1,0 +1,203 @@
+\chapter{Time Series Analysis \& Temporal Anomaly Detection}
+
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You Will Learn in this Chapter}}]
+\begin{itemize}
+    \item Foundations of temporal financial data: High-frequency transaction velocity and settlement flows
+    \item Classical decomposition: Trend ($T_t$), Seasonality ($S_t$), and Irregular noise ($\epsilon_t$)
+    \item Weak stationarity conditions and unit-root testing via Augmented Dickey-Fuller (ADF)
+    \item Mathematical structure of Autoregressive Integrated Moving Average (ARIMA) models
+    \item Statistical process control: Dynamic rolling-window confidence bounds and CUSUM change-point detection
+    \item Hands-on Python implementation of ARIMA residual forecasting and withdrawal burst detection
+\end{itemize}
+\end{tcolorbox}
+
+\section{The Temporal Dimension of Financial Forensics}
+
+Financial transactions do not occur as independent, identically distributed (i.i.d.) static observations; they are dynamic \index{time series}\textbf{time series} indexed sequentially in time: $\{y_t\}_{t=1}^T$. Forensic investigators analyze temporal series to detect abrupt structural shifts, unusual volume bursts, and money laundering layering spikes.
+
+\begin{definitionbox}{Classical Time Series Decomposition}
+\index{Time Series Decomposition}
+A financial time series $y_t$ can be decomposed into additive or multiplicative components:
+\begin{align}
+\text{Additive:} \quad y_t &= T_t + S_t + C_t + \epsilon_t \\
+\text{Multiplicative:} \quad y_t &= T_t \times S_t \times C_t \times \epsilon_t
+\end{align}
+where $T_t$ represents the long-term secular trend, $S_t$ is deterministic periodic seasonality (e.g., end-of-month payroll spikes), $C_t$ is cyclical macroeconomic variation, and $\epsilon_t$ is stochastic white noise.
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Introduction to Time Series}{https://www.youtube.com/watch?v=odptnlDEz8U}
+Understanding temporal dependencies in finance, timestamp sequencing, and frequency aggregation.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Components of Time Series}{https://www.youtube.com/watch?v=0CIdS0syn34}
+Decomposing financial signals into underlying trends, seasonal patterns, and residual error terms.
+\end{videocard}
+
+\section{Stationarity and the Augmented Dickey-Fuller Test}
+
+A time series is said to be \index{stationarity}\textbf{weakly (covariance) stationary} if its statistical properties do not change over time:
+\begin{enumerate}
+    \item Constant expected value: $E[y_t] = \mu$ for all $t$.
+    \item Constant finite variance: $\text{Var}(y_t) = \sigma^2 < \infty$ for all $t$.
+    \item Autocovariance depends only on lag $k$, not on time $t$: $\text{Cov}(y_t, y_{t-k}) = \gamma_k$.
+\end{enumerate}
+
+\begin{videocard}{Masterclass Video: Stationarity in Time Series -- Ritvikmath}{https://www.youtube.com/watch?v=oY-j2Wof51c}
+Ritvikmath's visual explanation of why non-stationary time series generate spurious correlations and how differencing achieves stationarity.
+\end{videocard}
+
+\begin{theorembox}{The Augmented Dickey-Fuller (ADF) Test}
+\index{Augmented Dickey-Fuller Test}
+To test for the presence of a unit root (non-stationarity), estimate the regression:
+\begin{equation}
+\Delta y_t = \alpha + \beta t + \gamma y_{t-1} + \sum_{i=1}^p \delta_i \Delta y_{t-i} + \epsilon_t
+\end{equation}
+The hypothesis test is formulated as:
+\begin{itemize}
+    \item $H_0: \gamma = 0$ (The series possesses a unit root and is non-stationary).
+    \item $H_1: \gamma < 0$ (The series is stationary).
+\end{itemize}
+If the ADF test-statistic is more negative than the critical value (or $p < 0.05$), we reject $H_0$ and conclude the series is stationary.
+\end{theorembox}
+
+\section{ARIMA Modeling for Baseline Forecasting}
+
+To detect temporal anomalies, forensic engines fit an \index{ARIMA}\textbf{Autoregressive Integrated Moving Average (ARIMA$(p, d, q)$)} model on historical baseline behavior.
+
+\begin{formulabox}{ARIMA$(p, d, q)$ Formulation}
+For a $d$-times differenced series $y_t' = \nabla^d y_t$:
+\begin{equation}
+y_t' = c + \sum_{i=1}^p \phi_i y_{t-i}' + \sum_{j=1}^q \theta_j \epsilon_{t-j} + \epsilon_t
+\end{equation}
+where $\phi_1, \dots, \phi_p$ are autoregressive coefficients, $\theta_1, \dots, \theta_q$ are moving average coefficients, and $\epsilon_t \sim \mathcal{N}(0, \sigma^2)$ is Gaussian white noise.
+\end{formulabox}
+
+\begin{videocard}{IITM BS Lecture: Time Series Models}{https://www.youtube.com/watch?v=rHDKwLcsM2o}
+Mathematical specification of AR, MA, ARMA, and seasonal ARIMA models for financial forecasting.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Time Series Models -- Hands-On}{https://www.youtube.com/watch?v=3LI8ziBMVJ0}
+Practical tutorial using Python statsmodels to fit ARIMA models, analyze ACF/PACF plots, and inspect residuals.
+\end{videocard}
+
+\section{Temporal Anomaly Detection: Dynamic Confidence Intervals and CUSUM}
+
+Once an ARIMA model is trained on legitimate baseline history, it generates one-step-ahead forecasts $\hat{y}_t$ with conditional variance $\sigma_t^2$.
+
+\begin{intuitionbox}{The Dynamic Forensic Envelope}
+Static thresholds (e.g., ``flag any withdrawal $> \text{Rs.~5,00,000}$'') fail because normal business payroll spikes on the 1st of every month get flagged, while an illicit Rs.~3,00,000 extraction on a quiet Sunday afternoon passes undetected. An ARIMA confidence envelope expands during expected high-volatility hours and contracts during quiet periods, exposing stealthy off-hour transactions.
+\end{intuitionbox}
+
+\begin{definitionbox}{CUSUM (Cumulative Sum Control Chart)}
+\index{CUSUM}
+CUSUM monitors cumulative positive and negative deviations from the baseline mean $\mu_0$:
+\begin{align}
+S_t^+ &= \max\left(0, S_{t-1}^+ + (y_t - \mu_0) - K\right) \\
+S_t^- &= \max\left(0, S_{t-1}^- - (y_t - \mu_0) - K\right)
+\end{align}
+where $K$ is the allowable tolerance parameter. An anomaly alarm fires if $S_t^+ > H$ or $S_t^- > H$, detecting persistent micro-leakage (such as salami slicing fraud).
+\end{definitionbox}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.85\textwidth,
+    height=5.2cm,
+    xmin=0, xmax=20,
+    ymin=0, ymax=10,
+    xlabel={Time Step ($t$)},
+    ylabel={Cumulative Sum ($S_t^+$)},
+    grid=major,
+    grid style={dashed, gray!30},
+    legend style={at={(0.05,0.95)}, anchor=north west, font=\footnotesize}
+]
+\addplot[ultra thick, primaryborder] coordinates {
+    (0,0) (1,0) (2,0.2) (3,0) (4,0.1) (5,0) (6,0) (7,0.3) 
+    (8,0) (9,0.5) (10,1.2) (11,2.1) (12,3.3) (13,4.6) (14,6.0) (15,7.5) (16,9.1)
+};
+\addplot[dashed, ultra thick, red] coordinates {(0,5.0) (20,5.0)};
+\node[fill=red, text=white, rounded corners, font=\tiny\bfseries] at (axis cs:13.5,5.0) {Alarm Threshold ($H=5.0$)};
+\legend{$S_t^+$ Cumulative Drift, Alarm Boundary ($H$)}
+\end{axis}
+\end{tikzpicture}
+\caption{CUSUM Control Chart: Detecting Persistent Low-Magnitude Siphoning (Salami Slicing) Crossing the Alarm Limit $H$.}
+\end{figure}
+
+\section{Data Science Relevance: Temporal Residual Anomaly Detection}
+
+\begin{lstlisting}[caption={Time Series Residual Anomaly Detection in Python}]
+import numpy as np
+import pandas as pd
+from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.tsa.stattools import adfuller
+
+# Simulate 120 days of daily withdrawal volumes (in Rs. Thousands)
+np.random.seed(42)
+days = pd.date_range(start='2026-01-01', periods=120, freq='D')
+base_signal = 100.0 + np.sin(np.arange(120) * (2 * np.pi / 7)) * 15.0 # Weekly cycle
+noise = np.random.normal(0, 5, 120)
+withdrawals = base_signal + noise
+
+# Inject sudden fraudulent cash drain anomalies on Day 85 and Day 86
+withdrawals[85] += 65.0  # Massive spike
+withdrawals[86] += 70.0
+
+ts_df = pd.DataFrame({'date': days, 'amount': withdrawals}).set_index('date')
+
+# 1. ADF Test for Stationarity
+adf_res = adfuller(ts_df['amount'])
+print(f"ADF Statistic: {adf_res[0]:.3f}, p-value: {adf_res[1]:.4e}")
+
+# 2. Fit ARIMA(1, 0, 1) model on baseline (first 75 days)
+train_series = ts_df['amount'].iloc[:75]
+model = ARIMA(train_series, order=(1, 0, 1))
+fitted_model = model.fit()
+
+# 3. Dynamic Residual Forecasting on full series
+preds = fitted_model.predict(start=0, end=len(ts_df)-1)
+residuals = ts_df['amount'] - preds
+residual_std = residuals.iloc[:75].std()
+
+# 4. Flag residuals exceeding 3 standard deviations
+ts_df['forecast'] = preds
+ts_df['residual'] = residuals
+ts_df['anomaly_flag'] = np.abs(residuals) > (3.0 * residual_std)
+
+anomalies = ts_df[ts_df['anomaly_flag']]
+print(f"\nDetected {len(anomalies)} Temporal Anomalies:")
+print(anomalies[['amount', 'forecast', 'residual']])
+\end{lstlisting}
+
+\section*{Supplementary Lecture Videos}
+\begin{itemize}
+    \item \href{https://www.youtube.com/watch?v=odptnlDEz8U}{W10\_L1: Introduction to Time Series in Financial Forensics}
+    \item \href{https://www.youtube.com/watch?v=0CIdS0syn34}{W10\_L2: Components of Time Series (Trend, Seasonality, Noise)}
+    \item \href{https://www.youtube.com/watch?v=rHDKwLcsM2o}{W10\_L3: Time Series Models (AR, MA, ARMA, ARIMA)}
+    \item \href{https://www.youtube.com/watch?v=3LI8ziBMVJ0}{W10\_L4: Time Series Models -- Hands-On Python Tutorial}
+    \item \href{https://www.youtube.com/watch?v=oY-j2Wof51c}{External Masterclass: Stationarity in Time Series (Ritvikmath)}
+\end{itemize}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item Define covariance stationarity. Given the first-order autoregressive process:
+    \begin{equation*}
+    y_t = \delta + \phi_1 y_{t-1} + \epsilon_t, \quad \epsilon_t \sim \mathcal{WN}(0, \sigma^2)
+    \end{equation*}
+    derive the unconditional mean $E[y_t]$ and the unconditional variance $\text{Var}(y_t)$ under the stability condition $|\phi_1| < 1$. What happens if $\phi_1 = 1$?
+    
+    \item An Augmented Dickey-Fuller test conducted on daily transaction count data yields a test statistic of $-1.82$. If the critical value at the $5\%$ significance level is $-2.89$, state the statistical conclusion. What data transformation is required before fitting an ARMA model?
+    
+    \item Explain how an adversary executes a ``salami slicing'' fraud scheme (repeatedly siphoning fractions of a cent or a few rupees from millions of customer accounts). Why does standard outlier detection fail to catch this, and how does the CUSUM algorithm detect it?
+    
+    \item Given an ARIMA$(0, 1, 1)$ model formulated as:
+    \begin{equation*}
+    y_t - y_{t-1} = \epsilon_t - \theta_1 \epsilon_{t-1}
+    \end{equation*}
+    show that the one-step-ahead point forecast $\hat{y}_{t+1|t}$ can be expressed as an exponentially weighted moving average (EWMA) of past historical observations.
+    
+    \item Describe the difference between additive and multiplicative seasonal decomposition in time series. Under what operational conditions in corporate cash flows is multiplicative decomposition required?
+\end{enumerate}

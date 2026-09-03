@@ -1,0 +1,94 @@
+\chapter*{Forensic Indicator \& Formula Quick Reference}
+\addcontentsline{toc}{chapter}{Forensic Indicator \& Formula Quick Reference}
+
+This quick-reference guide summarizes the foundational formulas, statistical decision thresholds, and regulatory benchmarks utilized across Financial Forensics.
+
+\section*{1. Earnings Quality \& Financial Manipulation}
+
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Beneish M-Score (8-Variable Manipulation Probabilistic Model)}}]
+\begin{align*}
+\text{M-Score} &= -4.84 + 0.920 \cdot \text{DSRI} + 0.528 \cdot \text{GMI} + 0.404 \cdot \text{AQI} + 0.892 \cdot \text{SGI} \\
+&\quad + 0.115 \cdot \text{DEPI} - 0.172 \cdot \text{SGAI} + 4.037 \cdot \text{TATA} + 0.0327 \cdot \text{LVGI}
+\end{align*}
+\textbf{Decision Rule:} $\text{M-Score} > -1.78 \implies$ \textcolor{red}{\textbf{High Probability of Financial Manipulation}}.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=tealbg, colframe=tealborder, title={\textbf{Sloan Cash Flow Accrual Ratio}}]
+\begin{equation*}
+\text{Accrual Ratio}_{\text{CF}} = \frac{\text{Net Income} - \text{CFO}}{\text{Average Total Assets}}
+\end{equation*}
+\textbf{Decision Rule:} $\text{Accrual Ratio} > +0.10 \implies$ \textcolor{red}{\textbf{Low Earnings Quality (Accrual Disconnect)}}.
+\end{tcolorbox}
+
+\section*{2. Corporate Solvency \& Bankruptcy Forensics}
+
+\begin{tcolorbox}[colback=coralbg, colframe=coralborder, title={\textbf{Altman $Z$-Score (Manufacturing Distress Model)}}]
+\begin{equation*}
+Z = 1.2 X_1 + 1.4 X_2 + 3.3 X_3 + 0.6 X_4 + 0.999 X_5
+\end{equation*}
+\begin{itemize}
+    \item $X_1 = \frac{\text{Working Capital}}{\text{Total Assets}}$, $X_2 = \frac{\text{Retained Earnings}}{\text{Total Assets}}$, $X_3 = \frac{\text{EBIT}}{\text{Total Assets}}$, $X_4 = \frac{\text{Market Equity}}{\text{Total Liabilities}}$, $X_5 = \frac{\text{Sales}}{\text{Total Assets}}$
+\end{itemize}
+\textbf{Decision Boundaries:}
+\begin{itemize}
+    \item $Z < 1.81$: \textcolor{red}{\textbf{Distress Zone}} (High probability of insolvency within 2 years).
+    \item $1.81 \le Z \le 2.99$: \textcolor{amberwarning}{\textbf{Grey Zone}} (Moderate financial distress; elevated scrutiny).
+    \item $Z > 2.99$: \textcolor{tealdef}{\textbf{Safe Zone}} (Healthy solvency profile).
+\end{itemize}
+\end{tcolorbox}
+
+\section*{3. Statistical Audit Tests}
+
+\begin{tcolorbox}[colback=purplebg, colframe=purpleborder, title={\textbf{Benford's Law (First-Digit Probability Table)}}]
+\begin{equation*}
+P(D_1 = d) = \log_{10}\left(1 + \frac{1}{d}\right), \quad d \in \{1, 2, \dots, 9\}
+\end{equation*}
+\begin{center}
+\begin{tabular}{lccccccccc}
+\toprule
+\textbf{Digit ($d$)} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} & \textbf{6} & \textbf{7} & \textbf{8} & \textbf{9} \\
+\midrule
+\textbf{Theoretical $P(d)$} & $30.1\%$ & $17.6\%$ & $12.5\%$ & $9.7\%$ & $7.9\%$ & $6.7\%$ & $5.8\%$ & $5.1\%$ & $4.6\%$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\textbf{Goodness-of-Fit Statistic:} $\chi^2 = \sum_{d=1}^9 \frac{(O_d - E_d)^2}{E_d} \quad (df = 8, \text{ Critical } \chi^2_{0.05} = 15.51, \chi^2_{0.01} = 20.09)$.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=amberbg, colframe=amberborder, title={\textbf{Robust Outlier Detection: Modified $Z$-Score}}]
+\begin{equation*}
+\text{Modified } Z_i = \frac{0.6745 \cdot (x_i - \text{median}(x))}{\text{MAD}}, \quad \text{where } \text{MAD} = \text{median}(|x_i - \text{median}(x)|)
+\end{equation*}
+\textbf{Decision Rule:} $|\text{Modified } Z_i| > 3.5 \implies$ \textcolor{red}{\textbf{Statistical Outlier (Flag for Substantive Audit)}}.
+\end{tcolorbox}
+
+\section*{4. Credit Risk \& Machine Learning Forensics}
+
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Credit Risk Expected Loss \& Information Value}}]
+\begin{equation*}
+\text{Expected Loss (EL)} = \text{PD} \times \text{LGD} \times \text{EAD}
+\end{equation*}
+\begin{equation*}
+\text{WoE}_i = \ln\left(\frac{G_i / G_{\text{total}}}{B_i / B_{\text{total}}}\right), \quad \text{IV} = \sum_{i=1}^m \left(\frac{G_i}{G_{\text{total}}} - \frac{B_i}{B_{\text{total}}}\right) \times \text{WoE}_i
+\end{equation*}
+\textbf{Information Value ($\text{IV}$) Scale:}
+\begin{itemize}
+    \item $\text{IV} < 0.02$: Unpredictive; discard feature.
+    \item $0.02 \le \text{IV} < 0.10$: Weak predictive power.
+    \item $0.10 \le \text{IV} < 0.30$: Medium predictive power.
+    \item $0.30 \le \text{IV} < 0.50$: \textcolor{tealdef}{\textbf{Strong predictive power (Ideal for scorecards)}}.
+    \item $\text{IV} \ge 0.50$: Suspicious; investigate target leakage.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=tealbg, colframe=tealborder, title={\textbf{Axioms of Shapley Feature Attribution}}]
+\begin{equation*}
+\phi_i(v) = \sum_{S \subseteq N \setminus \{i\}} \frac{|S|!(|N| - |S| - 1)!}{|N|!} \left[ v(S \cup \{i\}) - v(S) \right]
+\end{equation*}
+\begin{enumerate}
+    \item \textbf{Efficiency:} $\sum_{i=1}^M \phi_i = f(\mathbf{x}) - E[f(X)]$
+    \item \textbf{Symmetry:} $v(S \cup \{i\}) = v(S \cup \{j\}) \implies \phi_i = \phi_j$
+    \item \textbf{Dummy Player:} $v(S \cup \{i\}) = v(S) \implies \phi_i = 0$
+    \item \textbf{Additivity:} $\phi_i(f_1 + f_2) = \phi_i(f_1) + \phi_i(f_2)$
+\end{enumerate}
+\end{tcolorbox}

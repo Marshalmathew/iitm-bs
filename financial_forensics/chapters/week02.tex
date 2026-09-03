@@ -1,0 +1,190 @@
+\chapter{Balance Sheet, Income Statement \& Fraud Vulnerabilities}
+
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You Will Learn in this Chapter}}]
+\begin{itemize}
+    \item Structural breakdown of the Classified Balance Sheet (liquidity ordering, working capital)
+    \item Mechanics of the Multi-Step Income Statement (Gross Profit, Operating Profit, EBITDA, Net Income)
+    \item The Association of Certified Fraud Examiners (ACFE) Fraud Tree taxonomy
+    \item Common fraudulent financial reporting techniques (cookie jar reserves, channel stuffing)
+    \item The Fraud Triangle (Pressure, Opportunity, Rationalization)
+    \item Data Science implementation of Vertical and Horizontal Financial Statement Analysis
+\end{itemize}
+\end{tcolorbox}
+
+\section{The Classified Balance Sheet}
+
+The \index{balance sheet}\textbf{Balance Sheet} represents a static financial photograph of an enterprise at a specific point in time (e.g., midnight on March 31). It groups resources and obligations according to their \index{liquidity}\textbf{liquidity} and maturity horizons.
+
+\begin{definitionbox}{Classified Balance Sheet Components}
+\index{Current Assets}\index{Non-Current Assets}\index{Current Liabilities}
+\begin{itemize}
+    \item \textbf{Current Assets (CA):} Cash and resources expected to be converted into cash, sold, or consumed within one operating cycle or 12 months (e.g., Cash, Marketable Securities, Accounts Receivable, Inventory, Prepaid Expenses).
+    \item \textbf{Non-Current Assets (NCA):} Long-term productive assets (Property, Plant \& Equipment, Intangibles, Goodwill, Long-term Investments).
+    \item \textbf{Current Liabilities (CL):} Obligations due within one year or one operating cycle (Accounts Payable, Short-term Debt, Accrued Expenses).
+    \item \textbf{Non-Current Liabilities (NCL):} Long-term obligations (Bonds Payable, Long-term Bank Loans, Deferred Tax Liabilities).
+    \item \textbf{Shareholders' Equity (SE):} Residual interest of owners (Common Stock, Additional Paid-In Capital, Retained Earnings, Treasury Stock).
+\end{itemize}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Balance Sheet -- Part 1}{https://www.youtube.com/watch?v=NZljSucE8xA}
+Detailed exploration of balance sheet structure, asset valuation conventions, and asset classification rules.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Balance Sheet -- Part 2}{https://www.youtube.com/watch?v=30TJRMA-GsI}
+Analysis of current vs.~long-term liabilities, debt covenants, and shareholder equity components.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Balance Sheet -- Part 3}{https://www.youtube.com/watch?v=Amc2gMnr3Bk}
+Practical dissection of corporate annual reports, notes to accounts, and off-balance-sheet commitments.
+\end{videocard}
+
+\section{The Multi-Step Income Statement}
+
+While the balance sheet is a snapshot, the \index{income statement}\textbf{Income Statement} (Statement of Profit and Loss) measures economic performance over a specified duration (e.g., quarterly or annually).
+
+\begin{formulabox}{Operating Profit Waterfall}
+\index{Gross Profit}\index{EBIT}\index{EBITDA}
+\begin{align}
+\text{Gross Profit} &= \text{Net Sales} - \text{Cost of Goods Sold (COGS)} \\
+\text{Operating Income (EBIT)} &= \text{Gross Profit} - \text{Operating Expenses (SG\&A + R\&D + Depreciation)} \\
+\text{Earnings Before Tax (EBT)} &= \text{EBIT} - \text{Interest Expense} + \text{Non-Operating Income} \\
+\text{Net Income} &= \text{EBT} - \text{Tax Expense}
+\end{align}
+\end{formulabox}
+
+\begin{videocard}{IITM BS Lecture: Income Statement -- Part 1}{https://www.youtube.com/watch?v=63LdMbov4SA}
+Understanding top-line revenue recognition criteria, gross margin dynamics, and operating overheads.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Income Statement -- Part 2}{https://www.youtube.com/watch?v=epjcyIf0RmQ}
+Examining non-operating items, finance costs, taxation, and the calculation of earnings per share (EPS).
+\end{videocard}
+
+\section{Taxonomy of Financial Fraud: The ACFE Fraud Tree}
+
+Financial crimes within corporate entities follow the standardized classification established by the Association of Certified Fraud Examiners (ACFE):
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  level 1/.style={sibling distance=4.5cm},
+  level 2/.style={sibling distance=2.2cm},
+  every node/.style={draw=primarydark, fill=primarylight, rounded corners, font=\footnotesize\bfseries, align=center, inner sep=4pt}
+]
+\node {Occupational\\Fraud}
+  child {node {Corruption}
+    child {node {Bribery}}
+    child {node {Conflicts of\\Interest}}
+  }
+  child {node {Asset\\Misappropriation}
+    child {node {Theft of\\Cash}}
+    child {node {Inventory\\Larceny}}
+  }
+  child {node {Fraudulent\\Statements}
+    child {node {Overstating\\Revenues}}
+    child {node {Understating\\Liabilities}}
+  };
+\end{tikzpicture}
+\caption{The Three Major Branches of Occupational Fraud (ACFE).}
+\end{figure}
+
+\begin{theorembox}{The Cressey Fraud Triangle}
+\index{Fraud Triangle}
+Formulated by criminologist Donald Cressey, three elements are almost universally present when individuals commit corporate fraud:
+\begin{enumerate}
+    \item \textbf{Incentive / Pressure:} Financial distress, bonus targets tied to stock price, or debt covenant thresholds.
+    \item \textbf{Opportunity:} Weak internal controls, lack of segregation of duties, complex organizational structures, or domineering executive overrides.
+    \item \textbf{Rationalization:} Moral self-justification (e.g., ``I am only borrowing the money until next quarter,'' or ``The company owes me'').
+\end{enumerate}
+\end{theorembox}
+
+\begin{intuitionbox}{Red Flags vs. Absolute Proof}
+A financial red flag is not proof of a crime; it is an anomaly in the underlying pattern that demands investigative inquiry. For example, if a firm's Accounts Receivable spikes by $80\%$ while Sales only grow by $5\%$, the firm may simply have introduced generous credit terms to win new clients, or it may be engaging in fraudulent ``channel stuffing'' by shipping unordered goods at quarter-end.
+\end{intuitionbox}
+
+\begin{examplebox}{Historical Case Study: WorldCom Expense Capitalization (2002)}
+\index{WorldCom Fraud}
+WorldCom, once the second-largest long-distance telecommunications provider in the United States, perpetrated an $\$11\text{ Billion}$ financial reporting fraud:
+\begin{itemize}
+    \item \textbf{The Fraudulent Scheme:} To meet Wall Street EBITDA expectations as industry revenues plunged, CEO Bernie Ebbers and CFO Scott Sullivan directed accountants to reclassify ordinary operational network access fees (``line costs'') as long-term capital assets on the Balance Sheet.
+    \item \textbf{Financial Distortion:} By transferring $\$3.8\text{ Billion}$ of routine operating expenses into Property, Plant \& Equipment (PP\&E) accounts, WorldCom eliminated billions from its Income Statement overheads, turning massive operational losses into hundreds of millions in reported profits.
+    \item \textbf{Forensic Takeaway:} Vertical common-size analysis instantly exposes this distortion: while industry competitors' operating line-cost ratios remained at $45-50\%$ of sales, WorldCom's reported ratio plummeted to $38\%$, with a concurrent, unexplained surge in capital asset accumulation.
+\end{itemize}
+\end{examplebox}
+
+\section{Data Science Relevance: Horizontal and Vertical Analysis}
+
+Forensic data scientists automate the detection of financial statement manipulation using two foundational analytical procedures:
+\begin{itemize}
+    \item \textbf{Vertical Analysis (Common-Size Statements):} Expressing every balance sheet item as a percentage of Total Assets, and every income statement item as a percentage of Net Sales.
+    \item \textbf{Horizontal Analysis (Trend Analysis):} Calculating the percentage year-over-year ($\Delta\%$) rate of change across line items.
+\end{itemize}
+
+\begin{lstlisting}[caption={Automated Financial Statement Trend Analyzer in Python}]
+import pandas as pd
+
+# Multi-year income statement dataset (in Rs. Crores)
+financials = pd.DataFrame({
+    'Metric': ['Revenue', 'COGS', 'Gross_Profit', 'SG_A', 'Operating_Profit', 'Net_Income'],
+    'FY22': [1000.0, 600.0, 400.0, 200.0, 200.0, 140.0],
+    'FY23': [1100.0, 650.0, 450.0, 210.0, 240.0, 170.0],
+    'FY24': [1150.0, 620.0, 530.0, 220.0, 310.0, 230.0]
+}).set_index('Metric')
+
+# 1. Vertical Analysis: Normalize against top-line Revenue
+vertical_fy24 = (financials['FY24'] / financials.loc['Revenue', 'FY24']) * 100.0
+
+# 2. Horizontal Analysis: Year-over-Year Percentage Growth
+yoy_growth = financials.pct_change(axis=1) * 100.0
+
+# Combine into audit summary
+audit_summary = pd.DataFrame({
+    'FY24_Amount': financials['FY24'],
+    'Vertical_Percent': vertical_fy24.round(2),
+    'YoY_Growth_FY24': yoy_growth['FY24'].round(2)
+})
+
+# Flag red flag: Operating Profit growing disproportionately faster than Revenue
+audit_summary['Red_Flag'] = (
+    (audit_summary['YoY_Growth_FY24'] > 2.0 * audit_summary.loc['Revenue', 'YoY_Growth_FY24'])
+)
+print("Forensic Common-Size & Trend Analysis:\n", audit_summary)
+\end{lstlisting}
+
+\section{Statutory Frameworks: Fraud Reporting \& Internal Controls}
+
+Forensic accountants and statutory auditors operate under rigorous legal obligations to report suspected financial crimes to regulatory bodies:
+
+\begin{theorembox}{Statutory Fraud Reporting Mandates}
+\index{Companies Act 2013}\index{Sarbanes-Oxley Act}
+\begin{itemize}
+    \item \textbf{Indian Companies Act, 2013 -- Section 143(12):} If an auditor, in the course of performance of their duties, has reason to believe that an offence of fraud involving an amount of \textbf{Rs.~1 Crore or above} is being or has been committed against the company by its officers or employees, the auditor is statutorily mandated to report the matter directly to the \textbf{Central Government (Ministry of Corporate Affairs)} within 60 days via \textbf{Form ADT-4}.
+    \item \textbf{Section 447 (Punishment for Fraud):} Prescribes severe non-bailable imprisonment (up to 10 years) and mandatory fines of up to three times the amount involved in the fraud.
+    \item \textbf{Sarbanes-Oxley Act (SOX, 2002) -- Sections 302 \& 404:} Mandates that corporate management (CEO and CFO) personally certify the accuracy of financial reports and take legal responsibility for establishing and maintaining effective \textbf{Internal Controls over Financial Reporting (ICFR)}.
+\end{itemize}
+\end{theorembox}
+
+\section*{Supplementary Lecture Videos}
+\begin{itemize}
+    \item \href{https://www.youtube.com/watch?v=NZljSucE8xA}{W2\_L1: Balance Sheet -- Part 1 (Asset Classification \& Valuation)}
+    \item \href{https://www.youtube.com/watch?v=30TJRMA-GsI}{W2\_L2: Balance Sheet -- Part 2 (Liabilities \& Equity Structures)}
+    \item \href{https://www.youtube.com/watch?v=Amc2gMnr3Bk}{W2\_L3: Balance Sheet -- Part 3 (Notes to Accounts \& Disclosures)}
+    \item \href{https://www.youtube.com/watch?v=63LdMbov4SA}{W2\_L4: Income Statement -- Part 1 (Revenue Recognition \& COGS)}
+    \item \href{https://www.youtube.com/watch?v=epjcyIf0RmQ}{W2\_L5: Income Statement -- Part 2 (Operating Overheads \& EPS)}
+\end{itemize}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item An enterprise reports the following financial figures for the fiscal year ended March 31: Sales Revenue Rs.~20,00,000; COGS Rs.~11,00,000; Selling \& Administrative Expenses Rs.~3,50,000; Depreciation Expense Rs.~1,00,000; Interest Expense Rs.~50,000; and Corporate Income Tax Rate of $25\%$. Construct the multi-step income statement and compute: Gross Profit, EBITDA, EBIT, EBT, and Net Income.
+    
+    \item Explain the mechanics of a ``cookie jar reserve'' fraud scheme. How do manipulative managers use allowance for doubtful accounts or warranty reserves to artificially smooth earnings between high-performing and low-performing quarters?
+    
+    \item In an ongoing corporate investigation, an audit data scientist discovers that Company X's reported Inventory turnover declined from $6.2$ to $2.1$ over three consecutive years, while Gross Margins concurrently surged from $28\%$ to $49\%$. Provide two forensic explanations for this divergence, one reflecting legitimate operational shift and one indicating fraudulent inventory overstatement.
+    
+    \item Describe the three vertices of Donald Cressey's Fraud Triangle. In the context of a senior accountant embezzling corporate funds through fictitious electronic vendor payments, identify specific internal controls that eradicate the \textit{Opportunity} leg of the triangle.
+    
+    \item You are given two consecutive balance sheets for Zenith Corp. In 2024, Total Assets are Rs.~50,00,000 and Accounts Receivable is Rs.~8,00,000. In 2025, Total Assets are Rs.~60,00,000 and Accounts Receivable is Rs.~15,00,000. Perform both vertical and horizontal analysis on Accounts Receivable and interpret the forensic significance of the result.
+\end{enumerate}

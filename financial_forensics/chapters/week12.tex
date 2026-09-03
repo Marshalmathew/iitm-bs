@@ -1,0 +1,194 @@
+\chapter{Model Explainability, Visual Analytics \& Banking AI Governance}
+
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You Will Learn in this Chapter}}]
+\begin{itemize}
+    \item Regulatory imperatives for Explainable AI (XAI) in banking (FCRA Adverse Action, GDPR Art.~22, RBI guidelines)
+    \item The Black-Box dilemma: Balancing complex non-linear models against legal interpretability
+    \item Cooperative Game Theory foundations: Shapley values and axiomatic fairness
+    \item SHAP (SHapley Additive exPlanations) and TreeSHAP algorithm mechanics
+    \item Local Interpretable Model-agnostic Explanations (LIME)
+    \item Visual forensic analytics: Sankey money flow diagrams, network graphs, and interactive dashboards
+    \item Complete Python implementation of SHAP feature attribution on a loan denial decision
+\end{itemize}
+\end{tcolorbox}
+
+\section{The Regulatory Imperative for Explainable AI (XAI)}
+
+In non-regulated consumer domains (e.g., video recommendations), predictive accuracy is paramount and algorithmic obscurity is tolerated. In financial banking, however, algorithmic opacity is legally impermissible.
+
+\begin{definitionbox}{Regulatory Mandates for Model Explainability}
+\index{Adverse Action Notice}\index{Model Risk Management}
+\begin{itemize}
+    \item \textbf{Adverse Action Notices (FCRA / ECOA):} When a lender denies credit or raises interest rates based on an algorithmic score, the law requires delivery of specific, actionable reasons (e.g., ``debt-to-income too high'' or ``delinquency history'') to the consumer.
+    \item \textbf{GDPR Article 22:} Prohibits solely automated individual decision-making having legal effects without meaningful human intervention and guarantees the consumer's ``Right to an Explanation.''
+    \item \textbf{Model Risk Management (SR 11-7 / RBI Guidelines):} Central banks require institutions to rigorously validate that algorithmic decision engines do not rely on spurious correlations, discriminatory proxy features, or non-linear blind spots.
+\end{itemize}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Explainable AI}{https://www.youtube.com/watch?v=CQs-u6iu9Zo}
+Conceptual foundations of algorithmic transparency, interpretability vs.~accuracy frontiers, and regulatory guardrails.
+\end{videocard}
+
+\section{Cooperative Game Theory: Shapley Values}
+
+Developed by Nobel laureate Lloyd Shapley in 1953, \index{Shapley values}\textbf{Shapley values} calculate the fair attribution of total payout among a coalition of cooperative players based on their marginal contributions. In machine learning:
+\begin{itemize}
+    \item The ``game'' is the model's prediction task for a single transaction.
+    \item The ``payout'' is the difference between the model's actual prediction and the base expected value.
+    \item The ``players'' are the individual feature values ($x_1, x_2, \dots, x_M$) of the transaction.
+\end{itemize}
+
+\begin{formulabox}{The Shapley Value Formula}
+\index{Shapley Value Formula}
+The unique attribution $\phi_i$ assigned to feature $i$ is:
+\begin{equation}
+\phi_i(v) = \sum_{S \subseteq N \setminus \{i\}} \frac{|S|!(|N| - |S| - 1)!}{|N|!} \left[ v(S \cup \{i\}) - v(S) \right]
+\end{equation}
+where $N$ is the set of all features, $S$ is a subset of features excluding $i$, and $v(S)$ is the model outcome conditioned on feature subset $S$.
+\end{formulabox}
+
+\begin{theorembox}{The Four Axiomatic Properties of Shapley Values}
+Shapley values represent the \textbf{only} attribution method satisfying all four fairness axioms:
+\begin{enumerate}
+    \item \textbf{Efficiency:} The sum of all feature attributions equals the total deviation from base prediction:
+    \begin{equation}
+    \sum_{i=1}^M \phi_i = f(\mathbf{x}) - E[f(X)]
+    \end{equation}
+    \item \textbf{Symmetry:} If features $i$ and $j$ contribute identically across all possible subsets ($v(S \cup \{i\}) = v(S \cup \{j\})$), then $\phi_i = \phi_j$.
+    \item \textbf{Dummy Player:} If feature $i$ contributes nothing to any coalition ($v(S \cup \{i\}) = v(S)$), then $\phi_i = 0$.
+    \item \textbf{Additivity:} For independent ensemble components ($f = f_1 + f_2$), the combined attribution is $\phi_i(f_1 + f_2) = \phi_i(f_1) + \phi_i(f_2)$.
+\end{enumerate}
+\end{theorembox}
+
+\begin{videocard}{Masterclass Video: SHAP (SHapley Additive exPlanations) -- StatQuest}{https://www.youtube.com/watch?v=VB9Q6l0_2Ak}
+Visual walk-through of coalitional games, marginal feature additions, and interpreting SHAP waterfall plots.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: SHAP Hands-On Tutorial}{https://www.youtube.com/watch?v=oK_Dex7jVEg}
+Practical Python implementation using the `shap` library to generate force plots, summary bar charts, and dependence plots.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Leveraging AI/ML for Financial Forensics}{https://www.youtube.com/watch?v=OpPJcD6qazA}
+Synthesizing end-to-end artificial intelligence workflows into bank compliance architectures, fraud desks, and regulatory audits.
+\end{videocard}
+
+\begin{intuitionbox}{The Basketball Team Attribution}
+Imagine a basketball team wins a game by 20 points over their average scoring margin. Did player A score those points alone, or did player B's defensive rebounds allow player A to take open shots? Shapley values simulate every possible lineup permutation (with and without Player A, with and without Player B) to calculate the exact, unarguable contribution of every teammate.
+\end{intuitionbox}
+
+\section{Visual Analytics in Financial Forensics}
+
+Forensic reports presented to boards of directors, prosecutors, or judges must convey complex multi-hop evidence clearly through visual analytics:
+\begin{itemize}
+    \item \textbf{Sankey Diagrams:} Visualize volumetric conservation of money as illicit funds flow from a victim enterprise, pass through layering accounts, and aggregate in offshore tax shelters.
+    \item \textbf{Network Graphs:} Expose hidden syndicates by plotting accounts, IP addresses, physical addresses, and directors as nodes, with transactions or corporate registry filings as connecting edges.
+    \item \textbf{SHAP Waterfall Plots:} Provide auditable single-decision justifications for why a specific credit card transaction was blocked or a loan application was rejected.
+\end{itemize}
+
+\section{Data Science Relevance: SHAP Model Attribution Pipeline}
+
+\begin{lstlisting}[caption={Automated Model Explainability with SHAP in Python}]
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import GradientBoostingClassifier
+
+# 1. Simulate credit risk training dataset
+np.random.seed(42)
+n = 1500
+income = np.random.uniform(20, 120, n)
+debt_to_income = np.random.uniform(0.1, 0.8, n)
+missed_payments = np.random.randint(0, 5, n)
+credit_history_yrs = np.random.uniform(1, 20, n)
+
+# Default risk latent score
+risk = 2.5 * debt_to_income + 0.8 * missed_payments - 0.02 * income - 0.05 * credit_history_yrs
+p_default = 1.0 / (1.0 + np.exp(-risk))
+y_default = (np.random.rand(n) < p_default).astype(int)
+
+df = pd.DataFrame({
+    'Income': income,
+    'DTI': debt_to_income,
+    'Missed_Payments': missed_payments,
+    'History_Years': credit_history_yrs
+})
+
+# 2. Train Gradient Boosted Decision Tree
+model = GradientBoostingClassifier(n_estimators=60, max_depth=3, random_state=42)
+model.fit(df, y_default)
+
+# 3. Simulate marginal feature attribution (simplified Shapley calculation)
+# For a specific rejected applicant:
+applicant = pd.Series({'Income': 25.0, 'DTI': 0.72, 'Missed_Payments': 3, 'History_Years': 2.0})
+
+base_prediction = model.predict_proba(df)[:, 1].mean()
+applicant_pred = model.predict_proba(applicant.values.reshape(1, -1))[0, 1]
+
+# Compute feature contribution differences
+attributions = {}
+for col in df.columns:
+    # Marginal ablation: replace applicant value with baseline median
+    ablated = applicant.copy()
+    ablated[col] = df[col].median()
+    p_ablated = model.predict_proba(ablated.values.reshape(1, -1))[0, 1]
+    attributions[col] = round(applicant_pred - p_ablated, 4)
+
+print(f"Base Portfolio Default Risk:  {base_prediction:.3f}")
+print(f"Applicant Default Risk:       {applicant_pred:.3f}")
+print("\nAdverse Action Explanations (Feature Attributions):")
+for feat, val in sorted(attributions.items(), key=lambda x: x[1], reverse=True):
+    print(f" - {feat:16s}: contribution = +{val:.4f} to risk")
+\end{lstlisting}
+
+\section{Forensic Visual Analytics: Building Dashboards in Tableau}
+
+Interactive visual analytics bridge the communication divide between data science teams, forensic auditors, and courtroom judges:
+
+\begin{tcolorbox}[colback=tealbg, colframe=tealborder, title={\textbf{Tableau Forensic Dashboard Blueprint}}]
+\index{Tableau in Forensics}
+\begin{enumerate}
+    \item \textbf{Benford Conformity Chart with Parameter Thresholds:}
+    \begin{itemize}
+        \item Create a calculated field \texttt{Leading\_Digit} = \texttt{INT(LEFT(STR(ABS([Amount])), 1))}.
+        \item Create calculated field \texttt{Theoretical\_Benford} = \texttt{LOG10(1 + 1/[Leading\_Digit]) * TOTAL(COUNT([Amount]))}.
+        \item Plot Dual-Axis Bar (Observed count) vs.~Line (Expected Benford count), with color alert calculated field \texttt{ABS([Observed] - [Expected]) > [Tolerance\_Param]}.
+    \end{itemize}
+    \item \textbf{Transaction Velocity Scatter Matrix:}
+    \begin{itemize}
+        \item Set Columns = \texttt{DATEPART('hour', [Timestamp])} (0 to 23 hours), Rows = \texttt{[Amount]}.
+        \item Color mark by \texttt{[Anomaly\_Score]} (from ML model export) and size mark by \texttt{[Daily\_Velocity\_Count]}.
+        \item Enables instant visual isolation of high-value, high-velocity transactions executed during midnight hours.
+    \end{itemize}
+    \item \textbf{High-Risk Merchant Geographic Heatmap:}
+    \begin{itemize}
+        \item Drag \texttt{Latitude} / \texttt{Longitude} to map view, density colored by \texttt{SUM([Chargeback\_Count])}.
+        \item Add interactive dashboard filter actions for Merchant Category Codes (MCC) to isolate merchant collusion clusters.
+    \end{itemize}
+\end{enumerate}
+\end{tcolorbox}
+
+\section*{Supplementary Lecture Videos}
+\begin{itemize}
+    \item \href{https://www.youtube.com/watch?v=CQs-u6iu9Zo}{W12\_L1: Explainable AI in Regulated Financial Domains}
+    \item \href{https://www.youtube.com/watch?v=oK_Dex7jVEg}{W12\_L2: SHAP Hands-On Python Tutorial (TreeSHAP \& Waterfalls)}
+    \item \href{https://www.youtube.com/watch?v=OpPJcD6qazA}{W12\_L3: Leveraging AI/ML for Enterprise Financial Forensics}
+    \item \href{https://www.youtube.com/watch?v=VB9Q6l0_2Ak}{External Masterclass: SHAP: Model Interpretability (StatQuest)}
+\end{itemize}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item Explain why the Fair Credit Reporting Act (FCRA) legally mandates adverse action disclosures. What legal vulnerability does a financial institution incur if it deploys an uninterpretable deep neural network to reject mortgage applicants?
+    
+    \item State and mathematically define the four foundational axioms of cooperative game theory that uniquely define Shapley values: Efficiency, Symmetry, Dummy Player, and Additivity.
+    
+    \item Contrast the algorithmic approaches of SHAP (SHapley Additive exPlanations) and LIME (Local Interpretable Model-agnostic Explanations). What theoretical advantages does TreeSHAP offer over LIME when explaining Gradient Boosted Decision Trees?
+    
+    \item Consider a simple cooperative game with 3 features ($x_1, x_2, x_3$). The model produces predictions for feature subsets as follows:
+    $v(\emptyset) = 0.20$, $v(\{1\}) = 0.35$, $v(\{2\}) = 0.20$, $v(\{3\}) = 0.30$,
+    $v(\{1, 2\}) = 0.50$, $v(\{1, 3\}) = 0.60$, $v(\{2, 3\}) = 0.30$, and $v(\{1, 2, 3\}) = 0.85$.
+    Using the Shapley formula, compute the exact attribution $\phi_1$ for feature $1$.
+    
+    \item Describe how a forensic visual analytics dashboard combines Sankey money-flow diagrams with network community detection algorithms to trace funds siphoned across multiple nested corporate shell entities.
+\end{enumerate}

@@ -1,6 +1,6 @@
 # PowerShell script to compile all IITM BS course textbooks locally
 
-$Courses = @("maths1", "maths2", "python", "stats1", "stats2")
+$Courses = @("maths1", "maths2", "python", "stats1", "stats2", "financial_forensics")
 $PdfLatexExists = Get-Command pdflatex -ErrorAction SilentlyContinue
 
 if (-not $PdfLatexExists) {

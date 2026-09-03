@@ -1,0 +1,225 @@
+\chapter{Corporate Finance Foundations, Aging Analysis \& Outlier Detection}
+
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You Will Learn in this Chapter}}]
+\begin{itemize}
+    \item Principles of Corporate Finance: Time Value of Money (TVM), Discounting, and Opportunity Cost
+    \item Capital budgeting decision criteria: Net Present Value (NPV) and Internal Rate of Return (IRR)
+    \item Mechanics of Accounts Receivable Aging Schedules and bad debt provisioning
+    \item The Pareto 80/20 Principle applied to forensic transaction auditing
+    \item Statistical outlier detection algorithms: Parametric ($Z$-score) vs.~Robust (Tukey IQR, MAD)
+    \item Practical Python implementation of aging analysis and automated outlier filtering
+\end{itemize}
+\end{tcolorbox}
+
+\section{Corporate Finance Foundations: The Time Value of Money}
+
+Corporate finance centers on the allocation of scarce capital over time. The core premise is the \index{time value of money}\textbf{Time Value of Money (TVM)}: a rupee received today is worth more than a rupee received in the future due to its earning capacity and risk.
+
+\begin{formulabox}{Compounding and Discounting}
+\index{Present Value}\index{Future Value}
+For a principal amount $PV$ invested at an annual interest rate $r$ compounded $m$ times per year over $t$ years:
+\begin{equation}
+FV = PV \left(1 + \frac{r}{m}\right)^{m \cdot t} \implies PV = \frac{FV}{\left(1 + \frac{r}{m}\right)^{m \cdot t}}
+\end{equation}
+For continuous compounding:
+\begin{equation}
+FV = PV \cdot e^{r \cdot t}, \quad PV = FV \cdot e^{-r \cdot t}
+\end{equation}
+\end{formulabox}
+
+\begin{videocard}{IITM BS Lecture: Basics of Corporate Finance -- Part 1}{https://www.youtube.com/watch?v=nowclRAffyQ}
+Fundamental concepts of financial value, risk-return trade-offs, and enterprise objectives.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Basics of Corporate Finance -- Part 2}{https://www.youtube.com/watch?v=h37tbk_Y34Q}
+Mathematics of compounding, annuities, perpetuities, and loan amortization schedules.
+\end{videocard}
+
+\section{Capital Budgeting and Project Evaluation}
+
+Enterprises deploy long-term capital by evaluating expected project cash inflows against initial outlays.
+
+\begin{definitionbox}{Net Present Value (NPV) and Internal Rate of Return (IRR)}
+\index{Net Present Value}\index{Internal Rate of Return}
+\begin{equation}
+\text{NPV} = \sum_{t=0}^n \frac{CF_t}{(1 + k)^t} = -CF_0 + \sum_{t=1}^n \frac{CF_t}{(1 + k)^t}
+\end{equation}
+where $k$ is the hurdle rate (cost of capital). The \textbf{Internal Rate of Return (IRR)} is the discount rate that sets the project NPV exactly equal to zero:
+\begin{equation}
+\sum_{t=0}^n \frac{CF_t}{(1 + \text{IRR})^t} = 0
+\end{equation}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Basics of Corporate Finance -- Part 3}{https://www.youtube.com/watch?v=-3i5mw24Nj4}
+Capital budgeting rules, net present value analysis, and capital allocation decision criteria.
+\end{videocard}
+
+\begin{videocard}{IITM BS Lecture: Basics of Corporate Finance -- Part 4}{https://www.youtube.com/watch?v=rjDYfDxloUs}
+Internal rate of return, payback period nuances, and project risk adjustments.
+\end{videocard}
+
+\section{Aging Analysis of Receivables}
+
+An \index{aging schedule}\textbf{Accounts Receivable Aging Schedule} categorizes unpaid customer invoices based on the number of days elapsed since the invoice date.
+
+\begin{center}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Aging Bucket} & \textbf{Days Outstanding} & \textbf{Total Balance} & \textbf{Est.~Default Rate} & \textbf{Required Provision} \\
+\midrule
+Current & $0 - 30$ days & Rs.~5,00,000 & $1.0\%$ & Rs.~5,000 \\
+Bucket 1 & $31 - 60$ days & Rs.~2,20,000 & $4.0\%$ & Rs.~8,800 \\
+Bucket 2 & $61 - 90$ days & Rs.~1,10,000 & $12.0\%$ & Rs.~13,200 \\
+Bucket 3 & $> 90$ days & Rs.~90,000 & $45.0\%$ & Rs.~40,500 \\
+\midrule
+\textbf{Total} & & \textbf{Rs.~9,20,000} & & \textbf{Rs.~67,500} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{intuitionbox}{Aging Schedules as a Window into Laundering and Kiting}
+When an invoice crosses the 90-day threshold without payment, it represents an impaired asset. If an audit reveals that ancient invoices are suddenly ``settled'' by brand new, unverified credit memos or round-amount wire transfers originating from offshore tax havens, the investigator is likely witnessing accounts receivable lapping or covert bad debt concealment.
+\end{intuitionbox}
+
+\section{The Pareto 80/20 Principle in Forensic Audits}
+
+In enterprise ledgers, transactions are rarely uniform. The \index{Pareto Principle}\textbf{Pareto Principle} asserts that roughly $80\%$ of consequences flow from $20\%$ of causes. In financial forensics:
+\begin{itemize}
+    \item $80\%$ of total revenue typically originates from $20\%$ of customer accounts.
+    \item $80\%$ of total procurement expenditure is disbursed to $20\%$ of vendors.
+    \item $80\%$ of fraudulent leakage is typically concentrated in a tiny fraction ($<2\%$) of transactions.
+\end{itemize}
+
+\section{Statistical Outlier Detection Methods}
+
+Forensic analysts isolate anomalous transactions using both parametric and non-parametric statistical metrics:
+
+\begin{theorembox}{Outlier Detection Formulations}
+\index{Z-Score}\index{Interquartile Range}\index{MAD}
+\begin{enumerate}
+    \item \textbf{Standard $Z$-Score (Parametric):}
+    \begin{equation}
+    Z_i = \frac{x_i - \mu}{\sigma}, \quad \text{Flag if } |Z_i| > 3.0
+    \end{equation}
+    (Highly sensitive to extreme outliers skewing the sample mean $\mu$ and standard deviation $\sigma$).
+    \item \textbf{Tukey's Interquartile Range (IQR - Non-Parametric):}
+    \begin{align}
+    \text{IQR} &= Q_3 - Q_1 \\
+    \text{Lower Fence} &= Q_1 - 1.5 \cdot \text{IQR}, \quad \text{Upper Fence} = Q_3 + 1.5 \cdot \text{IQR}
+    \end{align}
+    \item \textbf{Median Absolute Deviation (MAD - Robust):}
+    \begin{equation}
+    \text{MAD} = \text{median}(|x_i - \text{median}(x)|)
+    \end{equation}
+    \begin{equation}
+    \text{Modified } Z_i = \frac{0.6745 \cdot (x_i - \text{median}(x))}{\text{MAD}}, \quad \text{Flag if } |\text{Modified } Z_i| > 3.5
+    \end{equation}
+\end{enumerate}
+\end{theorembox}
+
+\section{Data Science Relevance: Automated Aging and Outlier Detection}
+
+\begin{lstlisting}[caption={Automated Invoice Aging \& Robust Outlier Detection in Python}]
+import pandas as pd
+import numpy as np
+from datetime import datetime
+
+def analyze_receivables(invoices_df: pd.DataFrame, audit_date: str) -> tuple:
+    """
+    Computes aging buckets and applies Modified Z-Score outlier detection.
+    """
+    df = invoices_df.copy()
+    ref_date = pd.to_datetime(audit_date)
+    df['invoice_date'] = pd.to_datetime(df['invoice_date'])
+    
+    # Calculate latency in days
+    df['days_overdue'] = (ref_date - df['invoice_date']).dt.days
+    
+    # Assign Aging Buckets
+    bins = [-np.inf, 30, 60, 90, np.inf]
+    labels = ['0-30 Days', '31-60 Days', '61-90 Days', '>90 Days']
+    df['aging_bucket'] = pd.cut(df['days_overdue'], bins=bins, labels=labels)
+    
+    # Robust Outlier Detection on Amount using Median Absolute Deviation (MAD)
+    med_val = df['amount'].median()
+    mad_val = np.median(np.abs(df['amount'] - med_val))
+    if mad_val == 0:
+        mad_val = 1e-6 # Avoid division by zero
+    
+    df['modified_z'] = 0.6745 * (df['amount'] - med_val) / mad_val
+    df['outlier_flag'] = np.abs(df['modified_z']) > 3.5
+    
+    # Aging summary
+    aging_summary = df.groupby('aging_bucket')['amount'].agg(['count', 'sum']).reset_index()
+    return aging_summary, df[df['outlier_flag']]
+
+# Sample ledger transactions
+sample_invoices = pd.DataFrame({
+    'inv_id': [1, 2, 3, 4, 5, 6],
+    'vendor': ['Acme', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta'],
+    'invoice_date': ['2026-08-15', '2026-07-10', '2026-05-20', '2026-01-12', '2026-08-01', '2026-08-20'],
+    'amount': [5000.0, 4800.0, 5200.0, 4950.0, 98500.0, 5100.0] # Inv 5 is massive outlier!
+})
+
+summary, outliers = analyze_receivables(sample_invoices, audit_date='2026-09-01')
+print("Aging Summary:\n", summary)
+print("\nOutliers Detected via Modified Z-score:\n", outliers[['inv_id', 'vendor', 'amount', 'modified_z']])
+\end{lstlisting}
+
+\section{Forensic Auditing in Practice: Aging \& Pareto Analysis in Excel}
+
+Field auditors rely on built-in Excel logic to structure ledger receivables and isolate top vendor fraud vulnerabilities:
+
+\begin{tcolorbox}[colback=purplebg, colframe=purpleborder, title={\textbf{Excel Forensic Recipe: Aging Buckets \& Pareto Analysis}}]
+\index{Aging Analysis in Excel}\index{Pareto in Excel}
+\begin{enumerate}
+    \item \textbf{Aging Latency Calculation:}
+    For invoice dates in column \texttt{B} (\texttt{B2:B5000}) and an audit cut-off date entered in cell \texttt{\$E\$1}:
+    \begin{center}
+    \texttt{=\$E\$1 - B2} \quad \textit{(Formatted as General to yield integer overdue days)}
+    \end{center}
+    \item \textbf{Dynamic Bucket Categorization (Column C):}
+    \begin{center}
+    \texttt{=IFS(C2<=30, "0-30 Days", C2<=60, "31-60 Days", C2<=90, "61-90 Days", TRUE, ">90 Days")}
+    \end{center}
+    \item \textbf{Automated PivotTable Summarization:}
+    Insert a PivotTable with \texttt{aging\_bucket} in Rows, \texttt{Invoice\_Amount} in Values (both `Sum' and `Count'), and apply Conditional Formatting Data Bars to immediately spot overdue debt clusters.
+    \item \textbf{Pareto 80/20 Cumulative Distribution:}
+    \begin{itemize}
+        \item Sort the vendor procurement list in descending order of annual spend.
+        \item In column \texttt{C}, compute running cumulative spend: \texttt{=C1 + B2}.
+        \item In column \texttt{D}, compute cumulative percentage: \texttt{=C2 / SUM(\$B\$2:\$B\$500)}.
+        \item Select the vendor names and cumulative percentage, then insert a \textbf{Combo Chart} (Clustered Column for Spend on primary axis, Line for Cumulative $\%$ on secondary axis with a horizontal reference line at $80\%$).
+    \end{itemize}
+\end{enumerate}
+\end{tcolorbox}
+
+\section*{Supplementary Lecture Videos}
+\begin{itemize}
+    \item \href{https://www.youtube.com/watch?v=nowclRAffyQ}{W6\_L1: Basics of Corporate Finance -- Part 1 (Financial Value \& Risk)}
+    \item \href{https://www.youtube.com/watch?v=h37tbk_Y34Q}{W6\_L2: Basics of Corporate Finance -- Part 2 (Time Value of Money \& Perpetuities)}
+    \item \href{https://www.youtube.com/watch?v=-3i5mw24Nj4}{W6\_L3: Basics of Corporate Finance -- Part 3 (Capital Budgeting \& NPV)}
+    \item \href{https://www.youtube.com/watch?v=rjDYfDxloUs}{W6\_L4: Basics of Corporate Finance -- Part 4 (IRR \& Risk Adjustments)}
+\end{itemize}
+
+\newpage
+\section{Practice Exercises}
+\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\begin{enumerate}
+    \item A company evaluates an automation software investment with an initial outlay of Rs.~10,00,000. Expected net annual cash inflows are Rs.~3,00,000 for Year 1, Rs.~4,00,000 for Year 2, Rs.~5,00,000 for Year 3, and Rs.~2,00,000 for Year 4. If the corporate cost of capital is $10\%$, compute the project's Net Present Value (NPV). Is the project economically viable?
+    
+    \item Explain the mathematical vulnerability of the standard sample mean and standard deviation $Z$-score when applied to datasets with extreme fraudulent transaction amounts. Why is the Median Absolute Deviation (MAD) metric considered a `robust' estimator?
+    
+    \item Construct a Pareto Lorenz curve representation for a procurement department containing 500 registered vendors. If the top 25 vendors account for $78\%$ of total annual payments of Rs.~50 Crores, describe how an investigative audit team should stratify its substantive invoice testing.
+    
+    \item A firm reports Rs.~25,00,000 in Accounts Receivable at year-end. An aging analysis reveals:
+    $0-30$ days: Rs.~15,00,000 ($2\%$ uncollectible); $31-60$ days: Rs.~5,00,000 ($6\%$ uncollectible); $61-90$ days: Rs.~3,00,000 ($15\%$ uncollectible); $>90$ days: Rs.~2,00,000 ($50\%$ uncollectible). Compute the required Allowance for Uncollectible Accounts.
+    
+    \item For a series of transaction values: $\{10, 12, 11, 13, 12, 11, 14, 12, 95\}$, compute by hand:
+    \begin{enumerate}
+        \item The median and the MAD.
+        \item The Modified $Z$-score for the value $95$.
+        \item Does the value $95$ exceed the standard cutoff threshold of $3.5$?
+    \end{enumerate}
+\end{enumerate}
