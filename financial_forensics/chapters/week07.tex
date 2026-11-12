@@ -1,220 +1,407 @@
 \chapter{Advanced Corporate Finance \& the Financial Transaction Lifecycle}
 
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You Will Learn in this Chapter}}]
+% ----------------------------------------------------------------------
+% PART 1: EXECUTIVE ROADMAP & LEARNING OBJECTIVES
+% ----------------------------------------------------------------------
+\section{Executive Roadmap \& Learning Objectives}
+
+Modern forensic finance requires a thorough comprehension of both macro-corporate capital structures and micro-transaction operational plumbing. While capital structure decisions dictate enterprise bankruptcy risk and leverage vulnerabilities (quantified through the Weighted Average Cost of Capital and the Altman $Z$-Score), digital transaction networks process billions of monetary flows through multi-stage payment rails. In forensic investigations, financial fraud occurs both at the corporate governance level (distress concealment) and at the transaction processing level (push-payment scams, card fraud, and settlement tampering).
+
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Core Learning Competencies}}]
+Upon mastering this chapter, students will be equipped to:
 \begin{itemize}
-    \item Cost of capital estimation: Weighted Average Cost of Capital (WACC) and the CAPM equation
-    \item Operating vs.~Financial leverage and bankruptcy vulnerability (Altman $Z$-Score)
-    \item The 5-stage Financial Transaction Lifecycle: Initiation, Authentication, Authorization, Clearing, and Settlement
-    \item Architecture of global payment networks: Card Four-Party Model, SWIFT messaging, and UPI/Instant Rails
-    \item Intercept touchpoints: Account Takeover (ATO), Authorized Push Payment (APP) fraud, and chargeback abuse
-    \item State-machine Python simulation of financial transaction settlement and risk interception
+    \item \textbf{Model Enterprise Cost of Capital:} Calculate the Weighted Average Cost of Capital ($WACC$) incorporating debt tax shields and CAPM equity risk premiums.
+    \item \textbf{Assess Insolvency Risk with Altman's $Z$-Score:} Deconstruct the 5-variable multivariate distress discriminant model and map firms into Safe, Grey, and Distress zones.
+    \item \textbf{Deconstruct the 5-Stage Transaction Lifecycle:} Trace payment flows through Initiation, Authentication, Authorization, Clearing, and Final Settlement.
+    \item \textbf{Analyze Payment Rail Architectures:} Contrast the Card Four-Party Model, cross-border SWIFT messaging (ISO 20022), and instant mobile payment rails (UPI).
+    \item \textbf{Intercept Modern Payment Fraud Typologies:} Identify vulnerability vectors across Account Takeover (ATO), Authorized Push Payment (APP) fraud, and chargeback abuse.
 \end{itemize}
 \end{tcolorbox}
 
-\section{Cost of Capital and Financial Risk}
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Construct / Variable} & \textbf{Symbol} & \textbf{Mathematical Definition / Structural Identity} \\
+\midrule
+Cost of Capital & $WACC$ & $\left(\frac{E}{V}\right) r_e + \left(\frac{D}{V}\right) r_d (1 - T_c) \quad \text{where } V = E + D$ \\
+Cost of Equity & $r_e$ & $R_f + \beta_e \left(E(R_m) - R_f\right)$ (CAPM) \\
+Altman $Z$-Score & $Z$ & $1.2 X_1 + 1.4 X_2 + 3.3 X_3 + 0.6 X_4 + 0.999 X_5$ \\
+Degree of Operating Leverage & $DOL$ & $\frac{\% \Delta \text{EBIT}}{\% \Delta \text{Sales}} = \frac{Q(P - V)}{Q(P - V) - F}$ \\
+Degree of Financial Leverage & $DFL$ & $\frac{\% \Delta \text{EPS}}{\% \Delta \text{EBIT}} = \frac{\text{EBIT}}{\text{EBIT} - I}$ \\
+Total Combined Leverage & $DTL$ & $DOL \times DFL = \frac{Q(P - V)}{Q(P - V) - F - I}$ \\
+\bottomrule
+\end{tabularx}
+\caption{Mathematical Notation Guide for Corporate Leverage and Solvency Forensics.}
+\label{tab:w7_notation}
+\end{table}
 
-An enterprise's \index{cost of capital}\textbf{Cost of Capital} represents the minimum expected return required by capital providers (debt holders and equity investors) to commit their funds to the firm.
+% ----------------------------------------------------------------------
+% PART 2: MATHEMATICAL & COMPUTATIONAL FOUNDATIONS
+% ----------------------------------------------------------------------
+\section{Mathematical \& Computational Foundations}
 
-\begin{definitionbox}{Weighted Average Cost of Capital (WACC)}
-\index{WACC}
+\subsection{The Weighted Average Cost of Capital (WACC)}
+An enterprise raises productive funds through debt and equity. Because interest payments on corporate debt are tax-deductible under most sovereign corporate tax regimes, debt provides a tax shield that reduces the effective cost of borrowing:
 \begin{equation}
-\text{WACC} = \left(\frac{E}{V}\right) \cdot r_e + \left(\frac{D}{V}\right) \cdot r_d \cdot (1 - T_c)
+WACC = \left(\frac{E}{E + D}\right) r_e + \left(\frac{D}{E + D}\right) r_d (1 - T_c)
+\label{eq:wacc_formula}
 \end{equation}
-where $E$ is market value of equity, $D$ is market value of debt, $V = E + D$, $r_d$ is before-tax cost of debt, $T_c$ is corporate marginal tax rate, and $r_e$ is cost of equity derived via the Capital Asset Pricing Model (CAPM):
+where the cost of equity $r_e$ is derived via the Capital Asset Pricing Model (CAPM):
 \begin{equation}
-r_e = R_f + \beta_e \cdot (E(R_m) - R_f)
+r_e = R_f + \beta_e \left[E(R_m) - R_f\right]
+\label{eq:capm_formula}
 \end{equation}
-\end{definitionbox}
+In corporate valuation disputes, forensic experts frequently uncover biased cost of capital models where analysts manipulate the equity beta $\beta_e$ or risk-free rate $R_f$ to artificially inflate company valuations.
 
-\begin{videocard}{IITM BS Lecture: Basics of Corporate Finance -- Part 5}{https://www.youtube.com/watch?v=P4WJgd6m91w}
-Cost of debt, market yield vs.~coupon rate, and tax-shield advantages of corporate borrowing.
-\end{videocard}
-
-\begin{videocard}{IITM BS Lecture: Basics of Corporate Finance -- Part 6}{https://www.youtube.com/watch?v=EFqt4mvTGUM}
-Equity valuation fundamentals, Gordon Growth model, and cost of equity derivation.
-\end{videocard}
-
-\begin{videocard}{IITM BS Lecture: Basics of Corporate Finance -- Part 7}{https://www.youtube.com/watch?v=oeHGl88x2dY}
-Synthesizing capital structure optimization, financial leverage risks, and bankruptcy boundaries.
-\end{videocard}
-
-\section{Altman $Z$-Score for Distress and Solvency Forensics}
-
-Developed by Professor Edward Altman in 1968, the \index{Altman Z-Score}\textbf{Altman $Z$-Score} is a multivariate statistical formula predicting the probability that an enterprise will enter bankruptcy within two years:
+\subsection{The Altman $Z$-Score for Insolvency Prediction}
+Formulated by Edward Altman in 1968 using Multivariate Discriminant Analysis (MDA), the manufacturing $Z$-score predicts the probability of enterprise liquidation within a two-year horizon:
 \begin{equation}
 Z = 1.2 X_1 + 1.4 X_2 + 3.3 X_3 + 0.6 X_4 + 0.999 X_5
+\label{eq:altman_z}
 \end{equation}
-where $X_1 = \frac{\text{Working Capital}}{\text{Total Assets}}$, $X_2 = \frac{\text{Retained Earnings}}{\text{Total Assets}}$, $X_3 = \frac{\text{EBIT}}{\text{Total Assets}}$, $X_4 = \frac{\text{Market Equity}}{\text{Total Liabilities}}$, and $X_5 = \frac{\text{Sales}}{\text{Total Assets}}$.
-
-\begin{theorembox}{Altman $Z$-Score Decision Zones}
+where:
 \begin{itemize}
-    \item $Z > 2.99$: \textbf{Safe Zone} (Low probability of insolvency).
-    \item $1.81 \le Z \le 2.99$: \textbf{Grey Zone} (Moderate distress; high scrutiny recommended).
-    \item $Z < 1.81$: \textbf{Distress Zone} (High probability of default/insolvency).
+    \item $X_1 = \frac{\text{Working Capital}}{\text{Total Assets}}$ (Measure of short-term balance sheet liquidity)
+    \item $X_2 = \frac{\text{Retained Earnings}}{\text{Total Assets}}$ (Cumulative historical profitability and firm age)
+    \item $X_3 = \frac{\text{EBIT}}{\text{Total Assets}}$ (Productive operational earning power of assets)
+    \item $X_4 = \frac{\text{Market Value of Equity}}{\text{Book Value of Total Liabilities}}$ (Leverage buffer before insolvency)
+    \item $X_5 = \frac{\text{Sales}}{\text{Total Assets}}$ (Asset turnover and commercial sales velocity)
+\end{itemize}
+
+\begin{theorembox}{Altman $Z$-Score Critical Boundaries}
+\begin{itemize}
+    \item $Z > 2.99$: \textbf{Safe Zone} (Insolvency probability $< 5\%$; robust financial standing).
+    \item $1.81 \le Z \le 2.99$: \textbf{Grey Zone} (Elevated financial distress; targeted monitoring required).
+    \item $Z < 1.81$: \textbf{Distress Zone} (High probability of default/bankruptcy within 24 months).
 \end{itemize}
 \end{theorembox}
 
-\section{The Five-Stage Financial Transaction Lifecycle}
+\subsection{Operating and Financial Leverage Multipliers}
+Financial risk compounds when operational volatility interacts with fixed debt servicing obligations:
+\begin{align}
+DOL &= \frac{\text{Contribution Margin}}{\text{Operating Profit}} = \frac{S - VC}{S - VC - FC} \label{eq:dol} \\
+DFL &= \frac{\text{EBIT}}{\text{EBIT} - \text{Interest Expense}} \label{eq:dfl} \\
+DTL &= DOL \times DFL = \frac{S - VC}{S - VC - FC - I} \label{eq:dtl}
+\end{align}
 
-Every electronic financial transaction migrates across five distinct operational phases:
+% ----------------------------------------------------------------------
+% PART 3: VISUAL & GEOMETRIC INTUITION
+% ----------------------------------------------------------------------
+\section{Visual \& Geometric Intuition: The Five-Stage Transaction Lifecycle}
+
+Figure~\ref{fig:txn_lifecycle} details the five sequential phases of an electronic payment transaction and maps the primary fraud intercept gates.
 
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[
-  node distance=2.2cm,
-  stage/.style={rectangle, draw=primarydark, fill=primarylight, rounded corners, minimum width=2.5cm, minimum height=1cm, font=\small\bfseries, align=center}
+    font=\sffamily\footnotesize,
+    node distance=1.1cm and 1.3cm,
+    phase/.style={rectangle, draw=primarydark, fill=primarylight, thick, rounded corners=3pt, minimum width=2.8cm, minimum height=1.1cm, align=center},
+    alert/.style={rectangle, draw=coralborder, fill=coralbg, thick, rounded corners=3pt, minimum width=2.8cm, minimum height=1.1cm, align=center},
+    arr/.style={->, >=stealth, thick, color=primarydark}
 ]
-\node[stage] (init) {1. Initiation\\(User / POS)};
-\node[stage, right of=init, xshift=0.8cm] (authn) {2. Authentication\\(2FA / Biometric)};
-\node[stage, right of=authn, xshift=0.8cm] (authz) {3. Authorization\\(Risk Scoring)};
-\node[stage, right of=authz, xshift=0.8cm] (clear) {4. Clearing\\(Batch Netting)};
-\node[stage, right of=clear, xshift=0.8cm] (settle) {5. Settlement\\(Funds Transfer)};
 
-\draw[->, very thick, primaryborder] (init) -- (authn);
-\draw[->, very thick, primaryborder] (authn) -- (authz);
-\draw[->, very thick, primaryborder] (authz) -- (clear);
-\draw[->, very thick, primaryborder] (clear) -- (settle);
+% Stages
+\node[phase] (s1) {\textbf{Stage 1: Initiation}\\Payer enters intent\\Merchant checkout / UI};
+\node[phase, right=of s1] (s2) {\textbf{Stage 2: AuthN}\\Identity Verification\\MFA, Biometrics, OTP};
+\node[phase, right=of s2] (s3) {\textbf{Stage 3: AuthZ}\\Risk Scoring \& Decision\\Card Issuer approval};
+\node[phase, below=1.3cm of s3] (s4) {\textbf{Stage 4: Clearing}\\Batch message exchange\\Net obligation capture};
+\node[phase, left=of s4] (s5) {\textbf{Stage 5: Settlement}\\Central Bank transfer\\Irrevocable finality};
+
+% Threat Intercepts
+\node[alert, above=0.7cm of s1] (t1) {Threat: Phishing / Fake UI};
+\node[alert, above=0.7cm of s2] (t2) {Threat: Credential Theft / ATO};
+\node[alert, above=0.7cm of s3] (t3) {Threat: Balance / Limit Spoof};
+\node[alert, below=0.7cm of s4] (t4) {Threat: Message Interception};
+\node[alert, below=0.7cm of s5] (t5) {Threat: Counterparty Default};
+
+% Connectors
+\draw[arr] (s1) -- (s2);
+\draw[arr] (s2) -- (s3);
+\draw[arr] (s3) -- (s4);
+\draw[arr] (s4) -- (s5);
+
+\draw[arr, dashed, color=coralborder] (t1) -- (s1);
+\draw[arr, dashed, color=coralborder] (t2) -- (s2);
+\draw[arr, dashed, color=coralborder] (t3) -- (s3);
+\draw[arr, dashed, color=coralborder] (t4) -- (s4);
+\draw[arr, dashed, color=coralborder] (t5) -- (s5);
+
 \end{tikzpicture}
-\caption{The Five Core Stages of the Electronic Payment Lifecycle.}
+\caption{The Five-Stage Financial Transaction Lifecycle and Fraud Intercept Points.}
+\label{fig:txn_lifecycle}
 \end{figure}
 
-\begin{definitionbox}{Lifecycle Phases}
-\index{Authentication}\index{Authorization}\index{Clearing}\index{Settlement}
+% ----------------------------------------------------------------------
+% PART 4: DEEP INTUITION & CONCEPTUAL DERIVATIONS
+% ----------------------------------------------------------------------
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{The Anatomy of Modern Payment Rails}
+In financial investigations, money never travels as a single physical entity. Electronic transactions operate across three distinct structural rail archetypes:
+
+\subsubsection{1. The Four-Party Card Network Architecture}
+In card payments (Visa, Mastercard, RuPay), four primary legal entities interact:
 \begin{enumerate}
-    \item \textbf{Initiation:} The payer instructs their financial intermediary (or merchant POS) to transfer value.
-    \item \textbf{Authentication:} Verification of the payer's legal identity via knowledge factors (PIN/password), possession factors (OTP/token), or inherence factors (fingerprint/FaceID).
-    \item \textbf{Authorization:} Real-time risk verification by the issuing bank confirming account solvency, fraud risk score, and transaction limit adherence.
-    \item \textbf{Clearing:} Exchange of payment instructions and fee calculation between issuing and acquiring institutions (often in deferred net settlement batches).
-    \item \textbf{Settlement:} Irrevocable, final transfer of actual central bank reserves or interbank funds fulfilling the payment obligation.
+    \item \textbf{Cardholder:} The consumer initiating the transaction.
+    \item \textbf{Issuer (Issuing Bank):} Holds the consumer's funds or credit line, authenticates credentials, and guarantees payment.
+    \item \textbf{Merchant:} The commercial entity providing goods or services.
+    \item \textbf{Acquirer (Acquiring Bank):} Manages the merchant's financial account, receives batches, and clears funds through the Card Scheme switch.
 \end{enumerate}
-\end{definitionbox}
+\textbf{Forensic Takeaway:} Fraud liability shifts depend on the payment method. Under 3D-Secure (3DS) authentication, liability generally shifts from merchant to issuer. In ``card-not-present'' transactions lacking 3DS, fraudulent chargebacks are charged back entirely to the merchant.
 
-\begin{intuitionbox}{The Vulnerability Window Between Authorization and Settlement}
-In credit card networks, \textit{Authorization} occurs in 200 milliseconds at the cash register, but \textit{Settlement} typically takes 24 to 48 hours. This structural time delay creates a vulnerability window exploited by fraudsters. In ``bust-out'' fraud, an identity thief runs up charges across multiple merchants simultaneously before the first transaction settles or alerts the cardholder.
-\end{intuitionbox}
+\subsubsection{2. Cross-Border SWIFT Messaging vs.~Instant Settlement Rails}
+The Society for Worldwide Interbank Financial Telecommunication (SWIFT) does not settle funds; it is a secure messaging protocol (MT103 / ISO 20022 \texttt{pacs.008}) instructing correspondent banks to debit and credit nostro/vostro ledger accounts. Settlement can take $24$--$72$ hours. 
 
-\begin{examplebox}{Historical Case Study: Wirecard AG Payment Lifecycle Fabrication (2020)}
-\index{Wirecard Scandal}
-German FinTech giant Wirecard AG collapsed into insolvency in June 2020 after auditors discovered that $€1.9\text{ Billion}$ in cash reserves did not exist:
-\begin{itemize}
-    \item \textbf{The Fraudulent Scheme:} Wirecard claimed to process billions in high-risk online payments across Asia through third-party acquiring partners (TPAs). Wirecard recognized massive revenues from these TPAs, claiming the cash proceeds were held in fiduciary escrow accounts at two major Philippine banks.
-    \item \textbf{Payment Rail Manipulation:} In reality, the TPA transaction volumes were fabricated. When auditors attempted to verify the balances directly with the Philippine banks, the banks confirmed that Wirecard held no accounts and that the confirmation letters provided by management were forged.
-    \item \textbf{Forensic Takeaway:} In digital payment forensics, relying on internal company ledger records without independent, cryptographically authenticated SWIFT confirmations directly from counterparty financial clearinghouses is fatal.
-\end{itemize}
-\end{examplebox}
+Conversely, modern instant payment systems like India's Unified Payments Interface (UPI) combine authentication and immediate gross/net settlement via the Reserve Bank of India (RBI) within milliseconds, eliminating credit settlement latency but significantly accelerating the velocity of Authorized Push Payment (APP) scams.
 
-\section{Data Science Relevance: Transaction State-Machine Simulation}
+% ----------------------------------------------------------------------
+% PART 5: EXPLICIT GOTCHAS & DIAGNOSTIC MISCONCEPTIONS
+% ----------------------------------------------------------------------
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
 
-\begin{lstlisting}[caption={Financial Transaction Lifecycle \& Fraud Interception Simulation in Python}]
-from enum import Enum
-import random
+\begin{trapbox}{Gotcha 1: Conflating Transaction Authorization with Final Settlement}
+\textbf{The Trap:} Assuming that once an online banking transaction is ``Authorized'', the money has permanently reached the recipient's bank account.\\
+\textbf{Forensic Reality:} Authorization merely places a temporary hold on the payer's available credit line or bank balance. Clearing and final settlement occur during batch processing hours or days later. Fraudulent transactions can be intercepted, frozen, or recalled between authorization and final settlement.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 2: Misapplying the Manufacturing Altman Z-Score to Service/Tech Firms}
+\textbf{The Trap:} Evaluating an asset-light cloud software company or law firm using Altman's original 1968 manufacturing $Z$-score equation.\\
+\textbf{Forensic Reality:} The manufacturing model includes $X_5 = \frac{\text{Sales}}{\text{Total Assets}}$. Asset-light technology companies carrying zero factories or physical inventory can exhibit low or distorted asset ratios, yielding false-distress flags. Auditors must employ the Altman Four-Variable Model ($Z'' = 6.56 X_1 + 3.26 X_2 + 6.72 X_3 + 1.05 X_4$) calibrated for non-manufacturing and emerging market enterprises.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 3: The Friendly Fraud Chargeback Blindspot}
+\textbf{The Trap:} Believing that chargebacks represent exclusively unauthorized identity theft by unknown external hackers.\\
+\textbf{Forensic Reality:} Over $40\%$ of commercial chargebacks represent ``friendly fraud'' (first-party misuse), where the legitimate account holder receives goods or services and subsequently files a false dispute with their credit card issuer claiming non-delivery or stolen card credentials.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 4: Treating Multi-Factor Authentication (MFA) as an Absolute Shield}
+\textbf{The Trap:} Assuming that transactions authenticated via SMS OTP or biometric facial scan are guaranteed to be free of fraud.\\
+\textbf{Forensic Reality:} In Authorized Push Payment (APP) fraud and CEO impersonation scams, the authorized account holder is socially engineered or coerced into willingly inputting their own MFA credentials to execute a transfer to an attacker-controlled account.
+\end{trapbox}
+
+% ----------------------------------------------------------------------
+% PART 6: COMPARATIVE SYNTHESIS & SUMMARY TABLE
+% ----------------------------------------------------------------------
+\section{Comparative Synthesis \& Summary Table}
+
+Table~\ref{tab:comparison_payment_rails} synthesizes the architectural mechanics, settlement speeds, and primary fraud typologies across global payment systems.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lXXX}
+\toprule
+\textbf{Dimension} & \textbf{Card Four-Party Rail} & \textbf{SWIFT Correspondent Rail} & \textbf{Instant Mobile Rail (UPI)} \\
+\midrule
+\textbf{Settlement Latency} & $T + 1$ to $T + 3$ business days. & $T + 1$ to $T + 3$ days (correspondent dependent). & Immediate real-time settlement ($< 5$ seconds). \\
+\addlinespace
+\textbf{Transaction Reversibility} & High reversibility via formalized chargeback rules. & Moderate; manual recall before nostro crediting. & Zero reversibility; irrevocable final credit. \\
+\addlinespace
+\textbf{Authentication Rail} & EMV chip-and-PIN; 3D Secure OTP/biometric. & PKI cryptographic keys, Relationship Management (RMA). & Device fingerprinting, SIM binding, 6-digit UPI PIN. \\
+\addlinespace
+\textbf{Primary Fraud Vector} & Stolen card credentials, card-not-present fraud, chargeback abuse. & False beneficiary routing, rogue banker wire diversion. & Social engineering, screen sharing, QR scam phishing. \\
+\addlinespace
+\textbf{Interchange Fee Structure} & $1.0\%$--$2.5\%$ merchant discount rate (MDR). & Fixed wire transmission fees (\$15--\$50) + FX spread. & Zero or near-zero MDR subsidized by banking consortium. \\
+\bottomrule
+\end{tabularx}
+\caption{Systemic Comparison of Global Payment Rails and Forensic Risk Profiles.}
+\label{tab:comparison_payment_rails}
+\end{table}
+
+% ----------------------------------------------------------------------
+% PART 7: PYTHON / SCIENTIFIC COMPUTING LAB
+% ----------------------------------------------------------------------
+\section{Python / Scientific Computing Lab: Transaction Lifecycle Simulation}
+
+Listing~\ref{lst:txn_lifecycle_engine} models a financial transaction lifecycle state-machine that intercepts risky transactions, checks velocity limits, evaluates account limits, and logs forensic audit trails.
+
+\begin{lstlisting}[language=Python, caption={Financial Transaction Lifecycle \& Fraud Interception Simulation in Python}, label={lst:txn_lifecycle_engine}]
 import time
+from enum import Enum
+from typing import Dict, Any
 
-class TxnStatus(Enum):
+class TxnState(Enum):
     INITIATED = "INITIATED"
     AUTHENTICATED = "AUTHENTICATED"
     AUTHORIZED = "AUTHORIZED"
-    DECLINED = "DECLINED"
-    CLEARED = "CLEARED"
+    BLOCKED = "BLOCKED"
     SETTLED = "SETTLED"
 
-class TransactionLifecycleEngine:
-    def __init__(self, risk_threshold: float = 0.75):
-        self.risk_threshold = risk_threshold
+class ForensicTransactionProcessor:
+    def __init__(self, daily_limit: float = 100000.0, max_velocity: int = 3):
+        self.daily_limit = daily_limit
+        self.max_velocity = max_velocity
+        self.user_txns_count: Dict[str, int] = {}
+        self.user_daily_spend: Dict[str, float] = {}
+        
+    def process_transaction(self, txn: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Executes the 5-stage lifecycle and intercepts potential fraud.
+        """
+        txn_id = txn['txn_id']
+        user = txn['user_id']
+        amount = txn['amount']
+        mfa_valid = txn.get('mfa_verified', False)
+        ip_country = txn.get('ip_country', 'IN')
+        
+        # Stage 1: Initiation
+        state = TxnState.INITIATED
+        audit_trail = [f"Txn {txn_id} initiated for Rs. {amount:,.2f} by {user}"]
+        
+        # Stage 2: Authentication
+        if not mfa_valid:
+            return {
+                'txn_id': txn_id,
+                'final_state': TxnState.BLOCKED.value,
+                'reason': 'Authentication Failure: Invalid MFA / Biometrics',
+                'audit_trail': audit_trail
+            }
+        state = TxnState.AUTHENTICATED
+        audit_trail.append("Stage 2: Strong Customer Authentication verified.")
+        
+        # Stage 3: Authorization & Risk Scoring
+        current_count = self.user_txns_count.get(user, 0)
+        current_spend = self.user_daily_spend.get(user, 0.0)
+        
+        # Velocity check: more than max_velocity in audit window
+        if current_count >= self.max_velocity:
+            return {
+                'txn_id': txn_id,
+                'final_state': TxnState.BLOCKED.value,
+                'reason': f"Authorization Block: Velocity threshold ({self.max_velocity}) exceeded.",
+                'audit_trail': audit_trail
+            }
+            
+        # Daily limit check
+        if current_spend + amount > self.daily_limit:
+            return {
+                'txn_id': txn_id,
+                'final_state': TxnState.BLOCKED.value,
+                'reason': f"Authorization Block: Daily limit of Rs. {self.daily_limit:,.2f} exceeded.",
+                'audit_trail': audit_trail
+            }
+            
+        # Geolocation anomaly check
+        if ip_country != 'IN' and amount > 25000.0:
+            return {
+                'txn_id': txn_id,
+                'final_state': TxnState.BLOCKED.value,
+                'reason': 'Authorization Block: High-value foreign IP anomaly.',
+                'audit_trail': audit_trail
+            }
+            
+        state = TxnState.AUTHORIZED
+        audit_trail.append("Stage 3: Authorization approved by issuing switch.")
+        
+        # Stage 4 & 5: Clearing & Settlement
+        self.user_txns_count[user] = current_count + 1
+        self.user_daily_spend[user] = current_spend + amount
+        state = TxnState.SETTLED
+        audit_trail.append(f"Stage 4 & 5: Cleared and Settled. New cumulative spend: Rs. {self.user_daily_spend[user]:,.2f}")
+        
+        return {
+            'txn_id': txn_id,
+            'final_state': state.value,
+            'reason': 'Approved & Settled',
+            'audit_trail': audit_trail
+        }
 
-    def evaluate_risk(self, amount: float, velocity_1h: int, is_foreign: bool) -> float:
-        """Heuristic risk score: Returns probability between 0 and 1."""
-        score = 0.05
-        if amount > 50000.0:
-            score += 0.40
-        if velocity_1h > 5:
-            score += 0.35
-        if is_foreign:
-            score += 0.20
-        return min(score, 0.99)
-
-    def process_payment(self, txn_id: str, amount: float, velocity: int, foreign: bool) -> dict:
-        log = {"txn_id": txn_id, "amount": amount, "history": []}
-        
-        # Stage 1 & 2: Initiation & Authentication
-        log["history"].append(TxnStatus.INITIATED.value)
-        log["history"].append(TxnStatus.AUTHENTICATED.value)
-        
-        # Stage 3: Real-Time Risk Authorization
-        risk_score = self.evaluate_risk(amount, velocity, foreign)
-        log["risk_score"] = round(risk_score, 3)
-        
-        if risk_score > self.risk_threshold:
-            log["history"].append(TxnStatus.DECLINED.value)
-            log["final_status"] = TxnStatus.DECLINED.value
-            return log
-        
-        log["history"].append(TxnStatus.AUTHORIZED.value)
-        
-        # Stage 4 & 5: Clearing and Settlement
-        log["history"].append(TxnStatus.CLEARED.value)
-        log["history"].append(TxnStatus.SETTLED.value)
-        log["final_status"] = TxnStatus.SETTLED.value
-        return log
-
-engine = TransactionLifecycleEngine(risk_threshold=0.70)
-# Normal transaction
-print(engine.process_payment("TXN_001", amount=1200.0, velocity=1, foreign=False))
-# High risk transaction intercepted
-print(engine.process_payment("TXN_002", amount=85000.0, velocity=7, foreign=True))
+# -------------------------------------------------------------
+# Test Harness with Fraudulent Intercept Scenarios
+# -------------------------------------------------------------
+if __name__ == '__main__':
+    engine = ForensicTransactionProcessor(daily_limit=50000.0, max_velocity=2)
+    test_txns = [
+        {'txn_id': 'TXN-1', 'user_id': 'U100', 'amount': 15000.0, 'mfa_verified': True, 'ip_country': 'IN'},
+        {'txn_id': 'TXN-2', 'user_id': 'U100', 'amount': 20000.0, 'mfa_verified': False, 'ip_country': 'IN'}, # AuthN Fail
+        {'txn_id': 'TXN-3', 'user_id': 'U100', 'amount': 25000.0, 'mfa_verified': True, 'ip_country': 'IN'},
+        {'txn_id': 'TXN-4', 'user_id': 'U100', 'amount': 15000.0, 'mfa_verified': True, 'ip_country': 'IN'}  # Velocity Exceeded
+    ]
+    
+    for t in test_txns:
+        res = engine.process_transaction(t)
+        print(f"[{res['txn_id']}] Status: {res['final_state']} | Reason: {res['reason']}")
 \end{lstlisting}
 
-\section{Anti-Money Laundering (AML) \& The Financial Crime Lifecycle}
+% ----------------------------------------------------------------------
+% PART 8: COMPREHENSIVE PRACTICE PROBLEMS
+% ----------------------------------------------------------------------
+\section{Comprehensive Practice Problems}
+\textit{Complete mathematical derivations and diagnostic MCQ distractor rationales are located in the Appendix.}
 
-Money laundering is the illegal process of making large amounts of money generated by criminal activity (such as drug trafficking, corruption, or tax evasion) appear to have originated from a legitimate source.
+\subsection*{Part A: Analytical \& Computational Problems}
 
-\begin{theorembox}{The Three Stages of Money Laundering}
-\index{Money Laundering}\index{Placement}\index{Layering}\index{Integration}
-\begin{enumerate}
-    \item \textbf{Placement:} The physical introduction of illicit bulk cash into the formal financial system.
+\begin{enumerate}[label=\textbf{P7.\arabic*}]
+    \item \textbf{Comprehensive WACC \& Tax-Shield Optimization:}\\
+    An Indian manufacturing enterprise maintains the following capital structure:
     \begin{itemize}
-        \item \textit{Smurfing / Structuring:} Breaking large cash sums into small transactions below mandatory statutory reporting thresholds (e.g., depositing Rs.~49,000 to bypass PAN card recording or below $\$10,000$ to evade FinCEN Currency Transaction Reports).
-        \item \textit{Cash-Intensive Fronts:} Laundering cash through retail establishments (casinos, car washes, restaurants).
+        \item Common Equity: Market value Rs.~$600$ Crores, with an equity beta $\beta = 1.25$.
+        \item Corporate Debt: Market value Rs.~$400$ Crores, carrying a pre-tax borrowing cost of $9.0\%$.
+        \item Financial Market Data: Risk-free rate $R_f = 6.5\%$, expected market return $E(R_m) = 13.5\%$.
+        \item Marginal Corporate Income Tax Rate: $T_c = 25\%$.
     \end{itemize}
-    \item \textbf{Layering:} Obscuring the audit trail through complex, multi-layered financial transactions across international jurisdictions.
-    \begin{itemize}
-        \item Rapid wire transfers across nested offshore shell companies.
-        \item \textbf{Trade-Based Money Laundering (TBML):} Over-invoicing or under-invoicing cross-border goods shipments to covertly shift value.
-        \item \textbf{Hawala / Informal Value Transfer Systems (IVTS):} Trust-based settlement without physical currency border crossings.
-    \end{itemize}
-    \item \textbf{Integration:} Re-entering cleaned funds into the legitimate economy through investments in luxury real estate, securities, commercial ventures, or art.
+    \begin{enumerate}[label=(\alph*)]
+        \item Compute the enterprise cost of equity $r_e$ using the Capital Asset Pricing Model (CAPM).
+        \item Compute the after-tax cost of debt $r_d(1 - T_c)$.
+        \item Calculate the firm's Weighted Average Cost of Capital ($WACC$).
+        \item If corporate debt is expanded to Rs.~$600$ Crores while equity contracts to Rs.~$400$ Crores, raising beta to $\beta = 1.50$ and pre-tax debt yield to $10.5\%$, recalculate $WACC$ and evaluate financial solvency risk.
+    \end{enumerate}
+
+    \item \textbf{Altman $Z$-Score Insolvency Prediction:}\\
+    A commercial automotive parts fabricator reports the following balance sheet and operational figures at fiscal year-end (in Rs.~Crores):
+    \begin{center}
+    \begin{tabular}{lr|lr}
+    \toprule
+    \textbf{Financial Item} & \textbf{Value} & \textbf{Financial Item} & \textbf{Value} \\
+    \midrule
+    Current Assets & $180$ & Current Liabilities & $140$ \\
+    Total Assets & $500$ & Total Book Liabilities & $320$ \\
+    Retained Earnings & $60$ & Net Sales Revenue & $650$ \\
+    Operating Earnings (EBIT) & $45$ & Market Value of Equity & $240$ \\
+    \bottomrule
+    \end{tabular}
+    \end{center}
+    \begin{enumerate}[label=(\alph*)]
+        \item Calculate the five Altman ratios ($X_1, X_2, X_3, X_4, X_5$).
+        \item Compute the Altman $Z$-Score.
+        \item Classify the enterprise into its appropriate Altman risk zone and interpret the insolvency probability.
+    \end{enumerate}
+
+    \item \textbf{Operating vs.~Financial Leverage Compounding:}\\
+    A textile manufacturer sells $200{,}000$ shirts annually at a unit price of Rs.~$600$. Variable production costs are Rs.~$360$ per shirt, and fixed operating overheads total Rs.~$2{,}80{,}00{,}000$ (Rs.~$2.8$ Crores). The enterprise carries Rs.~$8{,}00{,}00{,}000$ (Rs.~$8$ Crores) in bank debt at an annual interest rate of $10\%$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Compute the Degree of Operating Leverage ($DOL$) and Degree of Financial Leverage ($DFL$) at the current production volume.
+        \item Compute the Degree of Total Leverage ($DTL$).
+        \item If sales revenue drops by $15\%$ during an economic recession, calculate the percentage collapse in Operating Profit (EBIT) and Net Earnings Per Share (EPS).
+    \end{enumerate}
+
+    \item \textbf{Transaction Rail Dispute \& Liability Allocation:}\\
+    An online electronics retailer suffers Rs.~$12{,}00{,}000$ in unauthorized credit card purchases. Investigation reveals that the fraudster utilized stolen card numbers without 3D-Secure two-factor authentication, and the merchant did not enable card-verification value (CVV) checks. 
+    Explain the formal dispute and chargeback liability allocation between the Merchant, the Acquiring Bank, and the Issuing Bank under Card Scheme rules.
+
+    \item \textbf{Authorized Push Payment (APP) Fraud Mechanics:}\\
+    In an executive impersonation scam, a corporate finance manager receives an urgent, spoofed email appearing to originate from the CEO instructing a transfer of Rs.~$85$ Lakhs to a vendor's new bank account. The manager executes the transfer via RTGS, completing SMS OTP verification. Analyze why traditional fraud detection systems fail to intercept APP fraud and formulate three preventative controls.
 \end{enumerate}
-\end{theorembox}
 
-\begin{theorembox}{RBI Master Directions: Early Warning Signals (EWS) \& Red Flagged Accounts (RFA)}
-\index{Early Warning Signals}\index{Red Flagged Accounts}
-Under Reserve Bank of India (RBI) guidelines, scheduled commercial banks must monitor a portfolio of \textbf{42 Early Warning Signals (EWS)} to identify potential loan fraud before default:
-\begin{itemize}
-    \item \textbf{Red Flagged Account (RFA):} An account where suspicion of fraudulent activity is triggered by EWS thresholds. An RFA must be investigated via forensic audit within 6 months.
-    \item \textbf{Mandatory Reporting:} Confirmed frauds must be immediately reported to the Central Repository of Information on Large Credits (CRILC) and filed as a \textbf{Suspicious Transaction Report (STR)} with the Financial Intelligence Unit (FIU-IND).
-\end{itemize}
-\end{theorembox}
+\subsection*{Part B: Diagnostic Multiple-Choice Questions}
 
-\section*{Supplementary Lecture Videos}
-\begin{itemize}
-    \item \href{https://www.youtube.com/watch?v=P4WJgd6m91w}{W7\_L1: Basics of Corporate Finance -- Part 5 (Cost of Debt \& Tax Shields)}
-    \item \href{https://www.youtube.com/watch?v=EFqt4mvTGUM}{W7\_L2: Basics of Corporate Finance -- Part 6 (Equity Valuation \& CAPM)}
-    \item \href{https://www.youtube.com/watch?v=oeHGl88x2dY}{W7\_L3: Basics of Corporate Finance -- Part 7 (Capital Structure Optimization)}
-    \item \href{https://www.youtube.com/watch?v=OO0VpntKrPg}{W8\_L1: Introduction to Financial Transaction Lifecycle}
-\end{itemize}
+\begin{enumerate}[label=\textbf{MCQ 7.\arabic*}]
+    \item In Professor Edward Altman's 5-variable $Z$-Score model for manufacturing bankruptcy prediction, what specific economic risk is captured by the variable $X_4 = \frac{\text{Market Value of Equity}}{\text{Book Value of Total Liabilities}}$?
+    \begin{enumerate}[label=(\alph*)]
+        \item The enterprise's operating profit margin per unit of manufactured inventory.
+        \item The cushion by which enterprise equity value can decline before outstanding liabilities exceed assets and trigger insolvency.
+        \item The speed at which accounts receivable are converted into cash bank balances.
+        \item The percentage of tax shields retained by issuing debt instead of common shares.
+    \end{enumerate}
 
-\newpage
-\section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
-
-\begin{enumerate}
-    \item Delta Industrial Corp.~has an equity market capitalization of Rs.~600 Crores and total outstanding debt with a market value of Rs.~400 Crores. The company's equity beta is $\beta_e = 1.25$, the risk-free rate $R_f = 6.5\%$, and the expected market return $E(R_m) = 14.5\%$. The firm pays an average pre-tax borrowing cost of $9.0\%$ on its debt and faces a marginal corporate tax rate of $25\%$. Calculate the firm's Weighted Average Cost of Capital (WACC).
-    
-    \item Compute the Altman $Z$-Score for Zenith Manufacturing given the following metrics: Working Capital = Rs.~2,00,000; Total Assets = Rs.~10,00,000; Retained Earnings = Rs.~1,50,000; EBIT = Rs.~1,20,000; Market Value of Equity = Rs.~4,00,000; Total Liabilities = Rs.~6,00,000; and Total Sales = Rs.~9,00,000. Classify Zenith into its appropriate Altman risk zone.
-    
-    \item Distinguish between Gross Settlement (as in RTGS) and Net Settlement (as in ACH or batch clearing) systems. Detail how systemic settlement risk manifests if an participating bank defaults before net clearing commitments are settled.
-    
-    \item Explain the mechanics of an Authorized Push Payment (APP) fraud scheme. Why do traditional two-factor authentication (2FA) controls fail to prevent APP fraud when an adversary uses social engineering to impersonate an enforcement officer?
-    
-    \item In the traditional Four-Party Card Payment Model, identify the four primary participating entities. At which exact operational interface is interchange fee calculated and deducted?
+    \item In the Five-Stage Financial Transaction Lifecycle, which operational stage represents the definitive, irrevocable legal discharge of monetary obligation between financial institutions across central bank accounts?
+    \begin{enumerate}[label=(\alph*)]
+        \item Initiation Stage
+        \item Authentication Stage
+        \item Authorization Stage
+        \item Settlement Stage
+    \end{enumerate}
 \end{enumerate}

@@ -1,196 +1,347 @@
 \chapter{The Forensic Investigation Process \& Cross-Statement Reconciliation}
 
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You Will Learn in this Chapter}}]
+% ----------------------------------------------------------------------
+% PART 1: EXECUTIVE ROADMAP & LEARNING OBJECTIVES
+% ----------------------------------------------------------------------
+\section{Executive Roadmap \& Learning Objectives}
+
+A forensic accounting engagement requires a rigorous fusion of legal protocol, investigative psychology, and mathematical accounting reconciliation. Unlike routine recurring audits, a forensic investigation cannot be initiated as a speculative inquiry; it requires formal predication, strict digital evidence preservation under cryptographic hash verification, and meticulous cross-statement articulation analysis. When dishonest management attempts to falsify an isolated financial statement line item, mathematical linkages across the balance sheet, income statement, and cash flow statement inevitably crack.
+
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Core Learning Competencies}}]
+Upon mastering this chapter, students will be equipped to:
 \begin{itemize}
-    \item The complete forensic engagement lifecycle: Predication, Scoping, Evidence Gathering, and Reporting
-    \item Chain of custody and legal admissibility protocols for digital and paper evidence
-    \item Investigative interviewing techniques and cognitive interview frameworks
-    \item Inter-statement articulation: Mathematical reconciliation across the three financial statements
-    \item Red flag typologies: Round-tripping transactions, hidden related-party deals, and off-balance sheet liabilities
-    \item Data Science implementation of cross-statement reconciliation checks
+    \item \textbf{Execute the Forensic Investigation Lifecycle:} Operationalize the six-phase investigative framework from formal predication and engagement scoping through courtroom testimony.
+    \item \textbf{Preserve Evidentiary Integrity:} Establish strict legal chains of custody for physical documents and forensically acquire digital disk images using cryptographic hash invariants (SHA-256).
+    \item \textbf{Conduct Structured Investigative Interviews:} Differentiate between the accusatory Reid technique and the information-gathering PEACE interview model.
+    \item \textbf{Verify Inter-Statement Articulation Invariants:} Formulate mathematical identities connecting balance sheet stock changes to income statement flows and cash flow classifications.
+    \item \textbf{Unmask Circular Round-Tripping Schemes:} Trace complex funds-flow graphs across shell companies and detect artificial sales inflation.
 \end{itemize}
 \end{tcolorbox}
 
-\section{The Forensic Investigation Lifecycle}
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Articulation Variable} & \textbf{Target Equation} & \textbf{Forensic Equilibrium Invariant} \\
+\midrule
+Retained Earnings Link & $\Delta RE_t$ & $RE_t - RE_{t-1} \equiv NI_t - Div_t + OCI_t$ \\
+Gross Fixed Asset Link & $\Delta PP\&E_t$ & $PP\&E_t^{\text{gross}} - PP\&E_{t-1}^{\text{gross}} \equiv \text{CapEx}_t - \text{Cost}_{\text{disposals}}$ \\
+Accumulated Depreciation & $\Delta AccDep_t$ & $AccDep_t - AccDep_{t-1} \equiv \text{DeprExp}_t - AccDep_{\text{disposals}}$ \\
+Working Capital Shift & $\Delta AR_t$ & $AR_t - AR_{t-1} \equiv \text{Gross Sales}_t - \text{Cash Collected}_t - \text{WriteOffs}_t$ \\
+Cryptographic Evidence & $H(M)$ & $\text{SHA-256}(M_{\text{source}}) \equiv \text{SHA-256}(M_{\text{replica}})$ \\
+\bottomrule
+\end{tabularx}
+\caption{Mathematical Formulation of Inter-Statement Articulation Invariants.}
+\label{tab:w4_notation}
+\end{table}
 
-Unlike routine recurring statutory audits, a \index{forensic investigation}\textbf{forensic investigation} is triggered only when there is reasonable justification, known in legal terminology as \index{predication}\textbf{predication}.
+% ----------------------------------------------------------------------
+% PART 2: MATHEMATICAL & COMPUTATIONAL FOUNDATIONS
+% ----------------------------------------------------------------------
+\section{Mathematical \& Computational Foundations}
 
-\begin{definitionbox}{Predication}
-\index{Predication}
-Predication is the totality of circumstances, facts, and observations that would lead a reasonable, professionally prudent individual to believe that fraud, embezzlement, or financial misconduct has occurred, is occurring, or will occur. An investigation must never be initiated as a speculative ``fishing expedition'' without valid predication.
-\end{definitionbox}
+\subsection{The Principle of Inter-Statement Articulation}
+In financial reporting, the primary financial statements do not operate as isolated silos. They are mathematically locked by formal \index{articulation}\textbf{articulation invariants}.
 
-\begin{theorembox}{The Six Phases of a Forensic Investigation}
-\begin{enumerate}
-    \item \textbf{Predication \& Engagement Acceptance:} Receipt of whistleblower tip, regulatory referral, or anomalous audit finding; conflict-of-interest check; formal engagement letter.
-    \item \textbf{Investigation Planning \& Scoping:} Formulating hypotheses, identifying required evidence repositories, defining technical and legal boundaries.
-    \item \textbf{Evidence Collection \& Preservation:} Securing digital hard drives, enterprise resource planning (ERP) logs, email communications, and bank statements while maintaining an unbroken chain of custody.
-    \item \textbf{Data Analytics \& Substantive Testing:} Applying algorithmic forensic procedures, journal entry testing, reconstructive accounting, and outlier detection.
-    \item \textbf{Investigative Interviewing:} Interviewing neutral third parties and corroborative witnesses before conducting confrontation interviews with target subjects.
-    \item \textbf{Reporting \& Testimony:} Preparing the comprehensive forensic investigation report and providing expert testimony in criminal/civil proceedings.
-\end{enumerate}
+\begin{theorembox}{The Closed Inter-Statement Articulation System}
+\index{Articulation Invariants}
+For any enterprise adhering to double-entry accounting standards across consecutive reporting periods $t-1$ and $t$:
+\begin{align}
+\Delta RE_t &= RE_t - RE_{t-1} = NI_t - Div_t + OCI_t \label{eq:art_re} \\
+\Delta \text{Cash}_t &= \text{Cash}_t - \text{Cash}_{t-1} = \text{CFO}_t + \text{CFI}_t + \text{CFF}_t \label{eq:art_cash} \\
+\Delta PP\&E_t^{\text{net}} &= \text{CapEx}_t - \text{DeprExp}_t - \text{BookValue}_{\text{disposals}} \label{eq:art_ppe}
+\end{align}
+where $OCI_t$ represents Other Comprehensive Income. Any unexplained discrepancy $\epsilon \ne 0$ between statement balances represents an unposted plug entry or fraudulent fabrication.
 \end{theorembox}
 
-\begin{videocard}{IITM BS Lecture: Revisiting Financial Statements -- Part 1}{https://www.youtube.com/watch?v=Kshd51rTjS0}
-Revisiting the inter-linkages between corporate balance sheets and operating statements through an audit lens.
-\end{videocard}
+\subsection{Cryptographic Hash Preservation in Digital Forensics}
+In modern corporate investigations, evidence resides within enterprise relational databases, server logs, and digital hard drives. To guarantee courtroom admissibility under electronic evidence statutes (e.g., Section 65B of the Indian Evidence Act), evidence must be acquired via hardware write-blockers and verified using cryptographic hashing algorithms:
+\begin{equation}
+H: \{0, 1\}^* \to \{0, 1\}^{256}
+\end{equation}
+The acquisition is admissible if and only if:
+\begin{equation}
+H(\mathcal{E}_{\text{original}}) = H(\mathcal{E}_{\text{forensic mirror}})
+\end{equation}
 
-\begin{videocard}{IITM BS Lecture: Revisiting Financial Statements -- Part 2}{https://www.youtube.com/watch?v=0QY8_CesCoc}
-Deep dive into adjustments, accrued liabilities, contingent reserves, and disclosure notes.
-\end{videocard}
+% ----------------------------------------------------------------------
+% PART 3: VISUAL & GEOMETRIC INTUITION
+% ----------------------------------------------------------------------
+\section{Visual \& Geometric Intuition: The Forensic Lifecycle}
 
-\section{Evidence Management and Chain of Custody}
-
-In forensic science, physical and electronic records are subject to strict evidentiary scrutiny. If an investigator cannot prove who collected an item of evidence, where it was stored, and that it remained unaltered, the judge will exclude it from trial.
-
-\begin{warningbox}{The Evidentiary Chain of Custody}
-\index{Chain of Custody}
-For every digital disk image, database export, or document seized:
-\begin{itemize}
-    \item Record the exact date, time, physical location, and custodian from whom it was acquired.
-    \item Generate a cryptographic hash (SHA-256) of electronic evidence immediately upon acquisition.
-    \item Work exclusively on bit-stream forensic working copies, never on original source media.
-    \item Document every transfer of custody in a formal Chain of Custody Log.
-\end{itemize}
-\end{warningbox}
-
-\begin{videocard}{IITM BS Lecture: Revisiting Financial Statements -- Part 3}{https://www.youtube.com/watch?v=2vh4Wr7yzbM}
-Detailed analysis of working capital distortions, revenue cycle leakage, and audit trails.
-\end{videocard}
-
-\begin{videocard}{IITM BS Lecture: Revisiting Financial Statements -- Part 4}{https://www.youtube.com/watch?v=Q_9-lq_wfnY}
-Comprehensive case study synthesizing complex multi-year financial statements to isolate accounting irregularities.
-\end{videocard}
-
-\section{Inter-Statement Articulation and Reconciliation}
-
-Financial statements do not exist in isolation; they are mathematically bound together through \index{statement articulation}\textbf{statement articulation}:
-\begin{enumerate}
-    \item \textbf{Net Income} flows directly into \textbf{Retained Earnings} on the Balance Sheet:
-    \begin{equation}
-    \text{Retained Earnings}_t = \text{Retained Earnings}_{t-1} + \text{Net Income}_t - \text{Dividends}_t
-    \end{equation}
-    \item \textbf{Cash Flow from Operations} links the accrual Income Statement back to the change in \textbf{Cash and Cash Equivalents} on the Balance Sheet.
-    \item \textbf{Depreciation Expense} on the Income Statement ties to \textbf{Accumulated Depreciation} on the Balance Sheet and non-cash add-backs on the Cash Flow Statement.
-\end{enumerate}
+Figure~\ref{fig:forensic_lifecycle} depicts the six sequential phases of an authoritative forensic accounting investigation, highlighting the legal gates that separate preliminary inquiry from courtroom testimony.
 
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[
-  node distance=2.5cm,
-  stmt/.style={rectangle, draw=primarydark, fill=primarylight, rounded corners, minimum width=3.5cm, minimum height=1.2cm, font=\small\bfseries, align=center},
-  flow/.style={->, >=stealth, very thick, primaryborder}
+    font=\sffamily\footnotesize,
+    node distance=1.1cm and 1.4cm,
+    phase/.style={rectangle, draw=primarydark, fill=primarylight, thick, rounded corners=3pt, minimum width=3.4cm, minimum height=1.1cm, align=center},
+    gate/.style={rectangle, draw=coralborder, fill=coralbg, thick, rounded corners=3pt, minimum width=3.4cm, minimum height=1.1cm, align=center},
+    arr/.style={->, >=stealth, thick, color=primarydark}
 ]
-\node[stmt] (is) {\textbf{Income Statement}\\Revenues $-$ Expenses\\$=$ \textcolor{tealdef}{Net Income}};
-\node[stmt, right of=is, xshift=3.2cm] (bs) {\textbf{Balance Sheet}\\Assets $=$ Liabilities\\$+$ \textcolor{purpleex}{Retained Earnings}};
-\node[stmt, below of=is, yshift=-0.8cm, xshift=2.8cm] (cfs) {\textbf{Cash Flow Statement}\\$\text{CFO} + \text{CFI} + \text{CFF}$\\$=$ \textcolor{coralformula}{$\Delta\text{Cash Balance}$}};
 
-\draw[flow] (is) -- node[above, font=\footnotesize\bfseries, color=primarydark] {Net Income flows to RE} (bs);
-\draw[flow] (is) |- node[left, font=\footnotesize\bfseries, color=primarydark] {Reconciles Accruals} (cfs);
-\draw[flow] (cfs) -| node[right, font=\footnotesize\bfseries, color=primarydark] {Updates Ending Cash} (bs);
+% Nodes
+\node[gate] (pred) {\textbf{Phase 1: Predication}\\Whistleblower, Tip, Anomaly\\$\implies$ Legal Engagement};
+\node[phase, right=of pred] (plan) {\textbf{Phase 2: Scoping}\\Hypothesis Formulation\\Resource \& Scope Limits};
+\node[gate, right=of plan] (custody) {\textbf{Phase 3: Evidence Capture}\\Write-Blockers \& SHA-256\\Chain of Custody Logs};
+\node[phase, below=1.2cm of custody] (audit) {\textbf{Phase 4: Data Analytics}\\Ledger Invariants, Benford\\Cross-Statement Reconcile};
+\node[phase, left=of audit] (interview) {\textbf{Phase 5: Interviews}\\PEACE Model Protocol\\Confrontation Sequencing};
+\node[gate, left=of interview] (report) {\textbf{Phase 6: Expert Report}\\Factual Dossier, Daubert\\Courtroom Testimony};
+
+% Connections
+\draw[arr] (pred) -- (plan);
+\draw[arr] (plan) -- (custody);
+\draw[arr] (custody) -- (audit);
+\draw[arr] (audit) -- (interview);
+\draw[arr] (interview) -- (report);
+
 \end{tikzpicture}
-\caption{Mathematical Inter-Statement Articulation Flow Architecture.}
+\caption{The Six-Phase Forensic Accounting Investigation Architecture and Evidentiary Gates.}
+\label{fig:forensic_lifecycle}
 \end{figure}
 
-\begin{intuitionbox}{Detecting Fabricated Statements via Articulation Invariants}
-When fraudsters construct bogus financial statements for loan applications or investor presentations, they frequently alter individual numbers (e.g., arbitrarily inflating revenue and cash) without updating the corresponding contra-accounts or recalculating retained earnings. Testing for mathematical articulation invariants immediately exposes fabricated books.
-\end{intuitionbox}
+% ----------------------------------------------------------------------
+% PART 4: DEEP INTUITION & CONCEPTUAL DERIVATIONS
+% ----------------------------------------------------------------------
+\section{Deep Intuition \& Conceptual Derivations}
 
-\begin{examplebox}{Historical Case Study: Olympus Corp. ``Tobashi'' Loss-Hiding (2011)}
-\index{Olympus Scandal}
-Japanese optical equipment giant Olympus concealed over $\$1.5\text{ Billion}$ in investment losses spanning the 1990s and 2000s using a fraudulent practice known as \textit{tobashi} (flying losses away):
-\begin{itemize}
-    \item \textbf{The Fraudulent Scheme:} To avoid recognizing massive unrealized losses on risky securities during Japan's asset bubble collapse, executives sold the depreciated securities at original inflated book value to off-balance-sheet Cayman and Liechtenstein shell entities funded by loans from Olympus-affiliated banks.
-    \item \textbf{The Cover-Up:} Over the next decade, Olympus acquired unrelated shell businesses (e.g., medical waste, face cream makers) at astronomical valuations, paying $\$687\text{ Million}$ in advisory fees to mysterious offshore advisors to secretly funnel cash into the shell entities and settle the hidden bank debts.
-    \item \textbf{Forensic Takeaway:} Michael Woodford, the first non-Japanese CEO, blew the whistle after discovering that acquisition advisory fees ($36\%$ of deal value vs.~normal $1-2\%$) completely violated inter-statement sanity checks and M\&A audit benchmarks.
-\end{itemize}
-\end{examplebox}
+\subsection{Round-Tripping and Circular Fund Flows}
+A prevalent scheme for fabricating financial health is \index{round-tripping}\textbf{round-tripping}. In round-tripping, company $X$ routes cash through a constellation of affiliated or shell entities to fabricate legitimate-looking revenue:
+\begin{enumerate}
+    \item Company $X$ transfers Rs.~$50$ Crores to Shell Company $A$ under the pretext of an ``advance for capital goods purchase'' (recorded as CapEx in CFI).
+    \item Shell Company $A$ wires Rs.~$48$ Crores to Shell Company $B$ as a ``consulting retainer''.
+    \item Shell Company $B$ wires Rs.~$48$ Crores back to Company $X$ as a ``commercial customer payment'' for software services.
+    \item Company $X$ records Rs.~$48$ Crores in Sales Revenue and Operating Cash Flow (CFO).
+\end{enumerate}
+In net terms, Company $X$ burned Rs.~$2$ Crores in banking transaction fees, yet artificially created Rs.~$48$ Crores in revenue and CFO! 
+\textbf{Forensic Detection:} Cross-statement reconciliation uncovers soaring CapEx outflows alongside sudden inflows from newly incorporated entities whose corporate registry filings reveal common beneficial ownership or shared registered office addresses.
 
-\section{Data Science Relevance: Automated Reconciliation Testing}
+% ----------------------------------------------------------------------
+% PART 5: EXPLICIT GOTCHAS & DIAGNOSTIC MISCONCEPTIONS
+% ----------------------------------------------------------------------
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
 
-In a corporate group with dozens of subsidiaries, forensic teams deploy script-based articulation checks across hundreds of entity balance sheets to identify unexplained equity plugs or phantom reserves.
+\begin{trapbox}{Gotcha 1: Initiating Inquiries Without Legal Predication}
+\textbf{The Trap:} Commencing an intrusive forensic audit, seizing employee laptops, and subpoenaing email servers based on an unsubstantiated rumor or personal intuition.\\
+\textbf{Forensic Reality:} Initiating a corporate investigation without valid predication exposes the investigator and employer to severe legal liability, including tortious invasion of privacy, unlawful dismissal suits, and evidence suppression in court. Predication requires demonstrable facts establishing reasonable suspicion.
+\end{trapbox}
 
-\begin{lstlisting}[caption={Inter-Statement Articulation Checker in Python}]
+\begin{trapbox}{Gotcha 2: The Hash Collision \& Custody Breach Fatal Error}
+\textbf{The Trap:} Assuming that copying raw accounting files to a USB thumbdrive without write-blocking hardware preserves evidence integrity.\\
+\textbf{Forensic Reality:} Merely plugging a suspect USB drive into a Windows machine modifies access timestamps and registry keys, altering the file system metadata. Opposing defense counsel will compute the SHA-256 hash of the seized drive, compare it to the courtroom exhibit, and move to dismiss the evidence for chain-of-custody contamination.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 3: The Premature Accusatory Interview}
+\textbf{The Trap:} Immediately confronting the primary suspect in the opening week of the investigation to force a rapid confession.\\
+\textbf{Forensic Reality:} Confronting a target without complete documentary evidence gives the perpetrator the opportunity to destroy evidence, coach witnesses, alter off-balance sheet records, or flee the jurisdiction. Professional investigators interview peripheral witnesses first, gather $100\%$ documentary support, and interview the suspect last.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 4: Ignoring Inter-Statement Articulation Leaks}
+\textbf{The Trap:} Believing that an executive can falsify Net Income without leaving a mathematical trace on the balance sheet or cash flow statement.\\
+\textbf{Forensic Reality:} Due to the closed-loop nature of double-entry accounting, inflated profit must either expand an asset account (Receivables, Inventory, Fictitious Cash) or reduce a liability account. An unexplained divergence between cumulative Net Income and Retained Earnings growth immediately exposes unrecorded dividend extractions or manual journal plugs.
+\end{trapbox}
+
+% ----------------------------------------------------------------------
+% PART 6: COMPARATIVE SYNTHESIS & SUMMARY TABLE
+% ----------------------------------------------------------------------
+\section{Comparative Synthesis \& Summary Table}
+
+Table~\ref{tab:comparison_interviews} contrasts the traditional accusatory Reid Technique with the modern UK College of Policing PEACE interview methodology.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lXX}
+\toprule
+\textbf{Investigation Dimension} & \textbf{The Reid Technique (Accusatory)} & \textbf{The PEACE Model (Inquisitorial)} \\
+\midrule
+\textbf{Philosophical Goal} & Obtain an admission of guilt or confession through psychological pressure and themes. & Gather comprehensive factual information and test suspect accounts against physical evidence. \\
+\addlinespace
+\textbf{Investigator Mindset} & Presumes the suspect is guilty prior to the start of the interview. & Open-minded and neutral finder of fact; tests alternative hypotheses. \\
+\addlinespace
+\textbf{Structure} & 9-step structured interrogation: direct accusation, theme development, overcoming denials. & 5 phases: Planning, Engage \& Explain, Account, Closure, Evaluation. \\
+\addlinespace
+\textbf{Legal Vulnerability} & High risk of false confessions; vulnerable to suppression under coercive interrogation rules. & High judicial admissibility; minimal coercion; accepted under international human rights protocols. \\
+\addlinespace
+\textbf{Application in Forensics} & Historically utilized in corporate loss prevention and retail internal theft. & Gold standard in complex white-collar fraud, corporate embezzlement, and regulatory proceedings. \\
+\bottomrule
+\end{tabularx}
+\caption{Comparative Analysis of Investigative Interviewing Frameworks.}
+\label{tab:comparison_interviews}
+\end{table}
+
+% ----------------------------------------------------------------------
+% PART 7: PYTHON / SCIENTIFIC COMPUTING LAB
+% ----------------------------------------------------------------------
+\section{Python / Scientific Computing Lab: Cross-Statement Articulation Reconciler}
+
+Listing~\ref{lst:articulation_reconciler} provides an automated Python verification script that checks inter-statement articulation invariants across multi-year balance sheets, income statements, and cash flow reports.
+
+\begin{lstlisting}[language=Python, caption={Inter-Statement Articulation Reconciler in Python}, label={lst:articulation_reconciler}]
 import pandas as pd
+import numpy as np
 
-def audit_statement_articulation(financial_panel: pd.DataFrame) -> pd.DataFrame:
+def audit_statement_articulation(fs_data: dict, tolerance: float = 1.0) -> dict:
     """
-    Verifies the fundamental articulation invariants across successive reporting periods:
-    1. Retained Earnings Roll-Forward: RE_t = RE_{t-1} + Net_Income_t - Dividends_t
-    2. Cash Balance Reconciliation: Cash_t = Cash_{t-1} + Net_Change_Cash_t
+    Validates inter-statement articulation invariants across consecutive periods.
+    
+    Parameters:
+        fs_data (dict): Dictionary of financial statements containing 'BS', 'IS', 'CF'.
+        tolerance (float): Dollar threshold for numerical rounding differences.
+        
+    Returns:
+        dict: Detailed articulation discrepancy report.
     """
-    df = financial_panel.copy()
+    bs = fs_data['BS']
+    inc = fs_data['IS']
+    cf = fs_data['CF']
     
-    # Lag previous period ending balances
-    df['Prev_RE'] = df.groupby('entity_id')['retained_earnings'].shift(1)
-    df['Prev_Cash'] = df.groupby('entity_id')['cash'].shift(1)
+    years = [c for c in bs.columns if c.startswith('FY')]
+    years.sort()
     
-    # Expected Retained Earnings
-    df['Expected_RE'] = df['Prev_RE'] + df['net_income'] - df['dividends']
-    df['RE_Discrepancy'] = (df['retained_earnings'] - df['Expected_RE']).round(2)
+    report = []
     
-    # Expected Cash Balance
-    df['Expected_Cash'] = df['Prev_Cash'] + df['cfo'] + df['cfi'] + df['cff']
-    df['Cash_Discrepancy'] = (df['cash'] - df['Expected_Cash']).round(2)
-    
-    # Flag violations
-    df['Articulation_Failure'] = (df['RE_Discrepancy'].abs() > 0.01) | (df['Cash_Discrepancy'].abs() > 0.01)
-    return df
+    for i in range(1, len(years)):
+        prev_yr, curr_yr = years[i-1], years[i]
+        
+        # 1. Invariant 1: Delta Retained Earnings == Net Income - Dividends
+        delta_re = bs.loc['Retained_Earnings', curr_yr] - bs.loc['Retained_Earnings', prev_yr]
+        net_income = inc.loc['Net_Income', curr_yr]
+        dividends = cf.loc['Dividends_Paid', curr_yr] if 'Dividends_Paid' in cf.index else 0.0
+        expected_delta_re = net_income - abs(dividends)
+        re_leak = round(delta_re - expected_delta_re, 2)
+        
+        # 2. Invariant 2: Delta Cash == CFO + CFI + CFF
+        delta_cash_bs = bs.loc['Cash', curr_yr] - bs.loc['Cash', prev_yr]
+        total_cf = cf.loc['CFO', curr_yr] + cf.loc['CFI', curr_yr] + cf.loc['CFF', curr_yr]
+        cash_leak = round(delta_cash_bs - total_cf, 2)
+        
+        # 3. Invariant 3: Gross PP&E Delta == CapEx - Disposals
+        delta_ppe = bs.loc['Gross_PPE', curr_yr] - bs.loc['Gross_PPE', prev_yr]
+        capex = abs(cf.loc['CapEx', curr_yr])
+        ppe_leak = round(delta_ppe - capex, 2)
+        
+        report.append({
+            'Period': f"{prev_yr}->{curr_yr}",
+            'RE_Discrepancy': re_leak,
+            'Cash_Discrepancy': cash_leak,
+            'PPE_Discrepancy': ppe_leak,
+            'Articulated_Cleanly': (abs(re_leak) <= tolerance and 
+                                    abs(cash_leak) <= tolerance and 
+                                    abs(ppe_leak) <= tolerance)
+        })
+        
+    return pd.DataFrame(report)
 
-# Sample audit panel dataset for Subsidiary A
-subsidiary_records = pd.DataFrame({
-    'entity_id': ['Sub_A', 'Sub_A', 'Sub_A'],
-    'year': [2022, 2023, 2024],
-    'cash': [100.0, 140.0, 185.0],
-    'retained_earnings': [300.0, 360.0, 410.0],
-    'net_income': [np.nan, 80.0, 95.0],
-    'dividends': [np.nan, 20.0, 30.0],     # In 2024: 360 + 95 - 30 = 425 != 410!
-    'cfo': [np.nan, 60.0, 70.0],
-    'cfi': [np.nan, -20.0, -35.0],
-    'cff': [np.nan, 0.0, 10.0]
-})
-
-audit_results = audit_statement_articulation(subsidiary_records)
-print(audit_results[['entity_id', 'year', 'RE_Discrepancy', 'Cash_Discrepancy', 'Articulation_Failure']])
+# -------------------------------------------------------------
+# Test Dataset with Unexplained Retained Earnings Leak
+# -------------------------------------------------------------
+if __name__ == '__main__':
+    bs_data = {
+        'FY2024': [150.0, 500.0, 1000.0, 400.0, 600.0],
+        'FY2025': [180.0, 650.0, 1250.0, 480.0, 720.0]  # RE grew by 120
+    }
+    bs_idx = ['Cash', 'Gross_PPE', 'Total_Assets', 'Liabilities', 'Retained_Earnings']
+    
+    is_data = {'FY2025': [180.0]}  # Net Income = 180
+    is_idx = ['Net_Income']
+    
+    cf_data = {
+        'FY2025': [150.0, -150.0, 30.0, -20.0, -150.0]  # Div = 20, CapEx = 150
+    }
+    cf_idx = ['CFO', 'CFI', 'CFF', 'Dividends_Paid', 'CapEx']
+    
+    fs = {
+        'BS': pd.DataFrame(bs_data, index=bs_idx),
+        'IS': pd.DataFrame(is_data, index=is_idx),
+        'CF': pd.DataFrame(cf_data, index=cf_idx)
+    }
+    
+    audit_results = audit_statement_articulation(fs)
+    print("Cross-Statement Articulation Audit Report:")
+    print(audit_results.to_string(index=False))
 \end{lstlisting}
 
-\section{Regulatory Disclosures \& Legal Reporting Protocols}
+% ----------------------------------------------------------------------
+% PART 8: COMPREHENSIVE PRACTICE PROBLEMS
+% ----------------------------------------------------------------------
+\section{Comprehensive Practice Problems}
+\textit{Complete mathematical derivations and diagnostic MCQ distractor rationales are located in the Appendix.}
 
-When forensic reconciliation tests indicate substantive accounting deceit, the investigator must follow formal reporting channels:
+\subsection*{Part A: Analytical \& Computational Problems}
 
-\begin{theorembox}{Regulatory Reporting Procedures: Form ADT-4 \& SEBI LODR}
-\index{Form ADT-4}\index{SEBI LODR}
-\begin{enumerate}
-    \item \textbf{Form ADT-4 Escalation Protocol (Ministry of Corporate Affairs):}
-    \begin{itemize}
-        \item The auditor forwards suspected fraud findings to the company's \textbf{Board of Directors} and \textbf{Audit Committee} seeking their formal reply within 45 days.
-        \item On receipt of the reply (or upon expiry of 45 days if no reply is received), the auditor files \textbf{Form ADT-4} directly with the \textbf{Secretary, Ministry of Corporate Affairs (MCA)}, Government of India within 15 days.
-    \end{itemize}
-    \item \textbf{SEBI LODR Regulation 30 (Listed Companies):}
-    Listed entities are legally mandated to make explicit stock exchange disclosures within 24 hours regarding: (1) the initiation of any forensic audit, (2) the reasons for the forensic audit, and (3) the final forensic audit report along with management comments.
+\begin{enumerate}[label=\textbf{P4.\arabic*}]
+    \item \textbf{Comprehensive Inter-Statement Articulation Audit:}\\
+    An Indian infrastructure contractor reports the following audited financial records across two fiscal years (in Rs.~Crores):
+    \begin{center}
+    \begin{tabular}{lrr}
+    \toprule
+    \textbf{Financial Line Item} & \textbf{FY2024} & \textbf{FY2025} \\
+    \midrule
+    Cash \& Cash Equivalents & $85$ & $130$ \\
+    Gross Property, Plant \& Equipment & $1{,}200$ & $1{,}550$ \\
+    Accumulated Depreciation & $320$ & $410$ \\
+    Retained Earnings & $680$ & $890$ \\
+    Reported Net Income (FY2025) & --- & $310$ \\
+    Dividends Paid (FY2025) & --- & $50$ \\
+    Cash Flow from Operations (CFO) & --- & $280$ \\
+    Cash Flow from Investing Activities (CFI) & --- & $-380$ \\
+    Cash Flow from Financing Activities (CFF) & --- & $+145$ \\
+    Reported Capital Expenditures (CapEx) & --- & $350$ \\
+    \bottomrule
+    \end{tabular}
+    \end{center}
+    \begin{enumerate}[label=(\alph*)]
+        \item Reconcile the movement in Retained Earnings from FY2024 to FY2025. Does an articulation discrepancy exist?
+        \item Verify the Cash Flow Statement reconciliation against Balance Sheet cash movement ($\Delta \text{Cash}$).
+        \item Verify the Net PP\&E movement against reported CapEx and Depreciation Expense, assuming zero asset disposals.
+    \end{enumerate}
+
+    \item \textbf{Unmasking Circular Round-Tripping Networks:}\\
+    An investigative auditor observes that Company $X$ wire-transferred Rs.~$100$ Crores to SubCo $Alpha$ as a ``security deposit for specialized industrial tooling''. On the same afternoon, SubCo $Alpha$ transferred Rs.~$98$ Crores to Vendor $Beta$, which in turn transferred Rs.~$97.5$ Crores to Company $X$ marked as ``customer receipts for turn-key systems integration''.
+    \begin{enumerate}[label=(\alph*)]
+        \item Map the transaction flow as a directed weighted graph.
+        \item Quantify the net economic value created versus the accounting metrics reported.
+        \item Identify three documentary audit procedures to establish fraudulent round-tripping.
+    \end{enumerate}
+
+    \item \textbf{Forensic Chain of Custody \& Cryptographic Hash Integrity:}\\
+    During an internal corporate fraud investigation, a forensic investigator seizes a target server containing an ERP database file of size $42.8$ GB.
+    \begin{enumerate}[label=(\alph*)]
+        \item Explain why the investigator must use a hardware write-blocker during digital acquisition.
+        \item The SHA-256 hash computed at seizure is:
+        \texttt{e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855}.
+        During pre-trial defense discovery, the computed hash on the prosecution's working mirror is:
+        \texttt{a7f1d44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b999}.
+        Assess the legal consequences of this mismatch.
+    \end{enumerate}
+
+    \item \textbf{Investigative Interviewing Strategy under the PEACE Model:}\\
+    A senior procurement executive is suspected of receiving kickbacks from a preferred supplier. Contrast the strategic execution of this interview under the PEACE framework versus the Reid Technique.
+
+    \item \textbf{Predication Evaluation in Whistleblower Allegations:}\\
+    The Board Audit Committee receives an anonymous one-line email stating: \textit{``The CFO is cooking the books with fake sales in Singapore.''}\\
+    Evaluate whether this message constitutes sufficient legal predication to seize executive laptops and initiate an external forensic audit. Detail the preliminary steps required to establish formal predication.
 \end{enumerate}
-\end{theorembox}
 
-\section*{Supplementary Lecture Videos}
-\begin{itemize}
-    \item \href{https://www.youtube.com/watch?v=Kshd51rTjS0}{W4\_L1: Revisiting Financial Statements -- Part 1 (Audit Adjustments)}
-    \item \href{https://www.youtube.com/watch?v=0QY8_CesCoc}{W4\_L2: Revisiting Financial Statements -- Part 2 (Contingent Liabilities)}
-    \item \href{https://www.youtube.com/watch?v=2vh4Wr7yzbM}{W4\_L3: Revisiting Financial Statements -- Part 3 (Working Capital Distortions)}
-    \item \href{https://www.youtube.com/watch?v=Q_9-lq_wfnY}{W4\_L4: Revisiting Financial Statements -- Part 4 (Full Financial Forensic Synthesis)}
-\end{itemize}
+\subsection*{Part B: Diagnostic Multiple-Choice Questions}
 
-\newpage
-\section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\begin{enumerate}[label=\textbf{MCQ 4.\arabic*}]
+    \item When verifying inter-statement articulation between the Balance Sheet and Income Statement, a forensic auditor discovers that reported Net Income is Rs.~$120$ Crores, Dividends Paid are Rs.~$30$ Crores, and Other Comprehensive Income is zero. However, Retained Earnings on the balance sheet increased by only Rs.~$40$ Crores. Which of the following conditions represents the most plausible explanation for this discrepancy?
+    \begin{enumerate}[label=(\alph*)]
+        \item The company made an unrecorded, direct equity charge (plug) to Retained Earnings of Rs.~$50$ Crores to bury a prior-period asset impairment.
+        \item The company paid cash bonuses to factory workers that were properly debited to Cost of Goods Sold.
+        \item The company experienced a large increase in trade accounts receivable from legitimate credit customers.
+        \item The company purchased new factory machinery using short-term commercial bank borrowing.
+    \end{enumerate}
 
-\begin{enumerate}
-    \item Define predication and explain why an anonymous whistleblower allegation containing specific invoice numbers, dates, and bank accounts satisfies the threshold for predication, whereas an anonymous letter stating ``the management is corrupt'' does not.
-    
-    \item A forensic investigator seizes an accounting department laptop suspected of containing an off-the-books shadow ledger in Microsoft Excel. Outline the step-by-step forensic imaging procedure, explaining write-blockers and cryptographic hashing verification.
-    
-    \item In auditing the financial statements of Beta Corp., you observe that Retained Earnings at the beginning of 2024 were Rs.~12,50,000. During 2024, the firm reported Net Income of Rs.~4,20,000 and declared cash dividends of Rs.~1,00,000. However, the ending Retained Earnings reported on the December 31, 2024 balance sheet is Rs.~17,80,000. Quantify the reconciliation discrepancy and list three possible fraudulent or erroneous transactions that would produce this imbalance.
-    
-    \item Explain the concept of a ``round-trip transaction'' (also called ``circular transactions'' or ``swaps''). How do two colluding enterprises artificially inflate top-line revenues without impacting net income or operating cash flows?
-    
-    \item Compare the objectives and questioning styles of an investigative interview conducted with a neutral third-party witness versus an admission-seeking interview with a target suspect.
+    \item In digital forensic investigations, why is the calculation of an identical cryptographic SHA-256 hash on both the source hard drive and the forensic forensic image considered legally indispensable?
+    \begin{enumerate}[label=(\alph*)]
+        \item It proves that the suspect committed the crime beyond a reasonable doubt.
+        \item It mathematically proves that not a single bit of data on the mirror disk was altered, corrupted, or injected after acquisition.
+        \item It decrypts proprietary accounting database passwords without administrative permission.
+        \item It compresses large multi-terabyte ERP databases to reduce long-term server storage costs.
+    \end{enumerate}
 \end{enumerate}

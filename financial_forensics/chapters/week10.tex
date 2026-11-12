@@ -1,203 +1,335 @@
 \chapter{Time Series Analysis \& Temporal Anomaly Detection}
 
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You Will Learn in this Chapter}}]
+% ----------------------------------------------------------------------
+% PART 1: EXECUTIVE ROADMAP & LEARNING OBJECTIVES
+% ----------------------------------------------------------------------
+\section{Executive Roadmap \& Learning Objectives}
+
+Financial ledgers, payment gateways, and banking switches operate as continuous temporal streams. Fraudulent activity rarely occurs as isolated, static events; adversaries exploit the temporal dimension through sudden high-velocity withdrawal bursts, synchronized card testing, or gradual cumulative smurfing designed to blend into background macro-trends. To uncover sophisticated fraud schemes, forensic data scientists must model the temporal dynamics of transaction volumes using statistical time series techniques, verify stationarity conditions, and deploy dynamic change-point detectors.
+
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Core Learning Competencies}}]
+Upon mastering this chapter, students will be equipped to:
 \begin{itemize}
-    \item Foundations of temporal financial data: High-frequency transaction velocity and settlement flows
-    \item Classical decomposition: Trend ($T_t$), Seasonality ($S_t$), and Irregular noise ($\epsilon_t$)
-    \item Weak stationarity conditions and unit-root testing via Augmented Dickey-Fuller (ADF)
-    \item Mathematical structure of Autoregressive Integrated Moving Average (ARIMA) models
-    \item Statistical process control: Dynamic rolling-window confidence bounds and CUSUM change-point detection
-    \item Hands-on Python implementation of ARIMA residual forecasting and withdrawal burst detection
+    \item \textbf{Decompose Complex Financial Signals:} Isolate secular trends ($T_t$), periodic seasonal variations ($S_t$), and stochastic irregular residuals ($\epsilon_t$) across transaction velocity streams.
+    \item \textbf{Test for Stationarity via Econometric Proofs:} Apply the Augmented Dickey-Fuller (ADF) unit-root hypothesis test and execute variance-stabilizing differencing.
+    \item \textbf{Formulate Autoregressive Forecasters:} Construct Autoregressive Integrated Moving Average (ARIMA) models to establish normative transaction baselines.
+    \item \textbf{Deploy Dynamic Process Control Bands:} Program Exponentially Weighted Moving Average (EWMA) rolling volatility bands to flag sudden velocity surges.
+    \item \textbf{Execute Structural Change-Point Detection:} Implement Cumulative Sum (CUSUM) algorithms to identify subtle, sustained mean shifts indicative of money laundering layering.
 \end{itemize}
 \end{tcolorbox}
 
-\section{The Temporal Dimension of Financial Forensics}
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Construct / Variable} & \textbf{Symbol} & \textbf{Mathematical Definition / Structural Formula} \\
+\midrule
+Additive Decomposition & $y_t$ & $T_t + S_t + C_t + \epsilon_t$ \\
+Multiplicative Decomposition & $y_t$ & $T_t \times S_t \times C_t \times \epsilon_t$ \\
+Lag Operator & $L^k y_t$ & $y_{t-k} \implies (1 - L) y_t = y_t - y_{t-1} = \Delta y_t$ \\
+ADF Test Regression & $\Delta y_t$ & $\alpha + \beta t + \gamma y_{t-1} + \sum_{i=1}^p \delta_i \Delta y_{t-i} + \epsilon_t \quad (H_0: \gamma = 0)$ \\
+$\text{ARIMA}(p, d, q)$ & $\Phi(L)(1-L)^d y_t$ & $\Theta(L) \epsilon_t$ \\
+EWMA Variance & $\sigma_t^2$ & $\lambda \sigma_{t-1}^2 + (1 - \lambda)(y_t - \mu_t)^2$ \\
+CUSUM Upper Stat & $S_t^+$ & $\max(0, S_{t-1}^+ + y_t - \mu_0 - k) \quad (S_t^+ > h \implies \text{Shift Flag})$ \\
+\bottomrule
+\end{tabularx}
+\caption{Mathematical Notation Guide for Time Series Econometrics and Temporal Anomaly Detection.}
+\label{tab:w10_notation}
+\end{table}
 
-Financial transactions do not occur as independent, identically distributed (i.i.d.) static observations; they are dynamic \index{time series}\textbf{time series} indexed sequentially in time: $\{y_t\}_{t=1}^T$. Forensic investigators analyze temporal series to detect abrupt structural shifts, unusual volume bursts, and money laundering layering spikes.
+% ----------------------------------------------------------------------
+% PART 2: MATHEMATICAL & COMPUTATIONAL FOUNDATIONS
+% ----------------------------------------------------------------------
+\section{Mathematical \& Computational Foundations}
 
-\begin{definitionbox}{Classical Time Series Decomposition}
-\index{Time Series Decomposition}
-A financial time series $y_t$ can be decomposed into additive or multiplicative components:
-\begin{align}
-\text{Additive:} \quad y_t &= T_t + S_t + C_t + \epsilon_t \\
-\text{Multiplicative:} \quad y_t &= T_t \times S_t \times C_t \times \epsilon_t
-\end{align}
-where $T_t$ represents the long-term secular trend, $S_t$ is deterministic periodic seasonality (e.g., end-of-month payroll spikes), $C_t$ is cyclical macroeconomic variation, and $\epsilon_t$ is stochastic white noise.
-\end{definitionbox}
-
-\begin{videocard}{IITM BS Lecture: Introduction to Time Series}{https://www.youtube.com/watch?v=odptnlDEz8U}
-Understanding temporal dependencies in finance, timestamp sequencing, and frequency aggregation.
-\end{videocard}
-
-\begin{videocard}{IITM BS Lecture: Components of Time Series}{https://www.youtube.com/watch?v=0CIdS0syn34}
-Decomposing financial signals into underlying trends, seasonal patterns, and residual error terms.
-\end{videocard}
-
-\section{Stationarity and the Augmented Dickey-Fuller Test}
-
-A time series is said to be \index{stationarity}\textbf{weakly (covariance) stationary} if its statistical properties do not change over time:
+\subsection{Weak Stationarity Conditions}
+A discrete financial time series $\{y_t\}_{t \in \mathbb{Z}}$ is \index{stationarity}\textbf{weakly (covariance) stationary} if its first two moments are time-invariant:
 \begin{enumerate}
-    \item Constant expected value: $E[y_t] = \mu$ for all $t$.
-    \item Constant finite variance: $\text{Var}(y_t) = \sigma^2 < \infty$ for all $t$.
-    \item Autocovariance depends only on lag $k$, not on time $t$: $\text{Cov}(y_t, y_{t-k}) = \gamma_k$.
+    \item $E[y_t] = \mu < \infty \quad \forall t$ (Constant mean)
+    \item $\text{Var}(y_t) = E[(y_t - \mu)^2] = \sigma^2 < \infty \quad \forall t$ (Constant finite variance)
+    \item $\text{Cov}(y_t, y_{t-k}) = E[(y_t - \mu)(y_{t-k} - \mu)] = \gamma_k \quad \forall t$ (Autocovariance depends solely on displacement lag $k$)
 \end{enumerate}
 
-\begin{videocard}{Masterclass Video: Stationarity in Time Series -- Ritvikmath}{https://www.youtube.com/watch?v=oY-j2Wof51c}
-Ritvikmath's visual explanation of why non-stationary time series generate spurious correlations and how differencing achieves stationarity.
-\end{videocard}
-
-\begin{theorembox}{The Augmented Dickey-Fuller (ADF) Test}
-\index{Augmented Dickey-Fuller Test}
-To test for the presence of a unit root (non-stationarity), estimate the regression:
+\subsection{The Augmented Dickey-Fuller (ADF) Unit Root Test}
+Non-stationary financial series exhibit infinite memory and generate spurious regressions. To test for a stochastic unit root, the Augmented Dickey-Fuller regression is estimated:
 \begin{equation}
 \Delta y_t = \alpha + \beta t + \gamma y_{t-1} + \sum_{i=1}^p \delta_i \Delta y_{t-i} + \epsilon_t
+\label{eq:adf_regression}
 \end{equation}
-The hypothesis test is formulated as:
+where $\gamma = \rho - 1$.
+The formal hypothesis structure is:
 \begin{itemize}
-    \item $H_0: \gamma = 0$ (The series possesses a unit root and is non-stationary).
-    \item $H_1: \gamma < 0$ (The series is stationary).
+    \item $H_0: \gamma = 0$ (Unit root present; series is non-stationary).
+    \item $H_1: \gamma < 0$ (Series is stationary).
 \end{itemize}
-If the ADF test-statistic is more negative than the critical value (or $p < 0.05$), we reject $H_0$ and conclude the series is stationary.
-\end{theorembox}
+Because the test statistic $t_\gamma = \frac{\hat{\gamma}}{\text{SE}(\hat{\gamma})}$ does not follow a Student's $t$-distribution, it is evaluated against non-standard Dickey-Fuller critical values.
 
-\section{ARIMA Modeling for Baseline Forecasting}
-
-To detect temporal anomalies, forensic engines fit an \index{ARIMA}\textbf{Autoregressive Integrated Moving Average (ARIMA$(p, d, q)$)} model on historical baseline behavior.
-
-\begin{formulabox}{ARIMA$(p, d, q)$ Formulation}
-For a $d$-times differenced series $y_t' = \nabla^d y_t$:
-\begin{equation}
-y_t' = c + \sum_{i=1}^p \phi_i y_{t-i}' + \sum_{j=1}^q \theta_j \epsilon_{t-j} + \epsilon_t
-\end{equation}
-where $\phi_1, \dots, \phi_p$ are autoregressive coefficients, $\theta_1, \dots, \theta_q$ are moving average coefficients, and $\epsilon_t \sim \mathcal{N}(0, \sigma^2)$ is Gaussian white noise.
-\end{formulabox}
-
-\begin{videocard}{IITM BS Lecture: Time Series Models}{https://www.youtube.com/watch?v=rHDKwLcsM2o}
-Mathematical specification of AR, MA, ARMA, and seasonal ARIMA models for financial forecasting.
-\end{videocard}
-
-\begin{videocard}{IITM BS Lecture: Time Series Models -- Hands-On}{https://www.youtube.com/watch?v=3LI8ziBMVJ0}
-Practical tutorial using Python statsmodels to fit ARIMA models, analyze ACF/PACF plots, and inspect residuals.
-\end{videocard}
-
-\section{Temporal Anomaly Detection: Dynamic Confidence Intervals and CUSUM}
-
-Once an ARIMA model is trained on legitimate baseline history, it generates one-step-ahead forecasts $\hat{y}_t$ with conditional variance $\sigma_t^2$.
-
-\begin{intuitionbox}{The Dynamic Forensic Envelope}
-Static thresholds (e.g., ``flag any withdrawal $> \text{Rs.~5,00,000}$'') fail because normal business payroll spikes on the 1st of every month get flagged, while an illicit Rs.~3,00,000 extraction on a quiet Sunday afternoon passes undetected. An ARIMA confidence envelope expands during expected high-volatility hours and contracts during quiet periods, exposing stealthy off-hour transactions.
-\end{intuitionbox}
-
-\begin{definitionbox}{CUSUM (Cumulative Sum Control Chart)}
-\index{CUSUM}
-CUSUM monitors cumulative positive and negative deviations from the baseline mean $\mu_0$:
+\subsection{The Cumulative Sum (CUSUM) Control Chart}
+Page's CUSUM algorithm detects small, persistent shifts in the mean of a process. For sequential observations $y_t$ with in-control baseline mean $\mu_0$ and allowance parameter $k = \frac{\delta}{2} \sigma$:
 \begin{align}
-S_t^+ &= \max\left(0, S_{t-1}^+ + (y_t - \mu_0) - K\right) \\
-S_t^- &= \max\left(0, S_{t-1}^- - (y_t - \mu_0) - K\right)
+S_t^+ &= \max\left(0, S_{t-1}^+ + y_t - (\mu_0 + k)\right) \label{eq:cusum_up} \\
+S_t^- &= \max\left(0, S_{t-1}^- - (y_t - (\mu_0 - k))\right) \label{eq:cusum_down}
 \end{align}
-where $K$ is the allowable tolerance parameter. An anomaly alarm fires if $S_t^+ > H$ or $S_t^- > H$, detecting persistent micro-leakage (such as salami slicing fraud).
-\end{definitionbox}
+with initial conditions $S_0^+ = S_0^- = 0$. When either $S_t^+ > h$ or $S_t^- > h$ (where $h$ is the decision boundary), a structural change-point is formally declared.
+
+% ----------------------------------------------------------------------
+% PART 3: VISUAL & GEOMETRIC INTUITION
+% ----------------------------------------------------------------------
+\section{Visual \& Geometric Intuition: Dynamic Bands \& CUSUM Triggers}
+
+Figure~\ref{fig:temporal_anomaly} illustrates the mechanics of rolling dynamic confidence bands alongside the cumulative accumulation of the CUSUM statistic during an organized withdrawal attack.
 
 \begin{figure}[htbp]
 \centering
-\begin{tikzpicture}
-\begin{axis}[
-    width=0.85\textwidth,
-    height=5.2cm,
-    xmin=0, xmax=20,
-    ymin=0, ymax=10,
-    xlabel={Time Step ($t$)},
-    ylabel={Cumulative Sum ($S_t^+$)},
-    grid=major,
-    grid style={dashed, gray!30},
-    legend style={at={(0.05,0.95)}, anchor=north west, font=\footnotesize}
+\begin{tikzpicture}[
+    scale=0.9,
+    font=\sffamily\footnotesize
 ]
-\addplot[ultra thick, primaryborder] coordinates {
-    (0,0) (1,0) (2,0.2) (3,0) (4,0.1) (5,0) (6,0) (7,0.3) 
-    (8,0) (9,0.5) (10,1.2) (11,2.1) (12,3.3) (13,4.6) (14,6.0) (15,7.5) (16,9.1)
-};
-\addplot[dashed, ultra thick, red] coordinates {(0,5.0) (20,5.0)};
-\node[fill=red, text=white, rounded corners, font=\tiny\bfseries] at (axis cs:13.5,5.0) {Alarm Threshold ($H=5.0$)};
-\legend{$S_t^+$ Cumulative Drift, Alarm Boundary ($H$)}
-\end{axis}
+
+% Axes
+\draw[->, >=stealth, thick] (0, 0) -- (9.5, 0) node[right] {Time $t$ (Hours)};
+\draw[->, >=stealth, thick] (0, 0) -- (0, 4.5) node[above] {Transaction Volume $y_t$};
+
+% Normal baseline with noise
+\draw[thick, color=primarydark] (0, 2) -- (2, 2.1) -- (3, 1.9) -- (4, 2.2) -- (5, 2.0);
+% Fraud spike
+\draw[line width=1.5pt, color=red] (5, 2.0) -- (5.5, 4.2) -- (6, 3.8) -- (6.5, 2.1);
+\draw[thick, color=primarydark] (6.5, 2.1) -- (7.5, 1.9) -- (9, 2.0);
+
+% Dynamic upper threshold
+\draw[dashed, line width=1.0pt, color=coralborder] (0, 3.0) -- (5, 3.0) -- (5.5, 3.4) -- (6.5, 3.3) -- (9, 3.0);
+\node[color=coralborder, right] at (9, 3.0) {Dynamic Upper Band ($\mu_t + 3\sigma_t$)};
+
+% Flag node
+\draw[->, >=stealth, line width=1pt, color=red] (5.5, 4.4) -- (5.5, 4.2);
+\node[draw=coralborder, fill=coralbg, rounded corners=2pt, align=center] at (5.5, 5.0) {\textbf{Temporal Spike:}\\Velocity Attack Flagged!};
+
 \end{tikzpicture}
-\caption{CUSUM Control Chart: Detecting Persistent Low-Magnitude Siphoning (Salami Slicing) Crossing the Alarm Limit $H$.}
+\caption{Dynamic Rolling Confidence Bands Intercepting Velocity Attack Surges.}
+\label{fig:temporal_anomaly}
 \end{figure}
 
-\section{Data Science Relevance: Temporal Residual Anomaly Detection}
+% ----------------------------------------------------------------------
+% PART 4: DEEP INTUITION & CONCEPTUAL DERIVATIONS
+% ----------------------------------------------------------------------
+\section{Deep Intuition \& Conceptual Derivations}
 
-\begin{lstlisting}[caption={Time Series Residual Anomaly Detection in Python}]
+\subsection{Why Static Thresholds Fail in High-Frequency Payment Streams}
+In commercial banking, setting a fixed static threshold (e.g., ``flag any merchant volume exceeding Rs.~$1{,}00{,}000$ per hour'') is mathematically flawed due to natural diurnal periodicity:
+\begin{itemize}
+    \item At 3:00 AM, legitimate commercial payment volume naturally plummets to near zero. A fraudulent burst of Rs.~$80{,}000$ at 3:00 AM represents a massive $10\sigma$ deviation from night-time baselines, yet evades a static Rs.~$1{,}00{,}000$ rule.
+    \item At 2:00 PM during lunchtime peaks or festive shopping days, normal transaction velocity surges to Rs.~$1{,}20{,}000$, generating false alarms under a static rule.
+\end{itemize}
+Dynamic modeling using seasonality adjustment and rolling EWMA bounds:
+\begin{equation}
+\text{Threshold}_t = \hat{S}_t + \hat{\mu}_t + 3 \hat{\sigma}_t
+\end{equation}
+adjusts the detection boundary in lockstep with the time of day, day of the week, and holiday calendar, eliminating false alarms while maximizing detection sensitivity during low-volume hours.
+
+% ----------------------------------------------------------------------
+% PART 5: EXPLICIT GOTCHAS & DIAGNOSTIC MISCONCEPTIONS
+% ----------------------------------------------------------------------
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Gotcha 1: Spurious Regression in Non-Stationary Time Series}
+\textbf{The Trap:} Regressing raw daily ATM cash withdrawals against retail bank deposits and concluding that a high $R^2 = 0.94$ proves strong predictive causality.\\
+\textbf{Forensic Reality:} Two completely unrelated non-stationary time series (e.g., cumulative Indian GDP and solar flare counts) frequently exhibit $R^2 > 0.90$ with highly significant $t$-statistics simply because both share a common deterministic or stochastic trend. Time series must be tested for unit roots and differenced to stationarity before estimating regressions.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 2: The Lookahead Bias Leakage in Rolling Normalization}
+\textbf{The Trap:} Standardizing a temporal dataset by computing mean $\mu$ and standard deviation $\sigma$ across the entire historical and test window.\\
+\textbf{Forensic Reality:} In production streaming fraud detection, future transactions do not exist. Using data from timestamp $t+1$ to normalize timestamp $t$ introduces lookahead bias, artificially smoothing out past anomalies and rendering backtest results invalid.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 3: Conflating Periodic Seasonality with Fraudulent Surges}
+\textbf{The Trap:} Triggering enterprise fraud alerts on the final working day of every calendar month because wire transfer volumes surge by $400\%$.\\
+\textbf{Forensic Reality:} End-of-month surges are legitimate recurring business calendar seasonality (payroll distributions, vendor settlements, and tax payments). True temporal forensics subtracts the seasonal component $S_t$ and audits only the anomalous residual $\epsilon_t = y_t - (T_t + S_t)$.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 4: CUSUM Drift Parameter Under-Specification}
+\textbf{The Trap:} Setting the CUSUM allowance parameter $k = 0$ in an effort to detect the smallest possible fraudulent leakages.\\
+\textbf{Forensic Reality:} Setting $k = 0$ turns CUSUM into an unbuffered random walk that integrates standard white noise, causing the cumulative sum to drift inevitably toward the decision boundary $h$ and triggering unmanageable false alarms. The allowance $k$ must be calibrated to half the target shift magnitude ($k = \frac{\delta}{2} \sigma$).
+\end{trapbox}
+
+% ----------------------------------------------------------------------
+% PART 6: COMPARATIVE SYNTHESIS & SUMMARY TABLE
+% ----------------------------------------------------------------------
+\section{Comparative Synthesis \& Summary Table}
+
+Table~\ref{tab:comparison_temporal_detectors} compares the four primary temporal anomaly detection frameworks in financial data science.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lXXX}
+\toprule
+\textbf{Detection Architecture} & \textbf{Core Statistical Metric} & \textbf{Latency \& Computation} & \textbf{Best Forensic Target} \\
+\midrule
+\textbf{Rolling EWMA Bands} & Dynamic variance threshold: $\mu_t \pm k \sigma_t$. & Ultra-low latency; single-pass $O(1)$ memory update. & High-frequency velocity attacks; immediate volume bursts. \\
+\addlinespace
+\textbf{ARIMA Residuals} & Residual prediction error: $e_t = y_t - \hat{y}_t$. & Moderate latency; periodic batch refitting required. & Structural dislocations in weekly settlement volumes. \\
+\addlinespace
+\textbf{Page's CUSUM Chart} & Cumulative deviation sum: $S_t = \max(0, S_{t-1} + y_t - k)$. & Low latency; sequential recursive updating. & Small, persistent shifts (e.g., gradual smurfing, skimming). \\
+\addlinespace
+\textbf{Recurrent Autoencoders} & LSTM reconstruction error: $\|y_t - \hat{y}_t\|^2$. & High compute latency; requires GPU acceleration. & Complex multivariate temporal sequencing fraud. \\
+\bottomrule
+\end{tabularx}
+\caption{Systemic Comparison of Temporal Anomaly Detection Frameworks in Financial Forensics.}
+\label{tab:comparison_temporal_detectors}
+\end{table}
+
+% ----------------------------------------------------------------------
+% PART 7: PYTHON / SCIENTIFIC COMPUTING LAB
+% ----------------------------------------------------------------------
+\section{Python / Scientific Computing Lab: Automated EWMA \& CUSUM Detector}
+
+Listing~\ref{lst:temporal_engine} provides a complete, runnable Python engine that ingests high-frequency transaction velocity streams, computes dynamic rolling EWMA bands, and tracks cumulative CUSUM change-points.
+
+\begin{lstlisting}[language=Python, caption={Automated EWMA Volatility Bands \& CUSUM Detector in Python}, label={lst:temporal_engine}]
 import numpy as np
 import pandas as pd
-from statsmodels.tsa.arima.model import ARIMA
-from statsmodels.tsa.stattools import adfuller
 
-# Simulate 120 days of daily withdrawal volumes (in Rs. Thousands)
-np.random.seed(42)
-days = pd.date_range(start='2026-01-01', periods=120, freq='D')
-base_signal = 100.0 + np.sin(np.arange(120) * (2 * np.pi / 7)) * 15.0 # Weekly cycle
-noise = np.random.normal(0, 5, 120)
-withdrawals = base_signal + noise
+def detect_temporal_anomalies(series: pd.Series, alpha: float = 0.2, k_factor: float = 0.5, h_threshold: float = 5.0) -> pd.DataFrame:
+    """
+    Applies Rolling EWMA Dynamic Bands and CUSUM change-point detection 
+    to a sequential financial transaction velocity time series.
+    
+    Parameters:
+        series (pd.Series): Time series indexed by timestamp or sequence.
+        alpha (float): Smoothing parameter for EWMA mean and variance.
+        k_factor (float): CUSUM drift allowance multiplier (k = k_factor * sigma).
+        h_threshold (float): CUSUM decision boundary threshold (h = h_threshold * sigma).
+        
+    Returns:
+        pd.DataFrame: Augmented DataFrame with dynamic bounds, CUSUM stats, and flags.
+    """
+    df = pd.DataFrame({'actual': series.values}, index=series.index)
+    n = len(df)
+    
+    # 1. Compute Rolling EWMA Mean and Volatility
+    ewma_mean = np.zeros(n)
+    ewma_var = np.zeros(n)
+    
+    ewma_mean[0] = df['actual'].iloc[0]
+    ewma_var[0] = 1.0  # Initial baseline variance
+    
+    for t in range(1, n):
+        diff = df['actual'].iloc[t] - ewma_mean[t-1]
+        ewma_mean[t] = alpha * df['actual'].iloc[t] + (1 - alpha) * ewma_mean[t-1]
+        ewma_var[t] = alpha * (diff ** 2) + (1 - alpha) * ewma_var[t-1]
+        
+    df['ewma_mean'] = ewma_mean
+    df['ewma_std'] = np.sqrt(ewma_var)
+    df['upper_band'] = df['ewma_mean'] + 3.0 * df['ewma_std']
+    df['flag_ewma_spike'] = df['actual'] > df['upper_band']
+    
+    # 2. Cumulative Sum (CUSUM) Implementation
+    baseline_mu = df['actual'].iloc[:max(10, n//10)].mean()
+    baseline_sigma = df['actual'].iloc[:max(10, n//10)].std()
+    if baseline_sigma == 0:
+        baseline_sigma = 1.0
+        
+    k = k_factor * baseline_sigma
+    h = h_threshold * baseline_sigma
+    
+    cusum_pos = np.zeros(n)
+    for t in range(1, n):
+        cusum_pos[t] = max(0.0, cusum_pos[t-1] + df['actual'].iloc[t] - (baseline_mu + k))
+        
+    df['cusum_stat'] = cusum_pos
+    df['cusum_threshold'] = h
+    df['flag_cusum_shift'] = df['cusum_stat'] > h
+    
+    return df
 
-# Inject sudden fraudulent cash drain anomalies on Day 85 and Day 86
-withdrawals[85] += 65.0  # Massive spike
-withdrawals[86] += 70.0
-
-ts_df = pd.DataFrame({'date': days, 'amount': withdrawals}).set_index('date')
-
-# 1. ADF Test for Stationarity
-adf_res = adfuller(ts_df['amount'])
-print(f"ADF Statistic: {adf_res[0]:.3f}, p-value: {adf_res[1]:.4e}")
-
-# 2. Fit ARIMA(1, 0, 1) model on baseline (first 75 days)
-train_series = ts_df['amount'].iloc[:75]
-model = ARIMA(train_series, order=(1, 0, 1))
-fitted_model = model.fit()
-
-# 3. Dynamic Residual Forecasting on full series
-preds = fitted_model.predict(start=0, end=len(ts_df)-1)
-residuals = ts_df['amount'] - preds
-residual_std = residuals.iloc[:75].std()
-
-# 4. Flag residuals exceeding 3 standard deviations
-ts_df['forecast'] = preds
-ts_df['residual'] = residuals
-ts_df['anomaly_flag'] = np.abs(residuals) > (3.0 * residual_std)
-
-anomalies = ts_df[ts_df['anomaly_flag']]
-print(f"\nDetected {len(anomalies)} Temporal Anomalies:")
-print(anomalies[['amount', 'forecast', 'residual']])
+# -------------------------------------------------------------
+# Test Harness with Controlled Velocity Burst
+# -------------------------------------------------------------
+if __name__ == '__main__':
+    np.random.seed(42)
+    timesteps = 100
+    # Baseline stationary volume: mean 50, std 5
+    baseline = np.random.normal(loc=50.0, scale=5.0, size=timesteps)
+    # Inject velocity attack at t=60..63
+    baseline[60:64] += np.array([25.0, 35.0, 30.0, 20.0])
+    
+    ts_series = pd.Series(baseline, index=pd.date_range('2025-01-01', periods=timesteps, freq='h'))
+    results = detect_temporal_anomalies(ts_series)
+    
+    spikes = results[results['flag_ewma_spike']]
+    shifts = results[results['flag_cusum_shift']]
+    
+    print(f"Total Timesteps: {timesteps}")
+    print(f"EWMA Spikes Detected: {len(spikes)} at indices: {spikes.index.strftime('%Y-%m-%d %H:%M').tolist()}")
+    print(f"CUSUM Structural Shifts Flagged: {len(shifts)}")
+    print(results[['actual', 'ewma_mean', 'upper_band', 'cusum_stat', 'flag_ewma_spike']].iloc[58:65].to_string())
 \end{lstlisting}
 
-\section*{Supplementary Lecture Videos}
-\begin{itemize}
-    \item \href{https://www.youtube.com/watch?v=odptnlDEz8U}{W10\_L1: Introduction to Time Series in Financial Forensics}
-    \item \href{https://www.youtube.com/watch?v=0CIdS0syn34}{W10\_L2: Components of Time Series (Trend, Seasonality, Noise)}
-    \item \href{https://www.youtube.com/watch?v=rHDKwLcsM2o}{W10\_L3: Time Series Models (AR, MA, ARMA, ARIMA)}
-    \item \href{https://www.youtube.com/watch?v=3LI8ziBMVJ0}{W10\_L4: Time Series Models -- Hands-On Python Tutorial}
-    \item \href{https://www.youtube.com/watch?v=oY-j2Wof51c}{External Masterclass: Stationarity in Time Series (Ritvikmath)}
-\end{itemize}
+% ----------------------------------------------------------------------
+% PART 8: COMPREHENSIVE PRACTICE PROBLEMS
+% ----------------------------------------------------------------------
+\section{Comprehensive Practice Problems}
+\textit{Complete mathematical derivations and diagnostic MCQ distractor rationales are located in the Appendix.}
 
-\newpage
-\section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\subsection*{Part A: Analytical \& Computational Problems}
 
-\begin{enumerate}
-    \item Define covariance stationarity. Given the first-order autoregressive process:
+\begin{enumerate}[label=\textbf{P10.\arabic*}]
+    \item \textbf{Classical Time Series Decomposition \& Residual Analysis:}\\
+    A commercial payments processor tracks daily transaction volumes (in thousands) over a four-day cycle:
+    \begin{itemize}
+        \item Actual volumes: Day 1: $120$, Day 2: $145$, Day 3: $110$, Day 4: $190$.
+        \item Fitted secular trend line: $\hat{T}_t = 100 + 10 t$.
+        \item Day-of-week additive seasonal adjustments: Day 1: $-5$, Day 2: $+10$, Day 3: $-15$, Day 4: $+25$.
+    \end{itemize}
+    \begin{enumerate}[label=(\alph*)]
+        \item Compute the expected volume $\hat{y}_t = \hat{T}_t + \hat{S}_t$ for each day.
+        \item Calculate the residual irregular error $\epsilon_t = y_t - \hat{y}_t$ for each day.
+        \item Which day exhibits the most severe anomaly requiring substantive inquiry?
+    \end{enumerate}
+
+    \item \textbf{Econometric Stationarity \& Augmented Dickey-Fuller (ADF) Proof:}\\
+    An analyst estimates an ADF test regression on daily banking withdrawal volumes:
     \begin{equation*}
-    y_t = \delta + \phi_1 y_{t-1} + \epsilon_t, \quad \epsilon_t \sim \mathcal{WN}(0, \sigma^2)
+    \Delta y_t = 1.45 - 0.38 y_{t-1} + 0.22 \Delta y_{t-1}
     \end{equation*}
-    derive the unconditional mean $E[y_t]$ and the unconditional variance $\text{Var}(y_t)$ under the stability condition $|\phi_1| < 1$. What happens if $\phi_1 = 1$?
-    
-    \item An Augmented Dickey-Fuller test conducted on daily transaction count data yields a test statistic of $-1.82$. If the critical value at the $5\%$ significance level is $-2.89$, state the statistical conclusion. What data transformation is required before fitting an ARMA model?
-    
-    \item Explain how an adversary executes a ``salami slicing'' fraud scheme (repeatedly siphoning fractions of a cent or a few rupees from millions of customer accounts). Why does standard outlier detection fail to catch this, and how does the CUSUM algorithm detect it?
-    
-    \item Given an ARIMA$(0, 1, 1)$ model formulated as:
-    \begin{equation*}
-    y_t - y_{t-1} = \epsilon_t - \theta_1 \epsilon_{t-1}
-    \end{equation*}
-    show that the one-step-ahead point forecast $\hat{y}_{t+1|t}$ can be expressed as an exponentially weighted moving average (EWMA) of past historical observations.
-    
-    \item Describe the difference between additive and multiplicative seasonal decomposition in time series. Under what operational conditions in corporate cash flows is multiplicative decomposition required?
+    with standard error $\text{SE}(\hat{\gamma}) = 0.095$.
+    \begin{enumerate}[label=(\alph*)]
+        \item State the null and alternative hypotheses for the ADF test.
+        \item Compute the empirical $t$-statistic for parameter $\hat{\gamma}$.
+        \item If the critical value at the $1\%$ significance level is $-3.43$, evaluate whether $H_0$ is rejected and state whether the series is stationary.
+    \end{enumerate}
+
+    \item \textbf{CUSUM Change-Point Tracking Mechanics:}\\
+    A corporate wire transfer channel operates with baseline parameters $\mu_0 = \text{Rs.~} 20$ Lakhs and $\sigma = \text{Rs.~} 4$ Lakhs per hour. An investigator configures an upper CUSUM chart with allowance $k = 2.0$ Lakhs and decision boundary $h = 10.0$ Lakhs ($S_0^+ = 0$). Over the next five hours, recorded volumes are: $[22, 26, 28, 27, 29]$ Lakhs.
+    \begin{enumerate}[label=(\alph*)]
+        \item Compute the sequential statistic $S_t^+$ for hours $t = 1, 2, 3, 4, 5$.
+        \item Identify the exact hour at which a structural change-point alarm is triggered.
+    \end{enumerate}
+
+    \item \textbf{Rolling EWMA Dynamic Volatility Bands:}\\
+    Explain the mathematical formulation of Exponentially Weighted Moving Average (EWMA) volatility updating ($\sigma_t^2 = \lambda \sigma_{t-1}^2 + (1 - \lambda) \epsilon_t^2$). Demonstrate why EWMA reacts more rapidly to structural market shocks than a standard 30-day unweighted moving window.
+
+    \item \textbf{Money Laundering Layering \& Burst Detection Architecture:}\\
+    In a cross-border smurfing scheme, money launderers deposit Rs.~$49{,}000$ into $50$ newly opened accounts simultaneously across a 2-hour window. Design a temporal graph detection rule to intercept this coordinated velocity attack.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions}
+
+\begin{enumerate}[label=\textbf{MCQ 10.\arabic*}]
+    \item When modeling sequential transaction volumes for anomaly detection, what is the critical flaw of regressing two non-stationary financial time series that share a common upward trend?
+    \begin{enumerate}[label=(\alph*)]
+        \item The regression coefficients cannot be estimated because matrix inversion fails.
+        \item The model generates a spurious regression, exhibiting an artificially high $R^2$ and statistically significant $t$-statistics despite the absence of any true underlying causal relationship.
+        \item The model automatically transforms additive seasonality into multiplicative white noise.
+        \item The regression residuals are guaranteed to satisfy Gaussian normality.
+    \end{enumerate}
+
+    \item In the Page Cumulative Sum (CUSUM) quality control chart, what is the primary operational function of the reference allowance parameter $k$?
+    \begin{enumerate}[label=(\alph*)]
+        \item It acts as a slack factor that absorbs minor stochastic baseline fluctuations, preventing the cumulative sum from drifting upward during normal in-control operations.
+        \item It eliminates all seasonal components from non-stationary time series.
+        \item It scales the transaction amount by the enterprise cost of capital ($WACC$).
+        \item It computes the second-digit Benford's Law distribution.
+    \end{enumerate}
 \end{enumerate}

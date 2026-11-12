@@ -1,170 +1,371 @@
 \chapter{Forensic Text Mining, NLP \& Entity Resolution}
 
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You Will Learn in this Chapter}}]
+% ----------------------------------------------------------------------
+% PART 1: EXECUTIVE ROADMAP & LEARNING OBJECTIVES
+% ----------------------------------------------------------------------
+\section{Executive Roadmap \& Learning Objectives}
+
+While quantitative transaction databases record numerical accounting values, over $80\%$ of actionable enterprise intelligence resides within unstructured text: regulatory disclosures (e.g., SEC Form 10-K or SEBI annual reports), internal audit memorandums, executive email archives, and wire transfer payment narrations. In forensic accounting and Anti-Money Laundering (AML) investigations, unstructured text reveals critical deception markers, undisclosed related-party dealings, and adversarial name obfuscation used to circumvent international sanctions.
+
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Core Learning Competencies}}]
+Upon mastering this chapter, students will be equipped to:
 \begin{itemize}
-    \item Mining unstructured financial text: 10-K MD\&A disclosures, audit memos, and payment narrations
-    \item Linguistic markers of deception in corporate disclosures (hedging, pronoun displacement)
-    \item Natural Language Processing (NLP) pipeline: Tokenization, Lemmatization, and TF-IDF
-    \item Named Entity Recognition (NER) for identifying shell corporations and sanctioned individuals
-    \item The Entity Resolution / Record Linkage challenge in anti-money laundering (AML)
-    \item String similarity metrics: Levenshtein Edit Distance, Jaro-Winkler, and Phonetic Hashing
-    \item Python implementation of automated entity resolution and vendor disambiguation
+    \item \textbf{Mine Deceptive Linguistic Signatures:} Extract psycholinguistic indicators of executive deception within Management Discussion \& Analysis (MD\&A) disclosures using specialized financial dictionaries.
+    \item \textbf{Engineer Text Representation Pipelines:} Apply tokenization, lemmatization, and Term Frequency-Inverse Document Frequency (TF-IDF) transformations to unstructured corporate text.
+    \item \textbf{Execute Named Entity Recognition (NER):} Isolate company entities, offshore jurisdictions, and Politically Exposed Persons (PEPs) from dense narrative filings.
+    \item \textbf{Resolve Entity Disambiguation Challenges:} Formulate string distance metrics (Levenshtein, Jaro-Winkler) and phonetic hashing algorithms to link obscured shell company names.
+    \item \textbf{Deploy Scalable Record Linkage Pipelines:} Implement blocking and indexing architectures in Python to execute entity resolution across large vendor ledgers.
 \end{itemize}
 \end{tcolorbox}
 
-\section{Unstructured Text in Financial Investigations}
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Construct / Metric} & \textbf{Symbol} & \textbf{Mathematical Definition / Structural Formula} \\
+\midrule
+Term Frequency & $\text{TF}(t, d)$ & $\frac{f_{t,d}}{\sum_{t' \in d} f_{t',d}} \quad \text{or raw count } f_{t,d}$ \\
+Inverse Document Freq & $\text{IDF}(t, D)$ & $\ln\left(\frac{1 + |D|}{1 + |\{d \in D : t \in d\}|}\right) + 1$ \\
+TF-IDF Weight & $w_{t,d}$ & $\text{TF}(t, d) \times \text{IDF}(t, D)$ \\
+Cosine Text Similarity & $\text{Sim}_{\cos}(\mathbf{u}, \mathbf{v})$ & $\frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\|_2 \|\mathbf{v}\|_2} = \frac{\sum u_i v_i}{\sqrt{\sum u_i^2} \sqrt{\sum v_i^2}}$ \\
+Levenshtein Distance & $\text{Lev}(s_1, s_2)$ & Minimum insertions, deletions, substitutions to transform $s_1 \to s_2$ \\
+Jaro Distance & $Sim_J(s_1, s_2)$ & $\frac{1}{3} \left(\frac{m}{|s_1|} + \frac{m}{|s_2|} + \frac{m - t}{m}\right)$ \\
+Jaro-Winkler & $Sim_{JW}(s_1, s_2)$ & $Sim_J + \ell p (1 - Sim_J) \quad (\ell \le 4, p = 0.1)$ \\
+\bottomrule
+\end{tabularx}
+\caption{Mathematical Notation Guide for Forensic NLP and Entity Resolution.}
+\label{tab:w11_notation}
+\end{table}
 
-While quantitative ledgers capture numerical balances, over $80\%$ of enterprise intelligence resides in unstructured text: regulatory filings, auditor notes, internal chat/email archives, and wire transfer payment narrations.
+% ----------------------------------------------------------------------
+% PART 2: MATHEMATICAL & COMPUTATIONAL FOUNDATIONS
+% ----------------------------------------------------------------------
+\section{Mathematical \& Computational Foundations}
 
-\begin{definitionbox}{Deceptive Linguistic Markers}
-\index{Linguistic Deception}
-Psycholinguistic research shows that corporate executives writing deceptive reports exhibit consistent linguistic fingerprints:
-\begin{itemize}
-    \item \textbf{First-Person Pronoun Displacement:} Reduction in first-person singular pronouns (``I'', ``my'') and increased reliance on passive voice or third-person entities (``the company'', ``management'') to psychologically detach from fraudulent statements.
-    \item \textbf{Superficial Cognitive Complexity:} Overuse of high-syllable legal jargon and convoluted phrasing designed to obfuscate financial reality.
-    \item \textbf{Extreme Positive Sentiment Overcompensation:} Unwarranted usage of exuberant superlatives (``tremendous'', ``exceptional'') to mask deteriorating fundamentals.
-\end{itemize}
-\end{definitionbox}
+\subsection{The TF-IDF Vector Space Model}
+To analyze unstructured financial disclosures, text corpora are converted into numerical feature vectors. The weight of term $t$ in document $d$ within corpus $D$ is:
+\begin{equation}
+w_{t,d} = \text{TF}(t, d) \times \text{IDF}(t, D)
+\label{eq:tfidf_formula}
+\end{equation}
+In forensic linguistics, specialized dictionaries (e.g., the Loughran-McDonald Financial Sentiment Dictionary) supersede generic sentiment lexicons, classifying corporate text across six forensic dimensions: Negative, Positive, Uncertainty, Litigious, Constraining, and Superfluous.
 
-\begin{videocard}{IITM BS Lecture: Text Data for Financial Forensics}{https://www.youtube.com/watch?v=ATmypWhywYY}
-Foundations of textual evidence, regulatory reporting formats (EDGAR 10-K, 8-K), and forensic linguistics.
-\end{videocard}
+\subsection{String Distance Metrics for Entity Disambiguation}
+Adversaries intentionally introduce typographical alterations to disguise shell companies (e.g., ``Satyam Infoway Ltd'' vs.~``Satyam Info-Way Limited'').
 
-\begin{videocard}{IITM BS Lecture: Introduction to Text Preprocessing}{https://www.youtube.com/watch?v=7CcdLL0M35U}
-Core text preprocessing pipelines: tokenization, casing normalization, stopword filtering, and stem/lemma mapping.
-\end{videocard}
+\subsubsection{1. Levenshtein Edit Distance}
+For strings $s_1$ and $s_2$ of lengths $|s_1|$ and $|s_2|$, the edit distance $D(i, j)$ satisfies the dynamic programming recurrence:
+\begin{equation}
+D(i, j) = \begin{cases}
+\max(i, j) & \text{if } \min(i, j) = 0, \\
+\min \begin{cases}
+D(i - 1, j) + 1 \\
+D(i, j - 1) + 1 \\
+D(i - 1, j - 1) + \mathbb{I}(s_1[i] \ne s_2[j])
+\end{cases} & \text{otherwise.}
+\end{cases}
+\label{eq:levenshtein}
+\end{equation}
+The normalized similarity score is:
+\begin{equation}
+\text{Sim}_{\text{Lev}}(s_1, s_2) = 1 - \frac{\text{Lev}(s_1, s_2)}{\max(|s_1|, |s_2|)} \in [0, 1]
+\end{equation}
 
-\begin{videocard}{IITM BS Lecture: Text Pre-Processing Hands-On -- Part 1}{https://www.youtube.com/watch?v=z-OaxsTY2To}
-Hands-on Python tutorial using NLTK and spaCy to clean, tokenize, and parse real-world corporate financial texts.
-\end{videocard}
+\subsubsection{2. Jaro-Winkler Metric for Enterprise Names}
+For strings $s_1$ and $s_2$, let $m$ be the number of matching characters within distance $\lfloor \frac{\max(|s_1|, |s_2|)}{2} \rfloor - 1$, and let $t$ be the number of transpositions. The Jaro metric is:
+\begin{equation}
+Sim_J = \begin{cases}
+0 & \text{if } m = 0, \\
+\frac{1}{3}\left(\frac{m}{|s_1|} + \frac{m}{|s_2|} + \frac{m - t}{m}\right) & \text{otherwise.}
+\end{cases}
+\label{eq:jaro}
+\end{equation}
+The Jaro-Winkler extension rewards matching common initial prefixes:
+\begin{equation}
+Sim_{JW} = Sim_J + \ell \cdot p \cdot (1 - Sim_J)
+\label{eq:jaro_winkler}
+\end{equation}
+where $\ell \le 4$ is the length of the common prefix and $p = 0.1$ is the constant scaling factor.
 
-\begin{videocard}{IITM BS Lecture: Text Pre-Processing Hands-On -- Part 2}{https://www.youtube.com/watch?v=TM6qJqaYvYs}
-Feature extraction: TF-IDF vector representations, $n$-grams, and vocabulary pruning for forensic classification.
-\end{videocard}
+% ----------------------------------------------------------------------
+% PART 3: VISUAL & GEOMETRIC INTUITION
+% ----------------------------------------------------------------------
+\section{Visual \& Geometric Intuition: The Entity Resolution Architecture}
 
-\section{Entity Resolution: The Disambiguation Puzzle}
+Figure~\ref{fig:entity_resolution} diagrams the end-to-end entity resolution pipeline, illustrating how raw, noisy vendor records are normalized, blocked, and scored to unmask hidden shell company networks.
 
-In Anti-Money Laundering (AML) and vendor procurement investigations, adversaries intentionally disguise their identity using minor variations in spelling, acronyms, or fictitious holding structures. \index{entity resolution}\textbf{Entity Resolution} (also termed record linkage or de-duplication) is the task of recognizing whether distinct database records represent the exact same real-world entity.
-
-\begin{videocard}{IITM BS Lecture: Entity Resolution}{https://www.youtube.com/watch?v=0uPjKhlvxTY}
-Algorithmic approaches to matching messy transaction entities, shell vendor networks, and beneficial ownership mapping.
-\end{videocard}
-
-\begin{theorembox}{String Similarity Metrics for Entity Matching}
-\index{Levenshtein Distance}\index{Jaro-Winkler}
-\begin{enumerate}
-    \item \textbf{Levenshtein Edit Distance:} The minimum number of single-character edits (insertions, deletions, or substitutions) required to transform string $s_1$ into $s_2$:
-    \begin{equation}
-    \text{Sim}_{\text{Lev}}(s_1, s_2) = 1 - \frac{\text{Lev}(s_1, s_2)}{\max(|s_1|, |s_2|)}
-    \end{equation}
-    \item \textbf{Jaro-Winkler Similarity:} Specifically optimized for person and business names, giving higher weight to common initial prefixes:
-    \begin{equation}
-    d_j = \frac{1}{3}\left(\frac{m}{|s_1|} + \frac{m}{|s_2|} + \frac{m - t}{m}\right)
-    \end{equation}
-    \begin{equation}
-    d_w = d_j + \ell \cdot p \cdot (1 - d_j)
-    \end{equation}
-    where $m$ is the count of matching characters, $t$ is the number of transpositions, $\ell$ is the length of common prefix (up to 4 chars), and $p = 0.1$ is the constant scaling factor.
-\end{enumerate}
-\end{theorembox}
-
-\begin{intuitionbox}{Connecting the Shell Company Dots}
-Consider payments issued to:
-\begin{itemize}
-    \item ``Acme Global Solutions Ltd.''
-    \item ``ACME GLOBAL SOLNS PVT LTD''
-    \item ``Acme Globel Solutions''
-\end{itemize}
-A naive exact-match query treats these as three unrelated businesses. Entity resolution identifies that all three strings have a Jaro-Winkler similarity $>0.92$, share the same bank routing code, and share a common director address, instantly exposing a centralized shell company funnel!
-\end{intuitionbox}
-
-\section{Data Science Relevance: Automated Forensic Entity Resolution}
-
-\begin{lstlisting}[caption={Automated Entity Resolution and Vendor Matching in Python}]
-import difflib
-import pandas as pd
-import numpy as np
-
-def jaro_winkler_similarity(s1: str, s2: str) -> float:
-    """Computes string sequence matcher ratio as a robust proxy."""
-    return difflib.SequenceMatcher(None, s1.lower().strip(), s2.lower().strip()).ratio()
-
-def resolve_vendor_entities(vendor_list: list, match_threshold: float = 0.85) -> pd.DataFrame:
-    """
-    Groups distinct vendor text strings into unified canonical entity clusters.
-    """
-    n = len(vendor_list)
-    clusters = {}
-    cluster_id = 0
-    assigned = [False] * n
-    
-    for i in range(n):
-        if assigned[i]:
-            continue
-        # Create new entity cluster
-        cluster_id += 1
-        canonical_name = vendor_list[i]
-        clusters[vendor_list[i]] = (cluster_id, canonical_name)
-        assigned[i] = True
-        
-        for j in range(i + 1, n):
-            if assigned[j]:
-                continue
-            sim = jaro_winkler_similarity(vendor_list[i], vendor_list[j])
-            if sim >= match_threshold:
-                clusters[vendor_list[j]] = (cluster_id, canonical_name)
-                assigned[j] = True
-
-    res = pd.DataFrame([
-        {'Raw_Vendor_Name': k, 'Cluster_ID': v[0], 'Canonical_Entity': v[1]}
-        for k, v in clusters.items()
-    ])
-    return res
-
-# Messy procurement ledger entries
-raw_vendors = [
-    "Reliance Industries Ltd",
-    "Reliance Inds Ltd",
-    "Tata Consultancy Services",
-    "TCS Ltd",
-    "Reliance Ind.",
-    "Tata Consultancy Serv.",
-    "Shell Oil Corp"
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    font=\sffamily\footnotesize,
+    node distance=1.1cm and 1.3cm,
+    block/.style={rectangle, draw=primarydark, fill=primarylight, thick, rounded corners=3pt, minimum width=2.8cm, minimum height=1.1cm, align=center},
+    action/.style={rectangle, draw=tealborder, fill=tealbg, thick, rounded corners=3pt, minimum width=2.8cm, minimum height=1.1cm, align=center},
+    alert/.style={rectangle, draw=coralborder, fill=coralbg, thick, rounded corners=3pt, minimum width=2.8cm, minimum height=1.1cm, align=center},
+    arr/.style={->, >=stealth, thick, color=primarydark}
 ]
 
-matched_entities = resolve_vendor_entities(raw_vendors, match_threshold=0.72)
-print("Entity Resolution Disambiguation Results:\n", matched_entities)
+% Nodes
+\node[block] (raw) {\textbf{Messy Entity Records}\\Vendor / Client DBs\\Payment Narrations};
+\node[action, right=of raw] (prep) {\textbf{Text Preprocessing}\\Casing, Stemming\\Legal Suffix Stripping};
+\node[action, right=of prep] (block) {\textbf{Blocking / Indexing}\\Phonetic Hash, Zip\\Reduces $O(N^2) \to O(N)$};
+\node[alert, below=1.2cm of block] (score) {\textbf{Similarity Scoring}\\Jaro-Winkler $\ge 0.88$\\Levenshtein Ratio};
+\node[alert, left=of score] (graph) {\textbf{Graph Resolution}\\Connected Components\\Common Beneficial Owner};
+\node[block, left=of graph] (out) {\textbf{Golden Record}\\Canonical Disambiguated\\Entity Profile};
+
+% Connectors
+\draw[arr] (raw) -- (prep);
+\draw[arr] (prep) -- (block);
+\draw[arr] (block) -- (score);
+\draw[arr] (score) -- (graph);
+\draw[arr] (graph) -- (out);
+
+\end{tikzpicture}
+\caption{The Automated Forensic Entity Resolution and Record Linkage Pipeline.}
+\label{fig:entity_resolution}
+\end{figure}
+
+% ----------------------------------------------------------------------
+% PART 4: DEEP INTUITION & CONCEPTUAL DERIVATIONS
+% ----------------------------------------------------------------------
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Linguistic Deception in Corporate Annual Filings}
+In empirical forensic accounting literature (e.g., Larcker and Zakolyukina, 2012), deceptive corporate disclosures exhibit three statistically significant psycholinguistic traits:
+\begin{enumerate}
+    \item \textbf{First-Person Pronoun Displacement:} Executives intentionally suppress self-referential pronouns (``I'', ``we'', ``my'') and substitute third-person institutional terminology (``the company'', ``management'', ``the board''). This reflects psychological distancing from statements the executive knows to be false.
+    \item \textbf{Cognitive Complexity and Gunning Fog Inflation:} When performance deteriorates, deceptive disclosures feature complex sentence structures, Latinate legalisms, and passive voice phrasing to increase cognitive reading latency.
+    \item \textbf{Extreme Positive Sentiment Asymmetry:} Deceptive annual reports feature an unnatural frequency of extreme positive superlatives (``unparalleled'', ``unprecedented'') designed to rhetorically counter deteriorating financial ratios.
+\end{enumerate}
+
+% ----------------------------------------------------------------------
+% PART 5: EXPLICIT GOTCHAS & DIAGNOSTIC MISCONCEPTIONS
+% ----------------------------------------------------------------------
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Gotcha 1: Neglecting Domain-Specific Financial Sentiment Dictionaries}
+\textbf{The Trap:} Applying generic natural language sentiment packages (e.g., VADER or TextBlob) directly to corporate financial filings.\\
+\textbf{Forensic Reality:} In general English, words like ``liability'', ``depreciation'', ``tax'', ``board'', and ``share'' carry negative or neutral connotations. Standard lexicons misclassify normal corporate accounting passages as overwhelmingly negative. Forensic NLP must utilize the Loughran-McDonald dictionary, which properly calibrates financial semantics.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 2: The Exact-Match Blindspot in Sanctions Screening}
+\textbf{The Trap:} Screening international wire transfer payees against global AML sanctions lists using exact SQL \texttt{WHERE} string matching.\\
+\textbf{Forensic Reality:} Illicit actors deliberately insert subtle typographical variations (e.g., swapping Cyrillic lookalike letters or changing ``Mohammad'' to ``Muhamed''). Exact-match queries produce a $100\%$ evasion rate. Automated fuzzy string matching and phonetic algorithms are legally mandated under FATF recommendations.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 3: The Quadratic Complexity Explosion in Record Linkage}
+\textbf{The Trap:} Executing pairwise Levenshtein or Jaro-Winkler distance computations across all record pairs in an enterprise ledger of $N = 500{,}000$ transactions.\\
+\textbf{Forensic Reality:} The total number of pairwise comparisons scales as $\binom{N}{2} = \frac{N(N-1)}{2} \approx 1.25 \times 10^{11}$ operations, overwhelming server clusters. Scalable entity resolution requires **blocking** (e.g., partitioning records by soundex code, state, or initial characters) to restrict pairwise comparison to plausible candidates ($O(N)$).
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 4: Relying Solely on Soundex Phonetic Hashing for Transliterated Names}
+\textbf{The Trap:} Utilizing the classic Soundex phonetic algorithm to match international corporate entities and foreign beneficial owners.\\
+\textbf{Forensic Reality:} Soundex was engineered in the early 20th century specifically for American Census English surnames. It handles Asian, Arabic, Slavic, and African name transliterations exceptionally poorly. Modern systems require Double Metaphone or deep embedding neural string encodings.
+\end{trapbox}
+
+% ----------------------------------------------------------------------
+% PART 6: COMPARATIVE SYNTHESIS & SUMMARY TABLE
+% ----------------------------------------------------------------------
+\section{Comparative Synthesis \& Summary Table}
+
+Table~\ref{tab:comparison_string_metrics} compares the computational performance, typo resilience, and forensic suitability of core entity resolution algorithms.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lXXX}
+\toprule
+\textbf{String Metric} & \textbf{Algorithm Logic} & \textbf{Prefix / Transposition Sensitivity} & \textbf{Primary Forensic Application} \\
+\midrule
+\textbf{Levenshtein Ratio} & Dynamic programming edit matrix counting insertions, deletions, edits. & Uniform across the entire string length; sensitive to character order. & Document tampering; contract clause alterations; invoice number typos. \\
+\addlinespace
+\textbf{Jaro-Winkler} & Matches characters within sliding window with weighted bonus for prefix. & High bonus for matching initial 4 characters; penalizes suffix differences. & Person and business entity matching; AML sanctions list screening. \\
+\addlinespace
+\textbf{Double Metaphone} & Phonetic encoding mapping words to approximate pronunciation codes. & Invariant to spelling variations that produce identical acoustic sound. & Cross-lingual customer deduplication; informal payment narrations. \\
+\addlinespace
+\textbf{TF-IDF Cosine} & Bag-of-words vector angle normalized by global corpus frequency. & Completely order-invariant; sensitive to distinctive, rare vocabulary. & Matching multi-word corporate names; unstructured regulatory filings. \\
+\bottomrule
+\end{tabularx}
+\caption{Systemic Comparison of String Similarity Metrics in Forensic Entity Resolution.}
+\label{tab:comparison_string_metrics}
+\end{table}
+
+% ----------------------------------------------------------------------
+% PART 7: PYTHON / SCIENTIFIC COMPUTING LAB
+% ----------------------------------------------------------------------
+\section{Python / Scientific Computing Lab: Automated Entity Resolution Engine}
+
+Listing~\ref{lst:nlp_entity_engine} provides an automated Python program that performs text normalization, phonetic blocking, Jaro-Winkler similarity scoring, and resolves messy procurement vendor identities.
+
+\begin{lstlisting}[language=Python, caption={Automated Vendor Entity Resolution Engine in Python}, label={lst:nlp_entity_engine}]
+import re
+from typing import List, Tuple
+
+def clean_entity_name(name: str) -> str:
+    """
+    Standardizes commercial entity names by stripping legal suffixes,
+    punctuation, and excess whitespace.
+    """
+    name = name.lower()
+    # Remove common legal business entities
+    legal_suffixes = r'\b(ltd|limited|inc|incorporated|corp|corporation|pvt|private|llc|co)\b'
+    name = re.sub(legal_suffixes, '', name)
+    # Remove special punctuation
+    name = re.sub(r'[^a-z0-9\s]', '', name)
+    return ' '.join(name.split())
+
+def jaro_distance(s1: str, s2: str) -> float:
+    """Computes standard Jaro distance between two strings."""
+    if s1 == s2:
+        return 1.0
+    len1, len2 = len(s1), len(s2)
+    if len1 == 0 or len2 == 0:
+        return 0.0
+        
+    match_distance = max(len1, len2) // 2 - 1
+    s1_matches = [False] * len1
+    s2_matches = [False] * len2
+    matches = 0
+    
+    for i in range(len1):
+        start = max(0, i - match_distance)
+        end = min(i + match_distance + 1, len2)
+        for j in range(start, end):
+            if not s2_matches[j] and s1[i] == s2[j]:
+                s1_matches[i] = True
+                s2_matches[j] = True
+                matches += 1
+                break
+                
+    if matches == 0:
+        return 0.0
+        
+    transpositions = 0
+    k = 0
+    for i in range(len1):
+        if s1_matches[i]:
+            while not s2_matches[k]:
+                k += 1
+            if s1[i] != s2[k]:
+                transpositions += 1
+            k += 1
+            
+    t = transpositions / 2.0
+    return (matches / len1 + matches / len2 + (matches - t) / matches) / 3.0
+
+def jaro_winkler(s1: str, s2: str, p: float = 0.1) -> float:
+    """Computes Jaro-Winkler similarity with prefix bonus."""
+    j = jaro_distance(s1, s2)
+    # Common prefix up to 4 characters
+    prefix = 0
+    for c1, c2 in zip(s1[:4], s2[:4]):
+        if c1 == c2:
+            prefix += 1
+        else:
+            break
+    return j + prefix * p * (1.0 - j)
+
+def resolve_vendor_records(query_name: str, candidate_catalog: List[str], threshold: float = 0.85) -> List[Tuple[str, float]]:
+    """Matches a messy vendor query against a clean master vendor catalog."""
+    clean_query = clean_entity_name(query_name)
+    matches = []
+    
+    for candidate in candidate_catalog:
+        clean_cand = clean_entity_name(candidate)
+        sim = jaro_winkler(clean_query, clean_cand)
+        if sim >= threshold:
+            matches.append((candidate, round(sim, 4)))
+            
+    matches.sort(key=lambda x: x[1], reverse=True)
+    return matches
+
+# -------------------------------------------------------------
+# Test Harness with Real-World Shell Entity Variations
+# -------------------------------------------------------------
+if __name__ == '__main__':
+    master_catalog = [
+        "Hindustan Logistics Private Limited",
+        "Satyam Infoway Corporation",
+        "Tata Consultancy Services Ltd",
+        "Bharat Heavy Electricals Limited"
+    ]
+    
+    suspicious_queries = [
+        "Hindostan Logistics Pvt Ltd",
+        "Satyam Info-Way Corp",
+        "TCS Ltd.",
+        "Random Ghost Shell Co"
+    ]
+    
+    print("Forensic Entity Resolution Matching Results:")
+    for query in suspicious_queries:
+        matched = resolve_vendor_records(query, master_catalog, threshold=0.82)
+        if matched:
+            best_match, score = matched[0]
+            print(f"Query: '{query}' -> Match: '{best_match}' (Similarity: {score})")
+        else:
+            print(f"Query: '{query}' -> NO MATCH (Unregistered / Novel Entity)")
 \end{lstlisting}
 
-\section*{Supplementary Lecture Videos}
-\begin{itemize}
-    \item \href{https://www.youtube.com/watch?v=ATmypWhywYY}{W11\_L1: Text Data for Financial Forensics}
-    \item \href{https://www.youtube.com/watch?v=7CcdLL0M35U}{W11\_L2: Introduction to Text Preprocessing in Financial Domains}
-    \item \href{https://www.youtube.com/watch?v=z-OaxsTY2To}{W11\_L3: Text Pre-Processing -- Hands-On Tutorial Part 1}
-    \item \href{https://www.youtube.com/watch?v=TM6qJqaYvYs}{W11\_L4: Text Pre-Processing -- Hands-On Tutorial Part 2}
-    \item \href{https://www.youtube.com/watch?v=0uPjKhlvxTY}{W11\_L5: Entity Resolution \& Record Linkage}
-\end{itemize}
+% ----------------------------------------------------------------------
+% PART 8: COMPREHENSIVE PRACTICE PROBLEMS
+% ----------------------------------------------------------------------
+\section{Comprehensive Practice Problems}
+\textit{Complete mathematical derivations and diagnostic MCQ distractor rationales are located in the Appendix.}
 
-\newpage
-\section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\subsection*{Part A: Analytical \& Computational Problems}
 
-\begin{enumerate}
-    \item Compute the Levenshtein edit distance between the strings:
-    \begin{equation*}
-    s_1 = \text{``ENRON''} \quad \text{and} \quad s_2 = \text{``ERRON''}
-    \end{equation*}
-    Show the matrix calculation and state the normalized similarity score.
-    
-    \item Detail the mathematical formulation of Term Frequency-Inverse Document Frequency (TF-IDF):
-    \begin{equation*}
-    \text{TF-IDF}(t, d, D) = \text{TF}(t, d) \times \ln\left(\frac{1 + |D|}{1 + |\{d \in D : t \in d\}|}\right)
-    \end{equation*}
-    Why are high-frequency financial domain words like ``financial'' or ``company'' naturally down-weighted by the IDF term in a corpus of 10-K filings?
-    
-    \item In an ongoing bribery investigation, an investigator needs to match an internal list of 10,000 corporate vendors against an international Politically Exposed Persons (PEP) watchlist containing 50,000 names. Explain why naive all-pairs comparison ($O(N \cdot M)$) is computationally prohibitive ($5 \times 10^8$ string comparisons) and explain how \textit{blocking} or \textit{locality-sensitive hashing (LSH)} accelerates the matching pipeline.
-    
-    \item Outline the architecture of a Named Entity Recognition (NER) model using conditional random fields (CRF) or fine-tuned Transformer (FinBERT) to extract monetary bribery amounts and beneficiary accounts from employee email bodies.
-    
-    \item Explain the concept of ``beneficial ownership concealment'' in financial forensics. How does network graph analysis combine entity resolution with corporate registry databases to reveal the ultimate human controller behind a chain of shell companies?
+\begin{enumerate}[label=\textbf{P11.\arabic*}]
+    \item \textbf{TF-IDF Weighting \& Deceptive Corpus Scoring:}\\
+    An internal audit investigation reviews a corpus of $N = 1{,}000$ executive emails. The term \texttt{unprecedented} appears $6$ times in a suspect CFO email of $200$ total words. Across the entire corpus, \texttt{unprecedented} appears in only $10$ emails.
+    \begin{enumerate}[label=(\alph*)]
+        \item Compute the Term Frequency ($\text{TF}$) of the term in the suspect email.
+        \item Compute the natural Inverse Document Frequency ($\text{IDF}$) using the smoothed formulation $\ln\left(\frac{1 + N}{1 + \text{DF}}\right) + 1$.
+        \item Compute the final TF-IDF score.
+        \item Explain why rare, emotionally hyperbolic words achieve high TF-IDF scores in forensic text mining.
+    \end{enumerate}
+
+    \item \textbf{Step-by-Step Levenshtein Edit Distance Matrix:}\\
+    A fraudulent wire transfer specifies the beneficiary bank account holder as \texttt{SATYAM}. The legitimate authorized master vendor name on record is \texttt{SATNAM}.
+    \begin{enumerate}[label=(\alph*)]
+        \item Construct the complete dynamic programming $(7 \times 7)$ Levenshtein distance matrix.
+        \item State the final minimum edit distance $\text{Lev}(\texttt{SATYAM}, \texttt{SATNAM})$.
+        \item Calculate the normalized Levenshtein similarity percentage.
+    \end{enumerate}
+
+    \item \textbf{Jaro-Winkler Calculation for Shell Entity Matching:}\\
+    An AML screening engine compares two vendor names: $s_1 = \texttt{BHARAT}$ and $s_2 = \texttt{BHARTY}$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Determine the maximum allowable match distance.
+        \item Identify the matching characters and count the number of transpositions.
+        \item Compute the base Jaro distance $Sim_J$.
+        \item Determine the common prefix length $\ell$ and compute the final Jaro-Winkler similarity $Sim_{JW}$ using $p = 0.1$.
+    \end{enumerate}
+
+    \item \textbf{Linguistic Deception \& MD\&A Risk Profiling:}\\
+    Two pharmaceutical firms publish their annual MD\&A disclosures. Firm $A$ reports a first-person pronoun frequency of $0.2\%$, an average sentence length of $38$ words, and a Loughran-McDonald uncertainty word density of $4.8\%$. Firm $B$ reports $1.8\%$ first-person pronouns, $18$ words per sentence, and $1.1\%$ uncertainty terms. Formulate an investigative assessment regarding which firm presents elevated financial reporting deception risk.
+
+    \item \textbf{Scalable Blocking Strategy in Corporate Registry Linkage:}\\
+    A national financial intelligence unit must match $2{,}000{,}000$ offshore corporate registry records against $500{,}000$ domestic bank accounts. Detail a multi-pass blocking architecture utilizing phonetic hashing and geographic indexing to ensure computational feasibility.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions}
+
+\begin{enumerate}[label=\textbf{MCQ 11.\arabic*}]
+    \item In forensic text mining of corporate annual reports, why do domain-specific dictionaries like the Loughran-McDonald financial lexicon dramatically outperform generic sentiment tools such as VADER or TextBlob?
+    \begin{enumerate}[label=(\alph*)]
+        \item Generic lexicons misclassify standard recurring corporate financial terminology (e.g., ``depreciation'', ``tax'', ``liability'') as negative sentiment, generating massive false-positive deception signals.
+        \item Generic lexicons cannot process English words with more than six letters.
+        \item The Loughran-McDonald dictionary converts text into double-entry journal vouchers.
+        \item The Securities and Exchange Commission mandates that all models achieve $100\%$ accuracy.
+    \end{enumerate}
+
+    \item In string similarity calculations for entity resolution, how does the Jaro-Winkler metric modify the standard Jaro formulation?
+    \begin{enumerate}[label=(\alph*)]
+        \item It eliminates all vowels before computing edit operations.
+        \item It gives an upward bonus score to string pairs that share an identical initial character prefix (up to four characters), heavily benefiting real-world personal and business names.
+        \item It multiplies the string lengths by the Euler-Mascheroni constant.
+        \item It requires strings to have identical acoustic pronunciation under Soundex.
+    \end{enumerate}
 \end{enumerate}

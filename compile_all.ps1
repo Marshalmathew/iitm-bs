@@ -1,6 +1,11 @@
 # PowerShell script to compile all IITM BS course textbooks locally
 
-$env:PATH = ($env:PATH -split ';' | Where-Object { $_ -notlike '*ojdbc11.jar*' }) -join ';'
+$env:PATH = ($env:PATH -split ';' | Where-Object { 
+    $_ -and 
+    $_ -notmatch '\.jar$' -and 
+    $_ -notlike '*ojdbc*' -and 
+    (Test-Path $_ -PathType Container -ErrorAction SilentlyContinue) 
+}) -join ';'
 $Courses = @("maths1", "maths2", "python", "stats1", "stats2", "financial_forensics")
 $PdfLatexExists = Get-Command pdflatex -ErrorAction SilentlyContinue
 

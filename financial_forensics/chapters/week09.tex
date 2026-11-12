@@ -1,214 +1,323 @@
 \chapter{Fraud Detection: Supervised \& Unsupervised Machine Learning}
 
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You Will Learn in this Chapter}}]
+% ----------------------------------------------------------------------
+% PART 1: EXECUTIVE ROADMAP & LEARNING OBJECTIVES
+% ----------------------------------------------------------------------
+\section{Executive Roadmap \& Learning Objectives}
+
+The exponential growth of real-time digital transaction volumes has rendered manual rule-based audit checks obsolete. Modern financial institutions process thousands of payment authorizations per second, requiring automated machine learning engines capable of identifying subtle fraud patterns within milliseconds. However, applying machine learning to financial fraud presents a unique set of foundational challenges: extreme class imbalance ($< 0.1\%$ positive incidence), asymmetric misclassification costs, and dynamic adversarial drift where fraudsters continuously alter their techniques.
+
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Core Learning Competencies}}]
+Upon mastering this chapter, students will be equipped to:
 \begin{itemize}
-    \item Taxonomy of modern financial fraud schemes: Synthetic identities, Account Takeover (ATO), and Bust-out fraud
-    \item The severe class imbalance challenge ($<0.1\%$ fraud incidence) in financial transaction streams
-    \item Why accuracy fails: Evaluation via Precision-Recall AUC (PR-AUC) and Cost-Sensitive Matrices
-    \item Resampling strategies: SMOTE (Synthetic Minority Over-sampling) and Under-sampling
-    \item Supervised tree ensembles: XGBoost and LightGBM for transaction scoring
-    \item Unsupervised anomaly detection: Isolation Forests, Local Outlier Factor (LOF), and Autoencoders
-    \item Python pipeline comparing Supervised XGBoost with Unsupervised Isolation Forests
+    \item \textbf{Map Modern Financial Fraud Typologies:} Differentiate between synthetic identity theft, account takeover (ATO), and organized bust-out schemes.
+    \item \textbf{Deconstruct the Accuracy Paradox:} Formulate cost-sensitive loss matrices and evaluate models using Precision-Recall Area Under the Curve (PR-AUC) rather than raw accuracy.
+    \item \textbf{Engineer Resampling Strategies:} Apply Synthetic Minority Over-sampling Technique (SMOTE) and informed undersampling without inducing synthetic artifact contamination.
+    \item \textbf{Deploy Supervised Gradient Boosters:} Train cost-calibrated XGBoost and LightGBM models with focal and asymmetric loss objectives.
+    \item \textbf{Implement Unsupervised Anomaly Detectors:} Derive the average path length anomaly metric of Isolation Forests and deploy reconstruction-loss autoencoders.
 \end{itemize}
 \end{tcolorbox}
 
-\section{The Landscape of Financial Transaction Fraud}
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Construct / Metric} & \textbf{Symbol} & \textbf{Mathematical Definition / Structural Formula} \\
+\midrule
+Precision & $\text{Prec}$ & $\frac{TP}{TP + FP} = \frac{\text{True Frauds Caught}}{\text{Total Transactions Flagged}}$ \\
+Recall (Sensitivity) & $\text{Rec}$ & $\frac{TP}{TP + FN} = \frac{\text{True Frauds Caught}}{\text{Total Actual Frauds}}$ \\
+$F_\beta$-Measure & $F_\beta$ & $(1 + \beta^2) \frac{\text{Prec} \times \text{Rec}}{\beta^2 \text{Prec} + \text{Rec}} \quad (\beta = 2 \text{ prioritizes Recall})$ \\
+Cost-Weighted Loss & $\mathcal{L}_{\text{cost}}$ & $C_{FN} \cdot FN + C_{FP} \cdot FP \quad \text{where } C_{FN} \gg C_{FP}$ \\
+Isolation Anomaly Score & $s(x, n)$ & $2^{-\frac{E[h(x)]}{c(n)}} \quad \text{where } c(n) = 2\ln(n - 1) + 0.5772 - \frac{2(n-1)}{n}$ \\
+Autoencoder Loss & $\mathcal{L}_{\text{AE}}$ & $\|\mathbf{x} - g(f(\mathbf{x}))\|_2^2 = \sum_{j=1}^d (x_j - \hat{x}_j)^2$ \\
+\bottomrule
+\end{tabularx}
+\caption{Mathematical Notation Guide for Imbalanced Fraud Classification and Anomaly Detection.}
+\label{tab:w9_notation}
+\end{table}
 
-Modern financial systems process billions of electronic payments daily. Adversaries continually innovate attack vectors to siphon capital across the payment ecosystem.
+% ----------------------------------------------------------------------
+% PART 2: MATHEMATICAL & COMPUTATIONAL FOUNDATIONS
+% ----------------------------------------------------------------------
+\section{Mathematical \& Computational Foundations}
 
-\begin{definitionbox}{Major Fraud Typologies}
-\index{Synthetic Identity}\index{Account Takeover}\index{Bust-Out Fraud}
+\subsection{The Cost-Sensitive Asymmetric Loss Formulation}
+In commercial fraud detection, false negatives ($FN$) and false positives ($FP$) carry vastly different financial consequences:
 \begin{itemize}
-    \item \textbf{Identity Theft vs.~Synthetic Identity:} Traditional identity theft steals a real person's complete credentials. A \textit{Synthetic Identity} combines real identifiers (e.g., a child's unused social security or Aadhaar number) with fictitious names and addresses to cultivate a ghost credit profile over years before executing a bust-out.
-    \item \textbf{Account Takeover (ATO):} An attacker gains unauthorized control of a legitimate customer's account via credential stuffing, phishing, or SIM-swapping.
-    \item \textbf{Bust-Out Fraud:} Fraudsters cultivate high credit limits across multiple financial institutions through timely early payments, then suddenly draw down maximum credit lines simultaneously and vanish.
+    \item False Negative ($C_{FN}$): The fraud passes undetected. Cost equals the stolen transaction balance, chargeback penalties, network interchange fines, and customer churn: $C_{FN} \approx \text{Rs.~} 50{,}000$ to $5{,}00{,}000+$.
+    \item False Positive ($C_{FP}$): A legitimate transaction is declined or challenged with step-up authentication. Cost equals SMS OTP gateway fees and minor customer friction: $C_{FP} \approx \text{Rs.~} 10$ to $100$.
 \end{itemize}
-\end{definitionbox}
-
-\begin{videocard}{IITM BS Lecture: Introduction to Frauds in Finance -- Part 1}{https://www.youtube.com/watch?v=5ElmujiqYUU}
-Survey of modern fraud vectors, financial crime trends, and regulatory mandates (AML/CFT).
-\end{videocard}
-
-\begin{videocard}{IITM BS Lecture: Introduction to Frauds in Finance -- Part 2}{https://www.youtube.com/watch?v=DCKgZh001lY}
-Dissecting transaction patterns, deceptive behaviors, and behavioral biometrics in financial crime.
-\end{videocard}
-
-\section{The Asymmetric Challenge: Extreme Class Imbalance}
-
-In production fraud systems, legitimate transactions represent $>99.9\%$ of all volume, while fraudulent events comprise $<0.1\%$ ($1$ in $1{,}000$).
-
-\begin{warningbox}{The Accuracy Paradox}
-\index{Accuracy Paradox}
-A trivial, naive model that classifies \textit{every single transaction as legitimate} achieves an astounding $99.9\%$ accuracy! Yet it captures zero fraud, resulting in catastrophic institutional financial loss. In financial forensics, **Accuracy is a useless metric**. Models must be evaluated using Precision, Recall, and the Area Under the Precision-Recall Curve (PR-AUC).
-\end{warningbox}
-
-\begin{formulabox}{Precision, Recall, and the Cost-Sensitive Loss Matrix}
-\index{Precision}\index{Recall}
+The optimal classification decision boundary $p^*$ shifts from the standard $0.5$ threshold to the cost-minimizing Bayes decision threshold:
 \begin{equation}
-\text{Precision} = \frac{TP}{TP + FP}, \quad \text{Recall} = \frac{TP}{TP + FN}
+p^* = \frac{C_{FP}}{C_{FP} + C_{FN}} \ll 0.50
+\label{eq:bayes_threshold}
 \end{equation}
-In financial forensics, the cost of a False Negative ($C_{FN}$, the direct monetary loss of the unblocked fraud plus regulatory fines) is vastly greater than the cost of a False Positive ($C_{FP}$, the friction of sending an SMS challenge or placing a temporary hold):
+
+\subsection{Isolation Forests: Average Path Length Formulation}
+Formulated by Fei Tony Liu, Kai Ming Ting, and Zhi-Hua Zhou (2008), \index{Isolation Forest}\textbf{Isolation Forests} isolate anomalies rather than profiling normal points. Because anomalies are few and possess attribute values divergent from the norm, they are isolated closer to the root of a random decision tree.
+
+For a dataset of $n$ instances, the average path length of an unsuccessful search in a Binary Search Tree (BST) represents the normalization constant:
 \begin{equation}
-\text{Total Expected Cost} = C_{FP} \cdot FP + C_{FN} \cdot FN \quad (C_{FN} \gg C_{FP})
+c(n) = 2 \ln(n - 1) + 2\gamma - \frac{2(n - 1)}{n}
+\label{eq:bst_constant}
 \end{equation}
-\end{formulabox}
+where $\gamma \approx 0.5772156649$ is the Euler-Mascheroni constant.
+For an instance $x$ evaluated across an ensemble of $T$ isolation trees, the anomaly score $s(x, n)$ is:
+\begin{equation}
+s(x, n) = 2^{-\frac{E[h(x)]}{c(n)}}
+\label{eq:isolation_score}
+\end{equation}
+\textbf{Decision Thresholds:}
+\begin{itemize}
+    \item If $E[h(x)] \to 0 \implies s \to 1$: Highly isolated observation; \textcolor{red}{\textbf{Definite Anomaly}}.
+    \item If $E[h(x)] \to c(n) \implies s \to 0.5$: Normal instance exhibiting average depth.
+    \item If $E[h(x)] \to n - 1 \implies s \to 0$: Structurally dense cluster; non-anomalous.
+\end{itemize}
+
+% ----------------------------------------------------------------------
+% PART 3: VISUAL & Geometric Intuition
+% ----------------------------------------------------------------------
+\section{Visual \& Geometric Intuition: The Isolation Mechanism}
+
+Figure~\ref{fig:isolation_trees} illustrates the geometric intuition behind Isolation Forests, demonstrating how an anomalous transaction requires far fewer random partitions to be isolated than a normal transaction embedded in a dense commercial cluster.
 
 \begin{figure}[htbp]
 \centering
-\begin{tikzpicture}
-\begin{axis}[
-    width=0.85\textwidth,
-    height=5.2cm,
-    xmin=0, xmax=1,
-    ymin=0, ymax=1,
-    xlabel={Recall / False Positive Rate},
-    ylabel={Precision / True Positive Rate},
-    grid=major,
-    grid style={dashed, gray!30},
-    legend style={at={(0.95,0.75)}, anchor=east, font=\footnotesize}
+\begin{tikzpicture}[
+    scale=0.9,
+    font=\sffamily\footnotesize
 ]
-\addplot[domain=0:1, ultra thick, primaryborder] {1 - (1-x)^2};
-\addplot[domain=0:1, ultra thick, coralborder] {0.85 * exp(-3.5*x) + 0.15};
-\addplot[dashed, thick, gray] coordinates {(0,0) (1,1)};
-\legend{ROC Curve ($\text{AUC} \approx 0.94$), PR Curve ($\text{PR-AUC} \approx 0.38$), Random Guess}
-\end{axis}
-\end{tikzpicture}
-\caption{The Fraud Evaluation Contrast: Deceptive ROC Curve vs. Informative Precision-Recall Curve under $0.1\%$ Class Imbalance.}
-\end{figure}
 
-\begin{videocard}{IITM BS Lecture: Fraud from the Lens of Supervised Learning -- Theory}{https://www.youtube.com/watch?v=U0LYmjxX1hk}
-Mathematical foundations of cost-sensitive learning, loss function reweighting, and tree-based ensembles.
-\end{videocard}
+% Normal cluster region
+\draw[thick, draw=primarydark, fill=primarylight!40, rounded corners=4pt] (-4, -2) rectangle (0, 2);
+\node[color=primarydark, font=\bfseries] at (-2, 2.3) {Normal Transactions Cluster};
 
-\begin{videocard}{IITM BS Lecture: Fraud via Supervised Learning Tutorial -- Part 1}{https://www.youtube.com/watch?v=34RUYjRcLHU}
-Data engineering, handling imbalanced transaction datasets, and SMOTE synthesis in Python.
-\end{videocard}
-
-\begin{videocard}{IITM BS Lecture: Fraud via Supervised Learning Tutorial -- Part 2}{https://www.youtube.com/watch?v=2sqTAghROD0}
-Hyperparameter tuning, threshold calibration, and production feature store integration.
-\end{videocard}
-
-\section{Unsupervised Anomaly Detection: Isolation Forests}
-
-Supervised models excel at detecting historical, known fraud patterns. However, when fraudsters deploy novel, zero-day schemes, supervised models fail because no historical training labels exist. Unsupervised anomaly detection algorithms detect unexpected deviations without requiring prior labels.
-
-\begin{definitionbox}{The Isolation Forest Algorithm (iForest)}
-\index{Isolation Forest}
-Proposed by Liu, Ting, and Zhou (2008), the \textbf{Isolation Forest} isolates anomalies rather than profiling normal data points. An anomaly score is derived from the average path length $h(x)$ required to isolate sample $x$ across an ensemble of randomized trees:
-\begin{equation}
-s(x, n) = 2^{-\frac{E(h(x))}{c(n)}}
-\end{equation}
-where $E(h(x))$ is the average path length across all isolation trees, and $c(n)$ is the average path length of unsuccessful searches in a Binary Search Tree (BST) over $n$ instances:
-\begin{equation}
-c(n) = 2 \ln(n - 1) + 0.5772156649 \text{ (Euler's constant)} - \frac{2(n-1)}{n}
-\end{equation}
-\end{definitionbox}
-
-\begin{figure}[htbp]
-\centering
-\begin{tikzpicture}[scale=0.9]
-% Bounding box
-\draw[thick, primarydark] (0,0) rectangle (6,6);
-% Normal data cluster
-\foreach \i in {1,...,25}{
-  \fill[primaryborder] (2+rand*0.8, 2+rand*0.8) circle (2pt);
+% Cluster points
+\foreach \i in {1,...,25} {
+    \fill[primarydark] (-3.5 + rand*1.5, rand*1.5) circle (2pt);
 }
-% Outlier anomaly point
-\fill[red] (5.2, 5.3) circle (3.5pt) node[above right, font=\footnotesize\bfseries, color=red] {Fraud Anomaly ($x_a$)};
-% Partition cuts
-\draw[very thick, dashed, coralformula] (0, 4.5) -- (6, 4.5) node[right, font=\tiny\bfseries] {Cut 1};
-\draw[very thick, dashed, purpleex] (4.2, 4.5) -- (4.2, 6.0) node[above, font=\tiny\bfseries] {Cut 2 (Isolated!)};
+
+% Anomaly point
+\fill[red] (3.2, 1.2) circle (3.5pt) node[above right, color=red] {\textbf{Fraudulent Anomaly ($x_a$)}};
+
+% Partition lines
+\draw[dashed, line width=1.2pt, color=coralborder] (1.5, -2.5) -- (1.5, 2.5) node[above] {Cut 1};
+\draw[dashed, line width=1.2pt, color=coralborder] (1.5, 0.2) -- (4.2, 0.2) node[right] {Cut 2 (Isolated!)};
+
+% Tree Representation
+\node[draw=primarydark, fill=white, rounded corners=2pt] at (-2, -3.2) {\textbf{Dense Cluster:} Requires $h(x) \approx 12$--$15$ cuts to isolate};
+\node[draw=coralborder, fill=coralbg, rounded corners=2pt] at (2.8, -3.2) {\textbf{Anomaly $x_a$:} Isolated in $h(x) = 2$ cuts!};
+
 \end{tikzpicture}
-\caption{Isolation Forest 2D Space Partitioning: Anomalies isolate in very few random cuts ($h(x_a)=2$), while normal clusters require deep partitions.}
+\caption{Geometric Partitioning in Isolation Forests: Anomalies Isolate in Few Random Splits.}
+\label{fig:isolation_trees}
 \end{figure}
 
-\begin{videocard}{IITM BS Lecture: Fraud via Unsupervised Learning -- Part 1}{https://www.youtube.com/watch?v=6sESrm8MxSM}
-Clustering and density-based anomaly detection: $k$-Means, DBSCAN, and Local Outlier Factor (LOF).
-\end{videocard}
+% ----------------------------------------------------------------------
+% PART 4: DEEP INTUITION & CONCEPTUAL DERIVATIONS
+% ----------------------------------------------------------------------
+\section{Deep Intuition \& Conceptual Derivations}
 
-\begin{videocard}{IITM BS Lecture: Fraud via Unsupervised Learning -- Part 2}{https://www.youtube.com/watch?v=_hX6KmeU-dg}
-High-dimensional anomaly detection: Isolation Forests and Deep Autoencoder reconstruction errors.
-\end{videocard}
+\subsection{Why Precision-Recall AUC Dominates ROC-AUC in Fraud Detection}
+Under severe class imbalance ($1$ fraud per $1{,}000$ legitimate transactions, $0.1\%$), the standard Receiver Operating Characteristic (ROC) curve presents a deceptively optimistic assessment. 
+The ROC curve plots True Positive Rate ($TPR = \frac{TP}{TP+FN}$) against False Positive Rate ($FPR = \frac{FP}{FP+TN}$). 
+Because the non-fraud majority class is massive ($TN \approx 999{,}000$):
+\begin{equation}
+FPR = \frac{FP}{FP + 999{,}000}
+\end{equation}
+If a model generates $1{,}000$ false positives, the false positive rate remains negligible:
+\begin{equation}
+FPR = \frac{1000}{1000 + 999000} \approx 0.001 \quad (0.1\%)
+\end{equation}
+The ROC curve visually hugs the top-left corner, yielding an impressive $\text{ROC-AUC} = 0.98$.
+However, evaluate the operational user experience through Precision:
+\begin{equation}
+\text{Precision} = \frac{TP}{TP + FP} = \frac{100}{100 + 1000} \approx 9.1\%
+\end{equation}
+Over $90\%$ of alerts investigated by fraud analysts are false alarms! The Precision-Recall curve explicitly exposes this operational breakdown because its denominator ($TP + FP$) directly reflects alert volume.
 
-\begin{videocard}{Masterclass Video: Isolation Forest -- StatQuest}{https://www.youtube.com/watch?v=5p8B2Ikcw-k}
-Josh Starmer's visual masterclass demonstrating why anomalies require significantly fewer random splits to isolate than normal clustered data.
-\end{videocard}
+% ----------------------------------------------------------------------
+% PART 5: EXPLICIT GOTCHAS & DIAGNOSTIC MISCONCEPTIONS
+% ----------------------------------------------------------------------
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
 
-\begin{intuitionbox}{The Apple and the Rare Truffle}
-Imagine a huge bucket containing 10,000 normal red apples and 2 rare black truffles. If you randomly partition the bucket with random cuts across weight and diameter, normal apples are clustered tightly together and require dozens of cuts to separate an individual apple. But the rare black truffle, sitting far away in feature space, gets isolated in just 2 or 3 random cuts! Short path length = high probability of anomaly.
-\end{intuitionbox}
+\begin{trapbox}{Gotcha 1: The Accuracy Paradox in Imbalanced Classifiers}
+\textbf{The Trap:} Evaluating a fraud machine learning model by celebrating an accuracy score of $99.8\%$.\\
+\textbf{Forensic Reality:} In a transaction dataset with $0.1\%$ fraud, a zero-intelligence dummy model that predicts ``Legitimate'' for every single instance achieves $99.9\%$ accuracy while missing $100\%$ of fraudulent transactions. Models must be evaluated strictly using Precision, Recall, $F_2$-score, and PR-AUC.
+\end{trapbox}
 
-\section{Data Science Relevance: Comparing Supervised vs. Unsupervised Fraud Detection}
+\begin{trapbox}{Gotcha 2: Applying SMOTE Before Cross-Validation Splitting (Data Leakage)}
+\textbf{The Trap:} Applying Synthetic Minority Over-sampling Technique (SMOTE) to the entire dataset before executing $k$-fold cross-validation or train-test splitting.\\
+\textbf{Forensic Reality:} Applying SMOTE across the full dataset generates synthetic observations interpolated between training and validation points. Information from the validation set leaks into the training partition, creating artificial test performance that collapses when deployed in production. SMOTE must be fitted exclusively inside each training fold.
+\end{trapbox}
 
-\begin{lstlisting}[caption={Supervised vs. Unsupervised Fraud Detection Pipeline in Python}]
+\begin{trapbox}{Gotcha 3: Training Unsupervised Anomaly Detectors on Heavily Contaminated Data}
+\textbf{The Trap:} Fitting an Isolation Forest on transaction ledgers where organized fraud cartels have operated undetected for months, making up $8\%$ of volume.\\
+\textbf{Forensic Reality:} Isolation Forests assume anomalies are few and structurally isolated. When fraudsters execute structured attacks in high volumes, their transactions form dense clusters. The algorithm misinterprets these fraud clusters as normal background activity, masking the scheme completely.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 4: Blindly Retaining Correlated Feature Duplicates}
+\textbf{The Trap:} Passing raw transaction attributes (e.g., both total spend and daily spend along with multiple overlapping payment gateway timestamps) into tree boosters without correlation pruning.\\
+\textbf{Forensic Reality:} Tree ensembles divide feature importance among collinear covariates, diluting SHAP attributions and creating instability where small data fluctuations alter decision tree splits.
+\end{trapbox}
+
+% ----------------------------------------------------------------------
+% PART 6: COMPARATIVE SYNTHESIS & SUMMARY TABLE
+% ----------------------------------------------------------------------
+\section{Comparative Synthesis \& Summary Table}
+
+Table~\ref{tab:comparison_fraud_models} contrasts the core supervised and unsupervised algorithms deployed in production transaction monitoring architectures.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lXXX}
+\toprule
+\textbf{Model Family} & \textbf{Core Algorithm} & \textbf{Key Advantages} & \textbf{Operational Limitations} \\
+\midrule
+\textbf{Supervised Boosters} & Gradient Boosted Decision Trees (XGBoost / LightGBM). & Highest tabular discrimination; native handling of missing values; asymmetric loss. & Blind to novel, zero-day fraud attack vectors unrepresented in training labels. \\
+\addlinespace
+\textbf{Tree Anomaly Detection} & Isolation Forests ($i\text{Forest}$). & Sub-linear $O(n \log n)$ time; zero label requirements; isolates structural outliers. & Vulnerable to dense fraud clusters (masking); sensitive to irrelevant noise features. \\
+\addlinespace
+\textbf{Density Estimators} & Local Outlier Factor (LOF) / $k$-NN. & Detects local density deviations; identifies isolated transactions in sparse zones. & Computationally prohibitive $O(n^2)$ complexity; unusable for real-time sub-second scoring. \\
+\addlinespace
+\textbf{Deep Autoencoders} & Deep Reconstruction Neural Networks. & Learns complex non-linear normal manifold; high reconstruction loss flags fraud. & High training compute requirements; requires extensive hyperparameter tuning. \\
+\bottomrule
+\end{tabularx}
+\caption{Systemic Comparison of Machine Learning Paradigms for Financial Fraud Detection.}
+\label{tab:comparison_fraud_models}
+\end{table}
+
+% ----------------------------------------------------------------------
+% PART 7: PYTHON / SCIENTIFIC COMPUTING LAB
+% ----------------------------------------------------------------------
+\section{Python / Scientific Computing Lab: Supervised vs.~Unsupervised Fraud Pipeline}
+
+Listing~\ref{lst:fraud_ml_engine} implements an end-to-end benchmark comparing a supervised cost-calibrated classifier against an unsupervised Isolation Forest on imbalanced financial transactions.
+
+\begin{lstlisting}[language=Python, caption={Supervised vs.~Unsupervised Transaction Fraud Pipeline in Python}, label={lst:fraud_ml_engine}]
 import numpy as np
 import pandas as pd
+from sklearn.ensemble import IsolationForest
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, precision_recall_curve, auc
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import IsolationForest, RandomForestClassifier
-from sklearn.metrics import precision_recall_curve, auc, classification_report
 
-# Generate synthetic imbalanced transaction dataset (0.5% fraud)
-np.random.seed(42)
-n_normal, n_fraud = 9950, 50
-X_normal = np.random.normal(loc=0.0, scale=1.0, size=(n_normal, 4))
-X_fraud = np.random.uniform(low=4.0, high=8.0, size=(n_fraud, 4)) # Distinct outliers
+def benchmark_fraud_detectors(X: np.ndarray, y: np.ndarray) -> dict:
+    """
+    Benchmarks Supervised Logistic Regression against Unsupervised 
+    Isolation Forest under extreme class imbalance.
+    """
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.3, random_state=42, stratify=y
+    )
+    
+    # 1. Supervised Model with Class Weighting
+    supervised_clf = LogisticRegression(class_weight='balanced', max_iter=500)
+    supervised_clf.fit(X_train, y_train)
+    y_prob_sup = supervised_clf.predict_proba(X_test)[:, 1]
+    
+    # Precision-Recall AUC for Supervised
+    prec_sup, rec_sup, _ = precision_recall_curve(y_test, y_prob_sup)
+    pr_auc_sup = auc(rec_sup, prec_sup)
+    
+    # 2. Unsupervised Model: Isolation Forest (Trained only on unlabeled features)
+    # Contamination estimate matching empirical fraud incidence (e.g., 1%)
+    iso_forest = IsolationForest(n_estimators=100, contamination=0.01, random_state=42)
+    iso_forest.fit(X_train)
+    
+    # Isolation score: lower values indicate anomalies -> invert for ranking
+    anomaly_scores = -iso_forest.score_samples(X_test)
+    prec_iso, rec_iso, _ = precision_recall_curve(y_test, anomaly_scores)
+    pr_auc_iso = auc(rec_iso, prec_iso)
+    
+    return {
+        'test_frauds': int(y_test.sum()),
+        'test_legit': int((1 - y_test).sum()),
+        'pr_auc_supervised': round(pr_auc_sup, 4),
+        'pr_auc_isolation_forest': round(pr_auc_iso, 4)
+    }
 
-X = np.vstack([X_normal, X_fraud])
-y = np.array([0] * n_normal + [1] * n_fraud)
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, stratify=y, random_state=42)
-
-# 1. Supervised: Random Forest with Class Weighting
-rf = RandomForestClassifier(n_estimators=100, class_weight='balanced', random_state=42)
-rf.fit(X_train, y_train)
-rf_probs = rf.predict_proba(X_test)[:, 1]
-
-# 2. Unsupervised: Isolation Forest (Trained purely on unlabeled data)
-iso = IsolationForest(n_estimators=100, contamination=0.01, random_state=42)
-iso.fit(X_train)
-# Isolation Forest anomaly score: lower means more anomalous -> invert for ranking
-iso_scores = -iso.score_samples(X_test)
-
-# Evaluate using Precision-Recall AUC
-p_rf, r_rf, _ = precision_recall_curve(y_test, rf_probs)
-pr_auc_rf = auc(r_rf, p_rf)
-
-p_iso, r_iso, _ = precision_recall_curve(y_test, iso_scores)
-pr_auc_iso = auc(r_iso, p_iso)
-
-print(f"Supervised Random Forest PR-AUC:   {pr_auc_rf:.4f}")
-print(f"Unsupervised Isolation Forest PR-AUC: {pr_auc_iso:.4f}")
+# -------------------------------------------------------------
+# Test Harness with Synthetic Imbalanced Financial Stream
+# -------------------------------------------------------------
+if __name__ == '__main__':
+    np.random.seed(42)
+    n_samples = 10000
+    n_fraud = 100  # 1% fraud incidence
+    
+    # 5 tabular transaction features (Amount, Hour, Distance, Velocity, IP-Risk)
+    X_legit = np.random.randn(n_samples - n_fraud, 5)
+    # Frauds have shifted means on Amount and Velocity
+    X_fraud = np.random.randn(n_fraud, 5) + np.array([3.5, 0.0, 2.0, 4.0, 1.5])
+    
+    X = np.vstack([X_legit, X_fraud])
+    y = np.array([0] * (n_samples - n_fraud) + [1] * n_fraud)
+    
+    results = benchmark_fraud_detectors(X, y)
+    print(f"Test Class Balance: {results['test_frauds']} Frauds / {results['test_legit']} Legit")
+    print(f"Supervised PR-AUC: {results['pr_auc_supervised']}")
+    print(f"Isolation Forest PR-AUC: {results['pr_auc_isolation_forest']}")
 \end{lstlisting}
 
-\section*{Supplementary Lecture Videos}
-\begin{itemize}
-    \item \href{https://www.youtube.com/watch?v=5ElmujiqYUU}{W9\_L1: Introduction to Frauds in Finance -- Part 1 (AML/CFT Concepts)}
-    \item \href{https://www.youtube.com/watch?v=DCKgZh001lY}{W9\_L2: Introduction to Frauds in Finance -- Part 2 (Deceptive Behaviors)}
-    \item \href{https://www.youtube.com/watch?v=U0LYmjxX1hk}{W9\_L3: Fraud from the Lens of Supervised Learning -- Theory}
-    \item \href{https://www.youtube.com/watch?v=34RUYjRcLHU}{W9\_L4: Fraud via Supervised Learning Tutorial -- Part 1 (SMOTE \& Resampling)}
-    \item \href{https://www.youtube.com/watch?v=2sqTAghROD0}{W9\_L5: Fraud via Supervised Learning Tutorial -- Part 2 (XGBoost Pipelines)}
-    \item \href{https://www.youtube.com/watch?v=6sESrm8MxSM}{W9\_L6: Fraud via Unsupervised Learning -- Part 1 (Clustering \& LOF)}
-    \item \href{https://www.youtube.com/watch?v=_hX6KmeU-dg}{W9\_L7: Fraud via Unsupervised Learning -- Part 2 (Isolation Forests \& Autoencoders)}
-    \item \href{https://www.youtube.com/watch?v=5p8B2Ikcw-k}{External Masterclass: Isolation Forest (StatQuest)}
-\end{itemize}
+% ----------------------------------------------------------------------
+% PART 8: COMPREHENSIVE PRACTICE PROBLEMS
+% ----------------------------------------------------------------------
+\section{Comprehensive Practice Problems}
+\textit{Complete mathematical derivations and diagnostic MCQ distractor rationales are located in the Appendix.}
 
-\newpage
-\section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\subsection*{Part A: Analytical \& Computational Problems}
 
-\begin{enumerate}
-    \item In a credit card transaction stream of $1{,}000{,}000$ transactions, exactly $1{,}000$ are fraudulent. A deployed machine learning fraud engine flags $2{,}500$ transactions as suspicious, of which $800$ are confirmed frauds. Calculate the model's:
-    \begin{enumerate}
-        \item Precision.
-        \item Recall.
-        \item False Positive Rate (FPR).
+\begin{enumerate}[label=\textbf{P9.\arabic*}]
+    \item \textbf{The Accuracy Paradox \& Cost-Sensitive Matrix Analysis:}\\
+    A fraud detection system evaluates $N = 1{,}000{,}000$ online card transactions. Historical statistics establish that exactly $1{,}000$ transactions ($0.1\%$) are fraudulent. Model $Alpha$ predicts every single transaction is legitimate. Model $Beta$ correctly identifies $800$ frauds, flags $4{,}200$ legitimate transactions as fraud, and misses $200$ frauds.
+    \begin{enumerate}[label=(\alph*)]
+        \item Compute the Accuracy, Precision, Recall, and $F_1$-score for Model $Alpha$ and Model $Beta$.
+        \item Assume the monetary loss of an uncaught fraud is $C_{FN} = \text{Rs.~} 25{,}000$, and the customer friction cost of a false alarm is $C_{FP} = \text{Rs.~} 50$. Compute the total misclassification cost for both models.
+        \item Explain why Model $Beta$ is vastly superior despite having a lower raw accuracy score.
     \end{enumerate}
-    
-    \item Explain the algorithmic mechanics of SMOTE (Synthetic Minority Over-sampling Technique). For a minority fraud sample $\mathbf{x}_i$ with $k$-nearest neighbor $\mathbf{x}_{zi}$, write out the interpolation formula used to create synthetic samples and describe why naive random oversampling leads to severe model overfitting.
-    
-    \item In the Isolation Forest algorithm, what is the theoretical significance of an anomaly score $s(x, n) \approx 1.0$, $s(x, n) \approx 0.5$, and $s(x, n) < 0.5$?
-    
-    \item Contrast the behavioral mechanics of Local Outlier Factor (LOF) with Isolation Forest. Under what specific spatial clustering topologies does LOF outperform Isolation Forest?
-    
-    \item A retail bank's compliance officer determines that missing a fraudulent transaction results in an average loss of Rs.~20,000 ($C_{FN}$), whereas sending an automated verification SMS for a false alarm costs Rs.~50 ($C_{FP}$). Formulate the optimal decision threshold selection problem to minimize total expected operational cost.
+
+    \item \textbf{Isolation Forest Path Length \& Anomaly Scoring:}\\
+    An Isolation Forest algorithm with trees constructed from subsamples of size $n = 256$ evaluates a corporate expense claim.
+    \begin{enumerate}[label=(\alph*)]
+        \item Compute the average path length normalization factor $c(256)$ using Euler's constant $\gamma \approx 0.5772$.
+        \item If a suspicious procurement voucher records an average path length $E[h(x)] = 3.8$ across all trees, calculate its anomaly score $s(x, n)$.
+        \item State whether this transaction should be flagged for urgent human audit based on the $s > 0.6$ threshold.
+    \end{enumerate}
+
+    \item \textbf{SMOTE Algorithmic Execution \& Geometric Interpolation:}\\
+    Consider two minority fraud points in a 2-dimensional feature space: $\mathbf{x}_1 = [2.0, 6.0]^T$ and its nearest minority neighbor $\mathbf{x}_2 = [4.0, 10.0]^T$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Formulate the SMOTE mathematical generation formula for synthetic instances.
+        \item If the random interpolation factor is drawn as $\lambda = 0.35$, compute the exact coordinates of the generated synthetic fraud point $\mathbf{x}_{\text{syn}}$.
+        \item Explain why applying SMOTE before train-test partitioning constitutes fatal data leakage.
+    \end{enumerate}
+
+    \item \textbf{Precision-Recall Trade-Off \& Operating Threshold Selection:}\\
+    A fraud operations center employs $10$ full-time investigators, each capable of reviewing $40$ alerts per day ($400$ daily alert capacity). The bank processes $200{,}000$ daily payments containing an estimated $200$ fraudulent attempts.
+    Explain how the risk engineering team should calibrate the model's classification probability cutoff threshold to maximize fraud recovery without overwhelming investigative capacity.
+
+    \item \textbf{Synthetic Identity vs.~Account Takeover Forensics:}\\
+    Contrast Synthetic Identity Theft with Account Takeover (ATO) across origin, gestation period, behavioral indicators, and machine learning detection features.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions}
+
+\begin{enumerate}[label=\textbf{MCQ 9.\arabic*}]
+    \item When training machine learning models on extreme class-imbalanced financial transaction datasets ($0.05\%$ fraud), why is the Precision-Recall Area Under the Curve (PR-AUC) widely preferred over the standard Receiver Operating Characteristic Area Under the Curve (ROC-AUC)?
+    \begin{enumerate}[label=(\alph*)]
+        \item ROC-AUC is mathematically undefined when classes are imbalanced.
+        \item ROC-AUC includes the massive True Negative class in the False Positive Rate denominator ($FPR = \frac{FP}{FP + TN}$), causing the metric to look deceptively near-perfect even when thousands of false positive alerts overwhelm analysts.
+        \item PR-AUC guarantees that the model has zero False Negatives.
+        \item Tree-based models like XGBoost can only compute Precision-Recall curves.
+    \end{enumerate}
+
+    \item In the mathematical formulation of the Isolation Forest anomaly detector, what does an average path length $E[h(x)] \ll c(n)$ signify for a specific transaction instance $x$?
+    \begin{enumerate}[label=(\alph*)]
+        \item The transaction is surrounded by a dense cluster of identical normal records.
+        \item The transaction is an isolated structural anomaly that required very few random feature splits to be separated from the rest of the dataset.
+        \item The transaction contains corrupted null values that broke the binary search tree.
+        \item The transaction balance satisfies Benford's Law distribution.
+    \end{enumerate}
 \end{enumerate}

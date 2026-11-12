@@ -1,487 +1,1178 @@
-\chapter{Solutions to Practice Exercises}
+\chapter{Solutions to Practice Exercises \& Diagnostic MCQs}
 
-This appendix provides complete, step-by-step mathematical, conceptual, and algorithmic solutions to all practice exercises found at the conclusion of each weekly chapter.
+This appendix provides complete, step-by-step mathematical, accounting, algorithmic, and legal solutions to all practice problems across the twelve weekly chapters, including exhaustive four-option distractor rationales for every diagnostic multiple-choice question.
 
+% ======================================================================
+% CHAPTER 1 SOLUTIONS
+% ======================================================================
 \section*{Solutions for Chapter 1: Introduction to Finance, Accounting \& the Business Arena}
 
-\begin{enumerate}
-    \item \textbf{Accounting Equation Net Income Calculation:}
-    \begin{align*}
-    \text{Beginning Assets} &= \text{Rs.~15,00,000}, \quad \text{Beginning Liabilities} = \text{Rs.~6,00,000} \\
-    \text{Beginning Equity} &= \text{Assets} - \text{Liabilities} = 15,00,000 - 6,00,000 = \text{Rs.~9,00,000}
-    \end{align*}
-    At year-end:
-    \begin{align*}
-    \text{Ending Assets} &= 15,00,000 + 4,50,000 = \text{Rs.~19,50,000} \\
-    \text{Ending Liabilities} &= 6,00,000 - 1,50,000 = \text{Rs.~4,50,000} \\
-    \text{Ending Equity} &= 19,50,000 - 4,50,000 = \text{Rs.~15,00,000}
-    \end{align*}
-    Since no new capital was introduced and no dividends were paid:
-    \begin{equation*}
-    \Delta\text{Equity} = \text{Ending Equity} - \text{Beginning Equity} = 15,00,000 - 9,00,000 = \text{Rs.~6,00,000}
-    \end{equation*}
-    Therefore, \textbf{Net Income = Rs.~6,00,000}.
-    
-    \item \textbf{Revenue Recognition \& Advance Payment Violation:}
-    \begin{itemize}
-        \item \textbf{Principle Violated:} The \textbf{Revenue Recognition Principle} (under accrual accounting). Revenue can only be recognized when goods or services have been delivered and performance obligations are satisfied.
-        \item \textbf{Financial Statement Impact:} Current year revenue and net profit are prematurely overstated by Rs.~8,00,000, while current liabilities are understated by Rs.~8,00,000.
-        \item \textbf{Correct Adjusting Journal Entry:}
+\subsection*{Part A: Analytical \& Computational Solutions}
+
+\begin{enumerate}[label=\textbf{P1.\arabic*}]
+    \item \textbf{Dynamic Accounting Equation Reconstruction:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Beginning financial position:
         \begin{align*}
-        \text{Debit: } & \text{Sales Revenue} \quad \text{Rs.~8,00,000} \\
-        \text{Credit: } & \text{Unearned / Deferred Revenue (Current Liability)} \quad \text{Rs.~8,00,000}
+        A_0 &= \text{Rs.~} 15{,}00{,}000, \quad L_0 = \text{Rs.~} 6{,}00{,}000 \\
+        E_0 &= A_0 - L_0 = 15{,}00{,}000 - 6{,}00{,}000 = \text{Rs.~} 9{,}00{,}000
         \end{align*}
-    \end{itemize}
-    
-    \item \textbf{Statutory Audit vs. Forensic Accounting Comparison:}
-    A statutory audit provides reasonable assurance regarding whether financial statements are free of material misstatement, relying on professional skepticism, sampling, and materiality thresholds without assuming fraud. A forensic accounting engagement is initiated upon predication to investigate specific suspected fraud, requires $100\%$ substantive testing of target evidence, operates under the presumption of potential deceit, and produces a dossier suitable for criminal prosecution or civil tort litigation.
-    
-    \item \textbf{Detecting One-Sided Journal Entries in Python:}
-    An entry is one-sided if its transaction batch ID fails to sum to zero across debits and credits. An optimal algorithm groups the $N$ journal rows by `batch\_id', aggregates $\sum \text{Debit} - \sum \text{Credit}$, and filters rows where the absolute discrepancy exceeds a numerical epsilon ($10^{-4}$). The time complexity is $O(N)$ using hash-table aggregation, and the auxiliary space complexity is $O(B)$ where $B$ is the number of distinct batch IDs.
-    
-    \item \textbf{Depreciation and Accounting Equation Dynamics:}
-    \begin{equation*}
-    \text{Annual Depreciation} = \frac{\text{Cost} - \text{Salvage Value}}{\text{Useful Life}} = \frac{12,00,000 - 2,00,000}{5} = \text{Rs.~2,00,000 per year}
-    \end{equation*}
-    \textbf{Accounting Equation Impact:}
+        At fiscal year-end:
+        \begin{align*}
+        A_1 &= 15{,}00{,}000 + 4{,}50{,}000 = \text{Rs.~} 19{,}50{,}000 \\
+        L_1 &= 6{,}00{,}000 - 1{,}50{,}000 = \text{Rs.~} 4{,}50{,}000 \\
+        E_1 &= A_1 - L_1 = 19{,}50{,}000 - 4{,}50{,}000 = \text{Rs.~} 15{,}00{,}000
+        \end{align*}
+        Because no fresh capital was introduced ($\Delta CC = 0$) and no dividends were paid ($Div = 0$):
+        \begin{equation*}
+        \Delta E = E_1 - E_0 = 15{,}00{,}000 - 9{,}00{,}000 = \text{Rs.~} 6{,}00{,}000
+        \end{equation*}
+        Under the expanded equation, $\Delta E \equiv NI - Div \implies \mathbf{Net\ Income} = \mathbf{Rs.~} 6{,}00{,}000$.
+        \item Verification of the Pacioli invariant:
+        \begin{equation*}
+        A_1 = 19{,}50{,}000 = L_1 + E_1 = 4{,}50{,}000 + 15{,}00{,}000 = 19{,}50{,}000 \quad \text{\textcolor{tealdef}{\textbf{(Invariant Holds)}}}
+        \end{equation*}
+        \item Net Income represents the net expansion in enterprise assets generated from operations. At period close, temporary revenue and expense accounts are closed into Retained Earnings, directly expanding the owners' residual equity claim on the balance sheet.
+    \end{enumerate}
+
+    \item \textbf{Accrual Revenue Recognition \& Adjusting Forensic Entries:}
+    \begin{enumerate}[label=(\alph*)]
+        \item \textbf{Core Principle Violated:} The \textbf{Revenue Recognition Principle} (under IFRS 15 / ASC 606 and accrual accounting). Revenue may only be recognized when performance obligations are satisfied through transfer of control of promised goods or services.
+        \item \textbf{Statement Distortions:}
+        \begin{itemize}
+            \item Profit Before Tax (and Net Income) is overstated by Rs.~$8{,}00{,}000$.
+            \item Current Liabilities are understated by Rs.~$8{,}00{,}000$ (failure to record unearned revenue liability).
+            \item Current Assets (Cash) is correctly stated, but the credit side of the balance sheet is misclassified between liabilities and equity.
+        \end{itemize}
+        \item \textbf{Forensic Adjusting Journal Entry:}
+        \begin{align*}
+        \text{Debit: } & \text{Sales Revenue (P\&L)} \quad \text{Rs.~} 8{,}00{,}000 \\
+        \text{Credit: } & \text{Unearned / Deferred Revenue (Current Liability)} \quad \text{Rs.~} 8{,}00{,}000
+        \end{align*}
+    \end{enumerate}
+
+    \item \textbf{Statutory Audit vs.~Forensic Examination Boundaries:}
+    \begin{enumerate}[label=(\alph*)]
+        \item \textbf{Structural Contrast:}
+        \begin{itemize}
+            \item \textit{Objective:} Statutory audits provide reasonable assurance that financial statements are free of material misstatement; forensic engagements investigate specific suspected fraud to establish evidentiary proof for legal proceedings.
+            \item \textit{Evidentiary Standard:} Statutory audits utilize representative sampling under a materiality threshold; forensic investigations require $100\%$ substantive voucher testing and an unbroken chain of custody.
+            \item \textit{Presumption of Fraud:} Statutory auditors maintain professional skepticism without presuming dishonesty; forensic examiners operate under predication, actively investigating deceit, concealment, and fraudulent intent.
+        \end{itemize}
+        \item An unmodified statutory audit opinion does not guarantee the absence of fraud because statutory sampling is not designed to uncover collusive management override or off-balance sheet document fabrication below materiality thresholds.
+    \end{enumerate}
+
+    \item \textbf{Algorithmic Invariant Testing \& Complexity Analysis:}
+    \begin{enumerate}[label=(\alph*)]
+        \item \textbf{Algorithm:} Ingest tabular records. Initialize a hash map \texttt{imbalance\_map} keyed by \texttt{batch\_id}. For each record $i \in \{1, \dots, N\}$, update $\texttt{imbalance\_map}[\text{batch\_id}] \mathrel{+}= (\mathcal{D}_i - \mathcal{C}_i)$. Iterate through the hash map and output all batch IDs where $|\texttt{imbalance\_map}[\text{batch\_id}]| > 10^{-4}$.
+        \item \textbf{Complexity:} Time complexity is $O(N)$ because inserting and updating entries in a hash map requires amortized $O(1)$ operations per record. Auxiliary space complexity is $O(B)$ where $B$ is the number of distinct transaction batch IDs ($B \le N$).
+    \end{enumerate}
+
+    \item \textbf{Capital Asset Depreciation \& Dual Conservation Dynamics:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Straight-line annual depreciation charge:
+        \begin{equation*}
+        \text{Depreciation Charge} = \frac{\text{Cost} - \text{Salvage Value}}{\text{Useful Life}} = \frac{12{,}00{,}000 - 2{,}00{,}000}{5} = \mathbf{Rs.~} 2{,}00{,}000\text{ per year}
+        \end{equation*}
+        \item Trace through the accounting equation:
+        \begin{itemize}
+            \item \textit{Year 1:} Accumulated Depreciation (contra-asset) increases by Rs.~$2{,}00{,}000$, reducing Net PP\&E to Rs.~$10{,}00{,}000$ ($\Delta A = -2\text{L}$). Depreciation expense reduces Net Income and Retained Earnings by Rs.~$2{,}00{,}000$ ($\Delta E = -2\text{L}$). Equilibrium holds: $\Delta A (-2\text{L}) = \Delta L (0) + \Delta E (-2\text{L})$.
+            \item \textit{Year 2:} Accumulated Depreciation reaches Rs.~$4{,}00{,}000$, reducing Net PP\&E to Rs.~$8{,}00{,}000$ ($\Delta A = -2\text{L}$). Retained Earnings decreases by an additional Rs.~$2{,}00{,}000$ ($\Delta E = -2\text{L}$). Conservation is preserved.
+        \end{itemize}
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Solutions \& Distractor Rationales}
+
+\begin{enumerate}[label=\textbf{MCQ 1.\arabic*}]
+    \item \textbf{Correct Answer: (b)}\\
+    \textbf{Rationale:} Under the Revenue Recognition Principle (IFRS 15 / ASC 606), revenue can only be recognized when performance obligations are satisfied and the risks and rewards of ownership are transferred to the customer. A ``parking transaction'' with an informal repurchase guarantee retains the risks and rewards of the inventory with the seller; economically, it represents a secured borrowing transaction rather than a sale.\\
+    \textbf{Distractor Analysis:}
     \begin{itemize}
-        \item \textit{Year 1:} Accumulated Depreciation (contra-asset) increases by Rs.~2,00,000, reducing Net Assets to Rs.~10,00,000. Retained Earnings (Equity) decreases by Rs.~2,00,000 through Depreciation Expense. $\Delta\text{Assets} (-2\text{L}) = \Delta\text{Equity} (-2\text{L})$.
-        \item \textit{Year 2:} Accumulated Depreciation reaches Rs.~4,00,000, reducing Net Assets to Rs.~8,00,000. Retained Earnings decreases by an additional Rs.~2,00,000. Equilibrium is preserved.
+        \item \textit{Option (a) is incorrect:} The Monetary Unit Assumption governs currency denomination and inflation stability; it is completely satisfied by booking values in local currency.
+        \item \textit{Option (c) is incorrect:} The Going Concern Principle assumes the enterprise will remain operational into the foreseeable future; an aggressive quarter-end parking transaction is an earnings manipulation scheme, not an admission of liquidation.
+        \item \textit{Option (d) is incorrect:} The Separate Entity Assumption requires keeping corporate financial records distinct from owners' personal affairs; selling goods to a third-party warehouse does not violate entity boundaries.
+    \end{itemize}
+
+    \item \textbf{Correct Answer: (a)}\\
+    \textbf{Rationale:} Debiting Plant \& Machinery (an asset) and crediting Cash for Rs.~$50$ Lakhs perfectly balances debits and credits ($\sum \mathcal{D} = \sum \mathcal{C} = 50\text{ Lakhs}$). The trial balance remains in perfect mathematical equilibrium. However, the transaction is fraudulent because an operational expense was capitalized, fraudulently inflating reported Net Income and Asset balances (the WorldCom scheme).\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (b) is incorrect:} A one-sided journal entry introduces a direct debit of Rs.~$10$ Lakhs with zero credits, creating an immediate trial balance inequality ($\sum \mathcal{D} \ne \sum \mathcal{C}$).
+        \item \textit{Option (c) is incorrect:} A double credit entry produces Rs.~$10$ Lakhs in total credits with zero debits, instantly unbalancing the general ledger.
+        \item \textit{Option (d) is incorrect:} Posting a Rs.~$20$ Lakhs debit against a Rs.~$12$ Lakhs credit leaves an unposted imbalance of Rs.~$8$ Lakhs, violating trial balance symmetry.
     \end{itemize}
 \end{enumerate}
 
 \newpage
+% ======================================================================
+% CHAPTER 2 SOLUTIONS
+% ======================================================================
 \section*{Solutions for Chapter 2: Balance Sheet, Income Statement \& Fraud Vulnerabilities}
 
-\begin{enumerate}
-    \item \textbf{Multi-Step Income Statement Construction:}
-    \begin{align*}
-    \text{Sales Revenue} &= \text{Rs.~20,00,000} \\
-    \text{Less: Cost of Goods Sold (COGS)} &= -\text{Rs.~11,00,000} \\
-    \mathbf{Gross\ Profit} &= \mathbf{Rs.~9,00,000} \\
-    \text{Less: SG\&A Expenses} &= -\text{Rs.~3,50,000} \\
-    \mathbf{EBITDA} &= \mathbf{Rs.~5,50,000} \\
-    \text{Less: Depreciation Expense} &= -\text{Rs.~1,00,000} \\
-    \mathbf{Operating\ Income\ (EBIT)} &= \mathbf{Rs.~4,50,000} \\
-    \text{Less: Interest Expense} &= -\text{Rs.~50,000} \\
-    \mathbf{Earnings\ Before\ Tax\ (EBT)} &= \mathbf{Rs.~4,00,000} \\
-    \text{Less: Tax Expense } (25\% \times 4,00,000) &= -\text{Rs.~1,00,000} \\
-    \mathbf{Net\ Income} &= \mathbf{Rs.~3,00,000}
-    \end{align*}
-    
-    \item \textbf{Cookie Jar Reserves Mechanism:}
-    In periods of unusually strong operational performance, management deliberately over-provisions estimated liabilities (such as bad debt reserves, restructuring charges, or warranty provisions), depressing current earnings below true potential. In subsequent quarters when real performance lags, management arbitrarily draws down or releases these excess reserves back into income, creating an illusion of smooth, predictable earnings growth.
-    
-    \item \textbf{Inventory Turnover vs. Gross Margin Divergence:}
-    \begin{itemize}
-        \item \textit{Legitimate Hypothesis:} The firm executed a strategic pivot from high-volume, low-margin budget items to ultra-luxury, high-margin specialized products requiring longer holding cycles.
-        \item \textit{Fraudulent Hypothesis:} Management is fraudulently overstating physical ending inventory. By artificially inflating ending inventory, COGS is artificially reduced ($\text{COGS} = \text{Beginning Inventory} + \text{Purchases} - \text{Ending Inventory}$), which mechanically inflates Gross Margin while unsold phantom inventory stagnates turnover.
-    \end{itemize}
-    
-    \item \textbf{Fraud Triangle \& Embezzlement Controls:}
-    The three vertices are \textbf{Pressure} (personal debt, lifestyle), \textbf{Opportunity} (ability to commit and conceal fraud), and \textbf{Rationalization} (self-justification). To eliminate the \textit{Opportunity} leg in vendor disbursements:
-    \begin{enumerate}
-        \item Mandate strict \textbf{Segregation of Duties}: The person who creates/registers a vendor cannot be the person who approves purchase orders or executes bank wire releases.
-        \item Enforce automated \textbf{Three-Way Matching} (Purchase Order, Receiving Report, Vendor Invoice) in the ERP.
-        \item Implement dual-authorization cryptographic tokens for disbursements exceeding Rs.~50,000.
+\subsection*{Part A: Analytical \& Computational Solutions}
+
+\begin{enumerate}[label=\textbf{P2.\arabic*}]
+    \item \textbf{Multi-Step Income Statement Reconciliation:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Top-line profit metrics:
+        \begin{align*}
+        \text{Net Sales Revenue} &= \text{Gross Sales} - \text{Returns} = 2{,}400 - 80 = \mathbf{Rs.~} 2{,}320\text{ Crores} \\
+        \text{Gross Profit} &= \text{Net Sales} - \text{COGS} = 2{,}320 - 1{,}240 = \mathbf{Rs.~} 1{,}080\text{ Crores} \\
+        \text{Operating Expenses} &= \text{Admin} (220) + \text{Marketing} (180) + \text{Depreciation} (140) = 540\text{ Crores} \\
+        \text{Operating Profit (EBIT)} &= \text{Gross Profit} - \text{Operating Expenses} = 1{,}080 - 540 = \mathbf{Rs.~} 540\text{ Crores}
+        \end{align*}
+        \item EBITDA and Net Income:
+        \begin{align*}
+        \text{EBITDA} &= \text{EBIT} + \text{Depreciation} = 540 + 140 = \mathbf{Rs.~} 680\text{ Crores} \\
+        \text{Interest Expense} &= 9\% \times 400 = \text{Rs.~} 36\text{ Crores} \\
+        \text{Non-Operating Income} &= \text{Interest Inc} (35) + \text{Asset Gain} (25) = \text{Rs.~} 60\text{ Crores} \\
+        \text{EBT} &= \text{EBIT} - \text{Interest} + \text{Non-Operating} = 540 - 36 + 60 = \text{Rs.~} 564\text{ Crores} \\
+        \text{Tax Expense} &= 25\% \times 564 = \text{Rs.~} 141\text{ Crores} \\
+        \text{Net Income} &= 564 - 141 = \mathbf{Rs.~} 423\text{ Crores}
+        \end{align*}
+        \item If Rs.~$60$ Crores of marketing was improperly capitalized, reported operating expenses were understated by Rs.~$60$ Crores. True $\text{EBIT} = 540 - 60 = \text{Rs.~} 480\text{ Crores}$. EBIT was overstated by $\frac{60}{480} \times 100\% = \mathbf{12.5\%}$.
     \end{enumerate}
-    
-    \item \textbf{Accounts Receivable Vertical and Horizontal Analysis:}
-    \begin{align*}
-    \text{Vertical 2024} &= \frac{8,00,000}{50,00,000} \times 100 = 16.0\% \\
-    \text{Vertical 2025} &= \frac{15,00,000}{60,00,000} \times 100 = 25.0\% \\
-    \text{Horizontal Growth} &= \frac{15,00,000 - 8,00,000}{8,00,000} \times 100 = +87.5\%
-    \end{align*}
-    \textit{Forensic Interpretation:} While total firm assets grew by only $20.0\%$, accounts receivable surged by $87.5\%$, expanding from $16.0\%$ to $25.0\%$ of the balance sheet. This drastic expansion suggests potential fictitious credit sales, channel stuffing, or severe customer default distress.
+
+    \item \textbf{Working Capital \& Window Dressing Forensics:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Initial position: $CA_0 = 60\text{L}, CL_0 = 30\text{L}$.
+        Short-term borrowing of Rs.~$20$L adds $+20\text{L}$ to Cash ($CA$) and $+20\text{L}$ to Short-term Debt ($CL$).
+        Paying trade payables of Rs.~$15$L reduces Cash by $-15\text{L}$ and reduces Payables by $-15\text{L}$.
+        Final balances:
+        \begin{align*}
+        CA_1 &= 60 + 20 - 15 = \text{Rs.~} 65\text{ Lakhs} \\
+        CL_1 &= 30 + 20 - 15 = \text{Rs.~} 35\text{ Lakhs} \\
+        \text{Current Ratio}_1 &= \frac{65}{35} \approx \mathbf{1.857}
+        \end{align*}
+        \item The CFO \textbf{failed} to meet the covenant threshold ($1.857 < 2.2$). In fact, the short-term borrowing degraded the ratio from $2.0$ to $1.857$.
+        \item Mathematically, for any fraction $\frac{A}{B} > 1$, subtracting a constant $c > 0$ from both numerator and denominator increases the quotient: $\frac{A - c}{B - c} > \frac{A}{B}$. Settling liabilities with cash improves a Current Ratio $> 1.0$, while taking on equal short-term assets and liabilities decreases it toward $1.0$.
+    \end{enumerate}
+
+    \item \textbf{Common-Size Horizontal Forensic Analysis:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Horizontal percentage growth from Year 1 to Year 3:
+        \begin{align*}
+        g_{\text{Sales}} &= \frac{6{,}400 - 5{,}000}{5{,}000} \times 100\% = \mathbf{+28.0\%} \\
+        g_{\text{AR}} &= \frac{1{,}600 - 600}{600} \times 100\% = \mathbf{+166.7\%} \\
+        g_{\text{Inv}} &= \frac{1{,}750 - 800}{800} \times 100\% = \mathbf{+118.8\%}
+        \end{align*}
+        \item Days Sales Outstanding ($\text{DSO} = \frac{\text{AR}}{\text{Sales}} \times 365$):
+        \begin{itemize}
+            \item Year 1: $\frac{600}{5{,}000} \times 365 = \mathbf{43.8\text{ days}}$
+            \item Year 2: $\frac{950}{5{,}800} \times 365 = \mathbf{59.8\text{ days}}$
+            \item Year 3: $\frac{1{,}600}{6{,}400} \times 365 = \mathbf{91.3\text{ days}}$
+        \end{itemize}
+        \item \textbf{Forensic Red Flags:} Accounts Receivable grew $6\times$ faster than sales, and inventory doubled, while the Allowance for Bad Debts was cut in half (from $60$ to $30$). This is classic cookie-jar reserve suppression used to artificially prop up net income while customer collections are collapsing.
+    \end{enumerate}
+
+    \item \textbf{The Fraud Diamond in Corporate Governance:}
+    \begin{itemize}
+        \item \textit{Incentive/Pressure:} Executive stock-option compensation tied to aggressive quarterly earnings targets; maintaining investment-grade credit ratings to preserve pipeline trading contracts.
+        \item \textit{Opportunity:} Opaque Special Purpose Entities (SPEs like Chewco and LJM) managed by internal executives; weak Board oversight; complicit external auditors (Arthur Andersen) offering lucrative consulting services.
+        \item \textit{Rationalization:} Executives rationalized mark-to-market accounting on hypothetical 20-year energy contracts as ``pioneering modern financial innovation.''
+        \item \textit{Capability:} Andy Fastow and Jeff Skilling possessed deep structural financial knowledge, authoritarian corporate control, and institutional leverage to deceive analysts and coerce subordinates.
+    \end{itemize}
+
+    \item \textbf{Off-Balance Sheet Debt \& Operating Leases:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Present value of lease annuity ($C = 100\text{ Cr}, r = 8\%, n = 10$):
+        \begin{equation*}
+        PV = 100 \times \left[\frac{1 - (1 + 0.08)^{-10}}{0.08}\right] = 100 \times 6.71008 = \mathbf{Rs.~} 671.01\text{ Crores}
+        \end{equation*}
+        \item Keeping Rs.~$671$ Crores off the balance sheet artificially understated total reported debt and total productive assets. Debt-to-Equity appeared deceptively low, and Return on Assets ($\text{ROA} = \frac{NI}{\text{Assets}}$) appeared deceptively inflated due to the understated asset denominator.
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Solutions \& Distractor Rationales}
+
+\begin{enumerate}[label=\textbf{MCQ 2.\arabic*}]
+    \item \textbf{Correct Answer: (a)}\\
+    \textbf{Rationale:} Under the periodic inventory accounting identity, $\text{COGS} = \text{Beginning Inventory} + \text{Purchases} - \text{Ending Inventory}$. Artificially inflating the valuation of ending inventory mathematically decreases reported COGS. Because $\text{Gross Profit} = \text{Revenue} - \text{COGS}$, a reduction in COGS directly inflates Gross Profit even when physical production and sales prices remain unchanged.\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (b) is incorrect:} Reclassifying administrative utilities into selling overhead operates entirely within operating expenses (SG\&A), which sit below Gross Profit and have zero impact on Gross Margin.
+        \item \textit{Option (c) is incorrect:} Writing off obsolete parts increases recognized expenses, reducing net profit rather than inflating gross margin.
+        \item \textit{Option (d) is incorrect:} Accelerating headquarters depreciation increases administrative expenses, leaving Cost of Goods Sold unaffected.
+    \end{itemize}
+
+    \item \textbf{Correct Answer: (b)}\\
+    \textbf{Rationale:} In Wolfe and Hermanson's Fraud Diamond (2004), the fourth dimension added to Cressey's Fraud Triangle is **Executive Capability**---the personal traits, technical expertise, authoritative standing, and psychological capacity required to commit and conceal corporate fraud.\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (a) is incorrect:} Incentive/Pressure is an original pillar of Cressey's 1953 Fraud Triangle.
+        \item \textit{Option (c) is incorrect:} Moral rationalization is an original pillar of Cressey's Fraud Triangle.
+        \item \textit{Option (d) is incorrect:} Opportunity (arising from internal control weaknesses) is an original pillar of Cressey's Fraud Triangle.
+    \end{itemize}
 \end{enumerate}
 
 \newpage
+% ======================================================================
+% CHAPTER 3 SOLUTIONS
+% ======================================================================
 \section*{Solutions for Chapter 3: Cash Flow Statement \& Forensic Accounting Fundamentals}
 
-\begin{enumerate}
-    \item \textbf{Indirect Method CFO Calculation:}
+\subsection*{Part A: Analytical \& Computational Solutions}
+
+\begin{enumerate}[label=\textbf{P3.\arabic*}]
+    \item \textbf{Indirect Method Cash Flow Construction:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Indirect Cash Flow from Operations (CFO):
+        \begin{align*}
+        \text{Reported Net Income} &= \text{Rs.~} 8{,}40{,}000 \\
+        \text{Add: Depreciation Expense} &= +\text{Rs.~} 1{,}90{,}000 \\
+        \text{Add: Patent Amortization} &= +\text{Rs.~} 45{,}000 \\
+        \text{Less: Gain on Sale of Land} &= -\text{Rs.~} 60{,}000 \\
+        \text{Less: Increase in Accounts Receivable} &= -\text{Rs.~} 1{,}20{,}000 \\
+        \text{Add: Decrease in Inventory} &= +\text{Rs.~} 75{,}000 \\
+        \text{Add: Increase in Accounts Payable} &= +\text{Rs.~} 50{,}000 \\
+        \text{Less: Decrease in Salaries Payable} &= -\text{Rs.~} 30{,}000 \\
+        \midrule
+        \mathbf{Operating\ Cash\ Flow\ (CFO)} &= \mathbf{Rs.~} 9{,}90{,}000
+        \end{align*}
+        \item The gain on land sale is subtracted because the entire cash proceeds from the land disposal belong in Cash Flow from Investing Activities (CFI). Leaving the gain in CFO would double-count the economic cash inflow.
+        \item Free Cash Flow to Firm:
+        \begin{equation*}
+        \text{FCFF} = \text{CFO} - \text{CapEx} = 9{,}90{,}000 - 4{,}00{,}000 = \mathbf{Rs.~} 5{,}90{,}000
+        \end{equation*}
+    \end{enumerate}
+
+    \item \textbf{Sloan Accrual Ratio \& Manipulation Scoring:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Average Total Assets for Year 2:
+        \begin{equation*}
+        \bar{A}_2 = \frac{4{,}000 + 5{,}200}{2} = \text{Rs.~} 4{,}600\text{ Crores}
+        \end{equation*}
+        Cash Flow Accrual Ratio:
+        \begin{equation*}
+        AR_{\text{CF}, 2} = \frac{NI_2 - \text{CFO}_2}{\bar{A}_2} = \frac{520 - 140}{4{,}600} = \frac{380}{4{,}600} \approx \mathbf{+0.0826 \quad (8.26\%)}
+        \end{equation*}
+        \item Net Operating Assets ($NOA = (\text{Assets} - \text{Cash}) - (\text{Liabilities} - \text{Debt})$):
+        \begin{align*}
+        NOA_1 &= (4{,}000 - 400) - (1{,}800 - 800) = 3{,}600 - 1{,}000 = \text{Rs.~} 2{,}600\text{ Crores} \\
+        NOA_2 &= (5{,}200 - 300) - (2{,}500 - 1{,}200) = 4{,}900 - 1{,}300 = \text{Rs.~} 3{,}600\text{ Crores} \\
+        \Delta NOA &= 3{,}600 - 2{,}600 = \text{Rs.~} 1{,}000\text{ Crores} \\
+        AR_{\text{BS}, 2} &= \frac{\Delta NOA}{\bar{A}_2} = \frac{1{,}000}{4{,}600} \approx \mathbf{+0.2174 \quad (21.74\%)}
+        \end{align*}
+        \item \textbf{Forensic Assessment:} The balance sheet accrual ratio ($21.74\%$) far exceeds the $+10\%$ red flag threshold. Net income surged by $44\%$ while CFO collapsed by $63\%$. The firm is aggressively capitalizing costs or accumulating uncollectible receivables, indicating very poor earnings quality and high probability of future earnings reversal.
+    \end{enumerate}
+
+    \item \textbf{Cash Flow Classification Forensics:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Capitalizing routine bug fixing payroll of Rs.~$25$ Crores shifts an operating cash outflow from CFO to CFI, artificially inflating CFO by Rs.~$25$ Crores.
+        \item Recording a bank loan of Rs.~$40$ Crores as customer advances shifts financing cash flow (CFF) into CFO, artificially inflating CFO by Rs.~$40$ Crores.
+        \item Total artificial CFO inflation $= 25 + 40 = \mathbf{Rs.~} 65\text{ Crores}$. This manufactures the deceptive appearance of self-funding commercial viability while masking reliance on debt and capitalized maintenance.
+    \end{enumerate}
+
+    \item \textbf{Working Capital Factoring Schemes:}
+    Under IFRS 9 and ASC 860, financial assets can only be derecognized if substantially all risks and rewards of ownership have transferred. Factoring receivables \textit{with full recourse} leaves the credit default risk entirely with the seller. Therefore, derecognition was improper. The transaction must be reclassified as a secured commercial bank borrowing:
     \begin{align*}
-    \text{Net Income} &= \text{Rs.~4,50,000} \\
-    \text{Add: Depreciation Expense (non-cash)} &= +\text{Rs.~80,000} \\
-    \text{Deduct: Gain on Sale of Equipment (investing cash)} &= -\text{Rs.~15,00,0} \to -\text{Rs.~15,000} \\
-    \text{Deduct: Increase in Accounts Receivable} &= -\text{Rs.~60,000} \\
-    \text{Add: Decrease in Inventory} &= +\text{Rs.~35,000} \\
-    \text{Deduct: Decrease in Accounts Payable} &= -\text{Rs.~25,000} \\
-    \mathbf{Cash\ Flow\ from\ Operations\ (CFO)} &= 4,50,000 + 80,000 - 15,000 - 60,000 + 35,000 - 25,000 \\
-    &= \mathbf{Rs.~4,65,000}
+    \text{Debit: } & \text{Cash} \quad \text{Rs.~} 74\text{ Crores} \\
+    \text{Debit: } & \text{Interest / Financing Discount Expense} \quad \text{Rs.~} 6\text{ Crores} \\
+    \text{Credit: } & \text{Short-Term Bank Borrowing (Liability)} \quad \text{Rs.~} 80\text{ Crores}
     \end{align*}
-    
-    \item \textbf{Accrual Profitability vs. Cash Insolvency:}
-    Under accrual accounting, revenue is recognized upon invoicing or milestone completion (e.g., percentage-of-completion on multi-year defense or construction contracts). If customers fail to pay, or if the contract terms permit payment only upon final completion years later, the enterprise must still pay immediate cash for supplier materials, rent, and payroll. If working capital lines expire, the firm defaults on debt and enters liquidation despite high paper profits.
-    
-    \item \textbf{Legal Admissibility Standards for Expert Testimony:}
-    Under the \textit{Frye standard}, the scientific technique must have achieved ``general acceptance'' within the relevant scientific community. Under the federal \textit{Daubert standard}, the trial judge acts as a gatekeeper assessing: (1) whether the methodology has been empirically tested, (2) subjected to peer review and publication, (3) known or potential error rates, (4) existence of operational standards, and (5) widespread acceptance. A machine learning model must feature documented training benchmarks, cross-validated error rates, and explainable feature attributions to be admitted.
-    
-    \item \textbf{Factoring Receivables Manipulation:}
-    By selling accounts receivable to a third-party factor right before fiscal year-end, management accelerates cash collection that would otherwise belong to future periods. If improperly characterized as operating receipts or if sold under undisclosed recourse agreements, management conceals an underlying operational cash burn by masking financing cash as operating cash.
-    
-    \item \textbf{Modified Balance Sheet Accrual Decomposition:}
-    \begin{equation*}
-    \text{Accrual}_{\text{BS}} = \frac{\Delta\text{CA} - \Delta\text{Cash} - (\Delta\text{CL} - \Delta\text{ST-Debt}) - \text{Dep}}{\text{Average Total Assets}}
-    \end{equation*}
-    Non-cash current assets ($\Delta\text{CA} - \Delta\text{Cash}$) isolate uncollected credit sales and unsold inventory. Non-interest-bearing operating liabilities ($\Delta\text{CL} - \Delta\text{ST-Debt}$) isolate delayed trade payables. Subtracting depreciation accounts for capital asset amortization. When this ratio is heavily positive, it proves that reported asset growth is driven by balance sheet accruals rather than actual cash inflow.
+    The cash inflow belongs in Financing Cash Flows (CFF), reducing reported CFO by Rs.~$74$ Crores.
+
+    \item \textbf{Evidentiary Standards for Forensic Expert Witnesses:}
+    Under the \textit{Daubert} standard, the trial judge acts as an evidentiary gatekeeper evaluating: (1) whether the methodology has been empirically tested, (2) peer review and publication, (3) known or potential rate of error, (4) operational standards, and (5) general acceptance in the relevant scientific community. A proprietary, secret ``black-box'' algorithm whose mechanics cannot be peer-reviewed, replicated, or cross-examined will be excluded as unreliable scientific testimony.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Solutions \& Distractor Rationales}
+
+\begin{enumerate}[label=\textbf{MCQ 3.\arabic*}]
+    \item \textbf{Correct Answer: (a)}\\
+    \textbf{Rationale:} Under the indirect method, $\text{CFO} = NI + \text{Non-Cash Charges} - \Delta NOWC$. An increase in Accounts Payable ($\Delta AP > 0$) represents cash preserved by delaying supplier disbursements. It is added to Net Income, directly increasing reported CFO in the current period with zero impact on accrual Net Income.\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (b) is incorrect:} Recognizing a gain on real estate disposal directly increases Net Income, but it is subtracted out of CFO to prevent double-counting with CFI; net CFO impact is zero.
+        \item \textit{Option (c) is incorrect:} Writing off uncollectible receivables against the allowance is a balance sheet contra-asset entry ($\text{Dr: Allowance}, \text{Cr: Receivables}$) that has zero effect on Net Income and zero effect on Cash.
+        \item \textit{Option (d) is incorrect:} Purchasing inventory with cash is an operating cash outflow that reduces CFO.
+    \end{itemize}
+
+    \item \textbf{Correct Answer: (b)}\\
+    \textbf{Rationale:} In \textit{Daubert v. Merrell Dow Pharmaceuticals, Inc.} (1993), the U.S. Supreme Court articulated four non-exclusive reliability criteria for expert witness testimony: testability/falsifiability, peer review and publication, known error rates, and general scientific acceptance.\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (a) is incorrect:} Holding an equity stake in a litigant represents a fatal conflict of interest that disqualifies an expert witness.
+        \item \textit{Option (c) is incorrect:} Contingency fee arrangements for expert witnesses are strictly prohibited under codes of civil procedure and professional ethics.
+        \item \textit{Option (d) is incorrect:} Unanimous adoption by all auditors is not required; Daubert specifically superseded the older, rigid Frye ``general acceptance'' monopoly.
+    \end{itemize}
 \end{enumerate}
 
 \newpage
+% ======================================================================
+% CHAPTER 4 SOLUTIONS
+% ======================================================================
 \section*{Solutions for Chapter 4: The Forensic Investigation Process \& Cross-Statement Reconciliation}
 
-\begin{enumerate}
-    \item \textbf{Threshold for Predication:}
-    Predication requires specific, articulable facts that suggest criminal or tortious misconduct. A general allegation (``management is corrupt'') lacks factual substance, dates, or verifiable actions, constituting mere rumor. Conversely, an allegation citing specific invoice numbers, dates, shell entity bank accounts, and monetary amounts provides concrete, testable facts that allow investigators to form a credible hypothesis and justify a formal investigation.
-    
-    \item \textbf{Digital Evidence Seizure Protocol:}
-    \begin{enumerate}
-        \item Disconnect the target machine from all network connections (Ethernet, Wi-Fi) to prevent remote data wiping.
-        \item Attach physical hardware write-blockers to prevent any modification to the source storage medium.
-        \item Perform a bit-stream physical image clone (e.g., using `dd' or FTK Imager).
-        \item Compute cryptographic hashes (SHA-256 and MD5) of both the original drive and the forensic clone; confirm exact hash identity.
-        \item Secure the original physical drive in an anti-static tamper-evident evidence locker; perform all investigative analysis on working copies.
+\subsection*{Part A: Analytical \& Computational Solutions}
+
+\begin{enumerate}[label=\textbf{P4.\arabic*}]
+    \item \textbf{Comprehensive Inter-Statement Articulation Audit:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Retained Earnings Articulation:
+        \begin{align*}
+        \Delta RE_{\text{actual}} &= RE_{2025} - RE_{2024} = 890 - 680 = \text{Rs.~} 210\text{ Crores} \\
+        \Delta RE_{\text{expected}} &= NI - Div = 310 - 50 = \text{Rs.~} 260\text{ Crores} \\
+        \text{Discrepancy} &= 210 - 260 = \mathbf{-Rs.~} 50\text{ Crores}
+        \end{align*}
+        There is a major **articulation leak of Rs.~$50$ Crores**. An unrecorded direct equity charge was posted to Retained Earnings without passing through the Income Statement.
+        \item Cash Flow Articulation:
+        \begin{align*}
+        \Delta \text{Cash}_{\text{BS}} &= \text{Cash}_{2025} - \text{Cash}_{2024} = 130 - 85 = \text{Rs.~} 45\text{ Crores} \\
+        \text{Total Cash Flow} &= \text{CFO} + \text{CFI} + \text{CFF} = 280 + (-380) + 145 = \text{Rs.~} 45\text{ Crores}
+        \end{align*}
+        The cash flow statement articulates cleanly ($\Delta \text{Cash}_{\text{BS}} = \text{Total CF} = 45\text{ Cr}$).
+        \item Gross PP\&E Articulation:
+        \begin{align*}
+        \Delta PP\&E_{\text{actual}} &= 1{,}550 - 1{,}200 = \text{Rs.~} 350\text{ Crores} \\
+        \text{Reported CapEx} &= \text{Rs.~} 350\text{ Crores} \implies \text{Articulates Cleanly.} \\
+        \Delta AccDep &= 410 - 320 = \text{Rs.~} 90\text{ Crores (Depreciation Expense for the year)}.
+        \end{align*}
     \end{enumerate}
-    
-    \item \textbf{Retained Earnings Reconciliation Discrepancy:}
-    \begin{align*}
-    \text{Beginning RE} &= \text{Rs.~12,50,000} \\
-    \text{Add: Net Income} &= +\text{Rs.~4,20,000} \\
-    \text{Less: Dividends} &= -\text{Rs.~1,00,000} \\
-    \text{Expected Ending RE} &= 12,50,000 + 4,20,000 - 1,00,000 = \text{Rs.~15,70,000} \\
-    \text{Reported Ending RE} &= \text{Rs.~17,80,000} \\
-    \mathbf{Unreconciled\ Discrepancy} &= 17,80,000 - 15,70,000 = +\mathbf{Rs.~2,10,000}
-    \end{align*}
-    \textit{Possible Causes:} (1) Direct, unrecorded manual equity credit plugs bypassing the income statement, (2) undisclosed prior-period adjustments, or (3) concealed revaluation reserves booked directly to equity to artificially bolster net worth.
-    
-    \item \textbf{Round-Trip Transactions (Circular Swaps):}
-    Two collaborating firms enter simultaneous, offsetting contracts: Company A sells Rs.~100 Crores of software licenses to Company B, while Company B sells Rs.~100 Crores of consulting services to Company A. Both companies record Rs.~100 Crores in top-line revenue, but cash simply flows in a circle and returns to the originator. Net income and cash generation are zero, but public markets are misled by inflated revenue growth.
-    
-    \item \textbf{Witness vs. Suspect Interviewing Styles:}
-    Interviews with neutral witnesses are exploratory, open-ended, and non-accusatory, designed to gather background facts and timeline corroboration. Interviews with suspected targets are admission-seeking, structured to establish control, introduce irrefutable documentary evidence progressively, eliminate plausible innocent excuses, and elicit a formal confession or signed statement.
+
+    \item \textbf{Unmasking Circular Round-Tripping Networks:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Directed weighted cycle graph:
+        \begin{equation*}
+        \text{Company } X \xrightarrow{\text{Rs.~} 100\text{ Cr (CapEx)}} \text{SubCo } Alpha \xrightarrow{\text{Rs.~} 98\text{ Cr}} \text{Vendor } Beta \xrightarrow{\text{Rs.~} 97.5\text{ Cr (Revenue)}} \text{Company } X
+        \end{equation*}
+        \item Net economic reality: Zero economic goods or services were produced. The enterprise incurred a net economic cash loss of Rs.~$2.5$ Crores in transaction leakage. However, on paper, it manufactured Rs.~$97.5$ Crores in artificial revenue and CFO!
+        \item Forensic audit procedures: (1) Subpoena bank transaction statements across all three entities to trace simultaneous clearing timestamps; (2) Inspect corporate registrar beneficial ownership filings for common promoters or shared directors; (3) Perform physical inventory inspection to verify whether the ``tooling equipment'' ever existed.
+    \end{enumerate}
+
+    \item \textbf{Forensic Chain of Custody \& Cryptographic Hash Integrity:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Hardware write-blockers physically intercept write-command packets from the host operating system, ensuring that connecting a forensic workstation cannot modify disk sector bits, registry values, or access timestamps.
+        \item The cryptographic hash mismatch proves that the working mirror has been altered or corrupted after initial seizure. In court, opposing defense counsel will move to exclude the evidence under digital admissibility rules (Section 65B of Indian Evidence Act), likely resulting in the dismissal of all electronic findings.
+    \end{enumerate}
+
+    \item \textbf{Investigative Interviewing Strategy under the PEACE Model:}
+    \begin{itemize}
+        \item \textit{Planning \& Preparation:} Master all procurement vouchers, bank records, and email logs before the interview; outline factual gaps.
+        \item \textit{Engage \& Explain:} Establish professional rapport, explain the factual purpose, outline rights, and avoid aggressive hostility.
+        \item \textit{Account:} Solicit a free, uninterrupted narrative of vendor selection procedures from the suspect.
+        \item \textit{Closure \& Evaluation:} Review statements, identify contradictions against bank records, and assess evidence without coercing a confession.
+    \end{itemize}
+
+    \item \textbf{Predication Evaluation in Whistleblower Allegations:}
+    An anonymous one-line email does \textbf{not} constitute sufficient legal predication to seize executive laptops or launch intrusive forensic raids. Commencing an investigation on uncorroborated rumors exposes the firm to wrongful termination and privacy invasion lawsuits. 
+    \textbf{Preliminary Steps:} Review Singapore subsidiary sales contracts, examine customs shipping manifests, check receivables aging, and confirm third-party banking receipts before establishing formal predication.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Solutions \& Distractor Rationales}
+
+\begin{enumerate}[label=\textbf{MCQ 4.\arabic*}]
+    \item \textbf{Correct Answer: (a)}\\
+    \textbf{Rationale:} Under the closed inter-statement articulation invariant, $\Delta RE = Net Income - Dividends + OCI$. With Net Income of Rs.~$120$ Crores and Dividends of Rs.~$30$ Crores, Retained Earnings must increase by $120 - 30 = \text{Rs.~} 90\text{ Crores}$. If Retained Earnings grew by only Rs.~$40$ Crores, an unrecorded debit plug of Rs.~$50$ Crores was posted directly into equity to bury an asset write-down or loss without passing through the P\&L.\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (b) is incorrect:} Factory bonuses debited to COGS already reduce Net Income to the reported Rs.~$120$ Crores figure; they cannot cause an articulation discrepancy.
+        \item \textit{Option (c) is incorrect:} Credit sales expansion increases Accounts Receivable and Sales Revenue, which is fully contained in Net Income and Retained Earnings.
+        \item \textit{Option (d) is incorrect:} Purchasing machinery using bank debt affects only PP\&E and Liabilities; it has zero impact on Retained Earnings.
+    \end{itemize}
+
+    \item \textbf{Correct Answer: (b)}\\
+    \textbf{Rationale:} Cryptographic hash functions like SHA-256 possess the collision-resistance property. Computing identical hashes on the original physical drive and the forensic clone mathematically proves that not a single bit of data was altered, added, or deleted during acquisition or processing.\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (a) is incorrect:} A hash match verifies evidence integrity and chain of custody; it does not prove legal guilt.
+        \item \textit{Option (c) is incorrect:} SHA-256 is a one-way mathematical hashing digest, not a decryption algorithm.
+        \item \textit{Option (d) is incorrect:} Hashing generates a fixed 256-bit string; it is not a data compression utility.
+    \end{itemize}
 \end{enumerate}
 
 \newpage
+% ======================================================================
+% CHAPTER 5 SOLUTIONS
+% ======================================================================
 \section*{Solutions for Chapter 5: Financial Ratios, Benford's Law \& Audit Fraud Detection}
 
-\begin{enumerate}
-    \item \textbf{Benford's Law Probability Calculations:}
-    \begin{align*}
-    P(d = 1) &= \log_{10}\left(1 + \frac{1}{1}\right) = \log_{10}(2) \approx 0.30103 \implies \mathbf{30.1\%} \\
-    P(d = 3) &= \log_{10}\left(1 + \frac{1}{3}\right) = \log_{10}\left(\frac{4}{3}\right) = \log_{10}(4) - \log_{10}(3) \approx 0.60206 - 0.47712 = \mathbf{0.12494\ (12.5\%)} \\
-    P(d = 7) &= \log_{10}\left(1 + \frac{1}{7}\right) = \log_{10}\left(\frac{8}{7}\right) \approx 0.90309 - 0.84510 = \mathbf{0.05799\ (5.8\%)}
-    \end{align*}
-    Summing across all digits via telescoping logarithms:
-    \begin{equation*}
-    \sum_{d=1}^9 \log_{10}\left(\frac{d+1}{d}\right) = \log_{10}\left(\frac{2}{1} \cdot \frac{3}{2} \cdot \frac{4}{3} \cdots \frac{10}{9}\right) = \log_{10}(10) = 1.0 \quad \text{(Q.E.D.)}
-    \end{equation*}
-    
-    \item \textbf{Chi-Square Test on Reimbursement Records ($N = 10{,}000$):}
-    Expected counts: $E = [3010, 1761, 1249, 969, 792, 669, 580, 512, 458]$.
-    Observed counts: $O = [2100, 1400, 1100, 1900, 1300, 800, 600, 450, 350]$.
-    Calculating $\chi^2 = \sum \frac{(O - E)^2}{E}$:
-    \begin{align*}
-    d=1: &\quad (2100 - 3010)^2 / 3010 = 828100 / 3010 \approx 275.12 \\
-    d=4: &\quad (1900 - 969)^2 / 969 = 866761 / 969 \approx 894.49 \\
-    d=5: &\quad (1300 - 792)^2 / 792 = 258064 / 792 \approx 325.84
-    \end{align*}
-    Summing across all 9 terms gives $\chi^2 > 1{,}500$, vastly exceeding the critical threshold $\chi^2_{0.01} = 20.09$. \textbf{Conclusion:} Overwhelmingly reject Benford conformity. Massive anomalies clustered at digits 4 and 5 indicate deliberate fabrication or threshold avoidance.
-    
-    \item \textbf{DuPont 3-Step ROE Decomposition:}
-    \begin{equation*}
-    \text{ROE} = \underbrace{\left(\frac{\text{Net Income}}{\text{Sales}}\right)}_{\text{Net Profit Margin}} \times \underbrace{\left(\frac{\text{Sales}}{\text{Assets}}\right)}_{\text{Asset Turnover}} \times \underbrace{\left(\frac{\text{Assets}}{\text{Equity}}\right)}_{\text{Financial Leverage Multiplier}}
-    \end{equation*}
-    If Net Profit Margin and Asset Turnover are flat or declining while ROE is expanding, the entire increase is driven by the third term: $\frac{\text{Assets}}{\text{Equity}}$. This reveals that the firm is taking on excessive debt leverage to create the artificial appearance of high returns.
-    
-    \item \textbf{Hypotheses for Escalating DSO (42 $\to$ 124 days):}
-    \begin{enumerate}
-        \item \textbf{Fictitious Billing / Channel Stuffing:} Sales were recorded for non-existent orders. Since no real customer exists, the invoice is never paid, aging indefinitely.
-        \item \textbf{Customer Solvency Crisis:} Severe deterioration in customer creditworthiness without booking bad debt write-offs.
-        \item \textbf{Concealed Returns / Consignment Sales:} Goods shipped on consignment were booked as final sales, but cannot be collected because distributors have not sold them.
+\subsection*{Part A: Analytical \& Computational Solutions}
+
+\begin{enumerate}[label=\textbf{P5.\arabic*}]
+    \item \textbf{Benford Distribution Probability Proof \& Digit Calculations:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Theoretical first-digit probabilities:
+        \begin{align*}
+        P(D_1 = 1) &= \log_{10}\left(1 + \frac{1}{1}\right) = \log_{10}(2) \approx \mathbf{0.3010 \quad (30.10\%)} \\
+        P(D_1 = 3) &= \log_{10}\left(1 + \frac{1}{3}\right) = \log_{10}(4/3) \approx \mathbf{0.1249 \quad (12.49\%)} \\
+        P(D_1 = 8) &= \log_{10}\left(1 + \frac{1}{8}\right) = \log_{10}(9/8) \approx \mathbf{0.0512 \quad (5.12\%)}
+        \end{align*}
+        \item Analytical proof of total probability:
+        \begin{equation*}
+        \sum_{d=1}^9 P(D_1 = d) = \sum_{d=1}^9 \log_{10}\left(\frac{d + 1}{d}\right) = \log_{10}\left(\prod_{d=1}^9 \frac{d + 1}{d}\right) = \log_{10}\left(\frac{2}{1} \cdot \frac{3}{2} \cdot \dots \cdot \frac{10}{9}\right) = \log_{10}(10) \equiv \mathbf{1.0}
+        \end{equation*}
+        \item Second-digit probability for $D_2 = 0$:
+        \begin{equation*}
+        P(D_2 = 0) = \sum_{k=1}^9 \log_{10}\left(1 + \frac{1}{10k}\right) = \log_{10}\left(\prod_{k=1}^9 \frac{10k + 1}{10k}\right) \approx \mathbf{0.1197 \quad (11.97\%)}
+        \end{equation*}
     \end{enumerate}
-    
-    \item \textbf{Second-Digit Benford's Law:}
-    \begin{equation*}
-    P(D_2 = d_2) = \sum_{d_1=1}^9 \log_{10}\left(1 + \frac{1}{10 d_1 + d_2}\right), \quad d_2 \in \{0, 1, \dots, 9\}
-    \end{equation*}
-    Fraudsters attempting to avoid an approval threshold of Rs.~5,000 frequently generate invoices like Rs.~4,950, Rs.~4,980, or Rs.~4,990. While the first digit is 4, the second digit is heavily skewed toward 9. A second-digit test immediately detects this cluster.
+
+    \item \textbf{Substantive Chi-Square \& MAD Goodness-of-Fit Test:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Expected counts for $N = 10{,}000$:
+        $E = [3010, 1761, 1249, 969, 792, 669, 580, 512, 458]$.
+        \item Observed counts: $O = [2100, 1400, 1100, 1900, 1300, 800, 600, 450, 350]$.
+        Computing Chi-Square contributions $\sum \frac{(O - E)^2}{E}$:
+        \begin{align*}
+        d=1: &\; \frac{(2100 - 3010)^2}{3010} = 275.12, \quad d=2: \; \frac{(1400 - 1761)^2}{1761} = 74.00 \\
+        d=3: &\; \frac{(1100 - 1249)^2}{1249} = 17.78, \quad d=4: \; \frac{(1900 - 969)^2}{969} = 894.49 \\
+        d=5: &\; \frac{(1300 - 792)^2}{792} = 325.84, \quad d=6: \; \frac{(800 - 669)^2}{669} = 25.65 \\
+        d=7: &\; \frac{(600 - 580)^2}{580} = 0.69, \quad d=8: \; \frac{(450 - 512)^2}{512} = 7.51 \\
+        d=9: &\; \frac{(350 - 458)^2}{458} = 25.47 \\
+        \midrule
+        \chi^2 &= 275.12 + 74.00 + 17.78 + 894.49 + 325.84 + 25.65 + 0.69 + 7.51 + 25.47 = \mathbf{1646.55}
+        \end{align*}
+        Since $\chi^2 = 1646.55 \gg 20.09$ ($p < 10^{-15}$), we \textbf{decisively reject $H_0$}.
+        \item Mean Absolute Deviation:
+        \begin{equation*}
+        \text{MAD} = \frac{1}{9} \sum_{d=1}^9 |p_d^{\text{obs}} - p_d^{\text{exp}}| = \frac{0.3674}{9} \approx \mathbf{0.0408}
+        \end{equation*}
+        Because $\text{MAD} = 0.0408 \gg 0.015$, the ledger is classified as \textbf{Non-Conforming (High Audit Risk)}.
+        \item Digit $4$ contributes $\chi^2 = 894.49$ ($19.0\%$ observed vs.~$9.69\%$ expected). This massive spike indicates threshold evasion around Rs.~$4{,}900$--$4{,}999$ to bypass a Rs.~$5{,}000$ approval limit.
+    \end{enumerate}
+
+    \item \textbf{DuPont Decomposition \& Capital Structure Arbitrage:}
+    \begin{enumerate}[label=(\alph*)]
+        \item 3-Step DuPont metrics ($\text{ROE} = \text{NPM} \times \text{ATO} \times \text{EM}$):
+        \begin{itemize}
+            \item \textit{Company A:}
+            \begin{align*}
+            \text{NPM} &= \frac{120}{1{,}000} = 12.0\%, \quad \text{ATO} = \frac{1{,}000}{600} = 1.667\times, \quad \text{EM} = \frac{600}{500} = 1.20\times \\
+            \text{ROE} &= 0.12 \times 1.667 \times 1.20 = \mathbf{24.0\%}
+            \end{align*}
+            \item \textit{Company B:}
+            \begin{align*}
+            \text{NPM} &= \frac{24}{400} = 6.0\%, \quad \text{ATO} = \frac{400}{800} = 0.50\times, \quad \text{EM} = \frac{800}{100} = 8.00\times \\
+            \text{ROE} &= 0.06 \times 0.50 \times 8.00 = \mathbf{24.0\%}
+            \end{align*}
+        \end{itemize}
+        \item \textbf{Forensic Assessment:} Company A achieves ROE through superior profit margins ($12\%$) and rapid asset turnover ($1.67\times$) with minimal debt ($\text{EM} = 1.2\times$). Company B has mediocre margins ($6\%$) and sluggish asset utilization ($0.5\times$), manufacturing an identical $24\%$ ROE entirely through dangerous leverage ($\text{EM} = 8.0\times$, Debt/Equity $= 7.0$). Company B faces high bankruptcy vulnerability.
+    \end{enumerate}
+
+    \item \textbf{Beneish M-Score Earnings Quality Assessment:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Computing the M-Score:
+        \begin{align*}
+        M &= -4.84 + 0.920(1.62) + 0.528(1.35) + 0.404(1.28) + 0.892(1.45) \\
+        &\quad + 0.115(1.12) - 0.172(0.95) + 4.037(0.09) + 0.0327(1.25) \\
+        &= -4.84 + 1.4904 + 0.7128 + 0.5171 + 1.2934 + 0.1288 - 0.1634 + 0.3633 + 0.0409 = \mathbf{-0.4567}
+        \end{align*}
+        \item Because $M = -0.457 > -1.78$, the firm is flagged with a \textcolor{red}{\textbf{High Probability of Financial Manipulation}}. The three most aggressive drivers are Days Sales in Receivables Index ($\text{DSRI} = 1.62$), Sales Growth Index ($\text{SGI} = 1.45$), and Gross Margin Deterioration Index ($\text{GMI} = 1.35$).
+    \end{enumerate}
+
+    \item \textbf{Receivables Aging Latency \& Days Sales Outstanding (DSO):}
+    \begin{enumerate}[label=(\alph*)]
+        \item $\text{DSO}_1 = \frac{8}{60} \times 365 = \mathbf{48.7\text{ days}}$. $\text{DSO}_3 = \frac{24}{73} \times 365 = \mathbf{120.0\text{ days}}$.
+        \item Forensic hypotheses: (1) Aggressive channel stuffing with lenient payment terms to artificially boost top-line revenue; (2) Fictitious bill-and-hold sales to non-existent customers who never pay; (3) Refusal to write off delinquent, uncollectible accounts to prevent booking bad debt impairment losses.
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Solutions \& Distractor Rationales}
+
+\begin{enumerate}[label=\textbf{MCQ 5.\arabic*}]
+    \item \textbf{Correct Answer: (b)}\\
+    \textbf{Rationale:} The Pearson $\chi^2$ statistic is linearly proportional to sample size: $\chi^2 = N \sum \frac{(O-E)^2}{E}$. With $N = 1{,}500{,}000$, infinitesimal deviations from exact Benford proportions reject the null hypothesis ($p < 0.001$). Under Nigrini's compliance framework, a Mean Absolute Deviation ($\text{MAD} = 0.0038 \le 0.006$) confirms close conformity, establishing that the rejection is a large-sample statistical artifact rather than evidence of fraud.\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (a) is incorrect:} Over-relying on $p$-values in massive samples without evaluating effect size (MAD) generates severe false-positive fraud allegations.
+        \item \textit{Option (c) is incorrect:} Benford's Law is statistically valid across datasets of arbitrary size; large datasets require MAD rather than Chi-Square.
+        \item \textit{Option (d) is incorrect:} Criminal referrals require substantive evidence of intent and deceit, not an unadjusted Chi-Square $p$-value.
+    \end{itemize}
+
+    \item \textbf{Correct Answer: (a)}\\
+    \textbf{Rationale:} In the 8-variable Beneish probit regression equation, Total Accruals to Total Assets ($\text{TATA}$) carries an exceptionally high coefficient of $+4.037$, reflecting the empirical reality that non-cash earnings disconnects are the single most potent predictor of accounting restatements and manipulation.\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (b) is incorrect:} Sales Growth Index carries a weight of $+0.892$.
+        \item \textit{Option (c) is incorrect:} Asset Quality Index carries a weight of $+0.404$.
+        \item \textit{Option (d) is incorrect:} Gross Margin Index carries a weight of $+0.528$.
+    \end{itemize}
 \end{enumerate}
 
 \newpage
+% ======================================================================
+% CHAPTER 6 SOLUTIONS
+% ======================================================================
 \section*{Solutions for Chapter 6: Corporate Finance Foundations, Aging Analysis \& Outlier Detection}
 
-\begin{enumerate}
-    \item \textbf{Net Present Value (NPV) Calculation:}
-    Discount rate $k = 10\% = 0.10$.
-    \begin{align*}
-    PV(CF_1) &= \frac{3,00,000}{(1.10)^1} = \text{Rs.~2,72,727.27} \\
-    PV(CF_2) &= \frac{4,00,000}{(1.10)^2} = \text{Rs.~3,30,578.51} \\
-    PV(CF_3) &= \frac{5,00,000}{(1.10)^3} = \text{Rs.~3,75,657.40} \\
-    PV(CF_4) &= \frac{2,00,000}{(1.10)^4} = \text{Rs.~1,36,602.69} \\
-    \text{Total PV of Inflows} &= 2,72,727.27 + 3,30,578.51 + 3,75,657.40 + 1,36,602.69 = \text{Rs.~11,15,565.87} \\
-    \mathbf{NPV} &= 11,15,565.87 - 10,00,000 = +\mathbf{Rs.~1,15,565.87}
-    \end{align*}
-    Since $\text{NPV} > 0$, the automation investment is \textbf{economically viable}.
-    
-    \item \textbf{Vulnerability of Standard $Z$-Score vs. Robustness of MAD:}
-    A standard $Z$-score relies on the sample mean $\bar{x}$ and sample standard deviation $s$. A single massive fraudulent value (e.g., Rs.~1,00,00,000 in a dataset of Rs.~5,000 invoices) drastically pulls the mean upward and inflates the standard deviation. Consequently, other moderate fraudulent outliers have their $Z$-scores artificially depressed, causing them to escape detection (masking effect). The Median Absolute Deviation (MAD) uses the median, which has a $50\%$ breakdown point and remains completely immune to extreme outliers.
-    
-    \item \textbf{Stratified Procurement Audit Strategy (Pareto Lorenz):}
-    Since $5\%$ of vendors (25 out of 500) account for $78\%$ of total spend (Rs.~39 Crores out of Rs.~50 Crores), the audit team should:
-    \begin{itemize}
-        \item Perform $100\%$ substantive census audit on all invoices issued by the top 25 vendors (verifying contracts, bank accounts, and delivery notes).
-        \item Apply statistical random sampling on the remaining 475 vendors for routine control compliance.
-        \item Cross-reference employee addresses and bank account numbers against the long tail of low-volume vendors to detect fictitious shell entities created by employees.
-    \end{itemize}
-    
-    \item \textbf{Allowance for Uncollectible Accounts Provisioning:}
-    \begin{align*}
-    0 - 30\text{ days:} &\quad 15,00,000 \times 0.02 = \text{Rs.~30,000} \\
-    31 - 60\text{ days:} &\quad 5,00,000 \times 0.06 = \text{Rs.~30,000} \\
-    61 - 90\text{ days:} &\quad 3,00,000 \times 0.15 = \text{Rs.~45,000} \\
-    > 90\text{ days:} &\quad 2,00,000 \times 0.50 = \text{Rs.~1,00,000} \\
-    \mathbf{Total\ Required\ Allowance} &= 30,000 + 30,000 + 45,000 + 1,00,000 = \mathbf{Rs.~2,05,000}
-    \end{align*}
-    
-    \item \textbf{Hand Calculation of Modified $Z$-score for Series $\{10, 11, 11, 12, 12, 12, 13, 14, 95\}$:}
-    Sorted array: $n = 9$.
-    \begin{enumerate}
-        \item Median = 5th value = $\mathbf{12}$.
-        Absolute deviations from median $|x_i - 12|$: $\{2, 1, 1, 0, 0, 0, 1, 2, 83\}$.
-        Sorted deviations: $\{0, 0, 0, 1, \mathbf{1}, 1, 2, 2, 83\}$.
-        $\mathbf{MAD} = \mathbf{1.0}$.
-        \item For value $x = 95$:
+\subsection*{Part A: Analytical \& Computational Solutions}
+
+\begin{enumerate}[label=\textbf{P6.\arabic*}]
+    \item \textbf{Capital Budgeting Valuation \& Hurdle Rate Arbitrage:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Net Present Value at $k = 10\%$:
         \begin{equation*}
-        \text{Modified } Z = \frac{0.6745 \times (95 - 12)}{1.0} = 0.6745 \times 83 = \mathbf{55.98}
+        NPV(0.10) = -100 + \frac{25}{(1.10)^1} + \frac{35}{(1.10)^2} + \frac{40}{(1.10)^3} + \frac{45}{(1.10)^4}
         \end{equation*}
-        \item Since $55.98 \gg 3.5$, the value $95$ is \textbf{unambiguously flagged as an extreme outlier}.
+        \begin{equation*}
+        NPV(0.10) = -100 + 22.73 + 28.93 + 30.05 + 30.74 = \mathbf{+Rs.~} 12.45\text{ Crores}
+        \end{equation*}
+        \item Decision rule: Since $NPV > 0$, the project generates returns exceeding the hurdle rate and should be \textbf{approved}.
+        \item At depressed hurdle rate $k = 6\%$:
+        \begin{equation*}
+        NPV(0.06) = -100 + \frac{25}{(1.06)^1} + \frac{35}{(1.06)^2} + \frac{40}{(1.06)^3} + \frac{45}{(1.06)^4} = -100 + 23.58 + 31.15 + 33.59 + 35.65 = \mathbf{+Rs.~} 23.97\text{ Crores}
+        \end{equation*}
+        Reported NPV was artificially expanded by $23.97 - 12.45 = \mathbf{Rs.~} 11.52\text{ Crores}$ ($+92.5\%$).
     \end{enumerate}
+
+    \item \textbf{Accounts Receivable Aging Schedule \& Provisioning Forensics:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Required Expected Credit Loss Provision:
+        \begin{align*}
+        0\text{--}30\text{ Days}: &\quad 50{,}00{,}000 \times 1.5\% = \text{Rs.~} 75{,}000 \\
+        31\text{--}60\text{ Days}: &\quad 20{,}00{,}000 \times 6.0\% = \text{Rs.~} 1{,}20{,}000 \\
+        61\text{--}90\text{ Days}: &\quad 12{,}00{,}000 \times 25.0\% = \text{Rs.~} 3{,}00{,}000 \\
+        >90\text{ Days}: &\quad 8{,}00{,}000 \times 60.0\% = \text{Rs.~} 4{,}80{,}000 \\
+        \midrule
+        \mathbf{Total\ Required\ Provision} &= \mathbf{Rs.~} 9{,}75{,}000
+        \end{align*}
+        \item Reclassifying Rs.~$6{,}00{,}000$ from $>90$ Days ($60\%$) to $0$--$30$ Days ($1.5\%$):
+        \begin{equation*}
+        \text{Old Provision} = 6{,}00{,}000 \times 60\% = \text{Rs.~} 3{,}60{,}000, \quad \text{New Provision} = 6{,}00{,}000 \times 1.5\% = \text{Rs.~} 9{,}000
+        \end{equation*}
+        \begin{equation*}
+        \text{Fraudulent Expense Reduction} = 3{,}60{,}000 - 9{,}000 = \mathbf{Rs.~} 3{,}51{,}000
+        \end{equation*}
+        Pre-tax operating profit was fraudulently overstated by Rs.~$3{,}51{,}000$.
+    \end{enumerate}
+
+    \item \textbf{The Masking Effect in Forensic Outlier Detection:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Sample mean and standard deviation for $[10, 12, 11, 13, 500]$:
+        \begin{align*}
+        \bar{x} &= \frac{10 + 12 + 11 + 13 + 500}{5} = \frac{546}{5} = \mathbf{109.2} \\
+        s &= \sqrt{\frac{(10-109.2)^2 + (12-109.2)^2 + (11-109.2)^2 + (13-109.2)^2 + (500-109.2)^2}{4}} \approx \mathbf{218.49}
+        \end{align*}
+        \item Standard $Z$-score for $x = 13$:
+        \begin{equation*}
+        Z_{13} = \frac{13 - 109.2}{218.49} \approx \mathbf{-0.44}
+        \end{equation*}
+        \item Median $\tilde{x} = 12$. Absolute deviations: $|10-12|=2, |11-12|=1, |12-12|=0, |13-12|=1, |500-12|=488$. Ordered deviations: $[0, 1, 1, 2, 488] \implies \mathbf{MAD = 1.0}$.
+        \item Modified $Z$-scores:
+        \begin{align*}
+        M_{13} &= \frac{0.6745 \times (13 - 12)}{1.0} = \mathbf{+0.6745 \quad (\text{Normal})} \\
+        M_{500} &= \frac{0.6745 \times (500 - 12)}{1.0} = \mathbf{+329.16 \quad (\text{Extreme Outlier!})}
+        \end{align*}
+        The Modified $Z$-score completely avoids the masking effect because the median and MAD are unaffected by the extreme value of $500$.
+    \end{enumerate}
+
+    \item \textbf{Tukey Interquartile Range (IQR) Non-Parametric Boundaries:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Ordered sample of $n = 12$ claims:
+        $Q_1 = \frac{1500 + 1650}{2} = \mathbf{1575}$, $\text{Median} = \frac{1950 + 2100}{2} = \mathbf{2025}$, $Q_3 = \frac{2800 + 3100}{2} = \mathbf{2950}$.
+        $\mathbf{IQR} = 2950 - 1575 = \mathbf{1375}$.
+        \item Fences:
+        \begin{align*}
+        \text{Inner Fences} &= [1575 - 1.5(1375), 2950 + 1.5(1375)] = [-487.5, \mathbf{5012.5}] \\
+        \text{Outer Fences} &= [1575 - 3.0(1375), 2950 + 3.0(1375)] = [-2550, \mathbf{7075.0}]
+        \end{align*}
+        \item Evaluation:
+        \begin{itemize}
+            \item Claim Rs.~$4{,}500$ is inside inner fences ($\le 5012.5$) $\implies$ Normal.
+            \item Claim Rs.~$9{,}800 > 7075.0$ $\implies$ \textbf{Extreme Outlier}.
+        \end{itemize}
+    \end{enumerate}
+
+    \item \textbf{Pareto 80/20 Stratification \& Smurfing Audit Design:}
+    Partition payments into three tiers: Tier A (top $20\%$ of high-value wires representing $80\%$ of volume) subjected to $100\%$ substantive voucher verification. Tier B (middle $30\%$ of volume) sampled randomly. Tier C (bottom $50\%$ of low-value wires) analyzed via Benford's Law, velocity clustering, and entity resolution to identify smurfing rings designed to stay just below regulatory reporting thresholds.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Solutions \& Distractor Rationales}
+
+\begin{enumerate}[label=\textbf{MCQ 6.\arabic*}]
+    \item \textbf{Correct Answer: (b)}\\
+    \textbf{Rationale:} In parametric Gaussian $Z$-score calculations, sample mean and standard deviation have a breakdown point of $0\%$. A single massive fraudulent disbursement inflates $s$ dramatically, deflating the standard scores of secondary fraudulent transactions and masking them from detection. The Modified $Z$-score utilizes the median and MAD, which possess the maximum possible breakdown point of $50\%$.\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (a) is incorrect:} Gaussian $Z$-scores can be computed on datasets of arbitrary size $n \ge 2$.
+        \item \textit{Option (c) is incorrect:} Modified $Z$-scores evaluate relative deviation from the median, not ledger zero-sum equilibrium.
+        \item \textit{Option (d) is incorrect:} Spreadsheet software easily computes standard deviations.
+    \end{itemize}
+
+    \item \textbf{Correct Answer: (c)}\\
+    \textbf{Rationale:} Under IFRS 9 Financial Instruments, when credit risk increases significantly (Stage 2/3), the entity must recognize a lifetime expected credit loss allowance through an impairment charge in Profit \& Loss and a credit to the contra-asset allowance.\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (a) is incorrect:} Commercial credit impairment losses must pass through the operating income statement, not charged directly to equity.
+        \item \textit{Option (b) is incorrect:} Uncollectible trade receivables cannot be capitalized into Goodwill.
+        \item \textit{Option (d) is incorrect:} IFRS 9 explicitly replaced the legacy IAS 39 ``incurred loss'' model with a forward-looking ``expected credit loss'' framework; waiting for formal liquidation violates standard accounting.
+    \end{itemize}
 \end{enumerate}
 
 \newpage
+% ======================================================================
+% CHAPTER 7 SOLUTIONS
+% ======================================================================
 \section*{Solutions for Chapter 7: Advanced Corporate Finance \& the Financial Transaction Lifecycle}
 
-\begin{enumerate}
-    \item \textbf{Weighted Average Cost of Capital (WACC) Calculation:}
-    \begin{align*}
-    E &= \text{Rs.~600 Crores}, \quad D = \text{Rs.~400 Crores}, \quad V = 600 + 400 = \text{Rs.~1000 Crores} \\
-    \frac{E}{V} &= 0.60, \quad \frac{D}{V} = 0.40 \\
-    r_e &= R_f + \beta_e (E(R_m) - R_f) = 6.5\% + 1.25 \times (14.5\% - 6.5\%) = 6.5\% + 10.0\% = \mathbf{16.5\%} \\
-    r_d(1 - T_c) &= 9.0\% \times (1 - 0.25) = \mathbf{6.75\%} \\
-    \mathbf{WACC} &= (0.60 \times 16.5\%) + (0.40 \times 6.75\%) = 9.90\% + 2.70\% = \mathbf{12.60\%}
-    \end{align*}
-    
-    \item \textbf{Altman $Z$-Score Calculation for Zenith Manufacturing:}
-    \begin{align*}
-    X_1 &= \frac{\text{Working Capital}}{\text{Total Assets}} = \frac{2,00,000}{10,00,000} = 0.20 \\
-    X_2 &= \frac{\text{Retained Earnings}}{\text{Total Assets}} = \frac{1,50,000}{10,00,000} = 0.15 \\
-    X_3 &= \frac{\text{EBIT}}{\text{Total Assets}} = \frac{1,20,000}{10,00,000} = 0.12 \\
-    X_4 &= \frac{\text{Market Equity}}{\text{Total Liabilities}} = \frac{4,00,000}{6,00,000} \approx 0.6667 \\
-    X_5 &= \frac{\text{Sales}}{\text{Total Assets}} = \frac{9,00,000}{10,00,000} = 0.90 \\
-    Z &= 1.2(0.20) + 1.4(0.15) + 3.3(0.12) + 0.6(0.6667) + 0.999(0.90) \\
-    &= 0.24 + 0.21 + 0.396 + 0.400 + 0.8991 = \mathbf{2.145}
-    \end{align*}
-    \textbf{Classification:} Since $1.81 \le 2.145 \le 2.99$, Zenith is in the \textbf{Grey Zone} (moderate distress; warranting heightened monitoring).
-    
-    \item \textbf{Gross vs. Net Settlement \& Systemic Gridlock:}
-    Gross Settlement (RTGS) settles each payment instruction individually in real-time across central bank accounts, eliminating counterparty credit risk. Net settlement aggregates transactions and settles the net difference at predetermined batch windows (e.g., end-of-day). If a participating bank becomes insolvent during the day, it cannot fund its net debit position, triggering systemic settlement gridlock where all other member settlements must be unwound.
-    
+\subsection*{Part A: Analytical \& Computational Solutions}
+
+\begin{enumerate}[label=\textbf{P7.\arabic*}]
+    \item \textbf{Comprehensive WACC \& Tax-Shield Optimization:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Cost of equity via CAPM:
+        \begin{equation*}
+        r_e = R_f + \beta_e [E(R_m) - R_f] = 6.5\% + 1.25 \times [13.5\% - 6.5\%] = 6.5\% + 1.25(7.0\%) = \mathbf{15.25\%}
+        \end{equation*}
+        \item After-tax cost of debt:
+        \begin{equation*}
+        r_d(1 - T_c) = 9.0\% \times (1 - 0.25) = \mathbf{6.75\%}
+        \end{equation*}
+        \item Weighted Average Cost of Capital ($V = 600 + 400 = 1{,}000\text{ Cr}$):
+        \begin{equation*}
+        WACC = \left(\frac{600}{1{,}000}\right) \times 15.25\% + \left(\frac{400}{1{,}000}\right) \times 6.75\% = 9.15\% + 2.70\% = \mathbf{11.85\%}
+        \end{equation*}
+        \item Recalculation under leveraged capital structure ($E = 400, D = 600, V = 1{,}000$):
+        \begin{align*}
+        r_e' &= 6.5\% + 1.50(7.0\%) = 17.0\% \\
+        r_d'(1 - T_c) &= 10.5\% \times (1 - 0.25) = 7.875\% \\
+        WACC' &= (0.40 \times 17.0\%) + (0.60 \times 7.875\%) = 6.80\% + 4.725\% = \mathbf{11.525\%}
+        \end{align*}
+        While nominal WACC decreased slightly due to debt tax shields, the firm's financial risk expanded substantially: interest coverage deteriorated, equity volatility rose ($\beta = 1.50$), and default risk increased.
+    \end{enumerate}
+
+    \item \textbf{Altman $Z$-Score Insolvency Prediction:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Calculating the five Altman ratios:
+        \begin{align*}
+        X_1 &= \frac{\text{Working Capital}}{\text{Total Assets}} = \frac{180 - 140}{500} = \frac{40}{500} = \mathbf{0.080} \\
+        X_2 &= \frac{\text{Retained Earnings}}{\text{Total Assets}} = \frac{60}{500} = \mathbf{0.120} \\
+        X_3 &= \frac{\text{EBIT}}{\text{Total Assets}} = \frac{45}{500} = \mathbf{0.090} \\
+        X_4 &= \frac{\text{Market Value of Equity}}{\text{Book Total Liabilities}} = \frac{240}{320} = \mathbf{0.750} \\
+        X_5 &= \frac{\text{Sales}}{\text{Total Assets}} = \frac{650}{500} = \mathbf{1.300}
+        \end{align*}
+        \item Altman $Z$-Score calculation:
+        \begin{align*}
+        Z &= 1.2(0.080) + 1.4(0.120) + 3.3(0.090) + 0.6(0.750) + 0.999(1.300) \\
+        &= 0.096 + 0.168 + 0.297 + 0.450 + 1.2987 = \mathbf{2.3097}
+        \end{align*}
+        \item Classification: Since $1.81 \le Z = 2.31 \le 2.99$, the firm is classified in the \textcolor{amberwarning}{\textbf{Grey Zone}} (moderate financial distress; elevated operational monitoring recommended).
+    \end{enumerate}
+
+    \item \textbf{Operating vs.~Financial Leverage Compounding:}
+    \begin{enumerate}[label=(\alph*)]
+        \item At $Q = 200{,}000, P = 600, V = 360, FC = 2.8\text{ Cr}, I = 10\% \times 8\text{ Cr} = 0.8\text{ Cr}$:
+        \begin{align*}
+        \text{Revenue} &= 200{,}000 \times 600 = \text{Rs.~} 12\text{ Crores} \\
+        \text{Variable Costs} &= 200{,}000 \times 360 = \text{Rs.~} 7.2\text{ Crores} \\
+        \text{Contribution Margin} &= 12 - 7.2 = \text{Rs.~} 4.8\text{ Crores} \\
+        \text{EBIT} &= 4.8 - 2.8 = \text{Rs.~} 2.0\text{ Crores} \\
+        DOL &= \frac{\text{Contribution Margin}}{\text{EBIT}} = \frac{4.8}{2.0} = \mathbf{2.40\times} \\
+        DFL &= \frac{\text{EBIT}}{\text{EBIT} - I} = \frac{2.0}{2.0 - 0.8} = \frac{2.0}{1.2} \approx \mathbf{1.667\times}
+        \end{align*}
+        \item Degree of Total Leverage:
+        \begin{equation*}
+        DTL = DOL \times DFL = 2.40 \times 1.667 = \mathbf{4.00\times}
+        \end{equation*}
+        \item A $15\%$ drop in sales revenue causes:
+        \begin{align*}
+        \Delta \text{EBIT} &= DOL \times (-15\%) = 2.40 \times (-15\%) = \mathbf{-36.0\%} \\
+        \Delta \text{EPS} &= DTL \times (-15\%) = 4.00 \times (-15\%) = \mathbf{-60.0\%}
+        \end{align*}
+    \end{enumerate}
+
+    \item \textbf{Transaction Rail Dispute \& Liability Allocation:}
+    Under Card Scheme operating rules, liability in fraudulent transactions rests with whichever party failed to implement the strongest security protocol (the ``liability shift'' doctrine). Because the merchant processed card-not-present transactions without requiring 3D-Secure two-factor authentication or CVV verification, liability shifts entirely to the \textbf{Merchant}. The issuing bank will initiate a chargeback, and the acquiring bank will debit Rs.~$12{,}00{,}000$ plus chargeback fees directly from the merchant's account.
+
     \item \textbf{Authorized Push Payment (APP) Fraud Mechanics:}
-    In APP fraud, fraudsters deceive the genuine account holder into actively initiating the payment (e.g., posing as anti-fraud police demanding immediate transfer to a ``safe account''). Because the genuine user enters their own password, biometric token, and authenticates the 2FA challenge, security controls consider the transaction fully authorized.
-    
-    \item \textbf{Four-Party Model Entities and Interchange Deductions:}
-    The four entities are: (1) Cardholder, (2) Issuing Bank, (3) Merchant, and (4) Acquiring Bank. The interchange fee is deducted during the \textbf{clearing and settlement} phase: the acquiring bank pays the issuing bank the transaction face value minus the interchange fee.
+    Traditional fraud rules fail against APP fraud because the payment is executed by the legitimate, authorized account holder entering their own credentials and MFA OTPs. Preventative controls include: (1) \textit{Confirmation of Payee (CoP):} Verifying that the beneficiary account name matches the recipient bank record before funds clear; (2) \textit{Behavioral Biometrics:} Detecting hesitation, unusual typing rhythm, or concurrent active phone calls during transfer execution; (3) \textit{Dynamic Velocity Holds:} Imposing a 2-hour cooling-off delay on high-value transfers to newly added beneficiaries.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Solutions \& Distractor Rationales}
+
+\begin{enumerate}[label=\textbf{MCQ 7.\arabic*}]
+    \item \textbf{Correct Answer: (b)}\\
+    \textbf{Rationale:} Variable $X_4 = \frac{\text{Market Value of Equity}}{\text{Book Value of Total Liabilities}}$ in Altman's $Z$-Score measures how much enterprise equity value can decline before outstanding liabilities exceed assets and render the enterprise insolvent.\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (a) is incorrect:} Profit margins are captured by variable $X_3$ (EBIT/Total Assets).
+        \item \textit{Option (c) is incorrect:} Receivables collection speed is measured by DSO or Asset Turnover ($X_5$).
+        \item \textit{Option (d) is incorrect:} Debt tax shields are incorporated into the WACC debt cost formula, not the Altman discriminant model.
+    \end{itemize}
+
+    \item \textbf{Correct Answer: (d)}\\
+    \textbf{Rationale:} In the Five-Stage Financial Transaction Lifecycle, **Settlement** represents the definitive, irrevocable legal movement of monetary value across central bank accounts, discharging interbank obligations.\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (a) is incorrect:} Initiation is merely the customer entering payment details.
+        \item \textit{Option (b) is incorrect:} Authentication verifies customer identity.
+        \item \textit{Option (c) is incorrect:} Authorization places a temporary hold on the available credit limit or bank balance; it does not transfer funds.
+    \end{itemize}
 \end{enumerate}
 
 \newpage
+% ======================================================================
+% CHAPTER 8 SOLUTIONS
+% ======================================================================
 \section*{Solutions for Chapter 8: Credit Risk, Probability of Default \& Reject Inferencing}
 
-\begin{enumerate}
-    \item \textbf{Expected Loss ($\text{EL}$) Computation:}
-    \begin{align*}
-    \text{EL} &= \text{PD} \times \text{LGD} \times \text{EAD} \\
-    &= 0.035 \times 0.45 \times \text{Rs.~480 Crores} \\
-    &= 0.01575 \times 480 = \mathbf{Rs.~7.56\ Crores}
-    \end{align*}
-    
-    \item \textbf{Logistic Regression Default Probability:}
-    \begin{align*}
-    z &= \beta_0 + \beta_{\text{DTI}} \cdot \text{DTI} + \beta_{\text{Delinq}} \cdot \text{Delinq} \\
-    &= -2.8 + (3.2 \times 0.40) + (0.75 \times 2) \\
-    &= -2.8 + 1.28 + 1.50 = -\mathbf{0.02} \\
-    \mathbf{PD} &= \frac{1}{1 + e^{-(-0.02)}} = \frac{1}{1 + e^{0.02}} \approx \frac{1}{1 + 1.0202} \approx \mathbf{0.4950\ (49.5\%)}
-    \end{align*}
-    
-    \item \textbf{Parceling Method in Reject Inferencing:}
-    In parceling, an initial model trained on accepted applicants scores all rejected applicants, segmenting them into score scorebands. Within each scoreband, the observed default rate of accepted applicants is multiplied by an expansion factor (typically $1.5\times$ to $2.5\times$, reflecting the higher inherent risk of rejected applicants) to estimate the default rate of rejected applicants. The rejected applicants in each band are then randomly assigned binary default labels (0 or 1) according to this estimated probability and pooled into the retrained scoring model.
-    
-    \item \textbf{Weight of Evidence and Information Value Calculation:}
-    Totals: Goods $= 800 + 400 = 1200$, Bads $= 200 + 300 = 500$.
-    \begin{align*}
-    \text{Category A:} &\quad \%G_A = \frac{800}{1200} \approx 0.6667, \quad \%B_A = \frac{200}{500} = 0.4000 \\
-    \text{WoE}_A &= \ln\left(\frac{0.6667}{0.4000}\right) = \ln(1.6667) \approx +\mathbf{0.5108} \\
-    \text{IV}_A &= (0.6667 - 0.4000) \times 0.5108 = 0.2667 \times 0.5108 \approx \mathbf{0.1362} \\
-    \text{Category B:} &\quad \%G_B = \frac{400}{1200} \approx 0.3333, \quad \%B_B = \frac{300}{500} = 0.6000 \\
-    \text{WoE}_B &= \ln\left(\frac{0.3333}{0.6000}\right) = \ln(0.5556) \approx -\mathbf{0.5878} \\
-    \text{IV}_B &= (0.3333 - 0.6000) \times (-0.5878) = (-0.2667) \times (-0.5878) \approx \mathbf{0.1568} \\
-    \mathbf{Total\ IV} &= \text{IV}_A + \text{IV}_B = 0.1362 + 0.1568 = \mathbf{0.2930}
-    \end{align*}
-    \textit{Interpretation:} An $\text{IV}$ of $0.293$ represents medium-to-strong predictive power, making it a valuable feature for the credit scorecard.
-    
-    \item \textbf{Credit Propensity and Adverse Selection Mitigation:}
-    When lenders adjust interest rates dynamically, higher interest rates may deter high-credit-quality borrowers (who have alternative competitive options) while attracting desperate, high-risk borrowers who cannot obtain credit elsewhere (adverse selection). Propensity models estimate the joint probability of loan take-up and default, finding the optimal pricing point that maximizes expected portfolio margin without driving away prime borrowers.
+\subsection*{Part A: Analytical \& Computational Solutions}
+
+\begin{enumerate}[label=\textbf{P8.\arabic*}]
+    \item \textbf{Basel Expected Loss Portfolio Calculation:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Exposure at Default ($EAD$):
+        \begin{equation*}
+        EAD = \text{Drawn} + (\text{Undrawn} \times CCF) = 30 + (20 \times 50\%) = 30 + 10 = \mathbf{Rs.~} 40\text{ Crores}
+        \end{equation*}
+        \item Expected Loss ($EL$):
+        \begin{equation*}
+        EL = PD \times LGD \times EAD = 2.5\% \times 60\% \times 40\text{ Cr} = 0.025 \times 0.60 \times 40 = \mathbf{Rs.~} 0.60\text{ Crores (Rs.~60 Lakhs)}
+        \end{equation*}
+        \item Recalculation under rating downgrade ($PD = 6.0\%, LGD = 75\%$):
+        \begin{equation*}
+        EL' = 0.06 \times 0.75 \times 40 = \mathbf{Rs.~} 1.80\text{ Crores}
+        \end{equation*}
+        Required percentage expansion in provisions: $\frac{1.80 - 0.60}{0.60} \times 100\% = \mathbf{+200.0\%}$ (provisions must triple).
+    \end{enumerate}
+
+    \item \textbf{Logistic Regression Logit to Probability Conversion:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Compute the log-odds $z$:
+        \begin{align*}
+        z &= -2.80 + 2.40(0.45) - 0.005(680 - 600) + 0.85(2) \\
+        &= -2.80 + 1.08 - 0.005(80) + 1.70 = -2.80 + 1.08 - 0.40 + 1.70 = \mathbf{-0.420}
+        \end{align*}
+        \item Probability of Default:
+        \begin{equation*}
+        PD = \sigma(z) = \frac{1}{1 + e^{-(-0.420)}} = \frac{1}{1 + e^{0.420}} = \frac{1}{1 + 1.52196} \approx \mathbf{0.3965 \quad (39.65\%)}
+        \end{equation*}
+        \item Underwriting decision: Since $PD = 39.65\% \gg 8.0\%$, the credit application must be \textcolor{red}{\textbf{DENIED}}.
+    \end{enumerate}
+
+    \item \textbf{Weight of Evidence (WoE) \& Information Value (IV) Derivation:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Total Goods $= 9{,}000$, Total Bads $= 1{,}100$. Distribution proportions:
+        \begin{itemize}
+            \item $<25$: $\%G = \frac{1600}{9000} = 17.78\%$, $\%B = \frac{400}{1100} = 36.36\%$
+            \item $25\text{--}45$: $\%G = \frac{5400}{9000} = 60.00\%$, $\%B = \frac{600}{1100} = 54.55\%$
+            \item $>45$: $\%G = \frac{2000}{9000} = 22.22\%$, $\%B = \frac{100}{1100} = 9.09\%$
+        \end{itemize}
+        \item Weight of Evidence ($\text{WoE} = \ln(\%G / \%B)$):
+        \begin{align*}
+        \text{WoE}_{<25} &= \ln(0.1778 / 0.3636) = \ln(0.4890) \approx \mathbf{-0.7154} \\
+        \text{WoE}_{25-45} &= \ln(0.6000 / 0.5455) = \ln(1.0999) \approx \mathbf{+0.0952} \\
+        \text{WoE}_{>45} &= \ln(0.2222 / 0.0909) = \ln(2.4444) \approx \mathbf{+0.8938}
+        \end{align*}
+        \item Information Value ($IV = \sum (\%G - \%B) \times \text{WoE}$):
+        \begin{align*}
+        IV &= (0.1778 - 0.3636)(-0.7154) + (0.6000 - 0.5455)(0.0952) + (0.2222 - 0.0909)(0.8938) \\
+        &= (-0.1858)(-0.7154) + (0.0545)(0.0952) + (0.1313)(0.8938) \\
+        &= 0.1329 + 0.0052 + 0.1174 = \mathbf{0.2555}
+        \end{align*}
+        Because $0.10 \le IV = 0.2555 \le 0.30$, Age is a \textbf{Medium Predictor} with strong discriminatory value.
+    \end{enumerate}
+
+    \item \textbf{Credit Scorecard Scaling and Points to Double the Odds:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Scaling parameters:
+        \begin{align*}
+        \text{Factor} &= \frac{\text{PDO}}{\ln(2)} = \frac{20}{\ln(2)} \approx \mathbf{28.8539} \\
+        \text{Offset} &= \text{Score} - \text{Factor} \cdot \ln(\text{Odds}) = 600 - 28.8539 \cdot \ln(50) = 600 - 28.8539(3.912) \approx \mathbf{487.12}
+        \end{align*}
+        \item For $p = 4.0\%$, $\text{Odds} = \frac{1 - 0.04}{0.04} = \frac{0.96}{0.04} = 24:1$.
+        \begin{equation*}
+        \text{Score} = 487.12 + 28.8539 \cdot \ln(24) = 487.12 + 28.8539(3.178) \approx \mathbf{578.8\text{ points}}
+        \end{equation*}
+    \end{enumerate}
+
+    \item \textbf{Reject Inferencing via the Parceling Technique:}
+    Step 1: Train an initial scoring model on accepted applicants.
+    Step 2: Score all rejected applicants and partition them into score deciles.
+    Step 3: For each decile, determine the accepted default rate $DR_{\text{acc}}$ and multiply by an empirical expansion factor (e.g., $2.5\times$) to establish target reject default rate $DR_{\text{rej}} = 2.5 \times DR_{\text{acc}}$.
+    Step 4: Randomly assign Bad labels ($Y=1$) to match $DR_{\text{rej}}$ in each band.
+    Step 5: Merge the parceled rejects with the accepted population and re-estimate the final production scorecard across the complete through-the-door population.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Solutions \& Distractor Rationales}
+
+\begin{enumerate}[label=\textbf{MCQ 8.\arabic*}]
+    \item \textbf{Correct Answer: (b)}\\
+    \textbf{Rationale:} Training exclusively on accepted loans introduces severe **selection bias** (the sample truncation problem). Because rejected borrowers typically have weaker credit profiles, an accepted-only model fails to learn the relationship between sub-prime risk factors and delinquency, underestimating default rates when deployed across general applicants.\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (a) is incorrect:} Selection bias affects statistical sample distribution; it does not violate double-entry accounting.
+        \item \textit{Option (c) is incorrect:} Accepted applicants exhibit substantial variance in credit scores.
+        \item \textit{Option (d) is incorrect:} Credit scores are bounded numerical indices; Benford's Law does not apply to bounded credit scores.
+    \end{itemize}
+
+    \item \textbf{Correct Answer: (b)}\\
+    \textbf{Rationale:} In credit feature engineering, an Information Value $IV > 0.50$ almost always signals **target data leakage** or retrospective contamination. Variables relating to collections activity can only occur \textit{after} an account has already defaulted; including them creates the artificial illusion of perfect prediction.\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (a) is incorrect:} Values above $0.50$ are considered highly suspicious by model validation guidelines (e.g., OCC / Federal Reserve SR 11-7).
+        \item \textit{Option (c) is incorrect:} Monotonic logarithmic transformations do not alter Information Value, as WoE is based on quantile binning.
+        \item \textit{Option (d) is incorrect:} Altman's $Z$-Score is a corporate bankruptcy model, not a variable transformer.
+    \end{itemize}
 \end{enumerate}
 
 \newpage
+% ======================================================================
+% CHAPTER 9 SOLUTIONS
+% ======================================================================
 \section*{Solutions for Chapter 9: Fraud Detection: Supervised \& Unsupervised Machine Learning}
 
-\begin{enumerate}
-    \item \textbf{Precision, Recall, and False Positive Rate Calculation:}
-    Given: Total transactions $= 1{,}000{,}000$; Total Frauds $= 1{,}000$; Total Legitimate $= 999{,}000$.
-    Model flags $2{,}500$ as fraud, of which $800$ are confirmed fraud ($TP = 800$, $FP = 2500 - 800 = 1700$).
-    $FN = 1000 - 800 = 200$, $TN = 999000 - 1700 = 997300$.
-    \begin{align*}
-    \mathbf{Precision} &= \frac{TP}{TP + FP} = \frac{800}{2500} = \mathbf{0.3200\ (32.0\%)} \\
-    \mathbf{Recall} &= \frac{TP}{TP + FN} = \frac{800}{1000} = \mathbf{0.8000\ (80.0\%)} \\
-    \mathbf{FPR} &= \frac{FP}{FP + TN} = \frac{1700}{1700 + 997300} = \frac{1700}{999000} \approx \mathbf{0.0017\ (0.17\%)}
-    \end{align*}
-    
-    \item \textbf{SMOTE Mechanics and Overfitting Prevention:}
-    For a minority class point $\mathbf{x}_i$, SMOTE identifies its $k$-nearest minority neighbors, randomly selects one neighbor $\mathbf{x}_{zi}$, and generates a synthetic instance $\mathbf{x}_{\text{new}}$:
-    \begin{equation*}
-    \mathbf{x}_{\text{new}} = \mathbf{x}_i + \lambda (\mathbf{x}_{zi} - \mathbf{x}_i), \quad \lambda \sim \mathcal{U}(0, 1)
-    \end{equation*}
-    Naive random oversampling simply duplicates existing minority points, causing tree models to create ultra-narrow, overfitted decision boundaries around identical duplicates. SMOTE forces the classifier to learn broader, convex decision regions.
-    
-    \item \textbf{Isolation Forest Anomaly Score Interpretation:}
+\subsection*{Part A: Analytical \& Computational Solutions}
+
+\begin{enumerate}[label=\textbf{P9.\arabic*}]
+    \item \textbf{The Accuracy Paradox \& Cost-Sensitive Matrix Analysis:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Performance metrics for $N = 1{,}000{,}000$ transactions ($1{,}000$ frauds, $999{,}000$ legitimate):
+        \begin{itemize}
+            \item \textit{Model Alpha (Trivial Baseline):} $TP = 0, FP = 0, FN = 1{,}000, TN = 999{,}000$.
+            \begin{align*}
+            \text{Accuracy} &= \frac{999{,}000}{1{,}000{,}000} = \mathbf{99.9\%}, \quad \text{Precision} = \mathbf{\text{Undefined} (0/0)}, \quad \text{Recall} = \frac{0}{1000} = \mathbf{0.0\%}, \quad F_1 = \mathbf{0.0}
+            \end{align*}
+            \item \textit{Model Beta (Trained Detector):} $TP = 800, FP = 4{,}200, FN = 200, TN = 994{,}800$.
+            \begin{align*}
+            \text{Accuracy} &= \frac{800 + 994{,}800}{1{,}000{,}000} = \mathbf{99.56\%} \\
+            \text{Precision} &= \frac{800}{800 + 4{,}200} = \frac{800}{5{,}000} = \mathbf{16.0\%} \\
+            \text{Recall} &= \frac{800}{800 + 200} = \frac{800}{1{,}000} = \mathbf{80.0\%} \\
+            F_1 &= 2 \times \frac{0.16 \times 0.80}{0.16 + 0.80} = \frac{0.256}{0.96} = \mathbf{0.2667}
+            \end{align*}
+        \end{itemize}
+        \item Total Misclassification Cost ($\mathcal{L} = C_{FN} \cdot FN + C_{FP} \cdot FP$):
+        \begin{align*}
+        \mathcal{L}_{\text{Alpha}} &= (25{,}000 \times 1{,}000) + (50 \times 0) = \mathbf{Rs.~} 2{,}50{,}00{,}000\text{ (Rs.~2.5 Crores)} \\
+        \mathcal{L}_{\text{Beta}} &= (25{,}000 \times 200) + (50 \times 4{,}200) = 50{,}00{,}000 + 2{,}10{,}000 = \mathbf{Rs.~} 52{,}10{,}000\text{ (Rs.~52.1 Lakhs)}
+        \end{align*}
+        \item Model Beta saves the enterprise Rs.~$1.98$ Crores in financial fraud losses ($79.2\%$ cost reduction). Model Alpha's high accuracy ($99.9\%$) is completely meaningless because it allows $100\%$ of fraud to escape.
+    \end{enumerate}
+
+    \item \textbf{Isolation Forest Path Length \& Anomaly Scoring:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Normalization constant $c(256)$ for $n = 256$:
+        \begin{align*}
+        c(256) &= 2 \ln(255) + 2(0.5772) - \frac{2(255)}{256} = 2(5.5413) + 1.1544 - 1.9922 \\
+        &= 11.0825 + 1.1544 - 1.9922 \approx \mathbf{10.2447}
+        \end{align*}
+        \item Anomaly score for $E[h(x)] = 3.8$:
+        \begin{equation*}
+        s(x, 256) = 2^{-\frac{E[h(x)]}{c(256)}} = 2^{-\frac{3.8}{10.2447}} = 2^{-0.3709} = \frac{1}{2^{0.3709}} \approx \mathbf{0.7733}
+        \end{equation*}
+        \item Since $s = 0.7733 \gg 0.60$, the expense claim is a \textcolor{red}{\textbf{Definite Anomaly}} that must be flagged for urgent substantive forensic audit.
+    \end{enumerate}
+
+    \item \textbf{SMOTE Algorithmic Execution \& Geometric Interpolation:}
+    \begin{enumerate}[label=(\alph*)]
+        \item SMOTE generation formula:
+        \begin{equation*}
+        \mathbf{x}_{\text{syn}} = \mathbf{x}_i + \lambda (\mathbf{x}_{zi} - \mathbf{x}_i), \quad \lambda \sim U(0, 1)
+        \end{equation*}
+        \item For $\mathbf{x}_1 = [2, 6]^T, \mathbf{x}_2 = [4, 10]^T, \lambda = 0.35$:
+        \begin{equation*}
+        \mathbf{x}_{\text{syn}} = \begin{bmatrix} 2.0 \\ 6.0 \end{bmatrix} + 0.35 \left( \begin{bmatrix} 4.0 \\ 10.0 \end{bmatrix} - \begin{bmatrix} 2.0 \\ 6.0 \end{bmatrix} \right) = \begin{bmatrix} 2.0 \\ 6.0 \end{bmatrix} + 0.35 \begin{bmatrix} 2.0 \\ 4.0 \end{bmatrix} = \begin{bmatrix} 2.0 + 0.70 \\ 6.0 + 1.40 \end{bmatrix} = \mathbf{\begin{bmatrix} 2.70 \\ 7.40 \end{bmatrix}}
+        \end{equation*}
+        \item Applying SMOTE before train-test partitioning interpolates synthetic fraud samples across the entire dataset, leaking validation manifold structure into the training set and producing invalid, over-optimistic evaluation metrics.
+    \end{enumerate}
+
+    \item \textbf{Precision-Recall Trade-Off \& Operating Threshold Selection:}
+    With $400$ daily review capacity across $200{,}000$ transactions ($0.2\%$ alert rate), the risk team should calibrate the classification probability threshold such that exactly the top $400$ highest-risk transactions trigger alerts daily. This corresponds to setting the threshold at the $99.8^{\text{th}}$ percentile of predicted default probabilities, maximizing fraud recall while keeping operational alert queues within the team's capacity.
+
+    \item \textbf{Synthetic Identity vs.~Account Takeover Forensics:}
     \begin{itemize}
-        \item $s(x, n) \to 1.0$: Average path length is very short ($E(h(x)) \ll c(n)$); the instance is an unambiguous anomaly/fraud.
-        \item $s(x, n) \approx 0.5$: Average path length is roughly equivalent to that of an average BST node; the instance does not exhibit distinct anomalous characteristics.
-        \item $s(x, n) \to 0.0$: Path length is long ($E(h(x)) \gg c(n)$); the instance resides deep within dense clusters of normal transactions.
+        \item \textit{Synthetic Identity:} Fictitious identity created by combining real and fake credentials; long gestation period ($1$--$3$ years of building credit); indicators include lack of credit bureau history before age 25, shared mailing addresses, and sudden coordinated bust-out borrowing across multiple banks.
+        \item \textit{Account Takeover (ATO):} Hijacking an established legitimate account; zero gestation period (instantaneous attack); indicators include sudden changes in device fingerprint, geolocation jumps, immediate password/email resets, and rapid fund transfers.
     \end{itemize}
-    
-    \item \textbf{Local Outlier Factor (LOF) vs. Isolation Forest:}
-    Isolation Forest relies on global axis-aligned cuts across features. Local Outlier Factor computes local reachability density relative to $k$-nearest neighbors. When a dataset contains multiple clusters with widely differing densities (e.g., small local retail purchases vs.~large corporate enterprise supplier payments), a point that is normal in a low-density cluster might look like an outlier to a global tree cut. LOF excels in multi-density environments by evaluating density locally.
-    
-    \item \textbf{Cost-Optimal Threshold Selection:}
-    For an estimated fraud probability $p$, classifying the transaction as fraudulent costs:
-    $\text{Cost}(\text{Flag}) = (1 - p) C_{FP}$.
-    Classifying the transaction as legitimate costs:
-    $\text{Cost}(\text{Pass}) = p C_{FN}$.
-    The bank should flag the transaction whenever $\text{Cost}(\text{Pass}) > \text{Cost}(\text{Flag})$:
-    \begin{equation*}
-    p C_{FN} > (1 - p) C_{FP} \implies p > \frac{C_{FP}}{C_{FN} + C_{FP}}
-    \end{equation*}
-    Substituting $C_{FN} = 20000$ and $C_{FP} = 50$:
-    \begin{equation*}
-    p^* = \frac{50}{20000 + 50} = \frac{50}{20050} \approx \mathbf{0.00249\ (0.249\%)}
-    \end{equation*}
-    The bank should challenge any transaction whose model-predicted fraud probability exceeds just $0.25\%$.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Solutions \& Distractor Rationales}
+
+\begin{enumerate}[label=\textbf{MCQ 9.\arabic*}]
+    \item \textbf{Correct Answer: (b)}\\
+    \textbf{Rationale:} Under extreme class imbalance, the True Negative ($TN$) class is enormous. In ROC curves, the False Positive Rate denominator is $FP + TN$. Because $TN$ is massive, thousands of false positive alerts result in a negligible $FPR$, creating an artificially inflated ROC-AUC ($> 0.98$). PR-AUC evaluates Precision ($TP / (TP + FP)$), which explicitly reflects alert quality and exposes when fraud queues are flooded with false alarms.\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (a) is incorrect:} ROC-AUC is mathematically well-defined regardless of class imbalance.
+        \item \textit{Option (c) is incorrect:} PR-AUC evaluates the precision-recall trade-off; it does not guarantee zero false negatives.
+        \item \textit{Option (d) is incorrect:} XGBoost and decision trees output continuous probability scores capable of generating both ROC and PR curves.
+    \end{itemize}
+
+    \item \textbf{Correct Answer: (b)}\\
+    \textbf{Rationale:} In an Isolation Forest, anomalies are sparse and structurally different from normal observations. Consequently, random recursive partitioning cuts isolate anomalous instances close to the root of the tree, producing average path lengths far shorter than the average depth $c(n)$ ($E[h(x)] \ll c(n) \implies s(x, n) \to 1$).\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (a) is incorrect:} Points in dense clusters require many cuts to be isolated, yielding large path lengths $E[h(x)] \to n-1$.
+        \item \textit{Option (c) is incorrect:} Path length measures node depth, not data type corruption.
+        \item \textit{Option (d) is incorrect:} Isolation depth is an unsupervised partitioning metric unrelated to Benford's Law.
+    \end{itemize}
 \end{enumerate}
 
 \newpage
+% ======================================================================
+% CHAPTER 10 SOLUTIONS
+% ======================================================================
 \section*{Solutions for Chapter 10: Time Series Analysis \& Temporal Anomaly Detection}
 
-\begin{enumerate}
-    \item \textbf{AR(1) Unconditional Moments Derivation:}
-    $y_t = \delta + \phi_1 y_{t-1} + \epsilon_t$. Taking expectations under stationarity ($E[y_t] = E[y_{t-1}] = \mu$):
-    \begin{equation*}
-    \mu = \delta + \phi_1 \mu + 0 \implies \mathbf{E[y_t] = \frac{\delta}{1 - \phi_1}}
-    \end{equation*}
-    Taking variance:
-    \begin{equation*}
-    \text{Var}(y_t) = \text{Var}(\phi_1 y_{t-1} + \epsilon_t) = \phi_1^2 \text{Var}(y_{t-1}) + \sigma^2 \implies \gamma_0 = \phi_1^2 \gamma_0 + \sigma^2 \implies \mathbf{\text{Var}(y_t) = \frac{\sigma^2}{1 - \phi_1^2}}
-    \end{equation*}
-    If $\phi_1 = 1$, the variance becomes infinite; the process becomes a random walk with a unit root (non-stationary).
-    
-    \item \textbf{ADF Test Statistical Conclusion:}
-    Since the test statistic $-1.82$ is greater (less negative) than the critical value $-2.89$, we fail to reject the null hypothesis $H_0$. The transaction count series possesses a unit root and is non-stationary. First-order differencing ($\Delta y_t = y_t - y_{t-1}$) is required to stabilize the mean before fitting ARMA models.
-    
-    \item \textbf{Salami Slicing Fraud \& CUSUM Detection:}
-    A salami attack extracts tiny amounts (e.g., Rs.~0.50) across millions of accounts. On any single transaction, an extraction of Rs.~0.50 is well within normal variance and will never trigger a $3\sigma$ threshold. However, CUSUM accumulates successive positive or negative deviations: $S_t^+ = \max(0, S_{t-1}^+ + (y_t - \mu_0) - K)$. Even a micro-shift consistently pulls the sum upward, causing $S_t^+$ to cross the threshold $H$ and trip the alarm.
-    
-    \item \textbf{ARIMA(0, 1, 1) as an EWMA Forecast:}
-    Model: $(1 - L) y_t = (1 - \theta_1 L) \epsilon_t \implies y_t - y_{t-1} = \epsilon_t - \theta_1 \epsilon_{t-1}$.
-    Inverting into an infinite autoregressive representation:
-    \begin{equation*}
-    \hat{y}_{t+1|t} = (1 - \theta_1) y_t + \theta_1 \hat{y}_{t|t-1} = (1 - \theta_1) \sum_{j=0}^\infty \theta_1^j y_{t-j}
-    \end{equation*}
-    This is the exact mathematical definition of Exponentially Weighted Moving Average (EWMA) with smoothing parameter $\alpha = 1 - \theta_1$.
-    
-    \item \textbf{Additive vs. Multiplicative Seasonal Decomposition:}
-    Additive decomposition ($y_t = T_t + S_t + \epsilon_t$) assumes the amplitude of seasonal fluctuations remains constant regardless of the baseline trend level. Multiplicative decomposition ($y_t = T_t \times S_t \times \epsilon_t$) is required when seasonal spikes scale proportionally with enterprise growth (e.g., holiday sales surge by $40\%$ of baseline revenue, whether baseline revenue is Rs.~10 Crores or Rs.~100 Crores).
+\subsection*{Part A: Analytical \& Computational Solutions}
+
+\begin{enumerate}[label=\textbf{P10.\arabic*}]
+    \item \textbf{Classical Time Series Decomposition \& Residual Analysis:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Expected volumes $\hat{y}_t = \hat{T}_t + \hat{S}_t$:
+        \begin{itemize}
+            \item Day 1: $\hat{T}_1 = 100 + 10(1) = 110, \quad \hat{y}_1 = 110 + (-5) = \mathbf{105}$
+            \item Day 2: $\hat{T}_2 = 100 + 10(2) = 120, \quad \hat{y}_2 = 120 + 10 = \mathbf{130}$
+            \item Day 3: $\hat{T}_3 = 100 + 10(3) = 130, \quad \hat{y}_3 = 130 + (-15) = \mathbf{115}$
+            \item Day 4: $\hat{T}_4 = 100 + 10(4) = 140, \quad \hat{y}_4 = 140 + 25 = \mathbf{165}$
+        \end{itemize}
+        \item Residual irregular errors $\epsilon_t = y_t - \hat{y}_t$:
+        \begin{align*}
+        \epsilon_1 &= 120 - 105 = \mathbf{+15} \\
+        \epsilon_2 &= 145 - 130 = \mathbf{+15} \\
+        \epsilon_3 &= 110 - 115 = \mathbf{-5} \\
+        \epsilon_4 &= 190 - 165 = \mathbf{+25}
+        \end{align*}
+        \item \textbf{Day 4} exhibits the most severe anomaly ($+25$), indicating an unexpected volume spike that exceeds both secular growth and day-of-week seasonality.
+    \end{enumerate}
+
+    \item \textbf{Econometric Stationarity \& Augmented Dickey-Fuller (ADF) Proof:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Hypotheses:
+        \begin{itemize}
+            \item $H_0: \gamma = 0$ (Unit root present; series is non-stationary).
+            \item $H_1: \gamma < 0$ (Series is stationary).
+        \end{itemize}
+        \item Empirical test statistic:
+        \begin{equation*}
+        t_\gamma = \frac{\hat{\gamma}}{\text{SE}(\hat{\gamma})} = \frac{-0.38}{0.095} = \mathbf{-4.00}
+        \end{equation*}
+        \item Decision: Since $t_\gamma = -4.00 < -3.43$ (more negative than the $1\%$ critical threshold), we \textbf{reject $H_0$} at the $1\%$ significance level. The transaction withdrawal series is \textbf{stationary}.
+    \end{enumerate}
+
+    \item \textbf{CUSUM Change-Point Tracking Mechanics:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Sequential calculation of $S_t^+ = \max(0, S_{t-1}^+ + y_t - (\mu_0 + k))$ with $\mu_0 = 20, k = 2.0, \mu_0 + k = 22, h = 10$:
+        \begin{align*}
+        t=1 (y_1=22): &\quad S_1^+ = \max(0, 0 + 22 - 22) = \mathbf{0.0} \\
+        t=2 (y_2=26): &\quad S_2^+ = \max(0, 0.0 + 26 - 22) = \mathbf{4.0} \\
+        t=3 (y_3=28): &\quad S_3^+ = \max(0, 4.0 + 28 - 22) = \mathbf{10.0} \\
+        t=4 (y_4=27): &\quad S_4^+ = \max(0, 10.0 + 27 - 22) = \mathbf{15.0} \quad \text{\textcolor{red}{\textbf{(Alarm!)}}} \\
+        t=5 (y_5=29): &\quad S_5^+ = \max(0, 15.0 + 29 - 22) = \mathbf{22.0}
+        \end{align*}
+        \item The structural change-point alarm is triggered at \textbf{Hour 4} ($t = 4$) when $S_4^+ = 15.0 > 10.0$.
+    \end{enumerate}
+
+    \item \textbf{Rolling EWMA Dynamic Volatility Bands:}
+    EWMA weights historical observations exponentially: $w_i = (1 - \lambda) \lambda^i$. Because the smoothing factor $\lambda \in (0, 1)$ allocates exponentially decreasing weight to older observations, recent shocks immediately expand the estimated variance $\sigma_t^2$. In contrast, an unweighted 30-day window assigns equal $1/30$ weight to all days, causing severe lag and keeping detection bands unresponsive to immediate market disruptions.
+
+    \item \textbf{Money Laundering Layering \& Burst Detection Architecture:}
+    Deploy a temporal graph windowing engine: Construct dynamic edge buffers over 2-hour sliding intervals. Group transactions by beneficiary routing code and IP gateway. Trigger an immediate AML alert when a cluster of $>10$ accounts receive structured deposits ($<\text{Rs.~} 50{,}000$) within $\Delta t \le 120$ minutes followed by rapid outgoing consolidation wire transfers.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Solutions \& Distractor Rationales}
+
+\begin{enumerate}[label=\textbf{MCQ 10.\arabic*}]
+    \item \textbf{Correct Answer: (b)}\\
+    \textbf{Rationale:} When two non-stationary time series sharing common secular trends are regressed against each other, standard OLS regression generates a **spurious regression**. The model exhibits artificially high $R^2$ values ($> 0.90$) and statistically significant $t$-statistics, falsely suggesting causality between completely unrelated economic phenomena.\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (a) is incorrect:} Matrix inversion succeeds numerically; the flaw is econometric, not computational.
+        \item \textit{Option (c) is incorrect:} Non-stationary regression does not alter temporal seasonality components.
+        \item \textit{Option (d) is incorrect:} Spurious regression residuals exhibit severe autocorrelation and non-stationarity.
+    \end{itemize}
+
+    \item \textbf{Correct Answer: (a)}\\
+    \textbf{Rationale:} In Page's CUSUM chart, the allowance parameter $k = \frac{\delta}{2} \sigma$ acts as a reference buffer that subtracts expected baseline noise from each observation. This prevents normal stochastic variations from accumulating over time and drifting into false alarms.\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (b) is incorrect:} CUSUM does not perform seasonal differencing; data must be seasonally adjusted beforehand.
+        \item \textit{Option (c) is incorrect:} $k$ is calibrated on standard deviation ($\sigma$), not corporate cost of capital.
+        \item \textit{Option (d) is incorrect:} CUSUM is a time-series process control method unrelated to Benford's Law.
+    \end{itemize}
 \end{enumerate}
 
 \newpage
+% ======================================================================
+% CHAPTER 11 SOLUTIONS
+% ======================================================================
 \section*{Solutions for Chapter 11: Forensic Text Mining, NLP \& Entity Resolution}
 
-\begin{enumerate}
-    \item \textbf{Levenshtein Edit Distance Calculation:}
-    $s_1 = \text{``ENRON''}$, $s_2 = \text{``ERRON''}$.
-    To transform ``ENRON'' to ``ERRON'', only 1 substitution is required (replace `N' at position 2 with `R').
-    Therefore, $\text{Lev}(s_1, s_2) = 1$.
-    Normalized similarity score:
-    \begin{equation*}
-    \text{Sim}_{\text{Lev}} = 1 - \frac{1}{\max(5, 5)} = 1 - \frac{1}{5} = \mathbf{0.80\ (80\%)}
-    \end{equation*}
-    
-    \item \textbf{TF-IDF Formulation \& Inverse Frequency Suppression:}
-    \begin{equation*}
-    \text{TF-IDF}(t, d, D) = \text{TF}(t, d) \times \ln\left(\frac{1 + |D|}{1 + \text{DF}(t)}\right)
-    \end{equation*}
-    If a generic term like ``company'' appears in almost every single 10-K filing in corpus $D$, then $\text{DF}(t) \approx |D|$. The fraction inside the logarithm approaches $\frac{|D|}{|D|} = 1$, and $\ln(1) = 0$. Consequently, high-frequency non-discriminative terms are naturally suppressed, elevating rare forensic keywords (e.g., ``subpoena'', ``restatement'', ``indictment'').
-    
-    \item \textbf{Blocking in High-Volume Entity Resolution:}
-    Comparing $10{,}000$ vendor records against $50{,}000$ PEP names requires $5 \times 10^8$ expensive character comparisons. \textit{Blocking} partitions both lists into mutually exclusive bins based on shared coarse attributes (e.g., matching the first 3 characters of the surname, or identical Soundex/Metaphone phonetic codes). Comparisons are only executed within corresponding blocks, eliminating $>99\%$ of candidate pairs and reducing computational complexity from $O(N \cdot M)$ to near-linear $O(N + M)$.
-    
-    \item \textbf{Named Entity Recognition (NER) Architecture for Bribery Detection:}
-    A fine-tuned Transformer (such as FinBERT) tokens the text sequence. Each token is encoded into contextual embedding vectors. A classification head with BIO tagging (Begin, Inside, Outside) labels token sequences into target entities: \texttt{B-PER} (person name), \texttt{B-ORG} (organization), \texttt{B-MONEY} (bribe amount), and \texttt{B-ACC} (destination bank account). Co-occurrence of a high-value \texttt{B-MONEY} entity within 5 tokens of a Politically Exposed \texttt{B-PER} triggers a red flag.
-    
-    \item \textbf{Beneficial Ownership Concealment via Network Graphs:}
-    Adversaries layer ownership through chains of shell entities across multiple secrecy jurisdictions (e.g., Person X owns $100\%$ of Shell A in Cayman Islands, which owns $100\%$ of Shell B in Cyprus, which holds local enterprise contracts). By representing entities and directors as graph nodes and ownership stakes as directed edges, graph traversal algorithms (such as breadth-first search and PageRank centrality) trace trans-jurisdictional paths to compute the Ultimate Beneficial Owner (UBO).
+\subsection*{Part A: Analytical \& Computational Solutions}
+
+\begin{enumerate}[label=\textbf{P11.\arabic*}]
+    \item \textbf{TF-IDF Weighting \& Deceptive Corpus Scoring:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Term Frequency:
+        \begin{equation*}
+        \text{TF}(\texttt{unprecedented}, d) = \frac{6}{200} = \mathbf{0.030}
+        \end{equation*}
+        \item Smoothed Inverse Document Frequency ($N = 1000, \text{DF} = 10$):
+        \begin{equation*}
+        \text{IDF} = \ln\left(\frac{1 + 1000}{1 + 10}\right) + 1 = \ln\left(\frac{1001}{11}\right) + 1 = \ln(91.0) + 1 \approx 4.5109 + 1 = \mathbf{5.5109}
+        \end{equation*}
+        \item TF-IDF Score:
+        \begin{equation*}
+        w_{t,d} = 0.030 \times 5.5109 \approx \mathbf{0.1653}
+        \end{equation*}
+        \item In forensic text mining, common accounting words (e.g., ``revenue'', ``quarter'') appear in almost every filing, yielding low IDF scores. Rare, emotionally hyperbolic words appear in few documents, yielding high IDF weights that allow machine learning classifiers to flag deceptive narratives.
+    \end{enumerate}
+
+    \item \textbf{Step-by-Step Levenshtein Edit Distance Matrix:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Dynamic programming matrix for $s_1 = \texttt{SATYAM}$ (length 6) and $s_2 = \texttt{SATNAM}$ (length 6):
+        \begin{center}
+        \small
+        \begin{tabular}{c|ccccccc}
+        \toprule
+        & $\epsilon$ & \textbf{S} & \textbf{A} & \textbf{T} & \textbf{N} & \textbf{A} & \textbf{M} \\
+        \midrule
+        $\epsilon$ & 0 & 1 & 2 & 3 & 4 & 5 & 6 \\
+        \textbf{S} & 1 & 0 & 1 & 2 & 3 & 4 & 5 \\
+        \textbf{A} & 2 & 1 & 0 & 1 & 2 & 3 & 4 \\
+        \textbf{T} & 3 & 2 & 1 & 0 & 1 & 2 & 3 \\
+        \textbf{Y} & 4 & 3 & 2 & 1 & 1 & 2 & 3 \\
+        \textbf{A} & 5 & 4 & 3 & 2 & 2 & 1 & 2 \\
+        \textbf{M} & 6 & 5 & 4 & 3 & 3 & 2 & \textbf{1} \\
+        \bottomrule
+        \end{tabular}
+        \end{center}
+        \item The minimum edit distance is $\mathbf{Lev = 1}$ (a single character substitution of \texttt{Y} with \texttt{N}).
+        \item Normalized Levenshtein similarity:
+        \begin{equation*}
+        \text{Sim}_{\text{Lev}} = 1 - \frac{1}{\max(6, 6)} = 1 - \frac{1}{6} = \frac{5}{6} \approx \mathbf{83.33\%}
+        \end{equation*}
+    \end{enumerate}
+
+    \item \textbf{Jaro-Winkler Calculation for Shell Entity Matching:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Match window for $s_1 = \texttt{BHARAT} (|s_1|=6)$ and $s_2 = \texttt{BHARTY} (|s_2|=6)$:
+        \begin{equation*}
+        \text{Window} = \left\lfloor \frac{\max(6, 6)}{2} \right\rfloor - 1 = 3 - 1 = \mathbf{2}
+        \end{equation*}
+        \item Matching characters: \texttt{B}, \texttt{H}, \texttt{A}, \texttt{R}, \texttt{T} are all within distance 2 ($m = 5$ matches). Characters appear in identical order, so transpositions $t = 0$.
+        \item Base Jaro distance:
+        \begin{equation*}
+        Sim_J = \frac{1}{3} \left( \frac{5}{6} + \frac{5}{6} + \frac{5 - 0}{5} \right) = \frac{1}{3} \left( 0.8333 + 0.8333 + 1.0 \right) = \frac{2.6667}{3} \approx \mathbf{0.8889}
+        \end{equation*}
+        \item Common prefix: \texttt{BHAR} matches for the first $4$ characters ($\ell = 4$). Jaro-Winkler score:
+        \begin{equation*}
+        Sim_{JW} = 0.8889 + 4(0.1)(1 - 0.8889) = 0.8889 + 0.4(0.1111) = 0.8889 + 0.0444 = \mathbf{0.9333 \quad (93.33\%)}
+        \end{equation*}
+    \end{enumerate}
+
+    \item \textbf{Linguistic Deception \& MD\&A Risk Profiling:}
+    Firm $A$ displays classic psycholinguistic markers of financial reporting deception: (1) Pronoun displacement ($0.2\%$ vs.~$1.8\%$) indicating psychological detachment from stated results; (2) High syntactic complexity ($38$ words per sentence vs.~$18$) designed to obfuscate financial clarity; (3) Extremely elevated uncertainty language ($4.8\%$ vs.~$1.1\%$). Firm $A$ presents **substantially elevated deception risk**.
+
+    \item \textbf{Scalable Blocking Strategy in Corporate Registry Linkage:}
+    Direct pairwise matching requires $\frac{2{,}000{,}000 \times 500{,}000}{2} = 5 \times 10^{11}$ comparisons (computationally intractable). Implement a multi-pass blocking pipeline:
+    \begin{itemize}
+        \item Pass 1: Block by Double Metaphone phonetic key of the primary business token combined with the geographic state/country code.
+        \item Pass 2: Within each block, execute Jaro-Winkler comparison only on candidates sharing identical first 3 characters.
+        \item Pass 3: Resolve connected components via graph clustering to identify shell vendor rings.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Solutions \& Distractor Rationales}
+
+\begin{enumerate}[label=\textbf{MCQ 11.\arabic*}]
+    \item \textbf{Correct Answer: (a)}\\
+    \textbf{Rationale:} Generic sentiment analysis lexicons (e.g., VADER or TextBlob) were trained on social media or product reviews, where words like ``liability'', ``depreciation'', ``tax'', and ``cost'' convey negative sentiment. In corporate financial statements, these are routine operational terms. Generic tools misclassify standard filings as intensely negative, whereas the Loughran-McDonald lexicon correctly calibrates financial semantics.\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (b) is incorrect:} Generic lexicons handle words of arbitrary length.
+        \item \textit{Option (c) is incorrect:} Dictionaries classify sentiment; they do not generate double-entry ledger vouchers.
+        \item \textit{Option (d) is incorrect:} The SEC enforces disclosure regulations; it does not mandate mathematical accuracy levels for NLP models.
+    \end{itemize}
+
+    \item \textbf{Correct Answer: (b)}\\
+    \textbf{Rationale:} The Jaro-Winkler metric modifies the standard Jaro formulation by adding a scaled bonus score ($\ell \cdot p \cdot (1 - Sim_J)$) for strings that share an identical initial prefix (up to four characters). This is specifically designed for personal names and commercial entities, where typographical errors typically occur toward the end of words rather than in the opening letters.\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (a) is incorrect:} Jaro-Winkler retains all characters, including vowels.
+        \item \textit{Option (c) is incorrect:} The scaling factor is a constant $p = 0.1$, not the Euler-Mascheroni constant.
+        \item \textit{Option (d) is incorrect:} Jaro-Winkler is an edit-based string metric, not an acoustic phonetic encoder like Soundex.
+    \end{itemize}
 \end{enumerate}
 
 \newpage
+% ======================================================================
+% CHAPTER 12 SOLUTIONS
+% ======================================================================
 \section*{Solutions for Chapter 12: Model Explainability, Visual Analytics \& Banking AI Governance}
 
-\begin{enumerate}
-    \item \textbf{FCRA Mandates and Black-Box Liability:}
-    The Fair Credit Reporting Act (FCRA) and Equal Credit Opportunity Act (ECOA) protect consumers against arbitrary, biased, or erroneous credit denials. Lenders must provide specific principal reasons for adverse action (e.g., excessive debt relative to income) so consumers can rectify inaccuracies. If an institution deploys an unexplainable black-box neural network, it cannot produce compliant adverse action notices, subjecting the bank to severe regulatory enforcement, fines, and civil rights class-action lawsuits.
-    
-    \item \textbf{The Four Axioms of Shapley Values:}
-    \begin{enumerate}
-        \item \textbf{Efficiency:} $\sum_{i=1}^M \phi_i = f(\mathbf{x}) - E[f(X)]$ (The attributions sum to the total difference between prediction and expected value).
-        \item \textbf{Symmetry:} If $v(S \cup \{i\}) = v(S \cup \{j\})$ for all $S \subseteq N \setminus \{i, j\}$, then $\phi_i = \phi_j$.
-        \item \textbf{Dummy Player:} If $v(S \cup \{i\}) = v(S)$ for all $S \subseteq N \setminus \{i\}$, then $\phi_i = 0$.
-        \item \textbf{Additivity:} For combined models $f = f_1 + f_2$, $\phi_i(f_1 + f_2) = \phi_i(f_1) + \phi_i(f_2)$.
+\subsection*{Part A: Analytical \& Computational Solutions}
+
+\begin{enumerate}[label=\textbf{P12.\arabic*}]
+    \item \textbf{Exact Cooperative Game Theory Shapley Calculation:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Shapley attribution $\phi_1$ for feature $1$ (Sanctioned Corridor):
+        Subsets excluding player 1: $S = \emptyset$ (weight $1/2$) and $S = \{2\}$ (weight $1/2$):
+        \begin{align*}
+        S = \emptyset: &\quad v(\{1\}) - v(\emptyset) = 0.35 - 0.05 = +0.30 \\
+        S = \{2\}: &\quad v(\{1, 2\}) - v(\{2\}) = 0.95 - 0.45 = +0.50 \\
+        \phi_1 &= \frac{1}{2}(0.30) + \frac{1}{2}(0.50) = 0.15 + 0.25 = \mathbf{+0.40}
+        \end{align*}
+        Shapley attribution $\phi_2$ for feature $2$ (Rapid Velocity):
+        Subsets excluding player 2: $S = \emptyset$ (weight $1/2$) and $S = \{1\}$ (weight $1/2$):
+        \begin{align*}
+        S = \emptyset: &\quad v(\{2\}) - v(\emptyset) = 0.45 - 0.05 = +0.40 \\
+        S = \{1\}: &\quad v(\{1, 2\}) - v(\{1\}) = 0.95 - 0.35 = +0.60 \\
+        \phi_2 &= \frac{1}{2}(0.40) + \frac{1}{2}(0.60) = 0.20 + 0.30 = \mathbf{+0.50}
+        \end{align*}
+        \item Verifying the Efficiency Axiom:
+        \begin{equation*}
+        \phi_1 + \phi_2 = 0.40 + 0.50 = \mathbf{0.90} \equiv v(\{1, 2\}) - v(\emptyset) = 0.95 - 0.05 = \mathbf{0.90} \quad \text{\textcolor{tealdef}{\textbf{(Axiom Holds)}}}
+        \end{equation*}
+        \item Feature $2$ (Rapid Velocity, $\phi_2 = +0.50$) contributed more strongly to the final SAR alert than Feature $1$ ($\phi_1 = +0.40$).
     \end{enumerate}
-    
-    \item \textbf{SHAP vs. LIME Comparison:}
-    LIME fits an interpretable linear surrogate model locally around a perturbed neighborhood of the target point; however, LIME samples heuristically and lacks theoretical guarantees, producing unstable explanations across runs. SHAP is grounded in cooperative game theory, providing the unique mathematically guaranteed fair attribution. TreeSHAP optimizes Shapley computation specifically for decision trees by tracking decision paths in $O(T L D^2)$ time rather than exponential $O(2^M)$ time.
-    
-    \item \textbf{Hand Calculation of Shapley Attribution $\phi_1$ ($N = 3$):}
-    Formula: $\phi_1 = \sum_{S \subseteq \{2, 3\}} \frac{|S|!(3 - |S| - 1)!}{3!} [v(S \cup \{1\}) - v(S)]$.
-    Subsets of $\{2, 3\}$:
+
+    \item \textbf{Adverse Action Notice Reason Extraction under FCRA:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Legally compliant Adverse Action statements based on top positive attributions:
+        \begin{enumerate}
+            \item \textit{Primary Reason:} ``Debt-to-Income ratio exceeds allowable credit risk underwriting threshold'' ($\phi_{\text{DTI}} = +0.14$).
+            \item \textit{Secondary Reason:} ``Excessive number of recent hard credit inquiries recorded within past six months'' ($\phi_{\text{Inquiries}} = +0.08$).
+        \end{enumerate}
+        \item Feature $\phi_{\text{CIBIL}} = -0.03$ represents a \textit{favorable} credit attribute (it reduced default risk by $3\%$). Under the Fair Credit Reporting Act (FCRA), lenders must disclose only factors that contributed **adversely** to the denial. Listing a favorable factor violates consumer protection reporting regulations.
+    \end{enumerate}
+
+    \item \textbf{Graph Centrality \& Circular Round-Tripping Cycle Detection:}
+    \begin{enumerate}[label=(\alph*)]
+        \item Directed weighted adjacency matrix:
+        \begin{equation*}
+        \mathbf{A} = \begin{pmatrix}
+        0 & 100 & 0 & 0 \\
+        0 & 0 & 98 & 0 \\
+        0 & 0 & 0 & 97 \\
+        96.5 & 0 & 0 & 0
+        \end{pmatrix}
+        \end{equation*}
+        \item Algorithm: Apply Johnson's algorithm (or Tarjan's strongly connected components followed by depth-first search cycle enumeration) to trace elementary directed cycles. A directed cycle exists because path $A \to B \to C \to D \to A$ starts and terminates at the same node.
+        \item Net capital loss: Entity A initiated Rs.~$100$ Lakhs and received back Rs.~$96.5$ Lakhs. Net economic loss $= 100 - 96.5 = \mathbf{Rs.~} 3.5\text{ Lakhs}$ (banking fees and dissipation), despite generating Rs.~$291.5$ Lakhs in artificial transaction turnover.
+    \end{enumerate}
+
+    \item \textbf{Proxy Discrimination \& Disparate Impact Forensics:}
+    Under the Equal Credit Opportunity Act (ECOA) and Consumer Financial Protection Bureau (CFPB) jurisprudence, eliminating explicit demographic labels does not protect a lender from liability under the doctrine of **Disparate Impact**. If an underwriting model relies on proxy variables (e.g., postal zip code) that produce a statistically significant adverse disparate impact on protected classes ($35\%$ approval vs.~$82\%$, violating the $80\%$ four-fifths rule), the practice is illegal unless the lender can prove strict business necessity and demonstrate that no less discriminatory alternative exists.
+
+    \item \textbf{LIME vs.~SHAP Theoretical Foundations:}
     \begin{itemize}
-        \item $S = \emptyset$ ($|S|=0$, weight $= \frac{0! 2!}{3!} = \frac{2}{6} = \frac{1}{3}$):
-        $[v(\{1\}) - v(\emptyset)] = 0.35 - 0.20 = 0.15$.
-        Contribution: $\frac{1}{3} \times 0.15 = 0.05$.
-        \item $S = \{2\}$ ($|S|=1$, weight $= \frac{1! 1!}{3!} = \frac{1}{6}$):
-        $[v(\{1, 2\}) - v(\{2\})] = 0.50 - 0.20 = 0.30$.
-        Contribution: $\frac{1}{6} \times 0.30 = 0.05$.
-        \item $S = \{3\}$ ($|S|=1$, weight $= \frac{1! 1!}{3!} = \frac{1}{6}$):
-        $[v(\{1, 3\}) - v(\{3\})] = 0.60 - 0.30 = 0.30$.
-        Contribution: $\frac{1}{6} \times 0.30 = 0.05$.
-        \item $S = \{2, 3\}$ ($|S|=2$, weight $= \frac{2! 0!}{3!} = \frac{2}{6} = \frac{1}{3}$):
-        $[v(\{1, 2, 3\}) - v(\{2, 3\})] = 0.85 - 0.30 = 0.55$.
-        Contribution: $\frac{1}{3} \times 0.55 = 0.1833$.
+        \item \textit{Theoretical Basis:} SHAP is grounded in cooperative game theory and represents the unique method satisfying all four fairness axioms; LIME is an empirical heuristic fitting local linear surrogates on random perturbations.
+        \item \textit{Stability:} SHAP attributions are mathematically deterministic for a fixed model and dataset; LIME relies on random Monte Carlo sampling, yielding varying feature attributions across runs.
+        \item \textit{Regulatory Defense:} TreeSHAP is universally accepted by banking regulators for FCRA adverse action disclosures; LIME is vulnerable to cross-examination challenges due to local instability.
     \end{itemize}
-    Summing all terms:
-    \begin{equation*}
-    \boldsymbol{\phi_1} = 0.05 + 0.05 + 0.05 + 0.1833 = \mathbf{0.3333}
-    \end{equation*}
-    Feature 1 accounts for $+0.3333$ of the model's prediction shift.
-    
-    \item \textbf{Sankey Diagrams and Network Community Detection:}
-    Sankey diagrams enforce mass balance conservation ($\sum \text{Inflow} = \sum \text{Outflow} + \Delta\text{Balance}$), allowing forensic auditors to visually follow how an initial stolen sum is fragmented into dozens of micro-transactions to bypass reporting thresholds (smurfing/structuring). Community detection algorithms (e.g., Louvain or Girvan-Newman) cluster densely interconnected accounts, uncovering coordinated fraud rings operating under distinct business names.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Solutions \& Distractor Rationales}
+
+\begin{enumerate}[label=\textbf{MCQ 12.\arabic*}]
+    \item \textbf{Correct Answer: (b)}\\
+    \textbf{Rationale:} Under the Equal Credit Opportunity Act (ECOA, Regulation B) and the Fair Credit Reporting Act (FCRA), lenders utilizing machine learning ensembles must provide the consumer with a formal Adverse Action Notice detailing the specific, principal reasons that contributed adversely to the rejection, derived through local feature attribution methods such as TreeSHAP.\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (a) is incorrect:} Proprietary intellectual property trade secrets do not exempt financial institutions from statutory consumer protection disclosure mandates.
+        \item \textit{Option (c) is incorrect:} Regulators require human-understandable economic reasons, not raw source code or neural matrix weights.
+        \item \textit{Option (d) is incorrect:} Machine learning models are fully legal in credit underwriting, provided they comply with model risk management (SR 11-7) and explainability regulations.
+    \end{itemize}
+
+    \item \textbf{Correct Answer: (c)}\\
+    \textbf{Rationale:} The **Efficiency Axiom** in Shapley value theory states that the sum of all individual feature attributions must identically equal the difference between the model's actual prediction for that instance and the base expected prediction across the training distribution: $\sum_{i=1}^M \phi_i = f(\mathbf{x}) - E[f(X)]$.\\
+    \textbf{Distractor Analysis:}
+    \begin{itemize}
+        \item \textit{Option (a) is incorrect:} The Symmetry Axiom requires that two features contributing identically across all coalitions receive identical attributions ($\phi_i = \phi_j$).
+        \item \textit{Option (b) is incorrect:} The Dummy Player Axiom mandates that a feature providing zero marginal value to all subsets receives zero attribution ($\phi_i = 0$).
+        \item \textit{Option (d) is incorrect:} The Additivity Axiom dictates that for additive model ensembles, combined attributions equal the sum of component attributions.
+    \end{itemize}
 \end{enumerate}
