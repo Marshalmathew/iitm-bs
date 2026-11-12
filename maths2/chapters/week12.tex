@@ -1,131 +1,355 @@
 \chapter{Eigenvalues, Eigenvectors, Diagonalization \& SVD}
 
-Eigenvalues and Eigenvectors form the ultimate cornerstone of modern linear algebra and data science. In this capstone chapter, we master \index{Eigen-decomposition}\textbf{Eigen-decomposition}, \index{Matrix Diagonalization}\textbf{Matrix Diagonalization}, and \textbf{Singular Value Decomposition (SVD)}.
-
+Every linear transformation contains privileged coordinate axes: special directions that experience pure scalar stretching or compression without any rotation. These privileged axes are the \index{Eigenvectors}\textbf{Eigenvectors}, and their scaling factors are the \index{Eigenvalues}\textbf{Eigenvalues}. Diagonalizing a matrix decouples complex dynamic interactions into independent 1-dimensional scalings. For rectangular or noisy real-world data matrices, \index{Singular Value Decomposition (SVD)}\textbf{Singular Value Decomposition (SVD)} extends this spectral insight universally, providing the mathematical foundation for \index{Principal Component Analysis (PCA)}\textbf{Principal Component Analysis (PCA)}, low-rank matrix compression, and latent representation learning.
 
 \vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Eigenvalues and Eigenvectors
-    \item Matrix Diagonalization
-    \item Singular Value Decomposition (SVD)
+    \item \textbf{Target Competencies:} Formulate the characteristic polynomial $\det(A - \lambda I) = 0$ and compute all eigenvalues and eigenspaces; test matrices for diagonalizability via algebraic and geometric multiplicities; perform orthogonal diagonalization $A = Q D Q^T$ on real symmetric matrices; compute full and truncated Singular Value Decompositions ($A = U \Sigma V^T$); apply SVD to PCA dimensionality reduction and rank-$k$ matrix approximation.
+    \item \textbf{Prerequisites:} Matrix multiplication and determinants (Week 1), Null spaces and Rank-Nullity (Weeks 5 \& 6), Orthogonal bases and Gram-Schmidt (Week 8).
+    \item \textbf{Mathematical Notation:} Eigenvalue equation $A\mathbf{v} = \lambda\mathbf{v}$; characteristic polynomial $p(\lambda) = \det(A - \lambda I)$; diagonalization $A = P D P^{-1}$; orthogonal diagonalization $A = Q D Q^T$; SVD factorization $A = U \Sigma V^T$; singular values $\sigma_i = \sqrt{\lambda_i(A^T A)}$.
 \end{itemize}
 \end{tcolorbox}
-\section{Eigenvalues and Eigenvectors}
 
-\begin{intuitionbox}{The Big Picture of Advanced Math}
-All of this calculus and linear algebra converges into Data Science. Gradients push neural networks down loss surfaces. Eigenvectors reduce the dimensionality of massive datasets in PCA. Matrices process thousands of images simultaneously. You now have the mathematical engine that powers modern AI!
-\end{intuitionbox}
+\section{Mathematical \& Theoretical Foundations}
 
+\subsection{The Eigenvalue Problem and Characteristic Polynomial}
 
-When a matrix $A \in \mathbb{R}^{n \times n}$ acts on a vector $\mathbf{v}$, it typically changes both the magnitude and direction of $\mathbf{v}$. However, certain non-zero vectors maintain their original direction and are merely scaled by a factor $\lambda$.
-
-\begin{definitionbox}{Eigenvalue Problem}
-\index{Eigenvalue Problem}
-A non-zero vector $\mathbf{v} \neq \mathbf{0}$ is an \textbf{Eigenvector} of $A$ with corresponding \textbf{Eigenvalue} $\lambda \in \mathbb{R}$ (or $\mathbb{C}$) if:
-$$A \mathbf{v} = \lambda \mathbf{v}$$
-Equivalently:
-$$(A - \lambda I) \mathbf{v} = \mathbf{0}$$
+\begin{definitionbox}{Eigenvalues and Eigenvectors}
+\index{Eigenvalue} \index{Eigenvector}
+Let $A \in \mathbb{R}^{n \times n}$ be a square matrix. A non-zero vector $\mathbf{v} \in \mathbb{R}^n$ ($\mathbf{v} \neq \mathbf{0}$) is an \textbf{eigenvector} of $A$ corresponding to \textbf{eigenvalue} $\lambda \in \mathbb{C}$ if and only if:
+\begin{equation}
+A \mathbf{v} = \lambda \mathbf{v} \iff (A - \lambda I) \mathbf{v} = \mathbf{0}
+\end{equation}
+The set of all solutions to $(A - \lambda I)\mathbf{v} = \mathbf{0}$ is the \textbf{eigenspace} $E_\lambda = \operatorname{Null}(A - \lambda I)$.
 \end{definitionbox}
 
-\begin{theorembox}{The Characteristic Equation}
-Since $\mathbf{v} \neq \mathbf{0}$, the matrix $(A - \lambda I)$ must be singular ($\det(A - \lambda I) = 0$).
-1. \textbf{Characteristic Polynomial:} $p(\lambda) = \det(A - \lambda I) = 0$. Solve for roots $\lambda_1, \lambda_2, \dots, \lambda_n$.
-2. \textbf{Eigenspace:} For each $\lambda_i$, solve $(A - \lambda_i I)\mathbf{v} = \mathbf{0}$ to find the basis of eigenvectors $\text{Null}(A - \lambda_i I)$.
+\begin{theorembox}{The Characteristic Equation and Trace-Determinant Invariants}
+Non-trivial solutions ($\mathbf{v} \neq \mathbf{0}$) exist if and only if $(A - \lambda I)$ is singular:
+\begin{equation}
+p(\lambda) = \det(A - \lambda I) = 0
+\end{equation}
+The roots of the degree-$n$ polynomial $p(\lambda)$ are the eigenvalues $\lambda_1, \lambda_2, \dots, \lambda_n$. They satisfy two universal algebraic invariants:
+\begin{enumerate}
+    \item \textbf{Sum of Eigenvalues equals Trace:} $\sum_{i=1}^n \lambda_i = \trace(A)$
+    \item \textbf{Product of Eigenvalues equals Determinant:} $\prod_{i=1}^n \lambda_i = \det(A)$
+\end{enumerate}
 \end{theorembox}
 
-\begin{videocard}{3Blue1Brown: Essence of Linear Algebra (Eigenvalues \& Eigenvectors)}{https://www.youtube.com/watch?v=PFDu9oVAE-g}
-Visual intuition showing eigenvectors as axes of rotation/scaling during linear transformations.
-\end{videocard}
-
-\section{Matrix Diagonalization}
+\subsection{Matrix Diagonalization}
 
 \begin{definitionbox}{Diagonalization Theorem}
-\index{Diagonalization Theorem}
-An $n \times n$ matrix $A$ is \index{Diagonalizable}\textbf{Diagonalizable} if it has $n$ linearly independent eigenvectors $\mathbf{v}_1, \dots, \mathbf{v}_n$.
-Form eigenvector matrix $P = [\mathbf{v}_1 \; \dots \; \mathbf{v}_n]$ and diagonal matrix $D = \operatorname{diag}(\lambda_1, \dots, \lambda_n)$. Then:
-$$A = P D P^{-1} \iff D = P^{-1} A P$$
-\textbf{Matrix Powers:} $A^k = P D^k P^{-1}$, making high-power matrix computations $\mathcal{O}(n)$ instead of $\mathcal{O}(n^k)$!
+\index{Diagonalization}
+An $n \times n$ matrix $A$ is \textbf{diagonalizable} if and only if it possesses $n$ linearly independent eigenvectors $\{\mathbf{v}_1, \dots, \mathbf{v}_n\}$.
+Assembling the eigenvectors into column matrix $P = [\mathbf{v}_1 \; \dots \; \mathbf{v}_n]$ and the corresponding eigenvalues into diagonal matrix $D = \operatorname{diag}(\lambda_1, \dots, \lambda_n)$ yields:
+\begin{equation}
+A = P D P^{-1} \iff D = P^{-1} A P
+\end{equation}
+\textbf{Computational Superpower (Matrix Powers):} For any integer $k \ge 1$:
+\begin{equation}
+A^k = (P D P^{-1})(P D P^{-1}) \dots (P D P^{-1}) = P D^k P^{-1}
+\end{equation}
+where $D^k = \operatorname{diag}(\lambda_1^k, \dots, \lambda_n^k)$.
 \end{definitionbox}
 
-\begin{theorembox}{Spectral Theorem for Symmetric Matrices}
-If $A = A^T$ is a real symmetric matrix, then:
-1. All eigenvalues of $A$ are real numbers.
-2. Eigenvectors corresponding to distinct eigenvalues are \index{mutually orthogonal}\textbf{mutually orthogonal}.
-3. $A$ is \index{orthogonally diagonalizable}\textbf{orthogonally diagonalizable}: $A = Q D Q^T$, where $Q$ is an orthogonal matrix ($Q^T Q = I$).
+\begin{theorembox}{The Spectral Theorem for Real Symmetric Matrices}
+\index{Spectral Theorem}
+If $A \in \mathbb{R}^{n \times n}$ is real symmetric ($A^T = A$), then:
+\begin{enumerate}
+    \item All $n$ eigenvalues of $A$ are strictly \textbf{real numbers}.
+    \item Eigenvectors corresponding to distinct eigenvalues are \textbf{mutually orthogonal}.
+    \item $A$ is \textbf{orthogonally diagonalizable}: there exists an orthogonal matrix $Q \in \mathbb{R}^{n \times n}$ ($Q^T Q = I$) such that:
+    \begin{equation}
+    A = Q D Q^T = \sum_{i=1}^n \lambda_i \mathbf{q}_i \mathbf{q}_i^T
+    \end{equation}
+\end{enumerate}
 \end{theorembox}
 
-\section{Singular Value Decomposition (SVD)}
+\subsection{Singular Value Decomposition (SVD)}
 
-While Eigen-decomposition requires square matrices $A \in \mathbb{R}^{n \times n}$, \textbf{Singular Value Decomposition (SVD)} applies to \index{ANY rectangular matrix}\textbf{ANY rectangular matrix} $A \in \mathbb{R}^{m \times n}$.
-
-\begin{formulabox}{Singular Value Decomposition ($A = U \Sigma V^T$)}
-Every matrix $A \in \mathbb{R}^{m \times n}$ can be factored into:
-$$A = U \Sigma V^T$$
+\begin{definitionbox}{Singular Value Decomposition ($A = U \Sigma V^T$)}
+\index{Singular Value Decomposition}
+Let $A \in \mathbb{R}^{m \times n}$ be an arbitrary rectangular matrix with $\rank(A) = r \le \min(m, n)$. There exist orthogonal matrices $U \in \mathbb{R}^{m \times m}$ and $V \in \mathbb{R}^{n \times n}$ such that:
+\begin{equation}
+A = U \Sigma V^T
+\end{equation}
 where:
 \begin{itemize}
-    \item $U \in \mathbb{R}^{m \times m}$: Left singular vectors (orthonormal eigenvectors of $A A^T$).
-    \item $\Sigma \in \mathbb{R}^{m \times n}$: Diagonal matrix of singular values $\sigma_1 \ge \sigma_2 \ge \dots \ge \sigma_r > 0$ ($\sigma_i = \sqrt{\lambda_i(A^T A)}$).
-    \item $V \in \mathbb{R}^{n \times n}$: Right singular vectors (orthonormal eigenvectors of $A^T A$).
+    \item $U = [\mathbf{u}_1 \; \dots \; \mathbf{u}_m] \in \mathbb{R}^{m \times m}$ are the \textbf{left singular vectors} (orthonormal eigenvectors of $A A^T$).
+    \item $V = [\mathbf{v}_1 \; \dots \; \mathbf{v}_n] \in \mathbb{R}^{n \times n}$ are the \textbf{right singular vectors} (orthonormal eigenvectors of $A^T A$).
+    \item $\Sigma \in \mathbb{R}^{m \times n}$ is a rectangular diagonal matrix containing the \textbf{singular values} sorted in descending order:
+    \begin{equation}
+    \sigma_1 \ge \sigma_2 \ge \dots \ge \sigma_r > \sigma_{r+1} = \dots = 0, \quad \sigma_i = \sqrt{\lambda_i(A^T A)}
+    \end{equation}
 \end{itemize}
-\end{formulabox}
+\end{definitionbox}
 
-\index{Eigenvalue}\index{Eigenvector}\index{SVD}\index{PCA}
+\begin{theorembox}{Eckart-Young-Mirsky Low-Rank Approximation Theorem}
+\index{Low-Rank Approximation}
+The optimal rank-$k$ ($k < r$) approximation to $A$ under both the Frobenius norm and spectral norm is obtained by truncating the SVD to its top $k$ terms:
+\begin{equation}
+A_k = \sum_{i=1}^k \sigma_i \mathbf{u}_i \mathbf{v}_i^T = U_k \Sigma_k V_k^T
+\end{equation}
+The approximation error is precisely the sum of neglected singular values:
+\begin{equation}
+\|A - A_k\|_2 = \sigma_{k+1}, \quad \|A - A_k\|_F^2 = \sum_{j=k+1}^r \sigma_j^2
+\end{equation}
+\end{theorembox}
 
-\begin{lstlisting}[caption={NumPy Implementation of Eigen-decomposition and SVD}]
+\section{Visual \& Geometric Intuition: The Geometry of SVD}
+
+Every matrix transformation $A \in \mathbb{R}^{2 \times 2}$ decomposes geometrically into three sequential elementary operations:
+\begin{enumerate}
+    \item An initial orthogonal rotation/reflection in the domain by $V^T$.
+    \item A coordinate axis stretching/compression by singular values $\Sigma = \operatorname{diag}(\sigma_1, \sigma_2)$.
+    \item A final orthogonal rotation/reflection in the codomain by $U$.
+\end{enumerate}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[>=stealth, scale=1.1]
+    % Domain: Unit Circle
+    \begin{scope}[shift={(-4.5,0)}]
+        \draw[thick, gray!40, ->] (-1.8,0) -- (1.8,0) node[right] {$x_1$};
+        \draw[thick, gray!40, ->] (0,-1.8) -- (0,1.8) node[above] {$x_2$};
+        \draw[ultra thick, blue!80!black] (0,0) circle (1.2cm);
+        \draw[->, thick, purple] (0,0) -- (0.85, 0.85) node[above right] {$\mathbf{v}_1$};
+        \draw[->, thick, purple] (0,0) -- (-0.85, 0.85) node[above left] {$\mathbf{v}_2$};
+        \node[font=\bfseries, primarydark] at (0, -2.1) {Domain $\mathbb{R}^2$ (Unit Ball)};
+    \end{scope}
+
+    % Transition Arrow 1: V^T (Rotation)
+    \draw[->, very thick, black!70] (-2.7, 0.4) -- (-1.5, 0.4) node[midway, above] {$V^T$};
+
+    % Intermediate: Aligned Circle
+    \begin{scope}[shift={(0,0)}]
+        \draw[thick, gray!40, ->] (-1.8,0) -- (1.8,0) node[right] {$\tilde{x}_1$};
+        \draw[thick, gray!40, ->] (0,-1.8) -- (0,1.8) node[above] {$\tilde{x}_2$};
+        \draw[thick, dashed, blue!50] (0,0) circle (1.2cm);
+        \draw[->, ultra thick, forest] (0,0) -- (2.2, 0) node[below] {$\sigma_1 \mathbf{e}_1$};
+        \draw[->, ultra thick, forest] (0,0) -- (0, 0.7) node[left] {$\sigma_2 \mathbf{e}_2$};
+        \node[font=\bfseries, forest] at (0, -2.1) {Axis Stretch $\Sigma$};
+    \end{scope}
+
+    % Transition Arrow 2: U (Rotation)
+    \draw[->, very thick, black!70] (1.5, 0.4) -- (2.7, 0.4) node[midway, above] {$U$};
+
+    % Codomain: Rotated Ellipse
+    \begin{scope}[shift={(4.8,0)}]
+        \draw[thick, gray!40, ->] (-2.5,0) -- (2.5,0) node[right] {$y_1$};
+        \draw[thick, gray!40, ->] (0,-1.8) -- (0,1.8) node[above] {$y_2$};
+        \draw[ultra thick, red!80!black, rotate=30] (0,0) ellipse (2.2cm and 0.7cm);
+        \draw[->, ultra thick, red!80!black, rotate=30] (0,0) -- (2.2, 0) node[above right] {$\sigma_1 \mathbf{u}_1$};
+        \draw[->, ultra thick, red!80!black, rotate=30] (0,0) -- (0, 0.7) node[above left] {$\sigma_2 \mathbf{u}_2$};
+        \node[font=\bfseries, red!80!black] at (0, -2.1) {Codomain $\mathbb{R}^2$ (Ellipse)};
+    \end{scope}
+\end{tikzpicture}
+\caption{The geometric action of SVD ($A = U \Sigma V^T$): domain rotation by $V^T$, axis stretching by singular values $\sigma_1, \sigma_2$, and codomain rotation by $U$.}
+\label{fig:svd_geometry_ellipse}
+\end{figure}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Orthogonality of Symmetric Matrix Eigenvectors}
+
+Why are the eigenvectors of every real symmetric matrix strictly orthogonal?
+\begin{proof}
+Let $A \in \mathbb{R}^{n \times n}$ be real symmetric ($A^T = A$). Let $\mathbf{v}_1, \mathbf{v}_2$ be eigenvectors corresponding to distinct eigenvalues $\lambda_1 \neq \lambda_2$:
+\begin{equation*}
+A \mathbf{v}_1 = \lambda_1 \mathbf{v}_1 \quad \text{and} \quad A \mathbf{v}_2 = \lambda_2 \mathbf{v}_2
+\end{equation*}
+Consider the inner product $\langle A\mathbf{v}_1, \mathbf{v}_2 \rangle$. Using the definition of matrix transpose:
+\begin{equation*}
+\langle A\mathbf{v}_1, \mathbf{v}_2 \rangle = (A\mathbf{v}_1)^T \mathbf{v}_2 = \mathbf{v}_1^T A^T \mathbf{v}_2 = \mathbf{v}_1^T (A\mathbf{v}_2) = \langle \mathbf{v}_1, A\mathbf{v}_2 \rangle
+\end{equation*}
+Now evaluate both sides using the eigenvalue equations:
+\begin{align*}
+\langle A\mathbf{v}_1, \mathbf{v}_2 \rangle &= \langle \lambda_1 \mathbf{v}_1, \mathbf{v}_2 \rangle = \lambda_1 \langle \mathbf{v}_1, \mathbf{v}_2 \rangle \\
+\langle \mathbf{v}_1, A\mathbf{v}_2 \rangle &= \langle \mathbf{v}_1, \lambda_2 \mathbf{v}_2 \rangle = \lambda_2 \langle \mathbf{v}_1, \mathbf{v}_2 \rangle
+\end{align*}
+Equating the two expressions:
+\begin{equation}
+\lambda_1 \langle \mathbf{v}_1, \mathbf{v}_2 \rangle = \lambda_2 \langle \mathbf{v}_1, \mathbf{v}_2 \rangle \implies (\lambda_1 - \lambda_2) \langle \mathbf{v}_1, \mathbf{v}_2 \rangle = 0
+\end{equation}
+Since $\lambda_1 \neq \lambda_2$ by assumption, $\lambda_1 - \lambda_2 \neq 0$. Dividing by $(\lambda_1 - \lambda_2)$ yields:
+\begin{equation}
+\langle \mathbf{v}_1, \mathbf{v}_2 \rangle = 0 \iff \mathbf{v}_1 \perp \mathbf{v}_2
+\end{equation}
+Thus, eigenvectors corresponding to distinct eigenvalues are strictly perpendicular.
+\end{proof}
+
+\subsection{Connection between SVD and Principal Component Analysis (PCA)}
+
+Let $X \in \mathbb{R}^{N \times d}$ be a centered data matrix ($\frac{1}{N}\sum \mathbf{x}_i = \mathbf{0}$).
+The sample covariance matrix is:
+\begin{equation}
+C = \frac{1}{N} X^T X \in \mathbb{R}^{d \times d}
+\end{equation}
+Computing the SVD of $X$:
+\begin{equation}
+X = U \Sigma V^T \implies X^T X = (V \Sigma^T U^T)(U \Sigma V^T) = V (\Sigma^T \Sigma) V^T
+\end{equation}
+Therefore:
+\begin{equation}
+C = \frac{1}{N} V \Sigma^2 V^T = V \left( \frac{\Sigma^2}{N} \right) V^T
+\end{equation}
+This establishes three profound mathematical identities:
+\begin{enumerate}
+    \item The \textbf{right singular vectors $V$} of $X$ are precisely the \textbf{principal component directions} (eigenvectors of $C$).
+    \item The dataset variances along each principal axis are $\lambda_i(C) = \frac{\sigma_i^2}{N}$.
+    \item The low-dimensional projected coordinates of the data are given by the \textbf{principal scores} $Z = X V = U \Sigma$.
+\end{enumerate}
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Trap 1: Assuming Every Square Matrix Can Be Diagonalized}
+A matrix is diagonalizable if and only if the geometric multiplicity of each eigenvalue equals its algebraic multiplicity. If an eigenvalue $\lambda$ is repeated but yields fewer independent eigenvectors than its multiplicity, the matrix is \textbf{defective}. For example, $A = \begin{bmatrix} 3 & 1 \\ 0 & 3 \end{bmatrix}$ has $\lambda = 3$ (multiplicity 2), but $\nullity(A - 3I) = 1$. It possesses only 1 independent eigenvector and cannot be diagonalized!
+\end{trapbox}
+
+\begin{trapbox}{Trap 2: Believing Singular Values Can Be Negative}
+Unlike eigenvalues (which can be positive, negative, or complex), singular values are \textbf{strictly non-negative real numbers} by definition ($\sigma_i = \sqrt{\lambda_i(A^T A)} \ge 0$). Because $A^T A$ is always Symmetric Positive Semi-Definite, its eigenvalues are guaranteed to be non-negative reals ($\lambda_i \ge 0$), making their square roots strictly real and non-negative.
+\end{trapbox}
+
+\begin{trapbox}{Trap 3: Scrambling the Order of Columns in $P$ and Eigenvalues in $D$}
+In the diagonalization $A = P D P^{-1}$, the sequence of eigenvector columns in $P = [\mathbf{v}_1, \dots, \mathbf{v}_n]$ must \textbf{strictly match} the sequence of eigenvalues along the diagonal of $D = \operatorname{diag}(\lambda_1, \dots, \lambda_n)$. Putting $\lambda_2$ in the first diagonal entry while placing $\mathbf{v}_1$ in the first column destroys the equality $A P = P D$.
+\end{trapbox}
+
+\begin{trapbox}{Trap 4: Confusing Left Singular Vectors with Right Singular Vectors}
+For a non-square matrix $A \in \mathbb{R}^{m \times n}$:
+\begin{itemize}
+    \item The left singular vectors $U$ reside in the codomain $\mathbb{R}^m$ (eigenvectors of $A A^T \in \mathbb{R}^{m \times m}$).
+    \item The right singular vectors $V$ reside in the domain $\mathbb{R}^n$ (eigenvectors of $A^T A \in \mathbb{R}^{n \times n}$).
+\end{itemize}
+They have completely different dimensions when $m \neq n$ and must never be interchanged.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2.8cm} p{2.8cm} p{2.8cm} p{2.6cm} p{2.8cm}}
+\toprule
+\textbf{Decomposition} & \textbf{Matrix Requirements} & \textbf{Factorization Form} & \textbf{Basis Properties} & \textbf{Data Science Role} \\
+\midrule
+\textbf{Eigen-decomposition} & Square $n \times n$, non-defective & $A = P D P^{-1}$ & $P$ invertible, not necessarily orthogonal & Markov chains, matrix powers, dynamical stability \\
+\textbf{Spectral Decomposition} & Real symmetric $A^T = A$ & $A = Q D Q^T$ & $Q$ strictly orthogonal ($Q^T Q = I$), real $\lambda_i$ & Covariance analysis, quadratic form optimization \\
+\textbf{Singular Value Decomposition (SVD)} & Any rectangular $m \times n$ & $A = U \Sigma V^T$ & $U, V$ orthonormal; $\sigma_i \ge 0$ & PCA, recommender systems, latent semantic analysis \\
+\textbf{Truncated SVD (Rank-$k$)} & Any rectangular $m \times n$ & $A_k = U_k \Sigma_k V_k^T$ & Optimal low-rank approximation (Eckart-Young) & Lossy image compression, denoising, vector embeddings \\
+\bottomrule
+\end{tabular}
+\caption{Systematic comparison of spectral decompositions and their roles across linear algebra and machine learning.}
+\label{tab:spectral_decompositions_taxonomy}
+\end{table}
+
+\section{Python / Scientific Computing Lab}
+
+The following scientific computing script demonstrates complete analytical and numerical eigen-decomposition, matrix power acceleration, full SVD, and PCA variance calculation.
+
+\begin{lstlisting}[language=Python, caption={Python Lab: Eigen-decomposition, SVD, and PCA Variance Explained}]
 import numpy as np
 
-# 1. Eigenvalue Decomposition
-A = np.array([[4.0, 1.0], 
+# 1. Eigen-decomposition and Rapid Matrix Power
+A = np.array([[4.0, 1.0],
               [2.0, 3.0]])
 
-eigenvalues, eigenvectors = np.linalg.eig(A)
-print("Eigenvalues:", eigenvalues)
-print("Eigenvectors:\n", eigenvectors)
+eigenvalues, P = np.linalg.eig(A)
+D = np.diag(eigenvalues)
+P_inv = np.linalg.inv(P)
 
-# Verify A @ v = lambda * v for the first eigenvector
-v0 = eigenvectors[:, 0]
-lam0 = eigenvalues[0]
-print("A @ v0:    ", A @ v0)
-print("lambda * v0:", lam0 * v0)
+print("Matrix A:\n", A)
+print(f"Eigenvalues: {eigenvalues}")
+print("Eigenvector Matrix P:\n", P)
 
-# 2. Singular Value Decomposition (SVD)
-X = np.array([[3.0, 1.0], 
-              [1.0, 3.0], 
-              [0.0, 2.0]])
+# Verification A = P @ D @ P_inv
+A_reconstructed = P @ D @ P_inv
+assert np.allclose(A, A_reconstructed), "Diagonalization failed!"
 
-U, S, Vt = np.linalg.svd(X)
-print("\nLeft Singular Vectors U shape:", U.shape)
-print("Singular Values S:", S)
-print("Right Singular Vectors V^T shape:", Vt.shape)
+# Rapid 4th power: A^4 = P @ (D^4) @ P_inv
+D4 = np.diag(eigenvalues**4)
+A4_fast = P @ D4 @ P_inv
+A4_direct = np.linalg.matrix_power(A.astype(int), 4)
+print("\nA^4 via Diagonalization:\n", np.round(A4_fast, 2))
+print("A^4 via Direct Multiplication:\n", A4_direct)
+assert np.allclose(A4_fast, A4_direct)
+
+# 2. Orthogonal Diagonalization of Symmetric Matrix
+S = np.array([[3.0, 1.0],
+              [1.0, 3.0]])
+eig_S, Q = np.linalg.eigh(S)  # eigh is specialized for symmetric matrices
+print("\nSymmetric Matrix S Eigenvalues:", eig_S)
+print("Orthogonal Matrix Q (Q^T @ Q == I):\n", np.round(Q.T @ Q, 4))
+assert np.allclose(Q.T @ Q, np.eye(2))
+
+# 3. Singular Value Decomposition (SVD) on Rectangular Matrix
+X = np.array([[3.0, 0.0],
+              [0.0, -2.0]])
+U, s, Vt = np.linalg.svd(X)
+print("\nRectangular SVD:")
+print("  Singular Values (strictly non-negative):", s)
+print("  Left Singular Vectors U:\n", U)
+print("  Right Singular Vectors V^T:\n", Vt)
+
+# 4. PCA Variance Explained
+# Given covariance eigenvalues: [80.0, 15.0, 5.0]
+cov_eigenvals = np.array([80.0, 15.0, 5.0])
+total_variance = np.sum(cov_eigenvals)
+var_explained_2pc = np.sum(cov_eigenvals[:2]) / total_variance * 100.0
+print(f"\nPCA Total Dataset Variance: {total_variance}")
+print(f"Variance Explained by Top 2 Principal Components: {var_explained_2pc:.2f}%")
+assert np.isclose(var_explained_2pc, 95.0)
 \end{lstlisting}
-
-\begin{videocard}{StatQuest: Singular Value Decomposition (SVD) \& PCA}{https://www.youtube.com/watch?v=gXbThCXj4cA}
-Step-by-step visual explanation of SVD matrix factorization and dimensionality reduction.
-\end{videocard}
-
-\begin{videocard}{IITM BS Lecture: Mathematics for Data Science II Review}{https://www.youtube.com/watch?v=_hLYDPQtDKY}
-Official comprehensive course summary reviewing Linear Algebra and Multivariable Calculus.
-\end{videocard}
-
 
 \newpage
 \section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\textit{Detailed step-by-step solutions and distractor rationales are available in the Appendix.}
 
+\subsection*{Part A: Computational \& Analytical Problems}
 \begin{enumerate}
 \item \textbf{Eigenvalues \& Eigenvectors ($2 \times 2$):} Find the eigenvalues $\lambda_1, \lambda_2$ and corresponding eigenvectors $\mathbf{v}_1, \mathbf{v}_2$ for the matrix:
-    $$A = \begin{bmatrix} 4 & 1 \\ 2 & 3 \end{bmatrix}$$
+\begin{equation*}
+A = \begin{bmatrix} 4 & 1 \\ 2 & 3 \end{bmatrix}
+\end{equation*}
 
-\item \textbf{Matrix Diagonalization ($A = P D P^{-1}$):} Using the eigenvalues and eigenvectors from Exercise 1, construct the matrices $P$ and $D$ such that $A = P D P^{-1}$. Compute $A^4$ using $P D^4 P^{-1}$.
+\item \textbf{Matrix Diagonalization \& Matrix Powers:} Using the eigenvalues and eigenvectors from Problem 1:
+\begin{enumerate}
+    \item Construct matrices $P$ and $D$ such that $A = P D P^{-1}$.
+    \item Compute $P^{-1}$.
+    \item Compute $A^4$ analytically using $P D^4 P^{-1}$.
+\end{enumerate}
 
-\item \textbf{Symmetric Matrix Spectral Decomposition:} Verify that $A = \begin{bmatrix} 3 & 1 \\ 1 & 3 \end{bmatrix}$ is symmetric. Find its real eigenvalues and construct an orthogonal matrix $Q$ ($Q^T Q = I$) such that $A = Q D Q^T$.
+\item \textbf{Symmetric Matrix Spectral Decomposition:} Verify that $A = \begin{bmatrix} 3 & 1 \\ 1 & 3 \end{bmatrix}$ is real symmetric. Find its eigenvalues, normalize its eigenvectors to unit length, and construct an orthogonal matrix $Q$ ($Q^T Q = I$) such that $A = Q D Q^T$.
 
-\item \textbf{Singular Values Calculation:} Given matrix $A = \begin{bmatrix} 3 & 0 \\ 0 & -2 \end{bmatrix}$, compute the matrix $A^T A$, find its eigenvalues $\lambda_i$, and determine the singular values $\sigma_1, \sigma_2$ of $A$.
+\item \textbf{Singular Values Calculation:} Given matrix $A = \begin{bmatrix} 3 & 0 \\ 0 & -2 \end{bmatrix}$:
+\begin{enumerate}
+    \item Compute the Gram matrix $A^T A$.
+    \item Find the eigenvalues of $A^T A$.
+    \item Determine the singular values $\sigma_1, \sigma_2$ of $A$ and verify that both are strictly positive.
+\end{enumerate}
 
-\item \textbf{Comprehensive Course Review Question (PCA via SVD):} A data matrix $X \in \mathbb{R}^{N \times d}$ has covariance matrix $C = \frac{1}{N} X^T X$.
-    \begin{enumerate}
-        \item Explain why the principal component directions are the eigenvectors of $C$.
-        \item If the eigenvalues of $C$ are $\lambda_1 = 80$, $\lambda_2 = 15$, $\lambda_3 = 5$, what percentage of total dataset variance is explained by keeping the first 2 principal components?
-    \end{enumerate}
+\item \textbf{Comprehensive Course Review Question (PCA via SVD):} A centered data matrix $X \in \mathbb{R}^{N \times d}$ has sample covariance matrix $C = \frac{1}{N} X^T X$.
+\begin{enumerate}
+    \item Prove mathematically why the principal component direction vectors are the eigenvectors of $C$.
+    \item If the eigenvalues of $C$ are $\lambda_1 = 80$, $\lambda_2 = 15$, and $\lambda_3 = 5$, calculate the percentage of total dataset variance captured by retaining the top 2 principal components.
+\end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions}
+\begin{enumerate}
+\setcounter{enumi}{5}
+\item \textbf{Trace, Determinant, and Invertibility via Eigenvalues:} Let $M$ be a $3 \times 3$ real matrix with $\trace(M) = 6$ and $\det(M) = 0$. If $\lambda_1 = 2$ and $\lambda_2 = 4$ are two of its eigenvalues, which of the following statements is mathematically true?
+\begin{enumerate}
+    \item The third eigenvalue is $\lambda_3 = 0$, and the matrix $M$ is singular (non-invertible).
+    \item The third eigenvalue is $\lambda_3 = 2$, and the matrix $M$ has full rank.
+    \item The third eigenvalue cannot be determined without knowing the off-diagonal entries.
+    \item The matrix is invertible because it has two positive eigenvalues.
+\end{enumerate}
+
+\item \textbf{Eckart-Young Low-Rank Matrix Approximation:} Suppose a data matrix $A \in \mathbb{R}^{100 \times 50}$ has singular values $\sigma_1 = 25, \sigma_2 = 15, \sigma_3 = 8, \sigma_4 = 4$, and all remaining singular values are zero ($\sigma_5 = \dots = \sigma_{50} = 0$). What is the rank of $A$, and what is the exact approximation error in the spectral norm $\|A - A_2\|_2$ when approximating $A$ with its optimal rank-2 truncated SVD $A_2$?
+\begin{enumerate}
+    \item $\rank(A) = 50$, Error $= 15$
+    \item $\rank(A) = 4$, Error $= 8$
+    \item $\rank(A) = 4$, Error $= 4$
+    \item $\rank(A) = 2$, Error $= 0$
+\end{enumerate}
 \end{enumerate}

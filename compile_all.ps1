@@ -1,5 +1,6 @@
 # PowerShell script to compile all IITM BS course textbooks locally
 
+$env:PATH = ($env:PATH -split ';' | Where-Object { $_ -notlike '*ojdbc11.jar*' }) -join ';'
 $Courses = @("maths1", "maths2", "python", "stats1", "stats2", "financial_forensics")
 $PdfLatexExists = Get-Command pdflatex -ErrorAction SilentlyContinue
 
@@ -34,7 +35,7 @@ foreach ($course in $Courses) {
     Remove-Item "main.pdf" -ErrorAction SilentlyContinue
 
     # First pdflatex pass
-    & pdflatex -interaction=nonstopmode main.tex | Out-Null
+    & pdflatex -interaction=nonstopmode -halt-on-error -disable-installer main.tex | Out-Null
 
     # Run makeindex if idx file was generated
     if (Test-Path "main.idx") {
@@ -43,7 +44,7 @@ foreach ($course in $Courses) {
     }
 
     # Second pdflatex pass
-    & pdflatex -interaction=nonstopmode main.tex | Out-Null
+    & pdflatex -interaction=nonstopmode -halt-on-error -disable-installer main.tex | Out-Null
 
     if ($LASTEXITCODE -eq 0 -and (Test-Path "main.pdf")) {
         $PdfSize = (Get-Item "main.pdf").Length / 1KB

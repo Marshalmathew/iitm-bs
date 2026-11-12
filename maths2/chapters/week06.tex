@@ -1,100 +1,320 @@
 \chapter{Matrix Representation, Kernel, Image \& Rank-Nullity}
 
-Every linear transformation between finite-dimensional vector spaces can be uniquely represented as a matrix multiplication with respect to chosen ordered bases. Furthermore, the fundamental relationship between domain dimension, image dimension, and kernel dimension is governed by the celebrated \index{Rank-Nullity Theorem}\textbf{Rank-Nullity Theorem}.
-
+Linear transformations are abstract geometric mappings that preserve vector space structure. Once ordered bases are chosen for both the domain and the codomain, every abstract linear transformation manifests concretely as a unique matrix. The fundamental conservation law linking the dimension of what collapses to zero (\index{Kernel}\textbf{Kernel} or Null Space) and what survives into the output space (\index{Image}\textbf{Image} or Column Space) is codified by the celebrated \index{Rank-Nullity Theorem}\textbf{Rank-Nullity Theorem}.
 
 \vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Matrix Representation of Linear Transformations
-    \item Kernel and Image of Linear Transformations
-    \item The Rank-Nullity Theorem
+    \item \textbf{Target Competencies:} Construct matrix representations of linear operators with respect to standard and non-standard ordered bases; compute explicit bases for the kernel ($\ker(T)$) and image ($\operatorname{im}(T)$); prove and apply the Rank-Nullity Theorem; evaluate injectivity, surjectivity, and bijectivity of linear maps; diagnose compression loss in linear autoencoder bottlenecks.
+    \item \textbf{Prerequisites:} Systems of linear equations and REF (Week 2), vector spaces and linear independence (Week 3), basis and dimension (Week 4), null space and linear mappings (Week 5).
+    \item \textbf{Mathematical Notation:} Linear transformation $T: V \to W$; transformation matrix $[T]_{\mathcal{B}_V, \mathcal{B}_W}$; kernel $\ker(T)$; image/range $\operatorname{im}(T)$; domain dimension $\dim(V) = n$; rank $\rank(T) = \dim(\operatorname{im}(T))$; nullity $\nullity(T) = \dim(\ker(T))$.
 \end{itemize}
 \end{tcolorbox}
-\section{Matrix Representation of Linear Transformations}
 
-\begin{intuitionbox}{Partial Derivatives as Slices}
-Imagine standing on a hilly terrain. A partial derivative with respect to X is like locking your feet so you can only walk East/West, and asking 'How steep is the hill in this specific direction?' It ignores the North/South completely by treating Y as a constant.
-\end{intuitionbox}
+\section{Mathematical \& Theoretical Foundations}
 
+\subsection{Matrix Representation with Respect to Ordered Bases}
 
-Let $T: V \to W$ be a linear transformation, where $\mathcal{B}_V = \{\mathbf{v}_1, \dots, \mathbf{v}_n\}$ is an ordered basis for domain $V$, and $\mathcal{B}_W = \{\mathbf{w}_1, \dots, \mathbf{w}_m\}$ is an ordered basis for codomain $W$.
-
-\begin{definitionbox}{Matrix of Transformation $[T]_{\mathcal{B}_V, \mathcal{B}_W}$}
-The $m \times n$ matrix representing $T$ with respect to bases $\mathcal{B}_V$ and $\mathcal{B}_W$ is constructed by taking the coordinate vectors of $T(\mathbf{v}_j)$ relative to $\mathcal{B}_W$ as its $j$-th column:
-$$A = [T]_{\mathcal{B}_V, \mathcal{B}_W} = \begin{bmatrix} [T(\mathbf{v}_1)]_{\mathcal{B}_W} & [T(\mathbf{v}_2)]_{\mathcal{B}_W} & \dots & [T(\mathbf{v}_n)]_{\mathcal{B}_W} \end{bmatrix} \in \mathbb{R}^{m \times n}$$
-Then for any $\mathbf{x} \in V$, coordinate transformation is matrix-vector multiplication: $[T(\mathbf{x})]_{\mathcal{B}_W} = A [\mathbf{x}]_{\mathcal{B}_V}$.
+\begin{definitionbox}{Transformation Matrix Relative to Bases}
+\index{Matrix Representation}
+Let $V$ and $W$ be finite-dimensional vector spaces over $\mathbb{R}$ with $\dim(V) = n$ and $\dim(W) = m$. Let $\mathcal{B}_V = \{\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_n\}$ be an ordered basis for $V$, and let $\mathcal{B}_W = \{\mathbf{w}_1, \mathbf{w}_2, \dots, \mathbf{w}_m\}$ be an ordered basis for $W$.
+The \textbf{matrix representation} of a linear transformation $T: V \to W$ relative to $\mathcal{B}_V$ and $\mathcal{B}_W$, denoted $[T]_{\mathcal{B}_V, \mathcal{B}_W} \in \mathbb{R}^{m \times n}$, is constructed column-by-column:
+\begin{equation}
+[T]_{\mathcal{B}_V, \mathcal{B}_W} = \begin{bmatrix} [T(\mathbf{v}_1)]_{\mathcal{B}_W} & [T(\mathbf{v}_2)]_{\mathcal{B}_W} & \dots & [T(\mathbf{v}_n)]_{\mathcal{B}_W} \end{bmatrix}
+\end{equation}
+For any arbitrary vector $\mathbf{x} \in V$, the image coordinate vector is computed via standard matrix-vector multiplication:
+\begin{equation}
+[T(\mathbf{x})]_{\mathcal{B}_W} = [T]_{\mathcal{B}_V, \mathcal{B}_W} [\mathbf{x}]_{\mathcal{B}_V}
+\end{equation}
 \end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: Linear Transformations, Ordered Bases \& Matrices}{https://www.youtube.com/watch?v=lVX2mih3mcQ}
-Official lecture constructing transformation matrices relative to non-standard ordered bases.
-\end{videocard}
+\subsection{Kernel and Image Subspaces}
 
-\section{Kernel and Image of Linear Transformations}
-
-\begin{definitionbox}{Kernel ($\kernel(T)$) and Image ($\image(T)$)}
+\begin{definitionbox}{Kernel and Image Subspaces}
+\index{Kernel} \index{Image}
+For any linear transformation $T: V \to W$:
 \begin{itemize}
-    \item \textbf{Kernel (Null Space):} The set of domain vectors mapping to zero:
+    \item The \textbf{Kernel} (or Null Space) of $T$ is the set of all vectors in domain $V$ that map to the zero vector of $W$:
+    \begin{equation}
+    \ker(T) = \left\{ \mathbf{v} \in V \;\middle|\; T(\mathbf{v}) = \mathbf{0}_W \right\} \subseteq V
+    \end{equation}
+    \item The \textbf{Image} (or Range) of $T$ is the set of all reachable output vectors in codomain $W$:
+    \begin{equation}
+    \operatorname{im}(T) = \left\{ \mathbf{w} \in W \;\middle|\; \exists \, \mathbf{v} \in V \text{ such that } T(\mathbf{v}) = \mathbf{w} \right\} \subseteq W
+    \end{equation}
 \end{itemize}
-$$\kernel(T) = \left\{ \mathbf{v} \in V \Big| T(\mathbf{v}) = \mathbf{0}_W \right\} \subseteq V$$
-\begin{itemize}
-    \item \textbf{Image (Range / Column Space):} The set of all output vectors in codomain $W$:
-\end{itemize}
-$$\image(T) = \left\{ \mathbf{w} \in W \Big| \exists \, \mathbf{v} \in V \text{ such that } T(\mathbf{v}) = \mathbf{w} \right\} \subseteq W$$
+$\ker(T)$ is a subspace of $V$, and $\operatorname{im}(T)$ is a subspace of $W$.
 \end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: Image \& Kernel of Linear Transformations}{https://www.youtube.com/watch?v=e4BXKGcntiQ}
-Official lecture defining image and kernel subspaces and their geometric interpretations.
-\end{videocard}
-
-\begin{videocard}{IITM BS Lecture: Finding Bases for Kernel and Image}{https://www.youtube.com/watch?v=5slY2FjErkc}
-Official lecture computing bases for $\kernel(T)$ and $\image(T)$ using REF pivot columns.
-\end{videocard}
-
-\section{The Rank-Nullity Theorem}
-
-\begin{theorembox}{The Fundamental Rank-Nullity Theorem}
-For any linear transformation $T: V \to W$ on a finite-dimensional domain $V$:
-$$\dim(\kernel(T)) + \dim(\image(T)) = \dim(V)$$
-In matrix terms for $A \in \mathbb{R}^{m \times n}$:
-$$\nullity(A) + \rank(A) = n \quad (\text{number of columns / input features})$$
+\begin{theorembox}{Injectivity and Surjectivity Criteria}
+Let $T: V \to W$ be a linear transformation:
+\begin{enumerate}
+    \item \textbf{Injective (One-to-One):} $T$ is injective if and only if $\ker(T) = \{\mathbf{0}_V\}$, or equivalently $\nullity(T) = 0$.
+    \item \textbf{Surjective (Onto):} $T$ is surjective if and only if $\operatorname{im}(T) = W$, or equivalently $\rank(T) = \dim(W)$.
+    \item \textbf{Bijective (Isomorphism):} If $\dim(V) = \dim(W)$, $T$ is injective $\iff$ $T$ is surjective $\iff$ $T$ is an isomorphism (invertible).
+\end{enumerate}
 \end{theorembox}
 
-\textbf{Data Science Relevance:} The Rank-Nullity Theorem guarantees conservation of dimension when passing data through linear autoencoders and neural network linear layers.
+\section{Visual \& Geometric Intuition: The Fundamental Conservation Law}
 
-\begin{lstlisting}[language=Python, caption=Data Science: Rank-Nullity Verification]
+The Rank-Nullity Theorem represents a strict dimensional conservation law. Every dimension of the domain $V$ must either survive as an independent degree of freedom in the image $\operatorname{im}(T)$ or be completely extinguished in the kernel $\ker(T)$.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[>=stealth, scale=1.1]
+    % Domain V
+    \draw[thick, fill=blue!8, rounded corners=10pt] (-5,-2.5) rectangle (-1,2.5);
+    \node[font=\bfseries, primarydark] at (-3, 2.1) {Domain $V$ ($\dim(V) = n$)};
+
+    % Kernel Subspace
+    \draw[thick, fill=red!20, rounded corners=6pt] (-4.6,-2.0) rectangle (-3.2, 1.4);
+    \node[font=\bfseries, red!80!black] at (-3.9, 1.0) {$\ker(T)$};
+    \node[font=\small, red!80!black] at (-3.9, 0.4) {$\dim = \nullity$};
+    \filldraw[red!80!black] (-3.9,-0.5) circle (2pt) node[below] {$\mathbf{0}_V$};
+
+    % Orthogonal / Complementary Slice
+    \draw[thick, fill=forest!15, rounded corners=6pt] (-2.8,-2.0) rectangle (-1.4, 1.4);
+    \node[font=\bfseries, forest] at (-2.1, 1.0) {$V / \ker(T)$};
+    \node[font=\small, forest] at (-2.1, 0.4) {$\dim = \rank$};
+    \draw[->, thick, forest] (-2.1,-0.8) -- (-2.1, -0.1) node[midway, right] {$\mathbf{v}_k$};
+
+    % Transformation Arrow
+    \draw[->, ultra thick, primarydark] (-0.8, 0) -- (1.5, 0) node[midway, above] {$T(\mathbf{v}) = A\mathbf{v}$};
+
+    % Codomain W
+    \draw[thick, fill=orange!8, rounded corners=10pt] (1.8,-2.5) rectangle (5.8,2.5);
+    \node[font=\bfseries, orange!80!black] at (3.8, 2.1) {Codomain $W$ ($\dim(W) = m$)};
+
+    % Image Subspace
+    \draw[thick, fill=forest!25, rounded corners=6pt] (2.2,-1.8) rectangle (4.2, 1.2);
+    \node[font=\bfseries, forest] at (3.2, 0.7) {$\operatorname{im}(T)$};
+    \node[font=\small, forest] at (3.2, 0.1) {$\dim = \rank$};
+
+    % Collapse arrows
+    \draw[->, dashed, red!80!black, thick] (-3.2, -0.5) to[bend left=20] (2.4, -1.2);
+    \filldraw[red!80!black] (2.4, -1.2) circle (2.5pt) node[right=2pt] {$\mathbf{0}_W$};
+
+    % Transfer arrows from V / ker to Image
+    \draw[->, thick, forest] (-1.4, -0.1) to[bend left=15] (2.3, -0.1);
+    \filldraw[forest] (2.7, -0.1) circle (2pt) node[right=2pt] {$T(\mathbf{v}_k)$};
+
+    % Conservation Formula node
+    \node[draw=primarydark, fill=white, rounded corners, thick, align=center] at (0.4, -3.2) {
+        \textbf{Conservation of Domain Dimension:}\\
+        $\underbrace{\dim(\ker(T))}_{\text{Extinguished}} + \underbrace{\dim(\operatorname{im}(T))}_{\text{Surviving}} = \underbrace{\dim(V)}_{\text{Total Domain}}$
+    };
+\end{tikzpicture}
+\caption{Geometric decomposition of domain $V$ into the collapsed kernel $\ker(T)$ and the surviving image subspace $\operatorname{im}(T) \subseteq W$.}
+\label{fig:rank_nullity_geometry}
+\end{figure}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Rigorous Proof of the Rank-Nullity Theorem}
+
+\begin{theorembox}{The Rank-Nullity Theorem (Dimension Theorem for Linear Mappings)}
+Let $V$ and $W$ be vector spaces over $\mathbb{R}$, with $\dim(V) = n < \infty$. For any linear transformation $T: V \to W$:
+\begin{equation}
+\dim(\ker(T)) + \dim(\operatorname{im}(T)) = \dim(V)
+\end{equation}
+In matrix formulation, for any $A \in \mathbb{R}^{m \times n}$:
+\begin{equation}
+\nullity(A) + \rank(A) = n
+\end{equation}
+\end{theorembox}
+
+\begin{proof}
+Let $k = \dim(\ker(T))$. Since $\ker(T)$ is a subspace of $V$, $k \le n$.
+Let $\mathcal{B}_{\ker} = \{\mathbf{u}_1, \mathbf{u}_2, \dots, \mathbf{u}_k\}$ be an ordered basis for $\ker(T)$.
+By the Basis Extension Theorem, any linearly independent set can be extended to form a basis for $V$. Append $r = n - k$ vectors $\{\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_r\}$ so that:
+\begin{equation*}
+\mathcal{B}_V = \{\mathbf{u}_1, \dots, \mathbf{u}_k, \mathbf{v}_1, \dots, \mathbf{v}_r\}
+\end{equation*}
+forms a complete basis for $V$. To complete the proof, it suffices to prove that the set of image vectors:
+\begin{equation*}
+S = \{T(\mathbf{v}_1), T(\mathbf{v}_2), \dots, T(\mathbf{v}_r)\}
+\end{equation*}
+is a valid basis for $\operatorname{im}(T)$, which requires showing $S$ spans $\operatorname{im}(T)$ and is linearly independent.
+\begin{enumerate}
+    \item \textbf{$S$ Spans $\operatorname{im}(T)$:} Let $\mathbf{w} \in \operatorname{im}(T)$. There exists $\mathbf{x} \in V$ such that $T(\mathbf{x}) = \mathbf{w}$. Express $\mathbf{x}$ in basis $\mathcal{B}_V$:
+    \begin{equation*}
+    \mathbf{x} = \sum_{i=1}^k c_i \mathbf{u}_i + \sum_{j=1}^r d_j \mathbf{v}_j
+    \end{equation*}
+    Applying linear transformation $T$:
+    \begin{equation*}
+    T(\mathbf{x}) = \sum_{i=1}^k c_i T(\mathbf{u}_i) + \sum_{j=1}^r d_j T(\mathbf{v}_j)
+    \end{equation*}
+    Because each $\mathbf{u}_i \in \ker(T)$, $T(\mathbf{u}_i) = \mathbf{0}$. Therefore:
+    \begin{equation*}
+    \mathbf{w} = T(\mathbf{x}) = \mathbf{0} + \sum_{j=1}^r d_j T(\mathbf{v}_j) = \sum_{j=1}^r d_j T(\mathbf{v}_j)
+    \end{equation*}
+    Thus, $S$ spans $\operatorname{im}(T)$.
+    \item \textbf{$S$ is Linearly Independent:} Suppose there exist scalars $d_1, \dots, d_r$ such that:
+    \begin{equation*}
+    d_1 T(\mathbf{v}_1) + d_2 T(\mathbf{v}_2) + \dots + d_r T(\mathbf{v}_r) = \mathbf{0}_W
+    \end{equation*}
+    By linearity of $T$:
+    \begin{equation*}
+    T\left( \sum_{j=1}^r d_j \mathbf{v}_j \right) = \mathbf{0}_W \implies \left( \sum_{j=1}^r d_j \mathbf{v}_j \right) \in \ker(T)
+    \end{equation*}
+    Since $\mathcal{B}_{\ker} = \{\mathbf{u}_1, \dots, \mathbf{u}_k\}$ is a basis for $\ker(T)$, this vector can be written as:
+    \begin{equation*}
+    \sum_{j=1}^r d_j \mathbf{v}_j = \sum_{i=1}^k c_i \mathbf{u}_i \implies \sum_{i=1}^k (-c_i) \mathbf{u}_i + \sum_{j=1}^r d_j \mathbf{v}_j = \mathbf{0}_V
+    \end{equation*}
+    Because $\mathcal{B}_V = \{\mathbf{u}_1, \dots, \mathbf{u}_k, \mathbf{v}_1, \dots, \mathbf{v}_r\}$ is a basis for $V$, all coefficients must be identically zero:
+    \begin{equation*}
+    c_1 = \dots = c_k = 0 \quad \text{and} \quad d_1 = d_2 = \dots = d_r = 0
+    \end{equation*}
+    Hence, $S$ is strictly linearly independent.
+\end{enumerate}
+Because $S$ spans $\operatorname{im}(T)$ and is linearly independent, it forms a basis for $\operatorname{im}(T)$.
+Therefore, $\dim(\operatorname{im}(T)) = r = n - k$. Rearranging gives:
+\begin{equation*}
+\dim(\ker(T)) + \dim(\operatorname{im}(T)) = k + r = n = \dim(V)
+\end{equation*}
+This establishes the theorem.
+\end{proof}
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Trap 1: Swapping Basis Order in Matrix Construction}
+When forming $[T]_{\mathcal{B}_V, \mathcal{B}_W}$, the columns must be ordered strictly according to the basis vectors of the domain $\mathcal{B}_V = (\mathbf{v}_1, \dots, \mathbf{v}_n)$, while each column contains coordinates relative to $\mathcal{B}_W$. Permuting the sequence of basis vectors changes the row and column order of the matrix, resulting in invalid coordinate transformations.
+\end{trapbox}
+
+\begin{trapbox}{Trap 2: Believing Domain Dimension Depends on Matrix Rank}
+The domain dimension $n$ in $\rank(A) + \nullity(A) = n$ is a fixed structural constant determined entirely by the number of columns in $A$, not its rank. If rank increases, nullity decreases by the exact same amount. The sum always remains precisely $n$.
+\end{trapbox}
+
+\begin{trapbox}{Trap 3: Confusing Kernel Vectors with Output Values}
+Vectors in the kernel $\ker(T)$ are \textbf{inputs} that produce zero outputs: $T(\mathbf{v}) = \mathbf{0}$. The kernel is not equal to $\{\mathbf{0}\}$ simply because its elements evaluate to zero. A matrix can have a rich, multi-dimensional kernel filled with non-zero vectors that all map to zero.
+\end{trapbox}
+
+\begin{trapbox}{Trap 4: Applying Rank-Nullity to the Codomain Dimension $m$}
+Students frequently write $\rank(A) + \nullity(A) = m$ (the number of rows). This is fundamentally wrong. The columns of $A$ represent how the domain basis vectors are transformed; hence, the conservation law applies strictly to the \textbf{domain dimension $n$} (the number of columns).
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{3.0cm} p{2.2cm} p{2.5cm} p{2.8cm} p{3.2cm}}
+\toprule
+\textbf{Mapping Classification} & \textbf{Kernel Condition} & \textbf{Image Condition} & \textbf{Rank-Nullity Relation} & \textbf{Data Science Consequence} \\
+\midrule
+\textbf{Injective (One-to-One)} & $\ker(T) = \{\mathbf{0}\}$ ($\nullity = 0$) & $\dim(\operatorname{im}) = \dim(V)$ & $\rank(T) = n \le m$ & Lossless encoding, unique regression coefficients \\
+\textbf{Surjective (Onto)} & $\nullity(T) = n - m \ge 0$ & $\operatorname{im}(T) = W$ ($\rank = m$) & $\rank(T) = m \le n$ & Full target coverage, overparameterized solvable system \\
+\textbf{Bijective (Isomorphism)} & $\nullity(T) = 0$ & $\operatorname{im}(T) = W$ & $m = n = \rank(T)$ & Invertible coordinate change, reversible flow model \\
+\textbf{Dimensional Bottleneck} & $\nullity(T) \ge n - m > 0$ & $\dim(\operatorname{im}) \le m < n$ & $\rank(T) \le m$ & Autoencoder compression, lossy latent projection \\
+\bottomrule
+\end{tabular}
+\caption{Classification of linear transformations by kernel, image, and rank-nullity characteristics.}
+\label{tab:rank_nullity_mapping_taxonomy}
+\end{table}
+
+\section{Python / Scientific Computing Lab}
+
+The following Python script computes transformation matrices relative to non-standard bases, extracts explicit bases for the image and kernel, and verifies coordinate transformations.
+
+\begin{lstlisting}[language=Python, caption={Python Lab: Non-Standard Basis Representation and Rank-Nullity Verification}]
 import numpy as np
+import sympy as sp
 from scipy.linalg import null_space
 
-A = np.array([[1, 2, 3], [2, 4, 6], [1, 1, 1]])
-n_cols = A.shape[1]
-rank = np.linalg.matrix_rank(A)
-nullity = null_space(A).shape[1]
+# 1. Non-Standard Basis Matrix Representation: [T]_B
+# Transformation: T([x, y]^T) = [x + y, 2x - y]^T
+# Standard matrix: A_E = [[1, 1], [2, -1]]
+# Ordered basis: B = {v1 = [1, 1]^T, v2 = [1, 0]^T}
+A_E = np.array([[1.0,  1.0],
+                [2.0, -1.0]])
+P = np.array([[1.0, 1.0],
+              [1.0, 0.0]])  # Transition matrix from B to E
 
-print(f"Rank ({rank}) + Nullity ({nullity}) = {rank + nullity}")
-print(f"Number of columns: {n_cols}")
+# Similarity Transformation: [T]_B = P^(-1) @ A_E @ P
+P_inv = np.linalg.inv(P)
+A_B = P_inv @ A_E @ P
+print("Transformation Matrix in Basis B ([T]_B):\n", A_B)
+
+# Verify with test vector: v = 3*v1 + 2*v2 = [5, 3]^T
+coords_B = np.array([3.0, 2.0])
+v_E = P @ coords_B
+
+# Forward image in standard basis
+Tv_E = A_E @ v_E
+# Forward image via [T]_B
+Tv_coords_B = A_B @ coords_B
+print("\nReconstructed T(v) from Basis B:", P @ Tv_coords_B)
+print("Direct Standard T(v):", Tv_E)
+assert np.allclose(P @ Tv_coords_B, Tv_E), "Coordinate mapping mismatch!"
+
+# 2. Kernel and Image Decomposition for 3x3 Singular Matrix
+A = np.array([[1, 2, 3],
+              [2, 4, 6],
+              [1, 1, 1]], dtype=float)
+
+# SymPy exact column space (Image) and null space (Kernel)
+M = sp.Matrix(A)
+img_basis = M.columnspace()
+ker_basis = M.nullspace()
+
+print(f"\nMatrix A (3x3): Rank = {len(img_basis)}, Nullity = {len(ker_basis)}")
+print("Image (Column Space) Basis:")
+for col in img_basis:
+    sp.pprint(col.T)
+print("Kernel (Null Space) Basis:")
+for k in ker_basis:
+    sp.pprint(k.T)
+
+# Rank-Nullity Verification
+assert len(img_basis) + len(ker_basis) == A.shape[1]
+print(f"Rank-Nullity confirmed: {len(img_basis)} + {len(ker_basis)} = {A.shape[1]}")
 \end{lstlisting}
 
 \newpage
 \section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\textit{Detailed step-by-step solutions and distractor rationales are available in the Appendix.}
 
+\subsection*{Part A: Computational \& Analytical Problems}
 \begin{enumerate}
-\item \textbf{Matrix Representation Construction:} Let $T: \mathbb{R}^2 \to \mathbb{R}^2$ be defined by $T\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} 3x + y \\ 2x - 4y \end{bmatrix}$. Find the matrix representation $A = [T]_{\mathcal{E}}$ relative to the standard basis $\mathcal{E}$.
+\item \textbf{Matrix Representation Construction:} Let $T: \mathbb{R}^2 \to \mathbb{R}^2$ be defined by $T\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} 3x + y \\ 2x - 4y \end{bmatrix}$. Find the matrix representation $A = [T]_{\mathcal{E}}$ relative to the standard basis $\mathcal{E} = \{\mathbf{e}_1, \mathbf{e}_2\}$.
 
 \item \textbf{Non-Standard Basis Matrix Representation:} Find the matrix $[T]_{\mathcal{B}}$ for the linear operator $T\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} x + y \\ 2x - y \end{bmatrix}$ using the ordered basis $\mathcal{B} = \left\{ \begin{bmatrix} 1 \\ 1 \end{bmatrix}, \begin{bmatrix} 1 \\ 0 \end{bmatrix} \right\}$.
 
-\item \textbf{Bases for Kernel and Image:} Given linear transformation matrix $A = \begin{bmatrix} 1 & 2 & 3 \\ 2 & 4 & 6 \\ 1 & 1 & 1 \end{bmatrix}$:
-    \begin{enumerate}
-        \item Find a basis for $\image(A)$ (Column Space).
-        \item Find a basis for $\kernel(A)$ (Null Space).
-    \end{enumerate}
+\item \textbf{Bases for Kernel and Image:} Given linear transformation matrix:
+\begin{equation*}
+A = \begin{bmatrix} 1 & 2 & 3 \\ 2 & 4 & 6 \\ 1 & 1 & 1 \end{bmatrix}
+\end{equation*}
+\begin{enumerate}
+    \item Find an explicit basis for $\operatorname{im}(A)$ (Column Space).
+    \item Find an explicit basis for $\ker(A)$ (Null Space).
+\end{enumerate}
 
-\item \textbf{Rank-Nullity Verification:} Verify the Rank-Nullity Theorem for the matrix $A$ in Exercise 3 by showing $\nullity(A) + \rank(A) = 3$.
+\item \textbf{Rank-Nullity Verification:} Verify the Rank-Nullity Theorem for matrix $A$ from Problem 3 by showing $\nullity(A) + \rank(A) = 3$.
 
 \item \textbf{Data Science Application (Linear Autoencoder Information Loss):} A linear autoencoder compresses 100-dimensional audio feature vectors $\mathbf{x} \in \mathbb{R}^{100}$ into a bottleneck feature space of dimension 20 using matrix $W \in \mathbb{R}^{20 \times 100}$. If $\rank(W) = 18$, calculate:
-    \begin{enumerate}
-        \item The dimension of the compressed code space ($\dim(\image(W))$).
-        \item The dimension of unrecoverable lost features ($\dim(\kernel(W))$).
-    \end{enumerate}
+\begin{enumerate}
+    \item The dimension of the compressed code space ($\dim(\operatorname{im}(W))$).
+    \item The dimension of unrecoverable lost features ($\dim(\ker(W))$).
+    \item How many redundant dimensions exist in the 20-dimensional bottleneck layer representation?
+\end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions}
+\begin{enumerate}
+\setcounter{enumi}{5}
+\item \textbf{Injectivity and Surjectivity via Dimension Bounds:} Suppose $T: \mathbb{R}^5 \to \mathbb{R}^3$ is a linear transformation. Which of the following statements is mathematically impossible?
+\begin{enumerate}
+    \item $T$ is surjective with $\nullity(T) = 2$.
+    \item $T$ is injective with $\nullity(T) = 0$.
+    \item $\rank(T) = 2$ and $\nullity(T) = 3$.
+    \item The image $\operatorname{im}(T)$ is a 3-dimensional subspace of $\mathbb{R}^3$.
+\end{enumerate}
+
+\item \textbf{Basis Change and Matrix Similarity:} Let $A = [T]_\mathcal{E}$ be the matrix of a linear operator $T: V \to V$ relative to standard basis $\mathcal{E}$, and let $B = [T]_\mathcal{B}$ be its matrix relative to a non-standard basis $\mathcal{B}$. If $P$ is the change-of-basis transition matrix whose columns are the basis vectors of $\mathcal{B}$, what is the algebraic relationship between $A$ and $B$?
+\begin{enumerate}
+    \item $B = P A P^T$
+    \item $B = P^{-1} A P$
+    \item $B = P A P^{-1}$
+    \item $B = A P$
+\end{enumerate}
 \end{enumerate}

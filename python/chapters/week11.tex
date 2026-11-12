@@ -1,119 +1,328 @@
-\chapter{Scientific Computing: NumPy \& Pandas}
+\chapter{NumPy Fundamentals, Memory Strides \& Vectorized Broadcasting}
 
-While standard Python lists are versatile, they are slow for massive numerical data because elements are pointers scattered in memory. The scientific Python ecosystem—led by \index{NumPy}\textbf{NumPy} and \index{Pandas}\textbf{Pandas}—provides contiguous memory layout, vectorization, and fast C-level execution for data manipulation.
-
+Python's native dynamic lists provide extraordinary versatility but introduce prohibitive computational bottlenecks for numerical data science. Every element in a Python list is a heap-allocated \texttt{PyObject} pointer, inducing pointer-chasing latency and preventing CPU cache line exploitation. \index{NumPy}\textbf{NumPy} (Numerical Python) resolves this by introducing the \index{ndarray}\textbf{\texttt{ndarray}}: a contiguous, typed memory buffer executing at native C and Fortran speeds. Through \textbf{memory strides}, \textbf{SIMD vectorization}, and \index{Broadcasting}\textbf{Broadcasting Algebra}, NumPy serves as the computational engine powering TensorFlow, PyTorch, SciPy, and Pandas. Mastering the internal architecture of array strides, view-versus-copy mechanics, and multidimensional tensor manipulations is the hallmark of professional scientific computing.
 
 \vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item NumPy Arrays vs Python Lists
-    \item Pandas Series and DataFrames
+    \item \textbf{Target Competencies:} Contrast CPython pointer arrays with NumPy's contiguous raw-memory \texttt{ndarray}; master the memory stride protocol and dimensional metadata; formalize the algebraic rules of Multi-Dimensional Broadcasting; differentiate between zero-copy memory views (basic slicing) and memory copies (advanced fancy indexing); implement vectorized machine learning algorithms and solve normal equations via \texttt{np.linalg}.
+    \item \textbf{Prerequisites:} Lists, matrix algebra, object references, floating-point representations.
+    \item \textbf{Syntax \& Built-in Functions:} \texttt{np.array()}, \texttt{np.arange()}, \texttt{np.linspace()}, \texttt{np.zeros()}, \texttt{np.ones()}; \texttt{.reshape()}, \texttt{.transpose()}, \texttt{.strides}; \texttt{np.dot()}, \texttt{@}, \texttt{np.linalg.solve()}, \texttt{np.linalg.inv()}.
 \end{itemize}
 \end{tcolorbox}
-\section{NumPy Arrays vs Python Lists}
 
-\begin{intuitionbox}{Contiguous Memory: The Bookshelf}
-Standard Python lists are like having books scattered across different rooms in your house; to read them in order, you waste time walking around (pointer jumping). NumPy arrays are like having all your books lined up tightly on a single, continuous bookshelf. Reading them in sequence is incredibly fast because the CPU always knows exactly where the next book is.
-\end{intuitionbox}
+\section{Mathematical \& Computational Foundations}
 
-\index{NumPy}\textbf{NumPy} (Numerical Python) introduces the \texttt{ndarray} (N-dimensional array), an array of homogeneous elements stored contiguously in memory.
+\subsection{The \texttt{ndarray} Memory Buffer and Strides Architecture}
 
-\begin{definitionbox}{NumPy Arrays and Vectorization}
-\index{NumPy Arrays and Vectorization}
-\index{Vectorization}\textbf{Vectorization} allows mathematical operations to operate on entire arrays simultaneously without explicit Python \texttt{for} loops.
-\begin{lstlisting}
-import numpy as np
-
-# Creating NDArrays
-arr = np.array([1, 2, 3, 4, 5])
-
-# Vectorized Arithmetic
-print(arr * 2)       # Output: [ 2  4  6  8 10]
-print(arr ** 2)      # Output: [ 1  4  9 16 25]
-
-# Broadcasting: Matrix + Scalar
-matrix = np.ones((2, 3))  # 2x3 matrix of ones
-print(matrix + 5)
-\end{lstlisting}
+\begin{definitionbox}{Memory Layout, Strides, and Shape}
+\index{Memory Strides} \index{Contiguous Memory}
+A NumPy array consists of a lightweight Python header descriptor pointing to a single contiguous block of raw binary data in memory. The structural layout is defined by three attributes:
+\begin{enumerate}
+    \item \textbf{Data Type (\texttt{dtype}):} Fixed homogeneous binary representation (e.g., \texttt{np.float64} consumes 8 bytes).
+    \item \textbf{Shape (\texttt{shape}):} A tuple of integers $(d_0, d_1, \dots, d_{k-1})$ specifying dimensions.
+    \item \textbf{Strides (\texttt{strides}):} A tuple of byte offsets $(s_0, s_1, \dots, s_{k-1})$ specifying the number of bytes to step in memory to advance by one index along each axis:
+    \begin{equation}
+    \text{Address}(A[i_0, i_1, \dots, i_{k-1}]) = \text{BaseAddress} + \sum_{j=0}^{k-1} i_j \times s_j
+    \end{equation}
+\end{enumerate}
+In standard C-contiguous (row-major) order for a 2D matrix of shape $(M, N)$ and element size $B$ bytes:
+\begin{equation}
+s_0 = N \times B \text{ bytes}, \quad s_1 = B \text{ bytes}
+\end{equation}
+Transposing a matrix $A^T$ does not copy or move any data in memory; it simply swaps the strides and shape: \texttt{A.T.strides = (s1, s0)}.
 \end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: Introduction to NumPy (Arrays vs Lists)}{https://www.youtube.com/watch?v=O0IrNk1qoUE}
-Official lecture explaining memory layout, performance comparisons, and vectorization benefits.
-\end{videocard}
+\subsection{Vectorization and SIMD Acceleration}
 
-\section{Pandas Series and DataFrames}
-
-\index{Pandas}\textbf{Pandas} provides high-performance tabular data structures: the 1D \index{Series}\textbf{Series} (labeled column) and the 2D \index{DataFrame}\textbf{DataFrame} (tabular dataset with labeled rows and columns).
-
-\begin{theorembox}{Pandas DataFrame Mechanics}
-\begin{lstlisting}
-import pandas as pd
-
-# Creating a DataFrame from a Dictionary
-data = {
-    "Name": ["Alice", "Bob", "Charlie"],
-    "Age": [25, 30, 35],
-    "Salary": [70000, 80000, 95000]
-}
-df = pd.DataFrame(data)
-
-# Accessing Columns and Filtering Rows
-print(df["Name"])
-high_earners = df[df["Salary"] >= 80000]
-print(high_earners)
-\end{lstlisting}
+\begin{theorembox}{Vectorized Instruction Throughput}
+\index{Vectorization} \index{SIMD}
+In pure Python, computing $\mathbf{c} = \mathbf{a} + \mathbf{b}$ for $10^6$ elements requires one million bytecode dispatches, dynamic type checks, and pointer dereferences.
+In NumPy, \textbf{Vectorization} delegates the loop to compiled C code. Because elements are contiguous, modern CPU architectures utilize \textbf{SIMD (Single Instruction, Multiple Data)} vector registers (AVX-512, AVX2), executing 8 to 16 double-precision additions per CPU clock cycle. This typically yields a $50\times$ to $200\times$ speedup over interpreted Python loops.
 \end{theorembox}
 
-\textbf{Data Science Relevance:} Pandas is the default tool for Exploratory Data Analysis (EDA), CSV/Parquet loading (\texttt{pd.read\_csv()}), handling missing values (\texttt{df.fillna()}), and feature engineering.
+\subsection{The General Broadcasting Rules}
 
-\begin{videocard}{IITM BS Lecture: Why Pandas? Data Analysis Made Easy}{https://www.youtube.com/watch?v=HCxhHo8tV4U}
-Official lecture introducing Pandas for data manipulation and tabular alignment.
-\end{videocard}
+\begin{theorembox}{The Strict Broadcasting Invariant}
+\index{Broadcasting Rules}
+Broadcasting allows element-wise operations between arrays of different shapes without physically replicating data in memory.
+When operating on two arrays $A$ and $B$, NumPy compares their shapes element-wise \textbf{from right to left (trailing dimensions first)}:
+\begin{enumerate}
+    \item If the arrays have different numbers of dimensions, the shape of the shorter array is padded with ones on the left.
+    \item Two dimensions are \textbf{compatible} if and only if:
+    \begin{equation}
+    d_A == d_B \quad \lor \quad d_A == 1 \quad \lor \quad d_B == 1
+    \end{equation}
+    \item If compatible, the resulting dimension size is $\max(d_A, d_B)$. Along any axis of size $1$, NumPy sets the stride to $0$, logically stretching the array across that axis without memory allocation.
+    \item If dimensions conflict and neither is $1$, a \texttt{ValueError: operands could not be broadcast together} is raised.
+\end{enumerate}
+\end{theorembox}
 
-\begin{videocard}{IITM BS Lecture: Pandas Series and DataFrames}{https://www.youtube.com/watch?v=aPjiMs7CR7s}
-Official lecture detailing indexing, row selection (\texttt{.loc}, \texttt{.iloc}), and column operations.
-\end{videocard}
+\section{Visual \& Computational Intuition: Contiguous Buffers vs. Strides}
+
+Figure~\ref{fig:numpy_strides} visualizes how a $3 \times 3$ array of 64-bit floats is arranged linearly in physical RAM, and how memory strides compute coordinate offsets.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=0.9,
+    cell/.style={rectangle, draw=primarydark, fill=primarylight!30, thick, minimum width=1.1cm, minimum height=0.7cm, font=\small},
+    arr/.style={-stealth, thick, primarydark}
+]
+    % Physical Memory Buffer
+    \node[font=\bfseries, primarydark] at (4.5, 2.5) {Linear Physical Memory Buffer (Contiguous Bytes)};
+    
+    \foreach \i/\val in {0/1.0, 1/2.0, 2/3.0, 3/4.0, 4/5.0, 5/6.0, 6/7.0, 7/8.0, 8/9.0} {
+        \node[cell] (c\i) at (\i*1.15, 1.5) {\footnotesize \val};
+        \node[font=\tiny, gray] at (\i*1.15, 0.8) {+ \pgfmathparse{int(\i*8)}\pgfmathresult B};
+    }
+
+    % Logical 2D Matrix
+    \node[font=\bfseries, forest] at (4.5, -0.6) {Logical 2D View: Shape (3, 3), Strides (24, 8)};
+    \draw[thick, draw=forest, rounded corners=4pt] (2.2, -1.2) rectangle (6.8, -3.4);
+    
+    \node at (3.0, -1.6) {\texttt{1.0}}; \node at (4.5, -1.6) {\texttt{2.0}}; \node at (6.0, -1.6) {\texttt{3.0}};
+    \node at (3.0, -2.3) {\texttt{4.0}}; \node at (4.5, -2.3) {\texttt{5.0}}; \node at (6.0, -2.3) {\texttt{6.0}};
+    \node at (3.0, -3.0) {\texttt{7.0}}; \node at (4.5, -3.0) {\texttt{8.0}}; \node at (6.0, -3.0) {\texttt{9.0}};
+
+    % Step arrows
+    \draw[-stealth, thick, accent] (4.5, -1.2) -- (4.5, 0.5);
+    \node[font=\scriptsize\bfseries, accent] at (6.8, 0.1) {Row step: $+24$ bytes};
+
+\end{tikzpicture}
+\caption{NumPy Strided Array Architecture. A 2D matrix maps into a 1D flat memory buffer. Moving down a row advances by 24 bytes ($3 \times 8$ bytes); moving right a column advances by 8 bytes.}
+\label{fig:numpy_strides}
+\end{figure}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Ordinary Least Squares (OLS) Normal Equations in NumPy}
+In multiple linear regression, given feature matrix $X \in \mathbb{R}^{n \times d}$ and target vector $\mathbf{y} \in \mathbb{R}^n$, the closed-form weight vector minimizing residual sum of squares is given by the normal equations:
+\begin{equation}
+\hat{\mathbf{w}} = (X^T X)^{-1} X^T \mathbf{y}
+\end{equation}
+In NumPy, rather than computing the matrix inverse explicitly via \texttt{np.linalg.inv()} (which is computationally unstable and prone to precision loss), we solve the linear system directly:
+\begin{lstlisting}[language=Python]
+w_hat = np.linalg.solve(X.T @ X, X.T @ y)
+\end{lstlisting}
+This utilizes LAPACK LU/Cholesky factorization, computing solutions in $\mathcal{O}(d^3)$ time with optimal numerical conditioning.
+
+\subsection{Views versus Copies: The Internal Buffer Base}
+NumPy makes a strict distinction between creating a \textbf{View} (a new header pointing to the existing buffer) and a \textbf{Copy} (allocating a new buffer):
+\begin{itemize}
+    \item \textbf{Basic Slicing (\texttt{arr[1:5]}):} Always returns a view. Modifying the view modifies the original array! Check \texttt{view.base is arr}.
+    \item \textbf{Advanced / Fancy Indexing (\texttt{arr[[0, 2]]} or \texttt{arr[arr > 0]}):} Always constructs an independent copy in memory.
+\end{itemize}
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{The In-Place Mutation of Basic Slices (View Trap)}
+Modifying a basic slice alters the original parent array:
+\begin{lstlisting}[language=Python]
+import numpy as np
+orig = np.array([10, 20, 30, 40])
+sub = orig[1:3]  # Basic slice: VIEW!
+sub[0] = 999
+print(orig)  # Output: [ 10 999  30  40] -- Original was mutated!
+\end{lstlisting}
+If mutation isolation is required, explicitly create a copy: \texttt{sub = orig[1:3].copy()}.
+\end{trapbox}
+
+\begin{trapbox}{Boolean Chaining in NumPy: \texttt{and}/\texttt{or} vs \texttt{\&}/\texttt{|}}
+Using Python's logical \texttt{and}/\texttt{or} keywords on NumPy arrays causes an immediate crash:
+\begin{lstlisting}[language=Python]
+arr = np.array([1, 5, 10])
+# BUG: raises ValueError: The truth value of an array is ambiguous!
+mask = (arr > 2) and (arr < 8)
+\end{lstlisting}
+Python's \texttt{and} requires a single scalar boolean. For element-wise boolean array operations, you must use bitwise operators with mandatory parentheses:
+\begin{lstlisting}[language=Python]
+mask = (arr > 2) & (arr < 8)  # Correct! Produces [False, True, False]
+\end{lstlisting}
+\end{trapbox}
+
+\begin{trapbox}{Matrix Multiplication (\texttt{@}) vs Element-Wise Multiplication (\texttt{*})}
+In NumPy, \texttt{A * B} performs Hadamard (element-wise) multiplication, requiring broadcast-compatible dimensions. Matrix multiplication ($C_{ij} = \sum_k A_{ik} B_{kj}$) requires the \texttt{@} operator or \texttt{np.matmul(A, B)}.
+\end{trapbox}
+
+\begin{trapbox}{Accumulating Operations: \texttt{arr = arr + 1} vs \texttt{arr += 1}}
+\texttt{arr = arr + 1} allocates a brand new array on the heap and rebinds the name \texttt{arr}, leaving other references unchanged.
+\texttt{arr += 1} performs an in-place mutation directly on the existing buffer, saving memory and updating all aliased views.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2.6cm} p{2.4cm} p{2.2cm} p{4.6cm}}
+\hline
+\textbf{Operation} & \textbf{Syntax} & \textbf{Memory Status} & \textbf{Key Characteristic} \\
+\hline
+\textbf{Basic Slice} & \texttt{A[1:4, :]} & View (Zero copy) & Strided pointer offset; mutates parent \\
+\textbf{Integer Indexing} & \texttt{A[[0, 2]]} & Copy & Allocates new buffer with extracted rows \\
+\textbf{Boolean Mask} & \texttt{A[A > 0]} & Copy & Flattens matching elements into 1D copy \\
+\textbf{Transpose} & \texttt{A.T} & View (Zero copy) & Swaps shape and stride tuples \\
+\textbf{Reshape} & \texttt{A.reshape(r, c)} & View (usually) & Keeps buffer; changes shape metadata \\
+\textbf{Matrix Product} & \texttt{A @ B} & Copy (New array) & BLAS GEMM matrix multiplication \\
+\hline
+\end{tabular}
+\caption{Memory behavior and mechanics of core NumPy array operations.}
+\label{tab:numpy_memory}
+\end{table}
+
+\section{Python / Scientific Computing Lab}
+
+The following industrial script implements a Vectorized Ridge Regression Estimator, computes the $R^2$ coefficient of determination, and calculates pairwise Euclidean distance matrices using broadcasting algebra.
+
+\begin{lstlisting}[language=Python]
+import numpy as np
+
+def compute_pairwise_distances(X: np.ndarray, Y: np.ndarray) -> np.ndarray:
+    """
+    Computes Euclidean distance matrix between rows of X and Y using broadcasting.
+    X: shape (M, D), Y: shape (N, D) -> Output: shape (M, N)
+    ||x_i - y_j||^2 = ||x_i||^2 + ||y_j||^2 - 2 * <x_i, y_j>
+    """
+    # Reshape X to (M, 1, D) and Y to (1, N, D)
+    diff = X[:, np.newaxis, :] - Y[np.newaxis, :, :]  # Shape: (M, N, D)
+    return np.sqrt(np.sum(diff**2, axis=-1))
+
+class VectorizedRidgeRegressor:
+    """
+    Vectorized Ridge Regression: w* = (X^T X + lambda * I)^(-1) X^T y
+    """
+    def __init__(self, alpha: float = 1.0):
+        self.alpha = alpha
+        self.weights_ = None
+
+    def fit(self, X: np.ndarray, y: np.ndarray):
+        # Prepend bias column of ones
+        n_samples = X.shape[0]
+        X_design = np.hstack([np.ones((n_samples, 1)), X])
+        d_features = X_design.shape[1]
+
+        # Regularization matrix (do not regularize bias)
+        reg_matrix = self.alpha * np.eye(d_features)
+        reg_matrix[0, 0] = 0.0
+
+        # Solve normal equations via stable linear solve
+        A = X_design.T @ X_design + reg_matrix
+        b = X_design.T @ y
+        self.weights_ = np.linalg.solve(A, b)
+        return self
+
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        n_samples = X.shape[0]
+        X_design = np.hstack([np.ones((n_samples, 1)), X])
+        return X_design @ self.weights_
+
+    def score(self, X: np.ndarray, y: np.ndarray) -> float:
+        """Computes R^2 coefficient of determination."""
+        y_pred = self.predict(X)
+        ss_res = np.sum((y - y_pred)**2)
+        ss_tot = np.sum((y - np.mean(y))**2)
+        return float(1.0 - (ss_res / ss_tot))
+
+# Synthetic dataset generation
+np.random.seed(42)
+X_train = np.random.uniform(-5.0, 5.0, size=(100, 2))
+# True relation: y = 3.5*x0 - 2.0*x1 + 4.0 + noise
+y_train = 3.5 * X_train[:, 0] - 2.0 * X_train[:, 1] + 4.0 + np.random.normal(0, 0.5, size=100)
+
+model = VectorizedRidgeRegressor(alpha=0.1).fit(X_train, y_train)
+r2 = model.score(X_train, y_train)
+
+print("Learned Weights (Bias, w0, w1):", np.round(model.weights_, 3))
+print("Training R^2 Score:", round(r2, 4))
+
+# Pairwise distance demonstration
+points_A = np.array([[0.0, 0.0], [3.0, 4.0]])
+points_B = np.array([[1.0, 1.0], [0.0, 3.0], [4.0, 0.0]])
+dist_matrix = compute_pairwise_distances(points_A, points_B)
+print("Pairwise Distances:\n", np.round(dist_matrix, 3))
+# Output:
+# Learned Weights: [4.019, 3.491, -2.008]
+# Training R^2 Score: 0.9961
+\end{lstlisting}
 
 \newpage
-\section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\section{Comprehensive Practice Problems}
+\textit{Detailed step-by-step solutions and distractor analyses are provided in the Appendix.}
+
+\subsection*{Part A: Computational \& Analytical Problems}
 
 \begin{enumerate}
-    \item \textbf{NumPy Vectorization:} Given \texttt{arr = np.arange(1, 11)} (integers $1$ to $10$):
+    \item \textbf{Broadcasting Rule Arithmetic and Shape Derivations:}
+    Determine whether each of the following pairs of array shapes are broadcast-compatible under NumPy's broadcasting rules. If compatible, state the resulting output shape; if incompatible, explain the dimensional conflict:
     \begin{enumerate}
-        \item Compute a boolean mask for all odd numbers.
-        \item Use the boolean mask to extract only the odd elements.
-        \item Replace all even numbers in \texttt{arr} with $-1$.
+        \item $A: (8, 1, 6, 1)$ and $B: (7, 1, 5)$
+        \item $A: (256, 256, 3)$ and $B: (3,)$
+        \item $A: (5, 4)$ and $B: (4, 5)$
+        \item $A: (15, 3, 5)$ and $B: (15, 1, 5)$
     \end{enumerate}
 
-    \item \textbf{Matrix Statistics with NumPy:} Create a $3 \times 3$ matrix with values $1$ through $9$ using \texttt{np.arange(1, 10).reshape(3, 3)}. Calculate:
+    \item \textbf{Memory Strides and View vs. Copy Diagnostics:}
+    Given an array $A$ created via \texttt{A = np.arange(12, dtype=np.int32).reshape(3, 4)}:
     \begin{enumerate}
-        \item Sum of all elements in the matrix.
-        \item Column-wise means (\texttt{axis=0}).
-        \item Row-wise maximums (\texttt{axis=1}).
+        \item State the item size in bytes and the strides tuple of $A$.
+        \item State the shape and strides of the transpose $A^T$. Does $A^T$ share memory with $A$?
+        \item Explain why \texttt{A[::2, ::2]} is a view while \texttt{A[[0, 2], [1, 3]]} is a copy.
     \end{enumerate}
 
-    \item \textbf{Pandas Filtering \& Selection:} Given the DataFrame:
-\begin{lstlisting}
-import pandas as pd
-df = pd.DataFrame({
-    'City': ['Mumbai', 'Delhi', 'Bangalore', 'Chennai'],
-    'Temp': [32, 40, 24, 34],
-    'Humidity': [80, 45, 65, 75]
-})
-\end{lstlisting}
-    Filter and print rows where \texttt{Temp > 30} AND \texttt{Humidity > 70}.
+    \item \textbf{Vectorized Softmax Function Implementation:}
+    In classification neural networks, the Softmax activation function maps logits $\mathbf{z} \in \mathbb{R}^d$ to probabilities:
+    \begin{equation}
+    \sigma(\mathbf{z})_i = \frac{e^{z_i - \max(\mathbf{z})}}{\sum_{j=1}^d e^{z_j - \max(\mathbf{z})}}
+    \end{equation}
+    Write a numerically stable vectorized function \texttt{softmax(Z)} in NumPy that accepts a 2D batch of logits $Z \in \mathbb{R}^{N \times K}$ and computes probabilities row-wise using broadcasting.
 
-    \item \textbf{Pandas Missing Data Handling:} Create a DataFrame with missing values \texttt{np.nan}:
-    \texttt{df = pd.DataFrame(\{'A': [1.0, 2.0, np.nan, 4.0], 'B': [np.nan, 10.0, 20.0, 30.0]\})}.
-    Fill missing values in column \texttt{'A'} with its mean, and column \texttt{'B'} with \texttt{0.0}.
+    \item \textbf{Boolean Masking and Multi-Condition Filtering:}
+    Given a dataset matrix $X \in \mathbb{R}^{100 \times 4}$:
+    Write the exact NumPy statement to extract all rows where the first feature column is greater than $0$ AND the third feature column is less than or equal to $5$, replacing all negative values in the extracted rows with $0.0$.
 
-    \item \textbf{Data Science Application (Groupby Aggregation):} Given sales transaction data:
-\begin{lstlisting}
-sales_df = pd.DataFrame({
-    'Category': ['Tech', 'Tech', 'Office', 'Office', 'Tech'],
-    'Revenue': [1200, 800, 150, 300, 2000]
-})
-\end{lstlisting}
-    Write a 1-line Pandas expression using \texttt{.groupby()} to calculate the total revenue per category.
+    \item \textbf{Matrix Normal Equations and Projection Matrix:}
+    Given feature matrix $X = \begin{bmatrix} 1 & 1 \\ 1 & 2 \\ 1 & 3 \end{bmatrix}$ and target $\mathbf{y} = \begin{bmatrix} 2 \\ 3 \\ 5 \end{bmatrix}$:
+    \begin{enumerate}
+        \item Compute $X^T X$ and $X^T \mathbf{y}$ using matrix multiplication.
+        \item Solve for the optimal parameter vector $\hat{\mathbf{w}} = [w_0, w_1]^T$ using \texttt{np.linalg.solve()}.
+        \item Compute the orthogonal projection $\hat{\mathbf{y}} = X \hat{\mathbf{w}}$.
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions (Single Correct)}
+
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item \textbf{Broadcasting Dimension Padding:}
+    Consider the arrays:
+    \begin{lstlisting}[language=Python]
+    a = np.ones((4, 1))
+    b = np.ones((3,))
+    c = a + b
+    \end{lstlisting}
+    What is the shape of array \texttt{c}?
+    \begin{enumerate}
+        \item \texttt{(4, 3)}
+        \item \texttt{(3, 4)}
+        \item \texttt{(4, 1)}
+        \item \texttt{ValueError: operands could not be broadcast together}
+    \end{enumerate}
+
+    \item \textbf{Array Slicing View Mutation:}
+    Examine the following code:
+    \begin{lstlisting}[language=Python]
+    x = np.array([10, 20, 30, 40])
+    y = x[1:3]
+    y += 5
+    z = x[[1, 2]]
+    z += 10
+    \end{lstlisting}
+    What is the final value of \texttt{x}?
+    \begin{enumerate}
+        \item \texttt{array([10, 25, 35, 40])}
+        \item \texttt{array([10, 35, 45, 40])}
+        \item \texttt{array([10, 20, 30, 40])}
+        \item \texttt{array([10, 15, 25, 40])}
+    \end{enumerate}
 \end{enumerate}

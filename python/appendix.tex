@@ -7,828 +7,1537 @@ This appendix contains step-by-step solutions and explanations for all practice 
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Variable Types}
-\begin{itemize}
-    \item \textbf{(a)} \texttt{10 / 2}: \textbf{\texttt{float}}. In Python 3, standard division \texttt{/} always returns a floating-point number (\texttt{5.0}), even if the result is a whole number.
-    \item \textbf{(b)} \texttt{10 // 2}: \textbf{\texttt{int}}. Floor division \texttt{//} truncates the fractional part and returns an integer (\texttt{5}).
-    \item \textbf{(c)} \texttt{"100" + "200"}: \textbf{\texttt{str}}. Using \texttt{+} on two strings performs concatenation, producing \texttt{"100200"}.
-    \item \textbf{(d)} \texttt{(5 > 3) and (2 == 4)}: \textbf{\texttt{bool}}. \texttt{5 > 3} evaluates to \texttt{True}, and \texttt{2 == 4} evaluates to \texttt{False}. \texttt{True and False} evaluates to \texttt{False}.
-\end{itemize}
+\textbf{1. Variable Types \& Type Inference}
+\begin{enumerate}
+    \item \textbf{(a) \texttt{a = 10 / 2}:}
+    Type: \textbf{\texttt{float}}, Value: \textbf{\texttt{5.0}}.
+    In Python 3 (PEP 238), standard division \texttt{/} is true floating-point division. It always returns a float, even if the division divides evenly with no remainder.
+    \item \textbf{(b) \texttt{b = 10 // 2}:}
+    Type: \textbf{\texttt{int}}, Value: \textbf{\texttt{5}}.
+    Floor division \texttt{//} divides the operands and rounds down to the nearest integer toward negative infinity.
+    \item \textbf{(c) \texttt{c = "100" + "200"}:}
+    Type: \textbf{\texttt{str}}, Value: \textbf{\texttt{"100200"}}.
+    The \texttt{+} operator applied to two strings performs string concatenation, stitching the sequences together without performing arithmetic addition.
+    \item \textbf{(d) \texttt{d = (5 > 3) and (2 == 4)}:}
+    Type: \textbf{\texttt{bool}}, Value: \textbf{\texttt{False}}.
+    \texttt{5 > 3} evaluates to \texttt{True}, and \texttt{2 == 4} evaluates to \texttt{False}. The boolean expression \texttt{True and False} evaluates strictly to \texttt{False}.
+\end{enumerate}
 
-\textbf{2. Arithmetic Logic}
-\begin{itemize}
-    \item \textbf{(a)} \texttt{2 + 3 * 4 ** 2}: Exponentiation has highest precedence ($4^2 = 16$). Next is multiplication ($3 \times 16 = 48$). Finally addition ($2 + 48 = \mathbf{50}$).
-    \item \textbf{(b)} \texttt{25 \% 7}: Modulus gives the remainder of $25 \div 7$. $7 \times 3 = 21$, leaving a remainder of $\mathbf{4}$.
-    \item \textbf{(c)} \texttt{19 // 4}: Floor division of $19 \div 4 = 4.75$, dropping the decimal gives $\mathbf{4}$.
-\end{itemize}
+\textbf{2. Arithmetic Logic \& Precedence Hierarchy}
+Following standard operator precedence (PEMDAS: Exponentiation $\to$ Floor Division / Modulus / Multiplication $\to$ Addition / Subtraction):
+\begin{enumerate}
+    \item \textbf{\texttt{2 + 3 * 4 ** 2}:}
+    \begin{align*}
+    4 ** 2 &= 16 \quad (\text{Exponentiation first}) \\
+    3 * 16 &= 48 \quad (\text{Multiplication second}) \\
+    2 + 48 &= \mathbf{50} \quad (\text{Addition last})
+    \end{align*}
+    \item \textbf{\texttt{25 \% 7}:}
+    $25 = 7 \times 3 + 4$. The remainder is $\mathbf{4}$.
+    \item \textbf{\texttt{19 // 4}:}
+    $19 / 4 = 4.75$. Flooring down gives $\lfloor 4.75 \rfloor = \mathbf{4}$.
+    \item \textbf{\texttt{-19 // 4}:}
+    $-19 / 4 = -4.75$. Flooring toward negative infinity gives $\lfloor -4.75 \rfloor = \mathbf{-5}$.
+\end{enumerate}
 
-\textbf{3. String Slicing}
-\begin{itemize}
-    \item \textbf{(a)} \texttt{text[0:7]} or \texttt{text[:7]} returns \texttt{"Machine"}.
-    \item \textbf{(b)} \texttt{text[7:]} returns \texttt{"Learning"}.
-    \item \textbf{(c)} \texttt{text[-8:]} extracts the last 8 characters, which is \texttt{"Learning"}.
-    \item \textbf{(d)} \texttt{text[::-1]} reverses the string to \texttt{"gninraeLEnihcaM"}.
-\end{itemize}
+\textbf{3. String Slicing \& Boundary Safety}
+Given \texttt{text = "MachineLearning"} (length 15, indices 0 through 14):
+\begin{enumerate}
+    \item \textbf{Extract \texttt{"Machine"}:} \texttt{text[0:7]} or \texttt{text[:7]} (slices indices 0 to 6).
+    \item \textbf{Extract \texttt{"Learning"}:} \texttt{text[7:15]} or \texttt{text[7:]} (slices indices 7 to 14).
+    \item \textbf{Output of \texttt{text[-8:]}:} \textbf{\texttt{"Learning"}}. Negative index $-8$ corresponds to character \texttt{'L'}, slicing through to the end of the string.
+    \item \textbf{String Reversal:} \textbf{\texttt{text[::-1]}} produces \texttt{"gninraeLEnihcaM"}.
+    \item \textbf{Boundary Safety of \texttt{text[7:100]}:} Produces \textbf{\texttt{"Learning"}}.
+    Unlike direct indexing (\texttt{text[100]} raises \texttt{IndexError}), Python slice syntax automatically clamps stop indices exceeding the sequence length to $\text{len}(text)$.
+\end{enumerate}
 
-\textbf{4. Type Casting \& Input}
-\begin{lstlisting}
-age_str = "22"
-future_age = int(age_str) + 5
+\textbf{4. Type Casting \& Formatted String Interpolation}
+\begin{lstlisting}[language=Python]
+age_input = "22"
+future_age = int(age_input) + 5
 print(f"In 5 years, you will be {future_age}")
 \end{lstlisting}
+Output: \texttt{In 5 years, you will be 27}.
 
-\textbf{5. Data Science Application: BMI Calculation}
-\begin{lstlisting}
+\textbf{5. Data Science Application: BMI Feature Engineering}
+\begin{lstlisting}[language=Python]
 weight = 75
 height = 1.75
 bmi = round(weight / (height ** 2), 2)
-print("Patient BMI:", bmi)  # Output: Patient BMI: 24.49
+print("Patient BMI:", bmi)  # Output: 24.49
+
+# Chained comparison for normal range [18.5, 24.9]
+is_normal = 18.5 <= bmi <= 24.9
+print("Is Normal Range:", is_normal)  # Output: True
 \end{lstlisting}
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Operator Precedence and Negative Modulo Arithmetic}
+\begin{itemize}
+    \item \textbf{Correct Answer: (a)}
+    \item \textbf{Why (a) is correct:}
+    Let us evaluate the expression step-by-step according to Python's formal evaluation order:
+    \begin{equation*}
+    \text{Expression: } 2 + 3 * (-17 \mathbin{/\!\!/} 5) \mathbin{\%} 4
+    \end{equation*}
+    \begin{enumerate}
+        \item Parenthesized expression: $-17 \mathbin{/\!\!/} 5 = \lfloor -3.4 \rfloor = -4$.
+        \item Multiplicative operators ($*$, $\%$) have equal precedence and associate left-to-right:
+        \begin{equation*}
+        3 * (-4) = -12
+        \end{equation*}
+        \item Modulo operator: $-12 \mathbin{\%} 4$.
+        By Python's invariant $b \times (a \mathbin{/\!\!/} b) + (a \mathbin{\%} b) = a$:
+        $-12 = 4 \times (-3) + 0 \implies -12 \mathbin{\%} 4 = 0$.
+        \item Addition: $2 + 0 = \mathbf{2}$.
+    \end{enumerate}
+    \item \textbf{Why (b) is false:} Arises from incorrectly truncating toward zero (assuming $-17 // 5 = -3 \implies 3 * (-3) = -9 \implies -9 \% 4 = 3 \implies 2 + 3 = 5$).
+    \item \textbf{Why (c) is false:} Arises from miscalculating the modulo of negative numbers.
+    \item \textbf{Why (d) is false:} Violates operator precedence by performing addition before multiplication.
+\end{itemize}
+
+\textbf{7. Floating-Point Comparisons and Boolean Logic}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:}
+    Due to IEEE 754 64-bit binary floating-point representation, $0.1$ and $0.2$ are stored as repeating binary fractions truncated to 53 bits of precision. Their sum evaluates to $0.3000000000000000444\dots$, which is strictly not bitwise equal to $0.3$.
+    Therefore, \texttt{a == b} evaluates to \textbf{\texttt{False}}.
+    Next, Python evaluates the boolean truthiness of \texttt{0.0}: all numeric zeros (\texttt{0}, \texttt{0.0}, \texttt{0j}) are falsy, so \texttt{bool(0.0)} evaluates to \textbf{\texttt{False}}.
+    Finally, \texttt{False or False} evaluates strictly to \textbf{\texttt{False}}.
+    \item \textbf{Why (a) is false:} Assumes exact real-number arithmetic, ignoring binary truncation in computers.
+    \item \textbf{Why (c) is false:} \texttt{0.0} is falsy in Python; only non-zero numbers evaluate to \texttt{True}.
+    \item \textbf{Why (d) is false:} \texttt{bool(float)} is valid Python syntax and produces no error.
+\end{itemize}
 
 \section*{Week 2: Control Flow \& Conditionals}
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Leap Year Logic}
-\begin{lstlisting}
-year = 2024
-if (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0):
-    print(f"{year} is a Leap Year")
-else:
-    print(f"{year} is NOT a Leap Year")
+\textbf{1. Astronomical Calendar Invariant (Leap Year Logic)}
+The formal boolean expression for leap year status is:
+\begin{equation*}
+L(y) = (y \mathbin{\%} 4 == 0 \land y \mathbin{\%} 100 \neq 0) \lor (y \mathbin{\%} 400 == 0)
+\end{equation*}
+In Python:
+\begin{lstlisting}[language=Python]
+def is_leap_year(year: int) -> bool:
+    return (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)
 \end{lstlisting}
-
-\textbf{2. Short-Circuit Evaluation}
-The output is \textbf{\texttt{Safe}}.
-Because \texttt{x = 0}, the first operand \texttt{x != 0} evaluates to \texttt{False}. Due to short-circuit evaluation, Python immediately knows the entire \texttt{and} expression is \texttt{False} without evaluating the second term \texttt{(10 / x > 2)}. Thus, division by zero never occurs, preventing a runtime crash.
-
-\textbf{3. Ternary Operator}
-\begin{lstlisting}
-result = "Pass" if score >= 50 else "Fail"
-\end{lstlisting}
-
-\textbf{4. Random Sampling}
-\begin{lstlisting}
-import random
-d1, d2 = random.randint(1, 6), random.randint(1, 6)
-print(f"Die 1: {d1}, Die 2: {d2}, Total: {d1 + d2}")
-\end{lstlisting}
-
-\textbf{5. Data Science Application: Anomaly Detection}
-\begin{lstlisting}
-temp = 31.5
-if 18 <= temp <= 28:
-    status = "Normal"
-elif temp < 18:
-    status = "Warning: Low Temp"
-else:
-    status = "Alert: Overheating"
-
-print(status)  # Output: Alert: Overheating
-\end{lstlisting}
-
-\section*{Week 3: Loops \& Iteration}
-
-\subsection*{Detailed Solutions}
-
-\textbf{1. Factorial Calculation}
-\begin{lstlisting}
-N = 6
-factorial = 1
-curr = N
-while curr > 0:
-    factorial *= curr
-    curr -= 1
-
-print(f"{N}! = {factorial}")  # Output: 6! = 720
-\end{lstlisting}
-
-\textbf{2. Pattern Printing}
-\begin{lstlisting}
-N = 4
-for i in range(1, N + 1):
-    for j in range(i):
-        print("*", end="")
-    print()
-\end{lstlisting}
-
-\textbf{3. Sum of Evens}
-\begin{lstlisting}
-even_sum = 0
-for i in range(2, 51, 2):
-    even_sum += i
-
-print(f"Sum of evens from 1 to 50: {even_sum}")  # Output: 650
-\end{lstlisting}
-
-\textbf{4. Early Stopping (\texttt{break})}
-\begin{lstlisting}
-scores = [12, 45, 67, 89, 92, 40]
-for score in scores:
-    if score >= 80:
-        print(f"Threshold Met: {score}")  # Prints 89
-        break
-\end{lstlisting}
-
-\textbf{5. Data Science Simulation: Convergence Check}
-\begin{lstlisting}
-x = 10.0
-iterations = 0
-while x >= 0.01:
-    x *= 0.5
-    iterations += 1
-
-print(f"Converged in {iterations} iterations. Final x: {x}")
-# Output: Converged in 10 iterations. Final x: 0.009765625
-\end{lstlisting}
-
-\section*{Week 4: Lists \& Basic Matrix Algorithms}
-
-\subsection*{Detailed Solutions}
-
-\textbf{1. List Operations}
-\begin{lstlisting}
-data = [15, 8, 42, 4, 23]
-data.append(16)   # [15, 8, 42, 4, 23, 16]
-data.sort()       # [4, 8, 15, 16, 23, 42]
-data.reverse()    # [42, 23, 16, 15, 8, 4]
-print(data)
-\end{lstlisting}
-
-\textbf{2. Vector Euclidean Distance}
-\begin{lstlisting}
-import math
-p = [1, 2]
-q = [4, 6]
-
-dist = math.sqrt((p[0] - q[0])**2 + (p[1] - q[1])**2)
-print("Euclidean Distance:", dist)  # Output: 5.0
-\end{lstlisting}
-
-\textbf{3. Matrix Transpose}
-\begin{lstlisting}
-A = [[1, 2, 3], 
-     [4, 5, 6]]
-
-AT = []
-for j in range(len(A[0])):  # Columns of A become rows of AT
-    row = []
-    for i in range(len(A)):
-        row.append(A[i][j])
-    AT.append(row)
-
-print("A Transposed:", AT)  # Output: [[1, 4], [2, 5], [3, 6]]
-\end{lstlisting}
-
-\textbf{4. Manual Selection Sort}
-\begin{lstlisting}
-arr = [64, 25, 12, 22, 11]
-n = len(arr)
-
-for i in range(n):
-    min_idx = i
-    for j in range(i + 1, n):
-        if arr[j] < arr[min_idx]:
-            min_idx = j
-    # Swap minimum found with first unsorted element
-    arr[i], arr[min_idx] = arr[min_idx], arr[i]
-
-print("Sorted Array:", arr)  # Output: [11, 12, 22, 25, 64]
-\end{lstlisting}
-
-\textbf{5. Data Science Application: Min-Max Normalization}
-\begin{lstlisting}
-features = [10, 20, 30, 40, 50]
-x_min = min(features)
-x_max = max(features)
-
-scaled = []
-for x in features:
-    x_scaled = (x - x_min) / (x_max - x_min)
-    scaled.append(round(x_scaled, 2))
-
-print("Normalized Features:", scaled)
-# Output: [0.0, 0.25, 0.5, 0.75, 1.0]
-\end{lstlisting}
-
-\section*{Week 5: Tuples, Dictionaries \& Sets}
-
-\subsection*{Detailed Solutions}
-
-\textbf{1. Tuple Operations}
-\begin{lstlisting}
-student = ("Alice", 21, "Data Science", 3.8)
-name, age, major, gpa = student
-
-# Trying to modify student[1] = 22 raises:
-# TypeError: 'tuple' object does not support item assignment
-\end{lstlisting}
-
-\textbf{2. Dictionary Lookup \& Updating}
-\begin{lstlisting}
-stock_prices = {"AAPL": 175.5, "GOOGL": 140.2, "MSFT": 380.0}
-
-stock_prices["AAPL"] = 180.0
-stock_prices["AMZN"] = 150.0
-
-nvda_price = stock_prices.get("NVDA", 0.0)
-print("NVDA Price:", nvda_price)  # Output: 0.0
-\end{lstlisting}
-
-\textbf{3. Set Membership \& Deduplication}
-\begin{lstlisting}
-ids = [101, 102, 101, 105, 102, 108]
-unique_ids = set(ids)
-
-print("Unique IDs:", unique_ids)  # {101, 102, 105, 108}
-print("Is 105 present?", 105 in unique_ids)  # True
-\end{lstlisting}
-
-\textbf{4. Set Algebra}
-\begin{lstlisting}
-A = {"Alice", "Bob", "Charlie"}
-B = {"Bob", "David", "Alice"}
-
-intersection = A & B  # {"Alice", "Bob"}
-union = A | B         # {"Alice", "Bob", "Charlie", "David"}
-
-print("Both Cohorts:", intersection)
-print("All Unique Cohort Members:", union)
-\end{lstlisting}
-
-\textbf{5. Data Science Application: Categorical Encoding Map}
-\begin{lstlisting}
-labels = ["cat", "dog", "cat", "bird", "dog"]
-
-label2idx = {}
-for label in labels:
-    if label not in label2idx:
-        label2idx[label] = len(label2idx)
-
-print("Label Encoding Map:", label2idx)
-# Output: {'cat': 0, 'dog': 1, 'bird': 2}
-\end{lstlisting}
-
-\section*{Week 6: Functions, Arguments \& Scope}
-
-\subsection*{Detailed Solutions}
-
-\textbf{1. Basic Function}
-\begin{lstlisting}
-def is_even(n):
-    return n % 2 == 0
-
-print(is_even(4))  # True
-print(is_even(7))  # False
-\end{lstlisting}
-
-\textbf{2. Default Arguments}
-\begin{lstlisting}
-def compute_power(base, exponent=2):
-    return base ** exponent
-
-print(compute_power(5))     # Output: 25 (5^2)
-print(compute_power(2, 3))  # Output: 8  (2^3)
-\end{lstlisting}
-
-\textbf{3. Flexible Aggregation (\texttt{*args})}
-\begin{lstlisting}
-def calculate_mean(*args):
-    if not args:
-        return 0.0
-    return sum(args) / len(args)
-
-print(calculate_mean(10, 20, 30, 40))  # Output: 25.0
-print(calculate_mean())                # Output: 0.0
-\end{lstlisting}
-
-\textbf{4. Variable Scope}
-\begin{lstlisting}
-# Output:
-# Inside: 100
-# Outside: 50
-\end{lstlisting}
-\textbf{Explanation:} Inside \texttt{modify\_val()}, the assignment \texttt{x = 100} creates a new \emph{local} variable \texttt{x} within the function scope. It shadows the global \texttt{x} without modifying it. Once the function finishes, the local variable is destroyed, and the global variable \texttt{x} remains \texttt{50}.
-
-\textbf{5. Data Science Application: Min-Max Scaler Function}
-\begin{lstlisting}
-def min_max_scaler(data):
-    if not data:
-        return []
-    x_min = min(data)
-    x_max = max(data)
-    if x_min == x_max:
-        return [0.0] * len(data)
-    
-    return [round((x - x_min) / (x_max - x_min), 3) for x in data]
-
-sample_data = [10, 25, 50, 75, 100]
-print(min_max_scaler(sample_data))
-# Output: [0.0, 0.167, 0.444, 0.722, 1.0]
-\end{lstlisting}
-
-\section*{Week 7: Functional Programming, Comprehensions \& Generators}
-
-\subsection*{Detailed Solutions}
-
-\textbf{1. List Comprehension Filtering}
-\begin{lstlisting}
-words = ["python", "data", "science", "ai", "machine", "ml"]
-filtered = [w.upper() for w in words if len(w) > 3]
-
-print(filtered)  # Output: ['PYTHON', 'DATA', 'SCIENCE', 'MACHINE']
-\end{lstlisting}
-
-\textbf{2. Lambda Sorting}
-\begin{lstlisting}
-students = [("Alice", 88), ("Bob", 95), ("Charlie", 78), ("David", 90)]
-
-sorted_students = sorted(students, key=lambda student: student[1], reverse=True)
-print(sorted_students)
-# Output: [('Bob', 95), ('David', 90), ('Alice', 88), ('Charlie', 78)]
-\end{lstlisting}
-
-\textbf{3. Zipping Vectors}
-\begin{lstlisting}
-x = [1, 2, 3]
-y = [10, 20, 30]
-
-elementwise_sum = [a + b for a, b in zip(x, y)]
-print(elementwise_sum)  # Output: [11, 22, 33]
-\end{lstlisting}
-
-\textbf{4. Squares Generator}
-\begin{lstlisting}
-def generate_squares(n):
-    for i in range(1, n + 1):
-        yield i ** 2
-
-for val in generate_squares(5):
-    print(val, end=" ")  # Output: 1 4 9 16 25
-print()
-\end{lstlisting}
-
-\textbf{5. Data Science Application: Text Preprocessing Pipeline}
-\begin{lstlisting}
-text = "   Data Science and Machine Learning 101   "
-
-# 1 & 2. Strip whitespace, lower case, tokenize
-tokens = text.strip().lower().split()
-
-# 3. Filter out numeric tokens
-clean_tokens = list(filter(lambda w: not w.isdigit(), tokens))
-
-print(clean_tokens)
-# Output: ['data', 'science', 'and', 'machine', 'learning']
-\end{lstlisting}
-
-\section*{Week 8: File Handling \& Exception Management}
-
-\subsection*{Detailed Solutions}
-
-\textbf{1. File Writing \& Reading}
-\begin{lstlisting}
-# Part A: Writing log lines
-with open("log.txt", "w") as f:
-    f.write("2026-07-26 INFO Model training started\n")
-    f.write("2026-07-26 INFO Epoch 1 complete\n")
-    f.write("2026-07-26 INFO Model saved\n")
-
-# Part B: Counting lines
-with open("log.txt", "r") as f:
-    line_count = sum(1 for _ in f)
-
-print(f"Total lines in log.txt: {line_count}")  # Output: 3
-\end{lstlisting}
-
-\textbf{2. Handling Missing Files}
-\begin{lstlisting}
-try:
-    with open("missing_dataset.csv", "r") as f:
-        content = f.read()
-except FileNotFoundError:
-    print("Dataset file not found. Please check filepath.")
-\end{lstlisting}
-
-\textbf{3. Safe Type Conversion Function}
-\begin{lstlisting}
-def safe_float(value):
-    try:
-        return float(value)
-    except (ValueError, TypeError):
-        return None
-
-print(safe_float("3.14"))  # 3.14
-print(safe_float("abc"))   # None
-print(safe_float([1, 2]))  # None
-\end{lstlisting}
-
-\textbf{4. Parsing Log File Data}
-\begin{lstlisting}
-total_score = 0.0
-valid_count = 0
-
-with open("scores.txt", "r") as f:
-    for line in f:
-        try:
-            val = float(line.strip())
-            total_score += val
-            valid_count += 1
-        except ValueError:
-            # Skip invalid header or corrupted text lines
-            continue
-
-if valid_count > 0:
-    avg = total_score / valid_count
-    print(f"Average Score: {avg:.2f}")
-\end{lstlisting}
-
-\textbf{5. Data Science Application: CSV Line Cleaner}
-\begin{lstlisting}
-def clean_csv(input_path, output_path):
-    cleaned_lines = 0
-    with open(input_path, "r") as fin, open(output_path, "w") as fout:
-        for line in fin:
-            stripped = line.strip()
-            # Ignore empty lines and comment lines
-            if stripped and not stripped.startswith("#"):
-                fout.write(line)
-                cleaned_lines += 1
-    print(f"Cleaned CSV written with {cleaned_lines} valid rows.")
-\end{lstlisting}
-
-\section*{Week 9: Recursion \& Searching Algorithms}
-
-\subsection*{Detailed Solutions}
-
-\textbf{1. Recursive Sum}
-\begin{lstlisting}
-def recursive_sum(n):
-    if n <= 1:
-        return n
-    return n + recursive_sum(n - 1)
-
-print(recursive_sum(10))  # Output: 55
-\end{lstlisting}
-
-\textbf{2. Recursive String Reversal}
-\begin{lstlisting}
-def reverse_string(s):
-    if len(s) <= 1:
-        return s
-    return s[-1] + reverse_string(s[:-1])
-
-print(reverse_string("python"))  # Output: "nohtyp"
-\end{lstlisting}
-
-\textbf{3. Binary Search Trace}
-Array: \texttt{[2, 5, 8, 12, 16, 23, 38, 56, 72, 91]}, Target: \texttt{23}.
+Trace of evaluations:
 \begin{enumerate}
-    \item \textbf{Step 1:} \texttt{low = 0}, \texttt{high = 9}. \texttt{mid = (0 + 9) // 2 = 4}. \texttt{arr[4] = 16}. Since $23 > 16$, search right half: \texttt{low = 5}.
-    \item \textbf{Step 2:} \texttt{low = 5}, \texttt{high = 9}. \texttt{mid = (5 + 9) // 2 = 7}. \texttt{arr[7] = 56}. Since $23 < 56$, search left half: \texttt{high = 6}.
-    \item \textbf{Step 3:} \texttt{low = 5}, \texttt{high = 6}. \texttt{mid = (5 + 6) // 2 = 5}. \texttt{arr[5] = 23}. Match found!
+    \item \textbf{$y = 1900$:} $1900 \mathbin{\%} 4 == 0$ is \texttt{True}, but $1900 \mathbin{\%} 100 \neq 0$ is \texttt{False} (since $1900 = 19 \times 100$). The first conjunct evaluates to \texttt{False}. The second disjunct $1900 \mathbin{\%} 400 == 0$ is also \texttt{False} ($1900 = 4 \times 400 + 300$). Result: \textbf{\texttt{False}} (1900 is NOT a leap year).
+    \item \textbf{$y = 2000$:} The first conjunct is \texttt{False} ($2000 \mathbin{\%} 100 == 0$). However, $2000 \mathbin{\%} 400 == 0$ is \texttt{True}. Due to disjunction, the overall expression evaluates to \textbf{\texttt{True}} (2000 IS a leap year).
+    \item \textbf{$y = 2024$:} $2024 \mathbin{\%} 4 == 0$ is \texttt{True}, and $2024 \mathbin{\%} 100 \neq 0$ is \texttt{True}. The first conjunct evaluates to \texttt{True}. Short-circuit evaluation halts, returning \textbf{\texttt{True}} without evaluating the right-hand modulo 400.
 \end{enumerate}
-\textbf{Total Comparisons:} $\mathbf{3}$ comparison steps required.
 
-\textbf{4. Recursive Fibonacci with Memoization}
-\begin{lstlisting}
-def fib_memo(n, memo=None):
-    if memo is None:
-        memo = {}
-    if n in memo:
-        return memo[n]
-    if n <= 1:
-        return n
-    
-    memo[n] = fib_memo(n - 1, memo) + fib_memo(n - 2, memo)
-    return memo[n]
+\textbf{2. Short-Circuit Evaluation and Non-Boolean Return Values}
+\begin{enumerate}
+    \item \textbf{\texttt{res1 = [] and 42}:}
+    Result: \textbf{\texttt{[]}} (type: \texttt{list}).
+    \texttt{[]} is falsy. In an \texttt{and} expression, if the left operand is falsy, Python halts and returns that determining operand immediately.
+    \item \textbf{\texttt{res2 = "Python" or None}:}
+    Result: \textbf{\texttt{"Python"}} (type: \texttt{str}).
+    Non-empty string \texttt{"Python"} is truthy. In an \texttt{or} expression, if the left operand is truthy, Python short-circuits and returns it immediately.
+    \item \textbf{\texttt{res3 = 0 or (False and [1, 2]) or "Default"}:}
+    Result: \textbf{\texttt{"Default"}} (type: \texttt{str}).
+    First, left-hand \texttt{0} is falsy. The middle parenthesized subexpression evaluates \texttt{False and [1, 2]} $\to$ short-circuits to \texttt{False}. Since both preceding terms in the outer \texttt{or} cascade were falsy, Python evaluates and returns the final term: \texttt{"Default"}.
+    \item \textbf{\texttt{res4 = not "" and (3 > 2)}:}
+    Result: \textbf{\texttt{True}} (type: \texttt{bool}).
+    \texttt{not ""} evaluates to strict boolean \texttt{True}. Then \texttt{True and (3 > 2)} evaluates the right side: \texttt{3 > 2} is \texttt{True}. The expression returns \texttt{True}.
+\end{enumerate}
 
-print(fib_memo(50))  # Output: 12586269025 (computes instantly!)
+\textbf{3. Chained Comparisons \& Compound Range Partitioning}
+Output: \textbf{\texttt{Result: True}}.
+In Python, chained comparison expands:
+\begin{equation*}
+(5 < x < 20 == 20) \iff (5 < x) \land (x < 20) \land (20 == 20)
+\end{equation*}
+Substituting $x = 10$:
+\begin{enumerate}
+    \item $5 < 10$ is \texttt{True}.
+    \item $10 < 20$ is \texttt{True}.
+    \item $20 == 20$ is \texttt{True}.
+\end{enumerate}
+Since all chained relational conditions evaluate to \texttt{True}, the entire expression returns \texttt{True}.
+
+\textbf{4. Ternary Conditional \& Dynamic Feature Normalization}
+Clamping $x$ to the interval $[L, U]$ using nested ternary expressions:
+\begin{lstlisting}[language=Python]
+norm_x = L if x < L else (U if x > U else x)
+\end{lstlisting}
+Equivalently using built-in min/max: \texttt{norm\_x = max(L, min(x, U))}.
+
+\textbf{5. Decision Boundary Modeling in 2D Feature Space}
+\begin{lstlisting}[language=Python]
+def classify(x1: float, x2: float) -> int:
+    """Classifies 2D point based on polygonal decision boundary."""
+    if x1 >= 0 and x2 >= 0 and (x1 + x2 <= 4) and (x1 <= 2 or x2 <= 2):
+        return 1
+    return 0
+\end{lstlisting}
+Short-circuit evaluation ensures that if non-negativity $x_1 \ge 0$ or $x_2 \ge 0$ is violated, the arithmetic sum and subsequent disjunctions are skipped entirely.
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Operator Precedence and Bitwise vs. Logical Traps}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:}
+    Bitwise AND (\texttt{\&}) has strictly higher operator precedence than the relational comparison operators (\texttt{<}, \texttt{>}).
+    Therefore, Python parses \texttt{a < 5 \& b > 6} as:
+    \begin{equation*}
+    a < (5 \mathbin{\&} b) > 6
+    \end{equation*}
+    Evaluating inner bitwise conjunction with $b = 8$ (binary \texttt{1000}) and $5$ (binary \texttt{0101}):
+    \begin{equation*}
+    5 \mathbin{\&} 8 = 0
+    \end{equation*}
+    The expression reduces to the chained comparison:
+    \begin{equation*}
+    a < 0 > 6 \iff (a < 0) \land (0 > 6)
+    \end{equation*}
+    Since $a = 4$, $4 < 0$ is \textbf{\texttt{False}}. Short-circuit evaluation halts immediately and yields \textbf{\texttt{False}}.
+    \item \textbf{Why (a) is false:} Assumes logical evaluation equivalent to \texttt{(a < 5) and (b > 6)}, which would be \texttt{4 < 5 and 8 > 6} $\to$ \texttt{True and True} $\to$ \texttt{True}. This is precisely the critical bug caused by substituting \texttt{\&} for \texttt{and}.
+    \item \textbf{Why (c) is false:} \texttt{\&} is fully valid between two integers (\texttt{5 \& 8}), so no \texttt{TypeError} is raised.
+    \item \textbf{Why (d) is false:} Chained comparisons are syntactically valid in Python.
+\end{itemize}
+
+\textbf{7. Evaluation Order and Truthiness Semantics}
+\begin{itemize}
+    \item \textbf{Correct Answer: (a)}
+    \item \textbf{Why (a) is correct:}
+    Operator precedence evaluates \texttt{and} before \texttt{or}. Thus, the assignment parses as:
+    \begin{equation*}
+    \text{\texttt{output = items or (default\_items and items.append("init"))}}
+    \end{equation*}
+    \begin{enumerate}
+        \item Since \texttt{items = []} is falsy, the outer \texttt{or} cannot short-circuit; it must evaluate its right operand: \texttt{(default\_items and items.append("init"))}.
+        \item In this \texttt{and} subexpression, \texttt{default\_items} is \texttt{["root"]}, which is a non-empty list and therefore truthy.
+        \item Because the left operand of \texttt{and} is truthy, Python must evaluate its right operand: \texttt{items.append("init")}.
+        \item Executing \texttt{items.append("init")} mutates the list in place, updating \texttt{items} to \texttt{["init"]}.
+        \item In Python, mutating list methods like \texttt{.append()} return \texttt{None}.
+        \item Thus, the \texttt{and} expression evaluates to and returns \texttt{None}.
+        \item Finally, \texttt{[] or None} returns \textbf{\texttt{None}}.
+    \end{enumerate}
+    Therefore, \texttt{output = None} and \texttt{items = ["init"]}.
+    \item \textbf{Why (b) is false:} Assumes \texttt{or} took precedence and returned \texttt{default\_items}, ignoring that \texttt{and} binds more tightly.
+    \item \textbf{Why (c) is false:} Mistakenly assumes that \texttt{.append()} returns the mutated list rather than \texttt{None}.
+    \item \textbf{Why (d) is false:} Fails to recognize that \texttt{items.append()} was executed.
+\end{itemize}
+
+\section*{Week 3: Loops, Iteration \& Convergence Algorithms}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Loop Variant Formulation and Invariant Proof}
+\begin{enumerate}
+    \item \textbf{Loop Invariant $I(a, b)$:}
+    At the start of every iteration, the greatest common divisor of the current pair $(a, b)$ equals the greatest common divisor of the initial inputs $(a_0, b_0)$:
+    \begin{equation*}
+    I(a, b): \quad \gcd(a, b) = \gcd(a_0, b_0)
+    \end{equation*}
+    By the Euclidean Division Algorithm, for any $a = q \cdot b + r$ where $r = a \mathbin{\%} b$, the common divisors of $a$ and $b$ are identical to the common divisors of $b$ and $r$. Hence $\gcd(a, b) = \gcd(b, a \mathbin{\%} b)$, preserving the invariant.
+    \item \textbf{Loop Variant $V(a, b)$:}
+    Define $V(a, b) = b$.
+    Because $b > 0$ when the loop guard $b \neq 0$ is true, $V(a, b) \ge 0$.
+    In each iteration, the new value of $b$, denoted $b' = a \mathbin{\%} b$, satisfies $0 \le b' < b$ by the definition of the modulo operator with positive divisor $b$.
+    Thus, $V(a', b') < V(a, b)$ strictly decreases. By the well-ordering principle of $\mathbb{Z}_{\ge 0}$, the sequence of values of $b$ must terminate at $b = 0$ in a finite number of steps.
+\end{enumerate}
+
+\textbf{2. Algorithmic Step Counting in Nested Loops}
+The triple nested loop structure executes:
+\begin{equation*}
+S(N) = \sum_{i=1}^N \sum_{j=1}^i \sum_{k=1}^j 1 = \sum_{i=1}^N \sum_{j=1}^i j
+\end{equation*}
+Recall the arithmetic series sum $\sum_{j=1}^i j = \frac{i(i+1)}{2} = \frac{i^2 + i}{2}$.
+Summing over $i$ from 1 to $N$:
+\begin{equation*}
+S(N) = \frac{1}{2} \sum_{i=1}^N i^2 + \frac{1}{2} \sum_{i=1}^N i = \frac{1}{2} \left( \frac{N(N+1)(2N+1)}{6} \right) + \frac{1}{2} \left( \frac{N(N+1)}{2} \right)
+\end{equation*}
+Factoring $\frac{N(N+1)}{4}$:
+\begin{equation*}
+S(N) = \frac{N(N+1)(N+2)}{6} = \binom{N+2}{3}
+\end{equation*}
+For $N = 4$:
+\begin{equation*}
+S(4) = \frac{4 \times 5 \times 6}{6} = \mathbf{20}
+\end{equation*}
+Asymptotically, $S(N) = \frac{N^3}{6} + \mathcal{O}(N^2) \implies \mathbf{\mathcal{O}(N^3)}$ (Cubic Time Complexity).
+
+\textbf{3. The In-Place Sequence Mutation Pitfall}
+Let us trace each iteration of the loop over \texttt{data = [10, 20, 30, 40, 50, 60]}:
+\begin{itemize}
+    \item \textbf{Iteration 0:} Index $0$, value $10$. $10 \mathbin{\%} 20 \neq 0$. No deletion. List remains \texttt{[10, 20, 30, 40, 50, 60]}.
+    \item \textbf{Iteration 1:} Index $1$, value $20$. $20 \mathbin{\%} 20 == 0$. \texttt{data.pop(1)} removes element $20$.
+    List becomes \texttt{[10, 30, 40, 50, 60]}. Elements shift left: element $30$ is now at index $1$, element $40$ is at index $2$.
+    \item \textbf{Iteration 2:} The iterator counter advances to Index $2$.
+    The element at index $2$ is now $40$ (element $30$ at index 1 was completely skipped!).
+    $40 \mathbin{\%} 20 == 0$. \texttt{data.pop(2)} removes element $40$.
+    List becomes \texttt{[10, 30, 50, 60]}. Element $50$ shifts to index $2$, element $60$ to index $3$.
+    \item \textbf{Iteration 3:} The iterator counter advances to Index $3$.
+    The element at index $3$ is now $60$ (element $50$ was skipped!).
+    $60 \mathbin{\%} 20 == 0$. \texttt{data.pop(3)} removes element $60$.
+    List becomes \texttt{[10, 30, 50]}.
+    \item \textbf{Iteration 4:} The iterator advances to Index $4$. Since length is now 3, the iterator terminates.
+\end{itemize}
+Final contents of \texttt{data}: \textbf{\texttt{[10, 30, 50]}}.
+
+\textbf{4. The Loop \texttt{else} Execution Engine}
+Let us trace \texttt{search\_prime([4, 6, 8, 9, 11, 15])}:
+\begin{enumerate}
+    \item $n = 4$: Inner loop checks $i = 2$. $4 \mathbin{\%} 2 == 0 \implies \texttt{break}$. Inner \texttt{else} skipped.
+    \item $n = 6$: Inner loop checks $i = 2$. $6 \mathbin{\%} 2 == 0 \implies \texttt{break}$. Inner \texttt{else} skipped.
+    \item $n = 8$: Inner loop checks $i = 2$. $8 \mathbin{\%} 2 == 0 \implies \texttt{break}$. Inner \texttt{else} skipped.
+    \item $n = 9$: Inner loop checks $i = 2$ ($9 \% 2 \neq 0$), then $i = 3$ ($9 \% 3 == 0 \implies \texttt{break}$). Inner \texttt{else} skipped.
+    \item $n = 11$: Upper bound $\lfloor \sqrt{11} \rfloor = 3$. Inner loop checks $i = 2, 3$. Neither divides $11$.
+    Inner loop finishes normally without encountering a \texttt{break}!
+    The inner \texttt{else} executes: returns \textbf{\texttt{"First prime found: 11"}}.
+\end{enumerate}
+
+\textbf{5. Monte Carlo $\pi$ Approximation via Rejection Sampling}
+\begin{lstlisting}[language=Python]
+import random
+import math
+
+N = 100_000
+inside_circle = 0
+
+for _ in range(N):
+    x = random.uniform(-1.0, 1.0)
+    y = random.uniform(-1.0, 1.0)
+    if x**2 + y**2 <= 1.0:
+        inside_circle += 1
+
+# Area of square = 2 x 2 = 4; Area of circle = pi * 1^2 = pi
+# Ratio = inside_circle / N = pi / 4
+pi_estimate = 4.0 * inside_circle / N
+abs_error = abs(pi_estimate - math.pi)
+
+print(f"Estimated Pi: {pi_estimate:.5f}")
+print(f"Absolute Error: {abs_error:.5f}")
+# Typical output: Estimated Pi: 3.14192, Absolute Error: 0.00033
 \end{lstlisting}
 
-\textbf{5. Data Science Application: Square Root via Binary Search}
-\begin{lstlisting}
-def sqrt_binary_search(val, tol=1e-5):
-    if val < 0:
-        return None
-    low, high = 0.0, max(1.0, val)
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. The \texttt{range} Object Memory and Step Semantics}
+\begin{itemize}
+    \item \textbf{Correct Answer: (a)}
+    \item \textbf{Why (a) is correct:}
+    The range is defined as \texttt{range(start=10, stop=2, step=-2)}.
+    Because the step is negative, the progression strictly decreases until reaching a value strictly greater than \texttt{stop} ($2$):
+    \begin{align*}
+    k = 0 &\implies 10 \\
+    k = 1 &\implies 10 - 2 = 8 \\
+    k = 2 &\implies 8 - 2 = 6 \\
+    k = 3 &\implies 6 - 2 = 4 \\
+    k = 4 &\implies 4 - 2 = 2 \quad (\text{Excluded, because } \text{stop} = 2 \text{ is non-inclusive})
+    \end{align*}
+    Therefore, \texttt{val = [10, 8, 6, 4]}.
+    Since $4$ is an element generated by the sequence, $4 \in r$ evaluates to \textbf{\texttt{True}}.
+    \item \textbf{Why (b) is false:} Assumes \texttt{stop = 2} is inclusive, incorrectly adding $2$ to the sequence.
+    \item \textbf{Why (c) is false:} Truncates prematurely before generating $4$.
+    \item \textbf{Why (d) is false:} Assumes negative step ranges default to empty sequences if start is greater than stop.
+\end{itemize}
+
+\textbf{7. Loop \texttt{else} and Nested Break Traps}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:}
+    Trace the outer loop $i \in \{0, 1, 2\}$:
+    \begin{enumerate}
+        \item \textbf{$i = 0$:} Inner loop starts with $j = 0$. Since $i == j$ ($0 == 0$), \texttt{break} executes immediately. The inner \texttt{else} is skipped; nothing appended to \texttt{output}.
+        \item \textbf{$i = 1$:} Inner loop starts with $j = 0$ ($1 \neq 0$). Advances to $j = 1$. Since $i == j$ ($1 == 1$), \texttt{break} executes. The inner \texttt{else} is skipped; nothing appended.
+        \item \textbf{$i = 2$:} Inner loop runs for $j = 0$ ($2 \neq 0$) and $j = 1$ ($2 \neq 1$). The inner loop exhausts without ever encountering $i == j$. The inner \texttt{else} executes and appends $i = 2$ to \texttt{output}!
+    \end{enumerate}
+    Thus, \texttt{output} terminates as \textbf{\texttt{[2]}}.
+    \item \textbf{Why (a) is false:} Overlooks that for $i = 2$, $j$ only takes values $0$ and $1$, so the condition $i == j$ is never satisfied.
+    \item \textbf{Why (c) is false:} Assumes the \texttt{else} clause always executes on every iteration of the outer loop.
+    \item \textbf{Why (d) is false:} Fails to recognize that for $i = 1$, $j = 1$ triggers the \texttt{break}.
+\end{itemize}
+
+\section*{Week 4: Lists, Dynamic Arrays \& Matrix Algorithms}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Sequence Slicing, Step Algebra, and In-Place Slice Mutation}
+Given \texttt{seq = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]}:
+\begin{enumerate}
+    \item \textbf{Even-indexed elements in reverse order:}
+    The even indices are $0, 2, 4, 6, 8$. In reverse order, these are elements at indices $8, 6, 4, 2, 0$, which are values \texttt{[8, 6, 4, 2, 0]}.
+    The slice expression is: \textbf{\texttt{seq[::-2]}} (or \texttt{seq[8::-2]}).
+    \item \textbf{State after \texttt{seq[2:6] = [20, 30]}:}
+    Slice \texttt{2:6} selects elements at indices 2, 3, 4, 5 (values \texttt{[2, 3, 4, 5]}).
+    Python replaces these 4 elements in-place with the 2 elements \texttt{[20, 30]}.
+    The resulting list is: \textbf{\texttt{[0, 1, 20, 30, 6, 7, 8, 9]}}.
+    \item \textbf{Length Change:}
+    Yes, the length changes from 10 to \textbf{8}.
+    In Python dynamic arrays, slice assignment replaces the target subarray slice with the replacement sequence regardless of length mismatch, automatically shifting subsequent element pointers in memory and updating the internal \texttt{ob\_size} attribute.
+\end{enumerate}
+
+\textbf{2. Reference Aliasing and Nested Container Mutation}
+Trace of operations:
+\begin{enumerate}
+    \item \texttt{row = [1, 2]}: Allocates a heap list $[1, 2]$.
+    \item \texttt{grid = [row] * 3}: Allocates an outer list containing three pointers, each pointing to the \textbf{same identical} \texttt{row} object: \texttt{[ptr\_row, ptr\_row, ptr\_row]}.
+    \item \texttt{grid[0] = [99, 99]}: Replaces the pointer at index 0 of \texttt{grid} with a pointer to a new heap list \texttt{[99, 99]}. Now \texttt{grid[0]} is independent, but \texttt{grid[1]} and \texttt{grid[2]} still point to \texttt{row}.
+    \item \texttt{grid[1][0] = 42}: Dereferences \texttt{grid[1]} (which points to \texttt{row}) and mutates its index 0 in-place to $42$.
+\end{enumerate}
+Final state of \texttt{row}: \textbf{\texttt{[42, 2]}}.
+Final state of \texttt{grid}: \textbf{\texttt{[[99, 99], [42, 2], [42, 2]]}}.
+
+\textbf{3. Analytical Dot Product and Cosine Similarity}
+Given $\mathbf{u} = [2, -1, 2]$ and $\mathbf{v} = [1, 2, 2]$:
+\begin{enumerate}
+    \item \textbf{Dot product in pure Python:}
+    \begin{lstlisting}[language=Python]
+    dot_prod = sum(u_i * v_i for u_i, v_i in zip(u, v))
+    \end{lstlisting}
+    Calculation: $2(1) + (-1)(2) + 2(2) = 2 - 2 + 4 = \mathbf{4}$.
+    \item \textbf{Euclidean Norms:}
+    \begin{align*}
+    \|\mathbf{u}\|_2 &= \sqrt{2^2 + (-1)^2 + 2^2} = \sqrt{4 + 1 + 4} = \sqrt{9} = \mathbf{3} \\
+    \|\mathbf{v}\|_2 &= \sqrt{1^2 + 2^2 + 2^2} = \sqrt{1 + 4 + 4} = \sqrt{9} = \mathbf{3}
+    \end{align*}
+    \item \textbf{Cosine Similarity:}
+    \begin{equation*}
+    \cos(\theta) = \frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\|_2 \|\mathbf{v}\|_2} = \frac{4}{3 \times 3} = \mathbf{\frac{4}{9}} \approx \mathbf{0.4444}
+    \end{equation*}
+\end{enumerate}
+
+\textbf{4. Matrix Transpose via In-Place Swapping}
+For an $n \times n$ square matrix, elements on the main diagonal remain fixed ($A_{ii} = A_{ii}$), while off-diagonal elements are reflected across the diagonal ($A_{ij} \leftrightarrow A_{ji}$ for all $i < j$):
+\begin{lstlisting}[language=Python]
+def transpose_in_place(matrix: list):
+    n = len(matrix)
+    for i in range(n):
+        for j in range(i + 1, n):
+            matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+\end{lstlisting}
+Number of swaps performed:
+\begin{equation*}
+\text{Total Swaps} = \sum_{i=0}^{n-1} (n - 1 - i) = \frac{n(n - 1)}{2} = \mathbf{\binom{n}{2}}
+\end{equation*}
+
+\textbf{5. Machine Learning Data Preprocessing: Min-Max Normalization}
+\begin{lstlisting}[language=Python]
+def min_max_normalize(x: list) -> list:
+    if not x:
+        return []
+    min_val, max_val = min(x), max(x)
+    rng = max_val - min_val
+    if rng == 0:
+        # Edge case: zero variance / constant feature column
+        return [0.0 for _ in x]
+    return [round((val - min_val) / rng, 4) for val in x]
+
+features = [12.0, 45.0, 67.0, 89.0, 23.0]
+print(min_max_normalize(features))
+# min = 12.0, max = 89.0, range = 77.0
+# Output: [0.0, 0.4286, 0.7143, 1.0, 0.1429]
+\end{lstlisting}
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. List Slicing and Negative Step Mechanics}
+\begin{itemize}
+    \item \textbf{Correct Answer: (a)}
+    \item \textbf{Why (a) is correct:}
+    The slice syntax is \texttt{arr[start:stop:step]} with \texttt{start = 3}, \texttt{stop = 1}, and \texttt{step = -1}.
+    Because \texttt{step = -1}, iteration proceeds in reverse:
+    \begin{enumerate}
+        \item Index 3: element \texttt{arr[3] = 40}.
+        \item Index $3 + (-1) = 2$: element \texttt{arr[2] = 30}.
+        \item Next index would be $2 + (-1) = 1$, which is equal to \texttt{stop = 1}. Since \texttt{stop} is strictly non-inclusive, slicing halts immediately.
+    \end{enumerate}
+    The evaluated list is \textbf{\texttt{[40, 30]}}.
+    \item \textbf{Why (b) is false:} Assumes \texttt{stop = 1} is inclusive, incorrectly including element \texttt{arr[1] = 20}.
+    \item \textbf{Why (c) is false:} Miscalculates index offsets, starting from index 2 rather than index 3.
+    \item \textbf{Why (d) is false:} Assumes that having a start index greater than stop index results in an empty list, which only happens when step is positive ($+1$).
+\end{itemize}
+
+\textbf{7. In-Place Methods vs. Function Returns}
+\begin{itemize}
+    \item \textbf{Correct Answer: (a)}
+    \item \textbf{Why (a) is correct:}
+    \begin{enumerate}
+        \item \texttt{a = [3, 1, 2]}: Initializes list \texttt{a}.
+        \item \texttt{b = a.sort()}: The method \texttt{.sort()} sorts the dynamic array in-place, updating \texttt{a} to \texttt{[1, 2, 3]}. Following Python API convention, all in-place mutating sequence methods return \textbf{\texttt{None}}. Hence, \texttt{b = None}.
+        \item \texttt{c = sorted(a)}: The built-in function \texttt{sorted()} constructs and returns an entirely new sorted list object, preserving \texttt{a}. Hence, \texttt{c = [1, 2, 3]}.
+    \end{enumerate}
+    Therefore, \texttt{a = [1, 2, 3]}, \texttt{b = None}, and \texttt{c = [1, 2, 3]}.
+    \item \textbf{Why (b) is false:} Mistakenly assumes \texttt{.sort()} returns the sorted list and that \texttt{a} remained unsorted.
+    \item \textbf{Why (c) is false:} Overlooks that \texttt{.sort()} returns \texttt{None}.
+    \item \textbf{Why (d) is false:} Correctly identifies \texttt{b = None} but fails to recognize that \texttt{a} was sorted in-place.
+\end{itemize}
+
+\section*{Week 5: Tuples, Dictionaries, Sets \& Hash Table Mechanics}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. The Formal Hashability Protocol \& Composite Container Keys}
+\begin{enumerate}
+    \item \textbf{\texttt{k1 = (1, 2, "feature")}:}
+    \textbf{Valid Key.}
+    The tuple is immutable and all its elements (\texttt{1}, \texttt{2}, \texttt{"feature"}) are themselves immutable and hashable. Its hash code is deterministically computed.
+    \item \textbf{\texttt{k2 = (1, [2, 3])}:}
+    \textbf{Invalid Key.}
+    Raises \textbf{\texttt{TypeError: unhashable type: 'list'}}.
+    Although the outer container is a tuple, its second element is a mutable \texttt{list}, which violates the recursive hashability requirement.
+    \item \textbf{\texttt{k3 = frozenset([1, 2, 3])}:}
+    \textbf{Valid Key.}
+    \texttt{frozenset} is the immutable, hashable variant of Python's \texttt{set}.
+    \item \textbf{\texttt{k4 = \{1: "a"\}}:}
+    \textbf{Invalid Key.}
+    Raises \textbf{\texttt{TypeError: unhashable type: 'dict'}}.
+    Standard Python dictionaries are mutable containers and do not implement \texttt{\_\_hash\_\_()}.
+\end{enumerate}
+
+\textbf{2. Dictionary Key Overwriting and Boolean-Integer Collision}
+Let us trace the assignments to dictionary \texttt{d}:
+\begin{enumerate}
+    \item \texttt{d[1] = "Integer One"}: Creates entry with key $1$ (hash 1) mapped to \texttt{"Integer One"}.
+    \item \texttt{d[True] = "Boolean True"}: Python computes $\text{hash}(\text{True}) = 1$. The hash bucket for $1$ is already occupied by integer $1$. Python checks key equality: \texttt{1 == True} evaluates to \texttt{True}. Since the keys match in both hash and equality, Python treats \texttt{True} as the existing key $1$, overwriting its value to \texttt{"Boolean True"} while keeping the existing key object ($1$) unchanged.
+    \item \texttt{d[1.0] = "Float One"}: $\text{hash}(1.0) = 1$, and $1.0 == 1$ evaluates to \texttt{True}. Python overwrites the value again to \texttt{"Float One"}.
+\end{enumerate}
+Output of \texttt{len(d)}: \textbf{\texttt{1}}.
+Output of \texttt{d}: \textbf{\texttt{\{1: 'Float One'\}}}.
+
+\textbf{3. Set Algebra and Multi-Cohort Jaccard Index}
+Given $A = \{101, 102, 103, 104\}$, $B = \{103, 104, 105, 106\}$, and $C = \{104, 106, 107\}$:
+\begin{enumerate}
+    \item \textbf{Three-way intersection $A \cap B \cap C$:}
+    Elements common to all three: $104$.
+    Result: \textbf{\texttt{\{104\}}}.
+    \item \textbf{Relative complement $(A \cup B) \setminus C$:}
+    $A \cup B = \{101, 102, 103, 104, 105, 106\}$.
+    Removing elements in $C$ ($104, 106$):
+    Result: \textbf{\texttt{\{101, 102, 103, 105\}}}.
+    \item \textbf{Jaccard Similarity $J(A, B)$:}
+    $|A \cap B| = |\{103, 104\}| = 2$.
+    $|A \cup B| = |\{101, 102, 103, 104, 105, 106\}| = 6$.
+    \begin{equation*}
+    J(A, B) = \frac{2}{6} = \mathbf{\frac{1}{3}} \approx \mathbf{0.3333}
+    \end{equation*}
+\end{enumerate}
+
+\textbf{4. Extended Sequence Unpacking with Starred Expressions}
+Given \texttt{sensor\_id, *readings, status = entry}:
+\begin{itemize}
+    \item \texttt{sensor\_id}: Type \textbf{\texttt{str}}, Value \textbf{\texttt{"Sensor\_A"}}.
+    \item \texttt{readings}: Type \textbf{\texttt{list}}, Value \textbf{\texttt{[10.5, 11.2, 10.8, 11.9]}}. (Starred unpacking always collects matched elements into a mutable Python \texttt{list}).
+    \item \texttt{status}: Type \textbf{\texttt{str}}, Value \textbf{\texttt{"OK"}}.
+\end{itemize}
+Arithmetic mean of readings:
+\begin{equation*}
+\mu = \frac{10.5 + 11.2 + 10.8 + 11.9}{4} = \frac{44.4}{4} = \mathbf{11.1}
+\end{equation*}
+
+\textbf{5. Categorical One-Hot/Index Encoding Pipeline}
+\begin{lstlisting}[language=Python]
+def build_category_maps(categories: list) -> tuple:
+    # Extract unique labels and sort for deterministic integer encoding
+    unique_cats = sorted(set(categories))
     
-    while high - low > tol:
-        mid = (low + high) / 2.0
-        if mid * mid < val:
-            low = mid
+    cat2idx = {cat: idx for idx, cat in enumerate(unique_cats)}
+    idx2cat = {idx: cat for idx, cat in enumerate(unique_cats)}
+    
+    return cat2idx, idx2cat
+
+labels = ["dog", "cat", "dog", "bird", "cat"]
+cat2idx, idx2cat = build_category_maps(labels)
+print("Forward Map:", cat2idx)
+# Output: Forward Map: {'bird': 0, 'cat': 1, 'dog': 2}
+print("Inverse Map:", idx2cat)
+# Output: Inverse Map: {0: 'bird', 1: 'cat', 2: 'dog'}
+\end{lstlisting}
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Dictionary Mutation During Iteration Mechanics}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:}
+    In Python, dictionary iterators maintain an internal generation counter that tracks structural mutations. If a key is inserted or deleted during active iteration, the iterator detects that the dictionary length changed and immediately raises:
+    \begin{equation*}
+    \text{\texttt{RuntimeError: dictionary changed size during iteration}}
+    \end{equation*}
+    This fail-fast safety mechanism prevents infinite loops and memory corruptions caused by changing bucket probing offsets.
+    \item \textbf{Why (a) is false:} Assumes Python allows in-place deletion during dictionary traversal like some other languages.
+    \item \textbf{Why (c) is false:} The key \texttt{"bob"} exists when accessed, so no \texttt{KeyError} occurs.
+    \item \textbf{Why (d) is false:} Python does not silently corrupt iteration state; it raises a runtime exception.
+\end{itemize}
+
+\textbf{7. Set Membership and In-Place Operator Semantics}
+\begin{itemize}
+    \item \textbf{Correct Answer: (a)}
+    \item \textbf{Why (a) is correct:}
+    \begin{enumerate}
+        \item \texttt{s1 = \{1, 2, 3\}}: Allocates a set object in heap memory.
+        \item \texttt{s2 = s1}: Creates an alias; \texttt{s2} points to the same set object as \texttt{s1}.
+        \item \texttt{s1 = s1 | \{4\}}: The binary union operator \texttt{|} (unlike \texttt{s1.update()} or in-place \texttt{s1 |= \{4\}}) allocates and returns an \textbf{entirely new set} containing elements $\{1, 2, 3, 4\}$.
+        \item Reassigning \texttt{s1} binds the name \texttt{s1} to this newly created set.
+        \item The name \texttt{s2} continues to reference the original, unmodified set $\{1, 2, 3\}$.
+    \end{enumerate}
+    Therefore, \texttt{s1 = \{1, 2, 3, 4\}} and \texttt{s2 = \{1, 2, 3\}}.
+    \item \textbf{Why (b) is false:} Confuses binary union \texttt{s1 | \{4\}} with in-place mutation \texttt{s1.update(\{4\})}.
+    \item \textbf{Why (c) is false:} Assumes \texttt{|} acts as an assignment of the right operand.
+    \item \textbf{Why (d) is false:} Inverts the variable bindings.
+\end{itemize}
+
+\section*{Week 6: Functions, Scopes, Closures \& Modular Architecture}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Call-by-Sharing Mutation vs. Reassignment}
+Let us trace the parameter bindings and mutations:
+\begin{enumerate}
+    \item When entering \texttt{modify\_containers(orig\_list, orig\_val)}, local parameter \texttt{a\_list} is bound to \texttt{orig\_list} (heap list \texttt{[10, 20]}), and \texttt{a\_val} is bound to the integer object $5$.
+    \item \texttt{a\_list.append(100)}: Mutates the underlying list in-place. Both \texttt{orig\_list} and \texttt{a\_list} now see \texttt{[10, 20, 100]}.
+    \item \texttt{a\_list = [1, 2, 3]}: Rebinds the local name \texttt{a\_list} to an entirely new list object \texttt{[1, 2, 3]}. The caller's \texttt{orig\_list} remains bound to \texttt{[10, 20, 100]}.
+    \item \texttt{a\_val += 50}: Since integers are immutable, this rebinds local name \texttt{a\_val} to a new integer $55$. The caller's \texttt{orig\_val} remains $5$.
+    \item Returns \texttt{([1, 2, 3], 55)}.
+\end{enumerate}
+Final values:
+\begin{itemize}
+    \item \texttt{orig\_list}: \textbf{\texttt{[10, 20, 100]}}
+    \item \texttt{orig\_val}: \textbf{\texttt{5}}
+    \item \texttt{res\_list}: \textbf{\texttt{[1, 2, 3]}}
+    \item \texttt{res\_val}: \textbf{\texttt{55}}
+\end{itemize}
+
+\textbf{2. The Mutable Default Argument Mechanism}
+The default dictionary \texttt{records} is constructed exactly once when the \texttt{def} statement is parsed:
+\begin{enumerate}
+    \item \texttt{exp1 = register\_experiment("trial\_1")}: Uses default dictionary. Adds \texttt{"trial\_1": 0}. Default dict becomes \texttt{\{"trial\_1": 0\}}. \texttt{exp1} references this default dict.
+    \item \texttt{exp2 = register\_experiment("trial\_2")}: Uses the SAME default dictionary. Length is currently 1. Adds \texttt{"trial\_2": 1}. Default dict becomes \texttt{\{"trial\_1": 0, "trial\_2": 1\}}.
+    \item \texttt{exp3 = register\_experiment("trial\_3", records=\{"custom": 99\})}: Caller explicitly provides a custom dictionary. It adds \texttt{"trial\_3": 1} to the custom dictionary. \texttt{exp3} becomes \textbf{\texttt{\{"custom": 99, "trial\_3": 1\}}}. The default dictionary is untouched.
+    \item \texttt{exp4 = register\_experiment("trial\_4")}: Reverts to the default dictionary (which already contains two entries). Adds \texttt{"trial\_4": 2}.
+\end{enumerate}
+Because \texttt{exp1}, \texttt{exp2}, and \texttt{exp4} all point to the single persistent default dictionary:
+\begin{equation*}
+\text{\texttt{exp1}} = \text{\texttt{exp2}} = \text{\texttt{exp4}} = \mathbf{\texttt{\{'trial\_1': 0, 'trial\_2': 1, 'trial\_4': 2\}}}
+\end{equation*}
+and \texttt{exp3} = \textbf{\texttt{\{'custom': 99, 'trial\_3': 1\}}}.
+
+\textbf{3. LEGB Scope Resolution and Name Shadowing}
+\begin{enumerate}
+    \item \texttt{outer()} initializes local variable $x = 20$.
+    \item Inside \texttt{inner()}, \texttt{nonlocal x} explicitly binds identifier $x$ to the enclosing scope variable $x$ in \texttt{outer()}.
+    \item \texttt{x += 5} modifies \texttt{outer}'s variable $x$ from $20$ to $25$.
+    \item \texttt{print("Inner x:", x)} outputs: \textbf{\texttt{Inner x: 25}}.
+    \item Returning to \texttt{outer()}, \texttt{print("Outer x:", x)} outputs: \textbf{\texttt{Outer x: 25}}.
+    \item In the global scope, global $x$ was untouched by \texttt{nonlocal}. Thus \texttt{print("Global x:", x)} outputs: \textbf{\texttt{Global x: 10}}.
+\end{enumerate}
+
+\textbf{4. Late Binding in Closures}
+In Python, closures bind variables by reference to the enclosing environment, not by copying the value at the instant of lambda definition. When the list comprehension finishes, the loop variable $i$ terminates at $3$. When \texttt{m(4)} is called later, every lambda looks up $i$ in the enclosing scope, finding $i = 3$. Hence, $4 \times 3$ would be 12 (or for $i=4$, 16).
+\textbf{Corrected implementation using default parameter evaluation:}
+\begin{lstlisting}[language=Python]
+multipliers = [lambda x, exp=i: x * exp for i in range(4)]
+print([m(4) for m in multipliers])  # Output: [0, 4, 8, 12]
+\end{lstlisting}
+Because default arguments are evaluated at definition time, \texttt{exp} captures the current value of $i$ in each iteration.
+
+\textbf{5. Higher-Order Function: Exponential Moving Average Closure}
+\begin{lstlisting}[language=Python]
+def make_ema(alpha: float):
+    s_prev = None  # Persistent state in closure enclosing scope
+
+    def update(val: float) -> float:
+        nonlocal s_prev
+        if s_prev is None:
+            s_prev = val
         else:
-            high = mid
+            s_prev = alpha * val + (1.0 - alpha) * s_prev
+        return round(s_prev, 4)
+
+    return update
+
+ema = make_ema(alpha=0.3)
+readings = [10.0, 15.0, 20.0, 18.0]
+results = [ema(x) for x in readings]
+print("EMA Progression:", results)
+# Output: EMA Progression: [10.0, 11.5, 14.05, 15.235]
+\end{lstlisting}
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Parameter Signature Grammar and Invocation Restrictions}
+\begin{itemize}
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:}
+    In the function signature \texttt{def compute(a, b, /, c, *, d=10)}:
+    The slash \texttt{/} indicates that all parameters preceding it (\texttt{a} and \texttt{b}) are \textbf{positional-only}.
+    Attempting to pass \texttt{a} or \texttt{b} by keyword, as in \texttt{compute(a=1, b=2, c=3, d=4)}, raises:
+    \begin{equation*}
+    \text{\texttt{TypeError: compute() got some positional-only arguments passed as keyword arguments: 'a, b'}}
+    \end{equation*}
+    \item \textbf{Why (a) is false:} Fully valid; \texttt{a} and \texttt{b} are passed positionally, \texttt{c} can be passed by keyword, and \texttt{d} is keyword-only.
+    \item \textbf{Why (b) is false:} Fully valid; \texttt{a}, \texttt{b}, \texttt{c} are passed positionally, and keyword-only parameter \texttt{d} defaults to 10.
+    \item \textbf{Why (d) is false:} Fully valid; passes \texttt{a, b, c} positionally and overrides \texttt{d} by keyword.
+\end{itemize}
+
+\textbf{7. Scope Diagnostics and Compiler Identification of Locals}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:}
+    Python's compiler analyzes function bodies at compile time (byte-compilation). Any identifier that has an assignment operation (\texttt{total = 200}) anywhere inside the function body is flagged as a \textbf{local variable} for the entire function, regardless of whether that assignment is guarded by an unreachable conditional branch (\texttt{if False:})!
+    When \texttt{add\_tax()} executes, the line \texttt{return total} attempts to access the local variable \texttt{total}. Because the \texttt{if False:} branch was never executed, the local variable \texttt{total} was never bound to any value. Python immediately raises:
+    \begin{equation*}
+    \text{\texttt{UnboundLocalError: local variable 'total' referenced before assignment}}
+    \end{equation*}
+    \item \textbf{Why (a) is false:} Mistakenly assumes Python falls back to the global \texttt{total} because the local assignment was unreachable at runtime.
+    \item \textbf{Why (c) is false:} The branch \texttt{if False:} never executes.
+    \item \textbf{Why (d) is false:} Python does not return \texttt{None} for unbound variables; it raises an exception.
+\end{itemize}
+
+\section*{Week 7: Functional Programming, Comprehensions \& Streaming Generators}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Nested Comprehensions and Matrix Flattening}
+Given \texttt{matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]}:
+\begin{enumerate}
+    \item \textbf{Flattening into 1D odd numbers:}
+    \begin{lstlisting}[language=Python]
+    odd_flat = [x for row in matrix for x in row if x % 2 != 0]
+    \end{lstlisting}
+    Calculation: Evaluates row by row, selecting elements $\{1, 3, 5, 7, 9\}$.
+    Result: \textbf{\texttt{[1, 3, 5, 7, 9]}}.
+    \item \textbf{Matrix Transpose via Nested Comprehension:}
+    \begin{lstlisting}[language=Python]
+    transpose = [[row[c] for row in matrix] for c in range(len(matrix[0]))]
+    \end{lstlisting}
+    Result: \textbf{\texttt{[[1, 4, 7], [2, 5, 8], [3, 6, 9]]}}.
+\end{enumerate}
+
+\textbf{2. The Generator State Protocol and Exhaustion}
+Trace of execution:
+\begin{enumerate}
+    \item \texttt{c = count\_up()}: Returns generator object without executing function body.
+    \item \texttt{next(c)}: Starts execution. Prints \texttt{"Start"}. Yields $1$ and freezes.
+    Prints \textbf{\texttt{A: 1}}.
+    \item \texttt{for val in c:}: Resumes execution at frozen frame.
+    Prints \texttt{"Middle"}. Yields $2$. Loop body prints \textbf{\texttt{B: 2}}.
+    Resumes again. Prints \texttt{"End"}. Generator function returns; raises \texttt{StopIteration}, ending the \texttt{for} loop cleanly.
+    \item \texttt{print("C:", list(c))}: Since the generator is already exhausted, attempting to iterate over \texttt{c} again produces zero items.
+    Prints \textbf{\texttt{C: []}}.
+\end{enumerate}
+Complete printed console output:
+\begin{lstlisting}
+Start
+A: 1
+Middle
+B: 2
+End
+C: []
+\end{lstlisting}
+
+\textbf{3. Higher-Order Reduction: Cumulative Product and Factorials}
+\begin{enumerate}
+    \item \textbf{Factorial computation using \texttt{reduce}:}
+    \begin{lstlisting}[language=Python]
+    import functools
+    N = 6
+    fact_6 = functools.reduce(lambda acc, x: acc * x, range(1, N + 1))
+    print("6! =", fact_6)  # Output: 720
+    \end{lstlisting}
+    \item \textbf{Maximum value in list via \texttt{reduce}:}
+    \begin{lstlisting}[language=Python]
+    nums = [14, 52, 98, 31, 88, 42]
+    max_val = functools.reduce(lambda a, b: a if a > b else b, nums)
+    print("Max:", max_val)  # Output: 98
+    \end{lstlisting}
+\end{enumerate}
+
+\textbf{4. Dictionary Inversion with Collision Handling via Set Comprehension}
+\begin{lstlisting}[language=Python]
+word_cat = {
+    "apple": "fruit",
+    "carrot": "vegetable",
+    "banana": "fruit",
+    "spinach": "vegetable"
+}
+
+# Inverted mapping: category -> set of words
+cat_words = {
+    cat: {word for word, c in word_cat.items() if c == cat}
+    for cat in set(word_cat.values())
+}
+
+print(cat_words)
+# Output: {'fruit': {'apple', 'banana'}, 'vegetable': {'carrot', 'spinach'}}
+\end{lstlisting}
+
+\textbf{5. Infinite Prime Generator via Sieve Mechanics}
+\begin{lstlisting}[language=Python]
+def prime_stream():
+    """Generates primes indefinitely using trial division."""
+    primes_seen = []
+    candidate = 2
+    while True:
+        is_prime = True
+        limit = int(candidate**0.5)
+        for p in primes_seen:
+            if p > limit:
+                break
+            if candidate % p == 0:
+                is_prime = False
+                break
+        if is_prime:
+            primes_seen.append(candidate)
+            yield candidate
+        candidate += 1
+
+gen = prime_stream()
+first_10_primes = [next(gen) for _ in range(10)]
+print("First 10 Primes:", first_10_primes)
+# Output: [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+\end{lstlisting}
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Generator Expressions vs. List Materialization}
+\begin{itemize}
+    \item \textbf{Correct Answer: (a)}
+    \item \textbf{Why (a) is correct:}
+    Generator expressions evaluate \textbf{lazily}. When \texttt{g = (x * 2 for x in data)} is created, no items from \texttt{data} are evaluated or read.
+    The statement \texttt{data.append(4)} mutates the underlying list \texttt{data} before the generator is consumed.
+    When \texttt{list(g)} is called, the generator begins pulling elements from \texttt{data}, which now contains \texttt{[1, 2, 3, 4]}.
+    The generator multiplies each element by $2$, yielding \textbf{\texttt{[2, 4, 6, 8]}}.
+    \item \textbf{Why (b) is false:} Assumes eager evaluation (as if \texttt{g} were a list comprehension constructed before the append).
+    \item \textbf{Why (c) is false:} Assumes the generator was exhausted upon definition.
+    \item \textbf{Why (d) is false:} Modifying an underlying container referenced by a generator is completely valid Python syntax.
+\end{itemize}
+
+\textbf{7. Comprehension Scoping Rules in Python 3}
+\begin{itemize}
+    \item \textbf{Correct Answer: (a)}
+    \item \textbf{Why (a) is correct:}
+    Under Python 3 (PEP 3115), list, set, and dictionary comprehensions are executed inside an implicit local nested function scope. The iteration variable \texttt{i} in \texttt{[i**2 for i in range(5)]} is purely local to the comprehension's internal scope and does \textbf{not leak} into the enclosing namespace.
+    Therefore, the global variable \texttt{i = 100} remains completely unaffected.
+    Calling \texttt{print(i)} outputs \textbf{\texttt{100}}.
+    \item \textbf{Why (b) is false:} This was the legacy behavior in Python 2 (where comprehensions leaked their loop variables), but was intentionally fixed in Python 3.
+    \item \textbf{Why (c) is false:} Assumes \texttt{i} retains the squared value ($4^2 = 16$).
+    \item \textbf{Why (d) is false:} \texttt{i} is defined as \texttt{100} in the outer scope, so no \texttt{NameError} is raised.
+\end{itemize}
+
+
+\section*{Week 8: File I/O, Context Managers \& Exception Architecture}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Trace of the Four-Branch Exception Engine}
+Let us trace each call:
+\begin{enumerate}
+    \item \textbf{Call \texttt{evaluate(0)}:}
+    \begin{itemize}
+        \item \texttt{try} block executes: \texttt{100 // 0} raises \texttt{ZeroDivisionError}. Line \texttt{print("Try Success")} is skipped.
+        \item Matches \texttt{except ZeroDivisionError:}. Prints \textbf{\texttt{"Catch Zero"}}.
+        \item Prepares to return \texttt{-1}.
+        \item \texttt{else} block is skipped because an exception occurred.
+        \item \texttt{finally} block \textbf{must execute} before the function returns. Prints \textbf{\texttt{"Finally Block"}}.
+        \item The pending return executes, returning \textbf{\texttt{-1}}.
+    \end{itemize}
+    Printed lines:
+    \begin{lstlisting}
+Catch Zero
+Finally Block
+    \end{lstlisting}
+    Return value: \textbf{\texttt{-1}}.
+
+    \item \textbf{Call \texttt{evaluate(2)}:}
+    \begin{itemize}
+        \item \texttt{try} block executes: \texttt{res = 100 // 2 = 50}. Prints \textbf{\texttt{"Try Success"}}.
+        \item \texttt{except} is skipped.
+        \item \texttt{else} block executes (since no exception occurred). Prints \textbf{\texttt{"Else Block"}}. Updates \texttt{res = 50 + 5 = 55}.
+        \item \texttt{finally} block executes. Prints \textbf{\texttt{"Finally Block"}}.
+        \item Traverses to final statement: \texttt{return res}. Returns \textbf{\texttt{55}}.
+    \end{itemize}
+    Printed lines:
+    \begin{lstlisting}
+Try Success
+Else Block
+Finally Block
+    \end{lstlisting}
+    Return value: \textbf{\texttt{55}}.
+\end{enumerate}
+
+\textbf{2. Custom Context Manager Implementation via Class Protocol}
+\begin{lstlisting}[language=Python]
+import time
+
+class TimerContext:
+    def __enter__(self):
+        self.start_time = time.perf_counter()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        elapsed = time.perf_counter() - self.start_time
+        print(f"Execution took: {elapsed:.6f} seconds")
+        # Returning False (or None) ensures any exception is NOT suppressed
+        return False
+\end{lstlisting}
+
+\textbf{3. Memory-Efficient Large File Line Aggregation}
+\begin{enumerate}
+    \item \textbf{Why \texttt{readlines()} crashes:}
+    \texttt{readlines()} reads the entire file into memory as a Python \texttt{list} of strings. In CPython, each string object carries object overhead (at least 50 bytes plus string payload). An 8 GB file typically demands 16--24 GB of RAM when materialized as individual \texttt{str} objects, triggering an immediate \texttt{MemoryError} / Out-Of-Memory OS termination.
+    \item \textbf{Streaming implementation ($\mathcal{O}(1)$ RAM):}
+    \begin{lstlisting}[language=Python]
+    def count_error_occurrences(filepath: str, keyword: str) -> int:
+        count = 0
+        with open(filepath, "r", encoding="utf-8") as f:
+            for line in f:  # Streams one line at a time into memory
+                if keyword in line:
+                    count += 1
+        return count
+    \end{lstlisting}
+\end{enumerate}
+
+\textbf{4. The EAFP vs. LBYL Dictionary Key Access Paradigm}
+\begin{lstlisting}[language=Python]
+# EAFP Approach (Idiomatic Python):
+try:
+    lr = config["model"]["optimizer"]["lr"]
+except (KeyError, TypeError):
+    lr = 0.001
+\end{lstlisting}
+This single concise block handles missing outer keys, missing inner keys, or corrupted intermediate values (e.g. if \texttt{config["model"]} was \texttt{None}) in a single atomic attempt without redundant key existence inquiries.
+
+\textbf{5. Custom Machine Learning Exception Architecture}
+\begin{lstlisting}[language=Python]
+class ModelError(Exception):
+    """Base exception for ML errors."""
+    pass
+
+class ConvergenceError(ModelError):
+    """Raised when gradient descent diverges or fails to converge."""
+    pass
+
+class DimensionMismatchError(ModelError):
+    """Raised when feature and target matrix dimensions disagree."""
+    pass
+
+def train_linear_model(X: list, y: list):
+    n_samples_X = len(X)
+    n_samples_y = len(y)
+    if n_samples_X != n_samples_y:
+        raise DimensionMismatchError(
+            f"Row count mismatch: features X has {n_samples_X} samples, "
+            f"target y has {n_samples_y} samples."
+        )
+    print("Training initiated successfully.")
+\end{lstlisting}
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. The Exception Subclass Masking Pitfall}
+\begin{itemize}
+    \item \textbf{Correct Answer: (a)}
+    \item \textbf{Why (a) is correct:}
+    Python tests \texttt{except} clauses sequentially from top to bottom.
+    Because \texttt{ValueError} is a subclass of \texttt{Exception}, the first clause \texttt{except Exception:} matches the raised error immediately.
+    The subsequent clause \texttt{except ValueError:} is masked and never reached.
+    Therefore, the first block executes, assigning \texttt{status = "Handled Exception"}.
+    \item \textbf{Why (b) is false:} Assumes Python selects the most specific exception handler automatically; Python selects the \emph{first matching} handler in declaration order.
+    \item \textbf{Why (c) is false:} The exception is caught by \texttt{except Exception:}, so it is not unhandled.
+    \item \textbf{Why (d) is false:} Multiple exception clauses are completely valid syntax.
+\end{itemize}
+
+\textbf{7. The \texttt{finally} Return Value Hijack Trap}
+\begin{itemize}
+    \item \textbf{Correct Answer: (a)}
+    \item \textbf{Why (a) is correct:}
+    When \texttt{calculate()} runs:
+    \begin{enumerate}
+        \item The \texttt{try} block executes \texttt{return 10}. This places a return value of $10$ in the pending execution buffer.
+        \item Before the function can return, the \texttt{finally} block is guaranteed to execute.
+        \item The \texttt{finally} block executes \texttt{return 20}.
+        \item In Python, executing a \texttt{return} statement inside \texttt{finally} completely \textbf{overwrites and discards} any previously pending return value (or unhandled exception).
+    \end{enumerate}
+    Thus, \texttt{calculate()} returns \textbf{\texttt{20}}.
+    \item \textbf{Why (b) is false:} Assumes the first return in \texttt{try} takes precedence.
+    \item \textbf{Why (c) is false:} The return values do not sum together.
+    \item \textbf{Why (d) is false:} \texttt{return} in \texttt{finally} is syntactically valid in Python (though considered an anti-pattern).
+\end{itemize}
+
+\section*{Week 9: Recursion, Algorithmic Search \& Divide-and-Conquer}
+
+\subsection*{Detailed Solutions}
+
+\textbf{1. Call Stack Trace of Nested Recursion}
+Given \texttt{func(n)}:
+\begin{equation*}
+\text{\texttt{func(n)}} = \begin{cases} 1 & \text{if } n \le 1 \\ \text{\texttt{func(n - 1)}} + 2 \cdot \text{\texttt{func(n - 2)}} & \text{if } n > 1 \end{cases}
+\end{equation*}
+Let us compute the values bottom-up:
+\begin{align*}
+\text{\texttt{func(0)}} &= 1 \\
+\text{\texttt{func(1)}} &= 1 \\
+\text{\texttt{func(2)}} &= \text{\texttt{func(1)}} + 2 \cdot \text{\texttt{func(0)}} = 1 + 2(1) = 3 \\
+\text{\texttt{func(3)}} &= \text{\texttt{func(2)}} + 2 \cdot \text{\texttt{func(1)}} = 3 + 2(1) = 5 \\
+\text{\texttt{func(4)}} &= \text{\texttt{func(3)}} + 2 \cdot \text{\texttt{func(2)}} = 5 + 2(3) = \mathbf{11}
+\end{align*}
+Return value: \textbf{\texttt{11}}.
+
+\textbf{Maximum Call Stack Depth:}
+Because Python evaluates left operands before right operands, the left-branching call chain explores deepest first:
+\begin{equation*}
+\text{\texttt{func(4)}} \to \text{\texttt{func(3)}} \to \text{\texttt{func(2)}} \to \text{\texttt{func(1)}}
+\end{equation*}
+At this instant, there are 4 active activation frames on the call stack (or depth 5 including the root invocation frame).
+Thus, the maximum stack depth is $\mathbf{4}$ levels of recursion ($n = 4$).
+
+\textbf{2. Binary Search Interval Tracking}
+Array: \texttt{arr = [3, 7, 11, 15, 19, 23, 27, 31, 35, 39, 43, 47]} (Length $n = 12$, indices 0 through 11). Target: \texttt{31}.
+\begin{enumerate}
+    \item \textbf{Step 1:} $\text{low} = 0$, $\text{high} = 11$.
+    $\text{mid} = 0 + (11 - 0) // 2 = 5$.
+    $\text{arr}[5] = 23$. Since $31 > 23$, target lies in right partition.
+    Update: $\text{low} = \text{mid} + 1 = 6$.
+    \item \textbf{Step 2:} $\text{low} = 6$, $\text{high} = 11$.
+    $\text{mid} = 6 + (11 - 6) // 2 = 8$.
+    $\text{arr}[8] = 35$. Since $31 < 35$, target lies in left partition.
+    Update: $\text{high} = \text{mid} - 1 = 7$.
+    \item \textbf{Step 3:} $\text{low} = 6$, $\text{high} = 7$.
+    $\text{mid} = 6 + (7 - 6) // 2 = 6$.
+    $\text{arr}[6] = 27$. Since $31 > 27$, target lies in right partition.
+    Update: $\text{low} = \text{mid} + 1 = 7$.
+    \item \textbf{Step 4:} $\text{low} = 7$, $\text{high} = 7$.
+    $\text{mid} = 7 + (7 - 7) // 2 = 7$.
+    $\text{arr}[7] = 31$. Match found! Returns index $\mathbf{7}$.
+\end{enumerate}
+\textbf{Array Accesses:} Exactly $\mathbf{4}$ comparisons were performed.
+\textbf{Termination Invariant for Non-Present Target:}
+If a target is not present, search halts when the search interval becomes inverted: $\mathbf{\text{low} > \text{high}}$.
+
+\textbf{3. Recurrence Relation Solving via Master Theorem}
+\begin{enumerate}
+    \item \textbf{$T(n) = 4 T(n/2) + \Theta(n)$:}
+    $a = 4$, $b = 2$, $c = 1$.
+    $\log_b a = \log_2 4 = 2$.
+    Since $c < \log_b a$ ($1 < 2$), the recurrence is leaf-dominated:
+    \begin{equation*}
+    T(n) = \mathbf{\Theta(n^{\log_2 4}) = \Theta(n^2)}
+    \end{equation*}
+    \item \textbf{$T(n) = 2 T(n/2) + \Theta(n)$:}
+    $a = 2$, $b = 2$, $c = 1$.
+    $\log_b a = \log_2 2 = 1$.
+    Since $c = \log_b a$ ($1 = 1$), the recurrence is balanced:
+    \begin{equation*}
+    T(n) = \mathbf{\Theta(n \log n)} \quad (\text{Standard Merge Sort})
+    \end{equation*}
+    \item \textbf{$T(n) = 2 T(n/4) + \Theta(\sqrt{n})$:}
+    $a = 2$, $b = 4$, $c = 0.5$ (since $\sqrt{n} = n^{0.5}$).
+    $\log_b a = \log_4 2 = 0.5$.
+    Since $c = \log_b a$ ($0.5 = 0.5$), this is balanced:
+    \begin{equation*}
+    T(n) = \mathbf{\Theta(\sqrt{n} \log n)}
+    \end{equation*}
+\end{enumerate}
+
+\textbf{4. Recursive String Palindrome Verification}
+\begin{lstlisting}[language=Python]
+def is_palindrome(text: str) -> bool:
+    # Base Case 1: Empty string or single character is trivially a palindrome
+    if len(text) <= 1:
+        return True
+    # Base Case 2: Outer characters do not match
+    if text[0] != text[-1]:
+        return False
+    # Recursive step: Test inner substring
+    return is_palindrome(text[1:-1])
+
+print(is_palindrome("racecar"))  # Output: True
+print(is_palindrome("python"))   # Output: False
+\end{lstlisting}
+
+\textbf{5. Continuous Bisection Search: Optimal Hyperparameter Thresholding}
+\begin{lstlisting}[language=Python]
+def find_threshold(target_rate: float = 0.35, tol: float = 1e-5) -> float:
+    # Monotonically decreasing P(t) on [0, 1]
+    P = lambda t: 1.0 - (t ** 1.5)
+    
+    low, high = 0.0, 1.0
+    while (high - low) / 2.0 > tol:
+        mid = low + (high - low) / 2.0
+        val = P(mid)
+        if val > target_rate:
+            low = mid  # Need lower rate -> increase threshold
+        else:
+            high = mid # Need higher rate -> decrease threshold
             
     return round((low + high) / 2.0, 5)
 
-print("sqrt(25) =", sqrt_binary_search(25))  # Output: 5.0
-print("sqrt(2) =", sqrt_binary_search(2))    # Output: 1.41421
+t_star = find_threshold()
+print(f"Optimal Threshold t* = {t_star}")
+# Output: Optimal Threshold t* = 0.75069
 \end{lstlisting}
+\textbf{Theoretical Bisections Required:}
+\begin{equation*}
+k \ge \log_2\left(\frac{b - a}{\epsilon}\right) = \log_2\left(\frac{1 - 0}{10^{-5}}\right) = \log_2(100{,}000) \approx \mathbf{17 \text{ steps}}.
+\end{equation*}
 
-\section*{Week 10: Object-Oriented Programming (OOP)}
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Binary Search Midpoint Selection and Search Space Halving}
+\begin{itemize}
+    \item \textbf{Correct Answer: (a)}
+    \item \textbf{Why (a) is correct:}
+    In binary search on an array of length $n = 1024$, the search space is halved in each step.
+    When an element is NOT present, the search continues until the search space of size $1$ is inspected and the interval bounds cross ($\text{low} > \text{high}$).
+    The number of iterations is:
+    \begin{equation*}
+    k = \lfloor \log_2 n \rfloor + 1 = \lfloor \log_2 1024 \rfloor + 1 = 10 + 1 = \mathbf{11}
+    \end{equation*}
+    Thus, at most $11$ comparisons are performed before concluding that the target is absent.
+    \item \textbf{Why (b) is false:} $10$ comparisons locate an element in the best of the worst cases, but checking that an element at the final leaf interval does not match requires the 11th comparison.
+    \item \textbf{Why (c) is false:} $1024$ is the complexity of Linear Search, not Binary Search.
+    \item \textbf{Why (d) is false:} $512$ is the first half partition size, not comparison count.
+\end{itemize}
+
+\textbf{7. Recursion Limit and Stack Overflow Mechanics}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:}
+    CPython's default recursion limit (queried via \texttt{sys.getrecursionlimit()}) is configured to $1000$ stack frames.
+    Because Python does not perform tail-call optimization, calling \texttt{recurse(1500)} allocates 1000 consecutive activation frames without returning.
+    Upon attempting to push the 1001st frame, CPython's runtime guard detects that the stack limit has been breached and raises:
+    \begin{equation*}
+    \text{\texttt{RecursionError: maximum recursion depth exceeded in comparison}}
+    \end{equation*}
+    This protects the process from a native C-level OS stack overflow.
+    \item \textbf{Why (a) is false:} The recursion halts before reaching the base case $n = 0$.
+    \item \textbf{Why (c) is false:} Stack frames are allocated on the call stack, not heap exhaustion.
+    \item \textbf{Why (d) is false:} Python catches stack growth before an OS-level segmentation fault occurs.
+\end{itemize}
+
+\section*{Week 10: Object-Oriented Programming (OOP) \& Estimator Architecture}
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Basic Class Creation}
+\textbf{1. Class Attribute Mutation vs. Instance Shadowing}
+Let us trace execution and namespace dictionary contents:
+\begin{enumerate}
+    \item \texttt{Experiment.run\_count = 0} is initialized in \texttt{Experiment.\_\_dict\_\_}.
+    \item \texttt{e1 = Experiment("Alpha")}: \texttt{\_\_init\_\_} increments \texttt{Experiment.run\_count} to $1$. \texttt{e1.\_\_dict\_\_ = \{"name": "Alpha"\}}.
+    \item \texttt{e2 = Experiment("Beta")}: \texttt{\_\_init\_\_} increments \texttt{Experiment.run\_count} to $2$. \texttt{e2.\_\_dict\_\_ = \{"name": "Beta"\}}.
+    \item \texttt{e1.run\_count = 99}: Because assignment is performed on the instance \texttt{e1}, Python creates a new entry \texttt{"run\_count": 99} inside \texttt{e1.\_\_dict\_\_}. This shadows the class attribute for \texttt{e1} alone! The class attribute in \texttt{Experiment.\_\_dict\_\_} remains $2$.
+    \item When querying \texttt{e1.run\_count}, Python finds \texttt{"run\_count": 99} in \texttt{e1.\_\_dict\_\_}. Output: \textbf{\texttt{e1: 99}}.
+    \item When querying \texttt{e2.run\_count}, Python searches \texttt{e2.\_\_dict\_\_} (which has no \texttt{run\_count}), so it falls back to \texttt{Experiment.\_\_dict\_\_}, finding $2$. Output: \textbf{\texttt{e2: 2}}.
+    \item Directly querying \texttt{Experiment.run\_count} outputs: \textbf{\texttt{Class: 2}}.
+\end{enumerate}
+Final output:
 \begin{lstlisting}
-import math
-
-class Circle:
-    def __init__(self, radius):
-        self.radius = radius
-
-    def area(self):
-        return round(math.pi * (self.radius ** 2), 2)
-
-    def circumference(self):
-        return round(2 * math.pi * self.radius, 2)
-
-c = Circle(5.0)
-print("Area:", c.area())                  # Output: 78.54
-print("Circumference:", c.circumference())  # Output: 31.42
+e1: 99
+e2: 2
+Class: 2
 \end{lstlisting}
 
-\textbf{2. Class Encapsulation}
-\begin{lstlisting}
-class BankAccount:
-    def __init__(self, balance=0.0):
-        self.__balance = balance  # Private attribute
+\textbf{2. Encapsulation via Managed Properties}
+\begin{lstlisting}[language=Python]
+class Hyperparameter:
+    def __init__(self, lr: float):
+        self.lr = lr  # Uses setter validation during initialization
 
-    def deposit(self, amount):
-        if amount > 0:
-            self.__balance += amount
+    @property
+    def lr(self) -> float:
+        """Getter for learning rate."""
+        return self._lr
 
-    def withdraw(self, amount):
-        if 0 < amount <= self.__balance:
-            self.__balance -= amount
-            return True
-        return False
+    @lr.setter
+    def lr(self, value: float):
+        """Setter with boundary validation."""
+        if not (0.0 < value <= 1.0):
+            raise ValueError("Learning rate must be in (0, 1]")
+        self._lr = value
 
-    def get_balance(self):
-        return self.__balance
-
-acc = BankAccount(100.0)
-acc.deposit(50.0)
-acc.withdraw(30.0)
-print("Balance:", acc.get_balance())  # Output: 120.0
+h = Hyperparameter(0.01)
+print("Configured LR:", h.lr)
+# h.lr = -0.5 raises ValueError!
 \end{lstlisting}
 
-\textbf{3. Class vs Instance Variables}
-\textbf{Class variables} are shared by all instances of a class. \textbf{Instance variables} are bound to a specific object instance.
-\begin{lstlisting}
-class Dog:
-    species = "Canis lupus"  # Class Variable shared across all dogs
+\textbf{3. Inheritance Hierarchy and \texttt{super()} Initializer Chaining}
+\begin{lstlisting}[language=Python]
+class Loss:
+    def __init__(self, reduction: str = "mean"):
+        self.reduction = reduction
 
-    def __init__(self, name):
-        self.name = name     # Instance Variable unique to each dog
+class HuberLoss(Loss):
+    def __init__(self, delta: float = 1.0, reduction: str = "mean"):
+        super().__init__(reduction=reduction)
+        self.delta = delta
 
-d1, d2 = Dog("Buddy"), Dog("Max")
-print(d1.species, d1.name)  # Canis lupus Buddy
-print(d2.species, d2.name)  # Canis lupus Max
+loss = HuberLoss(delta=1.5, reduction="sum")
+print(f"HuberLoss: delta={loss.delta}, reduction={loss.reduction}")
+# Output: HuberLoss: delta=1.5, reduction=sum
 \end{lstlisting}
 
-\textbf{4. Inheritance Hierarchy}
-\begin{lstlisting}
-class Vehicle:
-    def __init__(self, brand):
-        self.brand = brand
+\textbf{4. The Python Data Model: Building a Callable Dataset Container}
+\begin{lstlisting}[language=Python]
+class MLDataset:
+    def __init__(self, X: list, y: list):
+        if len(X) != len(y):
+            raise ValueError("Feature and label counts must match.")
+        self.X = X
+        self.y = y
 
-    def drive(self):
-        print(f"Driving {self.brand} vehicle...")
+    def __len__(self) -> int:
+        return len(self.X)
 
-class ElectricCar(Vehicle):
-    def __init__(self, brand, battery_capacity):
-        super().__init__(brand)
-        self.battery_capacity = battery_capacity
+    def __getitem__(self, idx: int) -> tuple:
+        return (self.X[idx], self.y[idx])
 
-    def drive(self):  # Method Overriding
-        print(f"Driving {self.brand} silently on {self.battery_capacity} kWh battery")
+    def __repr__(self) -> str:
+        return f"MLDataset(N={len(self)})"
 
-tesla = ElectricCar("Tesla", 85)
-tesla.drive()  # Output: Driving Tesla silently on 85 kWh battery
+dataset = MLDataset([[1.0, 2.0], [3.0, 4.0]], [0, 1])
+print(dataset)              # MLDataset(N=2)
+print("Length:", len(dataset))  # 2
+print("First item:", dataset[0]) # ([1.0, 2.0], 0)
 \end{lstlisting}
 
-\textbf{5. Data Science Application: Custom StandardScaler Class}
-\begin{lstlisting}
-import math
-
-class StandardScaler:
+\textbf{5. Preventing Data Leakage via Modular Transformer Pipeline}
+\begin{lstlisting}[language=Python]
+class RobustMaxAbsScaler:
     def __init__(self):
-        self.mean = 0.0
-        self.std = 1.0
+        self.max_abs_ = 1.0
 
-    def fit(self, data):
-        self.mean = sum(data) / len(data)
-        variance = sum((x - self.mean) ** 2 for x in data) / len(data)
-        self.std = math.sqrt(variance)
+    def fit(self, X: list):
+        if not X:
+            raise ValueError("Input dataset cannot be empty.")
+        max_val = max(abs(x) for x in X)
+        self.max_abs_ = max_val if max_val > 1e-12 else 1.0
+        return self
 
-    def transform(self, data):
-        if self.std == 0:
-            return [0.0] * len(data)
-        return [round((x - self.mean) / self.std, 3) for x in data]
+    def transform(self, X: list) -> list:
+        return [round(x / self.max_abs_, 4) for x in X]
 
-scaler = StandardScaler()
-train_data = [10.0, 20.0, 30.0, 40.0, 50.0]
-scaler.fit(train_data)
+# Train set fitting
+X_train = [-10.0, 0.0, 50.0]
+scaler = RobustMaxAbsScaler().fit(X_train)
+print("Learned Max Abs:", scaler.max_abs_)  # 50.0
 
-scaled = scaler.transform(train_data)
-print("Standardized Data:", scaled)
-# Output: [-1.414, -0.707, 0.0, 0.707, 1.414]
+# Transforming unseen test set without leakage
+X_test = [25.0, 60.0]
+print("Transformed Test:", scaler.transform(X_test))
+# Output: [0.5, 1.2]
 \end{lstlisting}
 
-\section*{Week 11: Scientific Computing: NumPy \& Pandas}
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. The Mutable Class Variable Pitfall}
+\begin{itemize}
+    \item \textbf{Correct Answer: (a)}
+    \item \textbf{Why (a) is correct:}
+    In \texttt{ModelRegistry}, \texttt{models = []} is declared at the class level and resides in \texttt{ModelRegistry.\_\_dict\_\_}.
+    Neither \texttt{r1} nor \texttt{r2} contains a \texttt{models} attribute in its instance \texttt{\_\_dict\_\_}.
+    When \texttt{self.models.append(...)} executes, Python resolves \texttt{self.models} by looking up the class attribute list.
+    Both \texttt{r1.add("SVM")} and \texttt{r2.add("RandomForest")} append to the \textbf{single shared list} in heap memory.
+    Therefore, \texttt{r1.models} and \texttt{r2.models} both evaluate to \textbf{\texttt{["SVM", "RandomForest"]}}.
+    \item \textbf{Why (b) is false:} Assumes each instance created an isolated list, ignoring that class attributes are shared.
+    \item \textbf{Why (c) is false:} Assumes \texttt{r2} overwrote the list rather than appending to it.
+    \item \textbf{Why (d) is false:} Elements were successfully appended to the shared container.
+\end{itemize}
+
+\textbf{7. Method Descriptor Resolution and Explicit \texttt{self}}
+\begin{itemize}
+    \item \textbf{Correct Answer: (a)}
+    \item \textbf{Why (a) is correct:}
+    In Python, when an instance method is called via \texttt{w.execute()}, Python converts the invocation into a bound method descriptor call:
+    \begin{equation*}
+    \text{\texttt{Worker.execute(w)}}
+    \end{equation*}
+    passing the instance \texttt{w} as the first positional argument.
+    However, \texttt{def execute():} was defined with zero parameters.
+    Python immediately raises:
+    \begin{equation*}
+    \text{\texttt{TypeError: execute() takes 0 positional arguments but 1 was given}}
+    \end{equation*}
+    \item \textbf{Why (b) is false:} The method \texttt{execute} exists on the class and is found.
+    \item \textbf{Why (c) is false:} \texttt{self} is a naming convention, not a reserved keyword; no \texttt{NameError} is raised.
+    \item \textbf{Why (d) is false:} Methods with zero arguments are syntactically valid at compile time (acting effectively as unbound functions or static methods).
+\end{itemize}
+
+\section*{Week 11: NumPy Fundamentals, Memory Strides \& Vectorized Broadcasting}
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. NumPy Vectorization}
-\begin{lstlisting}
+\textbf{1. Broadcasting Rule Arithmetic and Shape Derivations}
+Under NumPy broadcasting rules, shapes are aligned from right to left:
+\begin{enumerate}
+    \item \textbf{$A: (8, 1, 6, 1)$ and $B: (7, 1, 5)$:}
+    Pad $B$ with 1 on left: $B \to (1, 7, 1, 5)$.
+    Comparing trailing axes:
+    \begin{itemize}
+        \item Axis 3: $1$ vs $5 \implies 5$ (Valid, $1$ stretches to $5$).
+        \item Axis 2: $6$ vs $1 \implies 6$ (Valid, $1$ stretches to $6$).
+        \item Axis 1: $1$ vs $7 \implies 7$ (Valid, $1$ stretches to $7$).
+        \item Axis 0: $8$ vs $1 \implies 8$ (Valid, $1$ stretches to $8$).
+    \end{itemize}
+    \textbf{Compatible.} Output shape: \textbf{\texttt{(8, 7, 6, 5)}}.
+
+    \item \textbf{$A: (256, 256, 3)$ and $B: (3,)$:}
+    Pad $B$ on left: $B \to (1, 1, 3)$.
+    Comparing trailing axes: $3$ vs $3 \implies 3$; $256$ vs $1 \implies 256$; $256$ vs $1 \implies 256$.
+    \textbf{Compatible.} Output shape: \textbf{\texttt{(256, 256, 3)}}. (Standard RGB image color channel scaling).
+
+    \item \textbf{$A: (5, 4)$ and $B: (4, 5)$:}
+    Comparing trailing axes:
+    \begin{itemize}
+        \item Axis 1: $4$ vs $5$. Neither is $1$ and $4 \neq 5$.
+    \end{itemize}
+    \textbf{Incompatible.} Raises \texttt{ValueError: operands could not be broadcast together with shapes (5,4) (4,5)}.
+
+    \item \textbf{$A: (15, 3, 5)$ and $B: (15, 1, 5)$:}
+    Comparing trailing axes: $5$ vs $5 \implies 5$; $3$ vs $1 \implies 3$; $15$ vs $15 \implies 15$.
+    \textbf{Compatible.} Output shape: \textbf{\texttt{(15, 3, 5)}}.
+\end{enumerate}
+
+\textbf{2. Memory Strides and View vs. Copy Diagnostics}
+Given \texttt{A = np.arange(12, dtype=np.int32).reshape(3, 4)}:
+\begin{enumerate}
+    \item \textbf{Item size and Strides of $A$:}
+    \texttt{np.int32} uses 4 bytes per integer. Item size: $\mathbf{4 \text{ bytes}}$.
+    In C-order (row-major), advancing 1 column steps $4$ bytes; advancing 1 row steps $4 \times 4 = 16$ bytes.
+    Strides tuple: \textbf{\texttt{(16, 4)}}.
+    \item \textbf{Shape and Strides of $A^T$:}
+    Shape: \textbf{\texttt{(4, 3)}}.
+    Strides: Transposing swaps stride dimensions: \textbf{\texttt{(4, 16)}}.
+    $A^T$ shares the \textbf{exact same underlying memory buffer} with $A$ (\texttt{A.T.base is A}). No data is copied.
+    \item \textbf{Why slice is a view while integer indexing is a copy:}
+    \texttt{A[::2, ::2]} uses basic slicing. Regular step increments can be represented purely by updating the stride multipliers (strides become \texttt{(32, 8)}) without moving data. Hence it is a \textbf{View}.
+    \texttt{A[[0, 2], [1, 3]]} uses advanced integer indexing to pick arbitrary non-uniform coordinate pairings $(0, 1)$ and $(2, 3)$. Because these items cannot be traversed via a single regular arithmetic stride equation, NumPy allocates a new memory buffer and copies the items into it, producing a \textbf{Copy}.
+\end{enumerate}
+
+\textbf{3. Vectorized Softmax Function Implementation}
+\begin{lstlisting}[language=Python]
 import numpy as np
 
-arr = np.arange(1, 11)
+def softmax(Z: np.ndarray) -> np.ndarray:
+    """
+    Numerically stable Softmax across rows of 2D batch logit matrix Z (N, K).
+    """
+    # Subtract row-wise maximum for numerical stability (avoids exp overflow)
+    max_z = np.max(Z, axis=1, keepdims=True)  # Shape (N, 1)
+    exp_z = np.exp(Z - max_z)                # Broadcasts (N, K) - (N, 1)
+    sum_exp = np.sum(exp_z, axis=1, keepdims=True)  # Shape (N, 1)
+    return exp_z / sum_exp                   # Broadcasts (N, K) / (N, 1)
 
-# Part A: Boolean mask for odds
-mask = (arr % 2 != 0)
-
-# Part B: Extract odds
-odds = arr[mask]
-print("Odds:", odds)  # [1, 3, 5, 7, 9]
-
-# Part C: Replace evens with -1
-arr[arr % 2 == 0] = -1
-print("Modified Array:", arr)  # [ 1 -1  3 -1  5 -1  7 -1  9 -1]
+logits = np.array([[2.0, 1.0, 0.1], [1000.0, 1001.0, 1002.0]])
+probs = softmax(logits)
+print("Softmax Probabilities:\n", np.round(probs, 4))
+# Output: Row sums are strictly 1.0; no overflow on 1000+ values!
 \end{lstlisting}
 
-\textbf{2. Matrix Statistics with NumPy}
-\begin{lstlisting}
-mat = np.arange(1, 10).reshape(3, 3)
+\textbf{4. Boolean Masking and Multi-Condition Filtering}
+\begin{lstlisting}[language=Python]
+# Extract matching rows using bitwise &
+mask = (X[:, 0] > 0.0) & (X[:, 2] <= 5.0)
+extracted_rows = X[mask].copy()
 
-total_sum = mat.sum()
-col_means = mat.mean(axis=0)
-row_maxs = mat.max(axis=1)
-
-print("Total Sum:", total_sum)      # 45
-print("Column Means:", col_means)  # [4. 5. 6.]
-print("Row Maxima:", row_maxs)     # [3 6 9]
+# Replace negative values with 0.0 (ReLU-style clipping)
+extracted_rows[extracted_rows < 0.0] = 0.0
 \end{lstlisting}
 
-\textbf{3. Pandas Filtering \& Selection}
-\begin{lstlisting}
-import pandas as pd
+\textbf{5. Matrix Normal Equations and Projection Matrix}
+Given $X = \begin{bmatrix} 1 & 1 \\ 1 & 2 \\ 1 & 3 \end{bmatrix}$ and $\mathbf{y} = \begin{bmatrix} 2 \\ 3 \\ 5 \end{bmatrix}$:
+\begin{enumerate}
+    \item \textbf{Compute $X^T X$ and $X^T \mathbf{y}$:}
+    \begin{align*}
+    X^T X &= \begin{bmatrix} 1 & 1 & 1 \\ 1 & 2 & 3 \end{bmatrix} \begin{bmatrix} 1 & 1 \\ 1 & 2 \\ 1 & 3 \end{bmatrix} = \begin{bmatrix} 3 & 6 \\ 6 & 14 \end{bmatrix} \\
+    X^T \mathbf{y} &= \begin{bmatrix} 1 & 1 & 1 \\ 1 & 2 & 3 \end{bmatrix} \begin{bmatrix} 2 \\ 3 \\ 5 \end{bmatrix} = \begin{bmatrix} 2 + 3 + 5 \\ 2(1) + 3(2) + 5(3) \end{bmatrix} = \begin{bmatrix} 10 \\ 23 \end{bmatrix}
+    \end{align*}
+    \item \textbf{Solve $X^T X \hat{\mathbf{w}} = X^T \mathbf{y}$:}
+    \begin{align*}
+    \det(X^T X) &= 3(14) - 6(6) = 42 - 36 = 6 \\
+    (X^T X)^{-1} &= \frac{1}{6} \begin{bmatrix} 14 & -6 \\ -6 & 3 \end{bmatrix} \\
+    \hat{\mathbf{w}} &= \frac{1}{6} \begin{bmatrix} 14(10) - 6(23) \\ -6(10) + 3(23) \end{bmatrix} = \frac{1}{6} \begin{bmatrix} 140 - 138 \\ -60 + 69 \end{bmatrix} = \frac{1}{6} \begin{bmatrix} 2 \\ 9 \end{bmatrix} = \mathbf{\begin{bmatrix} 1/3 \\ 3/2 \end{bmatrix}} = \mathbf{\begin{bmatrix} 0.3333 \\ 1.5000 \end{bmatrix}}
+    \end{align*}
+    \item \textbf{Orthogonal Projection $\hat{\mathbf{y}} = X \hat{\mathbf{w}}$:}
+    \begin{equation*}
+    \hat{\mathbf{y}} = \begin{bmatrix} 1 & 1 \\ 1 & 2 \\ 1 & 3 \end{bmatrix} \begin{bmatrix} 1/3 \\ 3/2 \end{bmatrix} = \mathbf{\begin{bmatrix} 11/6 \\ 20/6 \\ 29/6 \end{bmatrix}} \approx \mathbf{\begin{bmatrix} 1.833 \\ 3.333 \\ 4.833 \end{bmatrix}}
+    \end{equation*}
+\end{enumerate}
 
-df = pd.DataFrame({
-    'City': ['Mumbai', 'Delhi', 'Bangalore', 'Chennai'],
-    'Temp': [32, 40, 24, 34],
-    'Humidity': [80, 45, 65, 75]
-})
+\subsection*{Diagnostic MCQ Explanations}
 
-filtered_df = df[(df['Temp'] > 30) & (df['Humidity'] > 70)]
-print(filtered_df)
-# Output:
-#       City  Temp  Humidity
-# 0   Mumbai    32        80
-# 3  Chennai    34        75
-\end{lstlisting}
+\textbf{6. Broadcasting Dimension Padding}
+\begin{itemize}
+    \item \textbf{Correct Answer: (a)}
+    \item \textbf{Why (a) is correct:}
+    Array \texttt{a} has shape \texttt{(4, 1)} (2 dimensions).
+    Array \texttt{b} has shape \texttt{(3,)} (1 dimension).
+    NumPy aligns shapes from right to left and prepends 1s to the shorter shape:
+    \begin{equation*}
+    b \implies (1, 3)
+    \end{equation*}
+    Comparing dimensions:
+    \begin{itemize}
+        \item Trailing axis: $1$ (from \texttt{a}) vs $3$ (from \texttt{b}) $\implies \max(1, 3) = 3$.
+        \item Leading axis: $4$ (from \texttt{a}) vs $1$ (from \texttt{b}) $\implies \max(4, 1) = 4$.
+    \end{itemize}
+    The broadcast output shape is \textbf{\texttt{(4, 3)}}.
+    \item \textbf{Why (b) is false:} Inverts the row and column dimensions.
+    \item \textbf{Why (c) is false:} Assumes the trailing dimension of $b$ was dropped.
+    \item \textbf{Why (d) is false:} Dimensions are fully broadcast-compatible.
+\end{itemize}
 
-\textbf{4. Pandas Missing Data Handling}
-\begin{lstlisting}
-import pandas as pd
-import numpy as np
+\textbf{7. Array Slicing View Mutation}
+\begin{itemize}
+    \item \textbf{Correct Answer: (a)}
+    \item \textbf{Why (a) is correct:}
+    Let us trace the operations on array \texttt{x = np.array([10, 20, 30, 40])}:
+    \begin{enumerate}
+        \item \texttt{y = x[1:3]}: Basic slicing constructs a \textbf{View} of elements at indices 1 and 2 (values \texttt{[20, 30]}).
+        \item \texttt{y += 5}: In-place addition modifies the underlying memory buffer shared with \texttt{x}.
+        The array \texttt{x} is now mutated to \texttt{[10, 25, 35, 40]}.
+        \item \texttt{z = x[[1, 2]]}: Integer list indexing is advanced fancy indexing, which constructs an independent \textbf{Copy} containing \texttt{[25, 35]}.
+        \item \texttt{z += 10}: Modifies the independent copy \texttt{z} (which becomes \texttt{[35, 45]}), but has \textbf{no effect} on the original array \texttt{x}.
+    \end{enumerate}
+    Thus, \texttt{x} terminates with values \textbf{\texttt{array([10, 25, 35, 40])}}.
+    \item \textbf{Why (b) is false:} Mistakenly assumes that fancy indexing \texttt{x[[1, 2]]} created a view that mutated \texttt{x} a second time.
+    \item \textbf{Why (c) is false:} Assumes basic slicing created a copy.
+    \item \textbf{Why (d) is false:} Miscalculates arithmetic updates.
+\end{itemize}
 
-df = pd.DataFrame({
-    'A': [1.0, 2.0, np.nan, 4.0],
-    'B': [np.nan, 10.0, 20.0, 30.0]
-})
-
-df['A'] = df['A'].fillna(df['A'].mean())
-df['B'] = df['B'].fillna(0.0)
-
-print(df)
-# Output:
-#           A     B
-# 0  1.000000   0.0
-# 1  2.000000  10.0
-# 2  2.333333  20.0
-# 3  4.000000  30.0
-\end{lstlisting}
-
-\textbf{5. Data Science Application: Groupby Aggregation}
-\begin{lstlisting}
-sales_df = pd.DataFrame({
-    'Category': ['Tech', 'Tech', 'Office', 'Office', 'Tech'],
-    'Revenue': [1200, 800, 150, 300, 2000]
-})
-
-total_rev = sales_df.groupby('Category')['Revenue'].sum()
-print(total_rev)
-# Output:
-# Category
-# Office     450
-# Tech      4000
-# Name: Revenue, dtype: int64
-\end{lstlisting}
-
-\section*{Week 12: Data Visualization \& Course Summary}
+\section*{Week 12: Pandas Tabular Analytics, Exploratory Data Analysis \& Matplotlib Visualization}
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Basic Line Plot}
-\begin{lstlisting}
+\textbf{1. Label-Based vs. Integer Positional Slicing Discrepancies}
+Given \texttt{df = pd.DataFrame(\{"Score": [88, 92, 79, 95, 84]\}, index=[1, 2, 3, 4, 5])}:
+\begin{enumerate}
+    \item \textbf{Output and length of \texttt{df.loc[1:3]}:}
+    \texttt{.loc} uses label-based indexing. Both endpoints $1$ and $3$ are \textbf{inclusive}.
+    It extracts rows with index labels $1$, $2$, and $3$ (Scores $88$, $92$, $79$).
+    Length: $\mathbf{3 \text{ rows}}$.
+    \item \textbf{Output and length of \texttt{df.iloc[1:3]}:}
+    \texttt{.iloc} uses integer positional indexing (0-indexed). Slicing follows the standard Python half-open interval $[1, 3)$, excluding position 3.
+    It extracts rows at positions $1$ and $2$ (index labels $2$ and $3$, Scores $92$, $79$).
+    Length: $\mathbf{2 \text{ rows}}$.
+    \item \textbf{Underlying Principle:}
+    In standard Python sequences, positions are contiguous integers $[0, N-1]$. In Pandas, index labels can be non-contiguous, reversed, or non-numeric (strings, timestamps). Because one cannot generally determine the "preceding" label of an arbitrary string without reading the index, label slicing in \texttt{.loc} includes both endpoints to eliminate ambiguity, whereas \texttt{.iloc} adheres to standard zero-based offset semantics.
+\end{enumerate}
+
+\textbf{2. Resolving \texttt{SettingWithCopyWarning} in Data Pipelines}
+\begin{itemize}
+    \item \textbf{Why it occurs:} The chained indexing statement \texttt{subset = df[df["A"] > 1]} uses boolean indexing, which may return a view or a copy depending on the internal BlockManager layout. The subsequent assignment \texttt{subset["B"] = 999} mutates \texttt{subset}, which might be a disconnected temporary object, meaning the developer's intent to modify \texttt{df} is ambiguous.
+    \item \textbf{Solution 1 (Modifying original DataFrame in-place):}
+    \begin{lstlisting}[language=Python]
+    df.loc[df["A"] > 1, "B"] = 999
+    \end{lstlisting}
+    \item \textbf{Solution 2 (Working on an explicit, independent copy):}
+    \begin{lstlisting}[language=Python]
+    subset = df[df["A"] > 1].copy()
+    subset["B"] = 999
+    \end{lstlisting}
+\end{itemize}
+
+\textbf{3. Split-Apply-Combine Feature Normalization}
+\begin{lstlisting}[language=Python]
+df["Salary_zscore"] = df.groupby("Department")["Salary"].transform(
+    lambda grp: (grp - grp.mean()) / grp.std()
+)
+\end{lstlisting}
+The \texttt{.transform()} operator calculates the mean and standard deviation for each group and broadcasts the normalized results back to the original row index alignment.
+
+\textbf{4. The Tukey Outlier Fencing Rule}
+Given transaction values: \texttt{[10.0, 12.0, 15.0, 18.0, 20.0, 22.0, 25.0, 150.0]} ($N = 8$).
+\begin{enumerate}
+    \item \textbf{Quartile computation:}
+    Sorted values: $[10, 12, 15, 18, 20, 22, 25, 150]$.
+    \begin{itemize}
+        \item Lower half: $[10, 12, 15, 18] \implies Q_1 = \frac{12 + 15}{2} = \mathbf{13.5}$
+        \item Median ($Q_2$): $\frac{18 + 20}{2} = \mathbf{19.0}$
+        \item Upper half: $[20, 22, 25, 150] \implies Q_3 = \frac{22 + 25}{2} = \mathbf{23.5}$
+    \end{itemize}
+    \item \textbf{Interquartile Range (IQR):}
+    \begin{equation*}
+    \text{IQR} = Q_3 - Q_1 = 23.5 - 13.5 = \mathbf{10.0}
+    \end{equation*}
+    \item \textbf{Upper Fence:}
+    \begin{equation*}
+    \text{Upper Fence} = Q_3 + 1.5 \times \text{IQR} = 23.5 + 1.5(10.0) = 23.5 + 15.0 = \mathbf{38.5}
+    \end{equation*}
+    \item \textbf{Outlier Identification:}
+    The only transaction exceeding the upper fence ($38.5$) is $\mathbf{150.0}$.
+\end{enumerate}
+
+\textbf{5. Multi-Panel Object-Oriented Matplotlib Visualizer}
+\begin{lstlisting}[language=Python]
 import matplotlib.pyplot as plt
 import numpy as np
 
-x = np.linspace(-5, 5, 100)
-y = x ** 2
+def plot_diagnostics(y_true: np.ndarray, y_pred: np.ndarray):
+    """
+    Constructs multi-panel regression diagnostic plots using Matplotlib OO API.
+    """
+    residuals = y_true - y_pred
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.5))
 
-plt.figure(figsize=(6, 4))
-plt.plot(x, y, color='blue', linewidth=2)
-plt.title("Quadratic Function")
-plt.xlabel("x")
-plt.ylabel("f(x) = x^2")
-plt.grid(True)
-plt.show()
+    # Subplot 1: Actual vs Predicted Scatter with 45-degree reference line
+    ax1 = axes[0]
+    ax1.scatter(y_true, y_pred, color="#2563eb", alpha=0.6, edgecolors="none")
+    min_val = min(y_true.min(), y_pred.min())
+    max_val = max(y_true.max(), y_pred.max())
+    ax1.plot([min_val, max_val], [min_val, max_val], "r--", linewidth=1.5, label="Ideal y = y_hat")
+    ax1.set_title("Actual vs. Predicted Values")
+    ax1.set_xlabel("Actual Values (y)")
+    ax1.set_ylabel("Predicted Values (y_hat)")
+    ax1.legend()
+    ax1.grid(True, linestyle=":", alpha=0.6)
+
+    # Subplot 2: Residuals Histogram
+    ax2 = axes[1]
+    ax2.hist(residuals, bins=20, color="#166534", edgecolor="black", alpha=0.7)
+    ax2.axvline(0, color="red", linestyle="--", linewidth=1.5)
+    ax2.set_title("Prediction Residuals Distribution")
+    ax2.set_xlabel("Residual (y - y_hat)")
+    ax2.set_ylabel("Frequency")
+    ax2.grid(True, linestyle=":", alpha=0.6)
+
+    plt.tight_layout()
+    return fig, axes
 \end{lstlisting}
 
-\textbf{2. Comparing Distributions (Subplots)}
-\begin{lstlisting}
-import matplotlib.pyplot as plt
-import numpy as np
+\subsection*{Diagnostic MCQ Explanations}
 
-fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+\textbf{6. The IEEE 754 Floating-Point NaN Truthiness Trap}
+\begin{itemize}
+    \item \textbf{Correct Answer: (a)}
+    \item \textbf{Why (a) is correct:}
+    \begin{enumerate}
+        \item In IEEE 754 floating-point standard, \texttt{np.nan == np.nan} evaluates strictly to \textbf{\texttt{False}}. No NaN is equal to any value, including itself.
+        \item In Pandas, \texttt{pd.NA} represents missing data under Kleene's three-valued logic. Evaluating \texttt{pd.NA == pd.NA} returns \textbf{\texttt{<NA>}} (a missing boolean), neither \texttt{True} nor \texttt{False}!
+        \item The dedicated missing-value inspection function \texttt{pd.isna(np.nan)} correctly returns \textbf{\texttt{True}}.
+    \end{enumerate}
+    Therefore, \texttt{check1 = False}, \texttt{check2 = <NA>}, and \texttt{check3 = True}.
+    \item \textbf{Why (b) is false:} Assumes reflexive equality holds for NaN values.
+    \item \textbf{Why (c) is false:} \texttt{pd.NA == pd.NA} produces \texttt{<NA>}, not boolean \texttt{False}.
+    \item \textbf{Why (d) is false:} Violates IEEE 754 specifications.
+\end{itemize}
 
-# Subplot 1: Bar Chart
-langs = ['Python', 'SQL', 'R']
-scores = [95, 80, 60]
-axes[0].bar(langs, scores, color='skyblue', edgecolor='black')
-axes[0].set_title("Language Popularity")
+\textbf{7. Pandas Automatic Index Alignment Invariant}
+\begin{itemize}
+    \item \textbf{Correct Answer: (a)}
+    \item \textbf{Why (a) is correct:}
+    When executing \texttt{s1 + s2}, Pandas automatically aligns on the union of the two Series indices: $\mathcal{I} = \{'a', 'b', 'c', 'd'\}$:
+    \begin{itemize}
+        \item Index \texttt{'a'}: Present in \texttt{s1} (10), absent in \texttt{s2} (NaN). $10 + \text{NaN} = \mathbf{\text{NaN}}$.
+        \item Index \texttt{'b'}: Present in \texttt{s1} (20) and \texttt{s2} (1). $20 + 1 = \mathbf{21.0}$.
+        \item Index \texttt{'c'}: Present in \texttt{s1} (30) and \texttt{s2} (2). $30 + 2 = \mathbf{32.0}$.
+        \item Index \texttt{'d'}: Absent in \texttt{s1} (NaN), present in \texttt{s2} (3). $\text{NaN} + 3 = \mathbf{\text{NaN}}$.
+    \end{itemize}
+    The resulting Series has index \texttt{['a', 'b', 'c', 'd']} and values \texttt{[NaN, 21.0, 32.0, NaN]}.
+    \item \textbf{Why (b) is false:} Assumes an inner join; Pandas addition performs an outer index union.
+    \item \textbf{Why (c) is false:} Assumes positional addition, ignoring index labels completely.
+    \item \textbf{Why (d) is false:} Index misalignment does not raise a ValueError in Pandas; it produces missing values gracefully.
+\end{itemize}
 
-# Subplot 2: Histogram
-data = np.random.uniform(0, 100, 500)
-axes[1].hist(data, bins=20, color='orange', edgecolor='black')
-axes[1].set_title("Uniform Distribution")
-
-plt.tight_layout()
-plt.show()
-\end{lstlisting}
-
-\textbf{3. Customizing Scatter Plots}
-\begin{lstlisting}
-import matplotlib.pyplot as plt
-import numpy as np
-
-np.random.seed(42)
-x = np.random.rand(20)
-y = np.random.rand(20)
-
-plt.scatter(x, y, color='green', marker='^', s=50)
-plt.title("Green Triangle Scatter Plot")
-plt.xlabel("X values")
-plt.ylabel("Y values")
-plt.show()
-\end{lstlisting}
-
-\textbf{4. Comprehensive Review Question: Data Pipeline Function}
-\begin{lstlisting}
-import numpy as np
-
-def analyze_dataset(data):
-    # 1. Clean negative numbers using list comprehension
-    clean_data = [x for x in data if x >= 0]
-    
-    if not clean_data:
-        return {"count": 0, "mean": 0.0, "std": 0.0}
-        
-    # 2. Convert to NumPy for stats
-    arr = np.array(clean_data)
-    
-    # 3. Return summary dict
-    return {
-        "count": len(arr),
-        "mean": round(float(arr.mean()), 2),
-        "std": round(float(arr.std()), 2)
-    }
-
-raw_measurements = [12.5, -4.0, 18.2, 22.0, -1.0, 15.8]
-print(analyze_dataset(raw_measurements))
-# Output: {'count': 4, 'mean': 17.12, 'std': 3.42}
-\end{lstlisting}
-
-\textbf{5. Data Science Application: Plotting a Loss Curve}
-\begin{lstlisting}
-import matplotlib.pyplot as plt
-
-epochs = list(range(1, 11))
-loss = [2.5, 1.8, 1.2, 0.8, 0.5, 0.35, 0.25, 0.18, 0.15, 0.12]
-
-plt.figure(figsize=(7, 4))
-plt.plot(epochs, loss, 'r-s', label="Training Loss", linewidth=2)
-plt.title("Deep Learning Model Loss Curve")
-plt.xlabel("Epochs")
-plt.ylabel("Cross-Entropy Loss")
-plt.legend()
-plt.grid(True)
-plt.show()
-\end{lstlisting}
 
 
 

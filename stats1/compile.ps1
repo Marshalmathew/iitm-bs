@@ -1,5 +1,7 @@
 # PowerShell script to compile the Stats 1 LaTeX textbook locally
 
+$env:PATH = ($env:PATH -split ';' | Where-Object { $_ -notlike '*ojdbc11.jar*' }) -join ';'
+Set-Location -Path (Split-Path -Parent $MyInvocation.MyCommand.Path)
 $PdfLatexExists = Get-Command pdflatex -ErrorAction SilentlyContinue
 
 if (-not $PdfLatexExists) {
@@ -13,14 +15,13 @@ if (-not $PdfLatexExists) {
 
 Write-Host "Compiling Statistics for Data Science 1 Textbook..." -ForegroundColor Cyan
 
-pdflatex -interaction=nonstopmode main.tex
+pdflatex -interaction=nonstopmode -halt-on-error -disable-installer main.tex
 if (Test-Path "main.idx") { makeindex main.idx }
-pdflatex -interaction=nonstopmode main.tex
-
+pdflatex -interaction=nonstopmode -halt-on-error -disable-installer main.tex
 
 if ($LASTEXITCODE -eq 0 -and (Test-Path "main.pdf")) {
     Write-Host "Compilation successful! 'main.pdf' generated." -ForegroundColor Green
-    $AuxExtensions = @("*.aux","*.log","*.toc","*.out","*.synctex.gz","*.fls","*.fdb_latexmk")
+    $AuxExtensions = @("*.aux","*.log","*.toc","*.out","*.synctex.gz","*.fls","*.fdb_latexmk","*.idx","*.ind","*.ilg")
     foreach ($ext in $AuxExtensions) { Remove-Item $ext -ErrorAction SilentlyContinue }
 } else {
     Write-Host "Compilation failed. Check pdflatex output above." -ForegroundColor Red

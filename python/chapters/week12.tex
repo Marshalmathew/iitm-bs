@@ -1,119 +1,352 @@
-\chapter{Data Visualization \& Course Summary}
+\chapter{Pandas Tabular Analytics, Exploratory Data Analysis \& Matplotlib Visualization}
 
-Data Visualization turns raw numerical data into intuitive charts, graphs, and interactive dashboards. In this final chapter, we cover \textbf{Matplotlib} (the fundamental plotting library in Python) and review the core programming concepts mastered throughout the course.
-
+The ultimate objective of scientific computing is extracting actionable intelligence and empirical discoveries from complex data. While NumPy provides homogeneous $N$-dimensional arrays, real-world data is inherently heterogeneous, relational, and missing-value prone. \index{Pandas}\textbf{Pandas} introduces labeled tabular data structures---\index{Series}\textbf{Series} and \index{DataFrame}\textbf{DataFrames}---featuring automatic index alignment, SQL-like relational joins, and the split-apply-combine aggregation calculus. To communicate these statistical patterns, \index{Matplotlib}\textbf{Matplotlib} provides an object-oriented plotting canvas. Understanding Pandas internal block managers, avoiding chained indexing traps, and mastering the Figure-Axes hierarchy completes the foundational software engineering toolkit for modern data science.
 
 \vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Introduction to Matplotlib
-    \item Common Chart Types for Data Science
-    \item Course Summary and Next Steps
+    \item \textbf{Target Competencies:} Master Pandas DataFrame and Series memory architectures; execute deterministic label-based (\texttt{.loc}) and position-based (\texttt{.iloc}) slicing; diagnose and eliminate \texttt{SettingWithCopyWarning}; formalize the Split-Apply-Combine groupby algebra; handle missing data mechanisms (\texttt{NaN}); construct multi-panel scientific visualizations using the Matplotlib object-oriented Figure-Axes API.
+    \item \textbf{Prerequisites:} NumPy arrays, vectorization, dictionaries, object-oriented programming.
+    \item \textbf{Syntax \& Built-in Functions:} \texttt{pd.DataFrame()}, \texttt{pd.Series()}, \texttt{df.loc[]}, \texttt{df.iloc[]}, \texttt{df.groupby()}, \texttt{df.fillna()}, \texttt{df.dropna()}; \texttt{plt.subplots()}, \texttt{ax.plot()}, \texttt{ax.scatter()}, \texttt{ax.hist()}, \texttt{ax.boxplot()}.
 \end{itemize}
 \end{tcolorbox}
-\section{Introduction to Matplotlib}
 
-\begin{intuitionbox}{The Painter's Canvas}
-Think of Matplotlib like a painter's setup. The Figure (\texttt{plt.figure()}) is the wooden easel that holds everything. The Axes (or subplot) is the blank canvas pinned to the easel. And \texttt{plt.plot()} is the paintbrush you use to actually draw the data onto the canvas. You must have a canvas to paint!
-\end{intuitionbox}
+\section{Mathematical \& Computational Foundations}
 
-\texttt{matplotlib.pyplot} provides a MATLAB-like plotting framework for building line plots, scatter plots, bar charts, histograms, and heatmaps.
+\subsection{Pandas Series, DataFrames, and Index Alignment}
 
-\begin{definitionbox}{Matplotlib Figure and Axes}
-\index{Matplotlib Figure and Axes}
-A \index{Figure}\textbf{Figure} represents the entire canvas window. An \index{Axes}\textbf{Axes} represents an individual plot or subplot inside the figure.
-\begin{lstlisting}
-import matplotlib.pyplot as plt
-import numpy as np
-
-x = np.linspace(0, 10, 100)
-y = np.sin(x)
-
-plt.figure(figsize=(8, 4))
-plt.plot(x, y, label="Sine Wave", color="blue", linestyle="--")
-plt.title("Trigonometric Sine Function")
-plt.xlabel("X values")
-plt.ylabel("sin(x)")
-plt.legend()
-plt.grid(True)
-plt.show()
-\end{lstlisting}
+\begin{definitionbox}{Series and DataFrame Anatomy}
+\index{Series} \index{DataFrame} \index{Index Alignment}
+\begin{enumerate}
+    \item \textbf{Series:} A 1D labeled homogeneous array combining a NumPy data buffer with an immutable \texttt{Index} object:
+    \begin{equation}
+    S = \{(\text{idx}_i, v_i) \mid \text{idx}_i \in \mathcal{I}, \, v_i \in \mathcal{V}\}
+    \end{equation}
+    \item \textbf{DataFrame:} A 2D tabular structure composed of an ordered collection of columns, each sharing a common row \texttt{Index}. Internally, Pandas groups columns of identical \texttt{dtype} into 2D NumPy array chunks called **Block Managers** to maximize memory efficiency.
+    \item \textbf{Automatic Index Alignment Invariant:} When performing arithmetic between two Series ($S_1 + S_2$), Pandas aligns data on matching index labels (set union $\mathcal{I}_1 \cup \mathcal{I}_2$), NOT by positional order. Indices present in one Series but absent in the other produce \texttt{NaN} (missing value) automatically.
+\end{enumerate}
 \end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: Introduction to Matplotlib}{https://www.youtube.com/watch?v=hk6NsCfvftY}
-Official lecture demonstrating plot creation, line charts, scatter plots, titles, labels, and legends.
-\end{videocard}
+\subsection{Deterministic Selection: \texttt{.loc} vs. \texttt{.iloc}}
 
-\section{Common Chart Types for Data Science}
-
-\begin{theorembox}{Plot Types and Use Cases}
-\begin{itemize}
-    \item \textbf{Line Plot (\texttt{plt.plot}):} Trends over continuous time or ordered variables.
-    \item \textbf{Scatter Plot (\texttt{plt.scatter}):} Relationship and correlation between two numerical variables.
-    \item \textbf{Bar Chart (\texttt{plt.bar}):} Comparing numerical measurements across discrete categories.
-    \item \textbf{Histogram (\texttt{plt.hist}):} Frequency distribution of a single continuous variable.
-\end{itemize}
+\begin{theorembox}{The Slicing Boundary Disparity}
+\index{.loc} \index{.iloc}
+Pandas provides two explicit indexing operators to eliminate ambiguities:
+\begin{enumerate}
+    \item \textbf{\texttt{.iloc[row\_pos, col\_pos]} (Integer Position):}
+    Operates strictly on standard 0-indexed integer offsets $[0, N-1]$. Slicing follows standard Python half-open intervals:
+    \begin{equation}
+    \text{\texttt{df.iloc[0:3]}} \implies \text{Rows at positions } 0, 1, 2 \quad (\text{Stop is exclusive})
+    \end{equation}
+    \item \textbf{\texttt{.loc[row\_label, col\_label]} (Label Based):}
+    Operates on index labels and column names. Slicing follows closed intervals:
+    \begin{equation}
+    \text{\texttt{df.loc['A':'C']}} \implies \text{Rows labeled } 'A', 'B', 'C' \quad (\text{\textbf{Both endpoints inclusive!}})
+    \end{equation}
+\end{enumerate}
 \end{theorembox}
 
-\begin{examplebox}{Scatter Plot and Histogram Example}
-\begin{lstlisting}
-# Scatter Plot for Feature Association
-heights = [160, 165, 170, 175, 180]
-weights = [55, 62, 68, 74, 82]
-plt.scatter(heights, weights, color='purple')
-plt.title("Height vs Weight Scatter Plot")
+\subsection{The Split-Apply-Combine Groupby Calculus}
 
-# Histogram for Distribution Analysis
-data = np.random.normal(loc=0, scale=1, size=1000)
-plt.hist(data, bins=30, color='teal', edgecolor='black')
-plt.title("Normal Distribution Histogram")
-\end{lstlisting}
-\end{examplebox}
-
-\index{Matplotlib}\index{Scatter Plot}\index{Histogram}\index{EDA}
-
-\textbf{Data Science Relevance:} Data visualization is critical during Exploratory Data Analysis (EDA) to detect outliers, assess skewness, inspect feature correlations, and present findings to business stakeholders.
-
-
-\section{Course Summary and Next Steps}
-
-Congratulations! You have completed the foundational Python programming curriculum for Data Science.
-
-\begin{formulabox}{Core Curriculum Overview}
+\begin{definitionbox}{The Formal Groupby Operator}
+\index{Groupby} \index{Split-Apply-Combine}
+Let a dataset $D = \{(x_i, y_i)\}_{i=1}^N$ possess a categorical key $k(x_i) \in \mathcal{K}$. The Groupby operator performs three discrete stages:
 \begin{enumerate}
-    \item \textbf{Weeks 1–3:} Variables, Types, Control Flow, and Loops.
-    \item \textbf{Weeks 4–5:} Data Structures (Lists, Tuples, Dicts, Sets) and Matrix Operations.
-    \item \textbf{Weeks 6–7:} Modular Design with Functions, Scopes, Comprehensions, and Generators.
-    \item \textbf{Weeks 8–9:} File Processing, Robust Exception Handling, Recursion, and Binary Search.
-    \item \textbf{Weeks 10–12:} Object-Oriented Architecture, Scientific Computing (NumPy/Pandas), and Visualization (Matplotlib).
+    \item \textbf{Split:} Partitions index set $\{1, \dots, N\}$ into disjoint subsets $I_k = \{i \mid k(x_i) = k\}$.
+    \item \textbf{Apply:} Computes an aggregation or transformation function $g: \mathbb{R}^{|I_k|} \to \mathbb{R}$ independently on each partition (e.g., sample mean $\bar{y}_k = \frac{1}{|I_k|} \sum_{i \in I_k} y_i$).
+    \item \textbf{Combine:} Stitches the aggregated scalar results back into a single labeled DataFrame indexed by $\mathcal{K}$.
 \end{enumerate}
-\end{formulabox}
+\end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: Course Summary and Next Steps}{https://www.youtube.com/watch?v=XYDiGqzVKyo}
-Official course summary reviewing core concepts and outlining advanced topics in Data Science.
-\end{videocard}
+\section{Visual \& Computational Intuition: Groupby \& Plotting Hierarchies}
+
+Figure~\ref{fig:pandas_groupby} illustrates the three-stage Split-Apply-Combine aggregation workflow and the Matplotlib Figure-Axes object hierarchy.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=0.88,
+    box/.style={rectangle, draw=primarydark, fill=primarylight!30, thick, rounded corners, minimum width=2.4cm, minimum height=0.7cm, font=\small},
+    group/.style={rectangle, draw=forest, fill=forest!15, thick, rounded corners, minimum width=2.2cm, minimum height=0.6cm, font=\footnotesize\bfseries},
+    arr/.style={-stealth, thick, primarydark}
+]
+    % Split-Apply-Combine Flow
+    \node[font=\bfseries, primarydark] at (-3.5, 2.8) {Pandas Split-Apply-Combine};
+    \node[box] (raw) at (-3.5, 1.8) {Raw DataFrame ($N$ rows)};
+    \node[group] (gA) at (-5.0, 0.4) {Group A ($n_A$)};
+    \node[group] (gB) at (-2.0, 0.4) {Group B ($n_B$)};
+    \node[box, fill=accent!15, draw=accent] (aggA) at (-5.0, -1.0) {Mean: $\bar{y}_A$};
+    \node[box, fill=accent!15, draw=accent] (aggB) at (-2.0, -1.0) {Mean: $\bar{y}_B$};
+    \node[box, fill=forest!25] (out) at (-3.5, -2.4) {Summary Table};
+
+    \draw[arr] (raw) -- node[left, font=\tiny] {Split} (gA);
+    \draw[arr] (raw) -- node[right, font=\tiny] {Split} (gB);
+    \draw[arr] (gA) -- node[left, font=\tiny] {Apply} (aggA);
+    \draw[arr] (gB) -- node[right, font=\tiny] {Apply} (aggB);
+    \draw[arr] (aggA) -- node[left, font=\tiny] {Combine} (out);
+    \draw[arr] (aggB) -- node[right, font=\tiny] {Combine} (out);
+
+    % Matplotlib Canvas Hierarchy
+    \node[font=\bfseries, forest] at (3.5, 2.8) {Matplotlib Object Hierarchy};
+    \draw[thick, draw=primarydark, fill=gray!8, rounded corners=6pt] (1.2, -2.6) rectangle (5.8, 2.2);
+    \node[font=\small\bfseries, primarydark] at (3.5, 1.8) {Figure Canvas (\texttt{fig})};
+
+    \draw[thick, draw=forest, fill=forest!10, rounded corners=4pt] (1.6, -0.2) rectangle (5.4, 1.3);
+    \node[font=\footnotesize\bfseries, forest] at (3.5, 0.9) {Axes Subplot 1 (\texttt{ax1})};
+    \node[font=\tiny] at (3.5, 0.3) {Spines, Ticks, Labels, Line2D};
+
+    \draw[thick, draw=accent, fill=accent!10, rounded corners=4pt] (1.6, -2.2) rectangle (5.4, -0.7);
+    \node[font=\footnotesize\bfseries, accent] at (3.5, -1.1) {Axes Subplot 2 (\texttt{ax2})};
+    \node[font=\tiny] at (3.5, -1.7) {Histogram Bars, Patches};
+
+\end{tikzpicture}
+\caption{Left: The Split-Apply-Combine paradigm. Right: The Matplotlib Object-Oriented Hierarchy where a single Figure canvas manages independent Axes coordinate subplots.}
+\label{fig:pandas_groupby}
+\end{figure}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Missing Data Mechanics: The IEEE 754 NaN Invariant}
+In Pandas, missing numerical entries default to \texttt{np.nan} (Not a Number), conforming to IEEE 754 floating-point standards:
+\begin{equation}
+\text{\texttt{np.nan == np.nan}} \implies \mathbf{False}
+\end{equation}
+Because \texttt{NaN} never equals itself, conditional checks like \texttt{if x == np.nan:} silently fail! We must use \texttt{pd.isna(x)} or \texttt{np.isnan(x)}.
+\textbf{Imputation Strategies:}
+\begin{itemize}
+    \item \textbf{Mean Imputation:} $\hat{x} = \frac{1}{|V|} \sum_{i \in V} x_i$ (preserves sample mean, shrinks sample variance).
+    \item \textbf{Median Imputation:} Robust to extreme outliers in skewed feature distributions.
+\end{itemize}
+
+\subsection{Statistical EDA Visualizations}
+\begin{enumerate}
+    \item \textbf{Box Plots and the IQR Rule:} Visualizes the five-number summary: minimum, first quartile $Q_1$, median $Q_2$, third quartile $Q_3$, and maximum. Outliers are defined as points falling outside the Tukey fences:
+    \begin{equation}
+    x < Q_1 - 1.5 \times \text{IQR} \quad \lor \quad x > Q_3 + 1.5 \times \text{IQR}, \quad \text{where } \text{IQR} = Q_3 - Q_1
+    \end{equation}
+    \item \textbf{Histograms and Density Estimation:} Partitions data into $B$ bins of width $\Delta = \frac{\max(x) - \min(x)}{B}$, estimating empirical probability density.
+\end{enumerate}
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{The \texttt{SettingWithCopyWarning} Chained Indexing Bug}
+Attempting to assign values using chained brackets causes silent failures or warnings:
+\begin{lstlisting}[language=Python]
+# DANGEROUS: Chained indexing
+df[df["Salary"] > 50000]["Bonus"] = 5000  # Raises SettingWithCopyWarning!
+\end{lstlisting}
+The first bracket \texttt{df[df["Salary"] > 50000]} may return a temporary copy rather than a view. The subsequent assignment mutates the temporary copy, leaving the original DataFrame \texttt{df} completely unmodified!
+\textbf{The Correct Atomic Indexing Solution:} Always use a single \texttt{.loc} call:
+\begin{lstlisting}[language=Python]
+df.loc[df["Salary"] > 50000, "Bonus"] = 5000  # Guaranteed in-place update!
+\end{lstlisting}
+\end{trapbox}
+
+\begin{trapbox}{Inclusive Endpoint Slicing in \texttt{.loc} vs \texttt{.iloc}}
+Programmers frequently introduce off-by-one errors when switching between \texttt{.loc} and \texttt{.iloc}:
+\begin{lstlisting}[language=Python]
+# df has integer index: 0, 1, 2, 3, 4
+sub1 = df.iloc[0:2]  # Returns 2 rows: indices 0 and 1! (Half-open [0, 2))
+sub2 = df.loc[0:2]   # Returns 3 rows: indices 0, 1, AND 2! (Closed [0, 2])
+\end{lstlisting}
+Remember that \texttt{.loc} treats numerical endpoints as labels, including both boundaries.
+\end{trapbox}
+
+\begin{trapbox}{Stateful \texttt{plt.} vs Object-Oriented \texttt{fig, ax}}
+Relying on stateful functions (\texttt{plt.plot()}, \texttt{plt.title()}) in complex scripts causes state pollution where figures inadvertently draw on top of previously opened plots. Always instantiate explicit objects:
+\begin{lstlisting}[language=Python]
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.plot(x, y)
+ax.set_title("Title")  # Method on specific axes instance!
+\end{lstlisting}
+\end{trapbox}
+
+\begin{trapbox}{Inadvertent Index Corruption During Groupby}
+By default, \texttt{df.groupby('Category').mean()} converts the grouping column into the DataFrame's index. To prevent downstream errors when treating the grouping key as a regular feature column, use \texttt{as\_index=False} or invoke \texttt{.reset\_index()}.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2.6cm} p{2.6cm} p{2.6cm} p{4.2cm}}
+\hline
+\textbf{Tool / Method} & \textbf{Indexing Mode} & \textbf{Endpoint Rule} & \textbf{Primary Purpose} \\
+\hline
+\textbf{\texttt{df.iloc[]}} & Integer Position & Stop Exclusive & Positional extraction, matrix batching \\
+\textbf{\texttt{df.loc[]}} & Index Label / Mask & Both Inclusive & Conditional filtering, column assignment \\
+\textbf{\texttt{df.groupby()}} & Categorical Keys & Aggregated table & Cohort analysis, feature engineering \\
+\textbf{\texttt{df.fillna()}} & Imputation & Value / Method & Handling missing data before ML models \\
+\textbf{\texttt{ax.plot()}} & Object-Oriented & Continuous lines & Visualizing learning curves, time series \\
+\textbf{\texttt{ax.scatter()}} & Object-Oriented & Discrete points & Visualizing feature correlations and clusters \\
+\textbf{\texttt{ax.boxplot()}} & Object-Oriented & IQR Fences & Outlier detection, distribution skewness \\
+\hline
+\end{tabular}
+\caption{Taxonomy of Pandas tabular querying operators and Matplotlib visualization APIs.}
+\label{tab:pandas_summary}
+\end{table}
+
+\section{Python / Scientific Computing Lab}
+
+The following industrial script executes an end-to-end Exploratory Data Analysis (EDA) Pipeline on customer transactions: missing value imputation, group-level feature engineering, outlier detection via the Interquartile Range, and generation of a multi-panel Matplotlib dashboard.
+
+\begin{lstlisting}[language=Python]
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 1. Construct raw stochastic dataset with missing records and outliers
+np.random.seed(42)
+n_records = 200
+data = {
+    "Department": np.random.choice(["Engineering", "Sales", "Marketing"], size=n_records),
+    "Experience_Years": np.random.uniform(1.0, 15.0, size=n_records),
+    "Salary": np.random.normal(75000, 15000, size=n_records),
+    "Performance_Score": np.random.uniform(50.0, 100.0, size=n_records)
+}
+df = pd.DataFrame(data)
+
+# Inject missing values and extreme outliers
+df.loc[np.random.choice(n_records, 10, replace=False), "Salary"] = np.nan
+df.loc[0, "Salary"] = 250000.0  # High outlier
+
+# 2. Robust Preprocessing Pipeline
+# Clean missing values using department-level median imputation
+df["Salary"] = df.groupby("Department")["Salary"].transform(lambda grp: grp.fillna(grp.median()))
+
+# Outlier Detection using IQR method
+q1 = df["Salary"].quantile(0.25)
+q3 = df["Salary"].quantile(0.75)
+iqr = q3 - q1
+lower_fence = q1 - 1.5 * iqr
+upper_fence = q3 + 1.5 * iqr
+outliers = df[(df["Salary"] < lower_fence) | (df["Salary"] > upper_fence)]
+print(f"[EDA] Detected {len(outliers)} salary outliers.")
+
+# Groupby Aggregation Summary
+dept_summary = df.groupby("Department", as_index=False).agg(
+    Avg_Salary=("Salary", "mean"),
+    Median_Salary=("Salary", "median"),
+    Avg_Score=("Performance_Score", "mean"),
+    Headcount=("Salary", "count")
+)
+print("Departmental Summary:\n", dept_summary.round(2))
+
+# 3. Multi-Panel Object-Oriented Matplotlib Visualization
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+# Subplot 1: Experience vs Salary Scatter Plot with Regression Trend
+ax1 = axes[0]
+for dept, color in zip(["Engineering", "Sales", "Marketing"], ["blue", "green", "red"]):
+    subset = df[df["Department"] == dept]
+    ax1.scatter(subset["Experience_Years"], subset["Salary"], label=dept, color=color, alpha=0.6)
+
+ax1.set_title("Salary vs. Experience by Department")
+ax1.set_xlabel("Years of Experience")
+ax1.set_ylabel("Salary ($)")
+ax1.legend()
+ax1.grid(True, linestyle="--", alpha=0.5)
+
+# Subplot 2: Department Salary Distribution Boxplot
+ax2 = axes[1]
+salary_data = [df[df["Department"] == d]["Salary"] for d in ["Engineering", "Sales", "Marketing"]]
+ax2.boxplot(salary_data, tick_labels=["Engineering", "Sales", "Marketing"], patch_artist=True)
+ax2.set_title("Salary Distributions (Outlier Inspection)")
+ax2.set_ylabel("Salary ($)")
+ax2.grid(True, linestyle="--", alpha=0.5)
+
+plt.tight_layout()
+# In interactive environments: plt.show()
+print("[EDA] Visual dashboard successfully compiled.")
+\end{lstlisting}
 
 \newpage
-\section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\section{Comprehensive Practice Problems}
+\textit{Detailed step-by-step solutions and distractor analyses are provided in the Appendix.}
+
+\subsection*{Part A: Computational \& Analytical Problems}
 
 \begin{enumerate}
-    \item \textbf{Basic Line Plot:} Write a Matplotlib script to plot $y = x^2$ for $x \in [-5, 5]$ with $100$ points. Add title \texttt{"Quadratic Function"}, x-label \texttt{"x"}, y-label \texttt{"f(x) = x\textasciicircum{}2"}, and display a grid.
-
-    \item \textbf{Comparing Distributions (Subplots):} Write a Matplotlib script using \texttt{plt.subplots(1, 2)} to display two side-by-side plots:
+    \item \textbf{Label-Based vs. Integer Positional Slicing Discrepancies:}
+    Consider the DataFrame:
+    \begin{lstlisting}[language=Python]
+    import pandas as pd
+    df = pd.DataFrame({"Score": [88, 92, 79, 95, 84]}, index=[1, 2, 3, 4, 5])
+    \end{lstlisting}
     \begin{enumerate}
-        \item Left Subplot: A bar chart of top 3 programming languages \texttt{['Python', 'SQL', 'R']} with popularity scores \texttt{[95, 80, 60]}.
-        \item Right Subplot: A histogram of $500$ random points drawn from a uniform distribution between $0$ and $100$.
+        \item What rows are returned by \texttt{df.loc[1:3]}? What is the length of the slice?
+        \item What rows are returned by \texttt{df.iloc[1:3]}? What is the length of the slice?
+        \item Explain the underlying principle that causes \texttt{df.loc} and \texttt{df.iloc} to differ on identical slice indices.
     \end{enumerate}
 
-    \item \textbf{Customizing Scatter Plots:} Create a scatter plot of $20$ random $(x, y)$ points. Set point color to green, marker style to \texttt{'\textasciicircum{}'} (triangle), and marker size to $50$.
+    \item \textbf{Resolving \texttt{SettingWithCopyWarning} in Data Pipelines:}
+    Explain why the following code triggers a \texttt{SettingWithCopyWarning}:
+    \begin{lstlisting}[language=Python]
+    df = pd.DataFrame({"A": [1, 2, 3], "B": [10, 20, 30]})
+    subset = df[df["A"] > 1]
+    subset["B"] = 999
+    \end{lstlisting}
+    Provide two distinct, idiomatic solutions: one that modifies the original DataFrame \texttt{df}, and one that works on an independent copy without warnings.
 
-    \item \textbf{Comprehensive Review Question (Data Pipeline):} Write a Python function \texttt{analyze\_dataset(data)} that takes a list of raw numeric measurements:
+    \item \textbf{Split-Apply-Combine Feature Normalization:}
+    Given an employee dataset containing \texttt{"Department"} and \texttt{"Salary"}:
+    Write a single-line Pandas expression using \texttt{.groupby()} and \texttt{.transform()} that calculates the standardized $z$-score of each employee's salary \emph{relative to their specific department's mean and standard deviation}:
+    \begin{equation}
+    z_{i, \text{dept}} = \frac{x_i - \mu_{\text{dept}}}{\sigma_{\text{dept}}}
+    \end{equation}
+
+    \item \textbf{The Tukey Outlier Fencing Rule:}
+    Given a Pandas Series of customer transaction values:
+    \texttt{tx = pd.Series([10.0, 12.0, 15.0, 18.0, 20.0, 22.0, 25.0, 150.0])}.
     \begin{enumerate}
-        \item Cleans the list by removing negative values using list comprehension.
-        \item Calculates the mean and standard deviation of the valid numbers using NumPy.
-        \item Returns a dictionary \texttt{\{"count": N, "mean": M, "std": S\}}.
+        \item Compute the first quartile $Q_1$, median $Q_2$, and third quartile $Q_3$.
+        \item Calculate the Interquartile Range (IQR).
+        \item Compute the upper fence $Q_3 + 1.5 \times \text{IQR}$.
+        \item Identify all transactions classified as statistical outliers.
     \end{enumerate}
 
-    \item \textbf{Data Science Application (Plotting a Loss Curve):} In deep learning, model loss decreases over training epochs. Given \texttt{epochs = range(1, 11)} and \texttt{loss = [2.5, 1.8, 1.2, 0.8, 0.5, 0.35, 0.25, 0.18, 0.15, 0.12]}, write a Matplotlib script to plot the training loss curve with a red line and square markers.
+    \item \textbf{Multi-Panel Object-Oriented Matplotlib Visualizer:}
+    Write a complete Python function \texttt{plot\_diagnostics(y\_true, y\_pred)} that uses Matplotlib's object-oriented API (\texttt{plt.subplots(1, 2)}) to generate:
+    \begin{enumerate}
+        \item Subplot 1: A scatter plot of actual values $y$ vs. predicted values $\hat{y}$, including a diagonal reference dashed line $y = x$.
+        \item Subplot 2: A histogram of the prediction residuals $e = y - \hat{y}$ with 20 bins.
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions (Single Correct)}
+
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item \textbf{The IEEE 754 Floating-Point NaN Truthiness Trap:}
+    Consider the following statements executed in Python:
+    \begin{lstlisting}[language=Python]
+    import numpy as np
+    import pandas as pd
+    check1 = (np.nan == np.nan)
+    check2 = (pd.NA == pd.NA)
+    check3 = pd.isna(np.nan)
+    \end{lstlisting}
+    What are the evaluated truth values of \texttt{check1}, \texttt{check2}, and \texttt{check3}?
+    \begin{enumerate}
+        \item \texttt{check1 = False}, \quad \texttt{check2 = <NA>}, \quad \texttt{check3 = True}
+        \item \texttt{check1 = True}, \quad \texttt{check2 = True}, \quad \texttt{check3 = True}
+        \item \texttt{check1 = False}, \quad \texttt{check2 = False}, \quad \texttt{check3 = True}
+        \item \texttt{check1 = True}, \quad \texttt{check2 = False}, \quad \texttt{check3 = False}
+    \end{enumerate}
+
+    \item \textbf{Pandas Automatic Index Alignment Invariant:}
+    Given two Series:
+    \begin{lstlisting}[language=Python]
+    s1 = pd.Series([10, 20, 30], index=['a', 'b', 'c'])
+    s2 = pd.Series([1, 2, 3], index=['b', 'c', 'd'])
+    s3 = s1 + s2
+    \end{lstlisting}
+    What is the evaluated result of \texttt{s3}?
+    \begin{enumerate}
+        \item Series with index \texttt{['a', 'b', 'c', 'd']} and values \texttt{[NaN, 21.0, 32.0, NaN]}
+        \item Series with index \texttt{['b', 'c']} and values \texttt{[21.0, 32.0]}
+        \item Series with index \texttt{['a', 'b', 'c']} and values \texttt{[11.0, 22.0, 33.0]}
+        \item \texttt{ValueError: indices do not match}
+    \end{enumerate}
 \end{enumerate}

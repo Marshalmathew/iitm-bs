@@ -1,145 +1,216 @@
 \chapter{Describing Categorical Data}
 
-This chapter focuses on organizing and visualizing categorical variables — variables whose values are labels or group memberships rather than continuous numbers. In data science, categorical data is extremely common (e.g., predicting if an email is "Spam" or "Not Spam", classifying images as "Dog" or "Cat").
-
+In data science pipelines and exploratory data analysis (EDA), categorical variables frequently represent targets (e.g., churn vs. retention, fraud vs. legitimate) or structural groupings (e.g., geographic regions, experimental treatment arms). Unlike quantitative variables, categorical features cannot be summarized using algebraic means or standard deviations. Instead, we summarize categorical distributions through \textbf{Frequency and Relative Frequency Distributions}, \textbf{Contingency Tables}, \textbf{Mode and Ordinal Medians}, and visual architectures including \textbf{Bar, Pareto, and Mosaic plots}. We also analyze the classic cognitive trap: \textbf{Simpson's Paradox}.
 
 \vspace{0.5cm}
 \begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
 \begin{itemize}
-    \item Frequency Distribution Tables
-    \item Charts for Categorical Data
-    \item Mode and Median for Categorical Variables
+    \item Mathematical definitions of Frequency ($f_i$), Relative Frequency ($rf_i$), and Joint/Marginal frequencies.
+    \item Two-Way Contingency Tables: marginal distributions and conditional distributions.
+    \item Graphical taxonomy: Bar Charts, Relative Frequency Charts, Pareto Charts, and Pie Charts.
+    \item Measures of location for categorical data: Unimodal/Multimodal Mode, and cumulative median for Ordinal data.
+    \item Cognitive fallacies: Truncated baseline illusion, Pie chart perceptual failure, and Simpson's Paradox in aggregated tables.
+    \item Two-tier exercises with diagnostic multiple choice questions on confounding and ordinal medians.
 \end{itemize}
 \end{tcolorbox}
+
 \section{Frequency Distribution Tables}
 
-To make sense of raw categorical data, we must first summarize it into counts.
+Let a categorical variable $X$ take values in $k$ mutually exclusive categories $\{c_1, c_2, \dots, c_k\}$ across a sample of size $n$.
 
-\begin{definitionbox}{Frequency, Relative Frequency, and Percentage}
-Given a categorical variable observed $n$ times:
+\begin{definitionbox}{Frequency and Relative Frequency}
+\index{Frequency}\index{Relative Frequency}
 \begin{itemize}
-    \item \textbf{Frequency ($f_i$):} The absolute count of observations falling into category $i$.
-    \item \textbf{Relative Frequency ($rf_i$):} The proportion of observations falling into category $i$:
-    $$rf_i = \frac{f_i}{n}$$
-    \item \textbf{Percentage:} Simply $rf_i \times 100\%$.
-    \item \textbf{Mathematical Axiom:} The sum of all frequencies equals the total sample size $n$. The sum of all relative frequencies must exactly equal $1$.
+    \item \textbf{Absolute Frequency ($f_i$):} The observed count of instances falling into category $c_i$:
+    $$f_i = \sum_{j=1}^n \mathbb{I}(x_j = c_i) \quad \text{such that} \quad \sum_{i=1}^k f_i = n$$
+    \item \textbf{Relative Frequency ($rf_i$):} The empirical proportion of observations in category $c_i$:
+    $$rf_i = \frac{f_i}{n} \quad \text{such that} \quad \sum_{i=1}^k rf_i = 1.00 \quad (100\%)$$
+    \item \textbf{Cumulative Relative Frequency ($crf_m$):} For \emph{Ordinal} categories ordered $c_1 < c_2 < \dots < c_k$:
+    $$crf_m = \sum_{i=1}^m rf_i = \frac{1}{n}\sum_{i=1}^m f_i$$
 \end{itemize}
 \end{definitionbox}
 
-\textbf{Data Science Relevance:} In classification algorithms, checking the relative frequency of your target categories is the most important first step. If you have a dataset with 99\% "Not Spam" and 1\% "Spam", your dataset suffers from \index{Class Imbalance}\textbf{Class Imbalance}. An algorithm could achieve 99\% accuracy simply by guessing "Not Spam" every time, without actually learning anything!
+\begin{intuitionbox}{Class Imbalance in Machine Learning}
+Checking relative frequencies is the first diagnostic step before training a classifier. If a credit card fraud dataset contains $f_{\text{legitimate}} = 999{,}000$ ($99.9\%$) and $f_{\text{fraud}} = 1{,}000$ ($0.1\%$), a naive model that blindly predicts "Legitimate" for all transactions achieves a deceptive $99.9\%$ accuracy while catching zero fraudulent transactions. In imbalanced settings, accuracy is meaningless; precision, recall, and PR-AUC must be computed instead.
+\end{intuitionbox}
 
-\begin{videocard}{IITM BS Lecture: W2\_L1 Frequency Distributions}{https://www.youtube.com/watch?v=0-PO41B6zL0}
+\begin{videocard}{IITM BS Lecture: Frequency Distributions}{https://www.youtube.com/watch?v=0-PO41B6zL0}
 Official lecture detailing how to build frequency and relative frequency tables from raw categorical data.
 \end{videocard}
 
-\begin{examplebox}{Frequency Table for a Categorical Variable}
-50 students chose their favourite subject: Maths (18), Stats (14), CS (12), English (6). Let's build a frequency table.
+\section{Two-Way Contingency Tables}
 
-\begin{center}
-\renewcommand{\arraystretch}{1.3}
-\begin{tabular}{lccc}
-\toprule
-\index{Subject}\textbf{Subject} & \index{Frequency}\textbf{Frequency} & \index{Relative Freq.}\textbf{Relative Freq.} & \index{Percentage}\textbf{Percentage} \\
-\midrule
-Maths   & 18 & 0.36 & 36\% \\
-Stats   & 14 & 0.28 & 28\% \\
-CS      & 12 & 0.24 & 24\% \\
-English &  6 & 0.12 & 12\% \\
-\midrule
-\index{Total}\textbf{Total} & \index{50}\textbf{50} & \index{1.00}\textbf{1.00} & \textbf{100\%} \\
-\bottomrule
-\end{tabular}
-\end{center}
-\end{examplebox}
+When analyzing the relationship between two categorical variables ($X$ with $R$ rows and $Y$ with $C$ columns), observations are organized in a \index{Contingency Table}\textbf{Contingency Table} (cross-tabulation).
 
-\begin{lstlisting}[caption={Calculating Frequencies in Pandas}]
-import pandas as pd
-
-# Create a Series of categorical data
-subjects = pd.Series(['Maths']*18 + ['Stats']*14 + ['CS']*12 + ['English']*6)
-
-# Calculate Absolute Frequencies
-freq_table = subjects.value_counts()
-print(freq_table)
-
-# Calculate Relative Frequencies (Proportions)
-rel_freq_table = subjects.value_counts(normalize=True)
-print(rel_freq_table)
-\end{lstlisting}
-
-\section{Charts for Categorical Data}
-
-Visualizing categorical data helps humans instantly grasp the distribution.
-
-\begin{theorembox}{Choosing the Right Chart}
+\begin{definitionbox}{Joint, Marginal, and Conditional Relative Frequencies}
+\index{Marginal Distribution}\index{Conditional Distribution}
+Let $n_{ij}$ denote the frequency count in cell $(i, j)$ and $n = \sum_{i=1}^R \sum_{j=1}^C n_{ij}$.
 \begin{itemize}
-    \item \textbf{Bar Chart:} Displays frequency or relative frequency on the y-axis; each category gets a separate bar. There are always gaps between the bars to indicate the categories are distinct. Best for comparing magnitudes across categories.
-    \item \textbf{Pie Chart:} Shows each category as a sector proportional to its relative frequency. Best for showing part-to-whole relationships. Use sparingly — human perception of exact angles is notoriously poor compared to perceiving heights.
-    \item \textbf{Pareto Chart:} A specialized bar chart sorted in descending order of frequency, with a cumulative frequency curve overlaid. Useful for identifying the "vital few" categories that cause the most impact (e.g., the 80/20 rule in defect analysis).
-\end{itemize}
-\end{theorembox}
-
-\begin{videocard}{IITM BS Lecture: W2\_L2 Charts of Categorical Data}{https://www.youtube.com/watch?v=OFDJTgEKLbE}
-Official lecture demonstrating how to properly construct Bar Charts and Pie Charts.
-\end{videocard}
-
-\section{Mode and Median for Categorical Variables}
-
-How do we find the "average" of categorical data? We cannot mathematically sum "Maths" + "English" and divide by two. Instead, we rely on the Mode and Median.
-
-\begin{definitionbox}{Mode and Median for Categorical Data}
-\index{Mode and Median for Categorical Data}
-\begin{itemize}
-    \item \textbf{Mode:} The category that appears most frequently (has the highest $f_i$). It is always defined for categorical data. A dataset can be \textit{unimodal} (one mode), \textit{bimodal}, or \textit{multimodal}.
-    \item \textbf{Median for Ordinal Data:} The middle category when observations are arranged in their natural, logical order. Because ordinal data has a meaningful ordering (e.g., Small, Medium, Large), a median is mathematically defined. \textbf{The median is NEVER defined for nominal data.}
+    \item \textbf{Joint Relative Frequency:} The proportion of the total sample in cell $(i, j)$:
+    $$p_{ij} = \frac{n_{ij}}{n}$$
+    \item \textbf{Marginal Row and Column Proportions:} The overall proportion for a single category:
+    $$p_{i\cdot} = \frac{\sum_{j=1}^C n_{ij}}{n} = \sum_{j=1}^C p_{ij}, \qquad p_{\cdot j} = \frac{\sum_{i=1}^R n_{ij}}{n} = \sum_{i=1}^R p_{ij}$$
+    \item \textbf{Conditional Relative Frequency (Given Row $i$):} The distribution of $Y$ restricted to row $i$:
+    $$p(j \mid i) = \frac{n_{ij}}{\sum_{j=1}^C n_{ij}} = \frac{p_{ij}}{p_{i\cdot}}$$
+    Two categorical variables are \textbf{independent} if and only if $p(j \mid i) = p_{\cdot j}$ for all $i$ and $j$.
 \end{itemize}
 \end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: W2\_L5 Mode \& Median}{https://www.youtube.com/watch?v=5Z8mhCgGkcE}
+\section{Measures of Central Tendency for Categorical Data}
+
+\begin{definitionbox}{Mode and Ordinal Median}
+\index{Mode}\index{Median}
+\begin{itemize}
+    \item \textbf{Mode:} The category with the highest frequency count ($f_{\text{mode}} = \max_i f_i$).
+    \begin{itemize}
+        \item The mode is the \emph{only} legitimate central tendency measure for \textbf{Nominal} variables.
+        \item A dataset may be \emph{unimodal} (single peak), \emph{bimodal} (two categories tied or near-tied for highest count), or \emph{multimodal}.
+    \end{itemize}
+    \item \textbf{Median (Strictly for Ordinal Data):} The category containing the $50^{\text{th}}$ percentile ($crf \ge 0.50$) when categories are arranged in their strict natural order.
+    $$\text{Median} = c_m \quad \text{where} \quad crf_{m-1} < 0.50 \le crf_m$$
+    \textbf{Critical Rule:} The median is completely undefined for Nominal data because changing the arbitrary display order would change the median!
+\end{itemize}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Mode and Median for Categorical Variables}{https://www.youtube.com/watch?v=5Z8mhCgGkcE}
 Official lecture on calculating central tendencies for Nominal vs. Ordinal categorical variables.
 \end{videocard}
 
-\begin{intuitionbox}{The Robustness of the Median}
-The Median is often preferred over the Mean (average) because it is highly \index{robust to outliers}\textbf{robust to outliers}. Imagine 5 people in a room making \$40k, \$50k, \$60k, \$70k, and \$80k. Both the median and mean are \$60k.
+\section{Comparative Synthesis: Visualizing Categorical Data}
 
-Now, Elon Musk walks in (making \$20 Billion). The mean skyrockets to over \$3 Billion, completely misrepresenting the typical person in the room! But the median simply shifts from the 3rd person (\$60k) to between the 3rd and 4th person (\$65k). The median doesn't care \emph{how} extreme the edges are, it only cares about the physical order of the data.
-\end{intuitionbox}
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{p{2.6cm}p{3.5cm}p{3.8cm}p{3.5cm}}
+\toprule
+\textbf{Visualization} & \textbf{Data Structure} & \textbf{Primary Strengths} & \textbf{Design Vulnerability} \\
+\midrule
+\textbf{Bar Chart} & Single Nominal / Ordinal & Direct comparison of absolute counts or proportions via linear height & Baseline truncation exaggerates differences \\
+\textbf{Pareto Chart} & Nominal (defect / error categories) & Identifies the "vital few" via descending bars + cumulative line ($80/20$ rule) & Dual-axis scaling can distort visual slope \\
+\textbf{Pie Chart} & Single categorical with few classes ($\le 5$) & Displays intuitive part-to-whole slice shares & Severely distorted by 3D effects; poor angular resolution \\
+\textbf{Stacked Bar} & Two categorical variables ($R \times C$) & Displays total counts and relative sub-segment compositions & Non-bottom segments lack a common reference baseline \\
+\bottomrule
+\end{tabular}
+\end{center}
 
-\begin{examplebox}{Mode and Median of Ordinal Data}
-40 customer satisfaction ratings on the scale Poor/Fair/Good/Excellent were recorded: Poor (5), Fair (8), Good (18), Excellent (9).
+\section{Cognitive Traps in Categorical Analysis}
+
+\begin{trapbox}{Trap 1: The Truncated Y-Axis Optical Illusion}
+In bar charts, the vertical axis \textbf{must strictly begin at zero}.
 \begin{itemize}
-    \item \textbf{Mode:} Good (highest frequency = 18).
-    \item \textbf{Median:} First, arrange the categories in order. Total $n = 40$, so the median lies between the 20th and 21st observations.
-    Cumulative counts: Poor (5), Fair (5+8=13), Good (13+18=31). 
-    Because both the 20th and 21st values fall within the "Good" category (which spans from the 14th to 31st observation), the Median = \index{Good}\textbf{Good}.
+    \item If Product A has a satisfaction score of $92\%$ and Product B has $96\%$, a bar chart starting at $90\%$ will show Product B's bar as three times taller than Product A's bar ($6\%$ visible vs. $2\%$ visible).
+    \item This creates a fraudulent visual impression of a $300\%$ advantage when the actual difference is only $4.3\%$.
 \end{itemize}
-\end{examplebox}
+\end{trapbox}
 
-\section{Best Practices for Graphing}
-
-Data visualizations can be highly misleading if not constructed ethically and correctly.
-
-\begin{theorembox}{Graph Design Principles}
+\begin{trapbox}{Trap 2: Simpson's Paradox (Reversal in Aggregated Data)}
+\index{Simpson's Paradox}
+\textbf{Simpson's Paradox} occurs when a trend, association, or advantage observed within multiple distinct subgroups \textbf{disappears or completely reverses} when the subgroups are pooled together into an aggregated total.
 \begin{itemize}
-    \item Always label both axes with variable names and units.
-    \item \index{Start the y-axis at zero}\textbf{Start the y-axis at zero} for bar charts. Truncating the y-axis exaggerates tiny differences between categories, leading to misleading visual comparisons.
-    \item Use consistent color schemes and avoid using color \emph{alone} to convey information (for accessibility/color-blindness).
-    \item Avoid 3-D effects and unnecessary "chart junk" (excessive gridlines, borders, shadows) that obscure the data.
+    \item \textbf{Mathematical Cause:} Arises when an unobserved or ignored \emph{confounding variable} (a lurking variable) is strongly associated with both the grouping variable and the outcome variable, creating disproportionate subgroup weights.
+    \item \textbf{Data Science Rule:} Never base strategic or clinical decisions purely on aggregated marginal rates without stratifying by key confounding variables!
 \end{itemize}
-\end{theorembox}
+\end{trapbox}
+
+\begin{videocard}{IITM BS Lecture: Charts of Categorical Data}{https://www.youtube.com/watch?v=OFDJTgEKLbE}
+Official lecture demonstrating how to properly construct Bar Charts and Pie Charts.
+\end{videocard}
+
+\section{Python Implementation: Contingency Tables and Simpson's Paradox}
+
+\begin{lstlisting}[caption={Contingency Tables, Normalization, and Simpson's Paradox in Python}]
+import pandas as pd
+import numpy as np
+
+# Demonstrating Simpson's Paradox: Treatment A vs B across Mild and Severe cases
+data = {
+    'Severity': ['Mild']*100 + ['Mild']*400 + ['Severe']*400 + ['Severe']*100,
+    'Treatment': ['A']*100 + ['B']*400 + ['A']*400 + ['B']*100,
+    'Recovered': [1]*90 + [0]*10 + [1]*340 + [0]*60 +  # Mild: A=90%, B=85%
+                 [1]*240 + [0]*160 + [1]*50 + [0]*50   # Severe: A=60%, B=50%
+}
+df = pd.DataFrame(data)
+
+# 1. Stratified Recovery Rates by Subgroup
+stratified = df.groupby(['Severity', 'Treatment'])['Recovered'].mean().unstack()
+print("--- Stratified Recovery Rates (Treatment A beats B in BOTH cohorts) ---")
+print(stratified)
+
+# 2. Aggregated Recovery Rates (Simpson's Paradox Reversal!)
+aggregated = df.groupby('Treatment')['Recovered'].mean()
+print("\n--- Aggregated Recovery Rates (B falsely appears superior!) ---")
+print(aggregated)
+\end{lstlisting}
 
 \newpage
 \section{Practice Exercises}
 \textit{Detailed step-by-step solutions are available in the Appendix.}
 
+\subsection*{Part A: Computational and Analytical Problems}
+
 \begin{enumerate}
-    \item \textbf{Frequency Calculations:} In a survey of 200 people regarding their preferred smartphone OS, 110 chose Android, 80 chose iOS, and the rest chose Other. Calculate the relative frequency and percentage for each category.
-    \item \textbf{Charting Logic:} You are tasked with presenting the market share of 5 different car companies. You want your audience to quickly grasp that Company A holds exactly half (50\%) of the total market. Which chart (Bar Chart or Pie Chart) is better suited to convey this specific message? Why?
-    \item \textbf{Graphing Ethics:} A company releases a bar chart comparing its sales to a competitor's. The competitor's bar has a height of $10,000$, and the company's bar has a height of $11,000$. However, the company's bar looks visually twice as tall as the competitor's bar. What cardinal rule of graphing did they violate?
-    \item \textbf{Mode and Median:} A t-shirt store sells 50 shirts in the following sizes: Small (10), Medium (20), Large (15), Extra Large (5). 
+    \item \textbf{Frequency and Relative Frequency Calculations:} In a market survey of $n = 500$ consumers regarding their primary streaming platform:
+    \begin{itemize}
+        \item Netflix: 215 subscribers
+        \item Amazon Prime: 145 subscribers
+        \item Disney+: 90 subscribers
+        \item Other platforms: Remaining respondents
+    \end{itemize}
+    Construct a complete frequency and relative frequency distribution table.
+
+    \item \textbf{Pareto Analysis in Quality Engineering:} A cloud hosting company analyzes $n = 1{,}000$ server downtime incidents across five root causes: Network Outage (480), Database Deadlock (290), Software Bug (130), Hardware Fault (70), Human Operator Error (30).
     \begin{enumerate}
-        \item What is the mode?
-        \item What is the median?
+        \item Compute the percentage and cumulative percentage for each category.
+        \item Determine which causes constitute the "vital few" responsible for at least $75\%$ of all incidents.
     \end{enumerate}
-    \item \textbf{Data Science Application:} You are classifying tumor images as Benign or Malignant. In your dataset of 10,000 images, 9,800 are Benign and 200 are Malignant. You write a terrible AI model that simply outputs "Benign" for every single image it sees, without even analyzing the picture. What is the accuracy of your model? What is this dataset problem called?
+
+    \item \textbf{Contingency Table Analysis:} An e-commerce store tracks 400 customer visits categorized by Device Type and Purchase Outcome:
+    \begin{center}
+    \begin{tabular}{l|cc|c}
+    & Purchased & Abandoned & Total \\
+    \hline
+    Mobile & 60 & 180 & 240 \\
+    Desktop & 80 & 80 & 160 \\
+    \hline
+    Total & 140 & 260 & 400 \\
+    \end{tabular}
+    \end{center}
+    \begin{enumerate}
+        \item Compute the overall marginal conversion rate $P(\text{Purchased})$.
+        \item Compute the conditional conversion rates $P(\text{Purchased} \mid \text{Mobile})$ and $P(\text{Purchased} \mid \text{Desktop})$.
+        \item Are Device Type and Purchase Outcome independent?
+    \end{enumerate}
+
+    \item \textbf{Ordinal Median Determination:} A software usability test records feedback from $n = 80$ users on a 5-point Likert scale:
+    \begin{center}
+    \begin{tabular}{ccccc}
+    Strongly Disagree (1) & Disagree (2) & Neutral (3) & Agree (4) & Strongly Agree (5) \\
+    \hline
+    6 & 14 & 25 & 27 & 8 \\
+    \end{tabular}
+    \end{center}
+    Determine the Mode and the Median category. Show cumulative counts.
+
+    \item \textbf{Graphing Ethics Analysis:} An executive dashboard displays a bar chart comparing quarterly sales: Q1 (\$10.2M) and Q2 (\$10.8M). The bar chart's vertical axis begins at \$10.0M rather than \$0.0M. Calculate the ratio of the physical heights of the two bars on the screen and compare it to the true percentage increase in sales.
+\end{enumerate}
+
+\subsection*{Part B: Conceptual and Diagnostic Multiple Choice Questions}
+
+\begin{enumerate}[resume]
+\item \textbf{Conceptual Diagnostic: Mechanism of Simpson's Paradox} \\
+A medical center evaluates two surgical procedures, Procedure A and Procedure B. In clinical trials, Procedure A achieves a higher success rate than Procedure B on mild cases ($95\%$ vs $90\%$) and also on severe cases ($70\%$ vs $60\%$). However, when all patient records are aggregated across the entire hospital, Procedure B exhibits an overall success rate of $84\%$, while Procedure A exhibits an overall success rate of only $75\%$. What mathematical condition is responsible for this paradoxical reversal?
+\begin{enumerate}
+    \item A calculation error in summing percentages, because percentages cannot be added directly.
+    \item Confounding caused by an unequal distribution of patient severity: Procedure A was assigned to a vastly higher proportion of severe cases with low baseline survival, while Procedure B was assigned predominantly to easy, mild cases.
+    \item Violation of Stevens' scale of measurement, because medical outcomes are continuous ratio variables.
+    \item Class imbalance in the total number of patients, which invalidates the law of total probability.
+\end{enumerate}
+
+\item \textbf{Conceptual Diagnostic: Central Tendency for Ordinal Categorical Distributions} \\
+A human resources department assesses employee engagement using an ordinal scale: Unsatisfied ($U$), Neutral ($N$), Satisfied ($S$), and Highly Satisfied ($H$). Across 101 employees, the sorted responses are: 20 $U$, 25 $N$, 40 $S$, and 16 $H$. The HR director assigns numerical values $U=1, N=2, S=3, H=4$, calculates the arithmetic mean $\bar{x} = 2.51$, and reports: \textit{"Our average employee is slightly above Neutral."} Which of the following evaluations of the director's methodology is \textbf{most scientifically accurate}?
+\begin{enumerate}
+    \item The methodology is completely valid because any discrete ordinal scale can be treated as an interval scale once mapped to integers.
+    \item The methodology is flawed because ordinal categories do not guarantee equidistant spacing; the mathematically rigorous measure of location is the median category, which is \textbf{Satisfied ($S$)}.
+    \item The methodology is flawed because the mode is \textbf{Neutral ($N$)}, and the mode is the only permitted measure for any categorical data.
+    \item The methodology is valid, but the median should be reported as $2.5$ rather than a category label.
+\end{enumerate}
 \end{enumerate}

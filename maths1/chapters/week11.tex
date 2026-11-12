@@ -1,152 +1,420 @@
 \chapter{Graph Theory (II): Shortest Paths and Spanning Trees}
 \index{Graph Theory (II): Shortest Paths and Spanning Trees}
 
-
-\vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Transitive Closure and Reachability
-    \item Shortest Path Algorithms
-    \item Minimum Cost Spanning Trees (MST)
+    \item \textbf{Transitive Closure \& Reachability:} Formulate Warshall's dynamic programming algorithm for reachability and path connectivity.
+    \item \textbf{Single-Source Shortest Paths:} Master Dijkstra's greedy priority queue algorithm ($\mathcal{O}(|E| \log |V|)$) and Bellman-Ford's relaxation for negative edges.
+    \item \textbf{All-Pairs Shortest Paths:} Formulate the Floyd-Warshall $\mathcal{O}(|V|^3)$ dynamic programming paradigm.
+    \item \textbf{Minimum Spanning Trees (MST):} Establish the Cut Property, Kruskal's edge-sorting greedy method with Disjoint Set Union (DSU), and Prim's growing-tree algorithm.
+    \item \textbf{Data Science \& Operations Research:} Apply shortest paths and spanning trees to logistics, routing, hierarchical clustering, and manifold learning.
 \end{itemize}
 \end{tcolorbox}
-This chapter explores advanced structural graph algorithms, focusing on heavily weighted networks. We will learn how to find the most efficient paths between nodes and how to connect an entire network with the minimum possible cost. In data science and operations research, these algorithms solve massive logistics problems, network routing (like Google Maps), and cluster optimization.
 
-\section{Transitive Closure and Reachability}
+\section{Mathematical \& Theoretical Foundations}
 
-\begin{intuitionbox}{The Ripple Effect}
-If you want to know who can influence whom in a network, you don't just look at direct connections; you look at the ripple effect. If A connects to B, and B connects to C, A can reach C. Transitive closure is the mathematical way of finding every possible ripple across the entire graph.
-\end{intuitionbox}
-
-The \textbf{transitive closure} of a directed graph $G = (V, E)$ determines whether there exists a directed path from vertex $i$ to vertex $j$ for all pairs $i, j \in V$.
-
-\begin{theorembox}{Warshall's Algorithm}
-Warshall's algorithm is a dynamic programming approach that constructs a boolean reachability matrix $R^{(k)}$ where $R^{(k)}_{ij} = 1$ if there is a path from $i \to j$ using only intermediate vertices from the set $\set{1, 2, \dots, k}$.
-\begin{itemize}
-    \item \textbf{Recurrence Relation:}
-    $$R^{(k)}_{ij} = R^{(k-1)}_{ij} \lor \left( R^{(k-1)}_{ik} \land R^{(k-1)}_{kj} \right)$$
-    \item \textbf{Time Complexity:} $\mathcal{O}(|V|^3)$
-\end{itemize}
-\end{theorembox}
-
-\textbf{Data Science Relevance:} In social networks, if User A follows User B, and User B follows User C, the transitive closure tells the recommendation engine that User A might be interested in User C (a path exists).
-
-\begin{videocard}{IITM BS Lecture: W11\_L2 Transitive Closure \& Reachability}{https://www.youtube.com/watch?v=6Ax9K7gSuJE}
-Official IIT Madras lecture detailing the structural concept of reachability matrices.
-\end{videocard}
-
-\section{Shortest Path Algorithms}
-
-In weighted graphs, BFS no longer finds the shortest path because a path with more edges might have a lower total weight. We need specialized algorithms.
-
-\subsection{Single-Source Shortest Paths}
-
-These algorithms find the shortest path from a \textit{single starting vertex} to all other vertices in the graph.
-
-\begin{definitionbox}{Dijkstra's Algorithm}
-\textbf{Dijkstra's Algorithm} uses a greedy approach to find the shortest paths from a source node $S$.
-\begin{itemize}
-    \item \textbf{Mechanism:} Maintains a set of visited nodes and a priority queue of unvisited nodes, always expanding the node with the current shortest known distance from $S$.
-    \item \textbf{Constraint:} Fails if the graph contains \textbf{negative edge weights}.
-    \item \textbf{Complexity:} $\mathcal{O}(|E| \log |V|)$ using a min-heap priority queue.
-\end{itemize}
-\end{definitionbox}
-
-\begin{examplebox}{Dijkstra's Algorithm Conceptual Steps}
-Suppose we want to find the shortest path from start node $S$ to all other nodes.
+In weighted networks, structural topology is enriched by numerical weights $w: E \to \R$ representing distances, financial costs, latencies, or dissimilarities. Two fundamental optimization problems dominate graph algorithms:
 \begin{enumerate}
-    \item \textbf{Initialization:} Set the distance to $S$ to $0$. Set the distance to all other nodes to $\infty$. Mark all nodes as unvisited.
-    \item \textbf{Selection:} Pick the unvisited node with the smallest known distance. Initially, this is $S$ (distance $0$).
-    \item \textbf{Relaxation:} For the current node, examine all its unvisited neighbors. Calculate the tentative distance to each neighbor through the current node. If this tentative distance is smaller than the neighbor's currently known distance, update the neighbor's distance.
-    \item \textbf{Completion:} Mark the current node as visited. A visited node's shortest distance is now finalized and will never change (assuming no negative edges).
-    \item \textbf{Iteration:} Repeat steps 2-4 until all nodes are visited, or until the smallest known distance among unvisited nodes is $\infty$ (meaning the remaining nodes are unreachable).
+    \item \textbf{Shortest Path Problem:} Finding the path connecting two vertices that minimizes the total sum of edge weights.
+    \item \textbf{Minimum Spanning Tree Problem:} Finding a cycle-free backbone that connects all vertices while minimizing total network construction cost.
 \end{enumerate}
-\end{examplebox}
 
-\begin{videocard}{IITM BS Lecture: W11\_L5 Dijkstra's Algorithm}{https://www.youtube.com/watch?v=XXFcZyP2KlM}
-Official IIT Madras lecture tracing Dijkstra's greedy path selection step-by-step.
-\end{videocard}
+\subsection{Transitive Closure and Warshall's Algorithm}
 
-\begin{definitionbox}{Bellman-Ford Algorithm}
-\textbf{Bellman-Ford} also finds single-source shortest paths, but is more robust than Dijkstra's.
+Given a directed graph $G = (V, E)$, the \textbf{transitive closure} is a graph $G^* = (V, E^*)$ where $(i, j) \in E^*$ if and only if there exists a directed path of any non-zero length from $i$ to $j$ in $G$.
+
+\begin{theorembox}{Warshall's Dynamic Programming Algorithm}
+Let vertices be indexed $V = \{1, 2, \dots, n\}$. Define $R^{(k)} \in \{0, 1\}^{n \times n}$ where $R^{(k)}_{ij} = 1$ if there exists a directed path from $i$ to $j$ using only intermediate vertices from the subset $\{1, 2, \dots, k\}$.
 \begin{itemize}
-    \item \textbf{Mechanism:} Relaxes (updates) \textit{all} edges $|V|-1$ times. If distances still update on the $|V|$-th pass, it proves the graph has a negative weight cycle.
-    \item \textbf{Advantage:} Works perfectly with \textbf{negative edge weights} and detects negative cycles.
-    \item \textbf{Complexity:} $\mathcal{O}(|V| \cdot |E|)$ (slower than Dijkstra).
-\end{itemize}
-\end{definitionbox}
-
-\begin{videocard}{IITM BS Lecture: W11\_L6 Bellman-Ford Algorithm}{https://www.youtube.com/watch?v=FGGMybRD4O4}
-Official IIT Madras lecture explaining edge relaxation and negative cycle detection.
-\end{videocard}
-
-\subsection{All-Pairs Shortest Paths}
-If we want the shortest path between \textit{every} pair of vertices, we use the \textbf{Floyd-Warshall Algorithm}. It is a dynamic programming algorithm (an extension of Warshall's) that evaluates intermediate nodes to find all shortest paths in $\mathcal{O}(|V|^3)$ time.
-
-\section{Minimum Cost Spanning Trees (MST)}
-
-\begin{definitionbox}{Spanning Tree}
-Given a connected, undirected graph $G=(V, E)$, a \textbf{spanning tree} is a subgraph that is a tree (contains no cycles) and includes every single vertex from $V$. It will always have exactly $|V|-1$ edges.
-\end{definitionbox}
-
-If the graph is weighted, the \textbf{Minimum Spanning Tree (MST)} is the spanning tree whose total edge weight is as small as possible. This is used in network design (e.g., laying the minimum length of fiber optic cable to connect a series of cities).
-
-\begin{theorembox}{Algorithms for Finding the MST}
-\begin{itemize}
-    \item \textbf{Prim's Algorithm (Node-based):}
-        \begin{itemize}
-            \item Start at an arbitrary node.
-            \item Greedily add the cheapest edge that connects a visited node to an unvisited node.
-            \item Repeat until all nodes are visited.
-        \end{itemize}
-    \item \textbf{Kruskal's Algorithm (Edge-based):}
-        \begin{itemize}
-            \item Sort all edges in the graph from lightest to heaviest.
-            \item Iterate through the sorted edges, adding them to the MST \textit{only if} they do not create a cycle (usually tracked via a Disjoint-Set / Union-Find data structure).
-        \end{itemize}
+    \item \textbf{Base Case ($k = 0$):} $R^{(0)}_{ij} = A_{ij}$ (direct adjacency).
+    \item \textbf{Recurrence Relation ($k = 1, \dots, n$):}
+    \begin{equation}
+    R^{(k)}_{ij} = R^{(k-1)}_{ij} \lor \left( R^{(k-1)}_{ik} \land R^{(k-1)}_{kj} \right)
+    \end{equation}
+    A path exists from $i$ to $j$ through $\{1, \dots, k\}$ if either:
+    \begin{enumerate}
+        \item There was already a path using only $\{1, \dots, k-1\}$, OR
+        \item There is a path from $i \to k$ AND a path from $k \to j$ using intermediate nodes from $\{1, \dots, k-1\}$.
+    \end{enumerate}
+    \item \textbf{Complexity:} Time $\Theta(|V|^3)$, Space $\Theta(|V|^2)$.
 \end{itemize}
 \end{theorembox}
 
-\begin{videocard}{IITM BS Lecture: W11\_L8 Minimum Cost Spanning Trees}{https://www.youtube.com/watch?v=3GwJAstzzBk}
-Official IIT Madras lecture introducing the MST problem and comparing the mechanics of Prim and Kruskal.
-\end{videocard}
+\subsection{Single-Source Shortest Paths: Dijkstra's Algorithm}
 
-\begin{examplebox}{NetworkX Implementation: Dijkstra \& Kruskal MST}
-In Data Science, graph algorithms are efficiently executed using the \texttt{networkx} Python library:
-\begin{lstlisting}[style=pystyle]
-import networkx as nx
+Let $G = (V, E, w)$ be a directed or undirected graph with edge weights $w(u, v) \ge 0$.
 
-# Build a weighted graph
-G = nx.Graph()
-edges = [
+\begin{definitionbox}{Edge Relaxation and Dijkstra's Mechanism}
+For a source vertex $s \in V$, maintain an array of tentative distances $\text{dist}[v]$ initialized to $\text{dist}[s] = 0$ and $\text{dist}[v] = \infty$ for all $v \neq s$.
+\begin{itemize}
+    \item \textbf{Relaxation Step:} For directed edge $(u, v)$ with weight $w(u, v)$:
+    \begin{equation}
+    \text{if } \text{dist}[u] + w(u, v) < \text{dist}[v] \implies \text{dist}[v] = \text{dist}[u] + w(u, v), \quad \text{parent}[v] = u
+    \end{equation}
+    \item \textbf{Greedy Loop:} Maintain a priority queue of unvisited vertices keyed on $\text{dist}[\cdot]$. In each iteration:
+    \begin{enumerate}
+        \item Extract vertex $u$ with the minimum tentative distance: $u = \operatorname{argmin}_{v \notin S} \text{dist}[v]$.
+        \item Mark $u$ as finalized ($u \in S$).
+        \item Relax all outgoing edges $(u, v) \in E$ where $v \notin S$.
+    \end{enumerate}
+    \item \textbf{Precondition:} \textbf{All edge weights must be non-negative} ($w(e) \ge 0$).
+    \item \textbf{Complexity:} $\mathcal{O}((|V| + |E|) \log |V|)$ using a binary min-heap.
+\end{itemize}
+\end{definitionbox}
+
+\subsection{Shortest Paths with Negative Weights: Bellman-Ford}
+
+When edge weights may be negative (e.g. financial returns or energy gains), Dijkstra's greedy finalization fails.
+
+\begin{theorembox}{The Bellman-Ford Algorithm}
+\begin{enumerate}
+    \item Initialize $\text{dist}[s] = 0$ and all other distances to $\infty$.
+    \item \textbf{Relaxation Passes:} Repeat $|V| - 1$ times:
+    \begin{itemize}
+        \item For every directed edge $(u, v) \in E$:
+        \begin{equation}
+        \text{if } \text{dist}[u] + w(u, v) < \text{dist}[v] \implies \text{dist}[v] = \text{dist}[u] + w(u, v)
+        \end{equation}
+    \end{itemize}
+    \item \textbf{Negative Cycle Detection ($|V|$-th Pass):} Iterate over all edges $(u, v) \in E$ one additional time. If any edge can still be relaxed ($\text{dist}[u] + w(u, v) < \text{dist}[v]$), the graph contains a \textbf{negative-weight cycle} reachable from $s$, meaning shortest paths are undefined ($-\infty$).
+    \item \textbf{Complexity:} $\mathcal{O}(|V| \cdot |E|)$.
+\end{enumerate}
+\end{theorembox}
+
+\subsection{Minimum Spanning Trees (MST)}
+
+A \textbf{spanning tree} of a connected, undirected graph $G = (V, E)$ is an acyclic connected subgraph $T = (V, E_T)$ that spans all vertices in $V$. Any spanning tree on $n$ vertices contains exactly $n - 1$ edges.
+A \textbf{Minimum Spanning Tree (MST)} is a spanning tree that minimizes total edge weight:
+\begin{equation}
+w(T) = \sum_{e \in E_T} w(e)
+\end{equation}
+
+\begin{theorembox}{The Cut Property of MSTs}
+Let $G = (V, E)$ be a connected undirected graph with real edge weights. Let $S \subset V$ be any non-empty proper subset of vertices, defining a cut $(S, V \setminus S)$. 
+If edge $e = \{u, v\}$ is the \textbf{strictly minimum-weight edge} crossing the cut (i.e., $u \in S$ and $v \in V \setminus S$), then $e$ must belong to every Minimum Spanning Tree of $G$.
+\end{theorembox}
+
+\begin{definitionbox}{Kruskal's Algorithm (Edge-Centric Greedy)}
+\begin{enumerate}
+    \item Sort all edges in non-decreasing order of weight: $w(e_1) \le w(e_2) \le \dots \le w(e_m)$.
+    \item Initialize an empty forest $T = \emptyset$.
+    \item Initialize a Disjoint Set Union (DSU / Union-Find) data structure where each vertex $v \in V$ forms its own component.
+    \item For each edge $e = \{u, v\}$ in the sorted sequence:
+    \begin{itemize}
+        \item If $\text{Find}(u) \neq \text{Find}(v)$ (i.e. $u$ and $v$ belong to different components):
+        \item Add $e$ to $T$, and perform $\text{Union}(u, v)$.
+    \end{itemize}
+    \item Terminate when $T$ contains $|V| - 1$ edges.
+    \item \textbf{Complexity:} $\mathcal{O}(|E| \log |E|) = \mathcal{O}(|E| \log |V|)$.
+\end{enumerate}
+\end{definitionbox}
+
+\begin{definitionbox}{Prim's Algorithm (Vertex-Centric Greedy)}
+\begin{enumerate}
+    \item Select an arbitrary starting vertex $s \in V$. Initialize visited set $S = \{s\}$.
+    \item Maintain a min-priority queue of all crossing edges between $S$ and $V \setminus S$.
+    \item While $|S| < |V|$:
+    \begin{itemize}
+        \item Extract the minimum weight crossing edge $e = \{u, v\}$ where $u \in S, v \notin S$.
+        \item Add $e$ to the MST, add $v$ to $S$.
+        \item Insert all incident edges of $v$ connecting to $V \setminus S$ into the priority queue.
+    \end{itemize}
+    \item \textbf{Complexity:} $\mathcal{O}(|E| \log |V|)$ using a binary min-heap.
+\end{enumerate}
+\end{definitionbox}
+
+\section{Visual \& Geometric Intuition}
+
+Below, we visualize edge relaxation in Dijkstra's algorithm and the fundamental cut property governing Minimum Spanning Trees.
+
+\begin{center}
+\begin{tikzpicture}[scale=1.1, auto, >=stealth]
+    % Dijkstra Relaxation
+    \node[circle, draw=primarydark, fill=primarylight, thick, minimum size=0.9cm] (u) at (0, 0) {\textbf{u}};
+    \node[circle, draw=primarydark, fill=primarylight, thick, minimum size=0.9cm] (v) at (4, 0) {\textbf{v}};
+
+    \draw[->, ultra thick, primarydark] (u) -- (v) node[midway, above] {$w(u, v) = 4$};
+
+    \node[above=0.2cm] at (u) {$\text{dist}[u] = 5$};
+    \node[above=0.2cm] at (v) {$\text{old dist}[v] = 12$};
+
+    \draw[->, dashed, thick, red] (2, -0.6) -- (2, -1.3);
+    \node[below, red, align=center] at (2, -1.3) {
+        \textbf{Relaxation Condition: } $\text{dist}[u] + w(u, v) < \text{dist}[v]$ \\
+        $5 + 4 = 9 < 12 \implies \text{\textbf{Updated: }} \text{dist}[v] = 9$
+    };
+\end{tikzpicture}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}[scale=1.0, auto, >=stealth]
+    % Cut partition
+    \draw[dashed, ultra thick, red!70!black] (3.5, 3.2) -- (3.5, -0.5) node[below] {Cut $(S, V \setminus S)$};
+
+    % Partition S
+    \fill[blue!10, rounded corners] (-0.5, -0.2) rectangle (3.2, 3.0);
+    \node at (1.3, 2.7) {\textbf{Subset $S$}};
+    \node[circle, draw=blue, fill=white, thick] (A) at (1, 1.8) {A};
+    \node[circle, draw=blue, fill=white, thick] (B) at (2, 0.6) {B};
+    \draw[thick] (A) -- (B) node[midway, left] {$2$};
+
+    % Partition V \ S
+    \fill[green!10, rounded corners] (3.8, -0.2) rectangle (7.5, 3.0);
+    \node at (5.7, 2.7) {\textbf{Subset $V \setminus S$}};
+    \node[circle, draw=green!60!black, fill=white, thick] (C) at (5, 1.8) {C};
+    \node[circle, draw=green!60!black, fill=white, thick] (D) at (6.2, 0.6) {D};
+    \draw[thick] (C) -- (D) node[midway, right] {$3$};
+
+    % Crossing edges
+    \draw[thick, gray] (A) -- (C) node[midway, above] {$7$};
+    \draw[ultra thick, orange!90!black] (B) -- (C) node[midway, below] {$4$};
+    \draw[thick, gray] (B) -- (D) node[midway, below=0.3cm] {$6$};
+
+    \node[orange!90!black, font=\bfseries] at (3.5, 0.9) {Lightest Cut Edge ($w=4$)};
+\end{tikzpicture}
+\end{center}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Proof of Correctness for Dijkstra's Algorithm}
+We prove by mathematical induction that whenever a vertex $u$ is added to the finalized set $S$, $\text{dist}[u]$ is the exact shortest path distance from source $s$, denoted $\delta(s, u)$.
+
+\textbf{Base Case:} When $S = \{s\}$, $\text{dist}[s] = 0 = \delta(s, s)$ because all edge weights are non-negative ($w(e) \ge 0$), meaning no path can have negative length.
+
+\textbf{Inductive Step:} Suppose that for all vertices currently in $S$, $\text{dist}[v] = \delta(s, v)$. Let $u \in V \setminus S$ be the next vertex chosen by the algorithm (i.e., $u = \operatorname{argmin}_{v \notin S} \text{dist}[v]$).
+Suppose, for contradiction, that $\text{dist}[u] > \delta(s, u)$. Then there must exist an active true shortest path $P$ from $s$ to $u$ whose total weight is strictly less than $\text{dist}[u]$:
+\begin{equation}
+w(P) = \delta(s, u) < \text{dist}[u]
+\end{equation}
+Since $s \in S$ and $u \notin S$, the path $P$ must at some point cross the boundary from $S$ to $V \setminus S$. Let $(x, y)$ be the first edge along $P$ such that $x \in S$ and $y \notin S$.
+Because $x \in S$, by our inductive hypothesis $\text{dist}[x] = \delta(s, x)$. When $x$ was finalized, edge $(x, y)$ was relaxed, ensuring:
+\begin{equation}
+\text{dist}[y] \le \text{dist}[x] + w(x, y) = \delta(s, x) + w(x, y) = \delta(s, y)
+\end{equation}
+Because edge weights are non-negative ($w(e) \ge 0$), the subpath from $s$ to $y$ has length less than or equal to the total path $P$ from $s$ to $u$:
+\begin{equation}
+\delta(s, y) \le \delta(s, u)
+\end{equation}
+Combining these inequalities:
+\begin{equation}
+\text{dist}[y] \le \delta(s, y) \le \delta(s, u) < \text{dist}[u]
+\end{equation}
+However, the algorithm selected vertex $u \in V \setminus S$ precisely because $\text{dist}[u]$ was minimal among all unvisited vertices, which requires $\text{dist}[u] \le \text{dist}[y]$. This contradiction proves that $\text{dist}[u] = \delta(s, u) \quad \blacksquare$.
+
+\subsection{Proof of the Cut Property for Minimum Spanning Trees}
+Let $T$ be an arbitrary MST of $G = (V, E)$, and let $e = \{u, v\}$ be the strictly lightest edge crossing cut $(S, V \setminus S)$.
+Assume, for contradiction, that $e \notin T$.
+Since $T$ is a spanning tree, adding edge $e$ to $T$ must create a unique simple cycle $C$. Because $u \in S$ and $v \in V \setminus S$, traversing this cycle $C$ requires crossing back across the cut $(S, V \setminus S)$ via at least one other edge $e' = \{x, y\}$ with $x \in S, y \in V \setminus S$.
+Now consider the new subgraph $T' = (T \setminus \{e'\}) \cup \{e\}$ obtained by removing $e'$ and inserting $e$.
+$T'$ is connected, touches all vertices, and has $|V| - 1$ edges, so $T'$ is a valid spanning tree. The total weight of $T'$ is:
+\begin{equation}
+w(T') = w(T) - w(e') + w(e)
+\end{equation}
+Since $e$ is the strictly minimum-weight crossing edge, $w(e) < w(e')$, which implies:
+\begin{equation}
+w(T') < w(T)
+\end{equation}
+This contradicts the premise that $T$ was a Minimum Spanning Tree! Hence, $e$ must belong to $T \quad \blacksquare$.
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Trap 1: Applying Dijkstra to Graphs with Negative Edge Weights}
+Dijkstra's greedy paradigm permanently "freezes" the distance to a vertex the moment it is popped from the priority queue. If a later edge has a negative weight, a path through that edge could provide a shorter route to a finalized vertex, but Dijkstra will never revisit or update finalized nodes! Always use Bellman-Ford or Floyd-Warshall when negative weights are possible.
+\end{trapbox}
+
+\begin{trapbox}{Trap 2: Adding a Large Positive Constant $C$ to Make All Edges Positive}
+Students often suggest: "If edges have negative weights, just add a constant $C = |\min w| + 1$ to every edge and run Dijkstra!" 
+This fails completely. If Path 1 has 1 edge of weight 5, and Path 2 has 3 edges of weights $(1, 1, 1)$, total weights are 5 vs 3 (Path 2 is shorter). Adding $C = 10$ makes the edges:
+Path 1: $5 + 10 = 15$.
+Path 2: $(1+10) + (1+10) + (1+10) = 33$.
+Now Path 1 appears shorter! Adding a constant penalizes paths with more edges, altering the fundamental shortest path geometry.
+\end{trapbox}
+
+\begin{trapbox}{Trap 3: Conflating Shortest Paths with Minimum Spanning Trees}
+An edge in a Minimum Spanning Tree does \textit{not} guarantee the shortest path between its endpoints, and the shortest path tree from source $s$ is generally \textit{not} an MST. An MST minimizes total infrastructure cost $\sum_{e \in T} w(e)$, whereas a shortest path tree minimizes point-to-point distances $\text{dist}(s, v)$ from a single origin.
+\end{trapbox}
+
+\begin{trapbox}{Trap 4: Assuming Minimum Spanning Trees are Always Unique}
+An MST is guaranteed to be unique \textbf{if and only if} all edge weights in the graph are distinct. If multiple edges share identical weights, there may exist dozens or thousands of distinct minimum spanning trees with identical total sum $w(T)$.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2.5cm} p{2.8cm} p{3.2cm} p{4.6cm}}
+\toprule
+\textbf{Algorithm} & \textbf{Optimization Goal} & \textbf{Time Complexity} & \textbf{Edge Restrictions \& Constraints} \\
+\midrule
+\textbf{Dijkstra} & Single-Source Shortest Paths & $\mathcal{O}(|E| \log |V|)$ (Min-Heap) & Precondition: $w(e) \ge 0$. Fails on negative edge weights. \\
+\addlinespace
+\textbf{Bellman-Ford} & Single-Source Shortest Paths & $\mathcal{O}(|V| \cdot |E|)$ & Allows negative weights. Detects negative-weight cycles. \\
+\addlinespace
+\textbf{Floyd-Warshall} & All-Pairs Shortest Paths & $\Theta(|V|^3)$ & DP approach. Allows negative edges; detects negative cycles via diagonal $D_{ii} < 0$. \\
+\addlinespace
+\textbf{Kruskal's MST} & Global Minimum Spanning Tree & $\mathcal{O}(|E| \log |E|)$ (DSU) & Undirected graphs. Edge-centric; optimal for sparse graphs. \\
+\addlinespace
+\textbf{Prim's MST} & Global Minimum Spanning Tree & $\mathcal{O}(|E| \log |V|)$ (Heap) & Undirected graphs. Vertex-centric; optimal for dense graphs. \\
+\bottomrule
+\end{tabular}
+\caption{Taxonomy of Graph Optimization Algorithms, Complexity Bounds, and Behavioral Constraints.}
+\end{table}
+
+\section{Python Scientific Computing Lab}
+
+The following laboratory implements Dijkstra's shortest path algorithm using a binary min-heap (`heapq`) and Kruskal's MST algorithm with Disjoint Set Union (Union-Find).
+
+\begin{lstlisting}[language=Python, caption=Dijkstra Shortest Paths and Kruskal MST Implementation]
+import heapq
+
+# 1. Dijkstra's Algorithm with Min-Heap
+def dijkstra(graph, start):
+    # graph: dict of {node: [(neighbor, weight)]}
+    distances = {node: float('inf') for node in graph}
+    distances[start] = 0
+    pq = [(0, start)] # (distance, node)
+    visited = set()
+    
+    while pq:
+        curr_dist, u = heapq.heappop(pq)
+        if u in visited:
+            continue
+        visited.add(u)
+        
+        for v, weight in graph[u]:
+            if v not in visited and curr_dist + weight < distances[v]:
+                distances[v] = curr_dist + weight
+                heapq.heappush(pq, (distances[v], v))
+                
+    return distances
+
+weighted_graph = {
+    'A': [('B', 4), ('C', 2)],
+    'B': [('A', 4), ('C', 1), ('D', 5)],
+    'C': [('A', 2), ('B', 1), ('D', 8), ('E', 10)],
+    'D': [('B', 5), ('C', 8), ('E', 2)],
+    'E': [('C', 10), ('D', 2)]
+}
+
+dists_from_A = dijkstra(weighted_graph, 'A')
+print("Dijkstra Shortest Distances from 'A':", dists_from_A)
+
+# 2. Kruskal's Minimum Spanning Tree with Union-Find (DSU)
+class DisjointSet:
+    def __init__(self, vertices):
+        self.parent = {v: v for v in vertices}
+        self.rank = {v: 0 for v in vertices}
+        
+    def find(self, item):
+        if self.parent[item] != item:
+            self.parent[item] = self.find(self.parent[item]) # Path compression
+        return self.parent[item]
+        
+    def union(self, root1, root2):
+        if self.rank[root1] < self.rank[root2]:
+            self.parent[root1] = root2
+        elif self.rank[root1] > self.rank[root2]:
+            self.parent[root2] = root1
+        else:
+            self.parent[root2] = root1
+            self.rank[root1] += 1
+
+def kruskal_mst(vertices, edges):
+    # edges: list of (u, v, weight)
+    edges.sort(key=lambda x: x[2])
+    dsu = DisjointSet(vertices)
+    mst = []
+    total_cost = 0
+    
+    for u, v, weight in edges:
+        root_u = dsu.find(u)
+        root_v = dsu.find(v)
+        if root_u != root_v:
+            mst.append((u, v, weight))
+            total_cost += weight
+            dsu.union(root_u, root_v)
+            if len(mst) == len(vertices) - 1:
+                break
+                
+    return mst, total_cost
+
+nodes = ['A', 'B', 'C', 'D', 'E']
+edge_list = [
     ('A', 'B', 4), ('A', 'C', 2),
     ('B', 'C', 1), ('B', 'D', 5),
     ('C', 'D', 8), ('C', 'E', 10),
     ('D', 'E', 2)
 ]
-for u, v, w in edges:
-    G.add_edge(u, v, weight=w)
 
-# 1. Single-Source Shortest Path (Dijkstra)
-path = nx.dijkstra_path(G, source='A', target='E')
-length = nx.dijkstra_path_length(G, source='A', target='E')
-print(f"Shortest path A -> E: {path} with weight {length}")
-
-# 2. Minimum Spanning Tree (Kruskal)
-mst = nx.minimum_spanning_tree(G, algorithm='kruskal')
-print("MST Edges:", list(mst.edges(data=True)))
+mst_edges, mst_weight = kruskal_mst(nodes, edge_list)
+print("\nKruskal MST Selected Edges:", mst_edges)
+print(f"Total Minimum Spanning Tree Weight: {mst_weight}")
 \end{lstlisting}
-\end{examplebox}
-
 
 \newpage
 \section{Practice Exercises}
-\textit{Try to solve these exercises independently. Detailed step-by-step solutions are available in the Appendix at the end of the book.}
+
+\subsection*{Part A: Analytical \& Computational Problems}
 
 \begin{enumerate}
-    \item \textbf{Algorithms:} You are writing navigation software for a delivery drone. The drone battery drains faster if it flies into a headwind, which is modeled as an edge with a negative weight (cost). Which shortest-path algorithm \textit{must} you use?
-    \item \textbf{Algorithms:} An undirected graph has $8$ vertices. How many edges will its Minimum Spanning Tree have?
-    \item \textbf{Pure Math:} You apply Kruskal's algorithm to a graph. The next lightest edge connects Node A and Node B. However, Node A and Node B are already in the same connected component of your growing MST. Should you add the edge? Why or why not?
-    \item \textbf{Complexity:} Why is Floyd-Warshall ($\mathcal{O}(|V|^3)$) preferred over running Dijkstra's algorithm from every single node ($\mathcal{O}(|V| \cdot |E| \log |V|)$) for dense graphs when finding all-pairs shortest paths?
-    \item \textbf{Graph Theory:} What mathematical operation on an Adjacency Matrix $A$ calculates the number of walks of exactly length $k$ between any two nodes?
+    \item \textbf{Warshall's Transitive Closure Matrix:}
+    Given a digraph with vertices $V = \{1, 2, 3, 4\}$ and adjacency matrix:
+    \begin{equation}
+    A = \begin{pmatrix}
+    0 & 1 & 0 & 0 \\
+    0 & 0 & 1 & 0 \\
+    0 & 0 & 0 & 1 \\
+    0 & 0 & 0 & 0
+    \end{pmatrix}
+    \end{equation}
+    Compute the intermediate reachability matrices $R^{(1)}, R^{(2)}, R^{(3)}$, and the final transitive closure $R^{(4)}$.
+
+    \item \textbf{Dijkstra's Algorithm Trace:}
+    Apply Dijkstra's algorithm to find the shortest path from source vertex $S$ to all other vertices in the weighted graph with edges:
+    \begin{align*}
+    (S, A, 3), \quad (S, B, 6), \quad (A, B, 2), \quad (A, C, 8), \quad (B, C, 3), \quad (B, D, 7), \quad (C, D, 1)
+    \end{align*}
+    Document the tentative distance table and the set of finalized vertices after each iteration.
+
+    \item \textbf{Dijkstra's Failure on Negative Weights:}
+    Consider a 3-vertex directed graph:
+    \begin{equation}
+    (S, A, 2), \quad (S, B, 5), \quad (B, A, -4)
+    \end{equation}
+    \begin{enumerate}
+        \item Trace Dijkstra's algorithm execution starting from $S$. What distance does it report for vertex $A$?
+        \item What is the true shortest path distance from $S$ to $A$? Explain why Dijkstra failed.
+    \end{enumerate}
+
+    \item \textbf{Kruskal's Algorithm Step-by-Step:}
+    Given an undirected graph with vertices $\{1, 2, 3, 4, 5, 6\}$ and edges:
+    \begin{align*}
+    \{1, 2\}: 4, \quad \{1, 3\}: 2, \quad \{2, 3\}: 1, \quad \{2, 4\}: 5, \quad \{3, 4\}: 8, \quad \{3, 5\}: 10, \quad \{4, 5\}: 2, \quad \{4, 6\}: 6, \quad \{5, 6\}: 3
+    \end{align*}
+    Trace Kruskal's algorithm: list all edges in sorted order, indicate whether each edge is accepted or rejected (and why), and determine the total weight of the resulting MST.
+
+    \item \textbf{Prim's Algorithm Trace:}
+    Apply Prim's algorithm to the graph from Problem 4 starting at vertex $1$. List the order in which vertices and edges are added to the growing tree. Verify that the total weight matches Kruskal's result.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Misconception MCQs}
+
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item A student attempts to fix a graph with negative edge weights by adding a positive constant $C = |\min_{e} w(e)| + 1$ to every edge weight so that all weights become positive, and then runs Dijkstra's algorithm. Why is this strategy mathematically invalid?
+    \begin{enumerate}
+        \item Adding a constant creates self-loops in the graph.
+        \item Adding a constant alters the priority queue implementation in Dijkstra.
+        \item Adding a constant penalizes paths with a larger number of edges more heavily than paths with fewer edges, potentially changing which path has the minimal total weight.
+        \item Adding a constant produces negative cycles in the graph.
+    \end{enumerate}
+
+    \item Consider an undirected connected graph $G = (V, E)$ where every edge has a distinct, unique numerical weight. Which of the following statements is \textbf{always true}?
+    \begin{enumerate}
+        \item The Minimum Spanning Tree of $G$ is unique.
+        \item Dijkstra's shortest path tree from source $s$ is always identical to the Minimum Spanning Tree.
+        \item The edge with the maximum weight in $G$ can never belong to any Minimum Spanning Tree.
+        \item Kruskal's algorithm and Prim's algorithm will explore edges in the exact same sequence.
+    \end{enumerate}
 \end{enumerate}

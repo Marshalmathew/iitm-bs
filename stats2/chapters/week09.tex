@@ -1,28 +1,32 @@
 \chapter{Parameter Estimation: MME, MLE \& Confidence Intervals}
 
-In Statistical Inference, we use observed data $x_1, \dots, x_n$ to estimate unknown population parameters $\theta$. In this chapter, we master point estimation via \index{Method of Moments (MME)}\textbf{Method of Moments (MME)}, \textbf{Maximum Likelihood Estimation (MLE)}, evaluate estimator quality via \index{Bias and Variance}\textbf{Bias and Variance}, and construct \index{Confidence Intervals}\textbf{Confidence Intervals}.
-
+In exploratory data science, we possess observed sample data $x_1, \dots, x_n$ but the true underlying population parameters $\theta$ (such as true conversion probability, default risk, or mean sensor lifetime) remain hidden. In this chapter, we master point estimation via the \index{Method of Moments (MME)}\textbf{Method of Moments (MME)}, the gold-standard \index{Maximum Likelihood Estimation (MLE)}\textbf{Maximum Likelihood Estimation (MLE)}, evaluate estimator quality via \index{Bias, Variance and MSE}\textbf{Bias, Variance, and MSE}, explore the \index{Invariance Property of MLE}\textbf{Invariance Property}, study boundary estimation when derivatives fail, and construct rigorously interpreted \index{Confidence Intervals}\textbf{Confidence Intervals}.
 
 \vspace{0.5cm}
 \begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
 \begin{itemize}
-    \item Point Estimators: Bias, Variance, and MSE
-    \item Method of Moments Estimator (MME)
-    \item Maximum Likelihood Estimator (MLE)
-    \item Confidence Intervals
+    \item Point estimator evaluation: Unbiasedness, Variance, and the Bias-Variance-MSE decomposition.
+    \item Constructing Method of Moments Estimators (MME) by matching sample and population moments.
+    \item Formulating Likelihood and Log-Likelihood functions for Maximum Likelihood Estimation (MLE).
+    \item The Invariance Property: $\widehat{g(\theta)}_{\text{MLE}} = g(\hat{\theta}_{\text{MLE}})$.
+    \item Score function, Fisher Information $I(\theta)$, and the Cramér-Rao Lower Bound.
+    \item Non-regular boundary MLEs (e.g., $\text{Uniform}(0, \theta)$) where differentiation fails.
+    \item Correct frequentist interpretation of $95\%$ Confidence Intervals.
 \end{itemize}
 \end{tcolorbox}
+
 \section{Point Estimators: Bias, Variance, and MSE}
 
-An \index{Estimator}\textbf{Estimator} $\hat{\theta}_n = g(X_1, \dots, X_n)$ is a statistic (a random variable) used to estimate unknown parameter $\theta$.
+An \index{Estimator}\textbf{Estimator} $\hat{\theta}_n = g(X_1, \dots, X_n)$ is a statistic (a random variable) computed from sample data to approximate an unknown true population parameter $\theta \in \Theta$.
 
 \begin{definitionbox}{Bias, Variance, and Mean Squared Error (MSE)}
 \begin{itemize}
-    \item \textbf{Bias:} $\Bias(\hat{\theta}) = \E[\hat{\theta}] - \theta$. An estimator is \index{Unbiased}\textbf{Unbiased} if $\E[\hat{\theta}] = \theta$.
-    \item \textbf{Variance:} $\Var(\hat{\theta}) = \E[(\hat{\theta} - \E[\hat{\theta}])^2]$.
-    \item \textbf{Mean Squared Error (MSE):}
+    \item \textbf{Bias:} $\Bias(\hat{\theta}) = \E[\hat{\theta}] - \theta$. An estimator is \index{Unbiased}\textbf{Unbiased} if $\E[\hat{\theta}] = \theta$ for all $\theta \in \Theta$.
+    \item \textbf{Variance:} $\Var(\hat{\theta}) = \E\left[(\hat{\theta} - \E[\hat{\theta}])^2\right]$ measures sampling fluctuation around its own expected value.
+    \item \textbf{Mean Squared Error (MSE):} Measures overall expected squared error from the true target:
+    $$\MSE(\hat{\theta}) = \E[(\hat{\theta} - \theta)^2] = \Var(\hat{\theta}) + \left[\Bias(\hat{\theta})\right]^2$$
 \end{itemize}
-  $$\MSE(\hat{\theta}) = \E[(\hat{\theta} - \theta)^2] = \Var(\hat{\theta}) + [\Bias(\hat{\theta})]^2$$
+\textbf{The Bias-Variance Tradeoff:} A slightly biased estimator with small variance often achieves lower total MSE than an unbiased estimator with high variance!
 \end{definitionbox}
 
 \begin{videocard}{IITM BS Lecture: Bias, Variance \& Risk of an Estimator}{https://www.youtube.com/watch?v=fZjMovn18YE}
@@ -31,11 +35,13 @@ Official lecture proving the Bias-Variance tradeoff decomposition for point esti
 
 \section{Method of Moments Estimator (MME)}
 
-The \index{Method of Moments}\textbf{Method of Moments} equates sample moments $\mu_k = \frac{1}{n} \sum_{i=1}^n X_i^k$ to population theoretical moments $\E[X^k] = g_k(\theta)$ and solves for $\theta$.
+The \index{Method of Moments}\textbf{Method of Moments} equates theoretical population moments $\alpha_k(\theta) = \E[X^k]$ to empirical sample moments $m_k = \frac{1}{n} \sum_{i=1}^n X_i^k$, solving the resulting algebraic system for $\hat{\theta}_{\text{MME}}$.
 
 \begin{formulabox}{Method of Moments Recipe}
-1. First Moment: Set $\bar{X} = \E[X]$. Solve for $\hat{\theta}_{\text{MME}}$.
-2. Second Moment (if 2 parameters): Set $\frac{1}{n} \sum X_i^2 = \E[X^2]$.
+\begin{enumerate}
+    \item First Moment ($k=1$): Set $\bar{X} = \E[X \mid \theta]$. If $\theta$ has 1 parameter, solve for $\hat{\theta}_{\text{MME}}$.
+    \item Second Moment ($k=2$): If $\theta = (\theta_1, \theta_2)$, set $\frac{1}{n} \sum_{i=1}^n X_i^2 = \E[X^2 \mid \theta_1, \theta_2]$ and solve simultaneously with the first moment.
+\end{enumerate}
 \end{formulabox}
 
 \begin{videocard}{IITM BS Lecture: Estimator Design: Method of Moments (MME)}{https://www.youtube.com/watch?v=XMX3lesags8}
@@ -44,72 +50,125 @@ Official lecture deriving MME point estimators for Poisson, Exponential, and Uni
 
 \section{Maximum Likelihood Estimator (MLE)}
 
-\begin{intuitionbox}{MLE is Reverse Engineering}
-Imagine you find a coin and flip it 10 times, getting 9 Heads. What is the probability $p$ that the coin lands on Heads? It could be a fair coin ($p=0.5$) that just got really lucky. Or it could be a rigged coin ($p=0.9$). MLE says: "Let's assume the parameter is whatever value makes the data we just saw most likely to happen." So, MLE concludes the coin is rigged at $p=0.9$.
+\begin{intuitionbox}{MLE as Reverse-Engineering the Generating Parameter}
+Suppose you observe a coin flipped 10 times that yields 9 Heads and 1 Tail. Under a fair hypothesis ($p=0.5$), this data is improbable: $\binom{10}{9}(0.5)^{10} \approx 0.0098$. Under a rigged hypothesis ($p=0.9$), this data is highly plausible: $\binom{10}{9}(0.9)^9 (0.1)^1 \approx 0.3874$. MLE asserts: "Choose the parameter $\hat{p}$ that maximizes the probability density of observing the exact empirical dataset we witnessed."
 \end{intuitionbox}
 
-\begin{lstlisting}[language=Python, caption=Data Science: Numerical MLE Optimization in SciPy]
-import numpy as np
-from scipy.optimize import minimize
-
-# Observed data: 9 Heads, 1 Tail
-data = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 0])
-
-# Negative Log-Likelihood for Bernoulli
-def neg_log_likelihood(p):
-    # Clip p to avoid log(0)
-    p = np.clip(p, 1e-10, 1 - 1e-10)
-    return -np.sum(data * np.log(p) + (1 - data) * np.log(1 - p))
-
-# Minimize the NEGATIVE log likelihood
-result = minimize(neg_log_likelihood, x0=[0.5], bounds=[(0, 1)])
-print("MLE Estimate for p:", result.x[0]) # Exactly 0.9!
-\end{lstlisting}
-
-The \index{Maximum Likelihood Estimator}\textbf{Maximum Likelihood Estimator} finds the parameter value $\hat{\theta}_{\text{MLE}}$ that maximizes the probability density of observing the sample data.
-
-\begin{definitionbox}{Likelihood Function $L(\theta)$ and Log-Likelihood $\ell(\theta)$}
-For an i.i.d. sample $x_1, \dots, x_n$:
-$$L(\theta) = \prod_{i=1}^n f(x_i \mid \theta) \implies \ell(\theta) = \ln L(\theta) = \sum_{i=1}^n \ln f(x_i \mid \theta)$$
-Solve the first-order optimization condition $\frac{d\ell(\theta)}{d\theta} = 0$ for $\hat{\theta}_{\text{MLE}}$.
+\begin{definitionbox}{Likelihood Function, Log-Likelihood, and the Score}
+For an i.i.d. sample $x_1, \dots, x_n$ with joint density $f(x \mid \theta)$:
+\begin{itemize}
+    \item \textbf{Likelihood Function:} $L(\theta) = \prod_{i=1}^n f(x_i \mid \theta)$.
+    \item \textbf{Log-Likelihood Function:} $\ell(\theta) = \ln L(\theta) = \sum_{i=1}^n \ln f(x_i \mid \theta)$.
+    \item \textbf{Score Function:} $S(\theta) = \frac{\partial \ell(\theta)}{\partial \theta}$. Note that $\E[S(\theta)] = 0$.
+\end{itemize}
+For differentiable likelihood surfaces with interior optima, solve the first-order condition:
+$$\left. \frac{d\ell(\theta)}{d\theta} \right|_{\hat{\theta}} = 0 \quad \text{subject to } \left. \frac{d^2\ell(\theta)}{d\theta^2} \right|_{\hat{\theta}} < 0$$
 \end{definitionbox}
 
-\begin{examplebox}{Step-by-Step Derivation of Poisson MLE}
-Let $X_1, \dots, X_n \stackrel{iid}{\sim} \text{Poisson}(\lambda)$.
-\begin{enumerate}
-    \item \textbf{Likelihood Function:} $L(\lambda) = \prod_{i=1}^n \frac{e^{-\lambda} \lambda^{x_i}}{x_i!} = \frac{e^{-n\lambda} \lambda^{\sum x_i}}{\prod x_i!}$.
-    \item \textbf{Log-Likelihood:} $\ell(\lambda) = \ln L(\lambda) = -n\lambda + \left(\sum_{i=1}^n x_i\right) \ln \lambda - \ln \left(\prod x_i!\right)$.
-    \item \textbf{First Derivative (Score Function):} $\frac{d\ell}{d\lambda} = -n + \frac{\sum x_i}{\lambda} = 0$.
-    \item \textbf{Solve for $\lambda$:} $\frac{\sum x_i}{\lambda} = n \implies \hat{\lambda}_{\text{MLE}} = \frac{1}{n}\sum_{i=1}^n x_i = \bar{X}_n$.
-\end{enumerate}
-\end{examplebox}
+\begin{theorembox}{The Invariance Property of MLEs}
+\index{Invariance Property of MLE}
+If $\hat{\theta}_{\text{MLE}}$ is the Maximum Likelihood Estimator of $\theta$, and $g(\theta)$ is \textbf{any} function (not necessarily one-to-one), then the MLE of $g(\theta)$ is simply:
+$$\widehat{g(\theta)}_{\text{MLE}} = g(\hat{\theta}_{\text{MLE}})$$
+\textbf{Examples:}
+\begin{itemize}
+    \item If $\hat{p}_{\text{MLE}} = \bar{X}$, then the MLE of the odds ratio $\frac{p}{1-p}$ is $\frac{\bar{X}}{1 - \bar{X}}$.
+    \item If $\hat{\sigma}_{\text{MLE}} = \sqrt{\frac{1}{n}\sum(X_i - \bar{X})^2}$, then the MLE of variance $\sigma^2$ is $\hat{\sigma}^2$.
+\end{itemize}
+(Note: MME estimators generally do \textbf{not} satisfy this invariance property!).
+\end{theorembox}
+
+\begin{theorembox}{Fisher Information and Asymptotic Efficiency}
+The \index{Fisher Information}\textbf{Fisher Information} measures the curvature (steepness) of the log-likelihood:
+$$I_n(\theta) = -\E\left[ \frac{\partial^2 \ell(\theta)}{\partial \theta^2} \right] = \Var(S(\theta)) = n I_1(\theta)$$
+By the \index{Cramér-Rao Lower Bound (CRLB)}\textbf{Cramér-Rao Lower Bound (CRLB)}, any unbiased estimator satisfies $\Var(\hat{\theta}) \ge \frac{1}{n I_1(\theta)}$.
+Under standard regularity conditions, the MLE is asymptotically unbiased, normal, and achieves the CRLB:
+$$\hat{\theta}_{\text{MLE}} \xrightarrow{d} \mathcal{N}\left(\theta, \frac{1}{n I_1(\theta)}\right)$$
+\end{theorembox}
 
 \begin{videocard}{IITM BS Lecture: Maximum Likelihood Estimation (MLE)}{https://www.youtube.com/watch?v=0qnRu8GNxBg}
 Official lecture constructing log-likelihood functions and solving likelihood equations.
 \end{videocard}
 
-
 \section{Confidence Intervals}
 
-A \textbf{$(1-\alpha)$ Confidence Interval} provides a range $[L, U]$ constructed from sample data that traps the true parameter $\theta$ with probability $1 - \alpha$.
+A \textbf{$(1-\alpha)$ Confidence Interval} provides an interval estimator $[L(X), U(X)]$ constructed from sample data that encloses the true fixed parameter $\theta$ with frequency $1 - \alpha$ under hypothetical repeated sampling.
 
-\begin{formulabox}{Confidence Interval Formulas for Population Mean $\mu$}
+\begin{formulabox}{Z-Confidence Interval for Population Mean $\mu$}
+When population variance $\sigma^2$ is known (or $n \ge 30$ via the CLT):
+$$\left[ \bar{X}_n - z_{\alpha/2} \frac{\sigma}{\sqrt{n}}, \; \bar{X}_n + z_{\alpha/2} \frac{\sigma}{\sqrt{n}} \right]$$
+Common Critical Values:
 \begin{itemize}
-    \item \textbf{Known Variance $\sigma^2$ (or large $n$ via CLT):}
+    \item $90\%$ Confidence ($\alpha = 0.10 \implies \alpha/2 = 0.05$): $z_{0.05} = 1.645$.
+    \item $95\%$ Confidence ($\alpha = 0.05 \implies \alpha/2 = 0.025$): $z_{0.025} = 1.960$.
+    \item $99\%$ Confidence ($\alpha = 0.01 \implies \alpha/2 = 0.005$): $z_{0.005} = 2.576$.
 \end{itemize}
-  $$\left[ \bar{X}_n - z_{\alpha/2} \frac{\sigma}{\sqrt{n}}, \; \bar{X}_n + z_{\alpha/2} \frac{\sigma}{\sqrt{n}} \right]$$
-  For $95\%$ confidence ($\alpha = 0.05$), $z_{0.025} = 1.96$.
+Margin of Error is $E = z_{\alpha/2} \frac{\sigma}{\sqrt{n}}$. To cut the interval width in half, $n$ must be \textbf{quadrupled}.
 \end{formulabox}
-
-\textbf{Data Science Relevance:} Maximum Likelihood Estimation is the foundational optimization objective behind Logistic Regression, Gaussian Mixture Models, and Neural Network Cross-Entropy loss minimization!
 
 \begin{videocard}{IITM BS Lecture: Confidence Intervals}{https://www.youtube.com/watch?v=Yq1YQawB2VY}
 Official lecture constructing two-sided z-confidence intervals and margin of error bounds.
 \end{videocard}
 
+\section{Exam Gotchas \& Cognitive Traps}
+
+\begin{trapbox}{A Likelihood Function is NOT a Probability Distribution over $\theta$}
+\textbf{The Trap:} Claiming that $L(\theta)$ gives the probability that $\theta$ is true, or integrating $\int L(\theta) d\theta = 1$.
+
+\textbf{The Reality:} Likelihood $L(\theta) = f(\text{Data} \mid \theta)$ is a function of the \textbf{parameter} $\theta$ for fixed observed \textbf{data}.
+\begin{itemize}
+    \item $L(\theta)$ does \textbf{not} integrate to 1 over $\theta$. For example, for Binomial $k$ successes in $n$ trials:
+    $$\int_0^1 \binom{n}{k} p^k (1-p)^{n-k} \, dp = \frac{1}{n + 1} \neq 1$$
+    \item Likelihood compares the \emph{relative plausibility} of different parameter values given the observed sample. To make probabilistic statements about $\theta$, one must adopt a Bayesian framework with a prior distribution $\pi(\theta)$!
+\end{itemize}
+\end{trapbox}
+
+\begin{trapbox}{Boundary MLEs: When Differentiation Fails ($\text{Uniform}(0, \theta)$)}
+\textbf{The Trap:} Differentiating the log-likelihood of $X_1, \dots, X_n \sim \text{Uniform}(0, \theta)$ and setting it to 0.
+
+\textbf{The Reality:} For $X \sim \text{Uniform}(0, \theta)$, $f(x \mid \theta) = \frac{1}{\theta} \mathbb{I}(0 \le x \le \theta)$.
+$$L(\theta) = \prod_{i=1}^n \frac{1}{\theta} \mathbb{I}(X_i \le \theta) = \frac{1}{\theta^n} \mathbb{I}(\theta \ge \max(X_1, \dots, X_n))$$
+The derivative of the log-likelihood $\ell(\theta) = -n \ln \theta$ is:
+$$\frac{d\ell}{d\theta} = -\frac{n}{\theta} < 0$$
+This derivative is \textbf{strictly negative everywhere} and never equals zero! Because $\frac{1}{\theta^n}$ is a strictly decreasing function of $\theta$, $L(\theta)$ is maximized by choosing the \textbf{smallest possible value of $\theta$} that does not violate the support indicator. Hence:
+$$\hat{\theta}_{\text{MLE}} = \max(X_1, X_2, \dots, X_n) = X_{(n)}$$
+(Meanwhile, the MME is $\E[X] = \frac{\theta}{2} \implies \hat{\theta}_{\text{MME}} = 2\bar{X}_n$).
+\end{trapbox}
+
+\begin{trapbox}{The Confidence Interval Interpretation Fallacy}
+\textbf{The Trap:} Stating that "for a calculated $95\%$ confidence interval $[242.16, 257.84]$, there is a $95\%$ probability that the true mean $\mu$ lies in $[242.16, 257.84]$."
+
+\textbf{The Reality:} In frequentist statistics, the true population mean $\mu$ is an unknown \textbf{fixed constant}, not a random variable! It is either inside $[242.16, 257.84]$ or it is not; the probability is either 1 or 0.
+The $95\%$ probability belongs strictly to the \textbf{random interval procedure} $[L(X), U(X)]$ before data collection: across 10,000 independent samples, $95\%$ of the resulting computed intervals will successfully bracket the fixed true value $\mu$.
+\end{trapbox}
+
+\section{Comparative Synthesis Matrix}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{3.2cm}p{3.8cm}p{3.8cm}p{3.5cm}}
+\toprule
+\textbf{Feature} & \textbf{Method of Moments (MME)} & \textbf{Maximum Likelihood (MLE)} & \textbf{Bayesian MAP} \\
+\midrule
+\textbf{Objective} & Solve $m_k = \E[X^k \mid \theta]$ & Maximize data likelihood $L(\theta)$ & Maximize posterior $L(\theta) \pi(\theta)$ \\
+\addlinespace
+\textbf{Asymptotic Efficiency} & Sub-optimal (higher variance than CRLB) & \textbf{Optimal} (Achieves Cramér-Rao Lower Bound) & Asymptotically equivalent to MLE as $n \to \infty$ \\
+\addlinespace
+\textbf{Invariance Property} & Generally \textbf{not} invariant ($\widehat{g(\theta)} \neq g(\hat{\theta})$) & \textbf{Strictly Invariant}: $\widehat{g(\theta)} = g(\hat{\theta})$ & Not invariant under arbitrary reparameterization \\
+\addlinespace
+\textbf{Boundary Handling} & Uses global mean (e.g. $2\bar{X}$) & Exploits sharp boundary limits (e.g. $X_{(n)}$) & Incorporates prior domain support \\
+\addlinespace
+\textbf{Machine Learning Analog} & Fast closed-form heuristic parameter init & Objective for Logistic Regression, GMMs, Cross-Entropy & Regularized Loss (L2 = Gaussian Prior, L1 = Laplace Prior) \\
+\bottomrule
+\end{tabular}
+\caption{Systematic Comparison of MME, MLE, and Bayesian MAP Estimation.}
+\end{table}
+
 \newpage
 \section{Practice Exercises}
 \textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\subsection*{Part A: Analytical \& Computational Problems}
 
 \begin{enumerate}
 \item \textbf{Unbiasedness Verification:} Let $X_1, X_2, X_3$ be an i.i.d. sample from a population with mean $\mu$. Show that $\hat{\mu} = \frac{1}{4} X_1 + \frac{1}{2} X_2 + \frac{1}{4} X_3$ is an unbiased estimator for $\mu$. Calculate its variance in terms of $\sigma^2$.
@@ -121,4 +180,26 @@ Official lecture constructing two-sided z-confidence intervals and margin of err
 \item \textbf{95\% Confidence Interval Construction:} A sample of $n = 100$ customer purchases has sample mean $\bar{X} = \$250$ with known population standard deviation $\sigma = \$40$. Construct a $95\%$ confidence interval for the true mean purchase amount $\mu$. (Use $z_{0.025} = 1.96$).
 
 \item \textbf{Data Science Application (Logistic Regression MLE Loss):} In binary classification, $Y_i \in \{0, 1\}$ follows a $\text{Bernoulli}(p_i)$ distribution where $p_i = \sigma(\mathbf{w}^T \mathbf{x}_i)$. Write out the negative log-likelihood loss function $J(\mathbf{w}) = -\ell(\mathbf{w})$ for an $N$-sample dataset (Binary Cross-Entropy Loss).
+\end{enumerate}
+
+\subsection*{Part B: Conceptual Diagnostic Traps (Exam Gotchas)}
+
+\begin{enumerate}[resume]
+\item \textbf{Diagnostic Trap (Boundary MLE vs. Derivative Fallacy):}
+Let $X_1, X_2, \dots, X_n \stackrel{iid}{\sim} \text{Uniform}(0, \theta)$. A student attempts to find the MLE by setting $\frac{d\ell(\theta)}{d\theta} = 0$. Which of the following statements is strictly correct?
+\begin{enumerate}
+    \item The MLE is $\hat{\theta} = 2\bar{X}_n$ because setting the derivative to zero yields the sample mean.
+    \item The derivative is $-\frac{n}{\theta} < 0$, which is never zero; the likelihood is maximized at the boundary constraint $\hat{\theta} = \max(X_1, \dots, X_n)$.
+    \item The MLE does not exist because the likelihood function has no critical points.
+    \item The MLE is $\min(X_1, \dots, X_n)$ because the likelihood is decreasing.
+\end{enumerate}
+
+\item \textbf{Diagnostic Trap (Confidence Interval Semantics):}
+A research team calculates a $95\%$ confidence interval for the population average treatment effect $\mu$ as $[3.2, 7.8]$. How should this interval be interpreted in a frequentist scientific report?
+\begin{enumerate}
+    \item There is a $95\%$ probability that the true parameter $\mu$ lies between $3.2$ and $7.8$.
+    \item $95\%$ of all future individual patients will experience a treatment effect between $3.2$ and $7.8$.
+    \item If the study were repeated many times on fresh random samples, $95\%$ of the resulting confidence intervals would contain the true, fixed parameter $\mu$.
+    \item The probability that $\mu = 5.5$ (the interval midpoint) is $0.95$.
+\end{enumerate}
 \end{enumerate}

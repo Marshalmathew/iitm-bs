@@ -1,40 +1,51 @@
 \chapter{Hypothesis Testing: Size, Power, Z-Test \& p-Values}
 
-Hypothesis testing provides a formal mathematical framework for decision-making under uncertainty. In this chapter, we master \textbf{Null vs. Alternative Hypotheses}, \textbf{Type I Error ($\alpha$, Size)}, \textbf{Type II Error ($\beta$, Power $1-\beta$)}, the \index{Z-Test}\textbf{Z-Test}, and \textbf{$p$-values}.
-
+Hypothesis testing provides the formal decision-theoretic machinery for separating genuine scientific discovery from random statistical noise. In quantitative data science and modern A/B testing, hypothesis testing governs product launch decisions, algorithmic uplift validation, and regulatory clinical trials. In this chapter, we master \textbf{Null vs. Alternative Hypotheses}, the decision matrix of \textbf{Type I ($\alpha$, Size)} and \textbf{Type II ($\beta$, Power $1-\beta$)} errors, the \index{One-Sample Z-Test}\textbf{One-Sample Z-Test}, the mathematical derivation of \textbf{$p$-values}, the proof that $p \sim \text{Uniform}(0, 1)$ under $H_0$, and the classic cognitive fallacies that mislead unwary analysts.
 
 \vspace{0.5cm}
 \begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
 \begin{itemize}
-    \item Null and Alternative Hypotheses, Errors, and Power
-    \item The One-Sample Z-Test
-    \item The p-Value
+    \item Formal formulation of Null ($H_0$) and Alternative ($H_1$) hypotheses.
+    \item The 4-quadrant decision matrix: Type I Error ($\alpha$, Significance Level) and Statistical Power ($1 - \beta$).
+    \item Executing one-tailed and two-tailed Z-tests using standardized test statistics.
+    \item Rigorous mathematical definition of the $p$-value and proof that $p \sim \text{Uniform}(0, 1)$ under a true null.
+    \item Dismantling the three universal $p$-value fallacies: transposition of conditionals, $1-p$ fallacy, and absence of evidence.
+    \item The critical divergence between statistical significance ($p < 0.05$) and practical effect size.
 \end{itemize}
 \end{tcolorbox}
+
 \section{Null and Alternative Hypotheses, Errors, and Power}
 
 \begin{definitionbox}{Hypotheses and Decision Matrix}
 \index{Hypotheses and Decision Matrix}
+Statistical hypothesis testing tests competing claims regarding population parameter $\theta$:
 \begin{itemize}
-    \item \textbf{Null Hypothesis ($H_0$):} Baseline assumption of no effect or no difference (e.g. $H_0: \mu = \mu_0$).
-    \item \textbf{Alternative Hypothesis ($H_1$ or $H_a$):} Claim of interest we seek to prove (e.g. $H_1: \mu \neq \mu_0$ or $H_1: \mu > \mu_0$).
-
+    \item \textbf{Null Hypothesis ($H_0$):} Baseline status-quo assumption of no effect, no difference, or no uplift (e.g. $H_0 \colon \mu = \mu_0$). Assumed true unless empirical evidence overwhelmingly contradicts it.
+    \item \textbf{Alternative Hypothesis ($H_1$ or $H_a$):} The research claim of discovery or directional shift (e.g. $H_1 \colon \mu > \mu_0$ or $H_1 \colon \mu \neq \mu_0$).
 \end{itemize}
 \begin{center}
+\renewcommand{\arraystretch}{1.3}
 \begin{tabular}{c|cc}
-& \textbf{Accept $H_0$ (Fail to Reject)} & \textbf{Reject $H_0$} \\
-\hline
-\textbf{$H_0$ True} & Correct Decision ($1 - \alpha$) & \textbf{Type I Error ($\alpha$)} \\
-\textbf{$H_0$ False} & \textbf{Type II Error ($\beta$)} & Correct Decision (\textbf{Power $1 - \beta$}) \\
+\toprule
+\textbf{Reality} & \textbf{Retain $H_0$ (Fail to Reject)} & \textbf{Reject $H_0$ (Declare Significance)} \\
+\midrule
+\textbf{$H_0$ is True} & Correct Decision (Specificity $1 - \alpha$) & \textbf{Type I Error ($\alpha$, False Positive)} \\
+\textbf{$H_0$ is False} & \textbf{Type II Error ($\beta$, False Negative)} & Correct Decision (\textbf{Statistical Power $1 - \beta$}) \\
+\bottomrule
 \end{tabular}
 \end{center}
 \end{definitionbox}
 
-\begin{formulabox}{Size and Power of a Test}
+\begin{formulabox}{Significance Level ($\alpha$), Size, and Statistical Power ($1 - \beta$)}
 \begin{itemize}
-    \item \textbf{Significance Level / Size ($\alpha$):} $\alpha = \P(\text{Reject } H_0 \mid H_0 \text{ is true})$.
-    \item \textbf{Type II Error Probability ($\beta$):} $\beta = \P(\text{Fail to Reject } H_0 \mid H_0 \text{ is false})$.
-    \item \textbf{Statistical Power ($1 - \beta$):} $1 - \beta = \P(\text{Reject } H_0 \mid H_1 \text{ is true})$.
+    \item \textbf{Significance Level / Size ($\alpha$):} The maximum permissible probability of committing a Type I error:
+    $$\alpha = \P(\text{Reject } H_0 \mid H_0 \text{ is true})$$
+    Typically fixed upfront by the experimenter (conventionally $\alpha = 0.05$ or $0.01$).
+    \item \textbf{Type II Error Probability ($\beta$):} The probability of failing to detect a real effect:
+    $$\beta = \P(\text{Fail to Reject } H_0 \mid H_1 \text{ is true})$$
+    \item \textbf{Statistical Power ($1 - \beta$):} The probability of successfully rejecting a false null:
+    $$\text{Power} = 1 - \beta = \P(\text{Reject } H_0 \mid H_1 \text{ is true})$$
+    Power increases with larger sample size $n$, larger true effect size $|\mu - \mu_0|$, and higher permitted $\alpha$.
 \end{itemize}
 \end{formulabox}
 
@@ -44,26 +55,28 @@ Official lecture defining rejection regions, Type I/II errors, and calculating t
 
 \section{The One-Sample Z-Test}
 
-When sample size $n$ is large (or population variance $\sigma^2$ is known), the sample mean $\bar{X}_n$ follows a Gaussian distribution under $H_0$.
+When the population variance $\sigma^2$ is known (or $n \ge 30$ via the CLT), the sampling distribution of $\bar{X}_n$ under $H_0 \colon \mu = \mu_0$ is Gaussian $\mathcal{N}\left(\mu_0, \frac{\sigma^2}{n}\right)$.
 
-\begin{formulabox}{Z-Test Statistic and Rejection Regions}
-For $H_0: \mu = \mu_0$ with test statistic $Z_{\text{calc}} = \frac{\bar{X}_n - \mu_0}{\sigma / \sqrt{n}}$:
+\begin{formulabox}{Z-Test Statistic and Decision Rules}
+Standardize the sample mean into the test statistic:
+$$Z_{\text{calc}} = \frac{\bar{X}_n - \mu_0}{\sigma / \sqrt{n}}$$
+Decision rules at significance level $\alpha$:
 \begin{itemize}
-    \item \textbf{Two-Tailed ($H_1: \mu \neq \mu_0$):} Reject $H_0$ if $|Z_{\text{calc}}| \ge z_{\alpha/2}$.
-    \item \textbf{Right-Tailed ($H_1: \mu > \mu_0$):} Reject $H_0$ if $Z_{\text{calc}} \ge z_{\alpha}$.
-    \item \textbf{Left-Tailed ($H_1: \mu < \mu_0$):} Reject $H_0$ if $Z_{\text{calc}} \le -z_{\alpha}$.
+    \item \textbf{Two-Tailed ($H_1 \colon \mu \neq \mu_0$):} Reject $H_0$ if $|Z_{\text{calc}}| \ge z_{\alpha/2}$.
+    \item \textbf{Right-Tailed ($H_1 \colon \mu > \mu_0$):} Reject $H_0$ if $Z_{\text{calc}} \ge z_{\alpha}$.
+    \item \textbf{Left-Tailed ($H_1 \colon \mu < \mu_0$):} Reject $H_0$ if $Z_{\text{calc}} \le -z_{\alpha}$.
 \end{itemize}
-Common Critical Values: For $\alpha = 0.05 \implies z_{0.025} = 1.96$ (two-tailed), $z_{0.05} = 1.645$ (one-tailed).
+Standard critical values: For $\alpha = 0.05$, $z_{0.025} = 1.960$ (two-tailed) and $z_{0.05} = 1.645$ (one-tailed).
 \end{formulabox}
 
-\begin{intuitionbox}{Visualizing Rejection Region and $p$-Value Tail Area}
-Below is the standard normal sampling distribution under $H_0$, highlighting the critical rejection regions ($\alpha/2$) for a two-tailed test.
+\begin{intuitionbox}{Visualizing the Rejection Region for a Two-Tailed Test}
+Below is the standard normal sampling distribution under $H_0$, with the two symmetric critical tails totaling $\alpha = 0.05$:
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[
-    width=8cm, height=4.5cm,
+    width=9cm, height=4.5cm,
     axis lines=left,
-    xlabel={$Z$}, ylabel={$f(z)$},
+    xlabel={$z$}, ylabel={$f(z)$},
     xmin=-3.2, xmax=3.2, ymin=0, ymax=0.42,
     ticks=none
 ]
@@ -74,60 +87,132 @@ Below is the standard normal sampling distribution under $H_0$, highlighting the
 % Right rejection tail
 \addplot[fill=red!40, draw=none, domain=1.96:3.2, samples=50] {exp(-x^2/2)/sqrt(2*pi)} \closedcycle;
 % Dashed critical value lines
-\draw[dashed, red!80!black] (axis cs:-1.96,0) -- (axis cs:-1.96,0.058) node[above=8pt] {$-z_{\alpha/2}$};
-\draw[dashed, red!80!black] (axis cs:1.96,0) -- (axis cs:1.96,0.058) node[above=8pt] {$+z_{\alpha/2}$};
-\node at (axis cs:0,0.15) {\small Accept $H_0$ ($1-\alpha$)};
+\draw[dashed, red!80!black] (axis cs:-1.96,0) -- (axis cs:-1.96,0.058) node[above=8pt] {$-1.96$};
+\draw[dashed, red!80!black] (axis cs:1.96,0) -- (axis cs:1.96,0.058) node[above=8pt] {$+1.96$};
+\node at (axis cs:0,0.15) {\small Retain $H_0$ ($95\%$)};
+\node at (axis cs:2.5,0.08) {\scriptsize $\alpha/2 = 2.5\%$};
+\node at (axis cs:-2.5,0.08) {\scriptsize $\alpha/2 = 2.5\%$};
 \end{axis}
 \end{tikzpicture}
 \end{center}
 \end{intuitionbox}
 
-
 \begin{videocard}{IITM BS Lecture: Standard Testing Methods: Z-Test}{https://www.youtube.com/watch?v=ZLj66E1Ue5Q}
 Official lecture executing one-sample and two-sample Z-tests on numerical dataset examples.
 \end{videocard}
 
-\section{The $p$-Value}
+\section{The $p$-Value and its Mathematical Distribution}
 
-\begin{intuitionbox}{What is a $p$-Value really?}
-A $p$-value is NOT the probability that $H_0$ is true. A $p$-value answers a very specific hypothetical question: "IF the null hypothesis were absolutely true, how weird is the data I just collected?" If $p = 0.01$, it means "If $H_0$ is true, there is only a 1\% chance of seeing data this extreme." Because that is so incredibly unlikely, we choose to reject the premise that $H_0$ is true.
-\end{intuitionbox}
-
-\begin{lstlisting}[language=Python, caption=Data Science: Calculating p-values with SciPy]
-import scipy.stats as stats
-
-# Z-test calculation
-z_calc = 2.5 
-
-# Two-tailed p-value (we multiply by 2 because extreme could be positive or negative)
-p_value = 2 * (1 - stats.norm.cdf(abs(z_calc)))
-print(f"p-value for Z={z_calc}: {p_value:.4f}")
-
-# Decision rule
-alpha = 0.05
-if p_value < alpha:
-    print("Reject Null Hypothesis!")
-else:
-    print("Fail to Reject Null Hypothesis.")
-\end{lstlisting}
-
-\begin{definitionbox}{The $p$-Value Definition}
-The \textbf{$p$-value} is the probability of observing a test statistic at least as extreme as the one actually calculated from the sample, assuming $H_0$ is true.
-$$\text{Decision Rule: If } p\text{-value} \le \alpha \implies \text{Reject } H_0. \quad \text{If } p\text{-value} > \alpha \implies \text{Fail to Reject } H_0.$$
+\begin{definitionbox}{Mathematical Definition of the $p$-Value}
+The \textbf{$p$-value} is the probability, calculated under the assumption that the null hypothesis $H_0$ is strictly true, of observing a test statistic at least as extreme as the value $z_{\text{calc}}$ actually computed from the sample:
+\begin{itemize}
+    \item \textbf{Right-Tailed Test:} $p\text{-value} = \P(Z \ge z_{\text{calc}} \mid H_0) = 1 - \Phi(z_{\text{calc}})$.
+    \item \textbf{Left-Tailed Test:} $p\text{-value} = \P(Z \le z_{\text{calc}} \mid H_0) = \Phi(z_{\text{calc}})$.
+    \item \textbf{Two-Tailed Test:} $p\text{-value} = \P(|Z| \ge |z_{\text{calc}}| \mid H_0) = 2 \left[ 1 - \Phi(|z_{\text{calc}}|) \right]$.
+\end{itemize}
+\textbf{Universal Decision Rule:} Reject $H_0$ if and only if $p\text{-value} \le \alpha$.
 \end{definitionbox}
 
-\textbf{Data Science Relevance:} In A/B testing and feature selection (e.g. statsmodels OLS summary output), $p$-values tell us whether a feature's coefficient is statistically significantly different from zero ($\beta_j \neq 0$)!
+\begin{theorembox}{The Distribution of the $p$-Value Under $H_0$ is $\text{Uniform}(0, 1)$}
+\index{Distribution of p-value under H0}
+Let $T$ be a continuous test statistic with continuous strictly increasing cumulative distribution function $F_0(t)$ under $H_0$. 
+Then, \textbf{when $H_0$ is true, the $p$-value random variable $P$ follows a continuous $\text{Uniform}(0, 1)$ distribution}:
+$$P \mid H_0 \sim \text{Uniform}(0, 1)$$
+\textbf{Proof:}
+For a right-tailed test, $P = 1 - F_0(T)$. By probability integral transform, for any $u \in [0, 1]$:
+$$\P(P \le u \mid H_0) = \P(1 - F_0(T) \le u) = \P(F_0(T) \ge 1 - u) = 1 - \P(F_0(T) \le 1 - u)$$
+Because $F_0(T) \sim \text{Uniform}(0, 1)$, $\P(F_0(T) \le 1 - u) = 1 - u$:
+$$\P(P \le u \mid H_0) = 1 - (1 - u) = u$$
+Because the CDF of $P$ is $F_P(u) = u$ on $[0, 1]$, $P \sim \text{Uniform}(0, 1)$. 
+This guarantees that $\P(P \le \alpha \mid H_0) = \alpha$, validating the exact nominal Type I error rate.
+\end{theorembox}
+
+\begin{lstlisting}[language=Python, caption=Data Science: Verifying that p-values are Uniform under H0]
+import numpy as np
+import scipy.stats as stats
+
+# Simulating 50,000 independent experiments where H0 is TRUE (true mu = 0.0)
+np.random.seed(42)
+n_simulations = 50_000
+samples = np.random.normal(loc=0.0, scale=1.0, size=(n_simulations, 30))
+
+# Compute two-tailed one-sample t-test p-value against popmean = 0.0
+_, p_values = stats.ttest_1samp(samples, popmean=0.0, axis=1)
+
+# Under H0, exactly 5% of p-values fall below alpha = 0.05!
+false_positive_rate = np.mean(p_values <= 0.05)
+print(f"Empirical Type I Error Rate: {false_positive_rate:.4f} (Nominal: 0.0500)")
+
+# Check Kolmogorov-Smirnov test against Uniform(0, 1)
+ks_stat, ks_pval = stats.kstest(p_values, 'uniform')
+print(f"KS test p-value for Uniformity: {ks_pval:.4f} (Uniform confirmed!)")
+\end{lstlisting}
 
 \begin{videocard}{IITM BS Lecture: The p-Value}{https://www.youtube.com/watch?v=RfJBrqRljEg}
 Official lecture deriving $p$-values for right-tailed, left-tailed, and two-tailed tests.
 \end{videocard}
 
+\section{Exam Gotchas \& Cognitive Traps}
+
+\begin{trapbox}{The Three Universal $p$-Value Fallacies}
+\textbf{Trap 1: The Transposition Fallacy (Inverse Probability):}
+Believing that $p = 0.03$ means "there is a 3\% probability that $H_0$ is true."
+\begin{itemize}
+    \item \textbf{Correction:} The $p$-value is $\P(\text{Data} \mid H_0)$, \textbf{not} $\P(H_0 \mid \text{Data})$! Conflating them is the Base-Rate Fallacy. In Frequentist statistics, hypotheses do not have probabilities.
+\end{itemize}
+
+\textbf{Trap 2: The Alternative Probability Fallacy ($1 - p$):}
+Believing that $p = 0.03$ means "there is a $97\%$ probability that the alternative hypothesis is true."
+\begin{itemize}
+    \item \textbf{Correction:} $1 - p$ simply measures the probability of seeing less extreme data under $H_0$. It has zero mathematical connection to the truth probability of $H_1$.
+\end{itemize}
+
+\textbf{Trap 3: The "Acceptance" Fallacy (Absence of Evidence):}
+Claiming that $p = 0.28 > 0.05$ "proves that the null hypothesis is true" or that "treatment has zero effect."
+\begin{itemize}
+    \item \textbf{Correction:} Absence of evidence is not evidence of absence! A high $p$-value frequently occurs when a real, massive effect is present but the experiment had insufficient sample size (low power). We strictly state: \textbf{"Fail to reject $H_0$"}, never "Accept $H_0$".
+\end{itemize}
+\end{trapbox}
+
+\begin{trapbox}{Statistical Significance ($p < 0.05$) vs. Practical Effect Size}
+\textbf{The Trap:} Confusing a tiny $p$-value with a large, meaningful practical impact.
+
+\textbf{The Reality:} As sample size $n \to \infty$, the standard error $\sigma/\sqrt{n} \to 0$. Consequently:
+$$Z_{\text{calc}} = \frac{\bar{X}_n - \mu_0}{\sigma / \sqrt{n}} \xrightarrow{n \to \infty} \pm \infty \implies p\text{-value} \xrightarrow{n \to \infty} 0$$
+For huge datasets ($n = 10,000,000$), a completely meaningless uplift (e.g. conversion improving from $10.00\%$ to $10.001\%$) will produce $p < 0.0000001$. Conversely, in clinical studies with $n = 15$, a dramatic 50\% reduction in mortality might yield $p = 0.09$ due to large sampling variance. \textbf{Always report Effect Size (Cohen's $d$) alongside $p$-values!}
+\end{trapbox}
+
+\section{Comparative Synthesis Matrix}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{3.2cm}p{3.8cm}p{3.8cm}p{3.5cm}}
+\toprule
+\textbf{Statistical Concept} & \textbf{Type I Error ($\alpha$)} & \textbf{Type II Error ($\beta$)} & \textbf{Statistical Power ($1 - \beta$)} \\
+\midrule
+\textbf{Formal Definition} & $\P(\text{Reject } H_0 \mid H_0 \text{ is true})$ & $\P(\text{Retain } H_0 \mid H_1 \text{ is true})$ & $\P(\text{Reject } H_0 \mid H_1 \text{ is true})$ \\
+\addlinespace
+\textbf{Analogy} & False Alarm (Innocent jailed) & Missed Detection (Guilty walks free) & True Discovery (Guilty convicted) \\
+\addlinespace
+\textbf{Controlled By} & Explicitly set by analyst (e.g. $\alpha = 0.05$) & Determined by sample size $n$ and true effect & Determined by sample size $n$ and true effect \\
+\addlinespace
+\textbf{Effect of Increasing $n$} & Remains constant at nominal $\alpha$ & \textbf{Shrinks to 0} ($\beta \to 0$) & \textbf{Increases to 100\%} ($\text{Power} \to 1$) \\
+\addlinespace
+\textbf{Machine Learning Analog} & False Positive Rate ($1 - \text{Specificity}$) & False Negative Rate ($1 - \text{Recall}$) & Recall / Sensitivity / True Positive Rate \\
+\bottomrule
+\end{tabular}
+\caption{Systematic Breakdown of Hypothesis Testing Decision Metrics.}
+\end{table}
+
 \newpage
 \section{Practice Exercises}
 \textit{Detailed step-by-step solutions are available in the Appendix.}
 
+\subsection*{Part A: Analytical \& Computational Problems}
+
 \begin{enumerate}
-\item \textbf{Type I and Type II Error Identification:} A medical diagnostic AI system evaluates $H_0: \text{Patient is Healthy}$ vs. $H_1: \text{Patient has Disease}$.
+\item \textbf{Type I and Type II Error Identification:} A medical diagnostic AI system evaluates $H_0 \colon \text{Patient is Healthy}$ vs. $H_1 \colon \text{Patient has Disease}$.
     \begin{enumerate}
         \item Explain what a Type I error represents in this context.
         \item Explain what a Type II error represents in this context. Which error is more dangerous?
@@ -140,12 +225,34 @@ Official lecture deriving $p$-values for right-tailed, left-tailed, and two-tail
         \item At significance level $\alpha = 0.05$ ($z_{0.05} = 1.645$), do we reject $H_0$?
     \end{enumerate}
 
-\item \textbf{p-Value Calculation:} For the Z-test in Exercise 2 where $Z_{\text{calc}} = 2.0$:
+\item \textbf{$p$-Value Calculation:} For the Z-test in Exercise 2 where $Z_{\text{calc}} = 2.0$:
     Given $\Phi(2.0) = 0.9772$, calculate the exact one-tailed $p$-value.
 
 \item \textbf{Two-Tailed Z-Test with $p$-Value:} A machine fills cereal boxes with target weight $\mu_0 = 500$g. An inspector samples $n = 100$ boxes and finds $\bar{X} = 496$g with $\sigma = 20$g.
-    Compute $Z_{\text{calc}}$ for $H_0: \mu = 500$ vs $H_1: \mu \neq 500$, calculate the two-tailed $p$-value (given $\Phi(2.0) = 0.9772$), and state the decision at $\alpha = 0.05$.
+    Compute $Z_{\text{calc}}$ for $H_0 \colon \mu = 500$ vs $H_1 \colon \mu \neq 500$, calculate the two-tailed $p$-value (given $\Phi(2.0) = 0.9772$), and state the decision at $\alpha = 0.05$.
 
 \item \textbf{Data Science Application (A/B Test Significance Decision):} An e-commerce A/B test compares new checkout UI (Treatment) vs current UI (Control). The test yields $Z_{\text{calc}} = 2.33$ for a two-tailed test.
     Given $\Phi(2.33) = 0.9901$, calculate the two-tailed $p$-value. Is the new checkout UI's conversion uplift statistically significant at $\alpha = 0.01$?
+\end{enumerate}
+
+\subsection*{Part B: Conceptual Diagnostic Traps (Exam Gotchas)}
+
+\begin{enumerate}[resume]
+\item \textbf{Diagnostic Trap (The Distribution of $p$ Under a True Null):}
+A medical researcher tests 10,000 completely inert sugar pills against a placebo at $\alpha = 0.05$. In reality, $H_0$ is strictly true for every single pill. What distribution will the resulting 10,000 $p$-values follow, and approximately how many false discoveries will be made?
+\begin{enumerate}
+    \item The $p$-values will cluster near 1.0, producing zero false discoveries.
+    \item The $p$-values will follow a Standard Normal distribution centered at 0.
+    \item The $p$-values will follow a continuous $\text{Uniform}(0, 1)$ distribution, resulting in approximately $10,000 \times 0.05 = 500$ false positive discoveries.
+    \item The $p$-values will follow an Exponential distribution whose rate depends on sample size $n$.
+\end{enumerate}
+
+\item \textbf{Diagnostic Trap (Statistical Significance vs. Practical Meaning):}
+An analyst evaluates an algorithm on a massive dataset of $n = 20,000,000$ user clicks. The test statistic yields $p = 0.00002$, and the measured increase in click-through rate is from $5.000\%$ to $5.002\%$. How should a senior data scientist evaluate this result?
+\begin{enumerate}
+    \item The result is statistically significant and proves that the algorithm has an enormous commercial impact.
+    \item Because $p < 0.05$, the probability that the uplift is zero is exactly $0.002\%$.
+    \item The result is statistically significant purely due to immense sample size $n$, but the practical effect size ($0.002\%$) is likely negligible and economically irrelevant.
+    \item The test is invalid because $p$-values cannot be calculated when $n > 100,000$.
+\end{enumerate}
 \end{enumerate}

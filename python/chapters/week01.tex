@@ -1,186 +1,334 @@
 \chapter{Introduction to Python, Variables, Data Types \& Operators}
 
-Welcome to Programming in Python! Python is the undisputed language of modern Data Science, Machine Learning, and Artificial Intelligence. Its clean, human-readable syntax makes it easy to write code, while its powerful ecosystem of libraries (like NumPy, Pandas, and PyTorch) allows data scientists to build cutting-edge intelligent systems.
-
+Python is the undisputed computational lingua franca of modern Data Science, Machine Learning, and Artificial Intelligence. Behind its clean, expressive syntax lies a sophisticated runtime architecture: an interpreted, dynamically typed, yet \index{Strong Typing}\textbf{strongly typed} object model where all variables act as memory reference pointers rather than static storage boxes. Understanding how Python manages memory, binds variable names, handles arbitrary-precision integers, and evaluates operator precedence is the essential foundation for building reliable, high-performance machine learning pipelines.
 
 \vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Variables and Literals
-    \item Core Primitive Data Types
-    \item String Slicing and Basic String Operations
-    \item Operators and Expressions
+    \item \textbf{Target Competencies:} Understand Python's reference-based memory model and object identity; distinguish between dynamic typing and strong typing; master IEEE 754 floating-point limitations and arbitrary-precision integer arithmetic; execute slice operations on immutable sequence types; trace operator precedence and short-circuit boolean evaluation.
+    \item \textbf{Prerequisites:} Basic algorithmic thinking, elementary algebra.
+    \item \textbf{Syntax \& Built-in Functions:} \texttt{id()}, \texttt{type()}, \texttt{isinstance()}, \texttt{round()}, \texttt{float()}, \texttt{int()}, \texttt{str()}, \texttt{bool()}; floor division \texttt{//}, modulo \texttt{\%}, exponentiation \texttt{**}; string slicing \texttt{[start:stop:step]}.
 \end{itemize}
 \end{tcolorbox}
-\section{Variables and Literals}
 
-\begin{intuitionbox}{The Post Office Box}
-Think of variables like P.O. Boxes in a post office. You put a label (the variable name) on a box, and you place something inside it (the data). When you want to use that data later, you just ask for the contents of the box with that specific label.
-\end{intuitionbox}
+\section{Mathematical \& Computational Foundations}
 
-In Python, a \index{variable}\textbf{variable} is a named location in memory used to store data. Unlike languages like C++ or Java, Python uses \index{dynamic typing}\textbf{dynamic typing}, meaning you do not need to explicitly declare a variable's data type when creating it.
+\subsection{The Python Execution and Object Memory Model}
 
-\begin{definitionbox}{Variables and Assignment}
-\index{Variables and Assignment}
-A variable is created the moment you first assign a value to it using the assignment operator (\texttt{=}).
-\begin{lstlisting}
-x = 10          # An integer variable
-name = "IITM"   # A string variable
-pi = 3.14159    # A floating-point variable
-is_valid = True # A boolean variable
+\begin{definitionbox}{Variable Assignment as Name Binding (Reference Semantics)}
+\index{Name Binding} \index{Reference Semantics}
+In languages like C++ or Java, a variable is a named memory box of fixed size holding a raw value. In Python, \textbf{variables are names (tags) bound to heap-allocated objects}.
+When executing:
+\begin{lstlisting}[language=Python]
+x = 10
 \end{lstlisting}
+Python performs three distinct steps:
+\begin{enumerate}
+    \item Allocates a full \texttt{PyObject} on the memory heap with fields: reference count (\texttt{ob\_refcnt}), type pointer (\texttt{ob\_type = int}), and payload value (\texttt{10}).
+    \item Looks up the identifier \texttt{x} in the current namespace dictionary.
+    \item Binds the name \texttt{x} to point to the memory address of the integer object.
+\end{enumerate}
+The built-in function \texttt{id(x)} returns the unique memory address of the referenced object.
 \end{definitionbox}
 
-\begin{warningbox}{Dynamic Typing Pitfalls}
-Because Python uses dynamic typing, a variable's type can change if you reassign it (e.g., \texttt{x = 10} then \texttt{x = "hello"}). This flexibility can lead to hidden bugs if you accidentally overwrite an integer with a string and try to perform math on it later!
-\end{warningbox}
-
-\textbf{Data Science Relevance:} In data science, variables hold feature columns, target labels, model hyperparameters (like learning rate $\alpha = 0.01$), and dataset paths.
-
-\begin{videocard}{IITM BS Lecture: Introduction to Variables}{https://www.youtube.com/watch?v=Yg6xzi2ie5s}
-Official lecture introducing Python variables, assignment statements, and memory concepts.
-\end{videocard}
-
-\begin{videocard}{IITM BS Lecture: Variables and Literals}{https://www.youtube.com/watch?v=tDaXdoKfX0k}
-Official lecture explaining literals, variable naming rules, and assignment mechanics.
-\end{videocard}
-
-\vspace{0.3cm}
-\textbf{Checkpoint:} What happens if you try to create a variable named \texttt{1st\_name = "John"}? (Hint: Think about variable naming rules).
-\vspace{0.3cm}
-
-\section{Core Primitive Data Types}
-
-Python has four primary built-in primitive data types:
-
-\begin{definitionbox}{Primitive Data Types}
-\index{Primitive Data Types}
+\begin{theorembox}{Dynamic Typing versus Strong Typing}
+Python is both \textbf{dynamically typed} and \textbf{strongly typed}:
 \begin{itemize}
-    \item \textbf{Integer (\texttt{int}):} Whole numbers without decimals (e.g., \texttt{-5}, \texttt{0}, \texttt{42}).
-    \item \textbf{Float (\texttt{float}):} Real numbers with decimal points or scientific notation (e.g., \texttt{3.14}, \texttt{-0.001}, \texttt{2.5e-4}).
-    \item \textbf{String (\texttt{str}):} Sequences of text characters enclosed in single, double, or triple quotes (e.g., \texttt{"data"}, \texttt{'Python'}).
-    \item \textbf{Boolean (\texttt{bool}):} Truth values: \texttt{True} or \texttt{False}.
-\end{itemize}
-You can inspect the type of any variable using the built-in \texttt{type()} function.
-\end{definitionbox}
-
-\begin{examplebox}{Checking Types and Type Casting}
-\begin{lstlisting}
-age = 25
-print(type(age))  # Output: <class 'int'>
-
-# Type Conversion (Type Casting)
-height_str = "1.75"
-height_float = float(height_str)  # Converts string "1.75" to float 1.75
-print(type(height_float))         # Output: <class 'float'>
-\end{lstlisting}
-\end{examplebox}
-
-\begin{videocard}{IITM BS Lecture: Data Types (Parts 1 \& 2)}{https://www.youtube.com/watch?v=8n4MBjuDBu4}
-Official lectures covering numeric data types, type conversion, and character strings.
-\end{videocard}
-
-\section{String Slicing and Basic String Operations}
-
-Strings are immutable sequences of characters. You can access individual characters using 0-based indexing or slice sub-strings using the bracket syntax \texttt{[start:stop:step]}.
-
-\begin{formulabox}{String Slicing Syntax}
-Given \texttt{s = "DataScience"}:
-\begin{itemize}
-    \item \texttt{s[0]} $\to$ \texttt{'D'} (First character)
-    \item \texttt{s[-1]} $\to$ \texttt{'e'} (Last character via negative indexing)
-    \item \texttt{s[0:4]} $\to$ \texttt{'Data'} (Slice from index 0 up to, but not including, index 4)
-    \item \texttt{s[::-1]} $\to$ \texttt{'ecneicSataD'} (Reverse the string)
-\end{itemize}
-\end{formulabox}
-
-\begin{videocard}{IITM BS Lecture: Strings and String Slicing}{https://www.youtube.com/watch?v=sS89tiDuqoM}
-Official lecture demonstrating string indexing, negative indices, and slicing notation.
-\end{videocard}
-
-\section{Operators and Expressions}
-
-Python supports arithmetic, comparison (relational), logical, and assignment operators.
-
-\begin{theorembox}{Arithmetic and Logical Operators}
-\begin{itemize}
-    \item \textbf{Arithmetic:} \texttt{+} (add), \texttt{-} (subtract), \texttt{*} (multiply), \texttt{/} (float division), \texttt{//} (floor division), \texttt{\%} (modulus / remainder), \texttt{**} (exponentiation).
-    \item \textbf{Comparison:} \texttt{==} (equal), \texttt{!=} (not equal), \texttt{>}, \texttt{<}, \texttt{>=}, \texttt{<=}.
-    \item \textbf{Logical:} \texttt{and}, \texttt{or}, \texttt{not}.
+    \item \textbf{Dynamically Typed:} Types are associated with \textbf{objects in memory at runtime}, not with variable names. A name can point to an integer at one moment and be rebound to a string later:
+    \begin{lstlisting}[language=Python]
+    x = 42        # x points to int object
+    x = "data"    # x now points to str object; no compile error
+    \end{lstlisting}
+    \item \textbf{Strongly Typed:} Object types are strictly enforced. Python will \textbf{never} implicitly coerce incompatible types during operations:
+    \begin{lstlisting}[language=Python]
+    result = "10" + 5  # Raises TypeError: can only concatenate str to str
+    \end{lstlisting}
 \end{itemize}
 \end{theorembox}
 
-\begin{examplebox}{Floor Division vs Division}
-\begin{lstlisting}
-a = 17
-b = 5
+\subsection{Core Primitive Data Types}
 
-print(a / b)   # 3.4   (Float Division)
-print(a // b)  # 3     (Floor Division: drops decimal part)
-print(a % b)   # 2     (Modulus: remainder of 17 / 5)
-print(a ** b)  # 1419857 (17 raised to the power of 5)
+\begin{definitionbox}{Built-in Primitive Data Types}
+\index{Primitive Data Types}
+\begin{enumerate}
+    \item \textbf{Integer (\texttt{int}):} In Python 3, integers have \textbf{arbitrary precision} (unbounded size). Python automatically allocates as many bytes as needed, eliminating integer overflow errors common in 32-bit and 64-bit compiled languages ($2^{1000}$ computes seamlessly).
+    \item \textbf{Float (\texttt{float}):} Implemented as standard IEEE 754 double-precision 64-bit numbers (53 bits of precision, approximately 15--17 significant decimal digits).
+    \item \textbf{String (\texttt{str}):} Immutable sequences of Unicode code points. Once constructed, individual characters cannot be modified in place.
+    \item \textbf{Boolean (\texttt{bool}):} Subclass of \texttt{int} representing truth values: \texttt{True} (value 1) and \texttt{False} (value 0).
+\end{enumerate}
+\end{definitionbox}
+
+\subsection{Arithmetic Operators and Modulo Mathematics}
+
+\begin{theorembox}{The Fundamental Division-Modulo Invariant}
+For any two numbers $a$ (dividend) and $b$ (divisor, $b \neq 0$), Python defines floor division \texttt{//} and modulus \texttt{\%} such that the algebraic invariant always holds:
+\begin{equation}
+b \times (a \mathbin{/\!\!/} b) + (a \mathbin{\%} b) = a
+\end{equation}
+Python uses \textbf{floor division} (rounding toward negative infinity $\lfloor a/b \rfloor$), NOT truncation toward zero.
+Consequently:
+\begin{equation}
+17 \mathbin{/\!\!/} 5 = 3, \quad 17 \mathbin{\%} 5 = 2 \implies 5(3) + 2 = 17
+\end{equation}
+\begin{equation}
+-17 \mathbin{/\!\!/} 5 = \lfloor -3.4 \rfloor = -4, \quad -17 \mathbin{\%} 5 = 3 \implies 5(-4) + 3 = -17
+\end{equation}
+The sign of $a \mathbin{\%} b$ always matches the sign of divisor $b$.
+\end{theorembox}
+
+\section{Visual \& Computational Intuition: The Heap Reference Model}
+
+The difference between variable assignment and object mutation is illustrated below. Reassigning a variable does not overwrite the value in place; it simply moves the arrow to a new object in the heap.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[>=stealth, scale=1.1]
+    % Stack / Namespace (Left)
+    \draw[thick, fill=blue!8, rounded corners=6pt] (-4,-2.2) rectangle (-1.5, 2.2);
+    \node[font=\bfseries, primarydark] at (-2.75, 1.8) {Namespace (Stack)};
+
+    \node[draw=primarydark, fill=white, rounded corners, thick] (varA) at (-2.75, 0.8) {\texttt{a}};
+    \node[draw=primarydark, fill=white, rounded corners, thick] (varB) at (-2.75, -0.4) {\texttt{b}};
+
+    % Heap Memory (Right)
+    \draw[thick, fill=forest!8, rounded corners=6pt] (1.5,-2.2) rectangle (5.5, 2.2);
+    \node[font=\bfseries, forest] at (3.5, 1.8) {Object Heap (Memory)};
+
+    % Heap Objects
+    \node[draw=forest, fill=white, rounded corners, thick, align=center] (obj10) at (3.5, 0.8) {
+        \textbf{PyObject: int}\\
+        \texttt{type: <class 'int'>}\\
+        \texttt{refcnt: 2}\\
+        \texttt{value: 10}
+    };
+
+    \node[draw=coralborder, fill=white, rounded corners, thick, align=center] (obj11) at (3.5, -1.0) {
+        \textbf{PyObject: int}\\
+        \texttt{type: <class 'int'>}\\
+        \texttt{refcnt: 1}\\
+        \texttt{value: 11}
+    };
+
+    % Reference Arrows
+    \draw[->, ultra thick, primaryborder] (varA) -- (obj10.west) node[midway, above, font=\scriptsize] {\texttt{id: 0x10A}};
+    \draw[->, thick, dashed, gray!60] (varB) -- (obj10.south west);
+    \draw[->, ultra thick, coralborder] (varB) -- (obj11.west) node[midway, below, font=\scriptsize] {\texttt{b = a + 1}};
+
+    % Code snippet callout
+    \node[draw=gray, fill=yellow!15, rounded corners, font=\scriptsize, align=left] at (0.4, -2.8) {
+        \textbf{Execution Trace:}\\
+        \texttt{a = 10} \quad $\to$ \texttt{a} points to \texttt{PyObject(10)}\\
+        \texttt{b = a} \quad $\to$ \texttt{b} shares identical reference (\texttt{id(a) == id(b)})\\
+        \texttt{b = b + 1} $\to$ Integers are immutable; \texttt{b} is rebound to new object \texttt{PyObject(11)}!
+    };
+\end{tikzpicture}
+\caption{Python memory model: variable identifiers in the local namespace point via memory references to immutable objects on the heap.}
+\label{fig:python_heap_references}
+\end{figure}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Why Floating-Point Arithmetic Violates Exact Real Equality}
+
+A frequent source of critical bugs in scientific computing is assuming that mathematical equalities hold exactly in binary floating-point representation.
+\begin{theorembox}{Floating-Point Representation Imprecision (IEEE 754)}
+In Python:
+\begin{lstlisting}[language=Python]
+print(0.1 + 0.2 == 0.3)  # Evaluates to False!
+print(0.1 + 0.2)         # Evaluates to 0.30000000000000004
 \end{lstlisting}
-\end{examplebox}
+\end{theorembox}
 
-\begin{videocard}{IITM BS Lecture: Operators and Expressions}{https://www.youtube.com/watch?v=8pu73HKzNOE}
-Official lecture detailing operator precedence, modulus, floor division, and logical expressions.
-\end{videocard}
+\begin{proof}
+Computers represent numbers in base-2 (binary). A rational fraction $\frac{p}{q}$ has a terminating representation in base $b$ if and only if all prime factors of $q$ divide $b$.
+In base-10, the denominator $10 = 2 \times 5$, so fractions like $\frac{1}{10} = 0.1$ terminate cleanly.
+However, in base-2, the only prime factor is $2$. Expanding $0.1 = \frac{1}{10}$ into binary gives an \textbf{infinitely repeating sequence}:
+\begin{equation*}
+(0.1)_{10} = (0.000110011001100110011\dots)_2
+\end{equation*}
+Because an IEEE 754 64-bit float allocates exactly 53 bits for the mantissa (significand), the repeating sequence must be rounded and truncated at the 53rd bit.
+Consequently:
+\begin{align*}
+0.1 &\approx 0.1000000000000000055511151231257827021181583404541015625 \\
+0.2 &\approx 0.200000000000000011102230246251565404236316680908203125 \\
+0.1 + 0.2 &\approx 0.3000000000000000444089209850062616169452667236328125 \\
+0.3 &\approx 0.299999999999999988897769753748434595763683319091796875
+\end{align*}
+Because $(0.1 + 0.2)$ has bits ending in \texttt{...04} while $0.3$ ends in \texttt{...98}, their bit patterns differ, causing \texttt{==} to return \texttt{False}.
+In scientific computing, floating-point equality must \textbf{always} be evaluated using tolerance bounds:
+\begin{equation}
+|a - b| < \epsilon \quad \text{or} \quad \texttt{math.isclose(a, b, rel\_tol=1e-9)}
+\end{equation}
+\end{proof}
 
-\section{Capstone: Your First Data Script}
+\subsection{String Slicing Mechanics and Memory Efficiency}
 
-Let's tie everything together. Suppose we have a user's age, height, and weight as strings from an input form. We need to cast them to the correct types, calculate their Body Mass Index (BMI), and use boolean logic to determine if they are in the healthy range (18.5 to 24.9).
+Python's string slice syntax \texttt{s[start:stop:step]} operates under clean closed-open interval algebra $[start, stop)$:
+\begin{itemize}
+    \item \textbf{Length Formula:} If $step = 1$, the length of the slice is strictly $\max(0, stop - start)$.
+    \item \textbf{Graceful Boundary Clamping:} Unlike direct index access \texttt{s[k]} (which raises \texttt{IndexError} if $k \ge \text{len}(s)$), slicing automatically clamps out-of-range indices to the valid string boundaries:
+    \begin{lstlisting}[language=Python]
+    s = "data"
+    print(s[0:100])  # Returns "data" with zero runtime error!
+    \end{lstlisting}
+    \item \textbf{Reversal Idiom:} When $step = -1$, setting \texttt{s[::-1]} sets default start to the last index and stop past the first index, reversing the sequence in $\mathcal{O}(n)$ time.
+\end{itemize}
 
-\begin{lstlisting}
-# Raw string inputs from a form
-age_input = "25"
-height_input = "1.75"
-weight_input = "70"
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
 
-# 1. Type Casting
-age = int(age_input)
-height = float(height_input)
-weight = float(weight_input)
+\begin{trapbox}{Trap 1: Floating-Point Equality Checks in Convergence Criteria}
+In machine learning optimization, writing \texttt{while loss == 0.0:} or checking if gradient norm \texttt{norm == 0.0} creates an infinite loop due to floating-point truncation. Always evaluate convergence against a tolerance threshold: \texttt{while loss > 1e-6:}.
+\end{trapbox}
 
-# 2. Arithmetic Operations
-bmi = weight / (height ** 2)
-print("Calculated BMI:", round(bmi, 2))
+\begin{trapbox}{Trap 2: Floor Division with Negative Numbers}
+Students coming from C/C++/Java expect integer division to truncate toward zero: in C++, \texttt{-17 / 5} produces \texttt{-3}. In Python, \texttt{-17 // 5} yields \textbf{\texttt{-4}} because Python strictly floors toward negative infinity ($\lfloor -3.4 \rfloor = -4$). Furthermore, \texttt{-17 \% 5} yields \textbf{\texttt{3}} (since $5(-4) + 3 = -17$), NOT \texttt{-2}.
+\end{trapbox}
 
-# 3. Boolean Logic
-is_healthy = (bmi >= 18.5) and (bmi <= 24.9)
-print("Is Healthy?", is_healthy)
+\begin{trapbox}{Trap 3: Chained Comparisons vs. Bitwise / Logical Evaluation}
+Python allows mathematical chained comparisons: \texttt{1 < x < 5} is evaluated internally as \texttt{(1 < x) and (x < 5)} with short-circuiting. However, writing \texttt{1 < x and x < 5} with bitwise operators (\texttt{1 < x \& x < 5}) breaks because bitwise \texttt{\&} has higher precedence than comparison operators, parsing as \texttt{1 < (x \& x) < 5}.
+\end{trapbox}
+
+\begin{trapbox}{Trap 4: Division in Python 3 Always Returns a Float}
+In Python 2, \texttt{5 / 2} evaluated to \texttt{2} (integer division). In Python 3 (PEP 238), the single slash \texttt{/} operator \textbf{always} performs true float division: \texttt{10 / 2} returns \texttt{5.0} (type \texttt{float}), NOT \texttt{5} (type \texttt{int}). To obtain an integer result, you must explicitly use floor division \texttt{10 // 2}.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2.2cm} p{2.2cm} p{2.2cm} p{2.5cm} p{3.8cm}}
+\toprule
+\textbf{Primitive Type} & \textbf{Memory Overhead} & \textbf{Mutability} & \textbf{Truthiness (False)} & \textbf{Data Science \& Machine Learning Role} \\
+\midrule
+\textbf{\texttt{int}} & Arbitrary precision (28+ bytes) & Immutable & \texttt{0} & Sample indices, epoch counts, batch sizes \\
+\textbf{\texttt{float}} & 64-bit IEEE 754 (24 bytes) & Immutable & \texttt{0.0} & Model weights, gradients, loss values, probabilities \\
+\textbf{\texttt{str}} & UTF-8 / ASCII (49+ bytes) & Immutable & \texttt{""} (empty string) & File paths, NLP text tokens, categorical labels \\
+\textbf{\texttt{bool}} & 1 byte payload (28 bytes) & Immutable & \texttt{False} & Boolean masks, convergence flags, conditional filtering \\
+\bottomrule
+\end{tabular}
+\caption{Systematic structural comparison of Python's fundamental primitive types.}
+\label{tab:python_primitives_comparison}
+\end{table}
+
+\section{Python / Scientific Computing Lab}
+
+The following self-contained scientific computing script demonstrates object identity tracking, arbitrary integer precision, IEEE 754 floating-point tolerance testing, and safe string slicing.
+
+\begin{lstlisting}[language=Python, caption={Python Lab: Memory Identity, Float Tolerances, and Robust Slicing}]
+import math
+import sys
+
+# 1. Object Identity and Memory Address Tracking
+x = 1000
+y = 1000
+print(f"Value equality (x == y): {x == y}")
+print(f"Object identity (x is y): {x is y}")
+print(f"Memory address id(x): {hex(id(x))}, id(y): {hex(id(y))}")
+
+# 2. Arbitrary Precision Integer Arithmetic (No 64-bit overflow)
+huge_power = 2 ** 100
+print(f"\n2^100 exact integer: {huge_power}")
+print(f"Memory allocated for huge integer: {sys.getsizeof(huge_power)} bytes")
+
+# 3. IEEE 754 Floating-Point Comparison & Math.isclose
+a = 0.1 + 0.2
+b = 0.3
+print(f"\nRaw equality (0.1 + 0.2 == 0.3): {a == b}")
+print(f"Float representation of 0.1 + 0.2: {a:.20f}")
+print(f"Float representation of 0.3:       {b:.20f}")
+
+# Proper scientific comparison
+is_close = math.isclose(a, b, rel_tol=1e-9)
+print(f"Scientific tolerance check (math.isclose): {is_close}")
+assert is_close, "Precision check failed!"
+
+# 4. Modulo and Floor Division Semantics with Negatives
+div_pos = 17 // 5
+mod_pos = 17 % 5
+div_neg = -17 // 5
+mod_neg = -17 % 5
+print(f"\nPositive: 17 // 5 = {div_pos}, 17 % 5 = {mod_pos} --> 5*{div_pos} + {mod_pos} = {5*div_pos + mod_pos}")
+print(f"Negative: -17 // 5 = {div_neg}, -17 % 5 = {mod_neg} --> 5*{div_neg} + {mod_neg} = {5*div_neg + mod_neg}")
+
+# 5. String Slicing and Negative Stride
+token = "DeepLearning"
+print(f"\nOriginal Token: {token}")
+print(f"Prefix [0:4]:   {token[0:4]}")
+print(f"Suffix [-8:]:   {token[-8:]}")
+print(f"Reversed [::-1]: {token[::-1]}")
+print(f"Safe slice beyond bounds [0:100]: '{token[0:100]}'")
 \end{lstlisting}
 
 \newpage
 \section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\textit{Detailed step-by-step solutions and distractor rationales are available in the Appendix.}
 
+\subsection*{Part A: Computational \& Analytical Problems}
 \begin{enumerate}
-    \item \textbf{Variable Types:} Identify the data type (\texttt{int}, \texttt{float}, \texttt{str}, or \texttt{bool}) of the following Python expressions:
-    \begin{enumerate}
-        \item \texttt{x = 10 / 2}
-        \item \texttt{y = 10 // 2}
-        \item \texttt{z = "100" + "200"}
-        \item \texttt{w = (5 > 3) and (2 == 4)}
-    \end{enumerate}
+\item \textbf{Variable Types \& Type Inference:} Identify the resulting data type (\texttt{int}, \texttt{float}, \texttt{str}, or \texttt{bool}) and exact numerical value for each of the following expressions:
+\begin{enumerate}
+    \item \texttt{a = 10 / 2}
+    \item \texttt{b = 10 // 2}
+    \item \texttt{c = "100" + "200"}
+    \item \texttt{d = (5 > 3) and (2 == 4)}
+\end{enumerate}
 
-    \item \textbf{Arithmetic Logic:} Calculate the exact numerical output of the following Python expressions without running the code:
-    \begin{enumerate}
-        \item \texttt{2 + 3 * 4 ** 2}
-        \item \texttt{25 \% 7}
-        \item \texttt{19 // 4}
-    \end{enumerate}
+\item \textbf{Arithmetic Logic \& Precedence Hierarchy:} Determine the exact output of each expression following standard Python operator precedence:
+\begin{enumerate}
+    \item \texttt{2 + 3 * 4 ** 2}
+    \item \texttt{25 \% 7}
+    \item \texttt{19 // 4}
+    \item \texttt{-19 // 4}
+\end{enumerate}
 
-    \item \textbf{String Slicing:} Given the string \texttt{text = "MachineLearning"}:
-    \begin{enumerate}
-        \item Write a slice to extract \texttt{"Machine"}.
-        \item Write a slice to extract \texttt{"Learning"}.
-        \item What is the output of \texttt{text[-8:]}?
-        \item Write a slice to reverse the entire string.
-    \end{enumerate}
+\item \textbf{String Slicing \& Boundary Safety:} Given the string \texttt{text = "MachineLearning"}:
+\begin{enumerate}
+    \item Write a slice expression to extract \texttt{"Machine"}.
+    \item Write a slice expression to extract \texttt{"Learning"}.
+    \item What is the output of \texttt{text[-8:]}?
+    \item Write a slice expression that reverses the entire string.
+    \item What is the result of \texttt{text[7:100]}? Why does it not raise an \texttt{IndexError}?
+\end{enumerate}
 
-    \item \textbf{Type Casting \& Input:} A user enters their age as a string \texttt{"22"}. Write a 2-line Python script that converts this input into an integer, adds $5$ years, and prints: \texttt{"In 5 years, you will be 27"}.
+\item \textbf{Type Casting \& Formatted String Interpolation:} A user enters their age as a string \texttt{"22"}. Write a clean 2-line Python snippet that converts this input into an integer, adds 5 years, and displays the result using an f-string: \texttt{"In 5 years, you will be 27"}.
 
-    \item \textbf{Data Science Application:} You are calculating the Body Mass Index (BMI) of a patient. The formula is:
-    $$\text{BMI} = \frac{\text{weight in kg}}{(\text{height in meters})^2}$$
-    Given \texttt{weight = 75} and \texttt{height = 1.75}, write a Python snippet to compute the BMI and round it to 2 decimal places using \texttt{round(bmi, 2)}.
+\item \textbf{Data Science Application (BMI Feature Engineering):} You are preprocessing biometric data for a healthcare machine learning model. The Body Mass Index (BMI) is given by:
+\begin{equation*}
+\text{BMI} = \frac{\text{weight in kg}}{(\text{height in meters})^2}
+\end{equation*}
+Given \texttt{weight = 75} and \texttt{height = 1.75}:
+\begin{enumerate}
+    \item Write a Python snippet to compute the BMI, rounded to 2 decimal places.
+    \item Write a boolean expression that evaluates to \texttt{True} if the BMI is in the normal range $[18.5, 24.9]$ and \texttt{False} otherwise, utilizing chained comparisons.
+\end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions}
+\begin{enumerate}
+\setcounter{enumi}{5}
+\item \textbf{Operator Precedence and Negative Modulo Arithmetic:} What is the exact value produced by the following Python expression?
+\begin{lstlisting}[language=Python]
+result = 2 + 3 * (-17 // 5) % 4
+\end{lstlisting}
+\begin{enumerate}
+    \item \texttt{2}
+    \item \texttt{11}
+    \item \texttt{5}
+    \item \texttt{-7}
+\end{enumerate}
+
+\item \textbf{Floating-Point Comparisons and Boolean Logic:} What is the exact output of the following Python code snippet?
+\begin{lstlisting}[language=Python]
+a = 0.1 + 0.2
+b = 0.3
+condition = (a == b) or bool(0.0)
+print(condition)
+\end{lstlisting}
+\begin{enumerate}
+    \item \texttt{True} because $0.1 + 0.2 = 0.3$.
+    \item \texttt{False} because floating-point binary representation rounds $0.1 + 0.2$ to approximately $0.30000000000000004$, and \texttt{bool(0.0)} is \texttt{False}.
+    \item \texttt{True} because \texttt{bool(0.0)} evaluates to \texttt{True}.
+    \item \texttt{SyntaxError} because floats cannot be converted to booleans.
+\end{enumerate}
 \end{enumerate}

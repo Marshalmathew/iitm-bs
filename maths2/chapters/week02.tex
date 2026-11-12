@@ -1,132 +1,414 @@
 \chapter{Cramer's Rule, Row Echelon Form \& Gaussian Elimination}
+\index{Cramer's Rule, Row Echelon Form \& Gaussian Elimination}
 
-Solving large systems of linear equations $A \mathbf{x} = \mathbf{b}$ is the single most common computational operation in numerical algorithms. In this chapter, we master explicit solutions via Cramer's Rule and systematic algorithmic reduction via \index{Gaussian Elimination}\textbf{Gaussian Elimination} and \index{Row Echelon Form (REF)}\textbf{Row Echelon Form (REF)}.
-
-
-\vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Cramer's Rule
-    \item Elementary Row Operations \& Row Echelon Form (REF)
-    \item Gaussian Elimination \& Back-Substitution
+    \item \textbf{Cramer's Rule for Non-Singular Systems:} Formulate explicit determinant solutions $x_i = \frac{\det(A_i(\mathbf{b}))}{\det(A)}$ and analyze algorithmic scalability limitations.
+    \item \textbf{Elementary Row Operations (EROs):} Formalize row swaps, scalar multiplication, and row additions as pre-multiplication by elementary matrices.
+    \item \textbf{Row Echelon Forms (REF vs. RREF):} Distinguish between forward staircase REF and canonical Reduced Row Echelon Form (RREF).
+    \item \textbf{Gaussian Elimination \& Solution Classification:} Implement forward elimination with back-substitution; classify systems via the Rouché-Capelli Theorem (unique, infinite, or no solution).
+    \item \textbf{Machine Learning Connections:} Solve Ordinary Least Squares (OLS) normal equations $(X^T X)\mathbf{w} = X^T \mathbf{y}$ and implement numerical linear solvers.
 \end{itemize}
 \end{tcolorbox}
-\section{Cramer's Rule}
 
-\begin{intuitionbox}{Matrices as Transformations}
-Think of a matrix not just as a grid of numbers, but as an action! When a matrix multiplies a vector, it stretches, rotates, or shears that vector in space. The columns of the matrix tell you exactly where the fundamental unit vectors (i-hat and j-hat) land after the transformation.
-\end{intuitionbox}
+\section{Mathematical \& Theoretical Foundations}
 
+Solving linear systems $A\mathbf{x} = \mathbf{b}$ is the computational workhorse of machine learning, appearing in linear regression, Kalman filtering, Gaussian processes, and network flow optimization.
 
-For a square, non-singular linear system $A \mathbf{x} = \mathbf{b}$ with $\det(A) \neq 0$, \index{Cramer's Rule}\textbf{Cramer's Rule} gives an explicit formula for each variable $x_i$ using determinants.
+\subsection{Cramer's Rule for Square Systems}
 
-\begin{theorembox}{Cramer's Rule Formula}
-Let $A_i(\mathbf{b})$ be the matrix obtained by replacing the $i$-th column of $A$ with the constant vector $\mathbf{b}$. The unique solution for variable $x_i$ is:
-$$x_i = \frac{\det(A_i(\mathbf{b}))}{\det(A)}, \quad \text{for } i = 1, 2, \dots, n$$
+Let $A \in \R^{n \times n}$ be a square coefficient matrix and $\mathbf{b} \in \R^n$.
+
+\begin{theorembox}{Cramer's Rule}
+If $\det(A) \neq 0$, the system $A\mathbf{x} = \mathbf{b}$ has a \textbf{unique solution} given explicitly by:
+\begin{equation}
+x_i = \frac{\det(A_i(\mathbf{b}))}{\det(A)}, \quad \text{for } i = 1, 2, \dots, n
+\end{equation}
+where $A_i(\mathbf{b})$ denotes the matrix formed by replacing the $i$-th column of $A$ with the target vector $\mathbf{b}$:
+\begin{equation}
+A_i(\mathbf{b}) = \Big[ \mathbf{a}_1 \ \dots \ \mathbf{a}_{i-1} \ \mathbf{b} \ \mathbf{a}_{i+1} \ \dots \ \mathbf{a}_n \Big]
+\end{equation}
+\textbf{Computational Complexity:} Computing $n + 1$ determinants of size $n \times n$ via cofactor expansion requires $\mathcal{O}((n+1)!)$ operations. For $n = 20$, $(21)! \approx 5 \times 10^{19}$ operations, requiring thousands of years on a supercomputer! Cramer's rule is valuable for theoretical derivations and small ($2 \times 2$ or $3 \times 3$) closed forms, but unusable for big data.
 \end{theorembox}
 
-\begin{examplebox}{Solving $2 \times 2$ System via Cramer's Rule}
-Solve $\begin{cases} 2x + 3y = 8 \\ 5x - y = 3 \end{cases}$:
-$$\det(A) = \begin{vmatrix} 2 & 3 \\ 5 & -1 \end{vmatrix} = -2 - 15 = -17$$
-$$\det(A_x(\mathbf{b})) = \begin{vmatrix} 8 & 3 \\ 3 & -1 \end{vmatrix} = -8 - 9 = -17 \implies x = \frac{-17}{-17} = 1$$
-$$\det(A_y(\mathbf{b})) = \begin{vmatrix} 2 & 8 \\ 5 & 3 \end{vmatrix} = 6 - 40 = -34 \implies y = \frac{-34}{-17} = 2$$
-\end{examplebox}
+\subsection{Elementary Row Operations and Elementary Matrices}
 
-\begin{videocard}{IITM BS Lecture: Cramer's Rule}{https://www.youtube.com/watch?v=sOFHgNXXRFM}
-Official lecture deriving Cramer's Rule and applying it to non-singular linear systems.
-\end{videocard}
-
-\section{Elementary Row Operations \& Row Echelon Form (REF)}
-
-While Cramer's Rule is theoretically elegant, calculating determinants for large $n \times n$ matrices is computationally intractable ($\mathcal{O}(n!)$ time). Instead, we transform augmented matrices using \textbf{Elementary Row Operations (EROs)} without changing the solution set.
+To solve large systems efficiently, we transform the augmented matrix $[A \mid \mathbf{b}] \in \R^{m \times (n+1)}$ into an upper-triangular or staircase form without altering the solution set.
 
 \begin{definitionbox}{Elementary Row Operations (EROs)}
-\index{Elementary Row Operations (EROs)}
-1. \textbf{Row Swap ($R_i \leftrightarrow R_j$):} Swap two rows.
-2. \textbf{Scalar Multiplication ($R_i \to c R_i$):} Multiply a row by a non-zero scalar $c \neq 0$.
-3. \textbf{Row Addition ($R_i \to R_i + c R_j$):} Add a scalar multiple of row $j$ to row $i$.
-\end{definitionbox}
-
-\begin{definitionbox}{Row Echelon Form (REF) \& Reduced REF (RREF)}
-A matrix is in \index{Row Echelon Form (REF)}\textbf{Row Echelon Form (REF)} if:
+The three valid row operations that preserve the solution space of $A\mathbf{x} = \mathbf{b}$ are:
 \begin{enumerate}
-\item All zero rows are at the bottom of the matrix.
-\item The leading non-zero entry (pivot) of a non-zero row is strictly to the right of the pivot in the row above it.
-\item All entries below a pivot are zero.
+    \item \textbf{Row Swap ($R_i \leftrightarrow R_j$):} Exchange row $i$ and row $j$.
+    \item \textbf{Scalar Multiplication ($R_i \to c R_i$):} Multiply row $i$ by a non-zero scalar $c \neq 0$.
+    \item \textbf{Row Addition ($R_i \to R_i + c R_j$):} Add a scalar multiple of row $j$ to row $i$.
 \end{enumerate}
-
-It is in \textbf{Reduced Row Echelon Form (RREF)} if, additionally, every pivot entry is $1$, and all entries above each pivot are zero.
+\textbf{Matrix Representation:} Each ERO corresponds to pre-multiplying $[A \mid \mathbf{b}]$ by an invertible \textbf{elementary matrix} $E \in \R^{m \times m}$ obtained by applying the same ERO to the identity matrix $I_m$.
 \end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: Row Echelon Form}{https://www.youtube.com/watch?v=6N8owlkf9AQ}
-Official lecture defining pivot entries, REF conditions, and RREF canonical form.
-\end{videocard}
+\subsection{Row Echelon Form (REF) vs. Reduced Row Echelon Form (RREF)}
 
-\begin{videocard}{IITM BS Lecture: Row Reduction Techniques}{https://www.youtube.com/watch?v=ECRhKDTUxM8}
-Official lecture performing row operations step-by-step on rectangular matrices.
-\end{videocard}
+\begin{definitionbox}{Row Echelon Form (REF)}
+A matrix is in \textbf{Row Echelon Form (REF)} if:
+\begin{enumerate}
+    \item All rows consisting entirely of zeros are placed at the bottom.
+    \item In any non-zero row, the first non-zero entry (called the \textbf{leading coefficient} or \textbf{pivot}) appears strictly to the right of the pivot in the row above it.
+    \item All entries directly below a pivot are zero.
+\end{enumerate}
+\end{definitionbox}
 
-\section{Gaussian Elimination \& Back-Substitution}
+\begin{definitionbox}{Reduced Row Echelon Form (RREF)}
+A matrix is in \textbf{Reduced Row Echelon Form (RREF)} if it satisfies REF, and additionally:
+\begin{enumerate}
+    \item Every pivot is equal to $1$.
+    \item Each pivot is the \textbf{only non-zero entry in its entire column} (all entries both above and below the pivot are zero).
+\end{enumerate}
+\textbf{Uniqueness Theorem:} While a matrix has infinitely many different valid REFs depending on the sequence of row operations chosen, its \textbf{RREF is mathematically unique}.
+\end{definitionbox}
 
-\index{Gaussian Elimination}\textbf{Gaussian Elimination} reduces an augmented matrix $[A \mid \mathbf{b}]$ into REF using EROs, followed by \index{Back-Substitution}\textbf{Back-Substitution} to solve for variables.
+\subsection{The Rouché-Capelli Solvability Classification}
 
-\begin{formulabox}{Gaussian Elimination Algorithm ($\mathcal{O}(n^3)$)}
-1. \textbf{Forward Elimination:} Use EROs to create zeros below each pivot from left to right, producing REF.
-2. \textbf{Back-Substitution:} Starting from the bottom row, solve for each basic variable and substitute upwards.
-\end{formulabox}
+Let $A \in \R^{m \times n}$ with augmented matrix $[A \mid \mathbf{b}]$. The \textbf{rank} of a matrix, $\rank(A)$, is the number of non-zero rows (or equivalently, the number of pivots) in its row echelon form.
 
-\textbf{Data Science Relevance:} Gaussian Elimination and LU Decomposition under grid computing power the solver engines of NumPy (`np.linalg.solve`), SciPy, and Linear Programming solvers.
+\begin{theorembox}{The Rouché-Capelli Theorem}
+A linear system $A\mathbf{x} = \mathbf{b}$ with $n$ variables is:
+\begin{enumerate}
+    \item \textbf{Inconsistent (No Solution):} If and only if:
+    \begin{equation}
+    \rank(A) < \rank([A \mid \mathbf{b}])
+    \end{equation}
+    Geometrically, this occurs when forward elimination produces a contradiction row:
+    \begin{equation}
+    \begin{bmatrix} 0 & 0 & \dots & 0 & \mid & c \end{bmatrix} \quad \text{with } c \neq 0 \implies 0 = c
+    \end{equation}
+    \item \textbf{Consistent with a Unique Solution:} If and only if:
+    \begin{equation}
+    \rank(A) = \rank([A \mid \mathbf{b}]) = n
+    \end{equation}
+    Every variable is a pivot variable; there are no free variables.
+    \item \textbf{Consistent with Infinitely Many Solutions:} If and only if:
+    \begin{equation}
+    \rank(A) = \rank([A \mid \mathbf{b}]) = r < n
+    \end{equation}
+    There are $r$ pivot variables and $k = n - r > 0$ \textbf{free variables}. The solution set forms an affine subspace of dimension $n - r$.
+\end{enumerate}
+\end{theorembox}
 
-\begin{examplebox}{Solving Linear Systems in Python}
-While Gaussian Elimination is vital to understand theoretically, Data Scientists never perform Row Echelon reductions by hand. We use optimized BLAS/LAPACK libraries via NumPy:
-\begin{lstlisting}[style=pystyle]
+\section{Visual \& Geometric Intuition}
+
+Below, we visualize the staircase pivot architecture of Row Echelon Form and the geometric configurations of 3-plane linear systems in $\R^3$.
+
+\begin{center}
+\begin{tikzpicture}[scale=0.95]
+    % Matrix brackets
+    \draw[thick] (0, 0) -- (-0.3, 0) -- (-0.3, 3.5) -- (0, 3.5);
+    \draw[thick] (7, 0) -- (7.3, 0) -- (7.3, 3.5) -- (7, 3.5);
+    
+    % Augmented vertical bar
+    \draw[dashed, thick, gray] (5.4, 0) -- (5.4, 3.5);
+
+    % Entries
+    \node[draw=primarydark, fill=primarylight, circle, inner sep=2pt, font=\bfseries] at (0.8, 3.0) {$p_1$};
+    \node at (2.0, 3.0) {$*$};
+    \node at (3.2, 3.0) {$*$};
+    \node at (4.4, 3.0) {$*$};
+    \node at (6.2, 3.0) {$b_1'$};
+
+    \node at (0.8, 2.0) {$0$};
+    \node[draw=primarydark, fill=primarylight, circle, inner sep=2pt, font=\bfseries] at (2.0, 2.0) {$p_2$};
+    \node at (3.2, 2.0) {$*$};
+    \node at (4.4, 2.0) {$*$};
+    \node at (6.2, 2.0) {$b_2'$};
+
+    \node at (0.8, 1.0) {$0$};
+    \node at (2.0, 1.0) {$0$};
+    \node[draw=primarydark, fill=primarylight, circle, inner sep=2pt, font=\bfseries] at (3.2, 1.0) {$p_3$};
+    \node at (4.4, 1.0) {$*$};
+    \node at (6.2, 1.0) {$b_3'$};
+
+    \node at (0.8, 0.2) {$0$};
+    \node at (2.0, 0.2) {$0$};
+    \node at (3.2, 0.2) {$0$};
+    \node at (4.4, 0.2) {$0$};
+    \node at (6.2, 0.2) {$0$};
+
+    % Staircase outline
+    \draw[ultra thick, red!80!black] (0.2, 3.5) -- (0.2, 2.5) -- (1.4, 2.5) -- (1.4, 1.5) -- (2.6, 1.5) -- (2.6, 0.6) -- (6.8, 0.6);
+    
+    \node[right, red!80!black] at (7.5, 2.0) {\textbf{Pivots strictly to the right}};
+    \node[right, gray!80!black] at (7.5, 1.0) {\textbf{All entries below staircase $= 0$}};
+\end{tikzpicture}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.9]
+    % Unique point
+    \begin{scope}[shift={(0, 0)}]
+        \draw[thick, fill=blue!15, opacity=0.7] (-1.5, -0.5) -- (1.5, 0.5) -- (1.0, 2.0) -- (-2.0, 1.0) -- cycle;
+        \draw[thick, fill=red!15, opacity=0.7] (-0.5, -1.0) -- (0.5, 2.0) -- (1.8, 1.5) -- (0.8, -1.5) -- cycle;
+        \draw[thick, fill=green!15, opacity=0.7] (-1.5, 0.8) -- (2.0, 0.8) -- (1.5, -0.8) -- (-2.0, -0.8) -- cycle;
+        \fill[black] (0.1, 0.8) circle (3pt) node[above right] {$\mathbf{x}^*$};
+        \node[below=1.5cm] at (0, 0) {\textbf{Unique Solution} ($\rank = 3$)};
+    \end{scope}
+
+    % Line of intersection
+    \begin{scope}[shift={(5.5, 0)}]
+        \draw[thick, fill=blue!15, opacity=0.7] (-1.5, -0.5) -- (1.5, 0.5) -- (1.0, 2.0) -- (-2.0, 1.0) -- cycle;
+        \draw[thick, fill=red!15, opacity=0.7] (-1.5, 1.5) -- (1.5, 0.5) -- (1.0, -1.0) -- (-2.0, 0.0) -- cycle;
+        \draw[ultra thick, purple] (-1.6, 0.2) -- (1.4, 1.2) node[right] {Line of Solns};
+        \node[below=1.5cm] at (0, 0) {\textbf{Infinitely Many} ($\rank = 2 < 3$)};
+    \end{scope}
+
+    % Inconsistent (prism)
+    \begin{scope}[shift={(11.0, 0)}]
+        \draw[thick, fill=blue!15, opacity=0.7] (-1.5, 1.0) -- (1.5, 1.0) -- (0.5, 2.2) -- (-2.5, 2.2) -- cycle;
+        \draw[thick, fill=red!15, opacity=0.7] (-1.5, -0.8) -- (1.5, -0.8) -- (0.5, 0.4) -- (-2.5, 0.4) -- cycle;
+        \node[red!80!black, font=\bfseries] at (-0.5, 0.8) {Parallel (No Intersection)};
+        \node[below=1.5cm] at (0, 0) {\textbf{Inconsistent} ($\rank(A) < \rank[A|\mathbf{b}]$)};
+    \end{scope}
+\end{tikzpicture}
+\end{center}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Proof of Cramer's Rule via Matrix Column Multilinearity}
+Let $A = [\mathbf{a}_1, \mathbf{a}_2, \dots, \mathbf{a}_n] \in \R^{n \times n}$ with $\det(A) \neq 0$, and let $\mathbf{x} = [x_1, x_2, \dots, x_n]^T$ satisfy $A\mathbf{x} = \mathbf{b}$.
+Expressing $A\mathbf{x} = \mathbf{b}$ as a linear combination of column vectors:
+\begin{equation}
+\mathbf{b} = \sum_{j=1}^n x_j \mathbf{a}_j = x_1 \mathbf{a}_1 + x_2 \mathbf{a}_2 + \dots + x_n \mathbf{a}_n
+\end{equation}
+Now consider the matrix $A_i(\mathbf{b})$, in which the $i$-th column is replaced by $\mathbf{b}$:
+\begin{equation}
+A_i(\mathbf{b}) = \Big[ \mathbf{a}_1 \ \dots \ \mathbf{a}_{i-1} \ \left(\sum_{j=1}^n x_j \mathbf{a}_j\right) \ \mathbf{a}_{i+1} \ \dots \ \mathbf{a}_n \Big]
+\end{equation}
+By the multilinearity of the determinant with respect to column vectors, we expand the determinant across the sum:
+\begin{equation}
+\det(A_i(\mathbf{b})) = \sum_{j=1}^n x_j \det\Big[ \mathbf{a}_1 \ \dots \ \mathbf{a}_{i-1} \ \mathbf{a}_j \ \mathbf{a}_{i+1} \ \dots \ \mathbf{a}_n \Big]
+\end{equation}
+Notice the structure of the summand for $j \neq i$: the matrix contains the column $\mathbf{a}_j$ at position $j$ and also at position $i$. 
+Because any matrix with two identical columns has determinant zero:
+\begin{equation}
+\det\Big[ \mathbf{a}_1 \ \dots \ \mathbf{a}_{i-1} \ \mathbf{a}_j \ \mathbf{a}_{i+1} \ \dots \ \mathbf{a}_n \Big] = 0 \quad \text{for all } j \neq i
+\end{equation}
+The only term that survives the summation is the single index $j = i$:
+\begin{equation}
+\det(A_i(\mathbf{b})) = x_i \det\Big[ \mathbf{a}_1 \ \dots \ \mathbf{a}_{i-1} \ \mathbf{a}_i \ \mathbf{a}_{i+1} \ \dots \ \mathbf{a}_n \Big] = x_i \det(A)
+\end{equation}
+Since $\det(A) \neq 0$, dividing both sides by $\det(A)$ yields Cramer's Rule:
+\begin{equation}
+x_i = \frac{\det(A_i(\mathbf{b}))}{\det(A)} \quad \blacksquare
+\end{equation}
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Trap 1: Applying Cramer's Rule to Singular or Rectangular Systems}
+Cramer's Rule requires two strict mathematical preconditions:
+\begin{enumerate}
+    \item The coefficient matrix $A$ must be \textbf{square} ($m = n$).
+    \item The matrix must be \textbf{non-singular} ($\det(A) \neq 0$).
+\end{enumerate}
+If $\det(A) = 0$, the denominator in $\frac{\det(A_i(\mathbf{b}))}{\det(A)}$ is zero, and Cramer's Rule fails completely. It cannot distinguish between a system with infinitely many solutions and a system with no solutions.
+\end{trapbox}
+
+\begin{trapbox}{Trap 2: Conflating Row Echelon Form (REF) with Reduced REF (RREF)}
+Students often stop row operations prematurely, claiming a matrix is in RREF when it is only in REF.
+In REF, entries \textit{above} a pivot may be non-zero, and pivots can be any non-zero real number (e.g. 5, -2). 
+In RREF, every pivot \textbf{must be normalized to 1}, and \textbf{all entries above and below every pivot must be eliminated to 0}. Back-substitution is required for REF; RREF allows solutions to be read off directly.
+\end{trapbox}
+
+\begin{trapbox}{Trap 3: Performing Illegal Row Operations}
+Elementary row operations must be strictly invertible. The following two blunders are common:
+\begin{itemize}
+    \item \textbf{Multiplying a row by zero ($R_i \to 0 \cdot R_i$):} This destroys all information in the equation and changes the solution space.
+    \item \textbf{Adding a constant scalar to a row ($R_i \to R_i + c$):} You can only add a scalar multiple of \textit{another row} ($R_i \to R_i + c R_j$). Adding a constant scalar turns a linear equation into an affine constant, creating false contradictions.
+\end{itemize}
+\end{trapbox}
+
+\begin{trapbox}{Trap 4: Missing Contradiction Pivots in the Augmented Column}
+When reducing $[A \mid \mathbf{b}]$ to REF, always inspect the final column.
+If forward elimination yields a row $[0 \ 0 \ \dots \ 0 \mid c]$ with $c \neq 0$, the pivot resides in the augmented column! This translates to the equation $0 x_1 + 0 x_2 + \dots + 0 x_n = c \implies 0 = c$, which is impossible. The system is \textbf{strictly inconsistent (no solution)}, regardless of how many variables or equations were given.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2.6cm} p{2.8cm} p{3.4cm} p{4.6cm}}
+\toprule
+\textbf{Method} & \textbf{Prerequisites} & \textbf{Time Complexity} & \textbf{Data Science \& Numerical Context} \\
+\midrule
+\textbf{Cramer's Rule} & Square ($n \times n$), $\det(A) \neq 0$ & $\mathcal{O}((n+1)!)$ (Cofactors) \newline $\mathcal{O}(n^4)$ (Gaussian dets) & Theoretical proofs, symbolic derivatives, $2 \times 2$ manual calculation. Unusable for $n > 4$. \\
+\addlinespace
+\textbf{Gaussian Elimination} & General rectangular $m \times n$ & $\mathcal{O}(n^3)$ (Forward) \newline $\mathcal{O}(n^2)$ (Back-substitution) & Standard baseline solver. Converts $[A|\mathbf{b}]$ to upper triangular REF; determines matrix rank. \\
+\addlinespace
+\textbf{Gauss-Jordan} & General rectangular $m \times n$ & $\mathcal{O}(n^3)$ & Eliminates entries both above and below pivots to produce unique RREF; used for matrix inversion $[A \mid I] \to [I \mid A^{-1}]$. \\
+\addlinespace
+\textbf{LU Decomposition} & Square $n \times n$, non-singular & $\mathcal{O}(\frac{2}{3}n^3)$ factorization \newline $\mathcal{O}(n^2)$ per solve & Core engine of `scipy.linalg.lu` and `np.linalg.solve`; factors $A = LU$ once to solve $A\mathbf{x} = \mathbf{b}$ for many target vectors. \\
+\bottomrule
+\end{tabular}
+\caption{Comparison of Linear System Solvers, Computational Complexities, and ML Applicability.}
+\end{table}
+
+\section{Python Scientific Computing Lab}
+
+The following laboratory executes Cramer's Rule, manual Gaussian Elimination with back-substitution, SymPy RREF extraction, and Ordinary Least Squares normal equations.
+
+\begin{lstlisting}[language=Python, caption=Cramer's Rule and Gaussian Elimination in Python]
 import numpy as np
+import sympy as sp
 
-# Solve the system:
-# 2x + 3y = 8
-# 5x -  y = 3
-A = np.array([[2,  3], 
-              [5, -1]])
-b = np.array([8, 3])
+# 1. Cramer's Rule Implementation
+def cramers_rule(A, b):
+    det_A = np.linalg.det(A)
+    if np.isclose(det_A, 0.0):
+        raise ValueError("Matrix is singular! Cramer's rule fails.")
+    
+    n = A.shape[0]
+    x = np.zeros(n)
+    for i in range(n):
+        A_i = A.copy()
+        A_i[:, i] = b
+        x[i] = np.linalg.det(A_i) / det_A
+    return x
 
-# np.linalg.solve uses highly optimized LU decomposition (which is just Gaussian elimination)
-x = np.linalg.solve(A, b)
-print(f"Solution: x = {x[0]:.1f}, y = {x[1]:.1f}")  # Solution: x = 1.0, y = 2.0
+A_cramer = np.array([[2.0, 3.0], 
+                     [5.0, -1.0]])
+b_cramer = np.array([8.0, 3.0])
+sol_cramer = cramers_rule(A_cramer, b_cramer)
+print("Cramer's Rule Solution:", np.round(sol_cramer, 4))
+
+# 2. Symbolic RREF and Rank using SymPy
+# Augmented matrix for system:
+# x1 + 2*x2 + x3 = 8
+# 2*x1 + 3*x2 + 4*x3 = 20
+# 4*x1 + 3*x2 + 2*x3 = 16
+M_sym = sp.Matrix([
+    [1, 2, 1, 8],
+    [2, 3, 4, 20],
+    [4, 3, 2, 16]
+])
+
+rref_matrix, pivot_cols = M_sym.rref()
+print("\nUnique RREF Form:\n", rref_matrix)
+print("Pivot Column Indices:", pivot_cols)
+print(f"Matrix Rank: {len(pivot_cols)}")
+
+# 3. Solving Underdetermined System with Free Variables
+# x1 + 2*x2 - x3 = 4
+# 2*x1 + 4*x2 + x3 = 11
+M_under = sp.Matrix([
+    [1, 2, -1, 4],
+    [2, 4, 1, 11]
+])
+rref_under, pivots_under = M_under.rref()
+print("\nUnderdetermined System RREF:\n", rref_under)
+print("Pivots at columns:", pivots_under) # Columns 0 and 2 are pivots; Column 1 is free!
+
+# 4. Data Science: OLS Normal Equations (X^T X) w = X^T y
+X = np.array([[1.0, 1.0],
+              [1.0, 2.0],
+              [1.0, 3.0],
+              [1.0, 4.0]])
+y = np.array([2.2, 2.8, 3.6, 4.5])
+
+XT_X = X.T @ X
+XT_y = X.T @ y
+
+# Solve for regression weights w = [intercept, slope]
+w_ols = np.linalg.solve(XT_X, XT_y)
+print("\nOLS Optimal Regression Weights w*:", np.round(w_ols, 4))
 \end{lstlisting}
-\end{examplebox}
-
-\begin{videocard}{IITM BS Lecture: The Gaussian Elimination Method}{https://www.youtube.com/watch?v=gdk1_aEe7j4}
-Official lecture executing full Gaussian elimination and identifying free vs pivot variables.
-\end{videocard}
 
 \newpage
 \section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\subsection*{Part A: Analytical \& Computational Problems}
 
 \begin{enumerate}
-    \item \textbf{Cramer's Rule ($2 \times 2$):} Use Cramer's Rule to solve the system:
-    $$\begin{aligned}
+    \item \textbf{Cramer's Rule on a $2 \times 2$ Linear System:}
+    Consider the system of linear equations:
+    \begin{align*}
     3x_1 + 4x_2 &= 10 \\
     x_1 - 2x_2 &= -3
-    \end{aligned}$$
+    \end{align*}
+    \begin{enumerate}
+        \item Compute the determinant of the coefficient matrix $A$.
+        \item Form matrices $A_1(\mathbf{b})$ and $A_2(\mathbf{b})$ and evaluate their determinants.
+        \item Compute the exact coordinates $(x_1, x_2)$ using Cramer's Rule.
+    \end{enumerate}
 
-    \item \textbf{Identifying REF:} State whether each of the following matrices is in REF, RREF, or neither:
-    $$\text{(a) } A = \begin{bmatrix} 1 & 3 & 2 \\ 0 & 1 & 4 \\ 0 & 0 & 0 \end{bmatrix}, \quad \text{(b) } B = \begin{bmatrix} 1 & 0 & 5 \\ 0 & 1 & -2 \\ 0 & 0 & 1 \end{bmatrix}, \quad \text{(c) } C = \begin{bmatrix} 0 & 1 & 2 \\ 1 & 0 & 3 \end{bmatrix}$$
+    \item \textbf{Classifying Echelon Forms and Pivot Structures:}
+    State whether each of the following matrices is in Row Echelon Form (REF), Reduced Row Echelon Form (RREF), or neither. If neither, identify the exact condition violated:
+    \begin{align*}
+    A &= \begin{bmatrix} 1 & 3 & 0 & 2 \\ 0 & 1 & 0 & 4 \\ 0 & 0 & 0 & 0 \end{bmatrix}, \quad
+    B = \begin{bmatrix} 1 & 0 & 5 \\ 0 & 1 & -2 \\ 0 & 0 & 1 \end{bmatrix}, \quad
+    C = \begin{bmatrix} 0 & 1 & 2 \\ 1 & 0 & 3 \end{bmatrix}, \quad
+    D = \begin{bmatrix} 1 & 0 & 3 \\ 0 & 1 & -1 \\ 0 & 0 & 0 \end{bmatrix}
+    \end{align*}
 
-    \item \textbf{Gaussian Elimination ($3 \times 3$):} Solve the linear system using Gaussian Elimination (forward elimination to REF + back-substitution):
-    $$\begin{aligned}
+    \item \textbf{Gaussian Elimination with Back-Substitution ($3 \times 3$):}
+    Solve the following system using Gaussian Elimination:
+    \begin{align*}
     x_1 + 2x_2 + x_3 &= 8 \\
     2x_1 + 3x_2 + 4x_3 &= 20 \\
     4x_1 + 3x_2 + 2x_3 &= 16
-    \end{aligned}$$
+    \end{align*}
+    \begin{enumerate}
+        \item Set up the initial augmented matrix $[A \mid \mathbf{b}]$.
+        \item Apply elementary row operations to reduce $[A \mid \mathbf{b}]$ to upper-triangular REF. Document the row operations used at each step.
+        \item Perform back-substitution to obtain the unique solution $(x_1, x_2, x_3)$.
+    \end{enumerate}
 
-    \item \textbf{Free Variables \& Infinite Solutions:} Reduce the augmented matrix to REF and write the general parametric solution in terms of free variables:
-    $$\begin{aligned}
+    \item \textbf{Free Variables, Rank, and Parametric Solution Families:}
+    Consider the underdetermined system:
+    \begin{align*}
     x_1 + 2x_2 - x_3 &= 4 \\
     2x_1 + 4x_2 + x_3 &= 11
-    \end{aligned}$$
+    \end{align*}
+    \begin{enumerate}
+        \item Reduce the augmented matrix to RREF.
+        \item Identify the rank of the coefficient matrix, the rank of the augmented matrix, the pivot variables, and the free variables.
+        \item Express the general solution in parametric vector form $\mathbf{x} = \mathbf{x}_p + t \mathbf{v}_h$.
+    \end{enumerate}
 
-    \item \textbf{Data Science Application (Least Squares Normal Equations):} In linear regression, the parameters $\mathbf{w}$ are found by solving $(X^T X) \mathbf{w} = X^T \mathbf{y}$. Given:
-    $$X^T X = \begin{bmatrix} 4 & 2 \\ 2 & 3 \end{bmatrix}, \quad X^T \mathbf{y} = \begin{bmatrix} 10 \\ 9 \end{bmatrix}$$
-    Solve for parameter vector $\mathbf{w} = \begin{bmatrix} w_0 \\ w_1 \end{bmatrix}$ using Gaussian Elimination or Cramer's Rule.
+    \item \textbf{Ordinary Least Squares (OLS) Normal Equations:}
+    In linear regression, optimal feature weights minimize residual sum of squares by satisfying $(X^T X)\mathbf{w} = X^T \mathbf{y}$. Given:
+    \begin{equation}
+    X^T X = \begin{bmatrix} 4 & 2 \\ 2 & 3 \end{bmatrix}, \quad X^T \mathbf{y} = \begin{bmatrix} 10 \\ 9 \end{bmatrix}
+    \end{equation}
+    \begin{enumerate}
+        \item Verify that $X^T X$ is invertible by computing its determinant.
+        \item Solve for $\mathbf{w} = \begin{bmatrix} w_0 \\ w_1 \end{bmatrix}$ using Cramer's Rule.
+        \item Confirm your solution by calculating $(X^T X)^{-1} (X^T \mathbf{y})$.
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Misconception MCQs}
+
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item A student row-reduces an augmented matrix $[A \mid \mathbf{b}]$ representing a system of 4 linear equations in 3 variables, arriving at the following Row Echelon Form:
+    \begin{equation}
+    \left[\begin{array}{ccc|c}
+    1 & 2 & -1 & 3 \\
+    0 & 1 & 4 & 2 \\
+    0 & 0 & 0 & 5 \\
+    0 & 0 & 0 & 0
+    \end{array}\right]
+    \end{equation}
+    The student observes that row 4 is all zeros, row 3 has no pivot in the $A$ portion, and concludes that $x_3$ is a free variable, yielding infinitely many solutions. Which statement diagnoses the student's reasoning?
+    \begin{enumerate}
+        \item The reasoning is correct; whenever a zero row occurs in the coefficient matrix, the system has infinitely many solutions.
+        \item The reasoning is false because row 3 represents the equation $0x_1 + 0x_2 + 0x_3 = 5 \implies 0 = 5$, which is an impossible contradiction; the system is strictly inconsistent and has \textbf{no solutions}.
+        \item The reasoning is false because row 4 must be moved to the top of the matrix before determining solvability.
+        \item The reasoning is false because Cramer's Rule should have been used instead of Gaussian Elimination.
+    \end{enumerate}
+
+    \item Why is Gaussian Elimination ($\mathcal{O}(n^3)$) preferred over Cramer's Rule in machine learning algorithms that solve systems of linear equations?
+    \begin{enumerate}
+        \item Cramer's Rule only works when all entries in the matrix are positive numbers.
+        \item Cramer's Rule requires computing determinants that scale factorially as $\mathcal{O}((n+1)!)$ via cofactor expansion, making it computationally intractable for datasets with more than a few features.
+        \item Gaussian Elimination works only on singular matrices, which are common in machine learning.
+        \item Cramer's Rule changes the eigenvalues of the matrix.
+    \end{enumerate}
 \end{enumerate}

@@ -1,185 +1,397 @@
 \chapter{Vectors, Matrices \& Determinants}
+\index{Vectors, Matrices \& Determinants}
 
-Welcome to Mathematics for Data Science 2! Linear algebra is the foundational mathematical backbone of modern Machine Learning, Artificial Intelligence, and Data Science. From storing high-dimensional feature spaces to computing neural network transformations and performing dimensionality reduction, vectors and matrices are the fundamental building blocks.
-
-
-\vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Vectors in R
-    \item Matrices and Matrix Operations
-    \item Systems of Linear Equations
-    \item Determinants
+    \item \textbf{Vector Algebra in $\R^n$:} Master vector addition, scalar multiplication, inner (dot) products, Euclidean norms, and cosine similarity.
+    \item \textbf{Matrix Operations \& Algebra:} Formulate matrix multiplication, block partitioning, transpose identities ($(AB)^T = B^T A^T$), trace, and symmetry.
+    \item \textbf{Geometric Duals of Linear Systems:} Interpret $A\mathbf{x} = \mathbf{b}$ simultaneously via the Row Picture (hyperplane intersections) and Column Picture (linear combinations of column vectors).
+    \item \textbf{Determinants \& Volume Distortion:} Calculate determinants via cofactor expansion, establish algebraic properties ($\det(AB) = \det(A)\det(B)$), and interpret determinants as oriented volume scaling factors.
+    \item \textbf{Machine Learning Connections:} Connect vector inner products to feature projections and kernel functions; matrices to linear layers and datasets; and covariance determinants to generalized variance.
 \end{itemize}
 \end{tcolorbox}
-\section{Vectors in $\mathbb{R}^n$}
 
-A \index{Vector}\textbf{Vector} in $n$-dimensional real space $\mathbb{R}^n$ (first introduced in \hyperref[chap:CoordinateGeometry]{Maths 1: Coordinate Geometry}) is an ordered sequence of $n$ real numbers, written as a column matrix:
-$$\mathbf{v} = \begin{bmatrix} v_1 \\ v_2 \\ \vdots \\ v_n \end{bmatrix} \in \mathbb{R}^n$$
+\section{Mathematical \& Theoretical Foundations}
 
-\begin{definitionbox}{Vector Operations}
-\index{Vector Operations}
-For vectors $\mathbf{u}, \mathbf{v} \in \mathbb{R}^n$ and scalar $c \in \mathbb{R}$:
-\begin{itemize}
-    \item \textbf{Vector Addition:} $\mathbf{u} + \mathbf{v} = \begin{bmatrix} u_1 + v_1 \\ u_2 + v_2 \\ \vdots \\ u_n + v_n \end{bmatrix}$
-    \item \textbf{Scalar Multiplication:} $c \mathbf{v} = \begin{bmatrix} c v_1 \\ c v_2 \\ \vdots \\ c v_n \end{bmatrix}$
-    \item \textbf{Dot Product:} $\mathbf{u} \cdot \mathbf{v} = \mathbf{u}^T \mathbf{v} = \sum_{i=1}^{n} u_i v_i = u_1 v_1 + u_2 v_2 + \dots + u_n v_n$
-\end{itemize}
-\end{definitionbox}
+Linear algebra provides the mathematical language for multi-dimensional data representation, linear mappings, and structural transformations in data science and machine learning.
 
-\begin{intuitionbox}{Geometric Vector Addition (Parallelogram Law)}
-While vector addition is just adding numbers row-by-row, geometrically it represents combining two movements in space. If you walk along vector $\mathbf{u}$ and then walk along vector $\mathbf{v}$, your total displacement is $\mathbf{u} + \mathbf{v}$. This forms the diagonal of the parallelogram created by $\mathbf{u}$ and $\mathbf{v}$.
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-    width=6cm, height=6cm,
-    axis lines=middle,
-    xmin=0, xmax=5,
-    ymin=0, ymax=5,
-    xlabel={$x_1$}, ylabel={$x_2$},
-    ticks=none
-]
-% Vector u
-\draw[->, thick, blue] (axis cs:0,0) -- (axis cs:3,1) node[midway, below right] {$\mathbf{u}$};
-% Vector v
-\draw[->, thick, red] (axis cs:0,0) -- (axis cs:1,3) node[midway, above left] {$\mathbf{v}$};
-% Vector u+v
-\draw[->, thick, purple] (axis cs:0,0) -- (axis cs:4,4) node[above right] {$\mathbf{u}+\mathbf{v}$};
-% Dashed lines for parallelogram
-\draw[dashed, blue] (axis cs:1,3) -- (axis cs:4,4);
-\draw[dashed, red] (axis cs:3,1) -- (axis cs:4,4);
-\end{axis}
-\end{tikzpicture}
-\end{center}
-\end{intuitionbox}
+\subsection{Vectors in $\R^n$ and Inner Product Spaces}
 
-\textbf{Data Science Relevance:} In data science, a sample (e.g. a user profile with age, income, credit score) is represented as a feature vector $\mathbf{x} \in \mathbb{R}^d$. The linear combination $\mathbf{w}^T \mathbf{x} + b$ forms the prediction score in Linear and Logistic Regression!
-
-\begin{lstlisting}[language=Python, caption=Data Science: Vector Operations in NumPy]
-import numpy as np
-
-# Define vectors
-u = np.array([1, 2, 3])
-v = np.array([4, 5, 6])
-
-# Vector addition and Dot product
-print("Addition:", u + v)
-print("Dot Product:", np.dot(u, v))
-\end{lstlisting}
-
-\begin{videocard}{IITM BS Lecture: Vectors}{https://www.youtube.com/watch?v=1So2VV9Tm_A}
-Official lecture defining vector spaces, geometric interpretations, and algebraic operations in $\mathbb{R}^n$.
-\end{videocard}
-
-\section{Matrices and Matrix Operations}
-
-A \index{Matrix}\textbf{Matrix} $A \in \mathbb{R}^{m \times n}$ is a rectangular array of $m$ rows and $n$ columns:
-$$A = \begin{bmatrix} a_{11} & a_{12} & \dots & a_{1n} \\ a_{21} & a_{22} & \dots & a_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ a_{m1} & a_{m2} & \dots & a_{mn} \end{bmatrix}$$
-
-\begin{theorembox}{Matrix Multiplication}
-If $A \in \mathbb{R}^{m \times k}$ and $B \in \mathbb{R}^{k \times n}$, their product $C = AB \in \mathbb{R}^{m \times n}$ has entries:
-$$c_{ij} = \sum_{p=1}^{k} a_{ip} b_{pj}$$
-Matrix multiplication is associative $(AB)C = A(BC)$ and distributive, but \index{NOT commutative}\textbf{NOT commutative} ($AB \neq BA$ in general).
-\end{theorembox}
-
-\begin{examplebox}{Matrix Multiplication Step-by-Step}
-Let $A = \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}$ and $B = \begin{bmatrix} 5 & 6 \\ 7 & 8 \end{bmatrix}$. Find $C = AB$.
-\begin{itemize}
-    \item $c_{11} = (1)(5) + (2)(7) = 5 + 14 = 19$
-    \item $c_{12} = (1)(6) + (2)(8) = 6 + 16 = 22$
-    \item $c_{21} = (3)(5) + (4)(7) = 15 + 28 = 43$
-    \item $c_{22} = (3)(6) + (4)(8) = 18 + 32 = 50$
-\end{itemize}
-Result: $C = \begin{bmatrix} 19 & 22 \\ 43 & 50 \end{bmatrix}$. 
-
-Now, let's test commutativity by calculating $BA$:
-$c_{11}$ of $BA = (5)(1) + (6)(3) = 23$. 
-Since $19 \neq 23$, we immediately see $AB \neq BA$!
-\end{examplebox}
-
-\begin{intuitionbox}{Matrix Multiplication as Geometric Transformation}
-Matrix multiplication isn't just an arbitrary set of dot products---it's a geometric transformation of space!
-\begin{itemize}
-    \item When you multiply a vector $\mathbf{v}$ by a matrix $A$ ($A\mathbf{v}$), the matrix $A$ grabs the vector and rotates, scales, or shears it to a new location in space.
-    \item When you multiply two matrices together ($C = AB$), you are composing two transformations. First apply transformation $B$, then apply transformation $A$.
-    \item Because doing Transformation $B$ then $A$ is usually different than doing $A$ then $B$, matrix multiplication is \index{not commutative}\textbf{not commutative} ($AB \neq BA$).
-\end{itemize}
-\end{intuitionbox}
-
-\begin{warningbox}{The Commutativity Trap}
-Because we are taught from a young age that $3 \times 4 = 4 \times 3$, it is incredibly easy to accidentally rearrange matrices in an equation (e.g., rewriting $A^{-1} B A$ as $A^{-1} A B = B$). \textbf{Never} change the order of matrices when doing algebraic manipulations unless you are explicitly given that $A$ and $B$ commute!
-\end{warningbox}
-
-\begin{videocard}{IITM BS Lecture: Matrices}{https://www.youtube.com/watch?v=rnIDlZnrCc0}
-Official lecture explaining matrix algebra, transposition $A^T$, symmetric matrices ($A = A^T$), and matrix-vector products.
-\end{videocard}
-
-\section{Systems of Linear Equations}
-
-A system of $m$ linear equations in $n$ variables $x_1, x_2, \dots, x_n$ can be compactly written in matrix form:
-$$A \mathbf{x} = \mathbf{b}$$
-where $A \in \mathbb{R}^{m \times n}$ is the coefficient matrix, $\mathbf{x} \in \mathbb{R}^n$ is the vector of unknowns, and $\mathbf{b} \in \mathbb{R}^m$ is the target output.
-
-\begin{definitionbox}{Types of Solutions}
-\index{Types of Solutions}
-Every linear system $A \mathbf{x} = \mathbf{b}$ has either:
+\begin{definitionbox}{Vector in $\R^n$}
+An $n$-dimensional real vector $\mathbf{v} \in \R^n$ is an ordered $n$-tuple of real numbers, conventionally represented as an $n \times 1$ column matrix:
+\begin{equation}
+\mathbf{v} = \begin{bmatrix} v_1 \\ v_2 \\ \vdots \\ v_n \end{bmatrix} \in \R^n
+\end{equation}
+The vector space $\R^n$ is equipped with two fundamental operations:
 \begin{enumerate}
-    \item Exactly \index{one unique solution}\textbf{one unique solution} (consistent, non-singular).
-    \item \index{Infinitely many solutions}\textbf{Infinitely many solutions} (consistent, dependent).
-    \item \index{No solution}\textbf{No solution} (inconsistent, parallel constraints).
+    \item \textbf{Vector Addition:} For $\mathbf{u}, \mathbf{v} \in \R^n$, $\mathbf{u} + \mathbf{v} = [u_1 + v_1, u_2 + v_2, \dots, u_n + v_n]^T$.
+    \item \textbf{Scalar Multiplication:} For $c \in \R$, $c\mathbf{v} = [c v_1, c v_2, \dots, c v_n]^T$.
 \end{enumerate}
 \end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: Systems of Linear Equations}{https://www.youtube.com/watch?v=WzR4NKeLHMY}
-Official lecture introducing linear systems, augmented matrices $[A \mid \mathbf{b}]$, and geometric interpretations of solutions.
-\end{videocard}
+\begin{definitionbox}{Dot Product, Norm, and Angle}
+The standard \textbf{inner product} (or \textbf{dot product}) of two vectors $\mathbf{u}, \mathbf{v} \in \R^n$ is the scalar:
+\begin{equation}
+\mathbf{u} \cdot \mathbf{v} = \mathbf{u}^T \mathbf{v} = \sum_{i=1}^n u_i v_i = u_1 v_1 + u_2 v_2 + \dots + u_n v_n
+\end{equation}
+\begin{itemize}
+    \item \textbf{Euclidean Norm ($L_2$ Norm):} The length or magnitude of vector $\mathbf{u}$ is:
+    \begin{equation}
+    \|\mathbf{u}\| = \sqrt{\mathbf{u} \cdot \mathbf{u}} = \sqrt{\sum_{i=1}^n u_i^2}
+    \end{equation}
+    \item \textbf{Cauchy-Schwarz Inequality:} For all $\mathbf{u}, \mathbf{v} \in \R^n$:
+    \begin{equation}
+    |\mathbf{u} \cdot \mathbf{v}| \le \|\mathbf{u}\| \|\mathbf{v}\|
+    \end{equation}
+    with equality if and only if $\mathbf{u}$ and $\mathbf{v}$ are linearly collinear ($\mathbf{u} = c \mathbf{v}$).
+    \item \textbf{Angle and Cosine Similarity:} The angle $\theta \in [0, \pi]$ between non-zero vectors $\mathbf{u}$ and $\mathbf{v}$ satisfies:
+    \begin{equation}
+    \cos \theta = \frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\| \|\mathbf{v}\|}
+    \end{equation}
+    \item \textbf{Orthogonality:} $\mathbf{u}$ and $\mathbf{v}$ are \textbf{orthogonal} ($\mathbf{u} \perp \mathbf{v}$) if and only if $\mathbf{u} \cdot \mathbf{v} = 0$.
+\end{itemize}
+\end{definitionbox}
 
-\vspace{0.3cm}
-\textbf{Checkpoint:} If a system has 3 equations and 3 unknowns, and the equations represent three parallel planes in space, which type of solution does it have?
-\vspace{0.3cm}
+\subsection{Matrix Algebra and Transposition}
 
-\section{Determinants}
+A matrix $A \in \R^{m \times n}$ is a rectangular array with $m$ rows and $n$ columns.
 
-The \index{Determinant}\textbf{Determinant} $\det(A)$ or $|A|$ is a scalar value associated with a square matrix $A \in \mathbb{R}^{n \times n}$ that measures the scaling factor of transformation area/volume.
+\begin{definitionbox}{Matrix Multiplication}
+Let $A \in \R^{m \times k}$ and $B \in \R^{k \times n}$. The product $C = AB \in \R^{m \times n}$ is defined entrywise by:
+\begin{equation}
+c_{ij} = \sum_{p=1}^k a_{ip} b_{pj} = \text{row}_i(A) \cdot \text{col}_j(B)
+\end{equation}
+\textbf{Crucial Algebraic Properties:}
+\begin{itemize}
+    \item \textbf{Associativity:} $(AB)C = A(BC)$
+    \item \textbf{Distributivity:} $A(B + C) = AB + AC$
+    \item \textbf{Non-Commutativity:} In general, $AB \neq BA$. Even if $A$ and $B$ are both square of size $n \times n$, $AB$ and $BA$ are typically unequal.
+\end{itemize}
+\end{definitionbox}
 
-\begin{formulabox}{Determinant Computation ($2 \times 2$ and $3 \times 3$)}
-For $A = \begin{bmatrix} a & b \\ c & d \end{bmatrix}$:
-$$\det(A) = ad - bc$$
-For $A = \begin{bmatrix} a & b & c \\ d & e & f \\ g & h & i \end{bmatrix}$, expanding along the first row:
-$$\det(A) = a(ei - fh) - b(di - fg) + c(dh - eg)$$
-\textbf{Invertibility Criterion:} Matrix $A$ is invertible ($A^{-1}$ exists) if and only if $\det(A) \neq 0$.
-\end{formulabox}
+\begin{theorembox}{The Transpose and Its Reversal Property}
+The \textbf{transpose} of $A \in \R^{m \times n}$, denoted $A^T \in \R^{n \times m}$, reflects entries across the main diagonal: $(A^T)_{ij} = a_{ji}$.
+\begin{itemize}
+    \item $(A + B)^T = A^T + B^T$
+    \item $(cA)^T = c A^T$
+    \item $(A^T)^T = A$
+    \item \textbf{Socks-and-Shoes Reversal Property:}
+    \begin{equation}
+    (AB)^T = B^T A^T
+    \end{equation}
+    For $k$ matrices: $(A_1 A_2 \dots A_k)^T = A_k^T \dots A_2^T A_1^T$.
+\end{itemize}
+\end{theorembox}
 
-\begin{videocard}{IITM BS Lecture: Determinants (Parts 1 \& 2)}{https://www.youtube.com/watch?v=A3fxp49I4U8}
-Official lectures explaining cofactor expansion, properties of determinants, and invertibility conditions.
-\end{videocard}
+\subsection{The Duality of Linear Systems: Row vs. Column Picture}
+
+A system of $m$ linear equations in $n$ variables $x_1, \dots, x_n$ is represented in matrix notation as:
+\begin{equation}
+A \mathbf{x} = \mathbf{b} \iff \begin{bmatrix} a_{11} & a_{12} & \dots & a_{1n} \\ a_{21} & a_{22} & \dots & a_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ a_{m1} & a_{m2} & \dots & a_{mn} \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_n \end{bmatrix} = \begin{bmatrix} b_1 \\ b_2 \\ \vdots \\ b_m \end{bmatrix}
+\end{equation}
+Linear systems possess two complementary geometric interpretations:
+\begin{enumerate}
+    \item \textbf{The Row Picture:} Each equation represents an $(n-1)$-dimensional affine hyperplane in $\R^n$. The solution vector $\mathbf{x}^*$ is the geometric intersection point of all $m$ hyperplanes.
+    \item \textbf{The Column Picture:} The matrix-vector product $A\mathbf{x}$ is viewed as a \textbf{linear combination of the column vectors} of $A$:
+    \begin{equation}
+    x_1 \begin{bmatrix} a_{11} \\ a_{21} \\ \vdots \\ a_{m1} \end{bmatrix} + x_2 \begin{bmatrix} a_{12} \\ a_{22} \\ \vdots \\ a_{m2} \end{bmatrix} + \dots + x_n \begin{bmatrix} a_{1n} \\ a_{2n} \\ \vdots \\ a_{mn} \end{bmatrix} = \mathbf{b}
+    \end{equation}
+    Solving $A\mathbf{x} = \mathbf{b}$ asks: \textit{"What combination of the column vectors of $A$ reconstructs the target vector $\mathbf{b}$?"} A solution exists if and only if $\mathbf{b}$ lies in the \textbf{span of the columns} of $A$ (the Column Space $\operatorname{Col}(A)$).
+\end{enumerate}
+
+\subsection{Determinants as Oriented Volume Distortion}
+
+The \textbf{determinant} is a multilinear, alternating function mapping square matrices $A \in \R^{n \times n}$ to a scalar $\det(A) \in \R$.
+
+\begin{definitionbox}{Laplace Cofactor Expansion}
+For any $n \times n$ matrix $A$, the determinant can be expanded along any row $i$:
+\begin{equation}
+\det(A) = \sum_{j=1}^n (-1)^{i+j} a_{ij} \det(M_{ij}) = \sum_{j=1}^n a_{ij} C_{ij}
+\end{equation}
+where $M_{ij}$ is the $(n-1) \times (n-1)$ submatrix formed by deleting row $i$ and column $j$, and $C_{ij} = (-1)^{i+j} \det(M_{ij})$ is the $(i, j)$-th \textbf{cofactor}.
+\begin{itemize}
+    \item For $2 \times 2$: $\det \begin{bmatrix} a & b \\ c & d \end{bmatrix} = ad - bc$.
+    \item For $3 \times 3$: $\det \begin{bmatrix} a & b & c \\ d & e & f \\ g & h & i \end{bmatrix} = a(ei - fh) - b(di - fg) + c(dh - eg)$.
+\end{itemize}
+\end{definitionbox}
+
+\begin{theorembox}{Essential Determinant Properties}
+\begin{itemize}
+    \item $\det(I) = 1$
+    \item $\det(A^T) = \det(A)$
+    \item \textbf{Multiplicative Property:} $\det(AB) = \det(A) \det(B)$
+    \item \textbf{Scalar Multiple:} $\det(c A) = c^n \det(A)$ for $A \in \R^{n \times n}$ and $c \in \R$.
+    \item \textbf{Invertibility Theorem:} Matrix $A$ is invertible ($A^{-1}$ exists) if and only if $\det(A) \neq 0$. If $A$ is invertible, $\det(A^{-1}) = \frac{1}{\det(A)}$.
+    \item If two rows or columns of $A$ are identical, or if a row/column is all zeros, $\det(A) = 0$.
+\end{itemize}
+\end{theorembox}
+
+\section{Visual \& Geometric Intuition}
+
+Linear algebra transformations and determinants are best understood geometrically as coordinate transformations and volume scalings.
+
+\begin{center}
+\begin{tikzpicture}[scale=1.1]
+    \draw[->, thick, gray!60] (-0.5, 0) -- (5.5, 0) node[right, black] {$x_1$};
+    \draw[->, thick, gray!60] (0, -0.5) -- (0, 4.5) node[above, black] {$x_2$};
+
+    % Parallelogram
+    \fill[primarylight!70] (0, 0) -- (3, 1) -- (4.2, 3.5) -- (1.2, 2.5) -- cycle;
+    \draw[thick, primarydark] (0, 0) -- (3, 1) -- (4.2, 3.5) -- (1.2, 2.5) -- cycle;
+
+    % Vectors
+    \draw[->, ultra thick, blue!80!black] (0, 0) -- (3, 1) node[midway, below right] {$\mathbf{v}_1 = \begin{bmatrix} a \\ c \end{bmatrix}$};
+    \draw[->, ultra thick, red!80!black] (0, 0) -- (1.2, 2.5) node[midway, above left] {$\mathbf{v}_2 = \begin{bmatrix} b \\ d \end{bmatrix}$};
+
+    \node at (2.1, 1.7) {\textbf{Area} $= |\det \begin{bmatrix} a & b \\ c & d \end{bmatrix}| = |ad - bc|$};
+\end{tikzpicture}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}[scale=1.0]
+    % Unit square
+    \draw[->, thick, gray!60] (-0.5, 0) -- (2.5, 0) node[right, black] {$x$};
+    \draw[->, thick, gray!60] (0, -0.5) -- (0, 2.5) node[above, black] {$y$};
+    \fill[green!20] (0,0) rectangle (1.5, 1.5);
+    \draw[thick, green!60!black] (0,0) rectangle (1.5, 1.5);
+    \node at (0.75, 0.75) {Unit Area $= 1$};
+    \node[below] at (0.75, -0.6) {\textbf{Original Space}};
+
+    % Transformation Arrow
+    \draw[->, ultra thick, purple] (3.0, 1.0) -- (4.5, 1.0) node[midway, above] {$A = \begin{bmatrix} 2 & 1 \\ 0 & 1.5 \end{bmatrix}$};
+
+    % Transformed Parallelogram
+    \begin{scope}[shift={(5.5, 0)}]
+        \draw[->, thick, gray!60] (-0.5, 0) -- (4.5, 0) node[right, black] {$u$};
+        \draw[->, thick, gray!60] (0, -0.5) -- (0, 3.0) node[above, black] {$v$};
+        \fill[purple!20] (0, 0) -- (3.0, 0) -- (4.5, 2.25) -- (1.5, 2.25) -- cycle;
+        \draw[thick, purple!80!black] (0, 0) -- (3.0, 0) -- (4.5, 2.25) -- (1.5, 2.25) -- cycle;
+        \node at (2.25, 1.1) {Area $= |\det(A)| = 3.0$};
+        \node[below] at (2.25, -0.6) {\textbf{Transformed Space}};
+    \end{scope}
+\end{tikzpicture}
+\end{center}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Proof of the Socks-and-Shoes Transpose Identity: $(AB)^T = B^T A^T$}
+Let $A \in \R^{m \times k}$ and $B \in \R^{k \times n}$. The product $C = AB$ has dimensions $m \times n$.
+The $(i, j)$-th entry of the transpose $C^T$ is by definition the $(j, i)$-th entry of $C$:
+\begin{equation}
+( (AB)^T )_{ij} = (AB)_{ji} = \sum_{p=1}^k a_{jp} b_{pi}
+\end{equation}
+Since real scalar multiplication commutes ($a_{jp} b_{pi} = b_{pi} a_{jp}$):
+\begin{equation}
+( (AB)^T )_{ij} = \sum_{p=1}^k b_{pi} a_{jp}
+\end{equation}
+Now, consider the product $D = B^T A^T$. 
+$B^T \in \R^{n \times k}$ with entries $(B^T)_{ip} = b_{pi}$, and $A^T \in \R^{k \times m}$ with entries $(A^T)_{pj} = a_{jp}$.
+Evaluating entry $(i, j)$ of $D$:
+\begin{equation}
+(B^T A^T)_{ij} = \sum_{p=1}^k (B^T)_{ip} (A^T)_{pj} = \sum_{p=1}^k b_{pi} a_{jp}
+\end{equation}
+Both expressions are identical for all $1 \le i \le n$ and $1 \le j \le m$. Thus:
+\begin{equation}
+(AB)^T = B^T A^T \quad \blacksquare
+\end{equation}
+
+\subsection{Geometric Derivation of the $2 \times 2$ Determinant as Signed Area}
+Consider two column vectors $\mathbf{v}_1 = \begin{bmatrix} a \\ c \end{bmatrix}$ and $\mathbf{v}_2 = \begin{bmatrix} b \\ d \end{bmatrix}$ in $\R^2$. 
+The parallelogram spanned by $\mathbf{v}_1$ and $\mathbf{v}_2$ is enclosed inside a bounding rectangle with base $(a + b)$ and height $(c + d)$.
+The total area of the bounding rectangle is:
+\begin{equation}
+A_{\text{rect}} = (a + b)(c + d) = ac + ad + bc + bd
+\end{equation}
+The excess region outside the parallelogram consists of:
+\begin{enumerate}
+    \item Two identical right triangles of base $a$ and height $c$: $2 \times \frac{1}{2} ac = ac$.
+    \item Two identical right triangles of base $b$ and height $d$: $2 \times \frac{1}{2} bd = bd$.
+    \item Two identical corner rectangles of width $b$ and height $c$: $2 \times (bc) = 2bc$.
+\end{enumerate}
+Subtracting the excess areas from the bounding rectangle:
+\begin{equation}
+A_{\text{parallelogram}} = (ac + ad + bc + bd) - (ac + bd + 2bc) = ad - bc
+\end{equation}
+This establishes why $\det \begin{bmatrix} a & b \\ c & d \end{bmatrix} = ad - bc$ measures the geometric area of the spanned 2D surface $\blacksquare$.
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Trap 1: Assuming Matrix Commutativity ($AB = BA$)}
+Unlike elementary arithmetic, matrix multiplication is \textbf{strictly non-commutative}. For almost all matrices, $AB \neq BA$. In fact, if $A \in \R^{3 \times 2}$ and $B \in \R^{2 \times 3}$, $AB \in \R^{3 \times 3}$, while $BA \in \R^{2 \times 2}$---they do not even share the same dimensions! Even for square matrices, $AB$ and $BA$ represent different sequences of transformations.
+\end{trapbox}
+
+\begin{trapbox}{Trap 2: Transposition Without Order Reversal}
+Students often incorrectly distribute transposes across products as $(AB)^T = A^T B^T$. 
+If $A \in \R^{3 \times 4}$ and $B \in \R^{4 \times 2}$, then $AB \in \R^{3 \times 2}$, so $(AB)^T \in \R^{2 \times 3}$. 
+Evaluating $A^T B^T$: $A^T \in \R^{4 \times 3}$ and $B^T \in \R^{2 \times 4}$. The inner dimensions (3 and 2) do not match, so $A^T B^T$ is \textbf{mathematically undefined}! The transpose must invert the order: $(AB)^T = B^T A^T$.
+\end{trapbox}
+
+\begin{trapbox}{Trap 3: Zero Determinant Means "No Solution"}
+Students frequently believe that if $\det(A) = 0$, the system $A\mathbf{x} = \mathbf{b}$ has no solutions. 
+This is false: $\det(A) = 0$ means the system does not have a \textit{unique} solution. It may have \textbf{infinitely many solutions} (if $\mathbf{b}$ lies within the column space $\operatorname{Col}(A)$) or \textbf{no solutions} (if $\mathbf{b}$ lies outside $\operatorname{Col}(A)$).
+\end{trapbox}
+
+\begin{trapbox}{Trap 4: Conflating Inner (Dot) Product with Outer Product}
+For vectors $\mathbf{u}, \mathbf{v} \in \R^n$:
+\begin{itemize}
+    \item \textbf{Inner (Dot) Product:} $\mathbf{u}^T \mathbf{v}$ multiplies a $1 \times n$ row by an $n \times 1$ column, resulting in a \textbf{scalar} ($1 \times 1$).
+    \item \textbf{Outer Product:} $\mathbf{u} \mathbf{v}^T$ multiplies an $n \times 1$ column by a $1 \times n$ row, resulting in an \textbf{$n \times n$ rank-1 matrix}.
+\end{itemize}
+Confusing the order of transposition turns scalars into matrices and vice versa.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2.6cm} p{3.2cm} p{3.8cm} p{4.2cm}}
+\toprule
+\textbf{Mathematical Operation} & \textbf{Algebraic Definition} & \textbf{Geometric Meaning} & \textbf{Data Science \& ML Manifestation} \\
+\midrule
+\textbf{Inner Product} & $\mathbf{u}^T \mathbf{v} = \sum u_i v_i$ & Projection of $\mathbf{u}$ onto $\mathbf{v}$ scaled by length & Cosine similarity, SVM linear kernels, neuron activation pre-state $z = \mathbf{w}^T \mathbf{x} + b$. \\
+\addlinespace
+\textbf{Outer Product} & $\mathbf{u} \mathbf{v}^T \in \R^{n \times n}$ & Rank-1 matrix spanned by $\mathbf{u}$ along direction $\mathbf{v}$ & Covariance matrix accumulation $\mathbf{x} \mathbf{x}^T$, attention weight matrices in Transformers. \\
+\addlinespace
+\textbf{Matrix Multiplication} & $C = AB$, $c_{ij} = \sum a_{ip} b_{pj}$ & Composition of two successive linear spatial transformations & Multi-layer Perceptron (MLP) forward passes: $\mathbf{h} = \sigma(W \mathbf{x})$. \\
+\addlinespace
+\textbf{Matrix Transpose} & $(A^T)_{ij} = a_{ji}$ & Reflection across the main diagonal & Forming normal equations in OLS regression: $(X^T X) \hat{\mathbf{w}} = X^T \mathbf{y}$. \\
+\addlinespace
+\textbf{Determinant} & $\det(A) = \sum a_{ij} C_{ij}$ & Signed volume scaling factor of the transformation & Normalization constants in Gaussian PDFs $\frac{1}{\sqrt{(2\pi)^d |\det(\Sigma)|}}$, invertibility check. \\
+\bottomrule
+\end{tabular}
+\caption{Taxonomy of Foundational Vector and Matrix Operations and their Machine Learning Applications.}
+\end{table}
+
+\section{Python Scientific Computing Lab}
+
+The following Python laboratory demonstrates vector norms, cosine similarities, matrix operations, and determinant evaluations using NumPy.
+
+\begin{lstlisting}[language=Python, caption=Vector and Matrix Operations in NumPy]
+import numpy as np
+
+# 1. Vector Dot Product, Norms, and Cosine Similarity
+u = np.array([2.0, 3.0, -1.0])
+v = np.array([1.0, -2.0, 4.0])
+
+dot_prod = np.dot(u, v)
+norm_u = np.linalg.norm(u)
+norm_v = np.linalg.norm(v)
+cos_sim = dot_prod / (norm_u * norm_v)
+
+print(f"Dot Product u . v: {dot_prod:.4f}")
+print(f"Norm ||u||: {norm_u:.4f}, Norm ||v||: {norm_v:.4f}")
+print(f"Cosine Similarity: {cos_sim:.4f}")
+
+# 2. Matrix Multiplication and Non-Commutativity
+A = np.array([[1, 2], [3, 4]])
+B = np.array([[0, -1], [2, 5]])
+
+AB = A @ B
+BA = B @ A
+print("\nProduct AB:\n", AB)
+print("Product BA:\n", BA)
+print("Is AB == BA?", np.array_equal(AB, BA))
+
+# 3. Transpose Identity: (AB)^T == B^T A^T
+AB_T = (A @ B).T
+BT_AT = B.T @ A.T
+print("\n(AB)^T == B^T A^T:", np.allclose(AB_T, BT_AT))
+
+# 4. Determinant and Matrix Invertibility
+M = np.array([[3.0, 1.0, 2.0],
+              [0.0, 4.0, 5.0],
+              [1.0, 2.0, 1.0]])
+
+det_M = np.linalg.det(M)
+print(f"\nDeterminant of M: {det_M:.4f}")
+if not np.isclose(det_M, 0.0):
+    M_inv = np.linalg.inv(M)
+    print("M is invertible. Inverse M^(-1):\n", np.round(M_inv, 4))
+    print("M @ M^(-1) == I:\n", np.round(M @ M_inv, 4))
+
+# 5. Data Science: Covariance Matrix Generalized Variance
+Sigma = np.array([[4.0, 3.0],
+                  [3.0, 9.0]])
+gen_var = np.linalg.det(Sigma)
+print(f"\nGeneralized Variance |Sigma|: {gen_var:.4f}")
+\end{lstlisting}
 
 \newpage
 \section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\subsection*{Part A: Analytical \& Computational Problems}
 
 \begin{enumerate}
-    \item \textbf{Vector Dot Product \& Angle:} Given vectors $\mathbf{u} = \begin{bmatrix} 2 \\ 3 \\ -1 \end{bmatrix}$ and $\mathbf{v} = \begin{bmatrix} 1 & -2 & 4 \end{bmatrix}^T$:
+    \item \textbf{Vector Algebra, Norms, and Orthogonality:}
+    Given vectors $\mathbf{u} = \begin{bmatrix} 3 \\ -2 \\ 4 \end{bmatrix}$ and $\mathbf{v} = \begin{bmatrix} 2 \\ 5 \\ 1 \end{bmatrix}$:
     \begin{enumerate}
         \item Compute the dot product $\mathbf{u} \cdot \mathbf{v}$.
-        \item Compute the norms $\|\mathbf{u}\|$ and $\|\mathbf{v}\|$.
+        \item Compute the Euclidean norms $\|\mathbf{u}\|$ and $\|\mathbf{v}\|$.
+        \item Calculate the cosine of the angle between $\mathbf{u}$ and $\mathbf{v}$. Are $\mathbf{u}$ and $\mathbf{v}$ orthogonal?
+        \item Find the outer product matrix $P = \mathbf{u} \mathbf{v}^T$.
     \end{enumerate}
 
-    \item \textbf{Matrix Multiplication:} Given matrices:
-    $$A = \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}, \quad B = \begin{bmatrix} 0 & -1 \\ 2 & 5 \end{bmatrix}$$
-    Compute $AB$ and $BA$. Verify that $AB \neq BA$.
+    \item \textbf{Matrix Multiplication and Transpose Identities:}
+    Let matrices $A = \begin{bmatrix} 2 & 1 \\ -1 & 3 \end{bmatrix}$ and $B = \begin{bmatrix} 4 & -2 \\ 1 & 0 \end{bmatrix}$.
+    \begin{enumerate}
+        \item Compute the matrix product $AB$.
+        \item Compute the matrix product $BA$. State whether $A$ and $B$ commute.
+        \item Directly compute $(AB)^T$ and compare it with the product $B^T A^T$.
+    \end{enumerate}
 
-    \item \textbf{Matrix-Vector System Formulation:} Convert the linear system:
-    $$\begin{aligned}
-    2x_1 + 3x_2 - x_3 &= 7 \\
-    4x_1 - x_2 + 2x_3 &= 3 \\
-    -x_1 + 5x_2 + 3x_3 &= 10
-    \end{aligned}$$
-    into the matrix form $A \mathbf{x} = \mathbf{b}$ and write down the augmented matrix $[A \mid \mathbf{b}]$.
+    \item \textbf{Linear Systems: Row Picture vs. Column Picture:}
+    Consider the system of linear equations:
+    \begin{align*}
+    x_1 + 2x_2 &= 5 \\
+    3x_1 - x_2 &= 1
+    \end{align*}
+    \begin{enumerate}
+        \item Formulate the system in matrix notation $A\mathbf{x} = \mathbf{b}$.
+        \item Describe the Row Picture: find the equations and slopes of the two lines in $\R^2$ and their point of intersection.
+        \item Describe the Column Picture: express $\mathbf{b} = \begin{bmatrix} 5 \\ 1 \end{bmatrix}$ as an explicit linear combination of the column vectors of $A$.
+    \end{enumerate}
 
-    \item \textbf{Determinant Calculation:} Calculate the determinant of the $3 \times 3$ matrix:
-    $$M = \begin{bmatrix} 3 & 1 & 2 \\ 0 & 4 & 5 \\ 1 & 2 & 1 \end{bmatrix}$$
-    Is matrix $M$ invertible?
+    \item \textbf{Determinants and Singularity Conditions:}
+    Consider the parameterized matrix:
+    \begin{equation}
+    M_k = \begin{bmatrix} 2 & 1 & 3 \\ 0 & k & 4 \\ 1 & -1 & 2 \end{bmatrix}
+    \end{equation}
+    \begin{enumerate}
+        \item Calculate the determinant $\det(M_k)$ as a function of the parameter $k$ using cofactor expansion.
+        \item For what exact value of $k$ is the matrix $M_k$ singular (non-invertible)?
+        \item If $k = 5$, what is the determinant of the inverse matrix $M_5^{-1}$?
+    \end{enumerate}
 
-    \item \textbf{Data Science Application (Covariance Matrix Determinant):} In multivariate statistics, the determinant of a $2 \times 2$ Covariance Matrix $\Sigma = \begin{bmatrix} \sigma_1^2 & \sigma_{12} \\ \sigma_{12} & \sigma_2^2 \end{bmatrix}$ represents total generalized variance. Given $\sigma_1^2 = 4$, $\sigma_2^2 = 9$, and covariance $\sigma_{12} = 3$, calculate $\det(\Sigma)$.
+    \item \textbf{Covariance Matrices and Mahalanobis Distance:}
+    In a 2-feature machine learning dataset, features have mean vector $\boldsymbol{\mu} = \begin{bmatrix} 0 \\ 0 \end{bmatrix}$ and covariance matrix:
+    \begin{equation}
+    \Sigma = \begin{bmatrix} 5 & 2 \\ 2 & 2 \end{bmatrix}
+    \end{equation}
+    \begin{enumerate}
+        \item Compute the generalized variance given by $\det(\Sigma)$.
+        \item Find the analytical matrix inverse $\Sigma^{-1}$.
+        \item For a test observation $\mathbf{x} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$, calculate the squared Mahalanobis distance $d_M^2 = (\mathbf{x} - \boldsymbol{\mu})^T \Sigma^{-1} (\mathbf{x} - \boldsymbol{\mu})$.
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Misconception MCQs}
+
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item A student is simplifying the transpose of a sequence of matrix multiplications involving three invertible matrices $A \in \R^{4 \times 3}, B \in \R^{3 \times 5}, C \in \R^{5 \times 2}$. The student claims that $(ABC)^T = A^T B^T C^T$. Which statement correctly evaluates this claim?
+    \begin{enumerate}
+        \item The claim is correct because transposition is a linear operator that distributes directly across all factors.
+        \item The claim is false because transposition reverses the multiplication order: $(ABC)^T = C^T B^T A^T$. In fact, the expression $A^T B^T C^T$ is not even mathematically defined because the inner matrix dimensions do not match.
+        \item The claim is false only if one of the matrices has a determinant equal to zero.
+        \item The claim is correct provided that $A, B,$ and $C$ are symmetric matrices.
+    \end{enumerate}
+
+    \item If a square matrix $A \in \R^{3 \times 3}$ has $\det(A) = 0$, what does this geometrically imply about the linear transformation represented by $A$?
+    \begin{enumerate}
+        \item The transformation rotates all vectors by $90^\circ$ without altering their length.
+        \item The transformation completely collapses 3-dimensional space into a lower-dimensional subspace (a plane, a line, or the origin), destroying volume and making the transformation irreversible.
+        \item The transformation scales the volume of any 3D body by a factor of 2.
+        \item The transformation has no effect on any vector in $\R^3$.
+    \end{enumerate}
 \end{enumerate}

@@ -25,7 +25,46 @@
 \usepackage{booktabs}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
-\usepackage{venndiagram}
+\IfFileExists{venndiagram.sty}{%
+  \usepackage{venndiagram}%
+}{%
+  \makeatletter
+  \newenvironment{venndiagram2sets}[1][]{%
+    \begin{tikzpicture}[scale=0.55, transform shape]%
+      \draw[thick] (-2,-1.5) rectangle (3.5,1.5);
+      \node at (3.1,1.1) {$S$};
+      \draw[thick] (0,0) circle (1.2cm);
+      \draw[thick] (1.5,0) circle (1.2cm);
+      \node at (-0.5,0.7) {$A$};
+      \node at (2.0,0.7) {$B$};
+      \providecommand{\fillA}{\fill[gray!40,opacity=0.6] (0,0) circle (1.2cm);}%
+      \providecommand{\fillB}{\fill[gray!40,opacity=0.6] (1.5,0) circle (1.2cm);}%
+      \providecommand{\fillACapB}{%
+        \begin{scope}%
+          \clip (0,0) circle (1.2cm);%
+          \fill[gray!60] (1.5,0) circle (1.2cm);%
+        \end{scope}%
+      }%
+      \providecommand{\fillOnlyA}{%
+        \begin{scope}%
+          \clip (-2,-1.5) rectangle (3.5,1.5);%
+          \fill[gray!40] (0,0) circle (1.2cm);%
+          \fill[white] (1.5,0) circle (1.2cm);%
+          \draw[thick] (0,0) circle (1.2cm);%
+          \draw[thick] (1.5,0) circle (1.2cm);%
+        \end{scope}%
+      }%
+      \providecommand{\fillNotA}{%
+        \fill[gray!30] (-2,-1.5) rectangle (3.5,1.5);%
+        \fill[white] (0,0) circle (1.2cm);%
+        \draw[thick] (0,0) circle (1.2cm);%
+        \draw[thick] (1.5,0) circle (1.2cm);%
+      }%
+  }{%
+    \end{tikzpicture}%
+  }
+  \makeatother
+}
 
 % Headings styling
 \usepackage{titlesec}
@@ -66,15 +105,29 @@
 \definecolor{amberbg}{HTML}{fffbeb}
 \definecolor{amberborder}{HTML}{f59e0b}
 
+% Tailored Crimson/Ruby for Exam Gotchas & Misconceptions
+\definecolor{traprad}{HTML}{991b1b}
+\definecolor{trapbg}{HTML}{fef2f2}
+\definecolor{trapborder}{HTML}{ef4444}
+
+% Semantic Accent & Forest Colors for TikZ
+\definecolor{forest}{HTML}{166534}
+\definecolor{accent}{HTML}{2563eb}
+
 % YouTube Dark Slate card
 \definecolor{ytcardbg}{HTML}{f8fafc}
 \definecolor{ytcardborder}{HTML}{cbd5e1}
 \definecolor{yttext}{HTML}{ef4444} % YouTube Red for links
 
-% Indexing, QR Codes & Listings
+% Indexing, QR Codes, Listings & Lists
 \usepackage{imakeidx}
-\usepackage{qrcode}
+\IfFileExists{qrcode.sty}{
+    \usepackage{qrcode}
+}{
+    \newcommand{\qrcode}[2][]{}
+}
 \usepackage{listings}
+\usepackage{enumitem}
 
 % Hyperref configuration (loaded BEFORE custom tcolorbox environments using \href)
 \usepackage{hyperref}
@@ -89,7 +142,7 @@
 
 % Custom tcolorboxes
 \usepackage[most]{tcolorbox}
-\usetikzlibrary{shadows}
+\usetikzlibrary{shadows, calc, arrows.meta, shapes.geometric}
 
 % Definition Box
 \newtcolorbox{definitionbox}[1]{
@@ -196,6 +249,25 @@
     enhanced,
     attach boxed title to top left={yshift=-2mm, xshift=4mm},
     boxed title style={colback=amberwarning, colframe=amberborder, arc=1mm},
+    arc=2mm,
+    boxrule=0.8mm,
+    top=4mm,
+    bottom=3mm,
+    left=3mm,
+    right=3mm,
+    drop shadow={opacity=0.1, color=black}
+}
+
+% Exam Trap & Common Misconception Box (Ruby/Crimson)
+\newtcolorbox{trapbox}[1]{
+    colback=trapbg,
+    colframe=trapborder,
+    coltitle=white,
+    fonttitle=\bfseries\sffamily,
+    title={Exam Trap \& Common Misconception: #1},
+    enhanced,
+    attach boxed title to top left={yshift=-2mm, xshift=4mm},
+    boxed title style={colback=traprad, colframe=trapborder, arc=1mm},
     arc=2mm,
     boxrule=0.8mm,
     top=4mm,

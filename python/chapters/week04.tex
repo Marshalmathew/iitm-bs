@@ -1,154 +1,347 @@
-\chapter{Lists \& Basic Matrix Algorithms}
+\chapter{Lists, Dynamic Arrays \& Matrix Algorithms}
 
-A \index{List}\textbf{List} is an ordered, mutable sequence of items. Lists are the most versatile built-in data structure in Python, capable of holding heterogeneous elements, including other lists (creating 2D and multi-dimensional matrices).
-
+Linear data structures and multi-dimensional matrices form the structural bedrock of modern data pipelines and machine learning frameworks. In Python, the built-in \index{List}\textbf{List} is far more than a conventional fixed-size array: it is an engineered \textbf{dynamic array of object references}. Understanding the internal memory layout of CPython's list implementation, the subtleties of reference aliasing versus deep copying, and the linear algebraic mechanics of pure-Python vector and matrix algorithms is essential for writing performant, bug-free computational code before transitioning to hardware-accelerated libraries like NumPy.
 
 \vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item List Creation, Indexing, and Mutability
-    \item Linear Search and Basic Vector Operations
-    \item 2D Lists and Matrix Algorithms
-    \item Selection Sort ("Obvious Sort")
+    \item \textbf{Target Competencies:} Analyze the CPython dynamic array pointer architecture and amortized $\mathcal{O}(1)$ growth; differentiate between reference aliasing, shallow copying, and deep copying; manipulate sequence slices and perform in-place mutations; implement core linear algebra algorithms (vector dot products, matrix transposition, matrix multiplication) from first principles; analyze the quadratic complexity of Selection Sort.
+    \item \textbf{Prerequisites:} Loops, iteration protocols, nested control flow, variable reference semantics.
+    \item \textbf{Syntax \& Built-in Functions:} \texttt{list()}, \texttt{.append()}, \texttt{.extend()}, \texttt{.insert()}, \texttt{.pop()}, \texttt{.remove()}, \texttt{.sort()}, \texttt{sorted()}, \texttt{copy.deepcopy()}, list slicing \texttt{[start:stop:step]}.
 \end{itemize}
 \end{tcolorbox}
-\section{List Creation, Indexing, and Mutability}
 
-Unlike strings (which are immutable), lists are \index{mutable}\textbf{mutable}, meaning you can change, add, or remove elements in place without creating a new object.
+\section{Mathematical \& Computational Foundations}
 
-\begin{definitionbox}{List Basics}
-\index{List Basics}
-\begin{lstlisting}
-numbers = [10, 20, 30, 40, 50]
-numbers[0] = 99          # Modify in place: [99, 20, 30, 40, 50]
-numbers.append(60)       # Add item to end: [99, 20, 30, 40, 50, 60]
-numbers.pop()            # Remove & return last item
-print(len(numbers))      # Length of list
+\subsection{CPython Dynamic Array Memory Architecture}
+
+\begin{definitionbox}{Internal Representation of \texttt{PyListObject}}
+\index{PyListObject} \index{Dynamic Array}
+In standard CPython, a list is implemented not as a linked list or raw contiguous block of values, but as a \textbf{contiguous array of 64-bit pointers} to heap-allocated \texttt{PyObject} instances:
+\begin{lstlisting}[language=C]
+typedef struct {
+    PyObject_VAR_HEAD
+    PyObject **ob_item;  // Pointer to array of pointers
+    Py_ssize_t allocated; // Allocated memory capacity
+} PyListObject;
 \end{lstlisting}
+Because the array holds pointers rather than raw data:
+\begin{enumerate}
+    \item Elements can be \textbf{heterogeneous} (integers, strings, floats, other lists).
+    \item \textbf{Random access by index} is strictly $\mathcal{O}(1)$ via pointer arithmetic:
+    \begin{equation}
+    \text{Address}(L[i]) = \text{BaseAddress} + i \times 8 \text{ bytes}
+    \end{equation}
+    \item To avoid reallocating memory on every \texttt{.append()}, Python uses an \textbf{over-allocation growth formula}:
+    \begin{equation}
+    \text{new\_allocated} = \text{new\_size} + (\text{new\_size} \gg 3) + (\text{new\_size} < 9 \mathrel{?} 3 : 6)
+    \end{equation}
+    This amortizes memory reallocations, making \texttt{append()} take \textbf{amortized $\mathcal{O}(1)$ time}, while insertions at arbitrary indices require shifting pointers, taking $\mathcal{O}(n)$ time.
+\end{enumerate}
 \end{definitionbox}
 
-\begin{intuitionbox}{List Memory References and Shallow Copy Aliasing}
-When you assign a list to a new variable (\texttt{b = a}), Python creates an \index{alias}\textbf{alias} referencing the exact same object in memory! Modifying \texttt{b} will unexpectedly modify \texttt{a}:
-\begin{lstlisting}[style=pystyle]
-a = [1, 2, 3]
-b = a          # Reference copy (aliasing)
-b[0] = 999     # Modifies both b AND a!
+\subsection{Aliasing, Shallow Copying, and Deep Copying}
 
-# To create a independent copy, use slicing or copy():
-c = a.copy()   # Independent shallow copy
+\begin{theorembox}{The Reference Assignment Invariant}
+\index{Aliasing} \index{Shallow Copy} \index{Deep Copy}
+Let $A$ be a mutable list. The assignment statement:
+\begin{lstlisting}[language=Python]
+B = A
 \end{lstlisting}
-\end{intuitionbox}
-
-\begin{videocard}{IITM BS Lecture: Warmup with Lists}{https://www.youtube.com/watch?v=toMhJJHSIYk}
-Official lecture introducing list initialization, indexing, append, and slice assignment.
-\end{videocard}
-
-
-\section{Linear Search and Basic Vector Operations}
-
-Linear search checks every element sequentially to find a target value or index. In linear algebra, a 1D list represents a \index{Vector}\textbf{Vector}.
-
-\begin{examplebox}{Dot Product of Two Vectors}
-The dot product of two vectors $\mathbf{u} = [u_1, u_2, \dots, u_n]$ and $\mathbf{v} = [v_1, v_2, \dots, v_n]$ is:
-$$\mathbf{u} \cdot \mathbf{v} = \sum_{i=1}^{n} u_i v_i$$
-\begin{lstlisting}
-u = [1, 2, 3]
-v = [4, 5, 6]
-
-dot_product = 0
-for i in range(len(u)):
-    dot_product += u[i] * v[i]
-
-print("Dot Product:", dot_product)  # 1*4 + 2*5 + 3*6 = 32
-\end{lstlisting}
-\end{examplebox}
-
-\textbf{Data Science Relevance:} Vector dot products form the core of matrix multiplication, cosine similarity, neural network weights calculation ($\mathbf{w}^T \mathbf{x} + b$), and linear regression predictions.
-
-\begin{videocard}{IITM BS Lecture: Dot Product of Vectors}{https://www.youtube.com/watch?v=qSOoiWNplGo}
-Official lecture computing vector dot products using \texttt{for} loops.
-\end{videocard}
-
-\begin{videocard}{IITM BS Lecture: Naive Linear Search}{https://www.youtube.com/watch?v=3huwiAPi-_I}
-Official lecture demonstrating linear search implementation and finding minimum/maximum values.
-\end{videocard}
-
-\section{2D Lists and Matrix Algorithms}
-
-A 2D matrix is represented in Python as a list of lists, where each inner list represents a row.
-
-\begin{formulabox}{Matrix Operations in Pure Python}
-Given $A$ ($m \times n$) and $B$ ($m \times n$), Matrix Addition $C = A + B$ is defined as $C_{ij} = A_{ij} + B_{ij}$.
-\begin{lstlisting}
-A = [[1, 2], [3, 4]]
-B = [[5, 6], [7, 8]]
-
-# Matrix Addition
-C = []
-for i in range(len(A)):
-    row = []
-    for j in range(len(A[0])):
-        row.append(A[i][j] + B[i][j])
-    C.append(row)
-# C becomes [[6, 8], [10, 12]]
-\end{lstlisting}
-\end{formulabox}
-
-\begin{examplebox}{Matrix Multiplication ($C = A \times B$)}
-For $A$ ($m \times k$) and $B$ ($k \times n$), $C_{ij} = \sum_{p=1}^{k} A_{ip} B_{pj}$.
-\begin{lstlisting}
-A = [[1, 2], [3, 4]]
-B = [[5, 6], [7, 8]]
-
-C = [[0, 0], [0, 0]]
-for i in range(len(A)):
-    for j in range(len(B[0])):
-        for k in range(len(B)):
-            C[i][j] += A[i][k] * B[k][j]
-# C becomes [[19, 22], [43, 50]]
-\end{lstlisting}
-\end{examplebox}
-
-\begin{videocard}{IITM BS Lecture: Matrix Addition from Scratch}{https://www.youtube.com/watch?v=CRhUooqcvcU}
-Official lecture implementing 2D matrix addition using nested lists and loops.
-\end{videocard}
-
-\begin{videocard}{IITM BS Lecture: Matrix Multiplication Step-by-Step}{https://www.youtube.com/watch?v=seYP1F6Ct2g}
-Official lecture deriving the 3-loop matrix multiplication algorithm in Python.
-\end{videocard}
-
-\section{Selection Sort ("Obvious Sort")}
-
-\begin{theorembox}{Selection Sort Logic}
-Repeatedly find the minimum element from the unsorted portion of the list and swap it to the beginning.
+creates a new name binding $B$ pointing to the \textbf{exact same memory address} as $A$ ($\text{id}(A) == \text{id}(B)$). Any mutation performed through $B$ immediately reflects in $A$.
+To create an independent clone:
+\begin{itemize}
+    \item \textbf{Shallow Copy (\texttt{C = A.copy()} or \texttt{C = A[:]}):} Allocates a new \texttt{PyListObject} with its own array of pointers, but copies the pointer addresses. If elements are themselves mutable (e.g., inner lists of a matrix), inner mutations remain shared!
+    \item \textbf{Deep Copy (\texttt{import copy; D = copy.deepcopy(A)}):} Recursively clones all nested container objects and their contents, ensuring complete memory isolation.
+\end{itemize}
 \end{theorembox}
 
-\begin{videocard}{IITM BS Lecture: The Obvious Sorting Algorithm}{https://www.youtube.com/watch?v=hkDAafi09yo}
-Official lecture stepping through selection sort logic and list element swapping.
-\end{videocard}
+\subsection{Linear Algebraic Matrix Operations in Pure Python}
+
+\begin{definitionbox}{Vector and Matrix Algebra Formulations}
+\index{Dot Product} \index{Matrix Multiplication}
+A 2D matrix $A \in \mathbb{R}^{m \times k}$ is represented as a nested list of $m$ rows, each containing $k$ numeric scalars.
+\begin{enumerate}
+    \item \textbf{Vector Dot Product:} For $\mathbf{u}, \mathbf{v} \in \mathbb{R}^k$:
+    \begin{equation}
+    \langle \mathbf{u}, \mathbf{v} \rangle = \mathbf{u} \cdot \mathbf{v} = \sum_{p=1}^k u_p v_p
+    \end{equation}
+    \item \textbf{Matrix Transpose:} For $A \in \mathbb{R}^{m \times k}$, $A^T \in \mathbb{R}^{k \times m}$ satisfies:
+    \begin{equation}
+    (A^T)_{ji} = A_{ij}, \quad \forall 1 \le i \le m, \, 1 \le j \le k
+    \end{equation}
+    \item \textbf{Matrix Multiplication:} For $A \in \mathbb{R}^{m \times k}$ and $B \in \mathbb{R}^{k \times n}$, the product $C = AB \in \mathbb{R}^{m \times n}$ has elements:
+    \begin{equation}
+    C_{ij} = \sum_{p=1}^k A_{ip} B_{pj}
+    \end{equation}
+    Executing this in pure Python requires three nested loops, running in $\mathcal{O}(m \cdot k \cdot n)$ time.
+\end{enumerate}
+\end{definitionbox}
+
+\section{Visual \& Computational Intuition: Memory Pointer Topology}
+
+Figure~\ref{fig:list_memory} illustrates the CPython pointer topology contrasting an aliased reference from a shallow copy when dealing with nested structures.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=0.95,
+    box/.style={rectangle, draw=primarydark, fill=primarylight!30, thick, minimum width=1.4cm, minimum height=0.7cm, font=\small},
+    obj/.style={rectangle, draw=forest, fill=forest!15, thick, rounded corners, minimum width=1.8cm, minimum height=0.8cm, font=\small\bfseries},
+    ptr/.style={-stealth, thick, primarydark}
+]
+    % List A
+    \node[font=\bfseries, primarydark] at (-3.5, 2.5) {Identifier \texttt{A}};
+    \node[box] (a0) at (-3.5, 1.5) {\texttt{ptr}};
+    \node[box] (a1) at (-2.0, 1.5) {\texttt{ptr}};
+    
+    % Identifier B (Alias)
+    \node[font=\bfseries, primarydark] at (-3.5, 0.2) {Identifier \texttt{B = A}};
+    \draw[-stealth, thick, dashed, primarydark] (-2.2, 0.2) -- (-2.75, 1.1);
+
+    % Heap Objects
+    \node[obj] (o1) at (1.5, 2.2) {Scalar: \texttt{10}};
+    \node[obj] (o2) at (1.5, 0.8) {List: \texttt{[1, 2]}};
+
+    % Pointers from A
+    \draw[ptr] (a0.east) -- (o1.west);
+    \draw[ptr] (a1.east) -- (o2.west);
+
+    % List C (Shallow Copy)
+    \node[font=\bfseries, accent] at (-3.5, -1.2) {Identifier \texttt{C = A.copy()}};
+    \node[box, draw=accent, fill=accent!10] (c0) at (-3.5, -2.2) {\texttt{ptr}};
+    \node[box, draw=accent, fill=accent!10] (c1) at (-2.0, -2.2) {\texttt{ptr}};
+
+    % Pointers from C
+    \draw[-stealth, thick, accent] (c0.east) -- (o1.south west);
+    \draw[-stealth, thick, accent] (c1.east) -- (o2.south west);
+
+\end{tikzpicture}
+\caption{CPython List Memory Layout. While \texttt{C} has its own pointer array, its pointers reference the exact same heap objects as \texttt{A}. Mutating \texttt{o2} in place impacts both \texttt{A} and \texttt{C}.}
+\label{fig:list_memory}
+\end{figure}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Selection Sort Complexity Derivation}
+Selection sort operates by finding the minimal element in the unsorted suffix and swapping it into the prefix:
+\begin{equation}
+T(n) = \sum_{i=0}^{n-2} (n - 1 - i) = (n - 1) + (n - 2) + \dots + 1 = \frac{n(n - 1)}{2}
+\end{equation}
+The number of comparison operations is strictly invariant to input ordering: both best-case, average-case, and worst-case comparison counts are $\Theta(n^2)$. However, selection sort performs at most $n - 1$ memory swaps ($\mathcal{O}(n)$ writes), making it historically useful when memory writes are exceptionally expensive.
+
+\subsection{In-Place Mutation versus Returning New Sequences}
+Python maintains a strict convention across sequence APIs:
+\begin{itemize}
+    \item \textbf{In-place mutating methods} (e.g., \texttt{.sort()}, \texttt{.reverse()}, \texttt{.append()}) return \texttt{None} to explicitly prevent chaining bugs and signal that the original object was altered.
+    \item \textbf{Pure functions} (e.g., \texttt{sorted()}, \texttt{reversed()}, \texttt{list + list}) allocate and return an entirely new object, leaving the original unchanged.
+\end{itemize}
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{The Repeated Inner List Multiplication Trap}
+Creating a 2D matrix using list multiplication is one of the most notorious Python bugs:
+\begin{lstlisting}[language=Python]
+# Attempting to initialize a 3x3 zero matrix:
+matrix = [[0] * 3] * 3  # CRITICAL BUG!
+matrix[0][0] = 99
+print(matrix)  # Output: [[99, 0, 0], [99, 0, 0], [99, 0, 0]]
+\end{lstlisting}
+The outer multiplication \texttt{[row] * 3} does not clone the inner list; it creates three references pointing to the \textbf{single identical row} in heap memory! Modifying any row modifies all rows.
+\textbf{Correct Construction:}
+\begin{lstlisting}[language=Python]
+matrix = [[0 for _ in range(3)] for _ in range(3)]  # 3 distinct rows
+\end{lstlisting}
+\end{trapbox}
+
+\begin{trapbox}{The \texttt{.sort()} Return Value Trap}
+Because in-place sorting mutates the list and returns \texttt{None}:
+\begin{lstlisting}[language=Python]
+scores = [45, 12, 89, 32]
+sorted_scores = scores.sort()  # BUG!
+print(sorted_scores)  # Prints: None! scores was sorted, but sorted_scores is None.
+\end{lstlisting}
+Use \texttt{scores.sort()} alone, or assign \texttt{sorted\_scores = sorted(scores)}.
+\end{trapbox}
+
+\begin{trapbox}{Shallow Copying Nested Lists}
+Writing \texttt{B = A[:]} or \texttt{B = A.copy()} creates an independent outer list, but copies references to inner lists:
+\begin{lstlisting}[language=Python]
+A = [[1, 2], [3, 4]]
+B = A.copy()
+B[0][0] = 999
+print(A)  # Output: [[999, 2], [3, 4]] -- A was unexpectedly mutated!
+\end{lstlisting}
+For nested structures, always use \texttt{copy.deepcopy(A)}.
+\end{trapbox}
+
+\begin{trapbox}{Appending a List to Itself (Infinite Self-Reference)}
+Because lists hold pointers to objects:
+\begin{lstlisting}[language=Python]
+lst = [1, 2]
+lst.append(lst)
+print(lst)  # Output: [1, 2, [...]]
+\end{lstlisting}
+The list now contains a cyclic pointer back to its own header. Python's printer safely detects recursion and prints \texttt{[...]}, but naive recursive algorithms traversing this list will trigger a \texttt{RecursionError}.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2.8cm} p{2.2cm} p{2.8cm} p{4.2cm}}
+\hline
+\textbf{Operation} & \textbf{Time Complexity} & \textbf{Mutates In-Place?} & \textbf{Return Value / Behavior} \\
+\hline
+\texttt{lst.append(x)} & $\mathcal{O}(1)$ amortized & Yes & Returns \texttt{None}; adds $x$ at end \\
+\texttt{lst.extend(iterable)} & $\mathcal{O}(k)$ & Yes & Returns \texttt{None}; unpacks elements \\
+\texttt{lst.insert(i, x)} & $\mathcal{O}(n)$ & Yes & Returns \texttt{None}; shifts elements right \\
+\texttt{lst.pop(i)} & $\mathcal{O}(n)$ ($\mathcal{O}(1)$ at end) & Yes & Removes and returns element at index $i$ \\
+\texttt{lst.remove(x)} & $\mathcal{O}(n)$ & Yes & Returns \texttt{None}; removes first matching $x$ \\
+\texttt{lst[start:stop]} & $\mathcal{O}(k)$ & No & Returns shallow copy slice of length $k$ \\
+\texttt{lst.sort()} & $\mathcal{O}(n \log n)$ & Yes & Returns \texttt{None}; Timsort in-place \\
+\texttt{sorted(lst)} & $\mathcal{O}(n \log n)$ & No & Returns new sorted \texttt{list} instance \\
+\hline
+\end{tabular}
+\caption{Operational characteristics and computational complexity of Python list operations.}
+\label{tab:list_complexity}
+\end{table}
+
+\section{Python / Scientific Computing Lab}
+
+The following production script implements a pure-Python Matrix Engine that validates rectangular dimensions, computes transpositions, performs matrix multiplication, and calculates the Gram Matrix ($X^T X$) used in linear regression normal equations.
+
+\begin{lstlisting}[language=Python]
+from typing import List
+
+def matrix_transpose(matrix: List[List[float]]) -> List[List[float]]:
+    """Computes the transpose A^T of an m x n matrix."""
+    if not matrix or not matrix[0]:
+        return []
+    m, n = len(matrix), len(matrix[0])
+    return [[matrix[r][c] for r in range(m)] for c in range(n)]
+
+def matrix_multiply(A: List[List[float]], B: List[List[float]]) -> List[List[float]]:
+    """
+    Computes matrix product C = A x B.
+    Validates inner dimension compatibility (cols(A) == rows(B)).
+    """
+    rows_A, cols_A = len(A), len(A[0])
+    rows_B, cols_B = len(B), len(B[0])
+
+    if cols_A != rows_B:
+        raise ValueError(f"Dimension mismatch: A has {cols_A} cols, B has {rows_B} rows.")
+
+    # Initialize zero matrix of dimensions rows_A x cols_B
+    C = [[0.0 for _ in range(cols_B)] for _ in range(rows_A)]
+
+    # 3-loop matrix multiplication
+    for i in range(rows_A):
+        for j in range(cols_B):
+            dot_sum = 0.0
+            for k in range(cols_A):
+                dot_sum += A[i][k] * B[k][j]
+            C[i][j] = round(dot_sum, 6)
+
+    return C
+
+def compute_gram_matrix(X: List[List[float]]) -> List[List[float]]:
+    """Computes the Gram Matrix G = X^T * X for feature matrix X."""
+    X_T = matrix_transpose(X)
+    return matrix_multiply(X_T, X)
+
+# Demonstration with a 3x2 feature matrix
+feature_matrix = [
+    [1.0, 2.0],
+    [1.0, 3.0],
+    [1.0, 5.0]
+]
+
+gram = compute_gram_matrix(feature_matrix)
+print("Gram Matrix (X^T * X):")
+for row in gram:
+    print(row)
+# Output:
+# [3.0, 10.0]
+# [10.0, 38.0]
+\end{lstlisting}
 
 \newpage
-\section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\section{Comprehensive Practice Problems}
+\textit{Detailed step-by-step solutions and distractor analyses are provided in the Appendix.}
+
+\subsection*{Part A: Computational \& Analytical Problems}
 
 \begin{enumerate}
-    \item \textbf{List Operations:} Start with \texttt{data = [15, 8, 42, 4, 23]}:
+    \item \textbf{Sequence Slicing, Step Algebra, and In-Place Slice Mutation:}
+    Given the list \texttt{seq = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]}:
     \begin{enumerate}
-        \item Append $16$ to the list.
-        \item Sort the list in ascending order using \texttt{.sort()}.
-        \item Reverse the sorted list.
+        \item State the slice expression that extracts all even-indexed elements in reverse order.
+        \item What is the exact state of \texttt{seq} after executing the slice assignment \texttt{seq[2:6] = [20, 30]}?
+        \item Does the length of \texttt{seq} change during slice assignment? Explain why or why not.
     \end{enumerate}
 
-    \item \textbf{Vector Euclidean Distance:} Given two 2D points $\mathbf{p} = [x_1, y_1]$ and $\mathbf{q} = [x_2, y_2]$, write a Python function or script to calculate the Euclidean distance:
-    $$d(\mathbf{p}, \mathbf{q}) = \sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2}$$
-    For $\mathbf{p} = [1, 2]$ and $\mathbf{q} = [4, 6]$.
+    \item \textbf{Reference Aliasing and Nested Container Mutation:}
+    Trace the following sequence of operations:
+    \begin{lstlisting}[language=Python]
+    row = [1, 2]
+    grid = [row] * 3
+    grid[0] = [99, 99]
+    grid[1][0] = 42
+    \end{lstlisting}
+    Determine the exact final value of \texttt{grid} and \texttt{row}, explaining the pointer references at each step.
 
-    \item \textbf{Matrix Transpose:} Write a Python script using nested \texttt{for} loops to compute the transpose $A^T$ of a $2 \times 3$ matrix:
-    $$A = \begin{bmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{bmatrix} \implies A^T = \begin{bmatrix} 1 & 4 \\ 2 & 5 \\ 3 & 6 \end{bmatrix}$$
+    \item \textbf{Analytical Dot Product and Cosine Similarity:}
+    Given two vectors $\mathbf{u} = [2, -1, 2]$ and $\mathbf{v} = [1, 2, 2]$:
+    \begin{enumerate}
+        \item Write a pure Python list comprehension with \texttt{sum()} to compute $\mathbf{u} \cdot \mathbf{v}$.
+        \item Compute the Euclidean norms $\|\mathbf{u}\|_2$ and $\|\mathbf{v}\|_2$.
+        \item Compute the cosine similarity $\cos(\theta) = \frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\|_2 \|\mathbf{v}\|_2}$.
+    \end{enumerate}
 
-    \item \textbf{Manual Selection Sort:} Implement the selection sort algorithm in Python to sort \texttt{arr = [64, 25, 12, 22, 11]} without using built-in \texttt{.sort()} or \texttt{sorted()}.
+    \item \textbf{Matrix Transpose via In-Place Swapping:}
+    For a square $n \times n$ matrix represented as a list of lists, write an algorithm that transposes the matrix \emph{in place} without allocating a second matrix. How many element swaps are performed as a function of $n$?
 
-    \item \textbf{Data Science Application (Feature Scaling / Min-Max Normalization):} In Machine Learning, feature values $x$ are scaled between $0$ and $1$ using:
-    $$x_{\text{scaled}} = \frac{x - x_{\min}}{x_{\max} - x_{\min}}$$
-    Given \texttt{features = [10, 20, 30, 40, 50]}, write a \texttt{for} loop to compute the min-max normalized list.
+    \item \textbf{Machine Learning Data Preprocessing: Min-Max Normalization:}
+    Given a dataset feature vector $\mathbf{x} = [12.0, 45.0, 67.0, 89.0, 23.0]$:
+    Write a Python function using list comprehensions that performs Min-Max feature normalization:
+    \begin{equation}
+    x_i' = \frac{x_i - \min(\mathbf{x})}{\max(\mathbf{x}) - \min(\mathbf{x})}
+    \end{equation}
+    Ensure the function handles the edge case where all values in $\mathbf{x}$ are identical.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions (Single Correct)}
+
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item \textbf{List Slicing and Negative Step Mechanics:}
+    Consider the following code snippet executed in Python 3:
+    \begin{lstlisting}[language=Python]
+    arr = [10, 20, 30, 40, 50]
+    sub = arr[3:1:-1]
+    \end{lstlisting}
+    What is the evaluated value of \texttt{sub}?
+    \begin{enumerate}
+        \item \texttt{[40, 30]}
+        \item \texttt{[40, 30, 20]}
+        \item \texttt{[30, 20]}
+        \item \texttt{[]}
+    \end{enumerate}
+
+    \item \textbf{In-Place Methods vs. Function Returns:}
+    Consider the following statements:
+    \begin{lstlisting}[language=Python]
+    a = [3, 1, 2]
+    b = a.sort()
+    c = sorted(a)
+    \end{lstlisting}
+    What are the values of \texttt{a}, \texttt{b}, and \texttt{c}?
+    \begin{enumerate}
+        \item \texttt{a = [1, 2, 3]}, \quad \texttt{b = None}, \quad \texttt{c = [1, 2, 3]}
+        \item \texttt{a = [3, 1, 2]}, \quad \texttt{b = [1, 2, 3]}, \quad \texttt{c = [1, 2, 3]}
+        \item \texttt{a = [1, 2, 3]}, \quad \texttt{b = [1, 2, 3]}, \quad \texttt{c = [1, 2, 3]}
+        \item \texttt{a = [3, 1, 2]}, \quad \texttt{b = None}, \quad \texttt{c = [1, 2, 3]}
+    \end{enumerate}
 \end{enumerate}

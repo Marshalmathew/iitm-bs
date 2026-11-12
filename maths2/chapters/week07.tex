@@ -1,134 +1,319 @@
 \chapter{Matrix Similarity, Affine Spaces, Norms \& Inner Products}
 
-Geometric intuition in high-dimensional space requires measuring lengths, distances, and angles between vectors. In this chapter, we explore \index{Matrix Similarity}\textbf{Matrix Similarity} (change of basis), \index{Affine Spaces}\textbf{Affine Spaces}, and formalize geometric measurement using \index{Norms}\textbf{Norms} and \index{Inner Products}\textbf{Inner Products}.
-
+Geometric intuition in high-dimensional machine learning relies on measuring lengths, distances, and angles between vectors. When coordinate systems rotate or deform, the numerical entries of a matrix change, but the underlying geometric transformation remains invariant—a duality formalized by \index{Matrix Similarity}\textbf{Matrix Similarity}. Moving beyond standard linear subspaces, real-world regression and support vector machines operate on shifted \index{Affine Spaces}\textbf{Affine Spaces}. Finally, \index{Inner Products}\textbf{Inner Products} and \index{Norms}\textbf{Norms} generalize Euclidean geometry, providing the foundational metrics governing optimization loss functions and regularization penalties.
 
 \vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Matrix Similarity and Change of Basis
-    \item Affine Subspaces and Mappings
-    \item Inner Products and Norms
+    \item \textbf{Target Competencies:} Test matrix similarity via characteristic polynomials, trace, and determinant invariants; distinguish vector subspaces from shifted affine flats; verify the three foundational axioms of general inner products; compute induced norms and angles via Cauchy-Schwarz; analyze geometric sparsity in $L_1$ (Lasso) vs. $L_2$ (Ridge) regularization.
+    \item \textbf{Prerequisites:} Vector spaces and subspaces (Week 3), basis and dimension (Week 4), linear transformations and coordinate change (Weeks 5 \& 6).
+    \item \textbf{Mathematical Notation:} Matrix similarity $B \sim A$ ($B = P^{-1} A P$); affine flat $\mathcal{A} = \mathbf{x}_0 + W$; inner product $\langle \mathbf{u}, \mathbf{v} \rangle$ or $\mathbf{u}^T Q \mathbf{v}$; induced norm $\|\mathbf{v}\|$; $L_p$ norms $\|\mathbf{v}\|_p$; cosine similarity $\cos(\theta)$.
 \end{itemize}
 \end{tcolorbox}
-\section{Matrix Similarity and Change of Basis}
 
-Two square matrices $A, B \in \mathbb{R}^{n \times n}$ are \index{Similar}\textbf{Similar} if they represent the exact same linear operator $T: V \to V$ under two different choices of basis.
+\section{Mathematical \& Theoretical Foundations}
 
-\begin{theorembox}{Matrix Similarity}
-Matrix $B$ is \index{similar}\textbf{similar} to $A$ (written $B \sim A$) if there exists an invertible change-of-basis matrix $P \in \mathbb{R}^{n \times n}$ such that:
-$$B = P^{-1} A P$$
-\textbf{Invariants under Similarity:} Similar matrices share the exact same:
+\subsection{Matrix Similarity and Invariant Operators}
+
+\begin{definitionbox}{Matrix Similarity}
+\index{Matrix Similarity}
+Two square matrices $A, B \in \mathbb{R}^{n \times n}$ are called \textbf{similar} (denoted $B \sim A$) if and only if there exists an invertible matrix $P \in \mathbb{R}^{n \times n}$ such that:
+\begin{equation}
+B = P^{-1} A P
+\end{equation}
+Similar matrices represent the \textbf{exact same abstract linear operator} $T: V \to V$ evaluated under two different choices of basis, where $P$ acts as the change-of-basis transition matrix.
+\end{definitionbox}
+
+\begin{theorembox}{Invariants Under Matrix Similarity}
+If $A$ and $B$ are similar ($B = P^{-1} A P$), they share identical algebraic invariants:
 \begin{enumerate}
-\item Determinant: $\det(B) = \det(A)$.
-\item Trace: $\trace(B) = \trace(A)$.
-\item Rank: $\rank(B) = \rank(A)$.
-\item Eigenvalues and characteristic polynomial.
+    \item \textbf{Identical Determinant:} $\det(B) = \det(P^{-1} A P) = \det(P^{-1})\det(A)\det(P) = \det(A)$.
+    \item \textbf{Identical Trace:} $\trace(B) = \trace(P^{-1} A P) = \trace(A P P^{-1}) = \trace(A)$.
+    \item \textbf{Identical Rank:} $\rank(B) = \rank(A)$.
+    \item \textbf{Identical Characteristic Polynomial \& Eigenvalues:}
+    \begin{equation*}
+    \det(B - \lambda I) = \det(P^{-1}(A - \lambda I)P) = \det(A - \lambda I)
+    \end{equation*}
 \end{enumerate}
 \end{theorembox}
 
-\begin{intuitionbox}{Similar Matrices = Same Transformation, Different Perspectives}
-If matrix $B$ is similar to matrix $A$, they are fundamentally doing the exact same thing to space! 
-\begin{itemize}
-    \item Imagine you are giving a robot directions. You might say ``move 2 meters North, 1 meter East'' (Standard Basis).
-    \item Your friend, standing at an angle, might say ``move 1 meter Forward, 2 meters Right'' (New Basis).
-    \item You are both describing the \index{exact same physical movement}\textbf{exact same physical movement}, just using different coordinate systems. 
-    \item The matrix $P$ translates between your languages. $B = P^{-1} A P$ means: translate to your friend's language ($P$), do the movement ($A$), and translate back ($P^{-1}$).
-\end{itemize}
-\end{intuitionbox}
+\subsection{Affine Subspaces and Mappings}
 
-\begin{videocard}{IITM BS Lecture: Equivalence \& Similarity of Matrices}{https://www.youtube.com/watch?v=ORWbVJ54hW8}
-Official lecture explaining change-of-basis transformations and similarity invariants.
-\end{videocard}
-
-\section{Affine Subspaces and Mappings}
-
-An \index{Affine Subspace}\textbf{Affine Subspace} (or Flat) is a translated vector subspace: $\mathcal{A} = \mathbf{x}_0 + W$, where $\mathbf{x}_0 \in V$ is a fixed translation point and $W \subseteq V$ is a vector subspace.
-
-\begin{definitionbox}{Affine Subspace vs Vector Subspace}
-\index{Affine Subspace vs Vector Subspace}
-Unlike vector subspaces, an affine subspace $\mathbf{x}_0 + W$ does \index{NOT}\textbf{NOT} need to pass through the origin $\mathbf{0}$ (unless $\mathbf{x}_0 \in W$).
-For example, lines and planes in $\mathbb{R}^3$ that do not pass through $(0,0,0)$ are affine subspaces.
+\begin{definitionbox}{Affine Subspace (Flat)}
+\index{Affine Subspace}
+Let $V$ be a vector space and $W \subseteq V$ a linear subspace. An \textbf{affine subspace} (or flat) $\mathcal{A} \subseteq V$ is a shifted copy of $W$ translated by a fixed vector $\mathbf{x}_0 \in V$:
+\begin{equation}
+\mathcal{A} = \mathbf{x}_0 + W = \left\{ \mathbf{x}_0 + \mathbf{w} \;\middle|\; \mathbf{w} \in W \right\}
+\end{equation}
+The dimension of the affine subspace is defined as $\dim(\mathcal{A}) = \dim(W)$.
+An affine subspace contains the origin $\mathbf{0}$ if and only if $\mathbf{x}_0 \in W$, in which case $\mathcal{A} = W$.
 \end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: Affine Subspaces \& Mappings}{https://www.youtube.com/watch?v=RUJInY6skG0}
-Official lecture contrasting vector subspaces with shifted affine spaces and hyperplanes.
-\end{videocard}
-
-\section{Inner Products and Norms}
-
-An \index{Inner Product}\textbf{Inner Product} $\langle \mathbf{u}, \mathbf{v} \rangle$ generalizes the dot product, providing a rigorous concept of length and angle for any vector space.
+\subsection{Axiomatic Inner Product Spaces and Induced Norms}
 
 \begin{definitionbox}{Inner Product Space Axioms}
-\index{Inner Product Space Axioms}
-An \index{Inner Product}\textbf{Inner Product} $\langle \cdot, \cdot \rangle : V \times V \to \mathbb{R}$ satisfies:
+\index{Inner Product}
+An \textbf{inner product} on a real vector space $V$ is a function $\langle \cdot, \cdot \rangle : V \times V \to \mathbb{R}$ satisfying three axioms for all $\mathbf{u}, \mathbf{v}, \mathbf{w} \in V$ and $c, d \in \mathbb{R}$:
 \begin{enumerate}
-    \item \textbf{Symmetry:} $\langle \mathbf{u}, \mathbf{v} \rangle = \langle \mathbf{v}, \mathbf{u} \rangle$.
-    \item \textbf{Linearity in first argument:} $\langle c\mathbf{u} + d\mathbf{v}, \mathbf{w} \rangle = c\langle \mathbf{u}, \mathbf{w} \rangle + d\langle \mathbf{v}, \mathbf{w} \rangle$.
-    \item \textbf{Positive Definiteness:} $\langle \mathbf{v}, \mathbf{v} \rangle \ge 0$, and $\langle \mathbf{v}, \mathbf{v} \rangle = 0 \iff \mathbf{v} = \mathbf{0}$.
+    \item \textbf{Symmetry:} $\langle \mathbf{u}, \mathbf{v} \rangle = \langle \mathbf{v}, \mathbf{u} \rangle$
+    \item \textbf{Bilinearity:} $\langle c\mathbf{u} + d\mathbf{v}, \mathbf{w} \rangle = c\langle \mathbf{u}, \mathbf{w} \rangle + d\langle \mathbf{v}, \mathbf{w} \rangle$
+    \item \textbf{Strict Positive Definiteness:} $\langle \mathbf{v}, \mathbf{v} \rangle \ge 0$ for all $\mathbf{v} \in V$, and $\langle \mathbf{v}, \mathbf{v} \rangle = 0 \iff \mathbf{v} = \mathbf{0}$.
 \end{enumerate}
-Every inner product defines an \index{Induced Norm}\textbf{Induced Norm}: $\|\mathbf{v}\| = \sqrt{\langle \mathbf{v}, \mathbf{v} \rangle}$.
+Every inner product induces a natural geometric \textbf{norm}:
+\begin{equation}
+\|\mathbf{v}\| = \sqrt{\langle \mathbf{v}, \mathbf{v} \rangle}
+\end{equation}
 \end{definitionbox}
 
-\begin{formulabox}{Cauchy-Schwarz Inequality \& Angle}
-For any inner product space:
-$$|\langle \mathbf{u}, \mathbf{v} \rangle| \le \|\mathbf{u}\| \|\mathbf{v}\|$$
-The angle $\theta$ between non-zero vectors $\mathbf{u}, \mathbf{v}$ is defined by:
-$$\cos(\theta) = \frac{\langle \mathbf{u}, \mathbf{v} \rangle}{\|\mathbf{u}\| \|\mathbf{v}\|}$$
-\end{formulabox}
+\begin{definitionbox}{General Weighted Inner Products via Metric Matrices}
+For $\mathbb{R}^n$, any inner product can be expressed as:
+\begin{equation}
+\langle \mathbf{u}, \mathbf{v} \rangle_Q = \mathbf{u}^T Q \mathbf{v}
+\end{equation}
+where $Q \in \mathbb{R}^{n \times n}$ is a \textbf{Symmetric Positive Definite (SPD)} matrix (all eigenvalues $\lambda_i > 0$).
+When $Q = I$, this reduces to the standard Euclidean dot product $\mathbf{u}^T \mathbf{v}$.
+\end{definitionbox}
 
-\textbf{Data Science Relevance:} $L_1$ norm (Manhattan distance, Lasso regularization), $L_2$ norm (Euclidean distance, Ridge regularization), and Cosine Similarity are core tools in clustering (K-Means), text retrieval, and model loss formulation!
+\section{Visual \& Geometric Intuition: Unit Balls and $L_p$ Geometry}
 
-\begin{lstlisting}[language=Python, caption=Data Science: Norms and Similarity]
+The geometry of an inner product or norm is completely characterized by its \textbf{unit ball}: $B_1 = \{\mathbf{x} \in \mathbb{R}^n \mid \|\mathbf{x}\| \le 1\}$. The geometric shape of the unit ball directly explains why $L_1$ regularization produces sparse feature weights in machine learning, while $L_2$ regularization produces small, non-zero distributed weights.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[>=stealth, scale=1.3]
+    % Axes
+    \draw[->, thick, gray!70] (-2.2,0) -- (2.2,0) node[right] {$w_1$};
+    \draw[->, thick, gray!70] (0,-2.2) -- (0,2.2) node[above] {$w_2$};
+
+    % L_infinity unit ball (Square)
+    \draw[thick, purple!70!black, dashed] (-1.5,-1.5) rectangle (1.5,1.5);
+    \node[purple!80!black, font=\small] at (1.6, 1.6) {$L_\infty \text{ Ball}$};
+
+    % L_2 unit ball (Circle)
+    \draw[ultra thick, blue!80!black] (0,0) circle (1.2cm);
+    \node[blue!80!black, font=\small] at (1.0, -1.0) {$L_2 \text{ Ball (Ridge)}$};
+
+    % L_1 unit ball (Diamond)
+    \draw[ultra thick, red!80!black, fill=red!10, fill opacity=0.3] (0,1.2) -- (1.2,0) -- (0,-1.2) -- (-1.2,0) -- cycle;
+    \node[red!80!black, font=\small] at (-1.3, 0.9) {$L_1 \text{ Ball (Lasso)}$};
+
+    % OLS Loss Contours (Ellipses centered at w*)
+    \draw[thick, forest, rotate around={35:(1.8, 1.6)}] (1.8, 1.6) ellipse (0.5cm and 0.25cm);
+    \draw[thick, forest, rotate around={35:(1.8, 1.6)}] (1.8, 1.6) ellipse (0.9cm and 0.45cm);
+    \draw[thick, forest, rotate around={35:(1.8, 1.6)}] (1.8, 1.6) ellipse (1.3cm and 0.65cm);
+    \filldraw[forest] (1.8, 1.6) circle (2pt) node[above right] {$\mathbf{w}^*$ (OLS)};
+
+    % Tangency point at the diamond tip
+    \filldraw[black] (0, 1.2) circle (2.5pt);
+    \node[draw=black, fill=yellow!20, rounded corners, font=\scriptsize, align=left] at (-2.3, -1.2) {
+        \textbf{Sparsity Mechanism:}\\
+        Loss contour hits the $L_1$\\
+        corner at $w_1 = 0$, driving\\
+        feature 1 strictly to zero!
+    };
+\end{tikzpicture}
+\caption{Comparison of $L_1$ (diamond), $L_2$ (circle), and $L_\infty$ (square) unit balls. The pointed corners of the $L_1$ ball along the coordinate axes cause loss contours to make contact at sparse solutions ($w_1 = 0$).}
+\label{fig:unit_balls_lp}
+\end{figure}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Rigorous Proof of the Cauchy-Schwarz Inequality}
+
+\begin{theorembox}{The Cauchy-Schwarz Inequality}
+\index{Cauchy-Schwarz Inequality}
+Let $V$ be any real inner product space. For all $\mathbf{u}, \mathbf{v} \in V$:
+\begin{equation}
+|\langle \mathbf{u}, \mathbf{v} \rangle| \le \|\mathbf{u}\| \|\mathbf{v}\|
+\end{equation}
+Equality holds if and only if $\mathbf{u}$ and $\mathbf{v}$ are linearly dependent.
+\end{theorembox}
+
+\begin{proof}
+If $\mathbf{v} = \mathbf{0}$, then $\langle \mathbf{u}, \mathbf{0} \rangle = 0$ and $\|\mathbf{0}\| = 0$, so both sides equal zero and the inequality holds trivially.
+Assume $\mathbf{v} \neq \mathbf{0}$. For any real scalar $t \in \mathbb{R}$, consider the vector $\mathbf{u} + t\mathbf{v}$. By the positive definiteness axiom of inner products, the squared norm must be non-negative:
+\begin{equation*}
+\|\mathbf{u} + t\mathbf{v}\|^2 = \langle \mathbf{u} + t\mathbf{v}, \mathbf{u} + t\mathbf{v} \rangle \ge 0 \quad \forall t \in \mathbb{R}
+\end{equation*}
+Expanding using symmetry and bilinearity:
+\begin{equation*}
+\langle \mathbf{u}, \mathbf{u} \rangle + 2t \langle \mathbf{u}, \mathbf{v} \rangle + t^2 \langle \mathbf{v}, \mathbf{v} \rangle \ge 0
+\end{equation*}
+Reordering as a quadratic polynomial in $t$:
+\begin{equation*}
+q(t) = a t^2 + b t + c \ge 0
+\end{equation*}
+where $a = \|\mathbf{v}\|^2 > 0$, $b = 2\langle \mathbf{u}, \mathbf{v} \rangle$, and $c = \|\mathbf{u}\|^2$.
+Since $a > 0$, $q(t)$ is a parabola opening upward. For $q(t) \ge 0$ to hold for \textbf{all} real $t$, the quadratic cannot possess two distinct real roots. Hence, its discriminant $\Delta = b^2 - 4ac$ must be non-positive:
+\begin{equation*}
+\Delta = (2\langle \mathbf{u}, \mathbf{v} \rangle)^2 - 4 \|\mathbf{v}\|^2 \|\mathbf{u}\|^2 \le 0
+\end{equation*}
+Dividing both sides by 4:
+\begin{equation*}
+\langle \mathbf{u}, \mathbf{v} \rangle^2 \le \|\mathbf{u}\|^2 \|\mathbf{v}\|^2
+\end{equation*}
+Taking the square root of both sides yields:
+\begin{equation*}
+|\langle \mathbf{u}, \mathbf{v} \rangle| \le \|\mathbf{u}\| \|\mathbf{v}\|
+\end{equation*}
+Equality $\Delta = 0$ occurs if and only if there exists a scalar $t_0$ such that $\|\mathbf{u} + t_0 \mathbf{v}\|^2 = 0 \iff \mathbf{u} = -t_0 \mathbf{v}$, meaning $\mathbf{u}$ and $\mathbf{v}$ are collinear.
+\end{proof}
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Trap 1: Assuming Identical Trace and Determinant Implies Matrix Similarity}
+While similar matrices always share the same trace, determinant, and eigenvalues, the converse is \textbf{false}. For example:
+\begin{equation*}
+A = \begin{bmatrix} 2 & 0 \\ 0 & 2 \end{bmatrix} \quad \text{and} \quad B = \begin{bmatrix} 2 & 1 \\ 0 & 2 \end{bmatrix}
+\end{equation*}
+Both matrices have $\trace = 4$ and $\det = 4$, with identical eigenvalues $\{2, 2\}$. However, $A = 2I$ is similar \textbf{only} to itself ($P^{-1}(2I)P = 2I \neq B$). Hence, $A$ and $B$ are not similar.
+\end{trapbox}
+
+\begin{trapbox}{Trap 2: Treating an Affine Subspace as a Vector Space}
+An affine flat $\mathcal{A} = \mathbf{x}_0 + W$ with $\mathbf{x}_0 \notin W$ is not a vector space. If $\mathbf{u}, \mathbf{v} \in \mathcal{A}$, their sum $\mathbf{u} + \mathbf{v} = (\mathbf{x}_0 + \mathbf{w}_1) + (\mathbf{x}_0 + \mathbf{w}_2) = 2\mathbf{x}_0 + (\mathbf{w}_1 + \mathbf{w}_2) \notin \mathcal{A}$ because the shift vector is doubled. Affine spaces are closed only under \textbf{affine combinations} $\sum \alpha_i \mathbf{x}_i$ where $\sum \alpha_i = 1$.
+\end{trapbox}
+
+\begin{trapbox}{Trap 3: Constructing an Inner Product with an Indefinite Matrix}
+The bilinear form $\langle \mathbf{u}, \mathbf{v} \rangle = \mathbf{u}^T Q \mathbf{v}$ defines a valid inner product if and only if $Q$ is strictly Symmetric Positive Definite (SPD). If $Q$ has any negative or zero eigenvalue, there exist non-zero vectors $\mathbf{v}$ such that $\mathbf{v}^T Q \mathbf{v} \le 0$, which destroys the positive definiteness axiom.
+\end{trapbox}
+
+\begin{trapbox}{Trap 4: Equating Cosine Similarity with Euclidean Distance}
+Cosine similarity measures the orientation angle $\cos(\theta)$ between two vectors, completely independent of their lengths. Two vectors $\mathbf{u} = [1, 1]^T$ and $\mathbf{v} = [1000, 1000]^T$ have identical direction ($\cos(\theta) = 1.0$), yet their Euclidean distance is massive ($\|\mathbf{u} - \mathbf{v}\| \approx 1412.8$). In document embeddings, cosine similarity evaluates topic alignment, whereas Euclidean distance evaluates document length differences.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2.8cm} p{2.4cm} p{3.0cm} p{2.2cm} p{3.4cm}}
+\toprule
+\textbf{Metric / Norm} & \textbf{Formula} & \textbf{Unit Ball Shape} & \textbf{Rotational Invariant?} & \textbf{Machine Learning Purpose} \\
+\midrule
+\textbf{$L_1$ Norm (Manhattan)} & $\sum_{i=1}^n |x_i|$ & Cross-polytope / Diamond & No & Lasso regression, feature selection, sparse coding \\
+\textbf{$L_2$ Norm (Euclidean)} & $\sqrt{\sum_{i=1}^n x_i^2}$ & Hypersphere / Circle & Yes & Ridge regression, weight decay, gradient stability \\
+\textbf{$L_\infty$ Norm (Chebyshev)} & $\max_{i} |x_i|$ & Hypercube / Square & No & Adversarial robust perturbation bounds ($\epsilon$-attacks) \\
+\textbf{Weighted Norm $\|x\|_Q$} & $\sqrt{\mathbf{x}^T Q \mathbf{x}}$ & Hyperellipsoid & No (Metric warped) & Mahalanobis distance, covariance whitening \\
+\textbf{Cosine Similarity} & $\frac{\mathbf{u}^T \mathbf{v}}{\|\mathbf{u}\|_2 \|\mathbf{v}\|_2}$ & Angular unit circle & Yes & NLP vector search, semantic embeddings \\
+\bottomrule
+\end{tabular}
+\caption{Comparison of geometric norms, unit ball topologies, and data science applications.}
+\label{tab:norms_metrics_comparison}
+\end{table}
+
+\section{Python / Scientific Computing Lab}
+
+The following scientific computing script demonstrates matrix similarity invariance testing, weighted inner product evaluation via positive definite matrices, and geometric comparison of $L_1$ vs. $L_2$ norms.
+
+\begin{lstlisting}[language=Python, caption={Python Lab: Matrix Similarity, Weighted Inner Products, and Norms}]
 import numpy as np
-from numpy.linalg import norm
 
-u = np.array([1, 2, 0])
-v = np.array([0, 1, 1])
+# 1. Invariants under Matrix Similarity: B = P^(-1) A P
+A = np.array([[1.0, 2.0],
+              [0.0, 3.0]])
+P = np.array([[2.0, 1.0],
+              [1.0, 1.0]])
+P_inv = np.linalg.inv(P)
+B = P_inv @ A @ P
 
-# L2 Norm (Euclidean distance)
-print("L2 Norm of u:", norm(u))
+print("Original Matrix A:\n", A)
+print("Similar Matrix B:\n", B)
+print(f"det(A) = {np.linalg.det(A):.2f}, det(B) = {np.linalg.det(B):.2f}")
+print(f"trace(A) = {np.trace(A):.2f}, trace(B) = {np.trace(B):.2f}")
+eig_A = np.sort(np.linalg.eigvals(A))
+eig_B = np.sort(np.linalg.eigvals(B))
+print(f"Eigenvalues of A: {eig_A}")
+print(f"Eigenvalues of B: {eig_B}")
+assert np.allclose(eig_A, eig_B), "Similarity invariance failed!"
 
-# Cosine Similarity
-cos_sim = np.dot(u, v) / (norm(u) * norm(v))
-print("Cosine Similarity:", cos_sim)
+# 2. Weighted Inner Product with SPD Metric Matrix
+# Q must be symmetric positive definite: all eigenvalues > 0
+Q = np.array([[2.0, 0.0],
+              [0.0, 5.0]])
+u = np.array([1.0, 2.0])
+v = np.array([3.0, -1.0])
+
+# Inner product: <u, v>_Q = u^T Q v
+inner_prod_Q = u @ Q @ v
+norm_u_Q = np.sqrt(u @ Q @ u)
+norm_v_Q = np.sqrt(v @ Q @ v)
+cos_theta_Q = inner_prod_Q / (norm_u_Q * norm_v_Q)
+
+print(f"\nWeighted Inner Product <u, v>_Q: {inner_prod_Q}")
+print(f"Induced Norm ||u||_Q: {norm_u_Q:.4f}")
+print(f"Weighted Cosine Similarity: {cos_theta_Q:.4f}")
+
+# 3. L1 vs L2 Norm and Cosine Similarity in High Dimensions
+np.random.seed(42)
+d1 = np.array([1.0, 2.0, 0.0, 2.0])
+d2 = np.array([0.0, 1.0, 1.0, 1.0])
+
+l1_norm = np.linalg.norm(d1, ord=1)
+l2_norm = np.linalg.norm(d1, ord=2)
+cos_sim = np.dot(d1, d2) / (np.linalg.norm(d1) * np.linalg.norm(d2))
+
+print(f"\nDocument 1 L1 Norm (Lasso): {l1_norm:.2f}")
+print(f"Document 1 L2 Norm (Ridge): {l2_norm:.2f}")
+print(f"Cosine Similarity (d1, d2): {cos_sim:.4f}")
 \end{lstlisting}
-
-\begin{videocard}{IITM BS Lecture: Lengths, Angles \& Inner Products}{https://www.youtube.com/watch?v=TtQ6AQUlwl0}
-Official lecture deriving lengths, unit vectors $\hat{\mathbf{v}} = \frac{\mathbf{v}}{\|\mathbf{v}\|}$, and Cauchy-Schwarz inequality.
-\end{videocard}
-
-\begin{videocard}{IITM BS Lecture: Inner Products and Norms on a Vector Space}{https://www.youtube.com/watch?v=HH2Md3dBlq4}
-Official lecture introducing weighted inner products $\langle \mathbf{u}, \mathbf{v} \rangle_Q = \mathbf{u}^T Q \mathbf{v}$ with positive-definite $Q$.
-\end{videocard}
 
 \newpage
 \section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\textit{Detailed step-by-step solutions and distractor rationales are available in the Appendix.}
 
+\subsection*{Part A: Computational \& Analytical Problems}
 \begin{enumerate}
 \item \textbf{Matrix Similarity Check:} Given $A = \begin{bmatrix} 1 & 2 \\ 0 & 3 \end{bmatrix}$ and $B = \begin{bmatrix} 3 & 0 \\ 1 & 1 \end{bmatrix}$:
-    \begin{enumerate}
-        \item Compute $\det(A)$ and $\det(B)$.
-        \item Compute $\trace(A)$ and $\trace(B)$.
-        \item Are $A$ and $B$ similar matrices?
-    \end{enumerate}
+\begin{enumerate}
+    \item Compute the determinants $\det(A)$ and $\det(B)$.
+    \item Compute the traces $\trace(A)$ and $\trace(B)$.
+    \item Determine whether $A$ and $B$ are similar matrices.
+\end{enumerate}
 
-\item \textbf{Weighted Inner Product:} Define a weighted inner product on $\mathbb{R}^2$ by $\langle \mathbf{u}, \mathbf{v} \rangle_Q = 2 u_1 v_1 + 5 u_2 v_2$.
-    \begin{enumerate}
-        \item Compute $\left\langle \begin{bmatrix} 1 \\ 2 \end{bmatrix}, \begin{bmatrix} 3 \\ -1 \end{bmatrix} \right\rangle_Q$.
-        \item Compute the induced norm $\left\| \begin{bmatrix} 1 \\ 2 \end{bmatrix} \right\|_Q$.
-    \end{enumerate}
+\item \textbf{Weighted Inner Product Evaluation:} Define a weighted inner product on $\mathbb{R}^2$ by $\langle \mathbf{u}, \mathbf{v} \rangle_Q = 2 u_1 v_1 + 5 u_2 v_2$.
+\begin{enumerate}
+    \item Compute $\left\langle \begin{bmatrix} 1 \\ 2 \end{bmatrix}, \begin{bmatrix} 3 \\ -1 \end{bmatrix} \right\rangle_Q$.
+    \item Compute the induced norm $\left\| \begin{bmatrix} 1 \\ 2 \end{bmatrix} \right\|_Q$.
+\end{enumerate}
 
-\item \textbf{Cosine Similarity:} In natural language processing, word embeddings for two documents are:
-    $$\mathbf{d}_1 = \begin{bmatrix} 1 \\ 2 \\ 0 \\ 2 \end{bmatrix}, \quad \mathbf{d}_2 = \begin{bmatrix} 0 \\ 1 & 1 \\ 1 \end{bmatrix}$$
-    Compute the Cosine Similarity $\cos(\theta) = \frac{\mathbf{d}_1 \cdot \mathbf{d}_2}{\|\mathbf{d}_1\| \|\mathbf{d}_2\|}$.
+\item \textbf{Cosine Similarity in NLP:} Word embedding representations for two documents in a 4-dimensional vocabulary space are:
+\begin{equation*}
+\mathbf{d}_1 = \begin{bmatrix} 1 \\ 2 \\ 0 \\ 2 \end{bmatrix}, \quad \mathbf{d}_2 = \begin{bmatrix} 0 \\ 1 \\ 1 \\ 1 \end{bmatrix}
+\end{equation*}
+Compute the Cosine Similarity $\cos(\theta) = \frac{\mathbf{d}_1 \cdot \mathbf{d}_2}{\|\mathbf{d}_1\|_2 \|\mathbf{d}_2\|_2}$.
 
-\item \textbf{Cauchy-Schwarz Verification:} For $\mathbf{u} = \begin{bmatrix} 3 \\ 4 \end{bmatrix}$ and $\mathbf{v} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$ in standard $\mathbb{R}^2$, verify that $|\mathbf{u} \cdot \mathbf{v}| \le \|\mathbf{u}\| \|\mathbf{v}\|$.
+\item \textbf{Cauchy-Schwarz Verification:} For $\mathbf{u} = \begin{bmatrix} 3 \\ 4 \end{bmatrix}$ and $\mathbf{v} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$ under the standard Euclidean dot product in $\mathbb{R}^2$:
+\begin{enumerate}
+    \item Calculate $|\mathbf{u} \cdot \mathbf{v}|$ and $\|\mathbf{u}\|_2 \|\mathbf{v}\|_2$.
+    \item Verify that $|\mathbf{u} \cdot \mathbf{v}| \le \|\mathbf{u}\|_2 \|\mathbf{v}\|_2$, and state when strict equality holds.
+\end{enumerate}
 
-\item \textbf{Data Science Application ($L_1$ vs $L_2$ Norm Regularization):} A weights vector in a sparse ML model is $\mathbf{w} = \begin{bmatrix} 3 \\ -4 \\ 0 \\ 12 \end{bmatrix}$.
-    \begin{enumerate}
-        \item Calculate the $L_1$ norm $\|\mathbf{w}\|_1 = \sum |w_i|$ (Lasso penalty).
-        \item Calculate the $L_2$ norm $\|\mathbf{w}\|_2 = \sqrt{\sum w_i^2}$ (Ridge penalty).
-    \end{enumerate}
+\item \textbf{Data Science Application ($L_1$ vs. $L_2$ Regularization Penalties):} A model weight vector in a sparse machine learning model is:
+\begin{equation*}
+\mathbf{w} = \begin{bmatrix} 3 \\ -4 \\ 0 \\ 12 \end{bmatrix}
+\end{equation*}
+\begin{enumerate}
+    \item Calculate the $L_1$ norm $\|\mathbf{w}\|_1 = \sum_{i=1}^4 |w_i|$ (Lasso penalty).
+    \item Calculate the $L_2$ norm $\|\mathbf{w}\|_2 = \sqrt{\sum_{i=1}^4 w_i^2}$ (Ridge penalty).
+\end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions}
+\begin{enumerate}
+\setcounter{enumi}{5}
+\item \textbf{Similarity Invariants and Diagonalizability:} Suppose $M_1 = \begin{bmatrix} 4 & 0 \\ 0 & 4 \end{bmatrix}$ and $M_2 = \begin{bmatrix} 4 & 1 \\ 0 & 4 \end{bmatrix}$. Which of the following statements is mathematically accurate?
+\begin{enumerate}
+    \item $M_1$ and $M_2$ are similar because $\det(M_1) = \det(M_2) = 16$ and $\trace(M_1) = \trace(M_2) = 8$.
+    \item $M_1$ and $M_2$ are not similar because $M_1 = 4I$ is similar only to itself, while $M_2$ is defective (not diagonalizable).
+    \item $M_1$ and $M_2$ are similar because both have eigenvalues $\lambda_1 = \lambda_2 = 4$.
+    \item $M_1$ and $M_2$ represent the same linear operator under an orthogonal rotation.
+\end{enumerate}
+
+\item \textbf{Axioms of Valid Inner Products via Matrix Forms:} Consider the bilinear mapping $\langle \mathbf{u}, \mathbf{v} \rangle = \mathbf{u}^T Q \mathbf{v}$ on $\mathbb{R}^2$. Which of the following matrices $Q$ defines a mathematically \textbf{valid inner product}?
+\begin{enumerate}
+    \item $Q = \begin{bmatrix} 2 & 1 \\ 1 & -3 \end{bmatrix}$
+    \item $Q = \begin{bmatrix} 1 & 3 \\ 0 & 2 \end{bmatrix}$
+    \item $Q = \begin{bmatrix} 4 & 1 \\ 1 & 3 \end{bmatrix}$
+    \item $Q = \begin{bmatrix} 0 & 0 \\ 0 & 5 \end{bmatrix}$
+\end{enumerate}
 \end{enumerate}

@@ -1,33 +1,43 @@
 \chapter{Functions of Continuous RVs, Expectations \& Mixed Distributions}
 
-When we apply a mathematical function $Y = g(X)$ to a continuous random variable $X$, its probability density changes. In this chapter, we master the \textbf{CDF/PDF Methods for Transformations of Continuous RVs}, \textbf{Continuous Expectation ($\E[g(X)]$)}, and \textbf{Joint Discrete-Continuous Distributions}.
-
+When we apply a mathematical mapping $Y = g(X)$ to a continuous feature $X$---such as logarithmic feature scaling, squaring signals, or transforming uniform pseudo-random numbers into arbitrary target distributions---the probability density is stretched, compressed, and warped by the derivative of the transformation. In this chapter, we master the \textbf{CDF Transformation Method}, the \textbf{Change-of-Variables (Jacobian) Formula}, \textbf{Continuous LOTUS Expectations}, and \textbf{Joint Discrete-Continuous (Mixed) Distributions} that form the mathematical bedrock of generative mixture models.
 
 \vspace{0.5cm}
 \begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
 \begin{itemize}
-    \item Transformations of Continuous Random Variables
-    \item Expectation and Variance of Continuous RVs
-    \item Joint Distributions of Discrete and Continuous RVs
+    \item Transforming continuous random variables via the universal CDF technique.
+    \item The Change-of-Variables formula and the critical role of the Jacobian derivative $\left|\frac{dx}{dy}\right|$.
+    \item Multi-branch transformations for non-monotonic mappings (e.g., $Y = X^2$).
+    \item Evaluating continuous moments via the Law of the Unconscious Statistician (LOTUS).
+    \item Joint discrete-continuous distributions and Gaussian Mixture Models (GMMs).
+    \item Crucial distinction: Mixture distributions vs. Sums of independent random variables.
 \end{itemize}
 \end{tcolorbox}
+
 \section{Transformations of Continuous Random Variables}
 
-To determine the PDF of $Y = g(X)$ given $f_X(x)$:
+To find the probability density function $f_Y(y)$ of a transformed variable $Y = g(X)$ given the original PDF $f_X(x)$, there are two primary methods:
 
-\begin{formulabox}{The CDF Method for Transformations}
-1. Compute the CDF of $Y$:
-   $$F_Y(y) = \P(Y \le y) = \P(g(X) \le y) = \int_{\{x \mid g(x) \le y\}} f_X(x) \, dx$$
-2. Differentiate $F_Y(y)$ with respect to $y$ to get $f_Y(y) = \frac{d}{dy} F_Y(y)$.
+\begin{formulabox}{Method 1: The Universal CDF Method}
+The CDF method works for \textbf{any} transformation (monotonic or non-monotonic):
+\begin{enumerate}
+    \item Express the cumulative probability of $Y$ in terms of events on $X$:
+    $$F_Y(y) = \P(Y \le y) = \P(g(X) \le y) = \int_{\{x \colon g(x) \le y\}} f_X(x) \, dx$$
+    \item Differentiate $F_Y(y)$ with respect to $y$ by the Fundamental Theorem of Calculus:
+    $$f_Y(y) = \frac{d}{dy} F_Y(y)$$
+\end{enumerate}
 \end{formulabox}
 
-\begin{theorembox}{Change of Variables Formula for Monotonic $g(X)$}
-If $g(x)$ is strictly monotonic and differentiable with inverse $x = g^{-1}(y)$:
-$$f_Y(y) = f_X(g^{-1}(y)) \cdot \left| \frac{d}{dy} g^{-1}(y) \right|$$
+\begin{theorembox}{Method 2: Change of Variables Formula (Strictly Monotonic Functions)}
+If $g(x)$ is strictly monotonic (strictly increasing or strictly decreasing) and differentiable over the support of $X$, then the mapping is one-to-one with unique inverse $x = g^{-1}(y)$. The density of $Y$ is:
+$$f_Y(y) = f_X(g^{-1}(y)) \cdot \left| \frac{d}{dy} g^{-1}(y) \right| = \frac{f_X(x)}{\left| g'(x) \right|} \Bigg|_{x = g^{-1}(y)}$$
+The absolute value term $\left| \frac{dx}{dy} \right|$ is the 1D \index{Jacobian}\textbf{Jacobian}, ensuring that probability density remains strictly non-negative even when the transformation function is decreasing.
 \end{theorembox}
 
-\begin{examplebox}{Linear Transformation $Y = aX + b$}
-If $X \sim \mathcal{N}(\mu, \sigma^2)$, then $Y = aX + b \sim \mathcal{N}(a\mu + b, a^2 \sigma^2)$.
+\begin{examplebox}{Linear Transformation $Y = aX + b$ ($a \neq 0$)}
+Let $X$ have density $f_X(x)$. Here, $y = ax + b \implies x = \frac{y - b}{a}$, and $\frac{dx}{dy} = \frac{1}{a}$.
+$$f_Y(y) = f_X\left(\frac{y - b}{a}\right) \cdot \left| \frac{1}{a} \right| = \frac{1}{|a|} f_X\left(\frac{y - b}{a}\right)$$
+In particular, if $X \sim \mathcal{N}(\mu, \sigma^2)$, then $Y = aX + b \sim \mathcal{N}(a\mu + b, a^2 \sigma^2)$.
 \end{examplebox}
 
 \begin{videocard}{IITM BS Lecture: Functions of Continuous Random Variables (CDF \& PDF Methods)}{https://www.youtube.com/watch?v=EJjvm7rXswU}
@@ -36,13 +46,14 @@ Official lecture deriving PDFs of transformed continuous random variables using 
 
 \section{Expectation and Variance of Continuous RVs}
 
-\begin{definitionbox}{Expectation $\E[g(X)]$ (LOTUS - Law of the Unconscious Statistician)}
-For a continuous random variable $X$ with PDF $f_X(x)$:
+\begin{definitionbox}{Expectation $\E[g(X)]$ via Continuous LOTUS}
+For a continuous random variable $X$ with PDF $f_X(x)$, the expected value of any real-valued function $g(X)$ is computed directly without first deriving the distribution of $g(X)$:
 $$\E[g(X)] = \int_{-\infty}^{\infty} g(x) f_X(x) \, dx$$
-Special cases:
+provided the integral converges absolutely: $\int_{-\infty}^{\infty} |g(x)| f_X(x) \, dx < \infty$.
 \begin{itemize}
-    \item Mean: $\mu = \E[X] = \int_{-\infty}^{\infty} x f_X(x) \, dx$.
-    \item Variance: $\sigma^2 = \Var(X) = \E[(X - \mu)^2] = \E[X^2] - (\E[X])^2$.
+    \item \textbf{Mean (First Moment):} $\mu = \E[X] = \int_{-\infty}^{\infty} x f_X(x) \, dx$.
+    \item \textbf{Second Moment:} $\E[X^2] = \int_{-\infty}^{\infty} x^2 f_X(x) \, dx$.
+    \item \textbf{Variance:} $\sigma^2 = \Var(X) = \E[(X - \mu)^2] = \E[X^2] - (\E[X])^2$.
 \end{itemize}
 \end{definitionbox}
 
@@ -52,47 +63,105 @@ Official lecture computing continuous means, variances, and applying LOTUS.
 
 \section{Joint Distributions of Discrete and Continuous RVs}
 
-\begin{intuitionbox}{Gaussian Mixtures}
-If you plot the heights of all adults in a city, you get a strange, wide curve that isn't quite Normal. Why? Because you are mixing two different continuous distributions! Heights are heavily dependent on the discrete variable $N \in \{\text{Male}, \text{Female}\}$. The overall density $f_X(x)$ is a \textbf{Mixture} of the two conditional PDFs, weighted by the percentage of males and females in the city.
+\begin{intuitionbox}{Gaussian Mixtures as Latent Cluster Generators}
+In customer segmentation or speech recognition, data points do not originate from a single Gaussian bell curve. Instead, each observation first selects an underlying latent cluster $N \in \{1, 2, \dots, K\}$ with categorical probability $\pi_k$. Conditional on that cluster, the continuous feature is drawn from a cluster-specific normal distribution $\mathcal{N}(\mu_k, \sigma_k^2)$. The overall observed data density is a weighted blend (mixture) of these individual bells!
 \end{intuitionbox}
 
-\begin{lstlisting}[language=Python, caption=Data Science: Gaussian Mixture Sampling]
+\begin{lstlisting}[language=Python, caption=Data Science: Simulating and Visualizing a Gaussian Mixture Model]
 import numpy as np
 
-# Simulate a mixed distribution
-n_samples = 10000
+# Simulating a two-component Gaussian Mixture Model (GMM)
+n_samples = 10_000
+weights = [0.70, 0.30] # 70% Cluster 0 (Normal transactions), 30% Cluster 1 (Outliers)
 
-# 1. Sample the discrete variable (Male=0, Female=1)
-# 48% Male, 52% Female
-N = np.random.choice([0, 1], size=n_samples, p=[0.48, 0.52])
+# 1. Sample discrete component labels
+cluster_labels = np.random.choice([0, 1], size=n_samples, p=weights)
 
-# 2. Sample the continuous variable given N
-heights = np.where(N == 0,
-                   np.random.normal(loc=175, scale=7, size=n_samples), # Males
-                   np.random.normal(loc=162, scale=6, size=n_samples)) # Females
+# 2. Sample continuous amounts conditionally
+amounts = np.where(
+    cluster_labels == 0,
+    np.random.normal(loc=50.0, scale=10.0, size=n_samples),   # Cluster 0: N(50, 100)
+    np.random.normal(loc=250.0, scale=40.0, size=n_samples)   # Cluster 1: N(250, 1600)
+)
+
+print(f"Overall Mixed Mean: ${amounts.mean():.2f}")
+print(f"Overall Mixed StdDev: ${amounts.std():.2f}")
 \end{lstlisting}
 
-In many practical machine learning problems (e.g. classification), we observe a discrete class label $Y \in \{0, 1\}$ alongside continuous feature vector $X \in \mathbb{R}$.
-
-\begin{definitionbox}{Joint Discrete-Continuous PMF/PDF}
-\index{Joint Discrete-Continuous PMF/PDF}
-Let $N$ be a discrete RV ($p_N(n)$) and $X$ be a continuous RV ($f_X(x)$).
+\begin{definitionbox}{Joint Discrete-Continuous Modeling}
+Let $N$ be a discrete random variable taking values in $\{1, \dots, K\}$ with PMF $p_N(n)$, and let $X$ be a continuous random variable.
 \begin{itemize}
-    \item \textbf{Conditional PDF of $X$ given $N=n$:} $f_{X \mid N}(x \mid n) = \frac{f_{X, N}(x, n)}{p_N(n)}$.
-    \item \textbf{Law of Total Probability:}
+    \item \textbf{Conditional PDF of $X$ given $N=n$:} $f_{X|N}(x \mid n)$.
+    \item \textbf{Marginal PDF of $X$ (Continuous Law of Total Probability):}
+    $$f_X(x) = \sum_{n} f_{X|N}(x \mid n) \cdot p_N(n)$$
+    \item \textbf{Posterior Probability of Discrete Class given Continuous Evidence (Bayes' Rule):}
+    $$\P(N = n \mid X = x) = \frac{f_{X|N}(x \mid n) \cdot p_N(n)}{f_X(x)} = \frac{f_{X|N}(x \mid n) \cdot p_N(n)}{\sum_{k} f_{X|N}(x \mid k) \cdot p_N(k)}$$
 \end{itemize}
-  $$f_X(x) = \sum_{n} f_{X \mid N}(x \mid n) \cdot p_N(n)$$
 \end{definitionbox}
-
-\textbf{Data Science Relevance:} The Law of Total Probability for mixed distributions forms the mathematical backbone of \index{Gaussian Mixture Models (GMM)}\textbf{Gaussian Mixture Models (GMM)} and generative classification models (Linear Discriminant Analysis)!
 
 \begin{videocard}{IITM BS Lecture: Joint Distribution of Discrete and Continuous RVs}{https://www.youtube.com/watch?v=s_VmvOWnPWs}
 Official lecture modeling mixed discrete-continuous pairs and computing marginal densities.
 \end{videocard}
 
+\section{Exam Gotchas \& Cognitive Traps}
+
+\begin{trapbox}{Forgetting the Absolute Value of the Derivative}
+\textbf{The Trap:} Writing $f_Y(y) = f_X(g^{-1}(y)) \frac{dx}{dy}$ when the mapping $g(x)$ is decreasing.
+
+\textbf{The Reality:} If $g(x)$ is decreasing, $\frac{dx}{dy}$ is strictly negative. Dropping the absolute value produces a \textbf{negative probability density}, which is a catastrophic exam blunder!
+For instance, consider $X \sim \text{Uniform}(0, 1)$ and $Y = -X$. Here $x = -y$, so $\frac{dx}{dy} = -1$.
+$$f_Y(y) = f_X(-y) \cdot |-1| = 1 \cdot 1 = 1 \quad \text{for } y \in [-1, 0]$$
+The density is positive 1, not $-1$!
+\end{trapbox}
+
+\begin{trapbox}{Non-Monotonic Transformations Require Branch Summation}
+\textbf{The Trap:} Directly using $f_Y(y) = f_X(\sqrt{y})\frac{1}{2\sqrt{y}}$ for $Y = X^2$ when the support of $X$ contains both positive and negative values.
+
+\textbf{The Reality:} The function $y = x^2$ is not one-to-one; both $x = +\sqrt{y}$ and $x = -\sqrt{y}$ map to the same $y$. One \textbf{must sum over all inverse branches}:
+$$F_Y(y) = \P(X^2 \le y) = \P(-\sqrt{y} \le X \le \sqrt{y}) = F_X(\sqrt{y}) - F_X(-\sqrt{y})$$
+Differentiating with respect to $y$ gives:
+$$f_Y(y) = \frac{1}{2\sqrt{y}} \left[ f_X(\sqrt{y}) + f_X(-\sqrt{y}) \right] \quad \text{for } y > 0$$
+Only when $X$ is strictly non-negative does the second branch vanish.
+\end{trapbox}
+
+\begin{trapbox}{Mixture Distribution vs. Sum of Random Variables}
+\textbf{The Trap:} Confusing a Gaussian Mixture Model $X \sim 0.5 \mathcal{N}(0, 1) + 0.5 \mathcal{N}(10, 1)$ with the sum of two independent Gaussians $S = 0.5 X_1 + 0.5 X_2$.
+
+\textbf{The Reality:}
+\begin{itemize}
+    \item \textbf{A Mixture} is an \textbf{OR} choice: you pick a coin, flip it, and draw from either the first bell OR the second bell. The resulting distribution is \textbf{bimodal} with two separate humps at 0 and 10!
+    \item \textbf{A Sum} is an \textbf{AND} convolution: you sample from both curves and add their values. The sum of two Gaussians is \textbf{always unimodal Gaussian} centered at the average mean: $S \sim \mathcal{N}(5, 0.5)$.
+\end{itemize}
+\end{trapbox}
+
+\section{Comparative Synthesis Matrix}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{3.2cm}p{3.8cm}p{3.8cm}p{3.5cm}}
+\toprule
+\textbf{Dimension} & \textbf{CDF Method} & \textbf{Change-of-Variables (Jacobian)} & \textbf{Mixture Density} \\
+\midrule
+\textbf{Core Mechanism} & $F_Y(y) = \P(g(X) \le y) \to f_Y = F_Y'$ & $f_Y(y) = f_X(g^{-1}(y)) \left|\frac{dx}{dy}\right|$ & $f_X(x) = \sum_k w_k f_k(x)$ \\
+\addlinespace
+\textbf{Monotonicity Requirement} & None (works for any arbitrary function) & \textbf{Must be strictly monotonic} (or partitioned into monotonic branches) & Discrete mixing weights $w_k \ge 0, \sum w_k = 1$ \\
+\addlinespace
+\textbf{Derivative Sign Handling} & Automatic via integral limits & Requires explicit absolute value $\left|\frac{dx}{dy}\right|$ & Linear combination of valid densities \\
+\addlinespace
+\textbf{Shape Preservation} & Can radically alter support and modality & Warps curve but preserves topological connectivity & Produces multimodal complex densities \\
+\addlinespace
+\textbf{Data Science Role} & Generating inverse-transform pseudo-random numbers & Normalizing Flows in generative deep learning & Clustering and density estimation (GMM) \\
+\bottomrule
+\end{tabular}
+\caption{Comparison of Continuous Transformation Techniques and Mixture Models.}
+\end{table}
+
 \newpage
 \section{Practice Exercises}
 \textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\subsection*{Part A: Analytical \& Computational Problems}
 
 \begin{enumerate}
 \item \textbf{CDF Transformation Method:} Let $X \sim \text{Uniform}(0, 1)$ with $f_X(x) = 1$ for $x \in (0, 1)$. Find the PDF $f_Y(y)$ of $Y = -\ln(X)$ for $y > 0$. Identify the distribution of $Y$.
@@ -110,4 +179,26 @@ Official lecture modeling mixed discrete-continuous pairs and computing marginal
     \item Fraud distribution: $X \mid N=1 \sim \mathcal{N}(\mu_1 = 300, \sigma_1^2 = 400)$.
 \end{itemize}
     Write the overall marginal PDF expression $f_X(x)$ for transaction amounts across all customers.
+\end{enumerate}
+
+\subsection*{Part B: Conceptual Diagnostic Traps (Exam Gotchas)}
+
+\begin{enumerate}[resume]
+\item \textbf{Diagnostic Trap (Non-Monotonic Transformation $Y = X^2$):}
+Let $X \sim \mathcal{N}(0, 1)$ be a standard normal random variable with symmetric density $f_X(x) = \frac{1}{\sqrt{2\pi}} e^{-x^2/2}$. Define $Y = X^2$. For $y > 0$, which of the following expressions correctly gives the PDF $f_Y(y)$?
+\begin{enumerate}
+    \item $f_Y(y) = \frac{1}{\sqrt{2\pi}} e^{-y/2} \cdot \frac{1}{2\sqrt{y}}$
+    \item $f_Y(y) = \frac{1}{\sqrt{2\pi y}} e^{-y/2}$
+    \item $f_Y(y) = \frac{1}{2\sqrt{y}} \left[ f_X(\sqrt{y}) - f_X(-\sqrt{y}) \right] = 0$
+    \item $f_Y(y) = 2 \cdot f_X(y) = \frac{2}{\sqrt{2\pi}} e^{-y^2/2}$
+\end{enumerate}
+
+\item \textbf{Diagnostic Trap (Gaussian Mixture vs. Sum of Independent Gaussians):}
+Consider two independent normal variables $X_1 \sim \mathcal{N}(-10, 1)$ and $X_2 \sim \mathcal{N}(10, 1)$. Model A defines $S = 0.5 X_1 + 0.5 X_2$. Model B defines a mixture $M$ where with probability $0.5$ an observation is drawn from $\mathcal{N}(-10, 1)$ and with probability $0.5$ it is drawn from $\mathcal{N}(10, 1)$. Which of the following statements is strictly correct?
+\begin{enumerate}
+    \item Model A and Model B have identical probability density functions.
+    \item Model A has a bimodal distribution with peaks at $-10$ and $10$, whereas Model B is unimodal.
+    \item Model A has a unimodal Gaussian distribution centered at $0$, whereas Model B has a bimodal distribution with two distinct peaks at $-10$ and $10$.
+    \item The variance of Model A is strictly greater than the variance of Model B.
+\end{enumerate}
 \end{enumerate}

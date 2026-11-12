@@ -1,47 +1,63 @@
 \chapter{Bayesian Estimation: Prior, Posterior, MAP \& Bayes Risk}
 
-While Frequentist statistics treats parameters $\theta$ as fixed unknown constants, \index{Bayesian Statistics}\textbf{Bayesian Statistics} treats $\theta$ as a random variable with its own probability distribution. In this chapter, we master \index{Prior Distributions}\textbf{Prior Distributions}, \index{Bayes' Rule for Parameters}\textbf{Bayes' Rule for Parameters}, \index{Posterior Distributions}\textbf{Posterior Distributions}, \index{Maximum A Posteriori (MAP)}\textbf{Maximum A Posteriori (MAP)} estimation, and \index{Bayes Expected Loss/Risk}\textbf{Bayes Expected Loss/Risk}.
-
+While Frequentist statistics treats unknown parameters $\theta$ as fixed, non-random physical constants to be uncovered via repeated sampling, \index{Bayesian Statistics}\textbf{Bayesian Statistics} treats $\theta$ as a random variable endowed with a probability distribution that quantifies subjective degrees of belief and uncertainty. In this chapter, we master \index{Prior Distributions}\textbf{Prior Distributions}, \index{Bayes' Rule for Parameters}\textbf{Bayes' Rule for Parameters}, \index{Conjugate Updating}\textbf{Conjugate Updating}, \index{Maximum A Posteriori (MAP)}\textbf{Maximum A Posteriori (MAP)} estimation, and the decision-theoretic minimization of \index{Bayes Risk}\textbf{Bayes Risk} under distinct loss functions.
 
 \vspace{0.5cm}
 \begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
 \begin{itemize}
-    \item The Bayesian Framework and Bayes' Rule for Parameters
-    \item Point Estimators: MAP and Posterior Mean
+    \item The Bayesian paradigm: combining prior knowledge $\pi(\theta)$ with data likelihood $L(\theta)$ to form the posterior $f(\theta \mid \mathbf{x})$.
+    \item Closed-form conjugate updates: Beta-Binomial, Normal-Normal, and Gamma-Poisson.
+    \item Bayesian point estimators: Posterior Mean, Posterior Median, and Posterior Mode (MAP).
+    \item Decision theory and loss functions: how Squared Error Loss, Absolute Error Loss, and 0-1 Loss derive unique optimal estimators.
+    \item Equivalence of MAP estimation to $L_1$ (Lasso) and $L_2$ (Ridge) regularized machine learning.
 \end{itemize}
 \end{tcolorbox}
+
 \section{The Bayesian Framework and Bayes' Rule for Parameters}
 
-\begin{intuitionbox}{The Bayesian Update}
-Frequentist statistics (MLE) only cares about the Evidence (Likelihood). But Bayesian statistics acts like a human. You have a \textbf{Prior} belief (e.g., "Coins are generally fair, $p=0.5$"). When you see new evidence ("I flipped 9 Heads in a row"), a Bayesian doesn't instantly jump to $p=0.9$. Instead, they gently pull their Prior towards the Evidence to form a compromised \textbf{Posterior}. The more data you get, the more the Evidence overpowers the Prior.
+\begin{intuitionbox}{The Bayesian Compromise: Prior vs. Evidence}
+A Frequentist (MLE) relies solely on observed data, which can severely overfit on small samples (e.g. concluding a coin is 100\% rigged after 3 Heads in 3 flips). A Bayesian balances their prior belief (e.g. "most coins are roughly 50\% fair") against empirical evidence. As sample size $n \to \infty$, the likelihood $L(\theta)$ grows exponentially narrower and completely overpowers the prior, causing Bayesian estimates to converge asymptotically to the MLE.
 \end{intuitionbox}
 
-\begin{lstlisting}[language=Python, caption=Data Science: Bayesian Updating with Conjugate Priors]
+\begin{definitionbox}{Prior, Likelihood, Marginal Evidence, and Posterior}
+\index{Prior, Likelihood, and Posterior}
+Let $\mathbf{x} = (x_1, \dots, x_n)$ be observed sample data and $\theta \in \Theta$ be the parameter vector.
+\begin{enumerate}
+    \item \textbf{Prior Distribution $\pi(\theta)$:} Probability density quantifying beliefs about $\theta$ prior to data collection.
+    \item \textbf{Likelihood Function $f(\mathbf{x} \mid \theta) = L(\theta)$:} Probability density of observing data $\mathbf{x}$ given parameter $\theta$.
+    \item \textbf{Marginal Evidence $f(\mathbf{x})$:} The normalizing constant integrating over all possible parameter values:
+    $$f(\mathbf{x}) = \int_{\Theta} f(\mathbf{x} \mid \theta) \pi(\theta) \, d\theta$$
+    \item \textbf{Posterior Distribution $f(\theta \mid \mathbf{x})$:} The updated conditional density of $\theta$ given empirical evidence:
+    $$f(\theta \mid \mathbf{x}) = \frac{f(\mathbf{x} \mid \theta) \pi(\theta)}{f(\mathbf{x})} \propto L(\theta) \cdot \pi(\theta)$$
+    $$\text{Posterior} \propto \text{Likelihood} \times \text{Prior}$$
+\end{enumerate}
+\end{definitionbox}
+
+\begin{lstlisting}[language=Python, caption=Data Science: Conjugate Beta-Binomial Bayesian Updating]
+import numpy as np
 from scipy.stats import beta
 
-# Prior: Beta(2, 2) - belief that coin is roughly fair
-alpha_prior, beta_prior = 2, 2
+# Prior: Beta(alpha=2, beta=2) - weak prior centered at p = 0.5
+a_prior, b_prior = 2, 2
 
-# Evidence: 9 Heads, 1 Tail
-heads, tails = 9, 1
+# Observed Data: 18 Heads (Successes) out of 20 Coin Flips
+k_successes = 18
+n_trials = 20
+k_failures = n_trials - k_successes
 
-# Posterior: Because Beta and Binomial are Conjugate, we just add!
-alpha_post = alpha_prior + heads
-beta_post = beta_prior + tails
+# Conjugate Update: simply add counts to prior hyperparameters!
+a_post = a_prior + k_successes  # 2 + 18 = 20
+b_post = b_prior + k_failures   # 2 + 2 = 4
 
-print(f"Posterior Distribution: Beta({alpha_post}, {beta_post})")
-print(f"MAP Estimate: {(alpha_post - 1) / (alpha_post + beta_post - 2):.4f}")
+# Point estimates from the posterior
+map_estimate = (a_post - 1) / (a_post + b_post - 2)
+posterior_mean = a_post / (a_post + b_post)
+mle_estimate = k_successes / n_trials
+
+print(f"MLE Estimate:            {mle_estimate:.4f} (Overfits to 0.9000)")
+print(f"Bayesian MAP Estimate:   {map_estimate:.4f} (Shrunk towards prior)")
+print(f"Bayesian Posterior Mean: {posterior_mean:.4f}")
 \end{lstlisting}
-
-\begin{definitionbox}{Prior, Likelihood, and Posterior}
-\index{Prior, Likelihood, and Posterior}
-\begin{itemize}
-    \item \textbf{Prior Distribution $f(\theta)$:} Represents prior belief/knowledge about parameter $\theta$ before observing data.
-    \item \textbf{Likelihood $f(\mathbf{x} \mid \theta)$:} The probability density of data $\mathbf{x} = (x_1, \dots, x_n)$ given parameter $\theta$.
-    \item \textbf{Posterior Distribution $f(\theta \mid \mathbf{x})$:} Updated probability density of $\theta$ after observing data $\mathbf{x}$:
-\end{itemize}
-  $$f(\theta \mid \mathbf{x}) = \frac{f(\mathbf{x} \mid \theta) f(\theta)}{f(\mathbf{x})} = \frac{f(\mathbf{x} \mid \theta) f(\theta)}{\int f(\mathbf{x} \mid \theta') f(\theta') \, d\theta'} \propto L(\theta) \cdot f(\theta)$$
-\end{definitionbox}
 
 \begin{videocard}{IITM BS Lecture: Bayesian Estimation}{https://www.youtube.com/watch?v=iMjDOTIb3-Q}
 Official lecture introducing Bayesian philosophy, updating priors to posteriors using Bayes' rule.
@@ -51,28 +67,87 @@ Official lecture introducing Bayesian philosophy, updating priors to posteriors 
 Official lecture discussing uninformative priors, Beta-Binomial conjugate priors, and Normal-Normal conjugate priors.
 \end{videocard}
 
-\section{Point Estimators: MAP and Posterior Mean}
+\section{Point Estimators and Decision-Theoretic Bayes Risk}
 
-Once the posterior distribution $f(\theta \mid \mathbf{x})$ is computed, we extract point estimates for $\theta$:
+To extract a single representative point estimate $\hat{\theta}$ from the continuous posterior curve $f(\theta \mid \mathbf{x})$, we specify a \index{Loss Function}\textbf{Loss Function} $L(\theta, \hat{\theta})$ measuring the penalty incurred when predicting $\hat{\theta}$ while the true parameter is $\theta$. The optimal estimator minimizes the \index{Posterior Expected Loss}\textbf{Posterior Expected Loss}:
+$$\hat{\theta}_{\text{Bayes}} = \arg\min_{\hat{\theta}} \E_{\theta|\mathbf{x}}\left[ L(\theta, \hat{\theta}) \right] = \arg\min_{\hat{\theta}} \int_{\Theta} L(\theta, \hat{\theta}) f(\theta \mid \mathbf{x}) \, d\theta$$
 
-\begin{formulabox}{Bayesian Point Estimator Recipes}
-1. \textbf{Maximum A Posteriori (MAP) Estimator $\hat{\theta}_{\text{MAP}}$:}
-   The mode of the posterior distribution (maximizes $f(\theta \mid \mathbf{x})$):
-   $$\hat{\theta}_{\text{MAP}} = \arg\max_{\theta} f(\theta \mid \mathbf{x}) = \arg\max_{\theta} [\ln f(\mathbf{x} \mid \theta) + \ln f(\theta)]$$
-2. \textbf{Bayes Estimator (Posterior Mean $\hat{\theta}_{\text{Bayes}}$ under Squared Error Loss):}
-   The expectation of the posterior distribution:
-   $$\hat{\theta}_{\text{Bayes}} = \E[\theta \mid \mathbf{x}] = \int \theta \, f(\theta \mid \mathbf{x}) \, d\theta$$
+\begin{formulabox}{Optimal Estimators Under Canonical Loss Functions}
+\begin{enumerate}
+    \item \textbf{Squared Error Loss $L(\theta, \hat{\theta}) = (\theta - \hat{\theta})^2 \implies$ Posterior Mean:}
+    $$\hat{\theta}_{\text{Mean}} = \E[\theta \mid \mathbf{x}] = \int_{\Theta} \theta f(\theta \mid \mathbf{x}) \, d\theta$$
+    \item \textbf{Absolute Error Loss $L(\theta, \hat{\theta}) = |\theta - \hat{\theta}| \implies$ Posterior Median:}
+    $$\hat{\theta}_{\text{Median}} = \text{Median of } f(\theta \mid \mathbf{x}) \quad \text{such that } \int_{-\infty}^{\hat{\theta}} f(\theta \mid \mathbf{x}) d\theta = 0.5$$
+    \item \textbf{0--1 Classification Loss $L(\theta, \hat{\theta}) = \mathbb{I}(|\theta - \hat{\theta}| > \epsilon) \implies$ MAP (Posterior Mode):}
+    $$\hat{\theta}_{\text{MAP}} = \arg\max_{\theta} f(\theta \mid \mathbf{x}) = \arg\max_{\theta} \left[ \ln L(\theta) + \ln \pi(\theta) \right]$$
+\end{enumerate}
 \end{formulabox}
 
-\textbf{Data Science Relevance:} MAP estimation is mathematically equivalent to \index{Regularized Machine Learning}\textbf{Regularized Machine Learning}! Specifically, MAP with a Gaussian prior is $L_2$ Ridge Regularization, while MAP with a Laplace prior is $L_1$ Lasso Regularization!
+\begin{theorembox}{MAP Equivalence to Regularized Machine Learning}
+\index{Regularized Machine Learning}\index{Ridge Regularization}\index{Lasso Regularization}
+Let $Y_i = \mathbf{w}^T \mathbf{x}_i + \epsilon_i$ with Gaussian noise $\epsilon_i \sim \mathcal{N}(0, \sigma^2)$. The log-likelihood is $-\frac{1}{2\sigma^2} \sum (y_i - \mathbf{w}^T \mathbf{x}_i)^2$.
+\begin{itemize}
+    \item \textbf{Gaussian Prior $\mathbf{w} \sim \mathcal{N}(\mathbf{0}, \tau^2 \mathbf{I})$ (Ridge / $L_2$ Regularization):}
+    $$\ln \pi(\mathbf{w}) = -\frac{1}{2\tau^2} \|\mathbf{w}\|_2^2 + C \implies \hat{\mathbf{w}}_{\text{MAP}} = \arg\min_{\mathbf{w}} \left\{ \sum_{i=1}^n (y_i - \mathbf{w}^T \mathbf{x}_i)^2 + \frac{\sigma^2}{\tau^2} \|\mathbf{w}\|_2^2 \right\}$$
+    \item \textbf{Laplace Prior $\pi(w_j) = \frac{\lambda}{2} e^{-\lambda |w_j|}$ (Lasso / $L_1$ Regularization):}
+    $$\ln \pi(\mathbf{w}) = -\lambda \|\mathbf{w}\|_1 + C \implies \hat{\mathbf{w}}_{\text{MAP}} = \arg\min_{\mathbf{w}} \left\{ \sum_{i=1}^n (y_i - \mathbf{w}^T \mathbf{x}_i)^2 + 2\sigma^2 \lambda \|\mathbf{w}\|_1 \right\}$$
+\end{itemize}
+\end{theorembox}
 
 \begin{videocard}{IITM BS Lecture: Bayesian Estimation: Finding Estimators}{https://www.youtube.com/watch?v=2owMxamj-Tc}
 Official lecture solving MAP and Bayes Mean estimators for Beta-Binomial and Normal conjugate models.
 \end{videocard}
 
+\section{Exam Gotchas \& Cognitive Traps}
+
+\begin{trapbox}{MAP Estimator is NOT Invariant Under Reparameterization}
+\textbf{The Trap:} Assuming that if $\hat{\theta}_{\text{MAP}}$ is the MAP estimator of $\theta$, then $g(\hat{\theta}_{\text{MAP}})$ is the MAP estimator of $g(\theta)$.
+
+\textbf{The Reality:} Unlike the MLE (which is strictly invariant), the \textbf{MAP estimator is NOT invariant} under nonlinear transformations!
+Because the posterior is a probability \emph{density}, transforming variables introduces a Jacobian factor:
+$$f_\Phi(\phi \mid \mathbf{x}) = f_\Theta(g^{-1}(\phi) \mid \mathbf{x}) \cdot \left| \frac{d\theta}{d\phi} \right|$$
+This derivative factor shifts the peak (mode) of the density surface! Consequently:
+$$\hat{\phi}_{\text{MAP}} \neq g(\hat{\theta}_{\text{MAP}})$$
+\end{trapbox}
+
+\begin{trapbox}{Credible Intervals vs. Confidence Intervals}
+\textbf{The Trap:} Confusing a Bayesian $95\%$ Credible Interval with a Frequentist $95\%$ Confidence Interval.
+
+\textbf{The Reality:}
+\begin{itemize}
+    \item \textbf{Frequentist Confidence Interval:} The parameter $\theta$ is a fixed constant. You cannot assign a probability to $\theta$. The $95\%$ probability applies solely to the algorithmic coverage of hypothetical future datasets.
+    \item \textbf{Bayesian Credible Interval:} The parameter $\theta$ is an active random variable with a posterior density $f(\theta \mid \mathbf{x})$. A $95\%$ credible interval $[L, U]$ satisfies $\int_L^U f(\theta \mid \mathbf{x}) d\theta = 0.95$. Here, you \textbf{can} legitimately state: "Given the observed sample data and prior, there is a $95\%$ probability that the true parameter $\theta$ lies within $[L, U]$!"
+\end{itemize}
+\end{trapbox}
+
+\section{Comparative Synthesis Matrix}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{3.2cm}p{3.8cm}p{3.8cm}p{3.5cm}}
+\toprule
+\textbf{Criterion} & \textbf{Frequentist MLE} & \textbf{Bayesian MAP} & \textbf{Bayesian Posterior Mean} \\
+\midrule
+\textbf{Mathematical Target} & $\arg\max_\theta L(\theta)$ & $\arg\max_\theta [L(\theta) \pi(\theta)]$ & $\E[\theta \mid \mathbf{x}] = \int \theta f(\theta|\mathbf{x}) d\theta$ \\
+\addlinespace
+\textbf{Loss Function} & Asymptotic likelihood optimization & 0--1 Loss (Infinitesimal hit-or-miss) & Squared Error Loss $(\theta - \hat{\theta})^2$ \\
+\addlinespace
+\textbf{Invariance Property} & \textbf{Strictly Invariant}: $\widehat{g(\theta)} = g(\hat{\theta})$ & \textbf{Not Invariant} (Jacobian shifts mode) & Not invariant ($\E[g(\theta)] \neq g(\E[\theta])$) \\
+\addlinespace
+\textbf{Small-Sample Risk} & High variance, prone to zero-count overfitting & Regulated by prior strength (shrinkage) & Optimal under MSE, incorporates full curve \\
+\addlinespace
+\textbf{Machine Learning Analog} & Unregularized OLS, Logistic Regression & Ridge ($L_2$) and Lasso ($L_1$) regularized regression & Ensemble model averaging, Bayesian Neural Nets \\
+\bottomrule
+\end{tabular}
+\caption{Comparison of Estimation Philosophy, Properties, and Decision Loss Functions.}
+\end{table}
+
 \newpage
 \section{Practice Exercises}
 \textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\subsection*{Part A: Analytical \& Computational Problems}
 
 \begin{enumerate}
 \item \textbf{Beta-Binomial Conjugate Posterior:} Let coin flip success probability $p \sim \text{Beta}(\alpha = 2, \beta = 2)$ with prior PDF $f(p) = 6p(1-p)$ for $0 \le p \le 1$. In $n = 5$ coin flips, $k = 4$ heads are observed ($L(p) = \binom{5}{4} p^4 (1-p)^1$).
@@ -88,5 +163,27 @@ Official lecture solving MAP and Bayes Mean estimators for Beta-Binomial and Nor
 
 \item \textbf{Laplace Prior and $L_1$ Regularization Equivalence:} Show that maximizing the log-posterior $\ln f(\mathbf{w} \mid \mathbf{x}, y) = \ln f(y \mid \mathbf{x}, \mathbf{w}) + \ln f(\mathbf{w})$ under a zero-mean Laplace prior $f(w_j) = \frac{\lambda}{2} e^{-\lambda |w_j|}$ adds an $L_1$ penalty term $-\lambda \|\mathbf{w}\|_1$ to the log-likelihood (Lasso regression).
 
-\item \textbf{Data Science Application (Bayesian AB Testing Click Probability):} In an email campaign, variant A conversion probability $p$ is assigned prior $\text{Beta}(1, 1)$ (Uniform). After sending $n = 100$ emails, $k = 15$ conversions occur. Compute the posterior distribution $\text{Beta}(\alpha', \beta')$ and the $95\%$ posterior mean estimate for conversion rate.
+\item \textbf{Data Science Application (Bayesian AB Testing Click Probability):} In an email campaign, variant A conversion probability $p$ is assigned prior $\text{Beta}(1, 1)$ (Uniform). After sending $n = 100$ emails, $k = 15$ conversions occur. Compute the posterior distribution $\text{Beta}(\alpha', \beta')$ and the posterior mean estimate for conversion rate.
+\end{enumerate}
+
+\subsection*{Part B: Conceptual Diagnostic Traps (Exam Gotchas)}
+
+\begin{enumerate}[resume]
+\item \textbf{Diagnostic Trap (Loss Function and Bayes Estimator Selection):}
+A machine learning engineer constructs a continuous posterior distribution $f(\theta \mid \mathbf{x})$. Under which of the following loss functions is the optimal Bayes point estimator mathematically guaranteed to be the posterior mean $\E[\theta \mid \mathbf{x}]$?
+\begin{enumerate}
+    \item Absolute Error Loss: $L(\theta, \hat{\theta}) = |\theta - \hat{\theta}|$
+    \item Zero-One Loss: $L(\theta, \hat{\theta}) = \mathbb{I}(|\theta - \hat{\theta}| > \epsilon)$ as $\epsilon \to 0$
+    \item Squared Error Loss: $L(\theta, \hat{\theta}) = (\theta - \hat{\theta})^2$
+    \item Exponential Loss: $L(\theta, \hat{\theta}) = e^{c(\theta - \hat{\theta})}$
+\end{enumerate}
+
+\item \textbf{Diagnostic Trap (Reparameterization Invariance):}
+Suppose $\hat{\theta}_{\text{MLE}}$ is the MLE of parameter $\theta$, and $\hat{\theta}_{\text{MAP}}$ is the MAP estimator of $\theta$ under a continuous non-constant prior $\pi(\theta)$. Let $g(\theta) = \theta^3$. Which of the following statements is strictly correct?
+\begin{enumerate}
+    \item Both the MLE and MAP estimators satisfy invariance: $\widehat{g(\theta)}_{\text{MLE}} = (\hat{\theta}_{\text{MLE}})^3$ and $\widehat{g(\theta)}_{\text{MAP}} = (\hat{\theta}_{\text{MAP}})^3$.
+    \item Neither the MLE nor MAP estimator is invariant under non-linear transformations.
+    \item The MLE is invariant ($\widehat{g(\theta)}_{\text{MLE}} = (\hat{\theta}_{\text{MLE}})^3$), but the MAP estimator is generally not invariant due to the Jacobian of transformation.
+    \item The MAP estimator is invariant, but the MLE fails invariance whenever the prior is non-uniform.
+\end{enumerate}
 \end{enumerate}

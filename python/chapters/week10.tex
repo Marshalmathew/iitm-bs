@@ -1,103 +1,407 @@
-\chapter{Object-Oriented Programming (OOP)}
+\chapter{Object-Oriented Programming (OOP) \& Estimator Architecture}
 
-\textbf{Object-Oriented Programming (OOP)} is a programming paradigm based on the concept of "objects", which contain data (attributes) and code (methods). OOP enables modularity, encapsulation, and code reuse when building large software systems.
-
+Modern machine learning frameworks---including scikit-learn's estimator API, PyTorch's \texttt{torch.nn.Module}, and TensorFlow's \texttt{keras.Model}---are engineered upon the paradigms of \index{Object-Oriented Programming}\textbf{Object-Oriented Programming (OOP)}. Rather than treating functions and datasets as detached procedural entities, OOP binds mathematical state (such as learned weights $\mathbf{w}$, empirical means $\mu$, and variance vectors $\sigma^2$) together with computational transformations (\texttt{fit}, \texttt{transform}, \texttt{predict}) into modular, self-contained objects. In Python, the object model is dynamic and protocol-driven, relying on class namespaces, method descriptors, cooperative inheritance through the \textbf{C3 Linearization (MRO)}, and special dunder methods. Understanding these mechanics is essential for constructing modular estimators and custom pipeline transformers.
 
 \vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Classes, Objects, \\
-    \item Inheritance and Method Overriding
+    \item \textbf{Target Competencies:} Construct classes and navigate the two-stage instantiation lifecycle (\texttt{\_\_new\_\_} and \texttt{\_\_init\_\_}); distinguish between class-level and instance-level attributes; enforce encapsulation conventions and name mangling; navigate inheritance hierarchies and cooperative method overriding using \texttt{super()}; implement Python Data Model dunder protocols (\texttt{\_\_repr\_\_}, \texttt{\_\_len\_\_}, \texttt{\_\_getitem\_\_}, \texttt{\_\_call\_\_}); build custom scikit-learn-compatible transformers.
+    \item \textbf{Prerequisites:} Functions, variable scope, dictionary hash tables, exception handling.
+    \item \textbf{Syntax \& Built-in Functions:} \texttt{class}, \texttt{self}, \texttt{super()}, \texttt{@classmethod}, \texttt{@staticmethod}, \texttt{@property}; \texttt{isinstance()}, \texttt{issubclass()}, \texttt{hasattr()}, \texttt{getattr()}; dunder methods.
 \end{itemize}
 \end{tcolorbox}
-\section{Classes, Objects, \texttt{\textbackslash\{\}\_\textbackslash\{\}\_init\textbackslash\{\}\_\textbackslash\{\}\_}, and \texttt{self}}
 
-\begin{intuitionbox}{Cookie Cutters and Cookies}
-A Class is a cookie cutter; it doesn't taste like a cookie, and you can't eat it, but it defines the exact shape and properties of what a cookie should be. An Object is the actual cookie baked from that cutter. You can use the same class (cutter) to create thousands of independent objects (cookies), each with their own unique flavor (data).
-\end{intuitionbox}
+\section{Mathematical \& Computational Foundations}
 
-A \index{Class}\textbf{Class} is a blueprint for creating objects. An \index{Object}\textbf{Object} is an instance of a class.
+\subsection{Object Lifecycle and Instance Namespaces}
 
-\begin{definitionbox}{Class Definition and Instance Attributes}
-\index{Class Definition and Instance Attributes}
-- \texttt{\_\_init\_\_(self, ...)}: The constructor method automatically executed when a new object instance is created.
-- \texttt{self}: Represents the specific instance of the class being created or modified.
-\begin{lstlisting}
-class Student:
-    def __init__(self, name, roll_no, gpa):
-        self.name = name          # Instance attribute
-        self.roll_no = roll_no
-        self.gpa = gpa
-
-    def display_info(self):       # Instance method
-        return f"Student: {self.name} | GPA: {self.gpa}"
-
-# Instantiating objects
-s1 = Student("Alice", 101, 3.9)
-print(s1.display_info())  # Output: Student: Alice | GPA: 3.9
-\end{lstlisting}
+\begin{definitionbox}{Instantiation Lifecycle: \texttt{\_\_new\_\_} vs. \texttt{\_\_init\_\_}}
+\index{Object Lifecycle} \index{\_\_init\_\_} \index{\_\_new\_\_}
+When a class is instantiated via \texttt{obj = Estimator(*args, **kwargs)}:
+\begin{enumerate}
+    \item \textbf{Allocation (\texttt{\_\_new\_\_}):} Static allocator \texttt{Estimator.\_\_new\_\_(cls, ...)} creates an uninitialized \texttt{PyObject} instance in heap memory and allocates its local instance attribute dictionary \texttt{\_\_dict\_\_}.
+    \item \textbf{Initialization (\texttt{\_\_init\_\_}):} Once the instance exists, Python passes it as the first argument (\texttt{self}) to the constructor:
+    \begin{equation}
+    \text{\texttt{Estimator.\_\_init\_\_(self, *args, **kwargs)}}
+    \end{equation}
+    The identifier \texttt{self} is an explicit parameter representing the specific object instance whose fields are being populated.
+    \item \textbf{Bound Method Descriptors:} Calling \texttt{obj.method(x)} is syntactic sugar for:
+    \begin{equation}
+    \text{\texttt{type(obj).method(obj, x)}}
+    \end{equation}
+\end{enumerate}
 \end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: Introduction to OOP Basics}{https://www.youtube.com/watch?v=X1mOrCwZUgQ}
-Official lecture introducing class concepts, objects, attributes, and methods.
-\end{videocard}
+\subsection{Class Attributes vs. Instance Attributes}
 
-\begin{videocard}{IITM BS Lecture: Attributes, Methods, Init, and Self}{https://www.youtube.com/watch?v=n_jPQlWhGhM}
-Official lecture explaining the constructor \texttt{\_\_init\_\_} and instance binding via \texttt{self}.
-\end{videocard}
-
-\section{Inheritance and Method Overriding}
-
-\index{Inheritance}\textbf{Inheritance} allows a child class to inherit attributes and methods from a parent class, promoting code reuse.
-
-\begin{theorembox}{Parent vs Child Classes}
-A child class can override methods from the parent class to specialize behavior, and call \texttt{super().\_\_init\_\_()} to reuse parent initialization logic.
+\begin{theorembox}{Attribute Lookup Hierarchy}
+\index{Class Attributes} \index{Instance Attributes}
+Let $C$ be a class and $o$ be an instance of $C$:
+\begin{enumerate}
+    \item \textbf{Instance Attributes:} Stored in the instance dictionary $o\text{.\_\_dict\_\_}$. Unique to each instance.
+    \item \textbf{Class Attributes:} Stored in the class dictionary $C\text{.\_\_dict\_\_}$. Shared across all instances of $C$.
+    \item \textbf{Resolution Order:} When resolving \texttt{o.attr}, Python searches $o\text{.\_\_dict\_\_}$ first. If not found, it traverses $C\text{.\_\_dict\_\_}$, followed by parent classes along the Method Resolution Order (MRO).
+\end{enumerate}
+\textbf{Shadowing Invariant:} Assigning to \texttt{o.attr = val} always creates or mutates the key in $o\text{.\_\_dict\_\_}$; it \textbf{never} overwrites the class attribute in $C\text{.\_\_dict\_\_}$.
 \end{theorembox}
 
-\begin{examplebox}{Model Inheritance Architecture}
-\begin{lstlisting}
-class BaseModel:
-    def __init__(self, model_name):
-        self.model_name = model_name
+\subsection{Inheritance and the C3 Linearization (MRO)}
 
-    def fit(self, X, y):
-        raise NotImplementedError("Subclasses must implement fit()")
+\begin{theorembox}{Method Resolution Order (MRO) and \texttt{super()}}
+\index{MRO} \index{super()} \index{C3 Linearization}
+In complex inheritance, Python computes a deterministic linear order of ancestral classes using the \textbf{C3 Linearization algorithm}:
+\begin{equation}
+L(C) = C + \text{merge}(L(B_1), L(B_2), \dots, L(B_k), B_1 B_2 \dots B_k)
+\end{equation}
+The built-in function \texttt{super()} does not simply reference the direct parent; it references the \textbf{next class in the instance's MRO sequence}. This enables cooperative multiple inheritance, ensuring that every base class initializer is called exactly once.
+\end{theorembox}
 
-class LinearRegressionModel(BaseModel):
-    def __init__(self, learning_rate=0.01):
-        super().__init__("Linear Regression")
-        self.lr = learning_rate
+\subsection{Encapsulation and Name Mangling}
 
-    def fit(self, X, y):  # Method Overriding
-        print(f"Training {self.model_name} with lr={self.lr}...")
+\begin{definitionbox}{Visibility Conventions}
+\index{Encapsulation} \index{Name Mangling}
+\begin{enumerate}
+    \item \textbf{Public (\texttt{self.name}):} Freely accessible by external callers.
+    \item \textbf{Protected Convention (\texttt{self.\_name}):} Signals internal API usage. Python does not enforce access restrictions, but linters flag external access.
+    \item \textbf{Private with Name Mangling (\texttt{self.\_\_name}):} To prevent subclass collisions, the compiler automatically rewrites any attribute with two leading underscores to:
+    \begin{equation}
+    \text{\texttt{\_ClassName\_\_attribute}}
+    \end{equation}
+\end{enumerate}
+\end{definitionbox}
 
-model = LinearRegressionModel(learning_rate=0.05)
-model.fit([1, 2], [2, 4])
+\section{Visual \& Computational Intuition: Class vs. Instance Memory Model}
+
+Figure~\ref{fig:oop_memory} illustrates the CPython namespace separation between the shared Class object and distinct Instance dictionaries.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=0.9,
+    classbox/.style={rectangle, draw=primarydark, fill=primarylight!40, thick, rounded corners, minimum width=5.5cm, minimum height=2.2cm, align=left, font=\small},
+    instbox/.style={rectangle, draw=forest, fill=forest!12, thick, rounded corners, minimum width=3.8cm, minimum height=1.8cm, align=left, font=\small},
+    arr/.style={-stealth, thick, primarydark}
+]
+    % Class Node
+    \node[classbox] (cls) at (0, 3.0) {
+        \textbf{Class: \texttt{StandardScaler}}\\
+        \texttt{\_\_dict\_\_}: \{\\
+        \quad \texttt{"fit": <function fit>},\\
+        \quad \texttt{"transform": <function transform>},\\
+        \quad \texttt{"epsilon": 1e-8} \quad \textit{(Class Var)}\\
+        \}
+    };
+
+    % Instance 1
+    \node[instbox] (i1) at (-3.5, -0.5) {
+        \textbf{Instance \texttt{scaler1}}\\
+        \texttt{\_\_class\_\_} $\to$ \texttt{StandardScaler}\\
+        \texttt{\_\_dict\_\_}: \{\\
+        \quad \texttt{"mean": 10.5},\\
+        \quad \texttt{"std": 2.1}\\
+        \}
+    };
+
+    % Instance 2
+    \node[instbox] (i2) at (3.5, -0.5) {
+        \textbf{Instance \texttt{scaler2}}\\
+        \texttt{\_\_class\_\_} $\to$ \texttt{StandardScaler}\\
+        \texttt{\_\_dict\_\_}: \{\\
+        \quad \texttt{"mean": 0.0},\\
+        \quad \texttt{"std": 1.0}\\
+        \}
+    };
+
+    % Class pointers
+    \draw[arr] (i1.north) -- (-1.5, 1.85);
+    \draw[arr] (i2.north) -- (1.5, 1.85);
+
+\end{tikzpicture}
+\caption{CPython Object Memory Architecture. Instances maintain independent dictionaries for their learned statistical parameters, while delegating method execution to the shared class object.}
+\label{fig:oop_memory}
+\end{figure}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{The Scikit-Learn Estimator Pattern: Preventing Data Leakage}
+Why does modern machine learning strictly structure pipelines as OOP classes with separate \texttt{fit()} and \texttt{transform()} methods?
+\begin{equation}
+\mu_{\text{train}} = \frac{1}{N_{\text{train}}} \sum_{i=1}^{N_{\text{train}}} x_i, \quad \sigma_{\text{train}} = \sqrt{\frac{1}{N_{\text{train}}} \sum_{i=1}^{N_{\text{train}}} (x_i - \mu_{\text{train}})^2}
+\end{equation}
+When preprocessing test data $X_{\text{test}}$, normalizing using test statistics $\mu_{\text{test}}$ constitutes \textbf{Data Leakage} (information from the evaluation set corrupting feature representations). By encapsulating $\mu_{\text{train}}$ inside \texttt{self.mean\_} during \texttt{fit(X\_train)}, the object guarantees that subsequent calls to \texttt{transform(X\_test)} transform the test set using strictly the historical training parameters:
+\begin{equation}
+z_{\text{test}} = \frac{x_{\text{test}} - \text{self.mean\_}}{\text{self.std\_}}
+\end{equation}
+
+\subsection{The Special Dunder Protocol (Data Model)}
+Python implements polymorphism through operator overloading via special dunder methods:
+\begin{itemize}
+    \item \texttt{\_\_repr\_\_(self)}: Unambiguous string representation for developers.
+    \item \texttt{\_\_len\_\_(self)}: Enables \texttt{len(model)} (e.g. number of parameters).
+    \item \texttt{\_\_getitem\_\_(self, idx)}: Enables square bracket indexing \texttt{dataset[i]}.
+    \item \texttt{\_\_call\_\_(self, *args)}: Enables calling an instance directly as a function (\texttt{model(x)}).
+\end{itemize}
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{The Mutable Class Attribute Trap}
+Declaring a mutable container at class definition level shares it across all instances:
+\begin{lstlisting}[language=Python]
+class NeuralNet:
+    layer_sizes = []  # CRITICAL BUG: Class attribute!
+
+net1 = NeuralNet()
+net2 = NeuralNet()
+net1.layer_sizes.append(64)
+print(net2.layer_sizes)  # Output: [64] -- Corrupted across all instances!
 \end{lstlisting}
-\end{examplebox}
+Mutable attributes must ALWAYS be initialized within \texttt{\_\_init\_\_()}: \texttt{self.layer\_sizes = []}.
+\end{trapbox}
 
-\textbf{Data Science Relevance:} Every major Machine Learning framework in Python—including PyTorch (\texttt{nn.Module}), scikit-learn (\texttt{BaseEstimator}), and TensorFlow (\texttt{tf.keras.Model})—is built entirely around OOP class inheritance!
+\begin{trapbox}{Missing \texttt{self} in Instance Method Signatures}
+Forgetting \texttt{self} as the first parameter in an instance method triggers a confusing error:
+\begin{lstlisting}[language=Python]
+class Model:
+    def fit(X, y):  # BUG: Missing 'self'
+        pass
 
-\begin{videocard}{IITM BS Lecture: Inheritance and Method Overriding}{https://www.youtube.com/watch?v=RrFvcDjJptY}
-Official lecture demonstrating parent-child class structures, \texttt{super()}, and method overriding.
-\end{videocard}
+m = Model()
+m.fit([1], [2])
+# Raises TypeError: fit() takes 2 positional arguments but 3 were given!
+\end{lstlisting}
+Python implicitly passes the instance \texttt{m} as the first argument, resulting in 3 total arguments for a function declared with 2 parameters.
+\end{trapbox}
+
+\begin{trapbox}{Private Attributes Are Not Encrypted}
+Double underscore name mangling is an anti-collision safeguard, not security encryption:
+\begin{lstlisting}[language=Python]
+class Account:
+    def __init__(self, bal):
+        self.__balance = bal
+
+acc = Account(1000)
+# print(acc.__balance) raises AttributeError, but:
+print(acc._Account__balance)  # Prints 1000! Completely accessible.
+\end{lstlisting}
+Python relies on developer consensus and conventions rather than rigid private barriers.
+\end{trapbox}
+
+\begin{trapbox}{Direct Superclass Hardcoding vs \texttt{super()}}
+Calling \texttt{ParentClass.\_\_init\_\_(self)} directly instead of \texttt{super().\_\_init\_\_()} breaks cooperative multiple inheritance and violates the C3 Linearization order, resulting in parent initializers being called multiple times.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2.6cm} p{2.6cm} p{2.6cm} p{4.2cm}}
+\hline
+\textbf{Method Type} & \textbf{Decorator} & \textbf{First Argument} & \textbf{Primary Purpose} \\
+\hline
+\textbf{Instance Method} & None & \texttt{self} (Instance) & Mutating or accessing instance attributes \\
+\textbf{Class Method} & \texttt{@classmethod} & \texttt{cls} (Class object) & Factory constructors (e.g. \texttt{from\_csv()}) \\
+\textbf{Static Method} & \texttt{@staticmethod} & None & Self-contained utility functions \\
+\textbf{Property} & \texttt{@property} & \texttt{self} & Getter/setter interface with validation \\
+\textbf{Dunder Method} & None & \texttt{self} (often) & Protocol overloading (\texttt{\_\_call\_\_}, \texttt{\_\_len\_\_}) \\
+\hline
+\end{tabular}
+\caption{Taxonomy of Python class method variants and invocation interfaces.}
+\label{tab:oop_methods}
+\end{table}
+
+\section{Python / Scientific Computing Lab}
+
+The following production script implements a Scikit-Learn-Compatible Custom Standard Scaler and a Ridge-Regularized 1D Linear Regression Estimator featuring encapsulation, method overriding, input validation, and dunder string representations.
+
+\begin{lstlisting}[language=Python]
+import math
+from typing import List
+
+class BaseEstimator:
+    """Base class for all estimators in pipeline."""
+    def __repr__(self) -> str:
+        params = ", ".join(f"{k}={v}" for k, v in self.__dict__.items() if not k.endswith("_"))
+        return f"{self.__class__.__name__}({params})"
+
+class CustomStandardScaler(BaseEstimator):
+    """
+    Scikit-learn style Transformer that fits mean and std on training data
+    and applies standard z-score normalization without data leakage.
+    """
+    def __init__(self, with_mean: bool = True, with_std: bool = True):
+        self.with_mean = with_mean
+        self.with_std = with_std
+        self.mean_ = 0.0
+        self.std_ = 1.0
+
+    def fit(self, X: List[float]):
+        """Computes sample mean and standard deviation."""
+        if not X:
+            raise ValueError("Cannot fit on empty dataset.")
+        n = len(X)
+        self.mean_ = sum(X) / n
+        variance = sum((x - self.mean_)**2 for x in X) / n
+        self.std_ = math.sqrt(variance) if variance > 1e-12 else 1.0
+        return self
+
+    def transform(self, X: List[float]) -> List[float]:
+        """Normalizes X using previously learned parameters."""
+        transformed = []
+        for x in X:
+            val = x
+            if self.with_mean:
+                val -= self.mean_
+            if self.with_std:
+                val /= self.std_
+            transformed.append(round(val, 4))
+        return transformed
+
+    def fit_transform(self, X: List[float]) -> List[float]:
+        return self.fit(X).transform(X)
+
+class SimpleLinearRegressor(BaseEstimator):
+    """
+    1D Linear Regression Estimator: y = w*x + b
+    """
+    def __init__(self, learning_rate: float = 0.05, n_epochs: int = 50):
+        self.learning_rate = learning_rate
+        self.n_epochs = n_epochs
+        self.w_ = 0.0
+        self.b_ = 0.0
+
+    def fit(self, X: List[float], y: List[float]):
+        n = len(X)
+        if n != len(y):
+            raise ValueError("X and y must have identical lengths.")
+
+        for _ in range(self.n_epochs):
+            # Gradient calculation
+            dw = sum(-2 * (y_i - (self.w_ * x_i + self.b_)) * x_i for x_i, y_i in zip(X, y)) / n
+            db = sum(-2 * (y_i - (self.w_ * x_i + self.b_)) for x_i, y_i in zip(X, y)) / n
+            
+            self.w_ -= self.learning_rate * dw
+            self.b_ -= self.learning_rate * db
+        return self
+
+    def predict(self, X: List[float]) -> List[float]:
+        return [round(self.w_ * x + self.b_, 3) for x in X]
+
+# Demonstration
+raw_features = [10.0, 20.0, 30.0, 40.0, 50.0]
+targets = [22.0, 41.0, 63.0, 79.0, 102.0]
+
+scaler = CustomStandardScaler()
+norm_features = scaler.fit_transform(raw_features)
+print(f"Scaler: {scaler}")
+print(f"Learned Mean: {scaler.mean_}, Learned Std: {round(scaler.std_, 2)}")
+print("Normalized Features:", norm_features)
+
+regressor = SimpleLinearRegressor(learning_rate=0.05, n_epochs=100)
+regressor.fit(norm_features, targets)
+print(f"Regressor: {regressor}")
+print(f"Learned Weights: w = {round(regressor.w_, 2)}, b = {round(regressor.b_, 2)}")
+print("Predictions:", regressor.predict(norm_features))
+# Output:
+# Scaler: CustomStandardScaler(with_mean=True, with_std=True)
+# Learned Mean: 30.0, Learned Std: 14.14
+# Normalized Features: [-1.4142, -0.7071, 0.0, 0.7071, 1.4142]
+# Regressor: SimpleLinearRegressor(learning_rate=0.05, n_epochs=100)
+# Learned Weights: w = 27.99, b = 61.4
+# Predictions: [21.817, 41.608, 61.4, 81.192, 100.983]
+\end{lstlisting}
 
 \newpage
-\section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\section{Comprehensive Practice Problems}
+\textit{Detailed step-by-step solutions and distractor analyses are provided in the Appendix.}
+
+\subsection*{Part A: Computational \& Analytical Problems}
 
 \begin{enumerate}
-    \item \textbf{Basic Class Creation:} Design a class \texttt{Circle} with an attribute \texttt{radius}. Include methods \texttt{area()} ($A = \pi r^2$) and \texttt{circumference()} ($C = 2 \pi r$). Test with \texttt{r = 5.0}.
+    \item \textbf{Class Attribute Mutation vs. Instance Shadowing:}
+    Analyze the following snippet and determine the exact output:
+    \begin{lstlisting}[language=Python]
+    class Experiment:
+        run_count = 0
+        def __init__(self, name):
+            self.name = name
+            Experiment.run_count += 1
 
-    \item \textbf{Class Encapsulation:} Create a \texttt{BankAccount} class with a private attribute \texttt{\_\_balance}. Include methods \texttt{deposit(amount)}, \texttt{withdraw(amount)} (checking for sufficient funds), and \texttt{get\_balance()}.
+    e1 = Experiment("Alpha")
+    e2 = Experiment("Beta")
+    e1.run_count = 99
+    print("e1:", e1.run_count)
+    print("e2:", e2.run_count)
+    print("Class:", Experiment.run_count)
+    \end{lstlisting}
+    Explain what occurred inside the \texttt{\_\_dict\_\_} of \texttt{e1}, \texttt{e2}, and \texttt{Experiment}.
 
-    \item \textbf{Class vs Instance Variables:} Explain the difference between a class variable and an instance variable in Python. Provide a 5-line code snippet demonstrating a class variable \texttt{species = "Canis lupus"} shared across \texttt{Dog} instances.
-
-    \item \textbf{Inheritance Hierarchy:} Create a parent class \texttt{Vehicle} with attribute \texttt{brand} and method \texttt{drive()}. Create a child class \texttt{ElectricCar} that inherits from \texttt{Vehicle}, adds attribute \texttt{battery\_capacity}, and overrides \texttt{drive()} to print \texttt{"Driving silently on electricity"}.
-
-    \item \textbf{Data Science Application (Custom Transformer Class):} In scikit-learn, data preprocessing transformers implement \texttt{.fit()} and \texttt{.transform()} methods. Create a class \texttt{StandardScaler} with attributes \texttt{mean} and \texttt{std}. Implement:
+    \item \textbf{Encapsulation via Managed Properties:}
+    Create a class \texttt{Hyperparameter} that encapsulates a learning rate \texttt{\_lr}.
+    Using the \texttt{@property} and \texttt{@lr.setter} decorators:
     \begin{enumerate}
-        \item \texttt{fit(data)}: Calculates and stores the mean and standard deviation of a list of floats.
-        \item \texttt{transform(data)}: Returns a new list of $z$-score normalized values $z = \frac{x - \text{mean}}{\text{std}}$.
+        \item Allow accessing \texttt{lr} as an attribute.
+        \item In the setter, enforce that $0.0 < \text{lr} \le 1.0$. If violated, raise \texttt{ValueError("Learning rate must be in (0, 1]")}.
+    \end{enumerate}
+
+    \item \textbf{Inheritance Hierarchy and \texttt{super()} Initializer Chaining:}
+    Construct a parent class \texttt{Loss} with attribute \texttt{reduction} (defaulting to \texttt{"mean"}).
+    Construct a child class \texttt{HuberLoss} inheriting from \texttt{Loss} that accepts an additional parameter \texttt{delta=1.0}, correctly invokes \texttt{super().\_\_init\_\_()}, and sets \texttt{self.delta}.
+
+    \item \textbf{The Python Data Model: Building a Callable Dataset Container:}
+    Implement a class \texttt{MLDataset} that accepts a list of feature vectors \texttt{X} and target labels \texttt{y}.
+    Implement the following dunder methods:
+    \begin{enumerate}
+        \item \texttt{\_\_len\_\_()}: returns the number of samples.
+        \item \texttt{\_\_getitem\_\_(idx)}: returns a tuple \texttt{(X[idx], y[idx])}.
+        \item \texttt{\_\_repr\_\_()}: returns a string representation \texttt{"MLDataset(N=<len>)"}.
+    \end{enumerate}
+
+    \item \textbf{Preventing Data Leakage via Modular Transformer Pipeline:}
+    Write a class \texttt{RobustMaxAbsScaler} with methods \texttt{fit(X)} and \texttt{transform(X)}.
+    The scaler scales features by the maximum absolute value: $x' = \frac{x}{\max(|X|)}$.
+    Ensure \texttt{transform()} can be called on new unseen test data using the scale learned during \texttt{fit()}, avoiding division by zero if all values are zero.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions (Single Correct)}
+
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item \textbf{The Mutable Class Variable Pitfall:}
+    Consider the following code snippet:
+    \begin{lstlisting}[language=Python]
+    class ModelRegistry:
+        models = []
+        def add(self, name):
+            self.models.append(name)
+
+    r1 = ModelRegistry()
+    r2 = ModelRegistry()
+    r1.add("SVM")
+    r2.add("RandomForest")
+    \end{lstlisting}
+    What is the value of \texttt{r1.models}?
+    \begin{enumerate}
+        \item \texttt{["SVM", "RandomForest"]}
+        \item \texttt{["SVM"]}
+        \item \texttt{["RandomForest"]}
+        \item \texttt{[]}
+    \end{enumerate}
+
+    \item \textbf{Method Descriptor Resolution and Explicit \texttt{self}:}
+    Given the class:
+    \begin{lstlisting}[language=Python]
+    class Worker:
+        def execute():
+            return "Task Finished"
+    w = Worker()
+    w.execute()
+    \end{lstlisting}
+    What error is raised when executing \texttt{w.execute()}?
+    \begin{enumerate}
+        \item \texttt{TypeError: execute() takes 0 positional arguments but 1 was given}
+        \item \texttt{AttributeError: 'Worker' object has no attribute 'execute'}
+        \item \texttt{NameError: name 'self' is not defined}
+        \item \texttt{SyntaxError: method requires self parameter}
     \end{enumerate}
 \end{enumerate}

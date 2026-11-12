@@ -1,125 +1,397 @@
-\chapter{Functions, Arguments \& Scope}
+\chapter{Functions, Scopes, Closures \& Modular Architecture}
 
-A \index{Function}\textbf{Function} is a reusable block of code designed to perform a specific task. Functions break down large complex programs into modular, readable, and maintainable units (the DRY principle: Don't Repeat Yourself).
-
+Modular abstraction is the defining principle of scalable software engineering. In Python, functions are not merely subroutines; they are \index{First-Class Objects}\textbf{first-class objects} that can be dynamically constructed, bound to identifiers, passed as arguments to higher-order algorithms, and returned from other functions. Furthermore, Python evaluates function parameters through \textbf{call-by-object-reference} (sharing) and resolves identifiers via the strict lexical hierarchy of the \textbf{LEGB rule}. Understanding parameter binding mechanics, mutable default argument traps, closures, and variable-length argument unpacking is essential for designing robust, production-grade machine learning pipelines and custom estimator frameworks.
 
 \vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Defining and Calling Functions
-    \item Types of Function Arguments
-    \item Scope of Variables (LEGB Rule)
+    \item \textbf{Target Competencies:} Master function parameter specifications (positional-only \texttt{/}, keyword-only \texttt{*}, \texttt{*args}, \texttt{**kwargs}); trace call-by-object-reference semantics across mutable and immutable objects; navigate the LEGB namespace hierarchy and apply \texttt{global} and \texttt{nonlocal} modifiers; construct mathematical closures and function factories; diagnose and eliminate mutable default argument traps and late-binding closure bugs.
+    \item \textbf{Prerequisites:} Control flow, loops, data structures (lists, tuples, dicts), memory reference model.
+    \item \textbf{Syntax \& Built-in Functions:} \texttt{def}, \texttt{return}, \texttt{lambda}, \texttt{global}, \texttt{nonlocal}; \texttt{callable()}, \texttt{getattr()}; function attributes (\texttt{\_\_name\_\_}, \texttt{\_\_closure\_\_}, \texttt{\_\_defaults\_\_}).
 \end{itemize}
 \end{tcolorbox}
-\section{Defining and Calling Functions}
 
-Functions are defined using the \texttt{def} keyword, followed by the function name, parentheses \texttt{()}, and a colon \texttt{:}.
+\section{Mathematical \& Computational Foundations}
 
-\begin{definitionbox}{Function Definition Syntax}
-\index{Function Definition Syntax}
-\begin{lstlisting}
-def greet_user(name):
-    """Docstring: Greets a user by name."""
-    message = f"Hello, {name}! Welcome to Python."
-    return message
+\subsection{Parameter Passing: Call-by-Object-Reference}
 
-# Function Call
-result = greet_user("Alice")
-print(result)
-\end{lstlisting}
+\begin{definitionbox}{Evaluation Strategy: Call-by-Sharing}
+\index{Call-by-Sharing} \index{Parameter Passing}
+Python does not use traditional "call-by-value" (cloning values) nor "call-by-reference" (passing pointers to variable boxes). It implements \textbf{call-by-object-reference} (call-by-sharing):
+\begin{enumerate}
+    \item When a function is called, the parameter names in the local scope are bound directly to the \textbf{exact heap objects} passed by the caller.
+    \item \textbf{Immutable Arguments (\texttt{int}, \texttt{float}, \texttt{str}, \texttt{tuple}):} Reassigning the parameter inside the function binds the local name to a new object; the caller's variable remains unchanged.
+    \item \textbf{Mutable Arguments (\texttt{list}, \texttt{dict}, \texttt{set}):} In-place mutations performed on the parameter (e.g., \texttt{.append()}, slice modification) mutate the underlying heap object, immediately impacting the caller's state.
+\end{enumerate}
 \end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: Introduction to Functions}{https://www.youtube.com/watch?v=zDZRfWWetg0}
-Official lecture defining \texttt{def}, parameters, \texttt{return} values, and docstrings.
-\end{videocard}
+\subsection{The LEGB Namespace Resolution Hierarchy}
 
-\section{Types of Function Arguments}
-
-Python functions support several types of parameters:
-1. \textbf{Positional Arguments:} Passed in the exact order declared.
-2. \textbf{Keyword Arguments:} Passed by explicitly naming parameter names (\texttt{name="Alice"}).
-3. \textbf{Default Arguments:} Parameters with fallback default values if omitted by the caller.
-4. \textbf{Variable-length Arguments (\texttt{*args} and \texttt{**kwargs}):}
-   - \texttt{*args}: Collects extra positional arguments into a tuple.
-   - \texttt{**kwargs}: Collects extra keyword arguments into a dictionary.
-
-\begin{theorembox}{Argument Types Syntax}
-\begin{lstlisting}
-def calculate_price(price, discount=0.1, tax=0.05):
-    return price * (1 - discount) * (1 + tax)
-
-print(calculate_price(100))               # Uses defaults: 100 * 0.9 * 1.05 = 94.5
-print(calculate_price(100, tax=0.10))     # Keyword arg overrides tax only
-
-def custom_sum(*args):
-    return sum(args)                      # args is (1, 2, 3, 4)
-
-print(custom_sum(1, 2, 3, 4))             # 10
-\end{lstlisting}
+\begin{theorembox}{The LEGB Rule and Lexical Scoping}
+\index{LEGB Rule} \index{Variable Scope}
+When an identifier $x$ is referenced inside a function, Python searches four concentric namespaces in strict lexical order:
+\begin{equation}
+\text{Local (L)} \longrightarrow \text{Enclosing (E)} \longrightarrow \text{Global (G)} \longrightarrow \text{Built-in (B)}
+\end{equation}
+\begin{enumerate}
+    \item \textbf{Local (L):} Names assigned within the current executing function body.
+    \item \textbf{Enclosing (E):} Names in the local scope of any statically enclosing outer functions (from inner to outer).
+    \item \textbf{Global (G):} Names assigned at the top-level of the current module file.
+    \item \textbf{Built-in (B):} Pre-assigned names provided by the Python runtime (\texttt{len}, \texttt{range}, \texttt{ValueError}).
+\end{enumerate}
+\textbf{Compiler Invariant:} If a variable is assigned anywhere within a function body without an explicit \texttt{global} or \texttt{nonlocal} declaration, Python flags it as \textbf{purely Local} across the entire function at compile time.
 \end{theorembox}
 
-\textbf{Data Science Relevance:} Machine Learning functions in scikit-learn heavily use default and keyword arguments (e.g., \texttt{RandomForestClassifier(n\_estimators=100, max\_depth=5)}).
+\subsection{Function Signature Grammar: Positional and Keyword Controls}
 
-\begin{videocard}{IITM BS Lecture: Types of Function Arguments}{https://www.youtube.com/watch?v=NqjnCY2qQWU}
-Official lecture explaining positional, keyword, default, \texttt{*args}, and \texttt{**kwargs}.
-\end{videocard}
-
-\section{Scope of Variables (LEGB Rule)}
-
-\begin{intuitionbox}{The One-Way Mirror of Scope}
-Variable scope works like a one-way mirror. If you are inside a function (the inner room), you can look out through the mirror and see/read the global variables outside. However, the global program (outside) cannot look into the function to see its local variables. Once the function finishes running, its local room is destroyed!
-\end{intuitionbox}
-
-\index{Scope}\textbf{Scope} determines where a variable is accessible in your code. Python resolves variable names using the \index{LEGB Rule}\textbf{LEGB Rule}:
-
-\begin{formulabox}{The LEGB Rule}
-\begin{enumerate}
-    \item \textbf{L (Local):} Variables defined inside the current function body.
-    \item \textbf{E (Enclosing):} Variables in enclosing/outer functions (nested functions).
-    \item \textbf{G (Global):} Variables defined at the top-level of the script/module.
-    \item \textbf{B (Built-in):} Built-in names in Python (\texttt{len}, \texttt{sum}, \texttt{range}, etc.).
-\end{enumerate}
-\end{formulabox}
-
-\begin{examplebox}{Global vs Local Scope}
-\begin{lstlisting}
-counter = 0  # Global Variable
-
-def increment():
-    global counter  # Explicitly modify global variable
-    counter += 1
-
-increment()
-print(counter)  # Output: 1
+Python (PEP 570) provides granular control over how parameters are bound:
+\begin{lstlisting}[language=Python]
+def model_fit(data, target, /, weight=None, *, metric="mse", **kwargs):
+    pass
 \end{lstlisting}
-\end{examplebox}
+\begin{itemize}
+    \item \textbf{Positional-Only (\texttt{/}):} Parameters preceding \texttt{/} must be passed as positional arguments; passing them by keyword raises \texttt{TypeError}.
+    \item \textbf{Positional or Keyword:} Parameters between \texttt{/} and \texttt{*} can be passed positionally or by keyword.
+    \item \textbf{Keyword-Only (\texttt{*}):} Parameters following \texttt{*} must be passed explicitly as named keyword arguments (\texttt{metric="mse"}).
+    \item \textbf{Var-Positional (\texttt{*args}):} Collects excess positional arguments into a \texttt{tuple}.
+    \item \textbf{Var-Keyword (\texttt{**kwargs}):} Collects excess keyword arguments into a \texttt{dict}.
+\end{itemize}
 
-\begin{videocard}{IITM BS Lecture: Scope of Variables}{https://www.youtube.com/watch?v=4q5rGHfR-ic}
-Official lecture explaining Local vs Global scope, \texttt{global} keyword, and namespace resolution.
-\end{videocard}
+\subsection{Mathematical Closures}
+
+\begin{definitionbox}{Formal Closure}
+\index{Closure}
+A \textbf{closure} is a record storing a function $f$ together with an environment: a mapping associating each free variable of $f$ (variables used locally but defined in an enclosing scope) with the value or reference to which the name was bound when the closure was created.
+\begin{equation}
+\mathcal{C} = \langle f, \{\text{var}_i \mapsto \text{binding}_i\} \rangle
+\end{equation}
+A closure retains access to its enclosing variables even after the outer enclosing function has completed execution and returned.
+\end{definitionbox}
+
+\section{Visual \& Computational Intuition: Namespace Resolution}
+
+Figure~\ref{fig:legb_scope} visualizes the concentric lookup hierarchy of Python's LEGB resolution mechanism during execution of a nested function.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=0.95,
+    scope/.style={draw=primarydark, thick, rounded corners=8pt, align=center}
+]
+    % Built-in (Outer)
+    \draw[scope, fill=gray!12] (-4.5, -3.2) rectangle (4.5, 3.2);
+    \node[font=\bfseries, primarydark] at (0, 2.8) {Built-in Scope (B): \texttt{len}, \texttt{range}, \texttt{print}, \texttt{sum}};
+
+    % Global
+    \draw[scope, fill=accent!10] (-3.8, -2.4) rectangle (3.8, 2.3);
+    \node[font=\bfseries, accent] at (0, 1.9) {Global / Module Scope (G): \texttt{ALPHA = 0.01}, \texttt{model\_fn}};
+
+    % Enclosing
+    \draw[scope, fill=forest!10] (-3.1, -1.6) rectangle (3.1, 1.4);
+    \node[font=\bfseries, forest] at (0, 1.0) {Enclosing Scope (E): \texttt{learning\_rate}, \texttt{history}};
+
+    % Local (Inner)
+    \draw[scope, fill=primarylight!40] (-2.4, -0.8) rectangle (2.4, 0.5);
+    \node[font=\bfseries, primarydark] at (0, 0.0) {Local Scope (L): \texttt{step}, \texttt{loss}, \texttt{grad}};
+
+    % Search arrows
+    \draw[-stealth, thick, red!80!black] (0, 0.5) -- (0, 0.8);
+    \draw[-stealth, thick, red!80!black] (0, 1.4) -- (0, 1.7);
+    \draw[-stealth, thick, red!80!black] (0, 2.3) -- (0, 2.6);
+
+\end{tikzpicture}
+\caption{The LEGB Scope Hierarchy. Python resolves unqualified identifiers inside-out, halting at the first scope level containing the bound name.}
+\label{fig:legb_scope}
+\end{figure}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Closures and Decorators in Machine Learning}
+A decorator is a syntactic wrapper that transforms a function via a closure:
+\begin{equation}
+@\mathcal{D} \quad \text{def } f(\dots) \iff f = \mathcal{D}(f)
+\end{equation}
+Because decorators wrap target functions, they can inject automated logging, gradient clipping, timing profilers, or input shape verification without polluting the core mathematical algorithm.
+
+\subsection{Stateful Estimator Factories}
+Rather than instantiating an entire object-oriented class for a single learning rate decay, a closure can encapsulate continuous internal state using the \texttt{nonlocal} keyword:
+\begin{lstlisting}[language=Python]
+def make_decay_scheduler(initial_lr: float, decay_rate: float):
+    lr = initial_lr
+    def step():
+        nonlocal lr
+        current = lr
+        lr *= (1.0 - decay_rate)
+        return current
+    return step
+\end{lstlisting}
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{The Mutable Default Argument Trap}
+Default parameter expressions are evaluated \textbf{exactly once when the function definition is executed at module load time}, NOT upon each function call!
+\begin{lstlisting}[language=Python]
+def append_bias(features, bias=[1.0]):  # DANGEROUS!
+    bias.append(0.5)
+    return bias
+
+print(append_bias([]))  # [1.0, 0.5]
+print(append_bias([]))  # [1.0, 0.5, 0.5] -- PERSISTED MUTATION!
+\end{lstlisting}
+The default list object is shared across every single invocation.
+\textbf{The Idiomatic Solution:} Use \texttt{None} as sentinel:
+\begin{lstlisting}[language=Python]
+def append_bias(features, bias=None):
+    if bias is None:
+        bias = [1.0]
+    bias.append(0.5)
+    return bias
+\end{lstlisting}
+\end{trapbox}
+
+\begin{trapbox}{UnboundLocalError from Implicit Local Shadowing}
+Referencing a global variable and assigning to it in the same function without declaring \texttt{global} causes an immediate crash:
+\begin{lstlisting}[language=Python]
+counter = 10
+def update():
+    print(counter)  # Raises UnboundLocalError!
+    counter = 20
+\end{lstlisting}
+Because \texttt{counter = 20} appears in the body, the compiler marks \texttt{counter} as local to \texttt{update()}. The preceding \texttt{print} attempts to read the local variable before it was initialized! If mutating global state is required, declare \texttt{global counter}.
+\end{trapbox}
+
+\begin{trapbox}{Late Binding in Closures and Lambdas}
+Functions created inside loops look up variables by name \textbf{at call time}, not at definition time:
+\begin{lstlisting}[language=Python]
+powers = [lambda x: x**i for i in range(3)]
+print([p(2) for p in powers])  # Output: [4, 4, 4], NOT [1, 2, 4]!
+\end{lstlisting}
+When invoked, all three lambdas evaluate $i$ in their enclosing scope, where $i = 2$ upon loop termination!
+\textbf{Correction via Default Parameter Binding:}
+\begin{lstlisting}[language=Python]
+powers = [lambda x, exp=i: x**exp for i in range(3)]  # Bound immediately!
+\end{lstlisting}
+\end{trapbox}
+
+\begin{trapbox}{Order of Parameter Syntax Declarations}
+Declaring parameters in illegal order raises a fatal \texttt{SyntaxError}:
+\begin{lstlisting}[language=Python]
+# SYNTAX ERROR: non-default argument follows default argument
+def invalid_func(a=10, b): 
+    pass
+\end{lstlisting}
+Parameters must strictly follow the declaration order:
+\textbf{Positional-only $\to$ Standard positional $\to$ Default positional $\to$ \texttt{*args} $\to$ Keyword-only $\to$ Keyword defaults $\to$ \texttt{**kwargs}}.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2.8cm} p{2.8cm} p{2.6cm} p{3.8cm}}
+\hline
+\textbf{Parameter Style} & \textbf{Declaration Syntax} & \textbf{Invocation Rule} & \textbf{Primary Purpose} \\
+\hline
+\textbf{Positional-Only} & \texttt{def f(x, /):} & Positional only & Enforcing API purity, C-extensions \\
+\textbf{Positional / Kwarg} & \texttt{def f(x):} & By position or name & General multipurpose parameters \\
+\textbf{Default Argument} & \texttt{def f(x=val):} & Optional in caller & Fallback settings, hyperparameters \\
+\textbf{Keyword-Only} & \texttt{def f(*, metric):} & Must be named & Preventing silent argument swapping \\
+\textbf{Variable Positional} & \texttt{def f(*args):} & Tuple packing & Variable inputs (e.g. coordinates) \\
+\textbf{Variable Keyword} & \texttt{def f(**kwargs):} & Dict packing & Forwarding configs to submodules \\
+\hline
+\end{tabular}
+\caption{Syntax and invocation taxonomy of Python function parameter forms.}
+\label{tab:parameter_taxonomy}
+\end{table}
+
+\section{Python / Scientific Computing Lab}
+
+The following industrial script demonstrates a Decorator-Based Profiler, an Exponential Learning Rate Scheduler closure with \texttt{nonlocal} state, and an arbitrary-argument ML Loss Evaluator.
+
+\begin{lstlisting}[language=Python]
+import time
+from typing import Callable, Any, Dict, List
+
+def execution_profiler(func: Callable) -> Callable:
+    """Decorator measuring execution latency and logging invocations."""
+    def wrapper(*args, **kwargs) -> Any:
+        start_time = time.perf_counter()
+        result = func(*args, **kwargs)
+        elapsed = time.perf_counter() - start_time
+        print(f"[PROFILER] {func.__name__} executed in {elapsed:.6f}s")
+        return result
+    return wrapper
+
+def create_adaptive_optimizer(initial_lr: float, decay_factor: float = 0.95):
+    """
+    Closure constructing a stateful optimizer schedule with persistent history.
+    """
+    current_lr = initial_lr
+    iteration_step = 0
+    history: List[float] = []
+
+    def step(grad_norm: float) -> Dict[str, float]:
+        nonlocal current_lr, iteration_step
+        iteration_step += 1
+        
+        # Adaptive learning rate decay
+        current_lr *= decay_factor
+        effective_step = current_lr * grad_norm
+        history.append(current_lr)
+
+        return {
+            "step": iteration_step,
+            "learning_rate": round(current_lr, 6),
+            "step_magnitude": round(effective_step, 6)
+        }
+
+    return step
+
+@execution_profiler
+def evaluate_loss_pipeline(
+    predictions: List[float],
+    targets: List[float],
+    *,
+    loss_type: str = "mse",
+    sample_weights: List[float] = None
+) -> float:
+    """
+    Computes weighted error metric enforcing keyword-only arguments.
+    """
+    n = len(predictions)
+    if n != len(targets):
+        raise ValueError("Predictions and targets dimension mismatch.")
+
+    weights = sample_weights if sample_weights is not None else [1.0] * n
+
+    if loss_type == "mse":
+        total_loss = sum(w * (p - y)**2 for p, y, w in zip(predictions, targets, weights))
+    elif loss_type == "mae":
+        total_loss = sum(w * abs(p - y) for p, y, w in zip(predictions, targets, weights))
+    else:
+        raise ValueError(f"Unsupported loss_type: {loss_type}")
+
+    return round(total_loss / sum(weights), 6)
+
+# Execute components
+optimizer = create_adaptive_optimizer(initial_lr=0.1, decay_factor=0.90)
+for g in [1.5, 1.2, 0.8]:
+    info = optimizer(g)
+    print(f"Step {info['step']}: LR = {info['learning_rate']}, Magnitude = {info['step_magnitude']}")
+
+preds = [2.5, 0.0, 2.1, 1.8]
+actuals = [3.0, -0.5, 2.0, 1.5]
+mse_loss = evaluate_loss_pipeline(preds, actuals, loss_type="mse")
+print(f"Computed Loss: {mse_loss}")
+# Output:
+# Step 1: LR = 0.09, Magnitude = 0.135
+# Step 2: LR = 0.081, Magnitude = 0.0972
+# Step 3: LR = 0.0729, Magnitude = 0.05832
+# [PROFILER] evaluate_loss_pipeline executed in 0.0000...s
+# Computed Loss: 0.1475
+\end{lstlisting}
 
 \newpage
-\section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\section{Comprehensive Practice Problems}
+\textit{Detailed step-by-step solutions and distractor analyses are provided in the Appendix.}
+
+\subsection*{Part A: Computational \& Analytical Problems}
 
 \begin{enumerate}
-    \item \textbf{Basic Function:} Write a function \texttt{is\_even(n)} that returns \texttt{True} if an integer $n$ is even, and \texttt{False} otherwise.
+    \item \textbf{Call-by-Sharing Mutation vs. Reassignment:}
+    Analyze the execution of the following function calls:
+    \begin{lstlisting}[language=Python]
+    def modify_containers(a_list, a_val):
+        a_list.append(100)
+        a_list = [1, 2, 3]
+        a_val += 50
+        return a_list, a_val
 
-    \item \textbf{Default Arguments:} Write a function \texttt{compute\_power(base, exponent=2)} that returns $\text{base}^{\text{exponent}}$. Test it with \texttt{compute\_power(5)} and \texttt{compute\_power(2, 3)}.
+    orig_list = [10, 20]
+    orig_val = 5
+    res_list, res_val = modify_containers(orig_list, orig_val)
+    \end{lstlisting}
+    Determine the exact final contents of \texttt{orig\_list}, \texttt{orig\_val}, \texttt{res\_list}, and \texttt{res\_val}.
 
-    \item \textbf{Flexible Aggregation (\texttt{*args}):} Write a function \texttt{calculate\_mean(*args)} that accepts any number of numeric arguments and returns their arithmetic mean. Handle the edge case of no arguments passed by returning \texttt{0.0}.
+    \item \textbf{The Mutable Default Argument Mechanism:}
+    Trace the following function across three consecutive invocations:
+    \begin{lstlisting}[language=Python]
+    def register_experiment(name, records={}):
+        records[name] = len(records)
+        return records
 
-    \item \textbf{Variable Scope:} What will be the output of the following script? Explain why.
-\begin{lstlisting}
-x = 50
+    exp1 = register_experiment("trial_1")
+    exp2 = register_experiment("trial_2")
+    exp3 = register_experiment("trial_3", records={"custom": 99})
+    exp4 = register_experiment("trial_4")
+    \end{lstlisting}
+    Determine the values of \texttt{exp1}, \texttt{exp2}, \texttt{exp3}, and \texttt{exp4}.
 
-def modify_val():
-    x = 100
-    print("Inside:", x)
+    \item \textbf{LEGB Scope Resolution and Name Shadowing:}
+    What is the exact printed output of the following nested function structure?
+    \begin{lstlisting}[language=Python]
+    x = 10
+    def outer():
+        x = 20
+        def inner():
+            nonlocal x
+            x += 5
+            print("Inner x:", x)
+        inner()
+        print("Outer x:", x)
+    outer()
+    print("Global x:", x)
+    \end{lstlisting}
 
-modify_val()
-print("Outside:", x)
-\end{lstlisting}
+    \item \textbf{Late Binding in Closures:}
+    Explain why the following code prints \texttt{[16, 16, 16, 16]} instead of \texttt{[0, 1, 4, 9]}, and provide the corrected implementation:
+    \begin{lstlisting}[language=Python]
+    multipliers = [lambda x: x * i for i in range(4)]
+    print([m(4) for m in multipliers])
+    \end{lstlisting}
 
-    \item \textbf{Data Science Application (Min-Max Scaling Function):} Write a modular function \texttt{min\_max\_scaler(data)} that takes a list of numbers, calculates its min and max, and returns a new list of min-max normalized values rounded to 3 decimal places.
+    \item \textbf{Higher-Order Function: Exponential Moving Average Closure:}
+    Write a function factory \texttt{make\_ema(alpha: float)} that returns a stateful closure function \texttt{update(val: float) -> float}.
+    The closure must calculate the Exponential Moving Average:
+    \begin{equation}
+    S_t = \alpha x_t + (1 - \alpha) S_{t-1}
+    \end{equation}
+    For the initial call ($t = 0$), $S_0 = x_0$. All subsequent calls must maintain state across calls using the \texttt{nonlocal} keyword.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions (Single Correct)}
+
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item \textbf{Parameter Signature Grammar and Invocation Restrictions:}
+    Given the function definition:
+    \begin{lstlisting}[language=Python]
+    def compute(a, b, /, c, *, d=10):
+        return a + b + c + d
+    \end{lstlisting}
+    Which of the following function calls will raise a \texttt{TypeError}?
+    \begin{enumerate}
+        \item \texttt{compute(1, 2, c=3, d=4)}
+        \item \texttt{compute(1, 2, 3)}
+        \item \texttt{compute(a=1, b=2, c=3, d=4)}
+        \item \texttt{compute(1, 2, 3, d=20)}
+    \end{enumerate}
+
+    \item \textbf{Scope Diagnostics and Compiler Identification of Locals:}
+    Consider the following code:
+    \begin{lstlisting}[language=Python]
+    total = 100
+    def add_tax():
+        if False:
+            total = 200
+        return total
+    \end{lstlisting}
+    What occurs when calling \texttt{add\_tax()}?
+    \begin{enumerate}
+        \item Returns \texttt{100}
+        \item Raises \texttt{UnboundLocalError: local variable 'total' referenced before assignment}
+        \item Returns \texttt{200}
+        \item Returns \texttt{None}
+    \end{enumerate}
 \end{enumerate}

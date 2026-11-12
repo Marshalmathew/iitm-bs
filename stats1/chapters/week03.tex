@@ -1,148 +1,224 @@
-\chapter{Describing Numerical Data}
+\chapter{Describing Numerical Data: Central Tendency}
 
-Numerical data requires a richer mathematical toolkit than categorical data. Because the data consists of actual numbers on an interval or ratio scale, we can perform arithmetic. When analyzing numerical data, we generally want to capture three things: the \emph{centre} (where is the middle?), the \emph{spread} (how scattered is it?), and the \emph{shape} (is it symmetric or skewed?).
-
+Numerical data requires a richer mathematical toolkit than categorical data. Because numerical values occupy an interval or ratio scale, we can execute arithmetic operations to quantify the geometry of a distribution. When exploring a continuous or discrete numerical feature, statistical inquiry begins with three questions: Where is the distribution centred? How dispersed are the values? And what is the shape of its skewness? In this chapter, we master \textbf{Class Intervals and Histograms}, the \textbf{Arithmetic Mean}, \textbf{Weighted Mean}, \textbf{Median}, \textbf{Mode}, \textbf{Trimmed Mean}, their fundamental \textbf{Optimization Properties ($L_1$ vs. $L_2$ loss)}, and the cognitive traps of skewness and non-resistant averages.
 
 \vspace{0.5cm}
 \begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
 \begin{itemize}
-    \item Frequency Tables and Histograms
-    \item Measures of Central Tendency
-    \item Measures of Dispersion (Spread)
-    \item Quartiles and the Five-Number Summary
+    \item Grouping continuous data into class intervals and constructing density histograms.
+    \item Mathematical definitions and algebraic properties of the Arithmetic Mean ($\bar{x}$) and Weighted Mean ($\bar{x}_w$).
+    \item The Fundamental Zero-Sum Deviation Theorem: $\sum_{i=1}^n (x_i - \bar{x}) = 0$.
+    \item The Optimization Duality: Mean minimizes $L_2$ squared error, Median minimizes $L_1$ absolute error.
+    \item Skewness relations: ordering of Mean, Median, and Mode in right-skewed and left-skewed distributions.
+    \item Exam traps: averaging sub-cohort averages without weights, and outlier vulnerability of the arithmetic mean.
+    \item Two-tier exercises with diagnostic multiple choice questions on loss minimization and weighted aggregations.
 \end{itemize}
 \end{tcolorbox}
+
 \section{Frequency Tables and Histograms}
 
-For discrete data with a massive range, or for continuous data (which has infinite possible values), we cannot simply list every unique value like we did for categorical data. Instead, we must group values into \index{class intervals}\textbf{class intervals} (or "bins").
+For continuous numerical data (which can assume uncountably infinite values), we cannot tabulate individual frequencies. Instead, the continuous support is partitioned into $k$ contiguous, non-overlapping \index{Class Intervals}\textbf{class intervals} (bins) $[b_0, b_1), [b_1, b_2), \dots, [b_{k-1}, b_k)$.
 
 \begin{definitionbox}{Class Intervals and Histograms}
-\index{Class Intervals and Histograms}
+\index{Histogram}
+Let $n$ observations span the range $R = x_{(n)} - x_{(1)}$.
 \begin{itemize}
-    \item \textbf{Class Intervals:} Divide the total range of the data into $k$ non-overlapping, equal-width bins (e.g., $0-10, 10-20, 20-30$).
-    \item \textbf{Histogram:} A bar chart specifically designed for numerical data. The x-axis is a continuous number line. Crucially, the bars are \emph{adjacent} (no gaps between them) to represent the continuous nature of the data.
-    \item \textbf{Choosing Bins ($k$):} A common rule of thumb is $k \approx \sqrt{n}$, where $n$ is the sample size. If you have 100 data points, use about 10 bins.
+    \item \textbf{Equal Bin Width ($w$):} Given $k$ bins:
+    $$w = \frac{\max(x) - \min(x)}{k}$$
+    Standard heuristics for choosing $k$ include \textbf{Sturges' Rule} ($k = 1 + \lceil \log_2 n \rceil$) and \textbf{Freedman-Diaconis Rule} ($w = 2 \cdot \text{IQR} \cdot n^{-1/3}$).
+    \item \textbf{Histogram Structure:} A plot of contiguous vertical columns where each bar's base represents a class interval on the continuous number line, and its area (or height) represents frequency or relative frequency.
+    \item \textbf{Adjacent Bars Rule:} Unlike categorical bar charts, histogram bars \textbf{touch without gaps} to reflect the underlying continuity of the real number line. Gaps appear only if a bin contains exactly zero observed data points.
 \end{itemize}
 \end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: W3\_L1 Frequency Tables for Numerical Data}{https://www.youtube.com/watch?v=wifCmIPaBqQ}
+\begin{videocard}{IITM BS Lecture: Frequency Tables for Numerical Data}{https://www.youtube.com/watch?v=wifCmIPaBqQ}
 Official lecture explaining how to bin continuous data and construct a histogram.
 \end{videocard}
 
 \section{Measures of Central Tendency}
 
-Where is the "middle" of the data? We have three primary ways to define it.
+A measure of central tendency provides a single summary value representing the location or center of a numerical distribution.
 
-\begin{formulabox}{Mean, Median, and Mode}
-Let $x_1, x_2, \ldots, x_n$ be $n$ numerical observations.
+\begin{definitionbox}{The Arithmetic Mean and Weighted Mean}
+\index{Arithmetic Mean}\index{Weighted Mean}
+Let $x_1, x_2, \dots, x_n$ be a sample of $n$ numerical observations.
 \begin{itemize}
-    \item \textbf{Sample Mean ($\bar{x}$):} The arithmetic average.
-    $$\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i$$
-    \item \textbf{Median:} The literal middle value when observations are sorted in ascending order.
-        \begin{itemize}
-            \item If $n$ is odd: The exact middle value at position $\frac{n+1}{2}$.
-            \item If $n$ is even: The average of the two middle values at $\frac{n}{2}$ and $\frac{n}{2}+1$.
-        \end{itemize}
-    \item \textbf{Mode:} The most frequently occurring value. (Less commonly used for continuous numerical data unless binned).
-\end{itemize}
-\end{formulabox}
-
-\begin{theorembox}{Mean vs. Median: The Impact of Outliers}
-\begin{itemize}
-    \item The \index{mean}\textbf{mean} incorporates the exact value of \emph{every single data point} into its calculation. Therefore, it is highly sensitive to \index{outliers}\textbf{outliers} (extreme values).
-    \item The \index{median}\textbf{median} depends \emph{only} on the rank-ordering of the data. Changing the largest value in the dataset from $100$ to $1,000,000$ does not change the median at all. Thus, the median is \index{robust}\textbf{robust} to outliers.
-    \item \textbf{Right-Skewed (Long Right Tail):} Mean $>$ Median. (The few huge values pull the mean up).
-    \item \textbf{Left-Skewed (Long Left Tail):} Mean $<$ Median. (The few tiny values pull the mean down).
-    \item \textbf{Symmetric:} Mean $\approx$ Median.
-\end{itemize}
-\end{theorembox}
-
-\textbf{Data Science Relevance:} In data science, replacing missing values (NaNs) is called \index{Imputation}\textbf{Imputation}. If your feature has extreme outliers (like Income), imputing missing values with the \emph{Mean} will severely distort your dataset. You must impute using the \emph{Median}.
-
-\begin{videocard}{IITM BS Lecture: W3\_L2 \& L3 Mean, Median, and Mode}{https://www.youtube.com/watch?v=2qTdQjFGA94}
-Official lectures comparing the formulas and structural differences between Mean and Median.
-\end{videocard}
-
-\section{Measures of Dispersion (Spread)}
-
-\begin{intuitionbox}{Why Standard Deviation?}
-Why do we square the distances from the mean, average them, and then take the square root? Why not just take the absolute values? Squaring heavily penalizes large outliers. If a point is 10 units away, squaring it adds 100 to the variance. This means Standard Deviation specifically flags datasets that have extreme, volatile outliers.
-\end{intuitionbox}
-
-\begin{lstlisting}[language=Python, caption=Data Science: Dispersion in Pandas]
-import pandas as pd
-
-df = pd.DataFrame({"Temperatures": [25, 26, 24, 25, 50, 0]})
-print("Variance:", df["Temperatures"].var())
-print("Std Dev:", df["Temperatures"].std())
-print("IQR:", df["Temperatures"].quantile(0.75) - df["Temperatures"].quantile(0.25))
-\end{lstlisting}
-
-Knowing the centre isn't enough. A city where the temperature is exactly $25^\circ$C every day has a mean of 25. A city where the temperature violently swings between $0^\circ$C and $50^\circ$C also has a mean of 25. We need to measure the spread.
-
-\begin{formulabox}{Range, Variance, Standard Deviation, and IQR}
-\begin{itemize}
-    \item \textbf{Range:} $R = \max - \min$. Simplest measure, but entirely dictated by the two most extreme outliers.
-    \item \textbf{Sample Variance ($s^2$):} The average squared distance of each point from the mean.
-    $$s^2 = \frac{1}{n-1}\sum_{i=1}^{n}(x_i - \bar{x})^2$$
-    \textit{Note:} We divide by $n-1$ (Bessel's correction) rather than $n$ to make it an unbiased estimator of the population variance.
-    \item \textbf{Standard Deviation ($s$):} $s = \sqrt{s^2}$. This returns the spread back to the original units of the data.
-    \item \textbf{Interquartile Range (IQR):}
-    $$\mathrm{IQR} = Q_3 - Q_1$$
-    This measures the exact spread of the \emph{middle 50\%} of the data. Because it ignores the top 25\% and bottom 25\%, it is highly \index{robust}\textbf{robust} to outliers.
-\end{itemize}
-\end{formulabox}
-
-\textbf{Data Science Relevance:} Machine Learning algorithms like K-Means Clustering and Support Vector Machines rely on measuring distances between data points. If one feature has a standard deviation of $1000$ and another has a standard deviation of $1$, the algorithm will completely ignore the smaller feature. We use the Standard Deviation to mathematically scale (Standardize) all features to have $s=1$.
-
-\begin{videocard}{IITM BS Lecture: W3\_L4 Measures of Dispersion}{https://www.youtube.com/watch?v=Ju8cRGDTxsQ}
-Official lecture deriving the Variance and explaining why we square the distances from the mean.
-\end{videocard}
-
-\section{Quartiles and the Five-Number Summary}
-
-We can slice ordered data into percentages to understand its structure deeply.
-
-\begin{definitionbox}{Percentiles and Quartiles}
-\index{Percentiles and Quartiles}
-\begin{itemize}
-    \item \textbf{$p$-th Percentile:} The value below which $p\%$ of the observations fall.
-    \item \textbf{Quartiles:} Specific percentiles that divide the sorted data into four equal quarters (25\% each).
-        \begin{itemize}
-            \item $Q_1$ (25th percentile) — Lower quartile.
-            \item $Q_2$ (50th percentile) — Median.
-            \item $Q_3$ (75th percentile) — Upper quartile.
-        \end{itemize}
-    \item \textbf{Five-Number Summary:} $\{\min,\; Q_1,\; Q_2,\; Q_3,\; \max\}$.
-    \item \textbf{Boxplot:} A visual display of the Five-Number Summary. The "box" goes from $Q_1$ to $Q_3$, containing the middle 50\% of data.
+    \item \textbf{Sample Arithmetic Mean ($\bar{x}$):}
+    $$\bar{x} = \frac{1}{n}\sum_{i=1}^n x_i$$
+    \item \textbf{Weighted Arithmetic Mean ($\bar{x}_w$):} When each observation $x_i$ carries an importance weight or frequency count $w_i > 0$:
+    $$\bar{x}_w = \frac{\sum_{i=1}^n w_i x_i}{\sum_{i=1}^n w_i}$$
 \end{itemize}
 \end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: W3\_L5 Percentiles, Quartiles, and IQR}{https://www.youtube.com/watch?v=3pjSpNbas14}
-Official lecture on calculating $Q_1$ and $Q_3$ and using them to mathematically flag Outliers.
+\begin{theorembox}{The Zero-Sum Property of Deviations}
+\index{Zero-Sum Property}
+The sum of algebraic signed deviations of all observations from their arithmetic mean is \textbf{identically zero}:
+$$\sum_{i=1}^n (x_i - \bar{x}) = \sum_{i=1}^n x_i - \sum_{i=1}^n \bar{x} = n\bar{x} - n\bar{x} = 0$$
+The arithmetic mean represents the exact physical "center of mass" (fulcrum) where positive and negative deviations perfectly balance.
+\end{theorembox}
+
+\begin{definitionbox}{The Sample Median and Mode}
+\index{Median}\index{Mode}
+Let $x_{(1)} \le x_{(2)} \le \dots \le x_{(n)}$ denote the order statistics (sorted sample).
+\begin{itemize}
+    \item \textbf{Sample Median ($\tilde{x}$ or $Q_2$):}
+    $$\tilde{x} = \begin{cases}
+    x_{\left(\frac{n+1}{2}\right)}, & \text{if } n \text{ is odd} \\[8pt]
+    \frac{x_{\left(\frac{n}{2}\right)} + x_{\left(\frac{n}{2} + 1\right)}}{2}, & \text{if } n \text{ is even}
+    \end{cases}$$
+    \item \textbf{Mode:} The value that occurs with the greatest frequency. For continuous distributions, the mode is the point $x$ where the probability density function $f(x)$ attains its global maximum.
+    \item \textbf{Trimmed Mean ($\bar{x}_{\alpha}$):} To balance resistance with statistical efficiency, the $\alpha$-trimmed mean discards the lowest $\alpha\%$ and highest $\alpha\%$ of observations before computing the arithmetic mean:
+    $$\bar{x}_{\alpha} = \frac{1}{n - 2k} \sum_{i=k+1}^{n-k} x_{(i)} \quad \text{where } k = \lfloor n \alpha \rfloor$$
+\end{itemize}
+\end{definitionbox}
+
+\begin{videocard}{IITM BS Lecture: Mean, Median, and Mode}{https://www.youtube.com/watch?v=2qTdQjFGA94}
+Official lecture comparing the formulas, skewness dynamics, and outlier sensitivities of central tendencies.
 \end{videocard}
+
+\section{The Optimization Duality: $L_1$ vs. $L_2$ Loss}
+
+Why do both the Mean and Median exist? In mathematical statistics and machine learning, they arise as optimal solutions to two distinct loss minimization problems:
+
+\begin{theorembox}{Loss Minimization Properties of Mean and Median}
+\index{Loss Minimization}
+\begin{itemize}
+    \item \textbf{The Mean Minimizes $L_2$ Squared Error:} The constant $c \in \mathbb{R}$ that minimizes the sum of squared distances from the data points is the \textbf{Arithmetic Mean}:
+    $$\arg\min_{c \in \mathbb{R}} \sum_{i=1}^n (x_i - c)^2 = \bar{x}$$
+    \textit{Proof:} Differentiating $g(c) = \sum_{i=1}^n (x_i - c)^2$ with respect to $c$:
+    $$g'(c) = -2\sum_{i=1}^n (x_i - c) = 0 \implies \sum_{i=1}^n x_i - n c = 0 \implies c = \frac{1}{n}\sum_{i=1}^n x_i = \bar{x}$$
+    \item \textbf{The Median Minimizes $L_1$ Absolute Error:} The constant $c \in \mathbb{R}$ that minimizes the sum of absolute distances from the data points is the \textbf{Sample Median}:
+    $$\arg\min_{c \in \mathbb{R}} \sum_{i=1}^n |x_i - c| = \tilde{x}$$
+\end{itemize}
+\textbf{Data Science Impact:} Mean squared error (MSE) regression estimates the conditional mean $\E[Y \mid X]$. Mean absolute error (MAE) regression estimates the conditional median $\text{Median}(Y \mid X)$, providing robust predictions immune to outlier anomalies!
+\end{theorembox}
+
+\section{Skewness and the Ordering of Location Measures}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{p{3.2cm}p{3.5cm}p{4.2cm}p{3.0cm}}
+\toprule
+\textbf{Distribution Shape} & \textbf{Relative Order} & \textbf{Tail Characteristics} & \textbf{Recommended Center} \\
+\midrule
+\textbf{Symmetric} & $\text{Mean} \approx \text{Median} \approx \text{Mode}$ & Equal left and right tails & Arithmetic Mean ($\bar{x}$) \\
+\textbf{Right-Skewed} (Positive) & $\text{Mode} < \text{Median} < \text{Mean}$ & Long right tail; extreme large values pull mean to the right & Median ($\tilde{x}$) \\
+\textbf{Left-Skewed} (Negative) & $\text{Mean} < \text{Median} < \text{Mode}$ & Long left tail; extreme small values pull mean to the left & Median ($\tilde{x}$) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Cognitive Traps in Central Tendency}
+
+\begin{trapbox}{Trap 1: The Non-Resistance of the Arithmetic Mean}
+The arithmetic mean has a \textbf{breakdown point of 0\%}.
+\begin{itemize}
+    \item A single corrupted or extreme observation $x_k \to \infty$ pulls the sample mean $\bar{x} \to \infty$, regardless of how large the sample size $n$ is.
+    \item In income distributions, housing prices, or website response latencies, reporting the "average" gives a grossly distorted picture. Always verify skewness and report the \textbf{Median} alongside the Mean.
+\end{itemize}
+\end{trapbox}
+
+\begin{trapbox}{Trap 2: The "Average of Averages" Fallacy}
+Never compute the simple unweighted arithmetic mean of group averages unless all groups have \textbf{strictly identical sample sizes}!
+\begin{itemize}
+    \item Suppose Section 1 has $n_1 = 10$ students with average exam score $\bar{x}_1 = 90$. Section 2 has $n_2 = 90$ students with average score $\bar{x}_2 = 50$.
+    \item Naive Average: $\frac{90 + 50}{2} = 70$. (Completely wrong!)
+    \item Correct Weighted Mean:
+    $$\bar{x}_{\text{combined}} = \frac{n_1 \bar{x}_1 + n_2 \bar{x}_2}{n_1 + n_2} = \frac{10(90) + 90(50)}{10 + 90} = \frac{900 + 4500}{100} = \mathbf{54.0}$$
+    Ignoring group sizes gives $9 \times$ too much weight to the small section!
+\end{itemize}
+\end{trapbox}
+
+\section{Python Implementation: Measures of Central Tendency in SciPy}
+
+\begin{lstlisting}[caption={Central Tendency and Loss Minimization in Python}]
+import numpy as np
+import scipy.stats as stats
+
+# Right-skewed distribution (e.g. software engineer salaries)
+salaries = np.array([60, 65, 70, 72, 75, 80, 85, 90, 110, 1500])  # in thousands
+
+mean_val = np.mean(salaries)
+median_val = np.median(salaries)
+mode_val = stats.mode(salaries, keepdims=True).mode[0]
+trim_mean = stats.trim_mean(salaries, proportiontocut=0.10) # 10% trimmed mean
+
+print(f"Mean:   ${mean_val:.1f}k  (Distorted by the single $1500k executive)")
+print(f"Median: ${median_val:.1f}k  (Robust summary of typical salary)")
+print(f"Mode:   ${mode_val:.1f}k")
+print(f"10% Trimmed Mean: ${trim_mean:.1f}k")
+
+# Numerical proof of optimization duality
+c_grid = np.linspace(50, 150, 1000)
+l2_losses = [np.sum((salaries - c)**2) for c in c_grid]
+l1_losses = [np.sum(np.abs(salaries - c)) for c in c_grid]
+
+print(f"\nEmpirical argmin of L2 loss: {c_grid[np.argmin(l2_losses)]:.2f} (Matches Mean)")
+print(f"Empirical argmin of L1 loss: {c_grid[np.argmin(l1_losses)]:.2f} (Matches Median)")
+\end{lstlisting}
 
 \newpage
 \section{Practice Exercises}
 \textit{Detailed step-by-step solutions are available in the Appendix.}
 
+\subsection*{Part A: Computational and Analytical Problems}
+
 \begin{enumerate}
-    \item \textbf{Central Tendency:} A startup has 5 employees. Four engineers make Rs.~80,000 each. The CEO makes Rs.~1,680,000. 
+    \item \textbf{Outlier Sensitivity and Skewness:} A software development team consists of 6 junior engineers and 1 director. The monthly compensations (in INR) are:
+    $$\{70{,}000,\; 75{,}000,\; 80{,}000,\; 80{,}000,\; 85{,}000,\; 90{,}000,\; 1{,}480{,}000\}$$
     \begin{enumerate}
-        \item Calculate the Mean salary and the Median salary.
-        \item The CEO goes to the press and says, "Our average employee makes Rs.~400,000! We pay great!" Explain mathematically why this is highly misleading, and state whether the distribution is Left-Skewed or Right-Skewed.
+        \item Compute the Sample Mean ($\bar{x}$) and Sample Median ($\tilde{x}$).
+        \item Compute the $14.3\%$ trimmed mean (dropping the single minimum and single maximum).
+        \item Characterize the direction of skewness based on the relationship between $\bar{x}$ and $\tilde{x}$.
     \end{enumerate}
-    \item \textbf{Calculating Spread:} Given the dataset $X = \{2, 4, 4, 4, 5, 5, 7, 9\}$ ($n=8$):
+
+    \item \textbf{The Zero-Sum Deviation Property:} For the dataset $X = \{12, 15, 18, 22, 28\}$:
     \begin{enumerate}
-        \item Calculate the Sample Mean ($\bar{x}$).
-        \item Calculate the Sample Variance ($s^2$) and Standard Deviation ($s$).
+        \item Compute the sample mean $\bar{x}$.
+        \item Calculate each deviation $(x_i - \bar{x})$ and algebraically verify that $\sum_{i=1}^5 (x_i - \bar{x}) = 0$.
     \end{enumerate}
-    \item \textbf{Quartiles and IQR:} Using the same sorted dataset $X = \{2, 4, 4, 4, 5, 5, 7, 9\}$:
+
+    \item \textbf{Weighted Mean of Aggregated Batches:} An automated quality inspector monitors component thickness across three manufacturing shifts:
+    \begin{itemize}
+        \item Shift A: $n_1 = 500$ parts produced, sample mean thickness $\bar{x}_1 = 12.4\,\text{mm}$.
+        \item Shift B: $n_2 = 300$ parts produced, sample mean thickness $\bar{x}_2 = 12.8\,\text{mm}$.
+        \item Shift C: $n_3 = 200$ parts produced, sample mean thickness $\bar{x}_3 = 13.5\,\text{mm}$.
+    \end{itemize}
+    Compute the grand mean thickness $\bar{x}_{\text{combined}}$ across the entire day's production of 1,000 parts.
+
+    \item \textbf{Optimization Property Verification:} Given three data points $\{2, 5, 11\}$:
     \begin{enumerate}
-        \item Find the Median ($Q_2$).
-        \item Find $Q_1$ and $Q_3$. (Hint: $Q_1$ is the median of the lower half, $Q_3$ is the median of the upper half).
-        \item Calculate the Interquartile Range (IQR).
+        \item Find the value of $c$ that minimizes the sum of squared errors $f(c) = \sum_{i=1}^3 (x_i - c)^2$.
+        \item Find the value of $c$ that minimizes the sum of absolute errors $g(c) = \sum_{i=1}^3 |x_i - c|$.
     \end{enumerate}
-    \item \textbf{Data Science Application:} You are preprocessing a dataset of house prices for a neural network. You notice that the "Number of Bedrooms" feature ranges from $1$ to $5$, but the "Square Footage" feature ranges from $800$ to $12,000$. Which measure of dispersion dictates that you MUST apply feature scaling before training the model? What would happen if you didn't?
-    \item \textbf{Histograms vs. Bar Charts:} Explain the fundamental visual difference between a Histogram and a Bar Chart, and explain why that visual difference exists based on the underlying data types.
+
+    \item \textbf{Histogram Binning Impact:} A dataset of $n = 100$ response times spans from $12\,\text{ms}$ to $92\,\text{ms}$.
+    \begin{enumerate}
+        \item Using the square-root rule $k \approx \lceil\sqrt{n}\rceil$, determine the recommended number of class intervals.
+        \item Calculate the required equal bin width $w$.
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Conceptual and Diagnostic Multiple Choice Questions}
+
+\begin{enumerate}[resume]
+\item \textbf{Conceptual Diagnostic: Loss Functions and Model Invariance} \\
+A financial risk modeling team is training a loss forecasting model for credit default events. The loss distribution exhibits extreme right-skewness, with rare defaults producing multi-million-dollar catastrophic losses. The executive board requires a model that outputs a point forecast $\hat{y}$ that is \textbf{robust to extreme outlier defaults} and minimizes the expected absolute monetary deviation $\E[|Y - \hat{y}|]$. Which objective function and summary statistic should the engineering team deploy?
+\begin{enumerate}
+    \item Train the model with Mean Squared Error (MSE) loss, because MSE minimizes the arithmetic mean $\bar{y}$.
+    \item Train the model with Mean Absolute Error (MAE) loss, because the point that minimizes sum of absolute deviations is the conditional median, which is immune to the magnitude of extreme right-tail outliers.
+    \item Train the model with Mean Absolute Percentage Error (MAPE), because MAPE is strictly invariant to zero values.
+    \item Train the model using the Mode, because the mode minimizes both $L_1$ and $L_2$ losses simultaneously in continuous distributions.
+\end{enumerate}
+
+\item \textbf{Conceptual Diagnostic: Aggregation of Group Averages} \\
+A national tech conglomerate operates three subsidiaries: Alpha ($100$ employees, average salary $\$120{,}000$), Beta ($300$ employees, average salary $\$80{,}000$), and Gamma ($600$ employees, average salary $\$50{,}000$). The Chief People Officer calculates:
+$$\text{Average} = \frac{\$120{,}000 + \$80{,}000 + \$50{,}000}{3} = \frac{\$250{,}000}{3} \approx \$83{,}333$$
+and announces that the average salary in the conglomerate is over $\$83{,}000$. What is the true corporate mean salary, and why did the officer's calculation fail?
+\begin{enumerate}
+    \item The true mean is $\$66{,}000$; the officer's calculation failed by assigning equal $1/3$ weight to all three subsidiaries instead of weighting each subsidiary proportional to its employee headcount.
+    \item The true mean is $\$83{,}333$; the officer's formula is exact because all three companies are part of the same parent corporation.
+    \item The true mean is $\$50{,}000$; because Gamma has the largest headcount ($600$), its mean overrides all other subsidiaries.
+    \item The true mean is $\$70{,}000$; because the median of $120{,}000, 80{,}000, 50{,}000$ must replace the arithmetic average.
+\end{enumerate}
 \end{enumerate}

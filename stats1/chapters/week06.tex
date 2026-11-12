@@ -1,170 +1,259 @@
-\chapter{Probability Basics}
+\chapter{Probability Axioms, Set Theory \& Sample Spaces}
 
-With a firm grasp of counting principles, we now cross over from descriptive statistics into the realm of uncertainty: Probability. In data science, probability is the mathematical language we use to quantify confidence in our model's predictions.
-
+With combinatorial counting principles established, we cross the threshold from deterministic measurement into the mathematical formalization of uncertainty: \textbf{Probability Theory}. In machine learning and algorithmic data science, probability governs everything from loss optimization and naive Bayes classifiers to neural network softmax normalization. Probability is not mere guesswork; it is a rigorous branch of mathematics grounded in measure theory. In this chapter, we master \textbf{Random Experiments and Sample Spaces ($\Omega$)}, \textbf{Event Spaces and Set Algebras}, \textbf{Kolmogorov's Three Axioms of Probability}, \textbf{De Morgan's Laws}, the \textbf{Inclusion-Exclusion Principle}, \textbf{Boole's Union Bound}, and the cognitive traps of overlapping events and the "at least one" complement shortcut.
 
 \vspace{0.5cm}
 \begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
 \begin{itemize}
-    \item Random Experiments and Sample Space
-    \item Events and Set Operations
-    \item Axioms and Properties of Probability
+    \item Formal definitions of Random Experiments, Sample Spaces ($\Omega$), Sample Points ($\omega$), and Events ($A \subseteq \Omega$).
+    \item Set operations on events: Unions, Intersections, Complements, Disjointness, and De Morgan's Laws.
+    \item Kolmogorov's Three Axioms of Probability: Non-negativity, Normalization, and Countable Additivity.
+    \item Crucial derived theorems: Monotonicity ($A \subseteq B \implies \P(A) \le \P(B)$), the Complement Rule, and Boole's Inequality.
+    \item The Principle of Inclusion-Exclusion for two and three overlapping events.
+    \item Cognitive traps: omitting intersection subtraction, confusing null events with impossibility in continuous supports, and overcounting.
+    \item Two-tier exercises with diagnostic multiple choice questions on union bounds and reliability sets.
 \end{itemize}
 \end{tcolorbox}
-\section{Random Experiments and Sample Space}
 
-\begin{definitionbox}{Random Experiment and Sample Space}
-\index{Random Experiment and Sample Space}
+\section{Random Experiments, Sample Spaces, and Events}
+
+\begin{definitionbox}{Random Experiment and Sample Space ($\Omega$)}
+\index{Random Experiment}\index{Sample Space}
 \begin{itemize}
-    \item \textbf{Random Experiment:} Any process or action whose exact outcome cannot be predicted with certainty, but whose set of all possible outcomes is known. (Example: Flipping a coin, rolling a die, a user clicking on an ad).
-    \item \textbf{Sample Space ($S$ or $\Omega$):} The set of \emph{all} possible outcomes of a random experiment.
-    \item \textbf{Sample Point ($\omega$):} A single, specific outcome within the sample space.
+    \item \textbf{Random Experiment:} An empirical procedure or physical process whose exact outcome cannot be deterministically predicted in advance, but whose set of all possible outcomes is fully specifiable before execution.
+    \item \textbf{Sample Space ($\Omega$ or $S$):} The exhaustive set of all mutually exclusive elementary outcomes:
+    $$\Omega = \{\omega_1, \omega_2, \dots\}$$
+    Sample spaces may be \textbf{finite discrete} (e.g. tossing two coins: $\{HH, HT, TH, TT\}$), \textbf{countably infinite} (e.g. number of attempts until first server response: $\{1, 2, 3, \dots\}$), or \textbf{uncountably continuous} (e.g. packet arrival latency: $\Omega = [0, \infty)$).
+    \item \textbf{Event ($A$):} Any subset of the sample space ($A \subseteq \Omega$). The event $A$ occurs if the observed realization $\omega \in A$.
 \end{itemize}
 \end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: W6\_L1 \& L3 Basic Definitions \& Sample Space}{https://www.youtube.com/watch?v=A4SWpP5As1M}
+\begin{videocard}{IITM BS Lecture: Basic Definitions and Sample Space}{https://www.youtube.com/watch?v=A4SWpP5As1M}
 Official lectures defining random experiments, outcomes, and building the Sample Space $S$.
 \end{videocard}
 
-\section{Events and Set Operations}
+\section{Event Algebra and Set Operations}
 
-\begin{definitionbox}{Events}
-\index{Events}
-An \textbf{Event ($A$)} is any subset of the sample space ($A \subseteq S$). We say the event $A$ \emph{occurred} if the final outcome of the experiment is an element of $A$.
+Because events are formal sets of outcomes, probability logic is identical to Boolean set algebra:
+
+\begin{definitionbox}{Set Operations on Events}
+\index{Set Operations}
+Let $A, B \subseteq \Omega$ be arbitrary events in sample space $\Omega$:
 \begin{itemize}
-    \item \textbf{Simple Event:} An event consisting of exactly one outcome.
-    \item \textbf{Compound Event:} An event consisting of more than one outcome.
-    \item \textbf{Impossible Event ($\emptyset$):} The empty set. An event that contains no outcomes.
-    \item \textbf{Certain Event ($S$):} The entire sample space. It contains all outcomes and must occur.
+    \item \textbf{Union ($A \cup B$):} The event that $A$ occurs \textbf{OR} $B$ occurs (inclusive or):
+    $$A \cup B = \{\omega \in \Omega \colon \omega \in A \text{ or } \omega \in B\}$$
+    \item \textbf{Intersection ($A \cap B$ or $AB$):} The event that \textbf{BOTH} $A$ and $B$ occur simultaneously:
+    $$A \cap B = \{\omega \in \Omega \colon \omega \in A \text{ and } \omega \in B\}$$
+    \item \textbf{Complement ($A^c$ or $\bar{A}$):} The event that $A$ does \textbf{NOT} occur:
+    $$A^c = \Omega \setminus A = \{\omega \in \Omega \colon \omega \notin A\}$$
+    \item \textbf{Mutually Exclusive / Disjoint Events:} Events that cannot co-occur in a single realization:
+    $$A \cap B = \emptyset \implies \P(A \cap B) = 0$$
 \end{itemize}
 \end{definitionbox}
 
-Because events are sets, we manipulate them using Set Theory operations:
-\begin{theorembox}{Set Operations on Events}
-\begin{itemize}
-    \item \textbf{Union ($A \cup B$):} The event that $A$ occurs, OR $B$ occurs, OR both occur.
-    \item \textbf{Intersection ($A \cap B$):} The event that BOTH $A$ and $B$ occur simultaneously.
-    \item \textbf{Complement ($A^c$ or $A'$):} The event that $A$ does \emph{not} occur. ($A^c = S - A$).
-    \item \textbf{Mutually Exclusive (Disjoint):} Two events that cannot happen at the same time. Mathematically, $A \cap B = \emptyset$.
-\end{itemize}
+\begin{theorembox}{De Morgan's Laws and Duality}
+\index{De Morgan's Laws}
+For any collection of events $A$ and $B$:
+\begin{align*}
+    (A \cup B)^c &= A^c \cap B^c \quad (\text{"Neither } A \text{ nor } B \text{ occurs"}) \\
+    (A \cap B)^c &= A^c \cup B^c \quad (\text{"Not both occur" } \iff \text{"At least one fails to occur"})
+\end{align*}
 \end{theorembox}
 
-\begin{figure}[htpb]
-    \centering
-    \begin{minipage}{0.3\textwidth}
-        \centering
-        \begin{venndiagram2sets}[radius=1.2cm, labelA=$A$, labelB=$B$]
-            \fillA \fillB
-        \end{venndiagram2sets}
-        \caption*{Union ($A \cup B$)}
-    \end{minipage}
-    \hfill
-    \begin{minipage}{0.3\textwidth}
-        \centering
-        \begin{venndiagram2sets}[radius=1.2cm, labelA=$A$, labelB=$B$]
-            \fillACapB
-        \end{venndiagram2sets}
-        \caption*{Intersection ($A \cap B$)}
-    \end{minipage}
-    \hfill
-    \begin{minipage}{0.3\textwidth}
-        \centering
-        \begin{venndiagram2sets}[radius=1.2cm, labelA=$A$, labelB=$B$]
-            \fillNotA
-        \end{venndiagram2sets}
-        \caption*{Complement ($A^c$)}
-    \end{minipage}
-\end{figure}
-
-\begin{lstlisting}[language=Python, caption=Data Science: Event Operations using Sets]
-# Define sample space S (rolling a die)
-S = {1, 2, 3, 4, 5, 6}
-
-# Event A: Roll an Even number
-A = {2, 4, 6}
-# Event B: Roll a number greater than 3
-B = {4, 5, 6}
-
-print("Union (A or B):", A | B)
-print("Intersection (A and B):", A & B)
-print("Complement of A:", S - A)
-\end{lstlisting}
-
-\begin{videocard}{IITM BS Lecture: W6\_L2 Events \& Basic Operations}{https://www.youtube.com/watch?v=G-ex734RB1Q}
+\begin{videocard}{IITM BS Lecture: Events and Basic Operations}{https://www.youtube.com/watch?v=G-ex734RB1Q}
 Official lecture explaining how to map English language logic (AND, OR, NOT) into Set Theory operations ($\cap, \cup, ^c$).
 \end{videocard}
 
-\section{Axioms and Properties of Probability}
+\section{Kolmogorov's Three Axioms of Probability}
 
-Probability is a function that assigns a real number $P(A)$ to every event $A$, quantifying how likely it is to occur. To be a mathematically valid probability, the function must satisfy Kolmogorov's Axioms.
+In 1933, Soviet mathematician Andrey Kolmogorov established the rigorous axiomatic foundation of probability theory:
 
-\begin{formulabox}{The Three Axioms of Probability}
+\begin{formulabox}{Kolmogorov's Axioms of Probability}
+\index{Kolmogorov's Axioms}
+A probability measure $\P$ is a real-valued function defined on the collection of events $\mathcal{F}$ of $\Omega$ satisfying:
 \begin{enumerate}
-    \item \textbf{Non-negativity:} For any event $A$, the probability is at least zero: $$P(A) \ge 0$$
-    \item \textbf{Normalization:} The probability of the entire sample space is exactly one: $$P(S) = 1$$
-    \item \textbf{Additivity:} If $A$ and $B$ are mutually exclusive ($A \cap B = \emptyset$), then the probability of their union is the sum of their probabilities: $$P(A \cup B) = P(A) + P(B)$$
+    \item \textbf{Axiom 1 (Non-Negativity):} For every event $A \subseteq \Omega$:
+    $$\P(A) \ge 0$$
+    \item \textbf{Axiom 2 (Total Normalization):} The probability of the entire sample space is unity:
+    $$\P(\Omega) = 1.00$$
+    \item \textbf{Axiom 3 (Countable Additivity):} If $A_1, A_2, A_3, \dots$ is a sequence of pairwise mutually exclusive (disjoint) events ($A_i \cap A_j = \emptyset$ for all $i \neq j$):
+    $$\P\left(\bigcup_{i=1}^\infty A_i\right) = \sum_{i=1}^\infty \P(A_i)$$
 \end{enumerate}
 \end{formulabox}
 
-\begin{intuitionbox}{Probability as a Mass}
-To intuitively understand Kolmogorov's Axioms, think of probability as \index{physical mass}\textbf{physical mass}. You are handed exactly 1.0 kg of modeling clay (the total probability, Axiom 2). You must distribute this clay across all the possible outcomes in your sample space. 
-
-You can give an outcome zero clay, or some positive amount, but you cannot give an outcome "negative" clay (Axiom 1). If you want to know the weight of a combined event (like "rolling an even number"), you simply put the 2-outcome, 4-outcome, and 6-outcome on a scale and add their weights together (Axiom 3).
+\begin{intuitionbox}{Probability as Physical Mass}
+Think of probability as \textbf{unit mass ($1.0\,\text{kg}$)} distributed across the domain $\Omega$.
+\begin{itemize}
+    \item Axiom 1 states that no region can contain negative mass ($\text{mass} \ge 0$).
+    \item Axiom 2 states that the total mass of the entire universe $\Omega$ is strictly $1.0\,\text{kg}$.
+    \item Axiom 3 states that if two non-overlapping parcels of clay $A$ and $B$ are placed together on a balance scale, their combined mass is strictly the sum of their individual masses: $\text{mass}(A) + \text{mass}(B)$.
+\end{itemize}
+In deep learning classifiers, the \textbf{Softmax function} enforces Axioms 1 and 2 by exponentiating raw logits (ensuring $\ge 0$) and dividing by their sum (ensuring total probability $= 1.0$).
 \end{intuitionbox}
 
-From these three fundamental axioms, we can logically derive several critical properties used constantly in data science.
+\section{Derived Properties and Inclusion-Exclusion}
 
-\begin{theorembox}{Derived Properties of Probability}
+From Kolmogorov's three axioms, we deduce the core theorems of probability calculation:
+
+\begin{theorembox}{Fundamental Theorems of Probability}
+\index{Inclusion-Exclusion Principle}\index{Boole's Inequality}
 \begin{itemize}
-    \item \textbf{Probability Bounds:} $0 \le P(A) \le 1$.
-    \item \textbf{Complement Rule:} $P(A^c) = 1 - P(A)$. (Extremely useful when calculating $P(A)$ directly is too difficult, but calculating the probability of it \emph{not} happening is easy).
-    \item \textbf{General Addition Rule (Inclusion-Exclusion):} For \emph{any} two events $A$ and $B$ (even if they are not mutually exclusive):
-    $$P(A \cup B) = P(A) + P(B) - P(A \cap B)$$
-    We subtract the intersection so we don't double-count the outcomes where both occur!
+    \item \textbf{Empty Set Probability:} $\P(\emptyset) = 0$.
+    \item \textbf{Complement Rule:} For any event $A$:
+    $$\P(A^c) = 1 - \P(A)$$
+    \item \textbf{Bounded Range:} $0 \le \P(A) \le 1$ for all events $A$.
+    \item \textbf{Monotonicity:} If $A \subseteq B$, then $\P(A) \le \P(B)$ and $\P(B \setminus A) = \P(B) - \P(A)$.
+    \item \textbf{General Addition Rule (Inclusion-Exclusion for 2 Events):}
+    $$\P(A \cup B) = \P(A) + \P(B) - \P(A \cap B)$$
+    \item \textbf{Inclusion-Exclusion for 3 Events:}
+    $$\P(A \cup B \cup C) = \sum \P(A) - \sum \P(A \cap B) + \P(A \cap B \cap C)$$
+    \item \textbf{Boole's Inequality (The Union Bound):} For \emph{any} sequence of events (disjoint or overlapping):
+    $$\P\left(\bigcup_{i=1}^n A_i\right) \le \sum_{i=1}^n \P(A_i)$$
 \end{itemize}
 \end{theorembox}
 
-\textbf{Data Science Relevance:} Machine Learning classifiers (like Logistic Regression) output predictions as probabilities between $0$ and $1$. The \index{Softmax function}\textbf{Softmax function} in Neural Networks specifically forces the output layer to obey Kolmogorov's Second Axiom: the sum of the probabilities for all possible predicted classes (the Sample Space $S$) must equal exactly $1.0$.
-
-\begin{videocard}{IITM BS Lecture: W6\_L4 Properties of Probability}{https://www.youtube.com/watch?v=pvOPnPaSRuM}
+\begin{videocard}{IITM BS Lecture: Properties of Probability}{https://www.youtube.com/watch?v=pvOPnPaSRuM}
 Official lecture deriving the Complement Rule and the General Addition Rule from the three axioms.
 \end{videocard}
+
+\section{Cognitive Traps in Basic Probability}
+
+\begin{trapbox}{Trap 1: The Non-Disjoint Addition Fallacy}
+A classic error is writing $\P(A \cup B) = \P(A) + \P(B)$ when events are \textbf{not} mutually exclusive.
+\begin{itemize}
+    \item If event $A$ (server CPU threshold exceeded) has $\P(A) = 0.60$ and event $B$ (memory threshold exceeded) has $\P(B) = 0.50$, blindly adding them gives:
+    $$\P(A) + \P(B) = 0.60 + 0.50 = 1.10$$
+    violating Kolmogorov's Axiom 2 ($\P \le 1$)!
+    \item The joint failure state $A \cap B$ is double-counted and must be subtracted: $\P(A \cup B) = 0.60 + 0.50 - \P(A \cap B)$.
+\end{itemize}
+\end{trapbox}
+
+\begin{trapbox}{Trap 2: The "At Least One" Combinatorial Trap}
+When asked to find the probability that "at least one of $n$ components succeeds" or "at least one failure occurs":
+\begin{itemize}
+    \item \textbf{The Exhaustive Trap:} Attempting to calculate $\P(\text{exactly 1}) + \P(\text{exactly 2}) + \dots + \P(\text{all } n)$ becomes mathematically monstrous for large $n$.
+    \item \textbf{The Master Shortcut:} Always invert the problem using De Morgan's Law and the Complement Rule:
+    $$\P(\text{At least one } A_i) = 1 - \P(\text{None occurs}) = 1 - \P\left(\bigcap_{i=1}^n A_i^c\right)$$
+\end{itemize}
+\end{trapbox}
+
+\begin{trapbox}{Trap 3: Zero Probability Does NOT Imply Impossibility!}
+In continuous sample spaces ($\Omega = \mathbb{R}$), any single exact point has probability measure \textbf{zero}:
+$$\P(X = 3.14159265\dots) = 0$$
+Yet, whenever a continuous experiment is run, \emph{some} exact real number with individual probability zero is realized! In continuous probability, $\P(A) = 0$ means the event is a set of Lebesgue measure zero (almost surely impossible), not mathematically impossible.
+\end{trapbox}
+
+\section{Comparative Synthesis: Core Probability Rules}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{p{3.5cm}p{4.2cm}p{4.8cm}}
+\toprule
+\textbf{Rule / Property} & \textbf{Mathematical Formula} & \textbf{Operational Use Case} \\
+\midrule
+\textbf{Complement Rule} & $\P(A) = 1 - \P(A^c)$ & Solves "at least one" problems with minimal algebra \\
+\textbf{Disjoint Addition} & $\P(A \cup B) = \P(A) + \P(B)$ & Applicable \emph{only} when $A \cap B = \emptyset$ \\
+\textbf{General Addition} & $\P(A \cup B) = \P(A) + \P(B) - \P(AB)$ & Any arbitrary overlapping events; eliminates double-counting \\
+\textbf{Union Bound (Boole)} & $\P(\bigcup A_i) \le \sum \P(A_i)$ & Worst-case risk bounds and error-rate proofs in machine learning \\
+\textbf{Partition Rule} & $\P(B) = \P(B \cap A) + \P(B \cap A^c)$ & Foundation of the Law of Total Probability \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Python Implementation: Probability Simulation and Verification}
+
+\begin{lstlisting}[caption={Verifying Kolmogorov Axioms and Inclusion-Exclusion in Python}]
+import numpy as np
+
+# Monte Carlo simulation of rolling two independent 6-sided dice
+N_trials = 1_000_000
+die1 = np.random.randint(1, 7, size=N_trials)
+die2 = np.random.randint(1, 7, size=N_trials)
+
+# Event A: Sum is even
+A = ((die1 + die2) % 2 == 0)
+# Event B: At least one die shows a 6
+B = (die1 == 6) | (die2 == 6)
+
+p_A = np.mean(A)
+p_B = np.mean(B)
+p_A_and_B = np.mean(A & B)
+p_A_or_B = np.mean(A | B)
+
+# Empirical verification of Inclusion-Exclusion
+p_inc_exc = p_A + p_B - p_A_and_B
+
+print(f"Empirical P(A) = {p_A:.4f}")
+print(f"Empirical P(B) = {p_B:.4f}")
+print(f"Empirical P(A and B) = {p_A_and_B:.4f}")
+print(f"Direct P(A or B)     = {p_A_or_B:.4f}")
+print(f"Inclusion-Exclusion  = {p_inc_exc:.4f} (Matches exact union within sampling noise)")
+\end{lstlisting}
 
 \newpage
 \section{Practice Exercises}
 \textit{Detailed step-by-step solutions are available in the Appendix.}
 
+\subsection*{Part A: Computational and Analytical Problems}
+
 \begin{enumerate}
-    \item \textbf{Sample Spaces:} Define the sample space $S$ for the following random experiments:
+    \item \textbf{Sample Spaces and Cardinalities:} Define the sample space $\Omega$ and state its cardinality $|\Omega|$ for the following experiments:
     \begin{enumerate}
-        \item Flipping a coin three times.
-        \item Counting the number of cars that pass through a toll booth in an hour.
-        \item Measuring the exact lifespan of a lightbulb (in hours).
-    \end{enumerate}
-    
-    \item \textbf{Set Operations:} You roll a standard 6-sided die. Let $S = \{1, 2, 3, 4, 5, 6\}$. 
-    Let Event $A$ be rolling an even number. Let Event $B$ be rolling a number greater than $3$.
-    \begin{enumerate}
-        \item Define the sets for $A$ and $B$.
-        \item Find $A \cap B$ and describe it in plain English.
-        \item Find $A \cup B$.
-        \item Find $A^c$.
-        \item Are $A$ and $B$ mutually exclusive? Why or why not?
+        \item Flipping a fair coin 4 consecutive times.
+        \item Rolling two distinguishable dice (one red, one green) and recording the ordered pair of faces.
+        \item Sampling customer service tickets until the first resolved ticket is observed.
     \end{enumerate}
 
-    \item \textbf{Complement Rule:} A cybersecurity system is monitoring 5 independent incoming network packets. The probability that a specific packet gets dropped by the firewall is $0.1$. You want to find the probability that \index{at least one}\textbf{at least one} packet gets dropped. 
+    \item \textbf{Set Operations on Sample Spaces:} A 6-sided die is rolled with $\Omega = \{1, 2, 3, 4, 5, 6\}$.
+    Let $A = \{2, 4, 6\}$ (even), $B = \{4, 5, 6\}$ (greater than 3), and $C = \{1, 2\}$ (strictly less than 3).
     \begin{enumerate}
-        \item Why is calculating this directly using the Addition Rule extremely tedious?
-        \item Use the Complement Rule to solve this elegantly. (Hint: What is the complement of "at least one packet drops"?)
+        \item Evaluate $A \cap B$ and describe it in words.
+        \item Evaluate $A \cup C$ and state its probability $\P(A \cup C)$.
+        \item Evaluate $(A \cup B)^c$ using De Morgan's Law.
+        \item Are events $A$ and $C$ mutually exclusive? Explain.
     \end{enumerate}
 
-    \item \textbf{General Addition Rule:} In a class of 100 students, 60 study Python ($P$), 50 study R ($R$), and 20 study both.
+    \item \textbf{The Complement Shortcut in Reliability:} A distributed cloud database replicates an essential table across 5 independent storage nodes. Each storage node has an independent failure probability of $p = 0.05$ per day. The database remains accessible as long as \textbf{at least one node} remains operational.
     \begin{enumerate}
-        \item What is the probability that a randomly selected student studies Python OR R?
-        \item What is the probability that a student studies neither?
+        \item What is the probability that all 5 nodes fail simultaneously on a given day?
+        \item Using the complement rule, compute the probability that the database remains operational.
     \end{enumerate}
 
-    \item \textbf{Axioms Check:} A machine learning model outputs the following probabilities for classifying an image of an animal:
-    $$P(\text{Dog}) = 0.5, \quad P(\text{Cat}) = 0.4, \quad P(\text{Bird}) = 0.2$$
-    Assuming these are the only three possible classes, which of Kolmogorov's Axioms does this model violate? Explain why.
+    \item \textbf{Inclusion-Exclusion Principle:} In an engineering cohort of 200 data science students:
+    \begin{itemize}
+        \item 120 students have completed the Python prerequisite ($P$).
+        \item 100 students have completed the Mathematics prerequisite ($M$).
+        \item 40 students have completed both prerequisites ($P \cap M$).
+    \end{itemize}
+    \begin{enumerate}
+        \item Find the probability that a randomly chosen student has completed Python OR Mathematics.
+        \item Find the probability that a student has completed neither prerequisite.
+        \item Find the probability that a student has completed Python but NOT Mathematics.
+    \end{enumerate}
+
+    \item \textbf{Kolmogorov Axioms Validation:} An untrained machine learning engineer trains a multi-class image classifier outputting predicted confidence scores for three classes:
+    $$\P(\text{Class 1}) = 0.65, \quad \P(\text{Class 2}) = 0.45, \quad \P(\text{Class 3}) = -0.10$$
+    Explicitly identify which of Kolmogorov's three axioms are violated by this output.
+\end{enumerate}
+
+\subsection*{Part B: Conceptual and Diagnostic Multiple Choice Questions}
+
+\begin{enumerate}[resume]
+\item \textbf{Conceptual Diagnostic: Boole's Inequality and Family-Wise Risk} \\
+An algorithmic trading system operates $m = 20$ independent statistical arbitrage bots. For each bot $i$, the probability of suffering an abnormal execution slippage error on any trading day is bounded by $\P(E_i) \le 0.005$. A risk officer wishes to establish a mathematically guaranteed upper bound on the probability that \textbf{at least one} bot suffers an execution slippage error today: $\P(\bigcup_{i=1}^{20} E_i)$. Which bound is mathematically guaranteed by probability axioms without requiring independence?
+\begin{enumerate}
+    \item $\P\left(\bigcup_{i=1}^{20} E_i\right) \le 1 - (1 - 0.005)^{20} \approx 0.0954$
+    \item $\P\left(\bigcup_{i=1}^{20} E_i\right) \le \sum_{i=1}^{20} \P(E_i) \le 20 \times 0.005 = 0.100$
+    \item $\P\left(\bigcup_{i=1}^{20} E_i\right) = 0.005$, because all bots share identical risk limits.
+    \item $\P\left(\bigcup_{i=1}^{20} E_i\right) \ge 0.100$, because individual risks compound multiplicatively.
+\end{enumerate}
+
+\item \textbf{Conceptual Diagnostic: Monotonicity and Probability Bounds} \\
+Let $A$ and $B$ be two events in an arbitrary probability space $(\Omega, \mathcal{F}, \P)$ such that $\P(A) = 0.70$ and $\P(B) = 0.80$. What are the strictly tightest possible mathematical bounds on the joint probability of their intersection $\P(A \cap B)$?
+\begin{enumerate}
+    \item $0.00 \le \P(A \cap B) \le 0.56$
+    \item $0.50 \le \P(A \cap B) \le 0.70$
+    \item $0.56 \le \P(A \cap B) \le 1.00$
+    \item $0.70 \le \P(A \cap B) \le 0.80$
+\end{enumerate}
 \end{enumerate}

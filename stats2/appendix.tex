@@ -44,6 +44,23 @@ $$p_{X|Y}(1 \mid 2) = \frac{p_{X,Y}(1, 2)}{p_Y(2)} = \frac{0.4}{0.7} = \mathbf{\
     Desktop users yield a higher click-through rate ($20.00\%$) than mobile users ($16.67\%$).
 \end{itemize}
 
+\textbf{6. Conceptual Diagnostic: Joint Reconstruction from Marginals}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} The joint PMF $p_{X,Y}(x, y)$ encodes both the individual distributions \emph{and} the complete correlation/dependence structure between $X$ and $Y$. Marginalizing $p_X(x) = \sum_y p_{X,Y}(x, y)$ is a many-to-one projection. Infinitely many distinct $2 \times 2$ joint tables satisfy these same marginal row/column constraints. Therefore, $\P(X \ge Y) = p_{X,Y}(1,1) + p_{X,Y}(2,1) + p_{X,Y}(2,2)$ cannot be determined without knowing the joint probabilities.
+    \item \textbf{Why (a) and (c) are false:} Options (a) and (c) falsely assume that $X$ and $Y$ are independent ($p_{X,Y} = p_X p_Y$). Independence is a very strong assumption that cannot be assumed without explicit justification.
+    \item \textbf{Why (d) is false:} Linear programming can only establish feasible upper and lower Fréchet bounds (e.g. via copula bounds), not a unique joint distribution.
+\end{itemize}
+
+\textbf{7. Conceptual Diagnostic: Summation of Conditional Probabilities}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} For any fixed $y$ with $p_Y(y) > 0$, the conditional PMF $p_{X|Y}(x \mid y) = \frac{p_{X,Y}(x, y)}{p_Y(y)}$ represents a legitimate probability mass function over the random variable $X$. Summing over all possible values of $X$ yields:
+    $$\sum_{x} p_{X|Y}(x \mid y) = \sum_{x} \frac{p_{X,Y}(x, y)}{p_Y(y)} = \frac{\sum_x p_{X,Y}(x, y)}{p_Y(y)} = \frac{p_Y(y)}{p_Y(y)} = 1$$
+    \item \textbf{Why (a) is false:} Summing over the condition $y$ does not equal 1 in general. For instance, if $X$ and $Y$ are independent, $p_{X|Y}(x \mid y) = p_X(x)$, so $\sum_y p_{X|Y}(x \mid y) = \sum_y p_X(x) = |\mathcal{R}_Y| \cdot p_X(x)$, which can be any non-negative number.
+    \item \textbf{Why (c) is false:} Summing $\sum_x \sum_y p_{X|Y}(x \mid y)$ equals $\sum_y 1 = |\mathcal{R}_Y|$, the cardinality of the support of $Y$, not 1.
+\end{itemize}
+
 \section*{Week 2: Independence of RVs, Functions of RVs \& PMF Convolution}
 
 \subsection*{Detailed Solutions}
@@ -90,8 +107,30 @@ Computing individual PMF values:
     \item $p_V(1) = \P(V > 0) - \P(V > 1) = 1 - \frac{4}{9} = \mathbf{\frac{5}{9}}$
     \item $p_V(2) = \P(V > 1) - \P(V > 2) = \frac{4}{9} - \frac{1}{9} = \mathbf{\frac{3}{9} = \frac{1}{3}}$
     \item $p_V(3) = \P(V > 2) - \P(V > 3) = \frac{1}{9} - 0 = \mathbf{\frac{1}{9}}$
-
 \end{itemize}
+
+\textbf{6. Conceptual Diagnostic: Pairwise vs. Mutual Independence}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} This is the classical Bernstein Triplet. For $A, B \stackrel{iid}{\sim} \text{Bernoulli}(0.5)$ and $C = (A + B) \bmod 2$:
+    $$\P(C=1) = \P((1,0) \cup (0,1)) = 0.25 + 0.25 = 0.5$$
+    Check pairwise independence between $A$ and $C$:
+    $$\P(A=1, C=1) = \P(A=1, B=0) = 0.25 = \P(A=1)\P(C=1) = (0.5)(0.5) = 0.25$$
+    Thus, $A \perp\!\!\!\perp C$. By symmetry, $B \perp\!\!\!\perp C$. Since $A \perp\!\!\!\perp B$ by construction, all three pairs are \textbf{pairwise independent}.
+    However, they are \textbf{not mutually independent}: $\P(A=1, B=1, C=1) = 0$ (since $(1+1) \bmod 2 = 0$), whereas $\P(A=1)\P(B=1)\P(C=1) = (0.5)^3 = 0.125 \neq 0$.
+    \item \textbf{Why (a) is false:} Pairwise independence does not imply mutual independence.
+    \item \textbf{Why (c) is false:} Independence is an unconditional marginal relationship, which holds unconditionally between $A$ and $C$.
+    \item \textbf{Why (d) is false:} Pairwise independence can hold even when a third variable is a deterministic function of the first two!
+\end{itemize}
+
+\textbf{7. Conceptual Diagnostic: Support Geometry and Independence}
+\begin{itemize}
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} If $X$ and $Y$ are independent, $p_{X,Y}(x, y) = p_X(x) p_Y(y)$. If $x \in \mathcal{R}_X$ and $y \in \mathcal{R}_Y$, then $p_X(x) > 0$ and $p_Y(y) > 0$, which strictly forces $p_{X,Y}(x, y) > 0$ for \emph{every} point in the Cartesian product $\mathcal{R}_X \times \mathcal{R}_Y$. 
+    For a triangular domain $\mathcal{T} = \{1 \le x \le y \le 4\}$, point $(x=3, y=1)$ has $p_{X,Y}(3, 1) = 0$, yet marginally $p_X(3) > 0$ (e.g. at $(3,3)$) and $p_Y(1) > 0$ (e.g. at $(1,1)$). Since $p_X(3)p_Y(1) > 0 \neq p_{X,Y}(3, 1) = 0$, independence is mathematically impossible on any non-rectangular support.
+    \item \textbf{Why (a), (b), and (d) are false:} Support geometry is an absolute prerequisite for independence. If the joint support is not a product space $\mathcal{R}_X \times \mathcal{R}_Y$, no choice of probabilities or moments can ever make the variables independent.
+\end{itemize}
+
 \section*{Week 3: Expectation, Covariance, Correlation \& Probability Bounds}
 
 \subsection*{Detailed Solutions}
@@ -134,6 +173,25 @@ Taking the complement:
 $$\P(60 < X < 140) = 1 - \P(|X - 100| \ge 40) \ge 1 - 0.25 = \mathbf{0.75 = 75\%}$$
 The probability that daily return falls between $\$60$ and $\$140$ is at least $75\%$.
 
+\textbf{6. Conceptual Diagnostic: Nonlinear Expectation \& Jensen's Inequality}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} The function $g(x) = \frac{1}{x}$ is strictly convex on $(0, \infty)$ since $g''(x) = \frac{2}{x^3} > 0$ for all $x > 0$. By \textbf{Jensen's Inequality}, for any strictly convex function $\phi$ and non-degenerate random variable ($\Var(X) > 0$):
+    $$\E[\phi(X)] > \phi(\E[X]) \implies \E\left[\frac{1}{X}\right] > \frac{1}{\E[X]}$$
+    \item \textbf{Why (a) and (c) are false:} Expectation is a linear operator; it does not distribute across reciprocal, polynomial, or logarithmic nonlinearities. $\E[1/X] = 1/\E[X]$ holds only in the degenerate case where $X$ is a constant with probability 1.
+    \item \textbf{Why (d) is false:} $\ln(x)$ is strictly concave ($g''(x) = -1/x^2 < 0$), so by Jensen's inequality the reverse holds: $\E[\ln X] < \ln(\E[X])$.
+\end{itemize}
+
+\textbf{7. Conceptual Diagnostic: Uncorrelatedness and Independence}
+\begin{itemize}
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} The general formula for the variance of a linear combination is:
+    $$\Var(X - Y) = \Var(X) + \Var(Y) - 2\Cov(X, Y)$$
+    Because $\Cov(X, Y) = 0$, the cross-term vanishes completely, leaving $\Var(X - Y) = \Var(X) + \Var(Y)$. This algebraic property requires only uncorrelatedness, not full independence.
+    \item \textbf{Why (a) and (b) are false:} $\Cov(X, Y) = 0$ measures the absence of \emph{linear} association. It does not rule out non-linear relationships (e.g., $Y = X^2$ for a symmetric distribution), so full statistical independence and PMF/PDF factorization do not follow.
+    \item \textbf{Why (d) is false:} Factorization of fourth-order cross-moments $\E[X^2 Y^2] = \E[X^2]\E[Y^2]$ requires independence (or zero covariance between $X^2$ and $Y^2$), which is not guaranteed by $\Cov(X, Y) = 0$.
+\end{itemize}
+
 \section*{Week 4: Continuous Random Variables, CDF, PDF \& Standard Distributions}
 
 \subsection*{Detailed Solutions}
@@ -171,6 +229,25 @@ For $X \sim \text{Uniform}(10, 50)$:
     $$\mu_X = \frac{10 + 50}{2} = \mathbf{30}, \quad \sigma_X = \frac{50 - 10}{\sqrt{12}} = \frac{40}{2\sqrt{3}} = \frac{20}{\sqrt{3}} \approx \mathbf{11.547}$$
     \item \textbf{(2) 1-Sigma Interval Probability:}
     $$\P(\mu_X - \sigma_X \le X \le \mu_X + \sigma_X) = \frac{(\mu_X + \sigma_X) - (\mu_X - \sigma_X)}{50 - 10} = \frac{2 \sigma_X}{40} = \frac{\sigma_X}{20} = \frac{20/\sqrt{3}}{20} = \mathbf{\frac{1}{\sqrt{3}} \approx 57.74\%}$$
+\end{itemize}
+
+\textbf{6. Conceptual Diagnostic: Magnitude of Probability Density}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} The PDF of $X \sim \text{Uniform}(0, 0.25)$ is $f_X(x) = \frac{1}{0.25 - 0} = 4$ for $x \in [0, 0.25]$. Because $f_X(x)$ represents probability \emph{density} (probability per unit width $dx$), it is not bounded by 1; it can take arbitrarily large positive values. However, the probability at any single discrete real point is given by the integral over a point: $\P(X = 0.1) = \int_{0.1}^{0.1} 4 \, dx = 0$.
+    \item \textbf{Why (a) is false:} Probabilities cannot exceed 1 ($100\%$), and density is not probability.
+    \item \textbf{Why (c) is false:} Probability densities need only integrate to 1 over their support ($\int_0^{0.25} 4 \, dx = 4 \times 0.25 = 1$), not be pointwise bounded by 1.
+    \item \textbf{Why (d) is false:} $\P(X \le 0.1) = \int_0^{0.1} 4 \, dx = 4 \times 0.1 = 0.40$.
+\end{itemize}
+
+\textbf{7. Conceptual Diagnostic: Endpoint Boundary Sensitivity}
+\begin{itemize}
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} By additivity of probability:
+    $$\P(a \le X \le b) = \P(X = a) + \P(a < X < b) + \P(X = b)$$
+    For any continuous random variable with a well-defined density, $\P(X = a) = 0$ and $\P(X = b) = 0$. Therefore, $\P(a \le X \le b) = \P(a < X < b)$ identically. Inclusion or exclusion of boundary endpoints has zero probability consequence in continuous distributions.
+    \item \textbf{Why (a) and (b) are false:} These options falsely treat continuous distributions as discrete, confusing probability density $f(a)$ with discrete point mass $\P(X = a)$.
+    \item \textbf{Why (d) is false:} This zero-point-probability property holds for all continuous random variables regardless of symmetry.
 \end{itemize}
 
 \section*{Week 5: Functions of Continuous RVs, Expectations \& Mixed Distributions}
@@ -211,6 +288,33 @@ $$f_X(x) = f_{X \mid N}(x \mid 0) p_N(0) + f_{X \mid N}(x \mid 1) p_N(1)$$
 Substituting parameters ($\mu_0 = 50, \sigma_0 = 10$ and $\mu_1 = 300, \sigma_1 = 20$):
 $$f_X(x) = \mathbf{0.95 \left( \frac{1}{10\sqrt{2\pi}} e^{-\frac{(x - 50)^2}{200}} \right) + 0.05 \left( \frac{1}{20\sqrt{2\pi}} e^{-\frac{(x - 300)^2}{800}} \right)}$$
 
+\textbf{6. Conceptual Diagnostic: Non-Monotonic Transformation $Y = X^2$}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} For $y > 0$, the event $\{Y \le y\} = \{X^2 \le y\} = \{-\sqrt{y} \le X \le \sqrt{y}\}$. Therefore:
+    $$F_Y(y) = F_X(\sqrt{y}) - F_X(-\sqrt{y})$$
+    Differentiating via chain rule gives:
+    $$f_Y(y) = f_X(\sqrt{y}) \cdot \frac{1}{2\sqrt{y}} - f_X(-\sqrt{y}) \cdot \left(-\frac{1}{2\sqrt{y}}\right) = \frac{1}{2\sqrt{y}} \left[ f_X(\sqrt{y}) + f_X(-\sqrt{y}) \right]$$
+    Since $X \sim \mathcal{N}(0, 1)$ is symmetric, $f_X(\sqrt{y}) = f_X(-\sqrt{y}) = \frac{1}{\sqrt{2\pi}} e^{-(\sqrt{y})^2/2} = \frac{1}{\sqrt{2\pi}} e^{-y/2}$.
+    $$f_Y(y) = \frac{1}{2\sqrt{y}} \left[ 2 \cdot \frac{1}{\sqrt{2\pi}} e^{-y/2} \right] = \frac{1}{\sqrt{2\pi y}} e^{-y/2}$$
+    (Note: This is the Chi-squared distribution with 1 degree of freedom, $\chi^2_1$).
+    \item \textbf{Why (a) is false:} Option (a) only accounts for the positive branch $x = +\sqrt{y}$, forgetting that negative values $x = -\sqrt{y}$ also square to $y$.
+    \item \textbf{Why (c) is false:} The two negative signs in the chain rule $-\left(-\frac{1}{2\sqrt{y}}\right)$ produce a plus sign, not a subtraction.
+    \item \textbf{Why (d) is false:} Density does not scale linearly without the derivative factor $\frac{dx}{dy}$.
+\end{itemize}
+
+\textbf{7. Conceptual Diagnostic: Gaussian Mixture vs. Sum of Independent Gaussians}
+\begin{itemize}
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} 
+    \begin{itemize}
+        \item In Model A (Sum), $S = 0.5 X_1 + 0.5 X_2$ is a linear combination of independent normals. Therefore, $S$ is strictly Gaussian: $\E[S] = 0.5(-10) + 0.5(10) = 0$, and $\Var(S) = (0.5)^2(1) + (0.5)^2(1) = 0.5$. $S \sim \mathcal{N}(0, 0.5)$, which is purely unimodal.
+        \item In Model B (Mixture), $f_M(x) = 0.5 f_1(x) + 0.5 f_2(x)$. Because the components are separated by 20 standard deviations ($|-10 - 10| = 20 \gg 2\sigma$), the mixture density has two widely separated, distinct modal peaks at $-10$ and $+10$.
+    \end{itemize}
+    \item \textbf{Why (a) and (b) are false:} Convolutions (sums) and mixtures are fundamentally different operations; sums preserve normality, while mixtures create multi-modal non-Gaussian densities.
+    \item \textbf{Why (d) is false:} By the Law of Total Variance, $\Var(M) = \E[\Var(M|N)] + \Var(\E[M|N]) = 1 + 100 = 101 \gg \Var(S) = 0.5$.
+\end{itemize}
+
 \section*{Week 6: Joint Continuous RVs, Marginal Densities \& Conditional Densities}
 
 \subsection*{Detailed Solutions}
@@ -250,6 +354,30 @@ Substitute values $\mu_X = 0, \mu_Y = 0, \sigma_X = 1, \sigma_Y = 1, \rho = 0.8$
 $$\E[Y \mid X = x] = \mu_Y + \rho \frac{\sigma_Y}{\sigma_X} (x - \mu_X) = 0 + 0.8 \left(\frac{1}{1}\right) (x - 0) = 0.8 x$$
 For feature observation $X = 2.5$:
 $$\E[Y \mid X = 2.5] = 0.8(2.5) = \mathbf{2.0}$$
+
+\textbf{6. Conceptual Diagnostic: Support Boundary Independence Criterion}
+\begin{itemize}
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} Statistical independence requires that the joint density factorizes everywhere: $f_{X,Y}(x, y) = f_X(x) f_Y(y)$ for all $(x, y) \in \mathbb{R}^2$. 
+    Over the triangular region $0 \le x \le y \le 1$:
+    $$f_X(x) = \int_x^1 8xy \, dy = 8x \left[ \frac{y^2}{2} \right]_x^1 = 4x(1 - x^2) \quad \text{for } x \in (0, 1)$$
+    $$f_Y(y) = \int_0^y 8xy \, dx = 8y \left[ \frac{x^2}{2} \right]_0^y = 4y^3 \quad \text{for } y \in (0, 1)$$
+    Notice that $f_X(x) f_Y(y) = 16x y^3(1 - x^2) \neq 8xy$.
+    More critically, for a point like $(x=0.8, y=0.2)$, $f_X(0.8) > 0$ and $f_Y(0.2) > 0$, yet $f_{X,Y}(0.8, 0.2) = 0$ because $0.8 > 0.2$ falls outside the triangle! Since $0 \neq f_X(0.8)f_Y(0.2)$, independence is violated. Non-rectangular supports always induce dependence.
+    \item \textbf{Why (a) is false:} Factorization of the formula is worthless if the indicator function of the support domain does not also factorize into separate intervals $\mathbb{I}_X(x) \mathbb{I}_Y(y)$.
+    \item \textbf{Why (b) is false:} As calculated above, the product of marginals is $16x y^3 (1 - x^2) \neq 8xy$.
+    \item \textbf{Why (d) is false:} Normalization constants scale densities, but do not determine independence.
+\end{itemize}
+
+\textbf{7. Conceptual Diagnostic: The Nature of Conditional Expectation}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} The expression $\E[Y \mid X]$ represents a function of the random variable $X$, say $g(X)$. Before observing $X$, $\E[Y \mid X]$ is an uncertain, random quantity---that is, a \textbf{random variable}. By the Law of Iterated Expectations (Adam's Law):
+    $$\E\big[\E[Y \mid X]\big] = \E[Y]$$
+    \item \textbf{Why (a) is false:} $\E[Y \mid X = x]$ is a fixed real number for a specific evaluated coordinate $x$, but $\E[Y \mid X]$ is a random variable across the sample space of $X$.
+    \item \textbf{Why (c) is false:} This confuses conditional expectation with ratio of moments; $\E[Y \mid X]$ is not a simple ratio $\E[XY]/\E[X]$.
+    \item \textbf{Why (d) is false:} Conditional expectation is defined for any pair of random variables with finite expectation $\E[|Y|] < \infty$, regardless of whether the distribution is Gaussian.
+\end{itemize}
 
 \section*{Week 7: Statistics from Samples \& The Law of Large Numbers}
 
@@ -293,6 +421,28 @@ By Chebyshev's Inequality:
 $$\frac{\Var(I_i)}{n (0.01)^2} \le 0.10 \implies \frac{0.1685}{0.0001 n} \le 0.10 \implies \frac{1685}{n} \le 0.10 \implies n \ge \frac{1685}{0.10} = \mathbf{16850}$$
 A minimum of $\mathbf{n = 16,850}$ Monte Carlo trials is needed.
 
+\textbf{6. Conceptual Diagnostic: The Mechanism of the Law of Large Numbers}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} The Gambler's Fallacy stems from mistaking dilution for compensation. The Law of Large Numbers operates purely through the scaling of the denominator: $\bar{X}_n = \frac{S_n}{n}$. Because future spins are independent, the expected value of future spins remains $\P(\text{Red}) = \P(\text{Black}) = \frac{18}{37}$. The initial streak of 8 Reds is never "erased"; its impact on the ratio $\frac{8 + S_{\text{new}}}{8 + n_{\text{new}}}$ simply vanishes as $n_{\text{new}} \to \infty$.
+    \item \textbf{Why (a) is false:} The WLLN applies to all i.i.d. sequences with finite first moments, including roulette wheel outcomes.
+    \item \textbf{Why (c) is false:} Each spin is physically independent; the probability of Black on the 9th spin remains exactly $18/37 \approx 0.486$.
+    \item \textbf{Why (d) is false:} Convergence is an asymptotic limit, but concentration begins immediately at modest $n$.
+\end{itemize}
+
+\textbf{7. Conceptual Diagnostic: Boundary Conditions of the WLLN}
+\begin{itemize}
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} The WLLN and CLT strictly require a finite first moment $\E[|X|] < \infty$. For the Cauchy distribution:
+    $$\int_{-\infty}^\infty \frac{|x|}{\pi(1+x^2)} \, dx = \infty$$
+    The mean is undefined. Using characteristic functions $\phi_X(t) = e^{-|t|}$, the characteristic function of the sample mean is:
+    $$\phi_{\bar{X}_n}(t) = \left[ \phi_X(t/n) \right]^n = \left[ e^{-|t|/n} \right]^n = e^{-|t|}$$
+    which is identical to the characteristic function of a single observation! Hence, $\bar{X}_n \sim \text{Cauchy}(0, 1)$ for all $n$, and never concentrates around any fixed constant.
+    \item \textbf{Why (a) is false:} Symmetry alone cannot compensate for heavy tails when the improper integral diverges.
+    \item \textbf{Why (b) is false:} The CLT requires finite variance $\sigma^2 < \infty$, which also fails for Cauchy.
+    \item \textbf{Why (d) is false:} Cauchy has infinite variance for all sample sizes $n$.
+\end{itemize}
+
 \section*{Week 8: Moment Generating Functions \& The Central Limit Theorem}
 
 \subsection*{Detailed Solutions}
@@ -332,6 +482,26 @@ $$= 2(0.8643) - 1 = 1.7286 - 1 = \mathbf{0.7286 = 72.86\%}$$
 Given $\sigma = 0.30$ and target standard error $\text{SE}(\bar{X}_n) \le 0.005$:
 $$\frac{\sigma}{\sqrt{n}} \le 0.005 \implies \frac{0.30}{\sqrt{n}} \le 0.005 \implies \sqrt{n} \ge \frac{0.30}{0.005} = 60 \implies n \ge 60^2 = \mathbf{3600}$$
 A minimum of $\mathbf{n = 3,600}$ visitor sessions is required per variant.
+
+\textbf{6. Conceptual Diagnostic: The Target of the Central Limit Theorem}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} The Central Limit Theorem is an asymptotic statement exclusively regarding the \emph{sampling distribution of the standardized sample mean} (or sum):
+    $$\frac{\bar{X}_n - \mu}{\sigma/\sqrt{n}} \xrightarrow{d} \mathcal{N}(0, 1)$$
+    The probability distribution of the raw population observations $X_i$ is a fixed physical reality. Collecting 1,000,000 exponential response times does not change their underlying biology or physics; their histogram will simply trace out an extremely crisp, high-resolution exponential decay curve!
+    \item \textbf{Why (a) and (c) are false:} Increasing sample size clarifies the true population distribution; it never forces raw non-normal data into a normal shape.
+    \item \textbf{Why (d) is false:} The Lindeberg-Lévy CLT applies to any i.i.d. random variables with finite variance.
+\end{itemize}
+
+\textbf{7. Conceptual Diagnostic: Continuity Correction Mechanics}
+\begin{itemize}
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} The discrete event $\{S \ge 60\}$ includes the integers $\{60, 61, 62, \dots\}$. Under continuous Gaussian approximation, the discrete integer bar for 60 covers the interval $[59.5, 60.5]$. To ensure the entire probability mass at 60 is captured, the integration region must begin at the left boundary of that bar, which is $59.5$:
+    $$\P(S \ge 60) = \P(S_{\text{continuous}} \ge 59.5) \implies Z = \frac{59.5 - 50}{5} = \frac{9.5}{5} = \mathbf{1.9}$$
+    \item \textbf{Why (a) is false:} Omitting the continuity correction evaluates $Z$ at 60.0, cutting the bar for 60 in half and discarding roughly half of $\P(S = 60)$.
+    \item \textbf{Why (b) is false:} Starting at 60.5 would compute $\P(S \ge 61)$, excluding 60 entirely.
+    \item \textbf{Why (d) is false:} The denominator must be the standard deviation $\sigma = 5$, not the mean $\mu = 50$.
+\end{itemize}
 
 \section*{Week 9: Parameter Estimation: MME, MLE \& Confidence Intervals}
 
@@ -374,6 +544,29 @@ Taking log-likelihood:
 $$\ell(\mathbf{w}) = \sum_{i=1}^N \left[ y_i \ln(p_i) + (1 - y_i) \ln(1 - p_i) \right]$$
 Multiplying by $-1$ yields the standard \textbf{Binary Cross-Entropy Loss} minimized by ML algorithms:
 $$J(\mathbf{w}) = -\ell(\mathbf{w}) = \mathbf{-\sum_{i=1}^N \left[ y_i \ln(p_i) + (1 - y_i) \ln(1 - p_i) \right]}$$
+
+\textbf{6. Conceptual Diagnostic: Boundary MLE vs. Derivative Fallacy}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} For $X_1, \dots, X_n \stackrel{iid}{\sim} \text{Uniform}(0, \theta)$, the joint likelihood is:
+    $$L(\theta) = \frac{1}{\theta^n} \prod_{i=1}^n \mathbb{I}(0 \le X_i \le \theta) = \frac{1}{\theta^n} \mathbb{I}(\theta \ge \max(X_1, \dots, X_n))$$
+    For any $\theta \ge \max(X_i)$, the log-likelihood is $\ell(\theta) = -n \ln \theta$. Its derivative $\frac{d\ell}{d\theta} = -\frac{n}{\theta} < 0$ is strictly negative for all $\theta > 0$. Therefore, $L(\theta)$ is a monotonically decreasing function of $\theta$. To maximize $L(\theta)$, we must make $\theta$ as small as mathematically permissible without violating the constraint $\theta \ge \max(X_i)$.
+    The maximum occurs precisely at the boundary constraint:
+    $$\hat{\theta}_{\text{MLE}} = \max(X_1, \dots, X_n) = X_{(n)}$$
+    \item \textbf{Why (a) is false:} $2\bar{X}_n$ is the Method of Moments Estimator (MME), not the MLE.
+    \item \textbf{Why (c) is false:} The maximum of a function on a closed interval can occur at the boundary without derivative roots.
+    \item \textbf{Why (d) is false:} Choosing $\theta = \min(X_i)$ would violate $\theta \ge X_i$ for all other points, resulting in $L(\theta) = 0$.
+\end{itemize}
+
+\textbf{7. Conceptual Diagnostic: Confidence Interval Semantics}
+\begin{itemize}
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} Under the frequentist framework, the true population parameter $\mu$ is a non-random, fixed constant. Once the numerical endpoints $[3.2, 7.8]$ are computed from observed data, the interval either contains $\mu$ or it does not (probability is either 1 or 0). 
+    The $95\%$ confidence level describes the long-run coverage probability of the \emph{estimation algorithm} across infinite hypothetical replications of the experiment.
+    \item \textbf{Why (a) is false:} This is the classical inverse probability fallacy; statements about the probability of parameters require a Bayesian credible interval with a prior distribution.
+    \item \textbf{Why (b) is false:} A confidence interval brackets the population \emph{mean} $\mu$, not the spread of individual observations (which is governed by a prediction interval).
+    \item \textbf{Why (d) is false:} Continuous parameters take any specific single real value with point probability 0.
+\end{itemize}
 
 \section*{Week 10: Bayesian Estimation: Prior, Posterior, MAP \& Bayes Risk}
 
@@ -418,6 +611,30 @@ Prior $p \sim \text{Beta}(1, 1)$, observations $n = 100, k = 15$:
 \end{itemize}
 $$\E[p \mid \text{data}] = \frac{16}{16 + 86} = \frac{16}{102} = \mathbf{\frac{8}{51} \approx 0.1569 = 15.69\%}$$
 
+\textbf{6. Conceptual Diagnostic: Loss Function and Bayes Estimator Selection}
+\begin{itemize}
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} The posterior expected loss under squared error loss $L(\theta, \hat{\theta}) = (\theta - \hat{\theta})^2$ is:
+    $$\E_{\theta|\mathbf{x}}\left[(\theta - \hat{\theta})^2\right] = \int (\theta - \hat{\theta})^2 f(\theta \mid \mathbf{x}) \, d\theta$$
+    Differentiating with respect to $\hat{\theta}$ and setting to 0:
+    $$\frac{d}{d\hat{\theta}} \int (\theta - \hat{\theta})^2 f(\theta \mid \mathbf{x}) \, d\theta = -2 \int (\theta - \hat{\theta}) f(\theta \mid \mathbf{x}) \, d\theta = 0$$
+    $$\int \theta f(\theta \mid \mathbf{x}) d\theta = \hat{\theta} \int f(\theta \mid \mathbf{x}) d\theta \implies \hat{\theta} = \E[\theta \mid \mathbf{x}]$$
+    The posterior mean is the unique optimal Bayes estimator under Squared Error Loss.
+    \item \textbf{Why (a) is false:} Absolute error loss produces the \textbf{Posterior Median}.
+    \item \textbf{Why (b) is false:} Zero-one classification loss produces the \textbf{Posterior Mode (MAP)}.
+    \item \textbf{Why (d) is false:} Exponential loss generates an asymmetric LinEx estimator.
+\end{itemize}
+
+\textbf{7. Conceptual Diagnostic: Reparameterization Invariance}
+\begin{itemize}
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} The Maximum Likelihood Estimator is fundamentally invariant under any transformation $g$: maximizing $L(\theta)$ over $\theta$ automatically maximizes $L(g^{-1}(\phi))$ over $\phi$, so $\hat{\phi}_{\text{MLE}} = g(\hat{\theta}_{\text{MLE}})$. 
+    However, the MAP estimator maximizes the \emph{probability density} $f(\theta \mid \mathbf{x})$. When changing variables $\phi = g(\theta)$, the new density acquires a Jacobian factor:
+    $$f_\Phi(\phi \mid \mathbf{x}) = f_\Theta(g^{-1}(\phi) \mid \mathbf{x}) \cdot \left| \frac{d\theta}{d\phi} \right|$$
+    Because the derivative $\left|\frac{d\theta}{d\phi}\right|$ varies with $\phi$, it physically shifts the location of the maximum mode! Thus, $\hat{\phi}_{\text{MAP}} \neq g(\hat{\theta}_{\text{MAP}})$.
+    \item \textbf{Why (a), (b), and (d) are false:} Confusing the invariance of likelihood (a function) with the non-invariance of probability density modes under non-linear coordinates.
+\end{itemize}
+
 \section*{Week 11: Hypothesis Testing: Size, Power, Z-Test \& p-Values}
 
 \subsection*{Detailed Solutions}
@@ -453,6 +670,28 @@ For two-tailed $Z_{\text{calc}} = 2.33$:
 $$p\text{-value} = 2 \times (1 - \Phi(2.33)) = 2 \times (1 - 0.9901) = 2 \times 0.0099 = \mathbf{0.0198 = 1.98\%}$$
 At significance level $\alpha = 0.01$ (1\%):
 Since $p\text{-value} = 0.0198 > 0.01$, we \textbf{FAIL TO REJECT $H_0$ at the 1\% level} (the uplift is not statistically significant at $\alpha=0.01$, though it would be at $\alpha=0.05$).
+
+\textbf{6. Conceptual Diagnostic: The Distribution of $p$ Under a True Null}
+\begin{itemize}
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} Under any continuous test statistic where $H_0$ is true, the cumulative probability transformation guarantees that the $p$-value is an exact continuous uniform random variable:
+    $$P \mid H_0 \sim \text{Uniform}(0, 1)$$
+    Because $P$ is uniformly distributed over $[0, 1]$, the probability that any single test falls into the rejection zone $[0, \alpha]$ is precisely:
+    $$\P(P \le \alpha \mid H_0) = \alpha = 0.05$$
+    Across 10,000 independent tests of true null hypotheses, the expected number of false positive discoveries is $10,000 \times 0.05 = \mathbf{500}$. This demonstrates why multiple testing corrections (e.g. Bonferroni, Benjamini-Hochberg FDR) are mandatory in large-scale feature selection and genomics.
+    \item \textbf{Why (a) and (b) are false:} $p$-values are never standard normal, and under a true null they do not cluster at 1.0; they are strictly flat/uniform across the entire range $[0, 1]$.
+    \item \textbf{Why (d) is false:} $p$-values only follow right-skewed non-uniform distributions when $H_0$ is \emph{false} (when statistical power exists).
+\end{itemize}
+
+\textbf{7. Conceptual Diagnostic: Statistical Significance vs. Practical Meaning}
+\begin{itemize}
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} Standard error shrinks as $\frac{\sigma}{\sqrt{n}}$. With $n = 20,000,000$, even the most microscopic, irrelevant deviation from zero yields a massive test statistic $Z$ and an infinitesimally small $p$-value ($p = 0.00002$). 
+    A tiny $p$-value merely proves that the true effect is unlikely to be mathematically $0.0000000\dots$; it does \textbf{not} prove that the effect size ($0.002\%$) has any commercial, clinical, or practical utility.
+    \item \textbf{Why (a) is false:} Confusing statistical significance (detectability) with practical effect size (magnitude).
+    \item \textbf{Why (b) is false:} The $p$-value is not the posterior probability that the null hypothesis is true.
+    \item \textbf{Why (d) is false:} Hypothesis testing remains mathematically valid for large $n$, but must be evaluated alongside confidence intervals and effect sizes.
+\end{itemize}
 
 \section*{Week 12: Advanced Hypothesis Testing, LRT \& Goodness-of-Fit}
 
@@ -500,6 +739,30 @@ Compute cell contributions $\frac{(O_{ij} - E_{ij})^2}{E_{ij}}$:
 $$\chi_{\text{calc}}^2 = 1.111 + 3.333 + 1.667 + 5.000 = \mathbf{11.111}$$
 With $df = (2-1)(2-1) = 1$, critical value $\chi_{0.05, 1}^2 = 3.841$.
 Since $\chi_{\text{calc}}^2 = 11.111 > 3.841$, we \textbf{REJECT $H_0$}. Subscription Tier and Churn status are statistically significantly associated!
+
+\textbf{6. Conceptual Diagnostic: The Trinity of Statistical Testing in High Dimensions}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} The Score (Rao or Lagrange multiplier) test evaluates the gradient (the score function) of the log-likelihood function evaluated strictly at the restricted null parameter estimate:
+    $$S(\hat{\boldsymbol{\theta}}_0) = \left.\frac{\partial \ell(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}}\right|_{\boldsymbol{\theta} = \hat{\boldsymbol{\theta}}_0}$$
+    Under $H_0$, the expected score is zero. If the restricted model is close to the unconstrained maximum, the gradient at $\hat{\boldsymbol{\theta}}_0$ will be statistically indistinguishable from zero. Crucially, the score test requires optimizing \textbf{only} the constrained model $\hat{\boldsymbol{\theta}}_0$ (which is already converged and fitted), avoiding the prohibitive 24-hour GPU training run on the full unconstrained parameter space!
+    \item \textbf{Why (a) is false:} The Wald test requires computing the \emph{unconstrained} MLE $\hat{\boldsymbol{\theta}}$ across all $100{,}000$ dimensions, which would incur the full 24-hour training penalty.
+    \item \textbf{Why (c) is false:} The Likelihood Ratio Test (LRT) computes $\Lambda = L(\hat{\boldsymbol{\theta}}_0) / L(\hat{\boldsymbol{\theta}})$ and therefore requires fitting \emph{both} the constrained and unconstrained models, which still requires the 24-hour training run.
+    \item \textbf{Why (d) is false:} The Wald test is notoriously \textbf{not} invariant to nonlinear parameter transformations (e.g. testing $\theta = 0$ versus $e^\theta = 1$ can yield drastically different Wald test statistics), whereas the Score test and LRT are strictly invariant.
+\end{itemize}
+
+\textbf{7. Conceptual Diagnostic: Degrees of Freedom in Goodness-of-Fit and Wilks' Theorem}
+\begin{itemize}
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} In Pearson's chi-squared goodness-of-fit test, the asymptotic degrees of freedom are given by:
+    $$df = K - 1 - m$$
+    where $K$ is the number of bins, $1$ degree of freedom is lost due to the linear constraint that probabilities sum to 1 ($\sum_{i=1}^K E_i = N$), and $m$ is the number of unknown parameters estimated from the data via maximum likelihood. Here, $K = 6$ time-of-day bins and $m = 2$ estimated parameters ($\hat{\alpha}$ and $\hat{\beta}$), yielding:
+    $$df = 6 - 1 - 2 = \mathbf{3}$$
+    \item \textbf{Why (a) is false:} Confuses multinomial goodness-of-fit degrees of freedom with the raw sample size $N - 1 = 4{,}999$. In Pearson's test, degrees of freedom are governed by the number of categories $K$ and estimated parameters $m$, completely independent of sample size $N$.
+    \item \textbf{Why (b) is false:} $K - 1 = 5$ applies only when the theoretical distribution is fully specified upfront with zero estimated parameters ($m = 0$). When parameters are estimated from the sample, the fitted curve adapts to the data, reducing variance and lowering the degrees of freedom by $m$.
+    \item \textbf{Why (d) is false:} Fails to account for the normalization constraint $\sum_{i=1}^K p_i = 1$, which automatically eliminates 1 degree of freedom.
+\end{itemize}
+
 
 
 

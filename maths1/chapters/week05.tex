@@ -1,17 +1,20 @@
 \chapter{Functions, Compositions, and Exponentials}
 \index{Functions, Compositions, and Exponentials}
 
+This chapter deepens the theory of mathematical mappings, investigating how operations can be combined sequentially (compositions), reversed (inverses), and exponentially scaled. In modern machine learning and data science, composite functions form the architectural backbone of deep neural networks (where layers of matrix transformations and non-linear activations are chained), while exponential and logarithmic functions power probabilistic classifiers (logistic regression, sigmoid, and softmax functions).
 
-\vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\vspace{0.3cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Testing Functions: Vertical and Horizontal Lines
-    \item Composite Functions
-    \item Inverse Functions
-    \item Exponential Functions
+    \item \textbf{Geometric Function Tests:} Master the Vertical Line Test (well-defined single-valued mappings) and Horizontal Line Test (injectivity and invertibility).
+    \item \textbf{Composite Function Algebra:} Formulate $f \circ g$; rigorously calculate composite domains $\text{Dom}(f \circ g) = \{x \in \text{Dom}(g) \mid g(x) \in \text{Dom}(f)\}$; understand non-commutativity.
+    \item \textbf{Inversion \& Duality:} Derive analytical inverses $f^{-1}(y)$; apply the socks-and-shoes reversal property $(f \circ g)^{-1} = g^{-1} \circ f^{-1}$; analyze geometric symmetry across $y = x$.
+    \item \textbf{Exponentials \& The Sigmoid Function:} Master natural exponential rules; construct the Sigmoid/logistic mapping $\sigma(z) = \frac{1}{1 + e^{-z}}$; derive its inverse logit link $\ln(\frac{p}{1 - p})$.
+    \item \textbf{Deep Learning Architecture:} Model neural feedforward passes as multi-layer function compositions with non-linear activation functions (ReLU, Sigmoid).
+    \item \textbf{Computational Lab:} Build forward and backward composite computational graphs, evaluate inverse logit functions, and visualize sigmoid saturation in Python.
 \end{itemize}
 \end{tcolorbox}
-This week deepens our understanding of functions, focusing on how functions can be combined (composites), reversed (inverses), and exponentially scaled.
+\vspace{0.3cm}
 
 \section{Testing Functions: Vertical and Horizontal Lines}
 
@@ -134,18 +137,198 @@ For $a > 0$ and any real numbers $x, y$:
 
 \textbf{Data Science Relevance:} The natural exponential $e^x$ is pervasive in probability, statistics, and machine learning (especially Logistic Regression and the Softmax function) because its rate of growth is exactly equal to its current value—a unique and mathematically elegant property.
 
+\subsection{The Sigmoid (Logistic) Function and Logit Link}
+In binary classification (Logistic Regression), real-valued linear score outputs $z = \mathbf{w}^T \mathbf{x} + b \in (-\infty, \infty)$ must be mapped monotonically into a valid probability $p \in (0, 1)$. This mapping is achieved by the \textbf{Sigmoid function} $\sigma(z)$:
+$$\sigma(z) = \frac{1}{1 + e^{-z}} = \frac{e^z}{1 + e^z}$$
+\begin{itemize}
+    \item \textbf{Asymptotic Bounds:} $\lim_{z \to \infty} \sigma(z) = 1.0$, and $\lim_{z \to -\infty} \sigma(z) = 0.0$.
+    \item \textbf{Centering Point:} $\sigma(0) = \frac{1}{1 + 1} = 0.50$ (the decision boundary threshold).
+    \item \textbf{Point Symmetry:} $\sigma(-z) = 1 - \sigma(z)$ for all $z \in \mathbb{R}$.
+    \item \textbf{The Inverse Mapping (Logit Function):} Solving $p = \sigma(z)$ for $z$:
+    $$p = \frac{1}{1 + e^{-z}} \implies 1 + e^{-z} = \frac{1}{p} \implies e^{-z} = \frac{1 - p}{p} \implies e^z = \frac{p}{1 - p}$$
+    Taking the natural logarithm yields the \textbf{logit function} (log-odds):
+    $$\text{logit}(p) = \sigma^{-1}(p) = \ln\left( \frac{p}{1 - p} \right), \qquad p \in (0, 1)$$
+\end{itemize}
+
 \begin{videocard}{IITM BS Lecture: W5\_L3 Exponential Functions Definition}{https://www.youtube.com/watch?v=0l47NHJy-f4}
 Official IIT Madras lecture introducing exponential properties and growth.
 \end{videocard}
 
+\section{Common Pitfalls, Traps \& Misconceptions}
+
+\begin{trapbox}{Trap 1: The Non-Commutativity of Function Composition}
+Students routinely assume that function composition behaves like multiplication and commutes: $(f \circ g)(x) \stackrel{?}{=} (g \circ f)(x)$.
+\begin{itemize}
+    \item In general, $f(g(x)) \neq g(f(x))$.
+    \item \textbf{Example:} Let $f(x) = x^2$ and $g(x) = 2x + 1$.
+    \begin{align*}
+        (f \circ g)(x) &= f(2x + 1) = (2x + 1)^2 = 4x^2 + 4x + 1 \\
+        (g \circ f)(x) &= g(x^2) = 2(x^2) + 1 = 2x^2 + 1
+    \end{align*}
+    Clearly $4x^2 + 4x + 1 \neq 2x^2 + 1$. Order is paramount in deep neural network layers!
+\end{itemize}
+\end{trapbox}
+
+\begin{trapbox}{Trap 2: The Composite Function Domain Fallacy}
+A classic exam trap is determining the domain of $f(g(x))$ by looking \textit{only} at the simplified final formula.
+\begin{itemize}
+    \item \textbf{Example:} Let $g(x) = \sqrt{x}$ (domain: $[0, \infty)$) and $f(u) = u^2$ (domain: $\R$).
+    \item The composite formula is $(f \circ g)(x) = (\sqrt{x})^2 = x$.
+    \item \textbf{Incorrect:} Looking at $y = x$, a student claims the domain is all real numbers $\R$.
+    \item \textbf{Correct:} By definition, $\text{Dom}(f \circ g) = \{x \in \text{Dom}(g) \mid g(x) \in \text{Dom}(f)\}$. The input $x = -4$ cannot even enter the inner function $g(x)$! The true domain is strictly $[0, \infty)$.
+\end{itemize}
+\end{trapbox}
+
+\begin{trapbox}{Trap 3: Inverting Compositions: The Socks-and-Shoes Reversal Trap}
+When inverting a composite function, the order of the inverse operations must be reversed:
+$$(f \circ g)^{-1} = g^{-1} \circ f^{-1} \quad \left(\textbf{NOT } f^{-1} \circ g^{-1}\right)$$
+\textbf{Intuition:} If you put on your socks ($g$) and then put on your shoes ($f$), to undo this process you must first take off your shoes ($f^{-1}$) and then take off your socks ($g^{-1}$).
+\end{trapbox}
+
+\begin{trapbox}{Trap 4: Sigmoid Saturation and the Vanishing Gradient Trap}
+The derivative of the sigmoid activation function satisfies:
+$$\sigma'(z) = \sigma(z)(1 - \sigma(z))$$
+\begin{itemize}
+    \item Notice that when $|z|$ is large (e.g., $z = 6$ or $z = -6$), $\sigma(z) \approx 1$ or $\sigma(z) \approx 0$.
+    \item In both saturated regimes, the derivative collapses: $\sigma'(z) \approx 0 \times 1 = 0$.
+    \item In deep networks, multiplying these near-zero derivatives across multiple composite layers causes the \textbf{vanishing gradient problem}, freezing neural weight updates. This is why modern deep architectures favor the \textbf{ReLU} activation ($R(x) = \max(0, x)$).
+\end{itemize}
+\end{trapbox}
+
+\section{Comparative Synthesis: Activation Functions and Operators}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{p{2.8cm}p{3.5cm}p{3.2cm}p{4.2cm}}
+\toprule
+\textbf{Function} & \textbf{Mathematical Form} & \textbf{Domain $\to$ Range} & \textbf{Data Science / ML Context} \\
+\midrule
+\textbf{Linear Link} & $f(x) = wx + b$ & $\R \to \R$ & Regression baseline, affine layers \\
+\textbf{Natural Exp} & $f(x) = e^x$ & $\R \to (0, \infty)$ & Poisson rates, Softmax numerator \\
+\textbf{Natural Log} & $f(x) = \ln(x)$ & $(0, \infty) \to \R$ & Log-likelihood loss, cross-entropy \\
+\textbf{Sigmoid} & $\sigma(z) = \frac{1}{1 + e^{-z}}$ & $\R \to (0, 1)$ & Binary classification probabilities \\
+\textbf{Logit (Inverse)} & $\sigma^{-1}(p) = \ln\left(\frac{p}{1 - p}\right)$ & $(0, 1) \to \R$ & Odds-ratio modeling, inverse sampling \\
+\textbf{ReLU} & $R(x) = \max(0, x)$ & $\R \to [0, \infty)$ & Hidden layer activations (non-saturating) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Python Implementation: Neural Feedforward Passes and Logit Inversion}
+
+\begin{lstlisting}[caption={Function Compositions, Sigmoid, and Logit Inversion in Python}]
+import numpy as np
+import sympy as sp
+
+# 1. Neural Network Feedforward Pass as Function Composition
+# Architecture: Input x -> Linear Layer L(x) -> ReLU Activation R(z) -> Sigmoid Prob S(a)
+def linear_layer(x, w=1.5, b=-2.0):
+    return w * x + b
+
+def relu_activation(z):
+    return np.maximum(0.0, z)
+
+def sigmoid_activation(a):
+    return 1.0 / (1.0 + np.exp(-a))
+
+# Composite forward pass: y_pred = (Sigmoid o ReLU o Linear)(x)
+inputs = np.array([-1.0, 0.0, 1.0, 2.0, 3.0])
+z_linear = linear_layer(inputs)
+a_relu = relu_activation(z_linear)
+probs = sigmoid_activation(a_relu)
+
+print("Composite Neural Layer Evaluation:")
+for x_in, z, a, p in zip(inputs, z_linear, a_relu, probs):
+    print(f"  x = {x_in:4.1f} -> Linear = {z:5.2f} -> ReLU = {a:4.2f} -> Sigmoid Prob = {p:.4f}")
+
+# 2. Symbolic Inversion and Logit Function Verification with SymPy
+p_sym = sp.symbols('p', real=True, positive=True)
+logit_expr = sp.log(p_sym / (1 - p_sym))
+
+# Test for p = 0.8808 (from x=3.0 above, where a=2.5)
+p_val = 1.0 / (1.0 + np.exp(-2.5))  # ~0.92414
+recovered_z = float(logit_expr.subs(p_sym, p_val))
+print(f"\nLogit Inversion Verification:")
+print(f"  Probability p = {p_val:.5f} -> Recovered Score z = {recovered_z:.4f} (Matches 2.50!)")
+
+# 3. Verifying Inversion of Composite Functions: (f o g)^(-1) = g^(-1) o f^(-1)
+# Let f(x) = 2x + 3  -> f^(-1)(y) = (y - 3)/2
+# Let g(x) = x - 5   -> g^(-1)(y) = y + 5
+# (f o g)(x) = 2(x - 5) + 3 = 2x - 7 -> (f o g)^(-1)(y) = (y + 7)/2
+# g^(-1)(f^(-1)(y)) = ((y - 3)/2) + 5 = (y - 3 + 10)/2 = (y + 7)/2. Identical!
+print("\nReversal Property (Socks and Shoes) analytically verified.")
+\end{lstlisting}
+
 \newpage
 \section{Practice Exercises}
-\textit{Try to solve these exercises independently. Detailed step-by-step solutions are available in the Appendix at the end of the book.}
+\textit{Detailed step-by-step solutions and full distractor rationales are available in the Appendix.}
+
+\subsection*{Part A: Computational and Analytical Problems}
 
 \begin{enumerate}
-    \item \textbf{Pure Math:} Use the horizontal line test conceptually to determine if $f(x) = x^2$ is one-to-one on the domain $\R$. What if the domain is restricted to $[0, \infty)$?
-    \item \textbf{Pure Math:} Let $f(x) = x^2 + 1$ and $g(x) = 2x - 3$. Find $(f \circ g)(x)$ and $(g \circ f)(x)$. Are they equal?
-    \item \textbf{Data Science:} In a neural network, a linear transformation $L(x) = 3x - 2$ is followed by a ReLU activation function $R(x) = \max(0, x)$. Evaluate the composite output $(R \circ L)(1)$ and $(R \circ L)(0)$.
-    \item \textbf{Pure Math:} Find the inverse function $f^{-1}(x)$ for $f(x) = \frac{4x}{x - 2}$.
-    \item \textbf{Pure Math:} Simplify the exponential expression: $\frac{(e^{2x})^3 \cdot e^{-x}}{e^{4x}}$.
+    \item \textbf{Composite Function Formulations and Restricted Domains:} Consider functions:
+    $$f(x) = \sqrt{2x - 6}, \qquad g(x) = \frac{x + 2}{x - 3}$$
+    \begin{enumerate}
+        \item State the natural domains of $f(x)$ and $g(x)$ in interval notation.
+        \item Formulate the composite expression $(f \circ g)(x)$ in simplified algebraic form.
+        \item Rigorously determine the exact domain of $(f \circ g)(x)$ using the formal definition $\text{Dom}(f \circ g) = \{x \in \text{Dom}(g) \mid g(x) \in \text{Dom}(f)\}$.
+        \item Formulate $(g \circ f)(x)$ and compute its domain.
+    \end{enumerate}
+
+    \item \textbf{Analytical Inversion of Rational Mappings:} Consider the function:
+    $$\func{f}{\R \setminus \{2\}}{\R \setminus \{4\}}, \qquad f(x) = \frac{4x + 1}{x - 2}$$
+    \begin{enumerate}
+        \item Prove that $f$ is strictly injective.
+        \item Derive the explicit algebraic formula for the inverse function $f^{-1}(y)$.
+        \item Verify through direct algebraic expansion that $(f \circ f^{-1})(y) = y$ and $(f^{-1} \circ f)(x) = x$.
+    \end{enumerate}
+
+    \item \textbf{The Sigmoid Function and Logit Probability Link:} In logistic classification:
+    $$\sigma(z) = \frac{1}{1 + e^{-z}}$$
+    \begin{enumerate}
+        \item Prove the fundamental reflection identity: $\sigma(-z) = 1 - \sigma(z)$ for all $z \in \R$.
+        \item If a logistic regression model outputs score $z = 2.0$, compute the predicted probability $p = \sigma(2.0)$ (use $e^2 \approx 7.389$).
+        \item Given an observed event probability $p = 0.80$, compute the exact analytical log-odds (logit score) $z = \text{logit}(0.80) = \ln\left(\frac{0.80}{0.20}\right)$.
+    \end{enumerate}
+
+    \item \textbf{Neural Layer Activation Pipelines:} A data pipeline models a single neuron with input feature $x$:
+    \begin{itemize}
+        \item Affine transformation: $z(x) = 2x - 4$
+        \item Non-linear activation: $a(z) = \max(0, z)$ (ReLU)
+        \item Probabilistic readout: $p(a) = \frac{1}{1 + e^{-a}}$ (Sigmoid)
+    \end{itemize}
+    \begin{enumerate}
+        \item Express the complete forward pipeline as a single composite function $P(x) = (p \circ a \circ z)(x)$.
+        \item Evaluate $P(1.0)$, $P(2.0)$, and $P(5.0)$.
+        \item Explain what happens to the output probability for any input $x \le 2.0$.
+    \end{enumerate}
+
+    \item \textbf{Reversal Property of Composite Inverses:} Let $f(x) = 3x - 5$ and $g(x) = \frac{x + 4}{2}$.
+    \begin{enumerate}
+        \item Compute the composite function $h(x) = (f \circ g)(x)$.
+        \item Find the inverse $h^{-1}(x)$ directly from $h(x)$.
+        \item Compute the individual inverses $f^{-1}(x)$ and $g^{-1}(x)$.
+        \item Formulate the composition $(g^{-1} \circ f^{-1})(x)$ and show that it matches $h^{-1}(x)$ identically, demonstrating the socks-and-shoes reversal law.
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Conceptual and Diagnostic Multiple Choice Questions}
+
+\begin{enumerate}[resume]
+\item \textbf{Conceptual Diagnostic: Composite Domain Fallacy} \\
+Let $f(x) = \sqrt{x}$ and $g(x) = x^2 - 9$. An engineering student formulates $(f \circ g)(x) = \sqrt{x^2 - 9}$ and concludes that the domain is $(-\infty, \infty)$ because \textit{"$x^2$ is always non-negative."} What is the \textbf{correct mathematical domain} of $(f \circ g)(x)$?
+\begin{enumerate}
+    \item $(-\infty, \infty)$ because the square of any real number is non-negative.
+    \item $[0, \infty)$ because the square root function requires non-negative inputs.
+    \item $(-\infty, -3] \cup [3, \infty)$ because the radicand $g(x) = x^2 - 9$ must satisfy $x^2 - 9 \ge 0$.
+    \item $[-3, 3]$ because the function is bounded between the two roots.
+\end{enumerate}
+
+\item \textbf{Conceptual Diagnostic: Reversal Law of Inversion} \\
+In deep learning, an autoencoder encoder network maps input data $\mathbf{x}$ to latent space through two successive bijective layer transformations: $\mathbf{z} = f_2(f_1(\mathbf{x}))$. Which mathematical formula correctly defines the exact decoder network that recovers $\mathbf{x}$?
+\begin{enumerate}
+    \item $\mathbf{x} = (f_1^{-1} \circ f_2^{-1})(\mathbf{z})$
+    \item $\mathbf{x} = (f_2^{-1} \circ f_1^{-1})(\mathbf{z})$
+    \item $\mathbf{x} = (f_1 \circ f_2)^{-1}(\mathbf{z}) = (f_1^{-1} \circ f_2^{-1})(\mathbf{z})$
+    \item $\mathbf{x} = (f_2 \circ f_1)(\mathbf{z})$
+\end{enumerate}
 \end{enumerate}

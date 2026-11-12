@@ -1,123 +1,307 @@
 \chapter{Multivariable Functions, Partial Derivatives \& Gradient}
 
-Transitioning from 1D single-variable calculus to \index{Multivariable Calculus}\textbf{Multivariable Calculus} allows us to model functions with multiple input features: $f(\mathbf{x}) = f(x_1, x_2, \dots, x_n)$. In this chapter, we master \index{Partial Derivatives}\textbf{Partial Derivatives}, \index{Directional Derivatives}\textbf{Directional Derivatives}, and the \index{Gradient Vector}\textbf{Gradient Vector} $\nabla f$.
-
+Machine learning operates fundamentally in multi-dimensional space: objective loss functions depend simultaneously on millions of model parameters $L(\mathbf{w}) = L(w_1, w_2, \dots, w_n)$. Moving from single-variable calculus to \index{Multivariable Calculus}\textbf{Multivariable Calculus} allows us to quantify how a function varies when moving in arbitrary multi-dimensional directions. In this chapter, we master \index{Partial Derivatives}\textbf{Partial Derivatives}, geometric visualization via \index{Level Sets}\textbf{Level Sets}, the \index{Gradient Vector}\textbf{Gradient Vector} $\nabla f$, and \index{Directional Derivatives}\textbf{Directional Derivatives}.
 
 \vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Multivariable Functions and Visualizations
-    \item Partial Derivatives
-    \item The Gradient Vector and Directional Derivatives
+    \item \textbf{Target Competencies:} Compute first-order partial derivatives of multi-variable functions; construct and interpret the gradient vector $\nabla f$; evaluate directional derivatives $D_{\mathbf{u}} f$ along arbitrary unit vectors; prove that the gradient vector points in the direction of steepest ascent and is perpendicular to level curves; compute analytical gradients for loss functions (MSE and cross-entropy).
+    \item \textbf{Prerequisites:} Vector algebra and inner products (Weeks 1 \& 7), single-variable differential calculus (IITM BS Maths 1).
+    \item \textbf{Mathematical Notation:} Multivariable function $f: \mathbb{R}^n \to \mathbb{R}$; partial derivative $\frac{\partial f}{\partial x_i}$ or $f_{x_i}$; gradient vector $\nabla f(\mathbf{x}) \in \mathbb{R}^n$; directional derivative $D_{\mathbf{u}} f(\mathbf{x})$ where $\|\mathbf{u}\| = 1$; level curve $f(\mathbf{x}) = c$.
 \end{itemize}
 \end{tcolorbox}
-\section{Multivariable Functions and Visualizations}
 
-A scalar-valued multivariable function maps a feature vector in $\mathbb{R}^n$ to a real number output:
-$$f: \mathbb{R}^n \to \mathbb{R}$$
+\section{Mathematical \& Theoretical Foundations}
 
-\begin{definitionbox}{Level Sets and Contour Curves}
-\index{Level Sets and Contour Curves}
-For $f(x, y)$, a \index{Level Curve}\textbf{Level Curve} (or Contour) is the set of all points $(x, y)$ where the function takes a constant value $c$:
-$$\{(x, y) \in \mathbb{R}^2 \mid f(x, y) = c\}$$
+\subsection{Multivariable Functions and Level Curves}
+
+\begin{definitionbox}{Multivariable Scalar Function}
+\index{Multivariable Function}
+A \textbf{scalar-valued multivariable function} is a rule $f: D \subseteq \mathbb{R}^n \to \mathbb{R}$ that assigns a unique real scalar $z = f(\mathbf{x}) = f(x_1, x_2, \dots, x_n)$ to each feature vector $\mathbf{x} \in D$.
+\begin{itemize}
+    \item The \textbf{Graph} of $f$ is the surface in $\mathbb{R}^{n+1}$ defined by $\{(\mathbf{x}, f(\mathbf{x})) \mid \mathbf{x} \in D\}$.
+    \item The \textbf{Level Set} (or \textbf{Level Curve} for $n=2$, \textbf{Level Surface} for $n=3$) of $f$ at value $c \in \mathbb{R}$ is the set of all domain points producing constant output $c$:
+    \begin{equation}
+    L_c(f) = \left\{ \mathbf{x} \in \mathbb{R}^n \;\middle|\; f(\mathbf{x}) = c \right\}
+    \end{equation}
+\end{itemize}
 \end{definitionbox}
 
-\begin{intuitionbox}{3D Surface Loss Bowl and Contour Map}
-Below is a 3D visualization of a convex loss surface $z = f(x,y) = x^2 + y^2$ alongside its 2D concentric circular contour map.
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[
-    width=7cm, height=6cm,
-    title={$z = f(x,y) = x^2 + y^2$},
-    xlabel={$x$}, ylabel={$y$}, zlabel={$z$},
-    view={60}{30},
-    colormap/viridis,
-    grid=major
-]
-\addplot3[surf, domain=-2:2, domain y=-2:2, samples=20] {x^2 + y^2};
-\end{axis}
-\end{tikzpicture}
-\end{center}
-\end{intuitionbox}
+\subsection{Partial Derivatives}
 
-\begin{videocard}{IITM BS Lecture: Multivariable Functions \& Visualization}{https://www.youtube.com/watch?v=MfrAPZRrqxw}
-Official lecture visualizing 3D surface plots $z = f(x,y)$ and 2D contour lines.
-\end{videocard}
+\begin{definitionbox}{Partial Derivatives}
+\index{Partial Derivatives}
+The \textbf{first-order partial derivative} of $f(\mathbf{x})$ with respect to the coordinate variable $x_i$ measures the instantaneous rate of change of $f$ when moving parallel to the $i$-th coordinate axis while freezing all other $n-1$ variables as constants:
+\begin{equation}
+\frac{\partial f}{\partial x_i}(\mathbf{x}) = \lim_{h \to 0} \frac{f(x_1, \dots, x_i + h, \dots, x_n) - f(x_1, \dots, x_i, \dots, x_n)}{h}
+\end{equation}
+\end{definitionbox}
 
-
-\section{Partial Derivatives}
-
-The \index{Partial Derivative}\textbf{Partial Derivative} of $f(x_1, x_2, \dots, x_n)$ with respect to $x_i$ measures the rate of change of $f$ along the $x_i$ coordinate axis, holding all other variables constant.
-
-\begin{theorembox}{Partial Derivative Calculation}
-To compute $\frac{\partial f}{\partial x_i}$ (or $f_{x_i}$), treat all variables except $x_i$ as constants and differentiate using standard 1D calculus rules.
-$$\frac{\partial f}{\partial x_1} = \lim_{h \to 0} \frac{f(x_1 + h, x_2, \dots, x_n) - f(x_1, x_2, \dots, x_n)}{h}$$
-\end{theorembox}
-
-\begin{examplebox}{Computing Partial Derivatives}
-For $f(x, y) = x^3 y^2 + 5x^2 - 4y$:
-$$\frac{\partial f}{\partial x} = 3x^2 y^2 + 10x$$
-$$\frac{\partial f}{\partial y} = 2x^3 y - 4$$
-\end{examplebox}
-
-\begin{videocard}{IITM BS Lecture: Partial Derivatives}{https://www.youtube.com/watch?v=GoJoNFBuCJ8}
-Official lecture defining partial derivatives geometrically as tangent slopes along coordinate grid slices.
-\end{videocard}
-
-\section{The Gradient Vector and Directional Derivatives}
-
-The \index{Gradient}\textbf{Gradient} $\nabla f(\mathbf{x})$ packs all first-order partial derivatives into a single column vector.
+\subsection{The Gradient Vector and Directional Derivatives}
 
 \begin{definitionbox}{The Gradient Vector ($\nabla f$)}
-For $f: \mathbb{R}^n \to \mathbb{R}$, the \index{Gradient Vector}\textbf{Gradient Vector} is:
-$$\nabla f(\mathbf{x}) = \begin{bmatrix} \frac{\partial f}{\partial x_1} \\ \frac{\partial f}{\partial x_2} \\ \vdots \\ \frac{\partial f}{\partial x_n} \end{bmatrix} \in \mathbb{R}^n$$
+\index{Gradient Vector}
+For a differentiable scalar function $f: \mathbb{R}^n \to \mathbb{R}$, the \textbf{Gradient Vector} $\nabla f(\mathbf{x})$ is the column vector composed of all $n$ first-order partial derivatives:
+\begin{equation}
+\nabla f(\mathbf{x}) = \begin{bmatrix} \frac{\partial f}{\partial x_1}(\mathbf{x}) \\ \frac{\partial f}{\partial x_2}(\mathbf{x}) \\ \vdots \\ \frac{\partial f}{\partial x_n}(\mathbf{x}) \end{bmatrix} \in \mathbb{R}^n
+\end{equation}
 \end{definitionbox}
 
-\begin{formulabox}{Directional Derivative via Gradient}
-The \index{Directional Derivative}\textbf{Directional Derivative} $D_{\mathbf{u}} f(\mathbf{x})$ measures the rate of change of $f$ in the direction of a \index{unit vector}\textbf{unit vector} $\mathbf{u}$ ($\|\mathbf{u}\| = 1$):
-$$D_{\mathbf{u}} f(\mathbf{x}) = \nabla f(\mathbf{x}) \cdot \mathbf{u} = \|\nabla f(\mathbf{x})\| \cos \theta$$
-\end{formulabox}
+\begin{definitionbox}{Directional Derivative}
+\index{Directional Derivative}
+Let $\mathbf{u} \in \mathbb{R}^n$ be a \textbf{unit vector} ($\|\mathbf{u}\| = 1$). The \textbf{directional derivative} of $f$ at point $\mathbf{x}$ in direction $\mathbf{u}$ is:
+\begin{equation}
+D_{\mathbf{u}} f(\mathbf{x}) = \lim_{h \to 0} \frac{f(\mathbf{x} + h\mathbf{u}) - f(\mathbf{x})}{h}
+\end{equation}
+For any differentiable function, the directional derivative is calculated as the standard Euclidean inner product of the gradient with the unit direction:
+\begin{equation}
+D_{\mathbf{u}} f(\mathbf{x}) = \nabla f(\mathbf{x}) \cdot \mathbf{u} = \|\nabla f(\mathbf{x})\| \cos(\theta)
+\end{equation}
+where $\theta$ is the angle between $\nabla f(\mathbf{x})$ and $\mathbf{u}$.
+\end{definitionbox}
 
-\textbf{Data Science Relevance:} The gradient $\nabla f(\mathbf{x})$ points in the direction of \index{steepest increase}\textbf{steepest increase} of the function, while $-\nabla f(\mathbf{x})$ points in the direction of \index{steepest descent}\textbf{steepest descent}—the core mechanism behind updating neural network weights during Gradient Descent training!
+\section{Visual \& Geometric Intuition: Gradients and Level Curves}
 
-\begin{lstlisting}[language=Python, caption=Data Science: Numerical Gradients]
+The gradient vector possesses two foundational geometric properties:
+\begin{enumerate}
+    \item It points in the direction of \textbf{steepest increase} of $f(\mathbf{x})$.
+    \item It is strictly \textbf{orthogonal (perpendicular)} to the level curve passing through that point.
+\end{enumerate}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[>=stealth, scale=1.2]
+    % Level Curves (Concentric Ellipses)
+    \draw[thick, blue!40] (0,0) ellipse (1.0cm and 0.6cm);
+    \node[blue!60, font=\scriptsize] at (1.1, 0.4) {$f = 1$};
+
+    \draw[thick, blue!60] (0,0) ellipse (2.0cm and 1.2cm);
+    \node[blue!80, font=\scriptsize] at (2.2, 0.8) {$f = 4$};
+
+    \draw[thick, blue!80] (0,0) ellipse (3.0cm and 1.8cm);
+    \node[blue!90, font=\scriptsize] at (3.3, 1.2) {$f = 9$};
+
+    % Center minimum
+    \filldraw[forest] (0,0) circle (2pt) node[below left] {$\mathbf{x}^*$ (Min)};
+
+    % Evaluation Point on level curve f = 4: x0 = (1.414, 0.848)
+    \coordinate (P) at (1.414, 0.848);
+    \filldraw[red!80!black] (P) circle (2.5pt) node[below right] {$\mathbf{x}_0$};
+
+    % Tangent line to level curve at P
+    \draw[thick, gray!70, dashed] ($(P) + (-1.2, 0.85)$) -- ($(P) + (1.2, -0.85)$) node[right, font=\scriptsize] {Tangent to $L_4(f)$};
+
+    % Gradient Vector (Perpendicular to tangent)
+    \draw[->, ultra thick, red!80!black] (P) -- ($(P) + (1.2, 1.7)$) node[above right] {$\nabla f(\mathbf{x}_0)$ (Steepest Ascent)};
+
+    % Negative Gradient (Steepest Descent)
+    \draw[->, ultra thick, forest] (P) -- ($(P) - (0.9, 1.27)$) node[below left] {$-\nabla f(\mathbf{x}_0)$ (Descent Step)};
+
+    % Right-angle symbol
+    \draw[thick, black!60] ($(P) + (0.2, 0.28)$) -- ($(P) + (0.45, 0.1)$) -- ($(P) + (0.25, -0.18)$);
+
+    % Arbitrary Direction u
+    \draw[->, thick, purple] (P) -- ($(P) + (1.4, 0.2)$) node[right] {$\mathbf{u}$};
+    \draw[->, thick] ($(P) + (0.5, 0.07)$) arc (8:55:0.5) node[midway, right=1pt, font=\scriptsize] {$\theta$};
+
+    % Explanatory Card
+    \node[draw=primarydark, fill=white, rounded corners, font=\scriptsize, align=left] at (-1.5, 2.2) {
+        \textbf{Geometric Invariants:}\\
+        $\bullet$ $\nabla f \perp \text{Level Curve}$\\
+        $\bullet$ $D_{\mathbf{u}} f = \|\nabla f\| \cos(\theta)$\\
+        $\bullet$ Max rate along $\nabla f$ ($\theta = 0^\circ$)\\
+        $\bullet$ Zero rate along tangent ($\theta = 90^\circ$)\\
+        $\bullet$ Min rate along $-\nabla f$ ($\theta = 180^\circ$)
+    };
+\end{tikzpicture}
+\caption{Level contours of an elliptic objective surface. The gradient vector $\nabla f(\mathbf{x}_0)$ is strictly perpendicular to the level curve tangent and points toward maximal increase.}
+\label{fig:gradient_level_curves}
+\end{figure}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Proof of Gradient Orthogonality to Level Curves}
+
+\begin{theorembox}{Orthogonality of Gradient to Level Sets}
+Let $f: \mathbb{R}^n \to \mathbb{R}$ be continuously differentiable. At any point $\mathbf{x}_0$ on the level surface $S = \{\mathbf{x} \in \mathbb{R}^n \mid f(\mathbf{x}) = c\}$ where $\nabla f(\mathbf{x}_0) \neq \mathbf{0}$, the gradient vector $\nabla f(\mathbf{x}_0)$ is \textbf{strictly orthogonal} to the tangent plane of $S$ at $\mathbf{x}_0$.
+\end{theorembox}
+
+\begin{proof}
+Let $\mathbf{r}: (-\epsilon, \epsilon) \to \mathbb{R}^n$ be any smooth parameter curve lying entirely within the level surface $S$, passing through $\mathbf{x}_0$ at $t = 0$:
+\begin{equation*}
+\mathbf{r}(0) = \mathbf{x}_0 \quad \text{and} \quad f(\mathbf{r}(t)) = c \quad \forall t \in (-\epsilon, \epsilon)
+\end{equation*}
+The velocity vector $\mathbf{v} = \mathbf{r}'(0)$ is a tangent vector to the level surface at $\mathbf{x}_0$.
+Differentiating the constant identity $f(\mathbf{r}(t)) = c$ with respect to $t$ using the multivariable chain rule:
+\begin{equation*}
+\frac{d}{dt} \left[ f(\mathbf{r}(t)) \right] = \frac{d}{dt}[c] = 0
+\end{equation*}
+By the multivariable chain rule:
+\begin{equation*}
+\sum_{i=1}^n \frac{\partial f}{\partial x_i}(\mathbf{r}(t)) \frac{dx_i}{dt}(t) = \nabla f(\mathbf{r}(t)) \cdot \mathbf{r}'(t) = 0
+\end{equation*}
+Evaluating at $t = 0$:
+\begin{equation}
+\nabla f(\mathbf{x}_0) \cdot \mathbf{r}'(0) = 0 \iff \nabla f(\mathbf{x}_0) \perp \mathbf{r}'(0)
+\end{equation}
+Because this orthogonality holds for every smooth curve passing through $\mathbf{x}_0$ on $S$, the gradient vector $\nabla f(\mathbf{x}_0)$ is perpendicular to every tangent vector, and therefore perpendicular to the entire tangent space of the level set.
+\end{proof}
+
+\subsection{Proof of Steepest Ascent and Descent Bounds}
+
+From $D_{\mathbf{u}} f(\mathbf{x}) = \nabla f(\mathbf{x}) \cdot \mathbf{u} = \|\nabla f(\mathbf{x})\| \|\mathbf{u}\| \cos(\theta)$:
+Since $\|\mathbf{u}\| = 1$ and $-1 \le \cos(\theta) \le 1$:
+\begin{equation}
+-\|\nabla f(\mathbf{x})\| \le D_{\mathbf{u}} f(\mathbf{x}) \le \|\nabla f(\mathbf{x})\|
+\end{equation}
+\begin{itemize}
+    \item \textbf{Maximum Rate ($\cos\theta = 1 \implies \theta = 0$):} Occurs when $\mathbf{u} = \frac{\nabla f(\mathbf{x})}{\|\nabla f(\mathbf{x})\|}$. The maximal instantaneous rate of increase is precisely $\|\nabla f(\mathbf{x})\|$.
+    \item \textbf{Minimum Rate ($\cos\theta = -1 \implies \theta = \pi$):} Occurs when $\mathbf{u} = -\frac{\nabla f(\mathbf{x})}{\|\nabla f(\mathbf{x})\|}$. The maximal instantaneous rate of decrease is $-\|\nabla f(\mathbf{x})\|$.
+    \item \textbf{Zero Rate ($\cos\theta = 0 \implies \theta = \pi/2$):} Moving tangent to the level curve produces zero rate of change ($D_{\mathbf{u}} f = 0$).
+\end{itemize}
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Trap 1: Forgetting to Normalize the Direction Vector}
+The formula $D_{\mathbf{v}} f = \nabla f \cdot \mathbf{v}$ is valid \textbf{only when $\mathbf{v}$ is a unit vector} ($\|\mathbf{v}\| = 1$). If given an unnormalized direction vector $\mathbf{v} = [3, 4]^T$, evaluating $\nabla f \cdot \mathbf{v}$ yields an answer that is inflated by $\|\mathbf{v}\| = 5$. Always normalize first: $\mathbf{u} = \frac{\mathbf{v}}{\|\mathbf{v}\|}$.
+\end{trapbox}
+
+\begin{trapbox}{Trap 2: Differentiating Inactive Variables into Zero in Product Terms}
+When taking $\frac{\partial}{\partial x}(5 x y^2)$, $y^2$ is a multiplicative constant, NOT an additive constant! The derivative is $5 y^2 \cdot \frac{d}{dx}(x) = 5 y^2$. Confusing multiplicative constants with additive constants (e.g., falsely asserting $\frac{\partial}{\partial x}(5 x y^2) = 0$ because $y$ is constant) is one of the most common student calculation errors.
+\end{trapbox}
+
+\begin{trapbox}{Trap 3: Believing the Gradient Vector Lives in the Output Space}
+If $f: \mathbb{R}^n \to \mathbb{R}$, students often expect the gradient to be a scalar because $f$ outputs a scalar. The gradient $\nabla f(\mathbf{x}) \in \mathbb{R}^n$ lives in the \textbf{domain feature space}. It specifies an $n$-dimensional direction vector along which to nudge the input parameters $\mathbf{x}$.
+\end{trapbox}
+
+\begin{trapbox}{Trap 4: Confusing Level Curves with Surface Cross-Sections}
+A level curve $f(x, y) = c$ lives entirely in the 2D input plane $\mathbb{R}^2$. A vertical cross-section $z = f(x, y_0)$ is a 2D slice of the 3D surface in $(x, z)$-space. Level curves are the horizontal "isoline" footprints seen from directly above the terrain.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2.8cm} p{2.6cm} p{2.2cm} p{3.2cm} p{2.8cm}}
+\toprule
+\textbf{Mathematical Quantity} & \textbf{Formal Definition} & \textbf{Geometric Type} & \textbf{Physical / Geometric Meaning} & \textbf{Data Science Role} \\
+\midrule
+\textbf{Partial Derivative $\frac{\partial f}{\partial x_i}$} & $\lim_{h \to 0} \frac{f(\mathbf{x} + h\mathbf{e}_i) - f(\mathbf{x})}{h}$ & Scalar & Slope along coordinate axis $x_i$ & Feature sensitivity analysis \\
+\textbf{Gradient Vector $\nabla f$} & $\left[ \frac{\partial f}{\partial x_1}, \dots, \frac{\partial f}{\partial x_n} \right]^T$ & Vector in $\mathbb{R}^n$ & Steepest ascent direction; $\perp$ to contours & Core vector in SGD and Adam \\
+\textbf{Directional Derivative $D_{\mathbf{u}} f$} & $\nabla f \cdot \mathbf{u}$ ($\|\mathbf{u}\| = 1$) & Scalar & Rate of change along arbitrary heading $\mathbf{u}$ & Line search step selection \\
+\textbf{Steepest Descent $-\nabla f$} & $-\nabla f(\mathbf{x})$ & Vector in $\mathbb{R}^n$ & Direction of maximal loss reduction & Gradient descent update direction \\
+\textbf{Level Set Tangent} & $\mathbf{t} \in \mathbb{R}^n: \nabla f \cdot \mathbf{t} = 0$ & Subspace in $\mathbb{R}^n$ & Direction of zero instantaneous loss variation & Isocost / indifference curve \\
+\bottomrule
+\end{tabular}
+\caption{Systematic comparison of differential operators, directional rates, and their optimization roles.}
+\label{tab:multivariable_derivatives_comparison}
+\end{table}
+
+\section{Python / Scientific Computing Lab}
+
+The following Python script computes analytical gradients, verifies them against numerical finite differences, and validates gradient orthogonality to level curves.
+
+\begin{lstlisting}[language=Python, caption={Python Lab: Analytical vs. Numerical Gradients and Directional Derivatives}]
 import numpy as np
 
-# Simple gradient calculation via finite differences
-def f(w): return w[0]**2 + 3*w[1]**2
+# 1. Objective Function: f(x, y) = 4*x^2*y - 3*y^2 + 5*x
+def f(p):
+    x, y = p[0], p[1]
+    return 4.0 * x**2 * y - 3.0 * y**2 + 5.0 * x
 
-w = np.array([2.0, 1.0])
-h = 1e-5
+# Analytical Gradient: [8*x*y + 5, 4*x^2 - 6*y]^T
+def grad_f_analytical(p):
+    x, y = p[0], p[1]
+    return np.array([8.0 * x * y + 5.0, 4.0 * x**2 - 6.0 * y])
 
-grad_w0 = (f([w[0] + h, w[1]]) - f(w)) / h
-grad_w1 = (f([w[0], w[1] + h]) - f(w)) / h
-print("Numerical Gradient:", [grad_w0, grad_w1])
+# Numerical Gradient via Central Finite Differences
+def grad_f_numerical(p, h=1e-6):
+    grad = np.zeros_like(p)
+    for i in range(len(p)):
+        p_plus = p.copy()
+        p_minus = p.copy()
+        p_plus[i] += h
+        p_minus[i] -= h
+        grad[i] = (f(p_plus) - f(p_minus)) / (2.0 * h)
+    return grad
+
+# Test at Point (1.0, 2.0)
+p0 = np.array([1.0, 2.0])
+grad_anal = grad_f_analytical(p0)
+grad_num = grad_f_numerical(p0)
+print(f"Analytical Gradient at (1, 2): {grad_anal}")
+print(f"Numerical Gradient at (1, 2):  {grad_num}")
+assert np.allclose(grad_anal, grad_num, atol=1e-5), "Gradient verification failed!"
+
+# 2. Directional Derivative along v = [3, 4]^T
+v = np.array([3.0, 4.0])
+u = v / np.linalg.norm(v)  # Normalized unit vector
+# Function from Exercise 3: g(x, y) = x^2 + 3*x*y + y^2 at (2, 1)
+grad_g = np.array([2.0*(2.0) + 3.0*(1.0), 3.0*(2.0) + 2.0*(1.0)])  # [7, 8]^T
+dir_deriv = np.dot(grad_g, u)
+print(f"\nUnit direction u: {u}")
+print(f"Gradient of g at (2, 1): {grad_g}")
+print(f"Directional Derivative D_u g(2, 1): {dir_deriv:.4f}")
+
+# 3. Orthogonality to Level Curve Tangent
+# Level curve of g(x, y) = 11 passing through (2, 1)
+# Tangent vector t must satisfy: grad_g . t = 0  ==>  t = [-grad_g[1], grad_g[0]]
+t_tangent = np.array([-grad_g[1], grad_g[0]])
+t_unit = t_tangent / np.linalg.norm(t_tangent)
+dir_along_tangent = np.dot(grad_g, t_unit)
+print(f"Rate of change strictly along contour tangent: {dir_along_tangent:.2e}")
+assert np.isclose(dir_along_tangent, 0.0), "Orthogonality violated!"
 \end{lstlisting}
-
-\begin{videocard}{IITM BS Lecture: Directional Derivatives}{https://www.youtube.com/watch?v=uhUqybTaGns}
-Official lecture defining rate of change along arbitrary unit vector directions.
-\end{videocard}
-
-\begin{videocard}{IITM BS Lecture: Directional Derivatives in Terms of Gradient}{https://www.youtube.com/watch?v=2eYER90_4wA}
-Official lecture proving $D_{\mathbf{u}} f = \nabla f \cdot \mathbf{u}$ and geometric properties of gradients.
-\end{videocard}
 
 \newpage
 \section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\textit{Detailed step-by-step solutions and distractor rationales are available in the Appendix.}
 
+\subsection*{Part A: Computational \& Analytical Problems}
 \begin{enumerate}
-\item \textbf{First-Order Partial Derivatives:} Compute $\frac{\partial f}{\partial x}$ and $\frac{\partial f}{\partial y}$ for:
-    $$f(x, y) = x^2 y^3 + e^{2x} \sin(y)$$
+\item \textbf{First-Order Partial Derivatives:} Compute the exact partial derivatives $\frac{\partial f}{\partial x}$ and $\frac{\partial f}{\partial y}$ for:
+\begin{equation*}
+f(x, y) = x^2 y^3 + e^{2x} \sin(y)
+\end{equation*}
 
-\item \textbf{Gradient Vector Evaluation:} Compute the gradient vector $\nabla f(1, 2)$ for:
-    $$f(x, y) = 4x^2 y - 3y^2 + 5x$$
+\item \textbf{Gradient Vector Evaluation:} Compute the gradient vector $\nabla f(1, 2)$ for the polynomial function:
+\begin{equation*}
+f(x, y) = 4x^2 y - 3y^2 + 5x
+\end{equation*}
 
-\item \textbf{Directional Derivative:} Calculate the directional derivative $D_{\mathbf{u}} f(2, 1)$ for $f(x, y) = x^2 + 3xy + y^2$ in the direction of vector $\mathbf{v} = \begin{bmatrix} 3 \\ 4 \end{bmatrix}$. (Remember to normalize $\mathbf{v}$ into a unit vector $\mathbf{u}$).
+\item \textbf{Directional Derivative along a Vector:} Calculate the directional derivative $D_{\mathbf{u}} f(2, 1)$ for $f(x, y) = x^2 + 3xy + y^2$ in the direction of vector $\mathbf{v} = \begin{bmatrix} 3 \\ 4 \end{bmatrix}$.
 
-\item \textbf{Steepest Ascent Direction:} At the point $(1, -1)$, in which unit vector direction does $f(x, y) = x^3 y - 2x y^2$ increase most rapidly? What is the maximum rate of increase?
+\item \textbf{Steepest Ascent and Descent Rates:} At the point $(1, -1)$ for $f(x, y) = x^3 y - 2x y^2$:
+\begin{enumerate}
+    \item Determine the unit vector direction of steepest ascent.
+    \item Determine the maximum instantaneous rate of increase.
+    \item Determine the unit vector direction of steepest descent.
+\end{enumerate}
 
-\item \textbf{Data Science Application (MSE Loss Gradient):} In linear regression with 1 sample $(x_i, y_i)$, the Mean Squared Error loss as a function of slope $m$ and bias $b$ is:
-    $$L(m, b) = (m x_i + b - y_i)^2$$
-    Compute the gradient vector $\nabla L(m, b) = \begin{bmatrix} \frac{\partial L}{\partial m} \\ \frac{\partial L}{\partial b} \end{bmatrix}$.
+\item \textbf{Data Science Application (MSE Loss Gradient):} In linear regression with a single sample observation $(x_i, y_i)$, the squared loss as a function of weight $m$ and bias $b$ is:
+\begin{equation*}
+L(m, b) = (m x_i + b - y_i)^2
+\end{equation*}
+Compute the gradient vector $\nabla L(m, b) = \begin{bmatrix} \frac{\partial L}{\partial m} \\ \frac{\partial L}{\partial b} \end{bmatrix}$ using the chain rule.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions}
+\begin{enumerate}
+\setcounter{enumi}{5}
+\item \textbf{Orthogonality of Gradient to Level Sets:} Let $f(x, y) = x^2 + 4y^2$. At the point $(2, 1)$, what is the geometric relationship between the gradient $\nabla f(2, 1)$ and the tangent vector to the level ellipse $x^2 + 4y^2 = 8$?
+\begin{enumerate}
+    \item The gradient vector is parallel to the tangent vector.
+    \item The gradient vector makes an angle of $45^\circ$ with the tangent vector.
+    \item The gradient vector is strictly perpendicular ($90^\circ$) to the tangent vector, pointing outward toward higher function values.
+    \item The gradient vector is tangent to the ellipse at $(2, 1)$.
+\end{enumerate}
+
+\item \textbf{Directional Derivative Extremal Properties:} Suppose $g: \mathbb{R}^3 \to \mathbb{R}$ is a differentiable function with $\nabla g(\mathbf{p}) = [2, -2, 1]^T$. What is the minimum possible directional derivative $D_{\mathbf{u}} g(\mathbf{p})$ across all unit directions $\mathbf{u} \in \mathbb{R}^3$?
+\begin{enumerate}
+    \item $-3$
+    \item $0$
+    \item $-1$
+    \item $-9$
+\end{enumerate}
 \end{enumerate}

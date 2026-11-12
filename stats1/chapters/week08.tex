@@ -1,133 +1,257 @@
-\chapter{Random Variables}
+\chapter{Random Variables, Probability Mass Functions \& Cumulative Distribution Functions}
 
-Until now, our sample spaces have been arbitrary sets of outcomes, like \{Heads, Tails\} or \{Spam, Legit\}. But mathematics requires numbers. A \index{Random Variable}\textbf{Random Variable} acts as a bridge, translating physical outcomes into numbers so we can do algebra and calculus on them.
-
+Until now, our sample spaces have consisted of qualitative descriptions such as heads or tails, defective or functional, and legitimate or spam. However, statistical learning, regression, and optimization algorithms operate exclusively on mathematical vector spaces. A \index{Random Variable}\textbf{Random Variable} acts as the mathematical bridge that maps experimental events to real numbers. In this chapter, we master \textbf{Discrete Random Variables and their Supports ($\mathcal{R}_X$)}, the \textbf{Probability Mass Function (PMF)}, the \textbf{Cumulative Distribution Function (CDF)}, the four axiomatic properties of CDFs (including \textbf{Right-Continuity} and \textbf{Jump Discontinuities}), and the cognitive traps of strict vs. weak inequalities in discrete distributions.
 
 \vspace{0.5cm}
 \begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
 \begin{itemize}
-    \item Introduction to Random Variables
-    \item The Probability Mass Function (PMF)
-    \item The Cumulative Distribution Function (CDF)
+    \item Mathematical formalization of a Random Variable as a deterministic mapping: $X \colon \Omega \to \mathbb{R}$.
+    \item Discrete vs. Continuous random variables and support identification ($\mathcal{R}_X$).
+    \item Probability Mass Function (PMF) $p_X(x) = \P(X = x)$ and its two Kolmogorov validity criteria.
+    \item Cumulative Distribution Function (CDF) $F_X(x) = \P(X \le x)$ and its four fundamental mathematical properties.
+    \item Recovering point mass from jump discontinuities: $\P(X = x) = F(x) - F(x^-)$.
+    \item Calculating interval probabilities ($\P(a < X \le b)$ vs. $\P(a \le X \le b)$) without boundary errors.
+    \item Two-tier exercises with diagnostic multiple choice questions on discrete boundary intervals and CDF right-continuity.
 \end{itemize}
 \end{tcolorbox}
+
 \section{Introduction to Random Variables}
 
 \begin{definitionbox}{Random Variable}
-A \textbf{Random Variable ($X$)} is a function that maps every possible outcome in the sample space $S$ to a real number. 
-$$X: S \to \mathbb{R}$$
-For example, if we flip two coins, $S = \{HH, HT, TH, TT\}$. We can define the Random Variable $X$ as "the number of Heads". Then:
-$X(HH) = 2$, $X(HT) = 1$, $X(TH) = 1$, $X(TT) = 0$. 
+\index{Random Variable}
+Let $(\Omega, \mathcal{F}, \P)$ be a probability space. A \textbf{Random Variable ($X$)} is a deterministic function that maps every elementary outcome $\omega \in \Omega$ to a real number on the real line:
+$$X \colon \Omega \to \mathbb{R}$$
+For any subset $B \subseteq \mathbb{R}$, we write $\P(X \in B)$ as shorthand for the probability of the preimage event:
+$$\P(\{\omega \in \Omega \colon X(\omega) \in B\})$$
+\begin{itemize}
+    \item \textbf{Support ($\mathcal{R}_X$):} The set of all possible numerical values that $X$ can assume with non-zero probability:
+    $$\mathcal{R}_X = \{x \in \mathbb{R} \colon \P(X = x) > 0\}$$
+    \item \textbf{Discrete Random Variable:} The support $\mathcal{R}_X$ is a finite or countably infinite set (e.g., $\{0, 1, 2, \dots\}$).
+    \item \textbf{Continuous Random Variable:} The support $\mathcal{R}_X$ forms an uncountably infinite continuum or interval on $\mathbb{R}$.
+\end{itemize}
 \end{definitionbox}
 
-\begin{theorembox}{Discrete vs. Continuous Random Variables}
+\begin{intuitionbox}{A Random Variable is a Function, Not a Variable!}
+Despite its name, a random variable is \textbf{neither random nor a variable}.
 \begin{itemize}
-    \item \textbf{Discrete Random Variable:} Can only take on a countable number of distinct values. Often associated with \emph{counting} things (e.g., number of emails received, number of defective products, rolling a die).
-    \item \textbf{Continuous Random Variable:} Can take on any value within an infinitely dense interval. Often associated with \emph{measuring} things (e.g., exact height, time, temperature). 
+    \item The mapping $X(\omega)$ is a $100\%$ \textbf{deterministic mathematical function}.
+    \item The only "randomness" resides in which elementary outcome $\omega \in \Omega$ the universe realizes!
+    \item For example, in tossing two coins ($\Omega = \{HH, HT, TH, TT\}$), the random variable "number of heads" is the fixed rule:
+    $$X(HH) = 2, \quad X(HT) = 1, \quad X(TH) = 1, \quad X(TT) = 0$$
 \end{itemize}
-\end{theorembox}
+\end{intuitionbox}
 
-\textbf{Data Science Relevance:} In Machine Learning, classifying a label (like predicting whether a tumor is Malignant or Benign) is modeling a \index{Discrete Random Variable}\textbf{Discrete Random Variable}. Predicting an exact numerical value (like predicting the future price of a stock) is modeling a \index{Continuous Random Variable}\textbf{Continuous Random Variable}.
-
-\begin{videocard}{IITM BS Lecture: W8\_L1 \& L3 Random Variables}{https://www.youtube.com/watch?v=6EPAFA3orpA}
+\begin{videocard}{IITM BS Lecture: Random Variables}{https://www.youtube.com/watch?v=6EPAFA3orpA}
 Official lectures defining random variables and clearly separating Discrete from Continuous.
 \end{videocard}
 
 \section{The Probability Mass Function (PMF)}
 
-For discrete random variables, we want to know the probability of hitting a specific numerical value.
+For a discrete random variable, probability is assigned to isolated numerical values in its support.
 
 \begin{definitionbox}{Probability Mass Function (PMF)}
-\index{Probability Mass Function (PMF)}
-The \index{Probability Mass Function}\textbf{Probability Mass Function} of a discrete random variable $X$, denoted $f(x)$ or $P(X=x)$, gives the exact probability that $X$ will take on the value $x$.
+\index{Probability Mass Function}
+The \textbf{Probability Mass Function} of a discrete random variable $X$, denoted $p_X(x)$ or $f(x)$, is:
+$$p_X(x) = \P(X = x)$$
+\begin{itemize}
+    \item \textbf{Kolmogorov Validity Conditions:} For $p_X(x)$ to be a valid mathematical PMF:
+    \begin{enumerate}
+        \item \textbf{Non-Negativity:} $p_X(x) \ge 0$ for all $x \in \mathbb{R}$ (with $p_X(x) = 0$ for all $x \notin \mathcal{R}_X$).
+        \item \textbf{Total Probability Normalization:}
+        $$\sum_{x \in \mathcal{R}_X} p_X(x) = 1.00$$
+    \end{enumerate}
+\end{itemize}
 \end{definitionbox}
 
-\begin{formulabox}{Properties of a Valid PMF}
-For $f(x)$ to be a valid mathematical PMF, it must satisfy two Kolmogorov-derived rules:
-\begin{enumerate}
-    \item \textbf{Non-negativity:} $f(x) \ge 0$ for all possible values of $x$. (You cannot have a negative probability).
-    \item \textbf{Sum to One:} $\sum f(x) = 1$. (The sum of probabilities for all possible values of $X$ must equal exactly $1$).
-\end{enumerate}
-\end{formulabox}
-
-\begin{videocard}{IITM BS Lecture: W8\_L4 \& L5 Probability Mass Function}{https://www.youtube.com/watch?v=MGCD1KTWW3w}
+\begin{videocard}{IITM BS Lecture: Probability Mass Function}{https://www.youtube.com/watch?v=MGCD1KTWW3w}
 Official lectures detailing the properties of PMFs and how to graph them as stick plots.
 \end{videocard}
 
 \section{The Cumulative Distribution Function (CDF)}
 
-Sometimes we don't just want $P(X = x)$. We want to know the probability that $X$ is \emph{less than or equal to} $x$. (e.g., What is the probability a server goes down in 5 days \emph{or less}?).
-
-\begin{intuitionbox}{The Snowball Effect}
-If PMF is the amount of snow falling on exactly one specific day, the CDF is the total depth of snow accumulated on the ground up to that day. As the days go on, the total depth (CDF) can only stay the same (if no snow falls) or increase. It can never decrease, eventually reaching 100\% of the winter's total snowfall.
-\end{intuitionbox}
-
-\begin{lstlisting}[language=Python, caption=Data Science: PMF and CDF from Data]
-import pandas as pd
-
-# Simulating discrete dice rolls
-rolls = pd.Series([2, 3, 3, 4, 4, 4, 5, 5, 6])
-pmf = rolls.value_counts(normalize=True).sort_index()
-cdf = pmf.cumsum()
-
-print("PMF:\n", pmf)
-print("CDF:\n", cdf)
-\end{lstlisting}
+The CDF aggregates probability from $-\infty$ up to a given real threshold $x$.
 
 \begin{definitionbox}{Cumulative Distribution Function (CDF)}
-\index{Cumulative Distribution Function (CDF)}
-The \textbf{Cumulative Distribution Function}, denoted $F(x)$, gives the accumulating probability up to and including $x$.
-$$F(x) = P(X \le x) = \sum_{k \le x} P(X = k)$$
+\index{Cumulative Distribution Function}
+The \textbf{Cumulative Distribution Function} of a random variable $X$, denoted $F_X(x)$, is defined for all $x \in \mathbb{R}$ by:
+$$F_X(x) = \P(X \le x) = \sum_{t \le x, \, t \in \mathcal{R}_X} p_X(t)$$
 \end{definitionbox}
 
-\begin{theorembox}{Properties of a Valid CDF}
+\begin{theorembox}{The Four Axiomatic Properties of a CDF}
+\index{Properties of CDF}
+Any mathematically valid CDF $F(x)$ satisfies:
 \begin{enumerate}
-    \item \textbf{Bounds:} $0 \le F(x) \le 1$.
-    \item \textbf{Non-Decreasing:} If $x_1 < x_2$, then $F(x_1) \le F(x_2)$. (It can only go up, never down).
-    \item \textbf{Limits:} As $x \to -\infty$, $F(x) \to 0$. As $x \to \infty$, $F(x) \to 1$.
-    \item For a discrete variable, the CDF graph looks like a \index{step function}\textbf{step function}, jumping up exactly at the values where the PMF has mass.
+    \item \textbf{Bounded Range:} $0 \le F(x) \le 1$ for all $x \in \mathbb{R}$.
+    \item \textbf{Monotonically Non-Decreasing:} If $x_1 < x_2$, then $F(x_1) \le F(x_2)$.
+    \item \textbf{Asymptotic Extremes:}
+    $$\lim_{x \to -\infty} F(x) = 0 \quad \text{and} \quad \lim_{x \to +\infty} F(x) = 1$$
+    \item \textbf{Right-Continuity:} The function is continuous from the right at every point $x$:
+    $$\lim_{h \to 0^+} F(x + h) = F(x)$$
 \end{enumerate}
 \end{theorembox}
 
-\begin{videocard}{IITM BS Lecture: W8\_L6 Cumulative Distribution Function}{https://www.youtube.com/watch?v=59sIZrAH5OQ}
+\begin{theorembox}{Jump Discontinuities and Point Probabilities}
+\index{Jump Discontinuity}
+For a discrete random variable, $F_X(x)$ is a \textbf{step function}.
+\begin{itemize}
+    \item The CDF is flat (horizontal) between support points.
+    \item At every support value $x_k \in \mathcal{R}_X$, $F_X(x)$ exhibits a vertical jump discontinuity.
+    \item The \textbf{height of the jump} equals the exact PMF probability mass at that point:
+    $$\P(X = x) = F_X(x) - F_X(x^-) = F_X(x) - \lim_{t \to x^-} F_X(t)$$
+\end{itemize}
+\end{theorembox}
+
+\begin{videocard}{IITM BS Lecture: Cumulative Distribution Function}{https://www.youtube.com/watch?v=59sIZrAH5OQ}
 Official lecture explaining how to compute the CDF from the PMF and how to read the step function graph.
 \end{videocard}
+
+\section{Cognitive Traps in Discrete CDF Analysis}
+
+\begin{trapbox}{Trap 1: Strict vs. Weak Inequalities in Discrete CDFs}
+In continuous probability, $\P(X \le x) = \P(X < x)$ because individual points carry zero probability. \textbf{In discrete probability, strict vs. weak inequality is completely different!}
+Let $X$ take integer values:
+\begin{itemize}
+    \item $\P(X \le b) = F(b)$.
+    \item $\P(X < b) = F(b - 1) = F(b) - \P(X = b)$.
+    \item $\P(a < X \le b) = F(b) - F(a)$.
+    \item $\P(a \le X \le b) = F(b) - F(a - 1) = F(b) - F(a) + \P(X = a)$.
+    \item $\P(X > a) = 1 - \P(X \le a) = 1 - F(a)$.
+    \item $\P(X \ge a) = 1 - \P(X < a) = 1 - F(a - 1)$.
+\end{itemize}
+Failing to shift the boundary by $1$ in discrete integer intervals is the single most common exam calculation error!
+\end{trapbox}
+
+\begin{trapbox}{Trap 2: The Non-Integer CDF Evaluation Fallacy}
+Students often believe that if $X$ takes integer values $\{1, 2, 3\}$, then $F(2.7)$ is either undefined or zero.
+\begin{itemize}
+    \item By definition, $F(2.7) = \P(X \le 2.7)$.
+    \item The only integers less than or equal to $2.7$ are $1$ and $2$.
+    \item Therefore:
+    $$F(2.7) = \P(X = 1) + \P(X = 2) = F(2)$$
+    The CDF is fully defined for \textbf{all real numbers $x \in \mathbb{R}$}, remaining constant across intervals between support points.
+\end{itemize}
+\end{trapbox}
+
+\section{Comparative Synthesis: PMF vs. CDF}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{p{3.2cm}p{4.2cm}p{4.2cm}}
+\toprule
+\textbf{Feature} & \textbf{Probability Mass Function (PMF)} & \textbf{Cumulative Distribution (CDF)} \\
+\midrule
+\textbf{Notation} & $p_X(x)$ or $\P(X = x)$ & $F_X(x)$ or $\P(X \le x)$ \\
+\textbf{Operational Meaning} & Point probability mass at exact coordinate $x$ & Accumulated probability mass from $-\infty$ to $x$ \\
+\textbf{Domain} & Defined on support $\mathcal{R}_X$ (zero elsewhere) & Defined on the entire real line $\mathbb{R}$ \\
+\textbf{Range} & $p_X(x) \in [0, 1]$, summing to $1.00$ & $F_X(x) \in [0, 1]$, increasing from $0$ to $1$ \\
+\textbf{Graphical Form} & Spike / stick plot at discrete values & Step function with right-continuous jumps \\
+\textbf{Conversion Formula} & $p_X(x) = F_X(x) - F_X(x^-)$ & $F_X(x) = \sum_{t \le x} p_X(t)$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Python Implementation: PMF and Step CDF in SciPy}
+
+\begin{lstlisting}[caption={PMF, Step CDF, and Jump Discontinuities in Python}]
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+
+# Custom discrete random variable support and PMF
+support = np.array([1, 2, 4, 7])
+pmf_vals = np.array([0.15, 0.35, 0.30, 0.20])
+
+# Validating Kolmogorov normalization
+assert np.isclose(np.sum(pmf_vals), 1.0), "PMF must sum to 1.0!"
+
+# Custom CDF step function evaluation
+def discrete_cdf(x_query, supp, pmf):
+    return np.sum(pmf[supp <= x_query])
+
+# Querying CDF across integer and non-integer values
+print(f"F(0.5) = {discrete_cdf(0.5, support, pmf_vals):.2f} (Before support)")
+print(f"F(2.0) = {discrete_cdf(2.0, support, pmf_vals):.2f} (Includes x=1, 2)")
+print(f"F(3.5) = {discrete_cdf(3.5, support, pmf_vals):.2f} (Flat step between 2 and 4)")
+print(f"F(10.0)= {discrete_cdf(10.0, support, pmf_vals):.2f} (Full mass accumulated)")
+
+# Recovering point mass from jump discontinuity at x=4: F(4) - F(4-)
+f_4 = discrete_cdf(4.0, support, pmf_vals)
+f_4_minus = discrete_cdf(3.999, support, pmf_vals)
+recovered_p4 = f_4 - f_4_minus
+print(f"Jump at x=4: {f_4:.2f} - {f_4_minus:.2f} = {recovered_p4:.2f} (Matches PMF {pmf_vals[2]})")
+\end{lstlisting}
 
 \newpage
 \section{Practice Exercises}
 \textit{Detailed step-by-step solutions are available in the Appendix.}
 
+\subsection*{Part A: Computational and Analytical Problems}
+
 \begin{enumerate}
-    \item \textbf{Discrete vs. Continuous:} Classify the following random variables as Discrete or Continuous:
+    \item \textbf{PMF Normalization Parameter:} A discrete random variable $X$ has support $\mathcal{R}_X = \{1, 2, 3, 4, 5\}$ and PMF:
+    $$p_X(x) = c \cdot (6 - x) \quad \text{for } x \in \{1, 2, 3, 4, 5\}$$
     \begin{enumerate}
-        \item The number of customer complaints received in a day.
-        \item The exact time it takes for a webpage to load.
-        \item The number of heads when flipping 100 coins.
-        \item The volume of water in a water bottle.
+        \item Find the normalization constant $c$.
+        \item Calculate $\P(X \ge 3)$.
+        \item Calculate $\P(X \text{ is even})$.
     \end{enumerate}
 
-    \item \textbf{Validating a PMF:} A discrete random variable $X$ can take the values $x \in \{1, 2, 3, 4\}$. Its PMF is defined as $P(X=x) = c \cdot x$.
+    \item \textbf{Random Variable Construction: Maximum of Two Dice:} Two fair 6-sided dice are rolled independently. Let $Y = \max(D_1, D_2)$.
     \begin{enumerate}
-        \item Find the value of the constant $c$ that makes this a valid PMF.
-        \item What is the exact probability $P(X=3)$?
+        \item State the support $\mathcal{R}_Y$.
+        \item Derive the PMF $p_Y(y)$ for all $y \in \mathcal{R}_Y$.
+        \item Compute $\P(Y \le 4)$.
     \end{enumerate}
 
-    \item \textbf{Creating a PMF:} You roll two standard 6-sided dice. Let the Random Variable $X$ be the \emph{sum} of the two dice.
+    \item \textbf{Step CDF Construction:} A server fault counter $K$ has the following PMF:
+    $$p_K(0) = 0.40, \quad p_K(1) = 0.35, \quad p_K(2) = 0.15, \quad p_K(3) = 0.10$$
     \begin{enumerate}
-        \item What is the Sample Space of the underlying experiment, and what is its size?
-        \item What is the set of all possible numerical values that $X$ can take?
-        \item Calculate $P(X=7)$ and $P(X=12)$.
+        \item Formulate the complete piecewise algebraic definition of the CDF $F_K(k)$ for all $k \in \mathbb{R}$.
+        \item Evaluate $F_K(-1)$, $F_K(1.8)$, and $F_K(5)$.
     \end{enumerate}
 
-    \item \textbf{Building a CDF:} Let $X$ have the following PMF:
-    $$P(X=1) = 0.2, \quad P(X=2) = 0.5, \quad P(X=3) = 0.3$$
+    \item \textbf{Interval Probabilities via CDF:} Using the CDF from Exercise 3:
     \begin{enumerate}
-        \item Calculate the CDF values: $F(1), F(2), F(3)$.
-        \item What is the value of the CDF at $F(1.5)$? (Think carefully about the definition of $X \le 1.5$).
-        \item Sketch (mentally or on paper) what the graph of this CDF looks like.
+        \item Compute $\P(1 < K \le 3)$ using the CDF.
+        \item Compute $\P(1 \le K \le 3)$ using the CDF and verify against the PMF.
+        \item Compute $\P(K > 1)$ using the complement rule on the CDF.
     \end{enumerate}
 
-    \item \textbf{Using the CDF:} You are given the CDF of a discrete random variable $Y$ that only takes integer values:
-    $F(1) = 0.1, \quad F(2) = 0.4, \quad F(3) = 0.9, \quad F(4) = 1.0$
-    Using \emph{only} the CDF, find the exact PMF probability $P(Y=3)$.
+    \item \textbf{Recovering PMF from Jump Discontinuities:} The CDF of a discrete random variable $W$ is given by:
+    $$F_W(w) = \begin{cases}
+    0.00, & w < -1 \\
+    0.25, & -1 \le w < 1 \\
+    0.70, & 1 \le w < 3 \\
+    1.00, & w \ge 3
+    \end{cases}$$
+    Identify the support $\mathcal{R}_W$ and calculate the PMF probability mass $p_W(w)$ at each support point.
+\end{enumerate}
+
+\subsection*{Part B: Conceptual and Diagnostic Multiple Choice Questions}
+
+\begin{enumerate}[resume]
+\item \textbf{Conceptual Diagnostic: Discrete Interval Boundary Shifting} \\
+Let $N$ be a discrete random variable taking integer values $\{0, 1, 2, \dots, 10\}$ with known Cumulative Distribution Function $F_N(n) = \P(N \le n)$. A network reliability analyst needs to calculate the probability that the number of network drops satisfies $3 \le N \le 7$. Which algebraic formula correctly computes this probability using the CDF?
+\begin{enumerate}
+    \item $F_N(7) - F_N(3)$
+    \item $F_N(7) - F_N(2)$
+    \item $F_N(8) - F_N(3)$
+    \item $1 - F_N(3)$
+\end{enumerate}
+
+\item \textbf{Conceptual Diagnostic: Mathematical Validity of CDFs} \\
+Consider a proposed candidate function $G(x)$ for the Cumulative Distribution Function of a random variable $X$:
+$$G(x) = \begin{cases}
+0.0, & x < 0 \\
+0.3 + 0.2x, & 0 \le x < 2 \\
+0.6, & 2 \le x < 4 \\
+1.0, & x \ge 4
+\end{cases}$$
+Why does $G(x)$ \textbf{fail} to be a valid mathematical CDF?
+\begin{enumerate}
+    \item It violates non-decreasing monotonicity because $G(2) < \lim_{x \to 2^-} G(x)$.
+    \item It violates the asymptotic upper limit because $G(4) = 1.0$ is reached too quickly.
+    \item It violates non-negativity because $G(x) = 0$ for $x < 0$.
+    \item It violates right-continuity at $x = 0$ because $G(0) = 0.3 \neq \lim_{x \to 0^+} G(x)$.
+\end{enumerate}
 \end{enumerate}

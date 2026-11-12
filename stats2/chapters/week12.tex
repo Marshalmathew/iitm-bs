@@ -1,121 +1,265 @@
 \chapter{Advanced Hypothesis Testing, LRT \& Goodness-of-Fit}
 
-In practical data science applications, population variance $\sigma^2$ is almost never known, requiring \textbf{Student's $t$-test}. Additionally, we frequently compare two populations or test if categorical data fits a theoretical model. In this final capstone chapter, we master \textbf{One-Sample and Two-Sample $t$-Tests}, \textbf{Chi-Squared ($\chi^2$) Goodness-of-Fit Tests}, and the general \index{Likelihood Ratio Test (LRT)}\textbf{Likelihood Ratio Test (LRT)}.
-
+In practical data science applications, the true population variance $\sigma^2$ is almost never known, necessitating \textbf{Student's $t$-test}. Furthermore, applied machine learning and A/B testing frequently require comparing two treatment cohorts, validating whether categorical data conforms to a theoretical model, or comparing complex nested predictive models. In this capstone chapter, we complete our statistical inference toolkit by mastering \textbf{One-Sample, Two-Sample (Pooled and Welch's), and Paired $t$-Tests}, the fundamental \textbf{Neyman-Pearson Lemma}, the general \index{Likelihood Ratio Test (LRT)}\textbf{Likelihood Ratio Test (LRT)} and \textbf{Wilks' Theorem}, the geometric Trinity of statistical testing (\textbf{Wald, Score, and LRT}), and \textbf{Pearson's Chi-Squared ($\chi^2$) Tests} for goodness-of-fit and independence.
 
 \vspace{0.5cm}
 \begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
 \begin{itemize}
-    \item Student's t-Test for Variance Unknown
-    \item Two-Sample Tests
-    \item Likelihood Ratio Test (LRT) and Chi-Squared Goodness of Fit
+    \item Mathematical origin and structural derivation of Student's $t$-distribution with $n-1$ degrees of freedom.
+    \item One-sample, two-sample pooled, Welch's unpooled, and paired $t$-tests for experimental comparisons.
+    \item Neyman-Pearson Lemma: why likelihood ratios yield the Most Powerful (MP) test for simple hypotheses.
+    \item Generalized Likelihood Ratio Test (LRT) statistic $\Lambda$ and Wilks' Asymptotic Theorem ($-2 \ln \Lambda \xrightarrow{d} \chi_r^2$).
+    \item The Trinity of Statistical Testing: Wald test, Score (Rao) test, and LRT compared by computational cost and geometry.
+    \item Pearson's $\chi^2$ Goodness-of-Fit test and contingency table independence tests ($df = (R-1)(C-1)$).
+    \item Exam traps: boundary condition failure in Wilks' theorem, degrees of freedom misconception, and paired vs. independent error.
 \end{itemize}
 \end{tcolorbox}
-\section{Student's $t$-Test for Variance Unknown}
 
-\begin{intuitionbox}{Why Student's $t$ instead of Normal $Z$?}
-When calculating a Z-score, you must divide by the true population standard deviation $\sigma$. But in reality, you almost never know $\sigma$! You have to estimate it using the sample standard deviation $S$. This estimation introduces extra uncertainty (especially for small samples). William Sealy Gosset (writing under the pen name "Student") proved that because of this extra uncertainty, the distribution gets "fatter tails", creating the $t$-distribution. As sample size $n \to \infty$, the uncertainty vanishes, and the $t$-distribution becomes identical to the Normal distribution.
+\section{Student's $t$-Test for Unknown Variance}
+
+When the population variance $\sigma^2$ is unknown, substituting the unbiased sample variance $S^2 = \frac{1}{n-1}\sum_{i=1}^n (X_i - \bar{X})^2$ into the standard normal pivot introduces extra random variation.
+
+\begin{intuitionbox}{Origin of Student's $t$-Distribution}
+In 1908, William Sealy Gosset (publishing under the pseudonym "Student" while working at the Guinness brewery) analyzed small-sample chemical quality tests. Gosset showed that dividing a normal variable by an independent estimate of its standard deviation produces a distribution with heavier tails than the standard normal distribution:
+$$T = \frac{Z}{\sqrt{V / \nu}} \sim t_{\nu}$$
+where $Z \sim \mathcal{N}(0, 1)$ and $V \sim \chi_{\nu}^2$ are independent random variables, and $\nu = n-1$ denotes degrees of freedom. As sample size $n \to \infty$, $S \xrightarrow{P} \sigma$ by the Law of Large Numbers, and $t_{n-1} \xrightarrow{d} \mathcal{N}(0, 1)$.
 \end{intuitionbox}
 
-When $\sigma^2$ is unknown, we substitute the sample variance $S^2 = \frac{1}{n-1} \sum_{i=1}^n (X_i - \bar{X})^2$.
-
 \begin{definitionbox}{One-Sample $t$-Test Statistic}
-For $H_0: \mu = \mu_0$ with unknown $\sigma^2$:
-$$T_{\text{calc}} = \frac{\bar{X}_n - \mu_0}{S / \sqrt{n}} \sim t_{n-1} \quad (\text{Student's } t \text{-distribution with } n-1 \text{ degrees of freedom})$$
-The $t$-distribution has heavier tails than the standard normal $\mathcal{N}(0,1)$, accounting for additional uncertainty in estimating $S$.
+\index{One-Sample t-Test}
+To test $H_0 \colon \mu = \mu_0$ versus $H_1 \colon \mu \neq \mu_0$ from an i.i.d. normal sample $X_1, \dots, X_n \sim \mathcal{N}(\mu, \sigma^2)$ with unknown $\sigma^2$:
+$$T_{\text{calc}} = \frac{\bar{X}_n - \mu_0}{S / \sqrt{n}} \sim t_{n-1}$$
+where the standard error is $\text{SE}(\bar{X}) = \frac{S}{\sqrt{n}}$. At significance level $\alpha$:
+\begin{itemize}
+    \item Reject $H_0$ in favor of $H_1 \colon \mu \neq \mu_0$ if $|T_{\text{calc}}| \ge t_{\alpha/2, n-1}$.
+    \item Reject $H_0$ in favor of $H_1 \colon \mu > \mu_0$ if $T_{\text{calc}} \ge t_{\alpha, n-1}$.
+    \item Reject $H_0$ in favor of $H_1 \colon \mu < \mu_0$ if $T_{\text{calc}} \le -t_{\alpha, n-1}$.
+\end{itemize}
 \end{definitionbox}
 
 \begin{videocard}{IITM BS Lecture: t-Test for Mean (Variance Unknown)}{https://www.youtube.com/watch?v=dbJwXIoDBtQ}
 Official lecture deriving Student's $t$-test statistic, degrees of freedom, and critical value tables.
 \end{videocard}
 
-\section{Two-Sample Tests}
+\section{Two-Sample and Paired Tests}
 
-To test if two population means are equal ($H_0: \mu_1 - \mu_2 = 0$):
+In A/B testing and experimental evaluation, we compare treatment and control groups under two distinct sampling designs: independent samples versus repeated/matched measurements.
 
-\begin{formulabox}{Two-Sample Pooled $t$-Test Formula}
-Assuming equal variances $\sigma_1^2 = \sigma_2^2$:
-$$T_{\text{calc}} = \frac{\bar{X}_1 - \bar{X}_2}{S_p \sqrt{\frac{1}{n_1} + \frac{1}{n_2}}} \sim t_{n_1 + n_2 - 2}$$
-where pooled variance $S_p^2 = \frac{(n_1 - 1)S_1^2 + (n_2 - 1)S_2^2}{n_1 + n_2 - 2}$.
+\begin{formulabox}{Independent Two-Sample $t$-Tests}
+\index{Two-Sample t-Test}
+Let $X_1, \dots, X_{n_1} \sim \mathcal{N}(\mu_1, \sigma_1^2)$ and $Y_1, \dots, Y_{n_2} \sim \mathcal{N}(\mu_2, \sigma_2^2)$ be independent samples. We test $H_0 \colon \mu_1 - \mu_2 = \Delta_0$ (typically $\Delta_0 = 0$).
+
+\textbf{1. Equal Variances Assumed ($\sigma_1^2 = \sigma_2^2 = \sigma^2$): Pooled $t$-Test}
+The pooled sample variance is the degree-of-freedom weighted average:
+$$S_p^2 = \frac{(n_1 - 1)S_1^2 + (n_2 - 1)S_2^2}{n_1 + n_2 - 2}$$
+The test statistic is:
+$$T_{\text{calc}} = \frac{(\bar{X}_1 - \bar{X}_2) - \Delta_0}{S_p \sqrt{\frac{1}{n_1} + \frac{1}{n_2}}} \sim t_{n_1 + n_2 - 2}$$
+
+\textbf{2. Unequal Variances ($\sigma_1^2 \neq \sigma_2^2$): Welch's $t$-Test}
+When equal variance cannot be assumed, Welch's unpooled test statistic is:
+$$T_{\text{Welch}} = \frac{(\bar{X}_1 - \bar{X}_2) - \Delta_0}{\sqrt{\frac{S_1^2}{n_1} + \frac{S_2^2}{n_2}}} \sim t_{\nu_{\text{Welch}}}$$
+with degrees of freedom approximated by the Welch-Satterthwaite equation:
+$$\nu_{\text{Welch}} = \frac{\left(\frac{S_1^2}{n_1} + \frac{S_2^2}{n_2}\right)^2}{\frac{(S_1^2 / n_1)^2}{n_1 - 1} + \frac{(S_2^2 / n_2)^2}{n_2 - 1}}$$
 \end{formulabox}
+
+\begin{formulabox}{Paired Differences $t$-Test}
+\index{Paired t-Test}
+When subjects are measured before and after a treatment (or paired in twin/matched designs), observations $(X_i, Y_i)$ are dependent. We compute unit-level differences:
+$$D_i = X_i - Y_i \quad \text{for } i = 1, \dots, n$$
+This collapses the problem into a \textbf{one-sample $t$-test} on $D$:
+$$T_{\text{paired}} = \frac{\bar{D} - \Delta_0}{S_D / \sqrt{n}} \sim t_{n-1}$$
+where $\bar{D} = \frac{1}{n}\sum_{i=1}^n D_i$ and $S_D = \sqrt{\frac{1}{n-1}\sum_{i=1}^n (D_i - \bar{D})^2}$.
+\end{formulabox}
+
+\begin{trapbox}{Mistake: Running Independent $t$-Test on Paired Experimental Data}
+Applying an independent two-sample $t$-test to before/after or matched data is a severe methodological blunder. Because subjects are positively correlated across time ($\text{Cov}(X, Y) > 0$), the variance of the difference satisfies:
+$$\Var(X - Y) = \Var(X) + \Var(Y) - 2\Cov(X, Y)$$
+An independent test ignores the covariance term $-2\Cov(X, Y)$, substantially overestimating the standard error, artificially inflating the denominator of $T$, and destroying statistical power!
+\end{trapbox}
 
 \begin{videocard}{IITM BS Lecture: Two Samples from Normal Distribution}{https://www.youtube.com/watch?v=G4mJrRem0H0}
 Official lecture deriving two-sample $z$-tests, pooled $t$-tests, and $F$-tests for variance equality.
 \end{videocard}
 
-\section{Likelihood Ratio Test (LRT) and Chi-Squared Goodness of Fit}
+\section{The Neyman-Pearson Lemma}
 
-\begin{definitionbox}{Likelihood Ratio Test (LRT)}
-For testing $H_0: \theta \in \Theta_0$ vs $H_1: \theta \in \Theta \setminus \Theta_0$:
-$$\Lambda(\mathbf{x}) = \frac{\sup_{\theta \in \Theta_0} L(\theta)}{\sup_{\theta \in \Theta} L(\theta)}$$
-By Wilks' Theorem, $-2 \ln \Lambda(\mathbf{x}) \xrightarrow{d} \chi_k^2$ where $k = \dim(\Theta) - \dim(\Theta_0)$.
+How do we construct the mathematically optimal test that achieves the maximum possible power $1 - \beta$ for a fixed significance level $\alpha$?
+
+\begin{definitionbox}{The Neyman-Pearson Lemma}
+\index{Neyman-Pearson Lemma}
+Consider testing a simple null hypothesis against a simple alternative hypothesis:
+$$H_0 \colon \theta = \theta_0 \quad \text{versus} \quad H_1 \colon \theta = \theta_1$$
+based on sample vector $\mathbf{X} = (X_1, \dots, X_n)$ with joint likelihood $L(\theta \mid \mathbf{x})$.
+The likelihood ratio is:
+$$\lambda(\mathbf{x}) = \frac{L(\theta_0 \mid \mathbf{x})}{L(\theta_1 \mid \mathbf{x})}$$
+The decision rule that defines rejection region:
+$$R = \{\mathbf{x} \colon \lambda(\mathbf{x}) \le k\} = \left\{\mathbf{x} \colon \frac{L(\theta_1 \mid \mathbf{x})}{L(\theta_0 \mid \mathbf{x})} \ge c\right\}$$
+where $k$ (or $c = 1/k$) is chosen such that $\P(\mathbf{X} \in R \mid \theta = \theta_0) = \alpha$, is the \textbf{Most Powerful (MP) test of size $\alpha$}. Any other test with size $\alpha' \le \alpha$ has power strictly less than or equal to this likelihood ratio test.
 \end{definitionbox}
 
-\begin{formulabox}{Pearson's Chi-Squared ($\chi^2$) Goodness-of-Fit Test}
-To test whether categorical frequency data $O_1, \dots, O_k$ matches expected counts $E_1, \dots, E_k$:
-$$\chi_{\text{calc}}^2 = \sum_{i=1}^k \frac{(O_i - E_i)^2}{E_i} \sim \chi_{k - 1 - m}^2$$
-Reject $H_0$ if $\chi_{\text{calc}}^2 \ge \chi_{\alpha, k-1-m}^2$.
+\section{The Generalized Likelihood Ratio Test (LRT) \& Wilks' Theorem}
+
+When hypotheses are composite (e.g. parameter sets $\Theta_0 \subset \Theta$), the Neyman-Pearson ratio generalizes to the supremum over parameter spaces.
+
+\begin{definitionbox}{Generalized Likelihood Ratio Test (LRT)}
+\index{Likelihood Ratio Test (LRT)}
+Let $\mathbf{X} \sim f(\mathbf{x} \mid \theta)$ with $\theta \in \Theta \subseteq \mathbb{R}^p$. We test nested hypotheses:
+$$H_0 \colon \theta \in \Theta_0 \quad \text{versus} \quad H_1 \colon \theta \in \Theta \setminus \Theta_0$$
+The generalized likelihood ratio statistic is:
+$$\Lambda(\mathbf{x}) = \frac{\sup_{\theta \in \Theta_0} L(\theta \mid \mathbf{x})}{\sup_{\theta \in \Theta} L(\theta \mid \mathbf{x})} = \frac{L(\hat{\theta}_0 \mid \mathbf{x})}{L(\hat{\theta} \mid \mathbf{x})}$$
+where $\hat{\theta}_0$ is the constrained MLE under $H_0$, and $\hat{\theta}$ is the unconstrained global MLE over the full space $\Theta$.
+Because $\Theta_0 \subseteq \Theta$, the maximum over $\Theta$ must be at least as large as the maximum over $\Theta_0$:
+$$0 \le \Lambda(\mathbf{x}) \le 1$$
+Values of $\Lambda(\mathbf{x})$ close to 1 favor $H_0$; values close to 0 indicate that the data is much more probable under the unconstrained alternative.
+\end{definitionbox}
+
+\begin{formulabox}{Wilks' Theorem (Asymptotic Distribution of LRT)}
+\index{Wilks' Theorem}
+Under standard Fisher regularity conditions (smooth log-likelihood, true parameter in the interior of the parameter space), as sample size $n \to \infty$, under $H_0$:
+$$W(\mathbf{x}) = -2 \ln \Lambda(\mathbf{x}) = 2 \left[\ln L(\hat{\theta}) - \ln L(\hat{\theta}_0)\right] \xrightarrow{d} \chi_r^2$$
+where the degrees of freedom $r$ equals the difference in dimensionality:
+$$r = \dim(\Theta) - \dim(\Theta_0) = \text{number of free parameters restricted by } H_0$$
+At significance level $\alpha$, the LRT decision rule rejects $H_0$ if:
+$$W(\mathbf{x}) = -2 \ln \Lambda(\mathbf{x}) \ge \chi_{\alpha, r}^2$$
 \end{formulabox}
 
-\index{t-Test}\index{Chi-Squared Test}\index{Likelihood Ratio Test}
+\begin{trapbox}{Degrees of Freedom Count Parameters Restricted, NOT Sample Size}
+A frequent exam blunder is setting the degrees of freedom $r$ in Wilks' theorem to $n-1$ or $n-k$. The asymptotic distribution $\chi_r^2$ is determined \textbf{strictly by the number of independent constraints} imposed on the parameter vector by $H_0$:
+$$r = \dim(\Theta) - \dim(\Theta_0)$$
+For instance, in testing whether $k$ regression coefficients are simultaneously zero in a model with sample size $n = 100{,}000$, $r = k$, completely independent of $n$!
+\end{trapbox}
 
-\begin{lstlisting}[caption={SciPy/Python Implementation of t-Tests and Chi-Squared Goodness of Fit}]
-import scipy.stats as stats
-import numpy as np
-
-# 1. One-Sample t-Test (H0: mu = 100)
-data = np.array([102, 105, 98, 108, 101, 104, 99, 106, 103, 100, 107, 102, 105, 101, 104, 98])
-t_stat, p_val = stats.ttest_1samp(data, popmean=100)
-print(f"One-Sample t-test: t = {t_stat:.3f}, p-value = {p_val:.4f}")
-
-# 2. Two-Sample Independent t-Test (Pooled)
-group1 = [14, 16, 15, 13, 17, 15, 14, 16, 15, 15]
-group2 = [11, 13, 12, 10, 14, 12, 13, 11, 12, 12]
-t_ind, p_ind = stats.ttest_ind(group1, group2, equal_var=True)
-print(f"Two-Sample t-test: t = {t_ind:.3f}, p-value = {p_ind:.4f}")
-
-# 3. Chi-Squared Goodness-of-Fit Test (Die Fairness)
-observed = np.array([15, 7, 8, 12, 10, 8])
-expected = np.array([10, 10, 10, 10, 10, 10])
-chi2_stat, p_chi2 = stats.chisquare(f_obs=observed, f_exp=expected)
-print(f"Chi-Squared test: chi2 = {chi2_stat:.3f}, p-value = {p_chi2:.4f}")
-\end{lstlisting}
+\begin{trapbox}{Regularity Condition Breakdown: Parameters on the Boundary}
+Wilks' theorem fundamentally assumes that the null parameter vector $\theta_0$ lies in the \textbf{interior} of the parameter space $\Theta$.
+\begin{itemize}
+    \item \textbf{Boundary Failure:} If we test whether a variance component is zero ($H_0 \colon \sigma^2 = 0$ vs. $H_1 \colon \sigma^2 > 0$), or whether a mixture weight is zero ($H_0 \colon w = 0$), the true value sits directly on the boundary of the feasible parameter space $[0, \infty)$ or $[0, 1]$.
+    \item \textbf{Consequence:} The score function derivative cannot be symmetric, the Taylor expansion breaks, and $-2 \ln \Lambda$ does \textbf{not} follow a $\chi_1^2$ distribution. Instead, it asymptotically follows an equal mixture:
+    $$-2 \ln \Lambda \xrightarrow{d} \frac{1}{2}\chi_0^2 + \frac{1}{2}\chi_1^2$$
+    Using the naive $\chi_1^2$ critical value yields an overly conservative test with drastically reduced power!
+\end{itemize}
+\end{trapbox}
 
 \begin{videocard}{IITM BS Lecture: Likelihood Ratio Tests}{https://www.youtube.com/watch?v=KzXltUrRt84}
 Official lecture deriving likelihood ratios and Wilks' asymptotic $\chi^2$ theorem.
 \end{videocard}
 
+\section{The Trinity of Testing: Wald, Score (Rao), and LRT}
+
+In statistical theory and econometric machine learning, three asymptotically equivalent classical testing paradigms form the "Holy Trinity" of hypothesis testing.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{p{3.2cm}p{3.8cm}p{4.2cm}p{3.0cm}}
+\toprule
+\textbf{Test} & \textbf{Estimation Required} & \textbf{Geometric / Mathematical Concept} & \textbf{Reparameterization Invariance} \\
+\midrule
+\textbf{Wald Test} & Unconstrained $\hat{\theta}$ only & Evaluates quadratic distance $(\hat{\theta} - \theta_0)^T I(\hat{\theta})(\hat{\theta} - \theta_0)$ & \textbf{Not invariant} to nonlinear transforms \\
+\textbf{Score (Rao) Test} & Constrained $\hat{\theta}_0$ only & Evaluates slope/gradient (score) $S(\theta_0)$ and Fisher information at null & \textbf{Invariant} \\
+\textbf{Likelihood Ratio (LRT)} & Both unconstrained $\hat{\theta}$ and constrained $\hat{\theta}_0$ & Evaluates vertical drop $2[\ell(\hat{\theta}) - \ell(\hat{\theta}_0)]$ in log-likelihood & \textbf{Strictly Invariant} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{intuitionbox}{When to Use Which Test in Machine Learning}
+\begin{itemize}
+    \item \textbf{Score (Rao) Test:} Ideal when fitting the unconstrained model is computationally prohibitive (e.g. testing whether 100,000 new parameters are zero in a massive network). You only fit the restricted null model, compute the gradient with respect to the new parameters at zero, and test if the gradient deviates from zero.
+    \item \textbf{Wald Test:} Ideal when the complex unconstrained model is already fitted (e.g. full linear or logistic regression), and you wish to test individual coefficient significance without refitting.
+    \item \textbf{LRT:} The gold standard for statistical power and invariant inference whenever fitting both models is computationally feasible.
+\end{itemize}
+\end{intuitionbox}
+
+\section{Pearson's Chi-Squared ($\chi^2$) Tests}
+
+Pearson's $\chi^2$ test assesses whether multinomial count frequencies conform to expected probabilities or whether two categorical variables are independent.
+
+\begin{formulabox}{Pearson's Goodness-of-Fit Test}
+\index{Chi-Squared Goodness of Fit}
+Let sample size $N$ be partitioned into $k$ mutually exclusive categories with observed counts $O_1, \dots, O_k$ such that $\sum_{i=1}^k O_i = N$. Under $H_0$, the theoretical probabilities are $p_1(\theta), \dots, p_k(\theta)$, yielding expected cell counts:
+$$E_i = N \cdot p_i(\theta)$$
+Pearson's test statistic is:
+$$\chi_{\text{calc}}^2 = \sum_{i=1}^k \frac{(O_i - E_i)^2}{E_i} \xrightarrow{d} \chi_{df}^2$$
+where the degrees of freedom are:
+$$df = k - 1 - m$$
+with $k$ being the number of categories, $1$ subtracted because $\sum O_i = N$ is fixed, and $m$ being the number of unknown parameters estimated from the sample via MLE.
+\textbf{Rule of Thumb:} For asymptotic validity, all expected counts should satisfy $E_i \ge 5$.
+\end{formulabox}
+
+\begin{formulabox}{Chi-Squared Test of Independence (Contingency Tables)}
+\index{Chi-Squared Test of Independence}
+To test whether two categorical factors (Row with $R$ levels, Column with $C$ levels) are independent:
+$$H_0 \colon p_{ij} = p_{i\cdot} \cdot p_{\cdot j} \quad \text{vs.} \quad H_1 \colon p_{ij} \neq p_{i\cdot} \cdot p_{\cdot j}$$
+Given total observations $N = \sum_{i=1}^R \sum_{j=1}^C O_{ij}$, row sums $R_i = \sum_{j=1}^C O_{ij}$, and column sums $C_j = \sum_{i=1}^R O_{ij}$:
+$$E_{ij} = \frac{R_i \cdot C_j}{N}$$
+$$\chi_{\text{calc}}^2 = \sum_{i=1}^R \sum_{j=1}^C \frac{(O_{ij} - E_{ij})^2}{E_{ij}} \sim \chi_{(R - 1)(C - 1)}^2$$
+Reject independence if $\chi_{\text{calc}}^2 \ge \chi_{\alpha, (R-1)(C-1)}^2$.
+\end{formulabox}
+
 \begin{videocard}{IITM BS Lecture: Goodness of Fit for Discrete Distributions}{https://www.youtube.com/watch?v=bnBk6mMEArU}
 Official lecture computing observed vs expected cell counts and applying $\chi^2$ test statistic.
 \end{videocard}
 
+\section{Python Implementation: $t$-Tests, Goodness-of-Fit, and LRT}
+
+\begin{lstlisting}[caption={SciPy and Statsmodels Implementation of Advanced Testing}]
+import numpy as np
+import scipy.stats as stats
+
+# 1. One-Sample t-Test (H0: mu = 100)
+sample = np.array([102, 105, 98, 108, 101, 104, 99, 106, 103, 100, 107, 102, 105, 101, 104, 98])
+t_stat, p_val = stats.ttest_1samp(sample, popmean=100)
+print(f"One-Sample t-test: t = {t_stat:.3f}, p = {p_val:.4f}, df = {len(sample)-1}")
+
+# 2. Independent Two-Sample Pooled t-Test
+g1 = [15, 17, 14, 16, 15, 18, 14, 16, 15, 15]
+g2 = [12, 13, 11, 14, 12, 13, 10, 12, 13, 12]
+t_pooled, p_pooled = stats.ttest_ind(g1, g2, equal_var=True)
+print(f"Pooled Two-Sample t-test: t = {t_pooled:.3f}, p = {p_pooled:.4e}")
+
+# 3. Welch's Unpooled t-Test (Unequal Variances)
+t_welch, p_welch = stats.ttest_ind(g1, g2, equal_var=False)
+print(f"Welch's t-test: t = {t_welch:.3f}, p = {p_welch:.4e}")
+
+# 4. Pearson's Chi-Squared Goodness of Fit (6-sided Fair Die)
+observed = np.array([15, 7, 8, 12, 10, 8])
+expected = np.array([10, 10, 10, 10, 10, 10])
+chi2_stat, p_chi2 = stats.chisquare(f_obs=observed, f_exp=expected)
+print(f"Chi2 Goodness-of-Fit: chi2 = {chi2_stat:.3f}, p = {p_chi2:.4f}, df = {len(observed)-1}")
+
+# 5. Chi-Squared Contingency Table Test of Independence
+table = np.array([[80, 40],   # Free Tier: [Retained, Churned]
+                  [70, 10]])  # Premium Tier: [Retained, Churned]
+chi2_tab, p_tab, dof, ex = stats.chi2_contingency(table, correction=False)
+print(f"Contingency Test: chi2 = {chi2_tab:.3f}, p = {p_tab:.4f}, dof = {dof}")
+\end{lstlisting}
 
 \newpage
 \section{Practice Exercises}
 \textit{Detailed step-by-step solutions are available in the Appendix.}
 
+\subsection*{Part A: Computational and Analytical Problems}
+
 \begin{enumerate}
-\item \textbf{One-Sample $t$-Test Calculation:} A sample of $n = 16$ measurements has sample mean $\bar{X} = 104$ and sample standard deviation $S = 8$. We test $H_0: \mu = 100$ vs $H_1: \mu \neq 100$.
+\item \textbf{One-Sample $t$-Test Calculation:} A sample of $n = 16$ measurements has sample mean $\bar{X} = 104$ and sample standard deviation $S = 8$. We test $H_0 \colon \mu = 100$ vs $H_1 \colon \mu \neq 100$.
     \begin{enumerate}
         \item State degrees of freedom $df$.
-        \item Compute the test statistic $T_{\text{calc}}$.
+        \item Compute standard error $\text{SE}(\bar{X})$ and test statistic $T_{\text{calc}}$.
         \item At $\alpha = 0.05$ with critical value $t_{0.025, 15} = 2.131$, state your decision.
     \end{enumerate}
 
-\item \textbf{Two-Sample Pooled $t$-Test:} Two independent samples yield:
+\item \textbf{Two-Sample Pooled $t$-Test:} Two independent treatment samples yield:
 \begin{itemize}
     \item Group 1: $n_1 = 10, \bar{X}_1 = 15, S_1^2 = 4$.
     \item Group 2: $n_2 = 10, \bar{X}_2 = 12, S_2^2 = 6$.
 \end{itemize}
-    Compute pooled variance $S_p^2$ and $T_{\text{calc}}$ for $H_0: \mu_1 - \mu_2 = 0$.
+    Compute pooled variance $S_p^2$, standard error, and $T_{\text{calc}}$ for $H_0 \colon \mu_1 - \mu_2 = 0$.
 
 \item \textbf{Chi-Squared Goodness of Fit (Die Fairness Test):} A 6-sided die is rolled $N = 60$ times, observing counts:
     $$\text{Observed } O_i = [15, 7, 8, 12, 10, 8] \quad \text{for faces } 1 \dots 6$$
-    Under $H_0$: Die is fair ($E_i = 10$ for all $i$). Compute $\chi_{\text{calc}}^2$. At $\alpha = 0.05$ with critical value $\chi_{0.05, 5}^2 = 11.07$, is the die fair?
+    Under $H_0 \colon \text{Die is fair}$ ($E_i = 10$ for all $i$). Compute $\chi_{\text{calc}}^2$. At $\alpha = 0.05$ with critical value $\chi_{0.05, 5}^2 = 11.07$, is the die consistent with fairness?
 
-\item \textbf{Wilks' Likelihood Ratio Test Stat:} A likelihood ratio test yields likelihood ratio $\Lambda = 0.05$. Compute Wilks' test statistic $W = -2 \ln \Lambda$.
+\item \textbf{Wilks' Likelihood Ratio Test Statistic:} A likelihood ratio test between a null model and an unconstrained model yields likelihood ratio $\Lambda = 0.05$. Compute Wilks' test statistic $W = -2 \ln \Lambda$.
 
-\item \textbf{Comprehensive Course Review Question ($\chi^2$ Independence Test):} In a marketing survey, 200 users are classified by Subscription Tier (Free, Premium) and Churn Status (Retained, Churned):
+\item \textbf{Contingency Table Test of Independence:} In a platform engagement study, 200 users are classified by Subscription Tier (Free, Premium) and Churn Status (Retained, Churned):
 \begin{center}
 \begin{tabular}{c|cc|c}
 & Retained & Churned & Total \\
@@ -127,4 +271,28 @@ Total & 150 & 50 & 200 \\
 \end{tabular}
 \end{center}
 Compute the $\chi_{\text{calc}}^2$ test statistic using the given expected counts $E_{ij}$ to test for independence between Subscription Tier and Churn.
+\end{enumerate}
+
+\subsection*{Part B: Conceptual and Diagnostic Multiple Choice Questions}
+
+\begin{enumerate}[resume]
+\item \textbf{Conceptual Diagnostic: The Trinity of Statistical Testing in High Dimensions} \\
+A machine learning engineer is training a large generalized linear model with $p = 100{,}000$ candidate feature weights $\boldsymbol{\theta}$. The engineering team wants to test the null hypothesis that a block of $r = 500$ newly engineered features has zero effect:
+$$H_0 \colon \theta_{p-r+1} = \dots = \theta_p = 0$$
+Fitting the full, unconstrained model requires 24 hours of GPU cluster time, whereas the baseline model under $H_0$ is already converged and fitted. Which testing procedure should the team employ, and what is its theoretical justification?
+\begin{enumerate}
+    \item \textbf{Wald Test}, because it only requires evaluating the Fisher information and log-likelihood at the null hypothesis $\hat{\boldsymbol{\theta}}_0$.
+    \item \textbf{Score (Rao) Test}, because it evaluates the gradient (score vector) and curvature of the log-likelihood strictly at the constrained null estimate $\hat{\boldsymbol{\theta}}_0$, requiring zero optimization steps on the unconstrained model.
+    \item \textbf{Likelihood Ratio Test (LRT)}, because it automatically avoids fitting the null model by using an unconstrained Taylor series approximation.
+    \item \textbf{Wald Test}, because the Wald test statistic is strictly invariant to nonlinear coordinate transformations of $\boldsymbol{\theta}$.
+\end{enumerate}
+
+\item \textbf{Conceptual Diagnostic: Degrees of Freedom in Goodness-of-Fit and Wilks' Theorem} \\
+A data scientist observes $N = 5{,}000$ customer service calls classified into $K = 6$ time-of-day bins: $[0, 4), [4, 8), [8, 12), [12, 16), [16, 20), [20, 24)$. To test whether arrivals follow an inhomogeneous Poisson process governed by a 2-parameter diurnal intensity function $\lambda(t; \alpha, \beta)$, the scientist estimates $\hat{\alpha}$ and $\hat{\beta}$ by maximum likelihood from the sample, computes expected bin counts $E_1, \dots, E_6$, and calculates Pearson's $\chi_{\text{calc}}^2 = \sum_{i=1}^6 \frac{(O_i - E_i)^2}{E_i}$. Under $H_0$, what is the asymptotic distribution of $\chi_{\text{calc}}^2$?
+\begin{enumerate}
+    \item $\chi^2$ with $N - 1 = 4{,}999$ degrees of freedom.
+    \item $\chi^2$ with $K - 1 = 6 - 1 = 5$ degrees of freedom.
+    \item $\chi^2$ with $K - 1 - m = 6 - 1 - 2 = 3$ degrees of freedom.
+    \item $\chi^2$ with $K - m = 6 - 2 = 4$ degrees of freedom.
+\end{enumerate}
 \end{enumerate}

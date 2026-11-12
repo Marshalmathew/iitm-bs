@@ -1,16 +1,20 @@
-\chapter{Quadratic Functions}
+\chapter{Quadratic Functions and Optimization}
 \index{Quadratic Functions}
 
+Quadratic functions are second-degree polynomials that describe parabolic curves in coordinate space. In data science, machine learning, and econometrics, quadratic functions occupy a central position: Mean Squared Error (MSE) loss surfaces, $L_2$ (Ridge) regularization penalties, second-order Taylor expansions (Newton-Raphson optimization), and support vector objective duals are all fundamental quadratic formulations whose global minima can be computed with mathematical certainty.
 
-\vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\vspace{0.3cm}
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Quadratic Equations and Solving Methods
-    \item Geometry of the Parabola
-    \item Optimization Applications
+    \item \textbf{Algebraic Representations:} Master standard ($ax^2 + bx + c$), factored ($a(x - r_1)(x - r_2)$), and vertex ($a(x - h)^2 + k$) representations of quadratic functions.
+    \item \textbf{Root Analysis \& Vieta's Laws:} Derive closed-form solutions via completing the square; evaluate the discriminant $\Delta = b^2 - 4ac$; leverage Vieta's formulas for sum and product of roots.
+    \item \textbf{Parabolic Geometry:} Establish the axis of symmetry $x = -\frac{b}{2a}$, compute the vertex extremum $(h, k)$, and determine global convexity ($a > 0$) vs. concavity ($a < 0$).
+    \item \textbf{Constrained \& Unconstrained Optimization:} Solve unconstrained global optimization problems and evaluate boundary-constrained extrema on compact intervals $[x_1, x_2]$.
+    \item \textbf{Loss Surface Applications:} Connect quadratic convexity to linear regression loss functions, learning rates, and $L_2$ Ridge shrinkage penalties.
+    \item \textbf{Computational Lab:} Solve roots, perform symbolic completing of the square, and simulate MSE loss minimization using Python and SymPy.
 \end{itemize}
 \end{tcolorbox}
-Quadratic functions are second-degree polynomials. Geometrically, they represent parabolas. In data science, quadratic functions are widely used in loss functions (like mean squared error) and optimization problems, as they possess a single local (and global) extremum.
+\vspace{0.3cm}
 
 \section{Quadratic Equations and Solving Methods}
 
@@ -136,14 +140,184 @@ A company's daily profit is modeled by $P(x) = -10x^2 + 1200x - 2000$, where $x$
 So, setting the price to $\$60$ maximizes daily profit at $\$34,000$.
 \end{examplebox}
 
+\section{Vieta's Formulas and Symmetric Polynomials}
+
+For any quadratic equation $a x^2 + b x + c = 0$ with roots $r_1$ and $r_2$, Vieta's formulas directly relate the roots to the algebraic coefficients without requiring explicit factorization:
+\begin{align*}
+    r_1 + r_2 &= -\frac{b}{a} \\
+    r_1 \cdot r_2 &= \frac{c}{a}
+\end{align*}
+Using these fundamental relations, any symmetric polynomial in the roots can be evaluated directly:
+\begin{itemize}
+    \item \textbf{Sum of Squares:} $r_1^2 + r_2^2 = (r_1 + r_2)^2 - 2 r_1 r_2 = \left(-\frac{b}{a}\right)^2 - 2\left(\frac{c}{a}\right) = \frac{b^2 - 2ac}{a^2}$.
+    \item \textbf{Sum of Cubes:} $r_1^3 + r_2^3 = (r_1 + r_2)(r_1^2 - r_1 r_2 + r_2^2) = (r_1 + r_2)\left[(r_1 + r_2)^2 - 3 r_1 r_2\right]$.
+    \item \textbf{Difference of Roots:} $|r_1 - r_2| = \sqrt{(r_1 + r_2)^2 - 4 r_1 r_2} = \frac{\sqrt{b^2 - 4ac}}{|a|} = \frac{\sqrt{\Delta}}{|a|}$.
+\end{itemize}
+
+\section{Common Pitfalls, Traps \& Misconceptions}
+
+\begin{trapbox}{Trap 1: The Parabolic Concavity vs. Convexity Sign Trap}
+A frequent conceptual inversion is confusing $a > 0$ with a maximum and $a < 0$ with a minimum.
+\begin{itemize}
+    \item If $a > 0$, the parabola opens \textbf{upward} (strictly convex, $\frac{d^2 f}{dx^2} = 2a > 0$). The vertex is the unique \textbf{global minimum}. There is no maximum ($f(x) \to +\infty$).
+    \item If $a < 0$, the parabola opens \textbf{downward} (strictly concave, $\frac{d^2 f}{dx^2} = 2a < 0$). The vertex is the unique \textbf{global maximum}. There is no minimum ($f(x) \to -\infty$).
+    \item In Machine Learning loss minimization, our objective functions \textbf{must} have $a > 0$; otherwise gradient descent diverges to $-\infty$!
+\end{itemize}
+\end{trapbox}
+
+\begin{trapbox}{Trap 2: The Vertex $y$-Coordinate Formula Sign}
+When using the algebraic shortcut for the vertex extremum value $k$:
+$$k = f\left(-\frac{b}{2a}\right) = c - \frac{b^2}{4a} = -\frac{b^2 - 4ac}{4a} = -\frac{\Delta}{4a}$$
+Notice the critical minus sign preceding $\Delta$. Forgetting this negative sign produces an inverted value for the optimal loss or maximum profit.
+\end{trapbox}
+
+\begin{trapbox}{Trap 3: Discriminant Negative $\Delta < 0$ and Strict Positivity}
+When $\Delta = b^2 - 4ac < 0$, students often incorrectly state that the function "has no values."
+\begin{itemize}
+    \item $\Delta < 0$ strictly means that $f(x) = 0$ has \textbf{no real roots} (the parabola never intersects the $x$-axis).
+    \item If $a > 0$ and $\Delta < 0$, the entire parabola floats strictly above the $x$-axis: $f(x) > 0$ for \textbf{all} $x \in \R$.
+    \item In Data Science, this condition guarantees that a regularized loss function remains strictly positive and bounded away from zero.
+\end{itemize}
+\end{trapbox}
+
+\begin{trapbox}{Trap 4: Boundary-Constrained Optimization Traps}
+When optimizing a quadratic over a closed interval $[x_1, x_2]$, the global unconstrained vertex $x^* = -\frac{b}{2a}$ is only the solution if $x^* \in [x_1, x_2]$.
+\begin{itemize}
+    \item If the vertex lies outside the interval ($x^* \notin [x_1, x_2]$), the true constrained minimum and maximum occur strictly at the boundary endpoints $x_1$ and $x_2$.
+    \item Always check: (1) Is $x^* \in [x_1, x_2]$? If yes, compare $f(x^*)$ with $f(x_1)$ and $f(x_2)$. If no, the extremum must be at an endpoint.
+\end{itemize}
+\end{trapbox}
+
+\section{Comparative Synthesis: Quadratic Representations}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{p{3.2cm}p{4.0cm}p{4.2cm}}
+\toprule
+\textbf{Form Name} & \textbf{Algebraic Expression} & \textbf{Primary Computational Utility} \\
+\midrule
+\textbf{Standard Form} & $f(x) = ax^2 + bx + c$ & Quadratic formula, discriminant $\Delta$, calculus derivatives ($f'(x) = 2ax + b$) \\
+\textbf{Vertex Form} & $f(x) = a(x - h)^2 + k$ & Immediate read-off of global extremum $(h, k)$, axis of symmetry $x = h$, completing the square \\
+\textbf{Factored Form} & $f(x) = a(x - r_1)(x - r_2)$ & Root finding, x-intercepts, interval sign charts for polynomial inequalities \\
+\textbf{Matrix Form} & $f(\mathbf{x}) = \frac{1}{2}\mathbf{x}^T \mathbf{A} \mathbf{x} - \mathbf{b}^T \mathbf{x} + c$ & Multivariable optimization, Hessian matrices, multivariate regression \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Python Implementation: Symbolic Quadratics, Loss Curves, and Ridge Shrinkage}
+
+\begin{lstlisting}[caption={Quadratic Analysis and Optimization in Python}]
+import numpy as np
+import sympy as sp
+
+# 1. Symbolic Vertex Form and Vieta Verification with SymPy
+x, a, b, c = sp.symbols('x a b c', real=True)
+quad_expr = 2*x**2 - 7*x + 3
+
+# Compute exact analytical roots
+roots = sp.solve(quad_expr, x)
+r1, r2 = roots[0], roots[1]
+print(f"Roots: r1 = {r1}, r2 = {r2}")
+
+# Vieta Verification
+sum_roots = r1 + r2
+prod_roots = r1 * r2
+print(f"Vieta Sum: {sum_roots} (Matches -b/a = 7/2: {sum_roots == sp.Rational(7, 2)})")
+print(f"Vieta Prod: {prod_roots} (Matches c/a = 3/2: {prod_roots == sp.Rational(3, 2)})")
+
+# 2. Ridge Regularization Shrinkage Simulation
+# Objective: L(w) = 0.5*(w - 4)^2 + 0.5*lambda*w^2 -> min over w
+# Standard form: 0.5*(1 + lambda)*w^2 - 4*w + 8
+lambdas = [0.0, 0.5, 1.0, 5.0, 10.0]
+print("\nRidge Regularization Weight Shrinkage:")
+for lmb in lambdas:
+    # a_opt = 0.5 * (1 + lmb), b_opt = -4
+    # w_star = -b / (2*a) = 4 / (1 + lmb)
+    w_star = 4.0 / (1.0 + lmb)
+    min_loss = 0.5 * (w_star - 4.0)**2 + 0.5 * lmb * (w_star**2)
+    print(f"  Lambda = {lmb:4.1f} -> Optimal w* = {w_star:.4f}, Min Loss = {min_loss:.4f}")
+
+# 3. Constrained Optimization on Compact Interval [3, 5]
+# Function: f(x) = -3*x^2 + 12*x - 5. Unconstrained vertex at x = -12 / (2*-3) = 2.
+# Since vertex x=2 is NOT in [3, 5], evaluate endpoints!
+x_vals = np.array([3.0, 5.0])
+f_vals = -3*x_vals**2 + 12*x_vals - 5
+print(f"\nConstrained Interval [3, 5]:")
+print(f"f(3) = {f_vals[0]}, f(5) = {f_vals[1]}")
+print(f"Max on [3, 5] is {np.max(f_vals)} at x=3.0; Min is {np.min(f_vals)} at x=5.0")
+\end{lstlisting}
+
 \newpage
 \section{Practice Exercises}
-\textit{Try to solve these exercises independently. Detailed step-by-step solutions are available in the Appendix at the end of the book.}
+\textit{Detailed step-by-step solutions and full distractor rationales are available in the Appendix.}
+
+\subsection*{Part A: Computational and Analytical Problems}
 
 \begin{enumerate}
-    \item \textbf{Pure Math:} Find the roots of the quadratic equation $3x^2 - 5x - 2 = 0$ using factorization.
-    \item \textbf{Pure Math:} Calculate the discriminant of $4x^2 + 12x + 9 = 0$ and state the nature of its roots.
-    \item \textbf{Data Science:} A Mean Squared Error loss function for a single parameter $w$ is defined as $L(w) = 2w^2 - 16w + 35$. Find the value of $w$ that minimizes the loss, and the minimum loss value itself.
-    \item \textbf{Pure Math:} Convert the quadratic function $y = x^2 + 6x + 5$ into vertex form and identify its vertex.
-    \item \textbf{Data Science:} A manufacturing algorithm predicts that producing $n$ items yields a cost $C(n) = 0.5n^2 - 50n + 1500$. How many items should be produced to minimize the cost?
+    \item \textbf{Vieta's Relations and Polynomial Transformation:} The quadratic equation:
+    $$2x^2 - 7x + 3 = 0$$
+    has roots denoted by $r_1$ and $r_2$.
+    \begin{enumerate}
+        \item State the values of $r_1 + r_2$ and $r_1 r_2$ directly using Vieta's formulas.
+        \item Solve the equation analytically to verify the individual roots.
+        \item Construct a new monic quadratic polynomial whose roots are $r_1^2$ and $r_2^2$.
+        \item Calculate the value of the symmetric sum of cubes $r_1^3 + r_2^3$ without taking cubes of decimals.
+    \end{enumerate}
+
+    \item \textbf{Vertex Form and Interval-Constrained Optimization:} Consider the quadratic function:
+    $$f(x) = -3x^2 + 12x - 5$$
+    \begin{enumerate}
+        \item Convert $f(x)$ into vertex form $a(x - h)^2 + k$ via completing the square.
+        \item State the coordinates of the unconstrained vertex extremum, and specify whether it is a global minimum or maximum.
+        \item Find the absolute maximum and minimum values of $f(x)$ on the restricted interval $[3, 5]$.
+        \item Find the absolute maximum and minimum values of $f(x)$ on the restricted interval $[-2, 1]$.
+    \end{enumerate}
+
+    \item \textbf{Convex Quadratic Loss and Ridge ($L_2$) Regularization:} In machine learning, a regularized parameter estimation problem minimizes the penalized loss function:
+    $$L(w) = \frac{1}{2}(w - 4)^2 + \frac{\lambda}{2} w^2, \qquad \text{where } \lambda \ge 0$$
+    \begin{enumerate}
+        \item Expand and collect terms to express $L(w)$ in standard quadratic form $a w^2 + b w + c$.
+        \item Prove that $L(w)$ is strictly convex for all $\lambda \ge 0$.
+        \item Derive the optimal parameter $w^*(\lambda)$ as a function of regularization strength $\lambda$.
+        \item Demonstrate the mathematical shrinkage property by evaluating $\lim_{\lambda \to 0} w^*(\lambda)$ and $\lim_{\lambda \to \infty} w^*(\lambda)$.
+        \item For $\lambda = 0.5$, compute the numerical optimal weight $w^*$ and the corresponding minimum loss $L(w^*)$.
+    \end{enumerate}
+
+    \item \textbf{Discriminant Analysis and Strictly Positive Quadratic Forms:} Consider the parameterized family of quadratic expressions:
+    $$g(x) = k x^2 + 6x + (k - 8)$$
+    \begin{enumerate}
+        \item Formulate the discriminant $\Delta(k)$ in terms of parameter $k$.
+        \item Find the values of $k$ for which the equation $g(x) = 0$ has exactly one repeated real root.
+        \item Determine the complete range of values of $k$ for which $g(x)$ remains strictly positive ($g(x) > 0$) for all real numbers $x \in \mathbb{R}$.
+    \end{enumerate}
+
+    \item \textbf{Mean Squared Error (MSE) Parameter Estimation:} A linear regression model passing through the origin is given by $\hat{y} = w x$. Given training observations:
+    $$\{(1, 3), (2, 5), (3, 8)\}$$
+    \begin{enumerate}
+        \item Express the empirical Mean Squared Error loss $L(w) = \frac{1}{3} \sum_{i=1}^3 (y_i - w x_i)^2$ explicitly as a quadratic function in $w$.
+        \item Determine the optimal parameter weight $w^*$ that minimizes the MSE loss.
+        \item Compute the minimum Mean Squared Error achievable by this model.
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Conceptual and Diagnostic Multiple Choice Questions}
+
+\begin{enumerate}[resume]
+\item \textbf{Conceptual Diagnostic: Parabola Extrema and Strict Positivity} \\
+Let $f(x) = a x^2 + b x + c$ be a quadratic function with real coefficients. If the discriminant satisfies $\Delta = b^2 - 4ac < 0$ and $a > 0$, which of the following statements is \textbf{strictly correct}?
+\begin{enumerate}
+    \item $f(x)$ has no real values and is mathematically undefined.
+    \item $f(x)$ possesses a global maximum at $x = -\frac{b}{2a}$, and the graph intersects the $x$-axis twice.
+    \item $f(x)$ has a unique global minimum at $x = -\frac{b}{2a}$, and $f(x) > 0$ strictly for all real numbers $x \in \mathbb{R}$.
+    \item $f(x)$ is strictly negative for all $x \in \mathbb{R}$ because $\Delta < 0$.
+\end{enumerate}
+
+\item \textbf{Conceptual Diagnostic: Ridge Regularization Shrinkage Mechanism} \\
+In Ridge regression with quadratic objective $L(w) = \frac{1}{2}(w - w_{\text{OLS}})^2 + \frac{\lambda}{2} w^2$, how does increasing the regularization hyperparameter $\lambda > 0$ affect the optimal parameter $w^*(\lambda) = \frac{w_{\text{OLS}}}{1 + \lambda}$?
+\begin{enumerate}
+    \item It causes $w^*$ to oscillate sinusoidally between $+w_{\text{OLS}}$ and $-w_{\text{OLS}}$.
+    \item It smoothly shrinks the magnitude of $w^*$ monotonically toward zero without ever setting it exactly to zero for finite $\lambda$.
+    \item It sets $w^*$ strictly to zero as soon as $\lambda \ge 1.0$, identical to Lasso ($L_1$) regularization.
+    \item It inflates the variance of $w^*$, making the model more prone to overfitting.
+\end{enumerate}
 \end{enumerate}

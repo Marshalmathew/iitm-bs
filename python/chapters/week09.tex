@@ -1,114 +1,350 @@
-\chapter{Recursion \& Searching Algorithms}
+\chapter{Recursion, Algorithmic Search \& Divide-and-Conquer}
 
-\index{Recursion}\textbf{Recursion} is a programming technique where a function calls itself to solve smaller instances of the same problem. Combined with Divide-and-Conquer strategy, recursion enables highly efficient algorithms like \index{Binary Search}\textbf{Binary Search} ($\mathcal{O}(\log N)$ time complexity).
-
+Fundamental computational problems in data science---from recursive decision-tree splitting in CART algorithms and hierarchical clustering to nearest-neighbor searches in high-dimensional KD-trees---rely on \index{Recursion}\textbf{Recursion} and \textbf{Divide-and-Conquer} strategies. Rather than tackling an intractable problem monolithically, divide-and-conquer breaks a dataset into disjoint subproblems, recursively solves each partition, and recombines the solutions. In Python, recursion is executed via activation records allocated on the C-level call stack. Understanding call stack mechanics, recursion limits, recurrence relations under the Master Theorem, and the logarithmic efficiency of \index{Binary Search}\textbf{Binary Search} provides the foundation for scalable algorithmic design.
 
 \vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item The Core Mechanics of Recursion
-    \item Binary Search: Iterative vs Recursive
+    \item \textbf{Target Competencies:} Trace call stack activation frames and manage Python's recursion limit; formalize recurrence relations using the Master Theorem; implement logarithmic ($\mathcal{O}(\log n)$) search across discrete sequences and continuous intervals (Bisection method); build divide-and-conquer sorting algorithms (Merge Sort); eliminate exponential recursion overhead via memoization and dynamic programming caches.
+    \item \textbf{Prerequisites:} Functions, parameter passing, sequence slicing, time complexity analysis.
+    \item \textbf{Syntax \& Built-in Functions:} \texttt{sys.getrecursionlimit()}, \texttt{sys.setrecursionlimit()}; \texttt{functools.lru\_cache}; recursive functions; binary search intervals.
 \end{itemize}
 \end{tcolorbox}
-\section{The Core Mechanics of Recursion}
 
-\begin{intuitionbox}{The Dream Within a Dream}
-Recursion is like the movie Inception. The function falls into a dream (calling itself), and inside that dream, it calls itself again, falling into a deeper dream. The "Base Case" is the "Kick"---the definitive signal that it's time to wake up. Without the kick, the function falls endlessly into a nightmare (an infinite loop causing a stack overflow).
-\end{intuitionbox}
+\section{Mathematical \& Computational Foundations}
 
-Every valid recursive function must have two components:
-1. \textbf{Base Case:} The stopping condition that returns a value directly without further recursive calls (prevents \texttt{RecursionError: maximum recursion depth exceeded}).
-2. \textbf{Recursive Step:} The function calls itself with a reduced or smaller input parameter, moving towards the base case.
+\subsection{Call Stack Mechanics and Activation Records}
 
-\begin{definitionbox}{Recursive Factorial}
-\index{Recursive Factorial}
-$$N! = \begin{cases} 1 & \text{if } N = 0 \text{ or } N = 1 \quad \text{(Base Case)} \\ N \times (N-1)! & \text{if } N > 1 \quad \text{(Recursive Step)} \end{cases}$$
-\begin{lstlisting}
-def factorial(n):
-    if n <= 1:
-        return 1
-    return n * factorial(n - 1)
-
-print(factorial(5))  # Output: 120
+\begin{definitionbox}{The Activation Frame Invariant}
+\index{Call Stack} \index{Activation Record}
+When a function is called, the CPython runtime pushes an \textbf{activation record (stack frame)} onto the call stack. Each frame encapsulates:
+\begin{enumerate}
+    \item Parameter references passed by the caller.
+    \item Local variables declared within the current scope.
+    \item The return address pointing to the caller's next bytecode instruction.
+\end{enumerate}
+\textbf{The CPython Recursion Constraint:} Python does \textbf{not} perform Tail-Call Optimization (TCO). Every nested call consumes physical memory on the process stack.
+To prevent uncontrolled stack overflows from crashing the underlying operating system process, CPython enforces a strict limit:
+\begin{lstlisting}[language=Python]
+import sys
+print(sys.getrecursionlimit())  # Typically 1000 frames
 \end{lstlisting}
+Exceeding this boundary immediately raises a \texttt{RecursionError: maximum recursion depth exceeded}.
 \end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: Theoretical Introduction to Recursion}{https://www.youtube.com/watch?v=htu4ZCW7hzA}
-Official lecture explaining the call stack, activation records, and base cases.
-\end{videocard}
+\subsection{Recurrence Relations and the Master Theorem}
 
-\begin{videocard}{IITM BS Lecture: Recursion Illustration (Sum \& Factorial)}{https://www.youtube.com/watch?v=PAUlGa9wAxA}
-Official lecture tracing recursive execution stacks step-by-step.
-\end{videocard}
-
-\section{Binary Search: Iterative vs Recursive}
-
-While Linear Search takes $\mathcal{O}(N)$ time, \index{Binary Search}\textbf{Binary Search} searches a \index{sorted}\textbf{sorted} array in $\mathcal{O}(\log N)$ time by repeatedly dividing the search space in half.
-
-\begin{theorembox}{Binary Search Algorithm ($\mathcal{O}(\log N)$)}
-Compare the target with the middle element \texttt{mid}:
+\begin{theorembox}{The Master Theorem for Divide-and-Conquer}
+\index{Master Theorem} \index{Divide-and-Conquer}
+Let an algorithm divide a problem of size $n$ into $a \ge 1$ subproblems, each of size $n/b$ (with $b > 1$), incurring recombination cost $f(n) = \Theta(n^c)$:
+\begin{equation}
+T(n) = a T\left(\frac{n}{b}\right) + \Theta(n^c)
+\end{equation}
+The asymptotic complexity is determined by comparing the work done at the leaves ($\log_b a$) with the work at the root ($c$):
+\begin{enumerate}
+    \item \textbf{Leaf-dominated ($c < \log_b a$):} $T(n) = \Theta(n^{\log_b a})$.
+    \item \textbf{Balanced ($c = \log_b a$):} $T(n) = \Theta(n^c \log n)$.
+    \item \textbf{Root-dominated ($c > \log_b a$):} $T(n) = \Theta(n^c)$.
+\end{enumerate}
+\textbf{Applications:}
 \begin{itemize}
-    \item If \texttt{target == arr[mid]}, return \texttt{mid}.
-    \item If \texttt{target < arr[mid]}, search the left sub-array (\texttt{high = mid - 1}).
-    \item If \texttt{target > arr[mid]}, search the right sub-array (\texttt{low = mid + 1}).
+    \item \textbf{Binary Search:} $a = 1, b = 2, c = 0 \implies \log_2 1 = 0 = c \implies T(n) = \mathbf{\Theta(\log n)}$.
+    \item \textbf{Merge Sort:} $a = 2, b = 2, c = 1 \implies \log_2 2 = 1 = c \implies T(n) = \mathbf{\Theta(n \log n)}$.
 \end{itemize}
 \end{theorembox}
 
-\begin{examplebox}{Iterative and Recursive Binary Search}
-\begin{lstlisting}
-# Iterative Binary Search
-def binary_search_iterative(arr, target):
-    low, high = 0, len(arr) - 1
-    while low <= high:
-        mid = (low + high) // 2
-        if arr[mid] == target:
-            return mid
-        elif arr[mid] < target:
-            low = mid + 1
-        else:
-            high = mid - 1
-    return -1
+\subsection{Binary Search Algorithm: Discrete and Continuous}
 
-# Recursive Binary Search
-def binary_search_recursive(arr, target, low, high):
-    if low > high:
-        return -1
-    mid = (low + high) // 2
-    if arr[mid] == target:
-        return mid
-    elif arr[mid] < target:
-        return binary_search_recursive(arr, target, mid + 1, high)
-    else:
-        return binary_search_recursive(arr, target, low, mid - 1)
+\begin{definitionbox}{Discrete vs. Continuous Binary Search}
+\index{Binary Search} \index{Bisection Method}
+\begin{enumerate}
+    \item \textbf{Discrete Binary Search on Sorted Array $A[0 \dots n-1]$:}
+    Maintains search interval $[\text{low}, \text{high}]$. In each step:
+    \begin{equation}
+    \text{mid} = \text{low} + \frac{\text{high} - \text{low}}{2}
+    \end{equation}
+    If $A[\text{mid}] == \text{target}$, return index. If $A[\text{mid}] < \text{target}$, update $\text{low} = \text{mid} + 1$; else $\text{high} = \text{mid} - 1$.
+    \item \textbf{Continuous Root-Finding (Bisection Method):}
+    Let $f: [a, b] \to \mathbb{R}$ be continuous with $f(a) \cdot f(b) \le 0$. The midpoint $m = \frac{a+b}{2}$ halves the interval. After $k$ iterations, the error is bounded by:
+    \begin{equation}
+    \epsilon_k = \frac{b - a}{2^k} \implies k = \left\lceil \log_2\left(\frac{b - a}{\text{tolerance}}\right) \right\rceil
+    \end{equation}
+\end{enumerate}
+\end{definitionbox}
+
+\section{Visual \& Computational Intuition: Call Stack Unrolling}
+
+Figure~\ref{fig:call_stack} visualizes the call stack allocation and subsequent return value unrolling during the execution of recursive factorial $N = 4$.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=0.95,
+    frame/.style={rectangle, draw=primarydark, fill=primarylight!30, thick, rounded corners, minimum width=4.5cm, minimum height=0.7cm, font=\small},
+    unwind/.style={rectangle, draw=forest, fill=forest!15, thick, rounded corners, minimum width=4.5cm, minimum height=0.7cm, font=\small\bfseries},
+    arr/.style={-stealth, thick, red!80!black},
+    ret/.style={-stealth, thick, forest}
+]
+    % Stack Growth (Winding)
+    \node[font=\bfseries, primarydark] at (-3.2, 3.2) {Stack Expansion (Winding)};
+    \node[frame] (f4) at (-3.2, 2.2) {\texttt{fact(4)}: awaits \texttt{fact(3)}};
+    \node[frame] (f3) at (-3.2, 1.2) {\texttt{fact(3)}: awaits \texttt{fact(2)}};
+    \node[frame] (f2) at (-3.2, 0.2) {\texttt{fact(2)}: awaits \texttt{fact(1)}};
+    \node[frame, fill=accent!20] (f1) at (-3.2, -0.8) {\textbf{Base Case}: \texttt{fact(1)} $\to$ returns $1$};
+
+    \draw[arr] (-1.0, 2.2) -- (-1.0, 1.4);
+    \draw[arr] (-1.0, 1.2) -- (-1.0, 0.4);
+    \draw[arr] (-1.0, 0.2) -- (-1.0, -0.6);
+
+    % Stack Unwinding
+    \node[font=\bfseries, forest] at (3.2, 3.2) {Stack Teardown (Unwinding)};
+    \node[unwind] (u4) at (3.2, 2.2) {$4 \times 6 = \mathbf{24}$ (Final Result)};
+    \node[unwind] (u3) at (3.2, 1.2) {$3 \times 2 = 6$};
+    \node[unwind] (u2) at (3.2, 0.2) {$2 \times 1 = 2$};
+    \node[unwind, fill=accent!20] (u1) at (3.2, -0.8) {Returns $1$};
+
+    \draw[ret] (1.0, -0.6) -- (1.0, 0.0);
+    \draw[ret] (1.0, 0.4) -- (1.0, 1.0);
+    \draw[ret] (1.0, 1.4) -- (1.0, 2.0);
+
+\end{tikzpicture}
+\caption{Call stack allocation and subsequent unwinding. Each call pauses execution in its stack frame until the child frame evaluates and returns.}
+\label{fig:call_stack}
+\end{figure}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Overlapping Subproblems and Memoization}
+Naive recursive Fibonacci computation exhibits recurrence $T(n) = T(n-1) + T(n-2) + \mathcal{O}(1)$, forming a binary computation tree of depth $n$ with total calls scaling as:
+\begin{equation}
+T(n) \ge 2^{n/2} = \Theta\left(\left(\frac{1 + \sqrt{5}}{2}\right)^n\right) \approx \Theta(1.618^n)
+\end{equation}
+Because the tree repeatedly recomputes identical states (overlapping subproblems), caching results via a hash table (**Memoization**) collapses the tree into a directed acyclic graph (DAG) of length $n$, reducing execution complexity from exponential $\mathcal{O}(2^n)$ to strictly linear $\mathcal{O}(n)$.
+
+\subsection{Divide-and-Conquer: Merge Sort Mechanics}
+Merge Sort recursively bisects an array into two halves of size $n/2$, sorts each recursively, and performs a two-pointer linear merge in $\mathcal{O}(n)$ time:
+\begin{equation}
+T(n) = 2 T(n/2) + c n \implies T(n) = c n \log_2 n = \mathcal{O}(n \log n)
+\end{equation}
+Unlike Quick Sort (whose worst-case degrades to $\mathcal{O}(n^2)$ on already sorted arrays without randomized pivoting), Merge Sort provides an absolute worst-case guarantee of $\mathcal{O}(n \log n)$ comparisons and is inherently stable.
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{The Lack of Tail-Call Optimization (TCO) in Python}
+In languages like Scheme or Haskell, a tail-recursive function consumes $\mathcal{O}(1)$ stack space. In Python, \textbf{no tail-call elimination occurs}:
+\begin{lstlisting}[language=Python]
+def count_down(n):
+    if n == 0:
+        return 0
+    return count_down(n - 1)  # Consumes full stack frame!
+
+count_down(2000)  # Raises RecursionError!
 \end{lstlisting}
-\end{examplebox}
+Even if the recursive call is the final statement in the function, it allocates a new stack frame. Deep iterative processes in Python should always use a standard \texttt{while} loop or an explicit user-space list stack.
+\end{trapbox}
 
-\textbf{Data Science Relevance:} Decision Trees, Decision Trees splitting algorithms (e.g. finding optimal thresholds), and database indexing (B-Trees) use recursive divide-and-conquer principles.
+\begin{trapbox}{The Mutable Default Argument Memoization Trap}
+Attempting to implement a memoization cache using default arguments can leak state across tests:
+\begin{lstlisting}[language=Python]
+def compute(n, memo={}):  # CRITICAL BUG!
+    if n in memo:
+        return memo[n]
+    # ...
+\end{lstlisting}
+The \texttt{memo} dictionary persists across all calls globally. If one call corrupts the cache or depends on external dynamic weights, all subsequent invocations receive stale, corrupted answers. Use \texttt{@functools.lru\_cache(maxsize=None)} instead.
+\end{trapbox}
 
-\begin{videocard}{IITM BS Lecture: Introduction to Binary Search}{https://www.youtube.com/watch?v=WEJt1L7YTpM}
-Official lecture explaining the halving technique and $\mathcal{O}(\log N)$ efficiency.
-\end{videocard}
+\begin{trapbox}{Binary Search Integer Midpoint Calculation}
+In lower-level languages, calculating \texttt{mid = (low + high) // 2} overflows 32-bit signed integers if $\text{low} + \text{high} > 2^{31}-1$. While Python 3 integers have arbitrary precision and will not overflow, the form \texttt{mid = low + (high - low) // 2} remains the universal algorithmic standard across all production software.
+\end{trapbox}
 
-\begin{videocard}{IITM BS Lecture: Recursive Binary Search Implementation}{https://www.youtube.com/watch?v=v_WYTBhHONo}
-Official lecture implementing binary search recursively in Python.
-\end{videocard}
+\begin{trapbox}{Binary Search Infinite Loop on Update Bounds}
+Setting \texttt{low = mid} or \texttt{high = mid} instead of \texttt{mid + 1} / \texttt{mid - 1} causes infinite loops when \texttt{high - low == 1}:
+\begin{lstlisting}[language=Python]
+# BUG: If low = 0, high = 1, mid = (0 + 1)//2 = 0.
+# If target > arr[0], setting low = mid sets low = 0 again! Infinite loop!
+\end{lstlisting}
+Always advance past the midpoint: \texttt{low = mid + 1} and \texttt{high = mid - 1}.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2.8cm} p{2.6cm} p{2.2cm} p{2.2cm} p{3.4cm}}
+\hline
+\textbf{Algorithm} & \textbf{Recurrence} & \textbf{Time Cost} & \textbf{Space Cost} & \textbf{Stability / Property} \\
+\hline
+\textbf{Linear Search} & $T(n) = T(n-1) + 1$ & $\mathcal{O}(n)$ & $\mathcal{O}(1)$ & Unsorted data \\
+\textbf{Binary Search} & $T(n) = T(n/2) + 1$ & $\mathcal{O}(\log n)$ & $\mathcal{O}(1)$ iter & Requires sorted input \\
+\textbf{Merge Sort} & $T(n) = 2T(n/2) + n$ & $\mathcal{O}(n \log n)$ & $\mathcal{O}(n)$ & Stable; divide-and-conquer \\
+\textbf{Quick Sort} & $T(n) = 2T(n/2) + n$ avg & $\mathcal{O}(n \log n)$ avg & $\mathcal{O}(\log n)$ stack & In-place; unstable \\
+\textbf{Naive Fib} & $T(n) = T(n-1)+T(n-2)$ & $\mathcal{O}(2^n)$ & $\mathcal{O}(n)$ stack & Overlapping subproblems \\
+\textbf{Memoized Fib} & $T(n) = T(n-1) + 1$ & $\mathcal{O}(n)$ & $\mathcal{O}(n)$ heap & Dynamic programming \\
+\hline
+\end{tabular}
+\caption{Computational and space complexity profiles of recursive and searching algorithms.}
+\label{tab:recursion_taxonomy}
+\end{table}
+
+\section{Python / Scientific Computing Lab}
+
+The following production script implements pure-Python Merge Sort with recursive divide-and-conquer mechanics, and a Continuous Bisection Method Root Finder for finding mathematical roots of non-linear loss gradients.
+
+\begin{lstlisting}[language=Python]
+from typing import List, Callable
+
+def merge_sort(arr: List[float]) -> List[float]:
+    """
+    Sorts an array using Divide-and-Conquer Merge Sort in O(n log n) time.
+    """
+    if len(arr) <= 1:
+        return arr
+
+    # Divide step: bisect array at midpoint
+    mid = len(arr) // 2
+    left_half = merge_sort(arr[:mid])
+    right_half = merge_sort(arr[mid:])
+
+    # Conquer/Merge step: two-pointer linear merge
+    merged = []
+    i = j = 0
+    while i < len(left_half) and j < len(right_half):
+        if left_half[i] <= right_half[j]:  # <= ensures sorting stability
+            merged.append(left_half[i])
+            i += 1
+        else:
+            merged.append(right_half[j])
+            j += 1
+
+    # Append remaining elements
+    merged.extend(left_half[i:])
+    merged.extend(right_half[j:])
+    return merged
+
+def bisection_root_finder(
+    f: Callable[[float], float],
+    a: float,
+    b: float,
+    tol: float = 1e-6,
+    max_iters: int = 100
+) -> dict:
+    """
+    Continuous Binary Search (Bisection Method) for finding root x* where f(x*) = 0.
+    Requires f(a) and f(b) to have opposite signs: f(a)*f(b) <= 0.
+    """
+    fa, fb = f(a), f(b)
+    if fa * fb > 0:
+        raise ValueError("Root is not bracketed: f(a) and f(b) must have opposite signs.")
+
+    low, high = a, b
+    for step in range(1, max_iters + 1):
+        mid = low + (high - low) / 2.0
+        f_mid = f(mid)
+
+        # Check convergence: absolute function value or interval width
+        if abs(f_mid) < tol or (high - low) / 2.0 < tol:
+            return {
+                "converged": True,
+                "root": round(mid, 6),
+                "f_root": round(f_mid, 8),
+                "iterations": step
+            }
+
+        # Update half-interval
+        if fa * f_mid < 0:
+            high = mid
+            fb = f_mid
+        else:
+            low = mid
+            fa = f_mid
+
+    return {"converged": False, "root": round(mid, 6), "iterations": max_iters}
+
+# Unit tests
+test_data = [64.2, 25.1, 12.0, 22.8, 11.5, 90.3, 44.1]
+sorted_data = merge_sort(test_data)
+print("Merge Sort Output:", sorted_data)
+
+# Find root of f(x) = x^3 - 2*x - 5 on interval [1, 3]
+loss_gradient = lambda x: x**3 - 2.0*x - 5.0
+root_info = bisection_root_finder(loss_gradient, a=1.0, b=3.0, tol=1e-6)
+print(f"Root: x* = {root_info['root']} found in {root_info['iterations']} steps.")
+# Output:
+# Merge Sort Output: [11.5, 12.0, 22.8, 25.1, 44.1, 64.2, 90.3]
+# Root: x* = 2.094551 found in 22 steps.
+\end{lstlisting}
 
 \newpage
-\section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\section{Comprehensive Practice Problems}
+\textit{Detailed step-by-step solutions and distractor analyses are provided in the Appendix.}
+
+\subsection*{Part A: Computational \& Analytical Problems}
 
 \begin{enumerate}
-    \item \textbf{Recursive Sum:} Write a recursive function \texttt{recursive\_sum(n)} that calculates the sum of integers from $1$ to $n$.
+    \item \textbf{Call Stack Trace of Nested Recursion:}
+    Trace the step-by-step execution and draw the activation stack for the recursive function:
+    \begin{lstlisting}[language=Python]
+    def func(n):
+        if n <= 1:
+            return 1
+        return func(n - 1) + 2 * func(n - 2)
+    \end{lstlisting}
+    Compute the exact return value for \texttt{func(4)} and determine the maximum call stack depth reached during its execution.
 
-    \item \textbf{Recursive String Reversal:} Write a recursive function \texttt{reverse\_string(s)} that reverses a string without using loops or slicing \texttt{[::-1]}. (Base case: empty string or length 1).
-
-    \item \textbf{Binary Search Trace:} Given a sorted array \texttt{arr = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]}:
+    \item \textbf{Binary Search Interval Tracking:}
+    Given the sorted array \texttt{arr = [3, 7, 11, 15, 19, 23, 27, 31, 35, 39, 43, 47]}:
     \begin{enumerate}
-        \item Trace the values of \texttt{low}, \texttt{high}, and \texttt{mid} when searching for \texttt{target = 23}.
-        \item How many comparison steps were required?
+        \item Trace the exact values of \texttt{low}, \texttt{high}, and \texttt{mid} at each iteration when searching for \texttt{target = 31}.
+        \item How many array accesses were performed before locating \texttt{target}?
+        \item What values of \texttt{low} and \texttt{high} indicate that a target is NOT present in the array?
     \end{enumerate}
 
-    \item \textbf{Recursive Fibonacci with Memoization:} The naïve recursive Fibonacci $F(n) = F(n-1) + F(n-2)$ takes $\mathcal{O}(2^n)$ exponential time. Write an optimized version \texttt{fib\_memo(n, memo=\{\})} that uses a dictionary to cache previously computed Fibonacci numbers in $\mathcal{O}(n)$ time.
+    \item \textbf{Recurrence Relation Solving via Master Theorem:}
+    Solve the asymptotic time complexity $T(n)$ for each of the following recurrences using the Master Theorem:
+    \begin{enumerate}
+        \item $T(n) = 4 T(n/2) + \Theta(n)$
+        \item $T(n) = 2 T(n/2) + \Theta(n)$
+        \item $T(n) = 2 T(n/4) + \Theta(\sqrt{n})$
+    \end{enumerate}
 
-    \item \textbf{Data Science Application (Finding Square Root via Binary Search):} Write a function \texttt{sqrt\_binary\_search(val, tol=1e-5)} that uses binary search on the interval $[0, \text{val}]$ to find the square root of a non-negative float \texttt{val} within tolerance \texttt{tol}.
+    \item \textbf{Recursive String Palindrome Verification:}
+    Write a purely recursive function \texttt{is\_palindrome(text: str) -> bool} that tests whether a string is a palindrome without using loops, slices with negative step (\texttt{[::-1]}), or string reversal helpers. State the formal base cases.
+
+    \item \textbf{Continuous Bisection Search: Optimal Hyperparameter Thresholding:}
+    In binary classification, an ROC threshold $t \in [0, 1]$ needs to be chosen such that the model's predicted positive rate matches an observed target rate $r^* = 0.35$.
+    Assuming the positive rate function $P(t)$ is strictly monotonically decreasing with $P(0) = 1.0$ and $P(1) = 0.0$:
+    Write a Python function using continuous binary search that locates $t^*$ within tolerance $\epsilon = 10^{-5}$. How many bisections are mathematically required?
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions (Single Correct)}
+
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item \textbf{Binary Search Midpoint Selection and Search Space Halving:}
+    Suppose Binary Search is performed on a sorted list of length $n = 1024$. In the worst-case scenario where the target element is NOT present in the list, what is the maximum number of comparisons performed?
+    \begin{enumerate}
+        \item $11$
+        \item $10$
+        \item $1024$
+        \item $512$
+    \end{enumerate}
+
+    \item \textbf{Recursion Limit and Stack Overflow Mechanics:}
+    Consider the following function executed in CPython with default settings:
+    \begin{lstlisting}[language=Python]
+    def recurse(n):
+        if n == 0:
+            return 0
+        return recurse(n - 1)
+    recurse(1500)
+    \end{lstlisting}
+    What occurs during execution?
+    \begin{enumerate}
+        \item Returns \texttt{0}
+        \item \texttt{RecursionError: maximum recursion depth exceeded in comparison}
+        \item \texttt{MemoryError: out of heap memory}
+        \item \texttt{SegmentationFault: stack overflow}
+    \end{enumerate}
 \end{enumerate}

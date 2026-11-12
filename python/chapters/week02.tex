@@ -1,118 +1,359 @@
 \chapter{Control Flow \& Conditionals}
 
-Programs need to make decisions based on changing data. In Python, \index{Control Flow}\textbf{Control Flow} allows you to execute specific blocks of code depending on whether a given condition evaluates to \texttt{True} or \texttt{False}.
-
+Programs must make robust decisions based on changing, stochastic data. In Python, \index{Control Flow}\textbf{Control Flow} governs the execution trajectory of a program through conditional evaluation. Unlike lower-level compiled languages that enforce branch logic through explicit block delimiters (such as curly braces \texttt{\{\}}) and rigid boolean types, Python pairs significant whitespace indentation with an expressive \textbf{truth-value testing protocol} and short-circuit boolean semantics. In modern data science and machine learning, conditional branching serves as the foundational mechanism behind rule-based systems, data cleaning pipelines, and recursive decision-tree algorithms.
 
 \vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Conditional Statements (if
-    \item Nested Conditionals and Short-Circuit Evaluation
-    \item Importing Standard Libraries
+    \item \textbf{Target Competencies:} Master multi-way branching constructs (\texttt{if}, \texttt{elif}, \texttt{else}); formalize propositional logic and truth tables; evaluate Python's truth-value testing protocol across primitive and collection types; exploit short-circuit evaluation semantics and understand non-boolean return values; trace chained comparison operators and avoid operator precedence traps.
+    \item \textbf{Prerequisites:} Primitive data types, reference memory model, relational and arithmetic operators.
+    \item \textbf{Syntax \& Built-in Functions:} \texttt{if}, \texttt{elif}, \texttt{else}; logical operators (\texttt{and}, \texttt{or}, \texttt{not}); identity operator (\texttt{is}); conditional expressions (\texttt{x if cond else y}); \texttt{bool()}; \texttt{all()}, \texttt{any()}; \texttt{math.isclose()}.
 \end{itemize}
 \end{tcolorbox}
-\section{Conditional Statements (\texttt{if}, \texttt{elif}, \texttt{else})}
 
-\begin{intuitionbox}{Forks in the Road}
-Conditionals are simply forks in the road of your program. Without them, a program runs straight from top to bottom doing the exact same thing every time. With conditionals, the program becomes dynamic, choosing a different path based on the data it receives (like turning left if the light is green, and stopping if it is red).
-\end{intuitionbox}
+\section{Mathematical \& Computational Foundations}
 
-Python uses indentation (4 spaces) to define code blocks instead of curly braces \texttt{\{\}}.
+\subsection{Propositional Logic and Truth Tables}
 
-\begin{theorembox}{Syntax of Conditional Blocks}
-\begin{lstlisting}
-if condition_1:
-    # Executed if condition_1 is True
-elif condition_2:
-    # Executed if condition_1 is False AND condition_2 is True
-else:
-    # Executed if all above conditions are False
+\begin{definitionbox}{Boolean Logic and Connectives}
+\index{Propositional Logic} \index{Truth Tables}
+Let $P$ and $Q$ be propositional statements that evaluate to truth values in the set $\mathbb{B} = \{\text{True}, \text{False}\}$. Python provides three fundamental logical connectives:
+\begin{enumerate}
+    \item \textbf{Conjunction (\texttt{and}):} $P \land Q$ is \texttt{True} if and only if both $P$ and $Q$ are \texttt{True}.
+    \item \textbf{Disjunction (\texttt{or}):} $P \lor Q$ is \texttt{True} if at least one of $P$ or $Q$ is \texttt{True}.
+    \item \textbf{Negation (\texttt{not}):} $\neg P$ is \texttt{True} if $P$ is \texttt{False}, and \texttt{False} if $P$ is \texttt{True}.
+\end{enumerate}
+These operations follow \textbf{De Morgan's Laws}:
+\begin{equation}
+\neg(P \land Q) \iff (\neg P) \lor (\neg Q)
+\end{equation}
+\begin{equation}
+\neg(P \lor Q) \iff (\neg P) \land (\neg Q)
+\end{equation}
+\end{definitionbox}
+
+\subsection{The Python Truth-Value Testing Protocol}
+
+In Python, an expression tested inside an \texttt{if} or \texttt{while} condition does not strictly require an instance of \texttt{bool}. Instead, any object can be tested for truth value.
+
+\begin{theorembox}{Truthiness and Falsiness Hierarchy}
+\index{Truthiness} \index{Falsiness}
+By default, an object is considered \textbf{truthy} unless its class defines a \texttt{\_\_bool\_\_()} method that returns \texttt{False} or a \texttt{\_\_len\_\_()} method that returns \texttt{0}.
+The following built-in objects are strictly evaluated as \textbf{falsy}:
+\begin{itemize}
+    \item \textbf{Constants:} \texttt{None} and \texttt{False}.
+    \item \textbf{Numeric Zeros:} Integer \texttt{0}, float \texttt{0.0}, complex \texttt{0j}, \texttt{Decimal(0)}, \texttt{Fraction(0, 1)}.
+    \item \textbf{Empty Sequences and Collections:} Empty string \texttt{""}, empty tuple \texttt{()}, empty list \texttt{[]}, empty dictionary \texttt{\{\}}, empty set \texttt{set()}, empty \texttt{range(0)}.
+\end{itemize}
+All other objects---including non-empty strings (\texttt{"0"}, \texttt{"False"}), non-empty collections (\texttt{[0]}, \texttt{\{False\}}), and non-zero numbers---are evaluated as \textbf{truthy}.
+\end{theorembox}
+
+\subsection{Short-Circuit Evaluation and Return Values}
+
+\begin{theorembox}{Operational Semantics of Short-Circuit Evaluation}
+\index{Short-Circuit Evaluation}
+Python's logical operators \texttt{and} and \texttt{or} do not return explicit boolean flags; rather, they return the \textbf{actual operand value} that determined the outcome:
+\begin{enumerate}
+    \item \textbf{Expression \texttt{X and Y}:}
+    Python evaluates \texttt{X}. If \texttt{X} is falsy, evaluation terminates immediately (short-circuits) and returns \texttt{X}. If \texttt{X} is truthy, Python evaluates and returns \texttt{Y}.
+    \begin{equation}
+    \text{\texttt{X and Y}} = \begin{cases} X & \text{if } \text{bool}(X) = \text{False} \\ Y & \text{if } \text{bool}(X) = \text{True} \end{cases}
+    \end{equation}
+    \item \textbf{Expression \texttt{X or Y}:}
+    Python evaluates \texttt{X}. If \texttt{X} is truthy, evaluation terminates immediately and returns \texttt{X}. If \texttt{X} is falsy, Python evaluates and returns \texttt{Y}.
+    \begin{equation}
+    \text{\texttt{X or Y}} = \begin{cases} X & \text{if } \text{bool}(X) = \text{True} \\ Y & \text{if } \text{bool}(X) = \text{False} \end{cases}
+    \end{equation}
+\end{enumerate}
+This ensures that expensive computations or potentially crashing operations (e.g., division by zero or index access) on the right-hand side are never executed if the left operand guarantees the result:
+\begin{lstlisting}[language=Python]
+# Division by zero is completely avoided:
+if count != 0 and (total / count) > threshold:
+    process_average()
 \end{lstlisting}
 \end{theorembox}
 
-\begin{examplebox}{Categorizing Credit Scores}
-\begin{lstlisting}
-credit_score = 720
+\subsection{Chained Comparison Invariant}
 
-if credit_score >= 750:
-    status = "Excellent"
-elif credit_score >= 650:
-    status = "Good"
-elif credit_score >= 550:
-    status = "Fair"
-else:
-    status = "Poor"
+\begin{theorembox}{Equivalence of Chained Comparisons}
+\index{Chained Comparisons}
+In mathematics, writing $a < b \le c$ asserts that $b$ is strictly bounded between $a$ and $c$. In Python, comparison operators chain arbitrarily:
+\begin{equation}
+a \mathbin{\text{op}_1} b \mathbin{\text{op}_2} c \iff (a \mathbin{\text{op}_1} b) \land (b \mathbin{\text{op}_2} c)
+\end{equation}
+Crucially, the middle subexpression $b$ is \textbf{evaluated exactly once}. If $a \mathbin{\text{op}_1} b$ is \texttt{False}, $c$ is never evaluated at all.
+\end{theorembox}
 
-print(f"Credit Status: {status}")  # Output: Credit Status: Good
-\end{lstlisting}
-\end{examplebox}
+\section{Visual \& Computational Intuition: Decision Flow and State Space}
 
-\textbf{Data Science Relevance:} Decision Tree models (like Random Forests and XGBoost) work under the hood as a giant hierarchy of \texttt{if-elif-else} checks on feature columns!
+A conditional statement partitions the state space of a program into disjoint execution branches. In machine learning, a decision tree constitutes a hierarchical cascade of orthogonal hyperplanes partitioning $\mathbb{R}^d$.
 
-\begin{videocard}{IITM BS Lecture: Introduction to the IF Statement}{https://www.youtube.com/watch?v=FTX5wF_3J9Q}
-Official lecture explaining logical branching, indentation rules, and conditional execution.
-\end{videocard}
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    decision/.style={diamond, draw=primarydark, fill=primarylight!50, thick, text width=2.4cm, align=center, inner sep=1pt, font=\small\bfseries},
+    block/.style={rectangle, draw=forest, fill=forest!10, thick, rounded corners, text width=2.8cm, align=center, minimum height=0.9cm, font=\small},
+    leaf/.style={rectangle, draw=accent, fill=accent!15, thick, rounded corners, text width=2.2cm, align=center, minimum height=0.8cm, font=\small\bfseries},
+    line/.style={draw=primarydark, -stealth, thick}
+]
+    % Root Node
+    \node[decision] (d1) at (0, 0) {Score $\ge 750$?};
+    
+    % First Branch
+    \node[leaf] (l1) at (4.2, 0) {Status: "Tier 1"\\(Prime)};
+    \node[decision] (d2) at (0, -2.5) {Score $\ge 650$?};
+    
+    % Second Branch
+    \node[leaf] (l2) at (4.2, -2.5) {Status: "Tier 2"\\(Standard)};
+    \node[decision] (d3) at (0, -5.0) {Score $\ge 550$?};
+    
+    % Third Branch
+    \node[leaf] (l3) at (4.2, -5.0) {Status: "Tier 3"\\(Subprime)};
+    \node[leaf] (l4) at (0, -7.2) {Status: "Tier 4"\\(Reject)};
 
-\begin{videocard}{IITM BS Tutorial: If, Else, and Elif Conditions}{https://www.youtube.com/watch?v=-dBqiRCHbNw}
-Hands-on tutorial with multiple practical examples of complex boolean expressions.
-\end{videocard}
+    % Connectors
+    \path[line] (d1) -- node[above, font=\footnotesize\bfseries, color=forest] {True} (l1);
+    \path[line] (d1) -- node[left, font=\footnotesize\bfseries, color=red!70!black] {False} (d2);
+    
+    \path[line] (d2) -- node[above, font=\footnotesize\bfseries, color=forest] {True} (l2);
+    \path[line] (d2) -- node[left, font=\footnotesize\bfseries, color=red!70!black] {False} (d3);
+    
+    \path[line] (d3) -- node[above, font=\footnotesize\bfseries, color=forest] {True} (l3);
+    \path[line] (d3) -- node[left, font=\footnotesize\bfseries, color=red!70!black] {False} (l4);
 
-\section{Nested Conditionals and Short-Circuit Evaluation}
+\end{tikzpicture}
+\caption{Sequential Decision Cascade: Partitioning feature space into mutually exclusive decision regimes.}
+\label{fig:decision_flow}
+\end{figure}
 
-You can nest \texttt{if} blocks inside other \texttt{if} blocks. When evaluating compound boolean expressions using \texttt{and} and \texttt{or}, Python uses \index{Short-Circuit Evaluation}\textbf{Short-Circuit Evaluation}:
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Conditional Expressions (The Ternary Operator)}
+Python supports inline conditional expressions that yield values rather than controlling control blocks:
+\begin{equation}
+\text{\texttt{result = Expr\_True if Condition else Expr\_False}}
+\end{equation}
+Unlike C-style ternary operators (\texttt{cond ? expr1 : expr2}), Python places the condition between the expressions to reflect natural English readability. The expression lazily evaluates: if \texttt{Condition} is truthy, \texttt{Expr\_False} is never evaluated.
+
+\subsection{Module Imports and the Namespace Architecture}
+When expanding conditional logic with math routines or random sampling, we import Python standard modules:
 \begin{itemize}
-    \item In \texttt{A and B}, if \texttt{A} is \texttt{False}, Python stops immediately and returns \texttt{False} without evaluating \texttt{B}.
-    \item In \texttt{A or B}, if \texttt{A} is \texttt{True}, Python stops immediately and returns \texttt{True} without evaluating \texttt{B}.
+    \item \texttt{import math}: Loads module into memory, binds identifier \texttt{math} to the module object. Requires qualified access: \texttt{math.sqrt(x)}.
+    \item \texttt{from math import sqrt, pi}: Imports specific attributes into the current namespace. Allows direct invocation: \texttt{sqrt(x)}.
+    \item \texttt{import numpy as np}: Binds the module object to an alias, preventing namespace pollution while maintaining brevity.
 \end{itemize}
 
-\section{Importing Standard Libraries}
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
 
-Python comes with a rich standard library of useful modules (like \texttt{math} and \texttt{random}). You can import them using different import syntaxes.
-
-\begin{definitionbox}{Library Import Syntaxes}
-\index{Library Import Syntaxes}
-\begin{lstlisting}
-import math
-print(math.sqrt(16))  # 4.0
-
-import random as rd  # Using an alias
-print(rd.randint(1, 6)) # Random integer from 1 to 6
-
-from math import pi, log
-print(log(10))
+\begin{trapbox}{Bitwise (\texttt{\&}, \texttt{|}) vs Logical (\texttt{and}, \texttt{or}) Precedence}
+Using bitwise operators \texttt{\&} and \texttt{|} instead of logical operators in boolean conditionals is dangerous:
+\begin{lstlisting}[language=Python]
+x = 5
+# Intention: check if x is between 0 and 10
+if x > 0 & x < 10:  # BUG!
+    print("In range")
 \end{lstlisting}
-\end{definitionbox}
+Because bitwise \texttt{\&} has higher operator precedence than comparison \texttt{>}, Python parses this expression as:
+\begin{equation*}
+x > (0 \mathbin{\&} x) < 10 \implies 5 > 0 < 10 \implies (5 > 0) \land (0 < 10)
+\end{equation*}
+While it coincidentally evaluates to \texttt{True} here, if $x = 0$, $0 > (0 \& 0) < 10 \implies 0 > 0 < 10 \implies \text{False}$, but with complex types or arrays, this triggers severe type errors or logical corruptions! Always use \texttt{and} / \texttt{or} for scalar booleans.
+\end{trapbox}
 
-\begin{videocard}{IITM BS Lecture: Importing Libraries in Python}{https://www.youtube.com/watch?v=eW58_ky7oc8}
-Official lecture comparing \texttt{import module}, \texttt{import module as alias}, and \texttt{from module import function}.
-\end{videocard}
+\begin{trapbox}{Short-Circuit Operand Masking with Non-Booleans}
+Because \texttt{or} and \texttt{and} return operand objects rather than booleans, assigning fallback defaults can introduce silent bugs:
+\begin{lstlisting}[language=Python]
+# Fallback idiom: use default if input is empty
+user_limit = input_val or 100
+\end{lstlisting}
+If \texttt{input\_val} is explicitly set to \texttt{0} (a legitimate non-negative threshold), Python treats \texttt{0} as falsy and silently overwrites it with \texttt{100}! Correct idiom: \texttt{user\_limit = input\_val if input\_val is not None else 100}.
+\end{trapbox}
+
+\begin{trapbox}{Float Equality in Branching Conditions}
+Never test floating-point numbers for exact equality inside conditionals:
+\begin{lstlisting}[language=Python]
+total = 0.1 + 0.2
+if total == 0.3:  # Evaluates to False!
+    print("Match")
+\end{lstlisting}
+Because $0.1 + 0.2 = 0.30000000000000004$, strict equality fails. Always use tolerance-based comparisons:
+\begin{lstlisting}[language=Python]
+import math
+if math.isclose(total, 0.3, rel_tol=1e-9):
+    print("Match")  # Evaluates to True!
+\end{lstlisting}
+\end{trapbox}
+
+\begin{trapbox}{Chained Comparison Misinterpretation}
+Consider the expression: \texttt{3 > 2 == 1}.
+Programmers familiar with left-to-right parenthesization might expect:
+\begin{equation*}
+(3 > 2) == 1 \implies \text{True} == 1 \implies \text{True}
+\end{equation*}
+In Python, this is a chained comparison, expanding to:
+\begin{equation*}
+(3 > 2) \land (2 == 1) \implies \text{True} \land \text{False} \implies \mathbf{False}
+\end{equation*}
+Never rely on mixed-operator chaining across inequalities and equalities without explicit parentheses.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2.8cm} p{2.2cm} p{3.8cm} p{4.2cm}}
+\hline
+\textbf{Construct} & \textbf{Operator} & \textbf{Evaluation Behavior} & \textbf{Primary Use Case} \\
+\hline
+\textbf{Logical AND} & \texttt{and} & Short-circuits on first falsy; returns determining object & Guard conditions: \texttt{ptr is not None and ptr.val > 0} \\
+\textbf{Logical OR} & \texttt{or} & Short-circuits on first truthy; returns determining object & Fallback values and multi-criteria filters \\
+\textbf{Logical NOT} & \texttt{not} & Always returns strict \texttt{bool} (\texttt{True}/\texttt{False}) & Inverting boolean states and flags \\
+\textbf{Bitwise AND} & \texttt{\&} & Evaluates both sides; bit-level AND & Bitmasking and NumPy/Pandas boolean series \\
+\textbf{Bitwise OR} & \texttt{|} & Evaluates both sides; bit-level OR & Bit flags and NumPy/Pandas elementwise union \\
+\textbf{Ternary Expr} & \texttt{if-else} & Lazily evaluates selected branch & Compact feature mapping and lambda functions \\
+\textbf{Chained Comp} & \texttt{a < b < c} & Expands to \texttt{(a<b) and (b<c)}; $b$ evaluated once & Boundary clipping, interval inclusion tests \\
+\hline
+\end{tabular}
+\caption{Taxonomy of Python Conditional and Logical Constructs.}
+\label{tab:conditionals_summary}
+\end{table}
+
+\section{Python / Scientific Computing Lab}
+
+The following industrial script implements an anomaly-scoring and credit-risk decision engine utilizing short-circuit guards, tolerance comparisons, and chained conditional thresholds.
+
+\begin{lstlisting}[language=Python]
+import math
+
+def evaluate_credit_application(applicant: dict) -> dict:
+    """
+    Evaluates credit risk and approval status using layered conditionals,
+    short-circuit safeguards, and chained comparisons.
+    """
+    # Guard clause: applicant must provide valid records
+    if not applicant or "income" not in applicant or "credit_score" not in applicant:
+        return {"status": "REJECTED", "reason": "Incomplete documentation"}
+
+    income = applicant["income"]
+    score = applicant["credit_score"]
+    dti = applicant.get("debt_to_income", 0.0)  # debt-to-income ratio
+
+    # Guard clause: numerical validity
+    if income <= 0 or not (300 <= score <= 850):
+        return {"status": "REJECTED", "reason": "Invalid numerical parameters"}
+
+    # Decision tree hierarchy
+    if score >= 750 and dti < 0.35:
+        tier = "Tier 1: Prime"
+        base_rate = 0.055
+    elif 650 <= score < 750 and dti < 0.45:
+        tier = "Tier 2: Near Prime"
+        base_rate = 0.085
+    elif 580 <= score < 650 and dti < 0.50:
+        tier = "Tier 3: Subprime"
+        base_rate = 0.125
+    else:
+        return {"status": "REJECTED", "reason": "Credit profile exceeds risk parameters"}
+
+    # High net-worth adjustment using ternary operator
+    rate_discount = 0.005 if income >= 120000 else 0.0
+    final_rate = max(0.02, base_rate - rate_discount)
+
+    # Floating point precision check for rate ceiling
+    if math.isclose(final_rate, 0.05, abs_tol=1e-5):
+        rate_category = "Benchmark"
+    else:
+        rate_category = "Custom"
+
+    return {
+        "status": "APPROVED",
+        "tier": tier,
+        "interest_rate": round(final_rate, 4),
+        "rate_category": rate_category
+    }
+
+# Unit tests
+test_client = {"income": 135000, "credit_score": 780, "debt_to_income": 0.28}
+decision = evaluate_credit_application(test_client)
+print("Application Decision:", decision)
+# Output: Application Decision: {'status': 'APPROVED', 'tier': 'Tier 1: Prime', 
+#         'interest_rate': 0.05, 'rate_category': 'Benchmark'}
+\end{lstlisting}
 
 \newpage
-\section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\section{Comprehensive Practice Problems}
+\textit{Detailed step-by-step solutions and distractor analyses are provided in the Appendix.}
+
+\subsection*{Part A: Computational \& Analytical Problems}
 
 \begin{enumerate}
-    \item \textbf{Leap Year Logic:} A year is a leap year if it is divisible by 4, EXCEPT if it is divisible by 100 (unless it is also divisible by 400). Write a Python script with an \texttt{if-else} statement to determine whether \texttt{year = 2024} is a leap year.
+    \item \textbf{Astronomical Calendar Invariant (Leap Year Logic):}
+    According to the Gregorian calendar reform:
+    \begin{enumerate}
+        \item Every year divisible by 4 is a leap year,
+        \item EXCEPT years divisible by 100, which are NOT leap years,
+        \item UNLESS the year is also divisible by 400, in which case it IS a leap year.
+    \end{enumerate}
+    Formulate the single boolean expression $L(y)$ that evaluates to \texttt{True} if and only if year $y$ is a leap year. Trace its evaluation for $y = 1900$, $y = 2000$, and $y = 2024$.
 
-    \item \textbf{Short-Circuit Evaluation:} What will be printed by the following code snippet?
-\begin{lstlisting}
-x = 0
-if x != 0 and (10 / x > 2):
-    print("Valid")
-else:
-    print("Safe")
-\end{lstlisting}
-    Explain why Python does not crash with a \texttt{ZeroDivisionError}.
+    \item \textbf{Short-Circuit Evaluation and Non-Boolean Return Values:}
+    Determine the exact runtime evaluation result (data type and value) of the following Python expressions without executing them in a Python shell:
+    \begin{enumerate}
+        \item \texttt{res1 = [] and 42}
+        \item \texttt{res2 = "Python" or None}
+        \item \texttt{res3 = 0 or (False and [1, 2]) or "Default"}
+        \item \texttt{res4 = not "" and (3 > 2)}
+    \end{enumerate}
 
-    \item \textbf{Ternary Operator (Conditional Expression):} In Python, you can write concise 1-line conditionals: \texttt{val = A if condition else B}. Convert the following block into a 1-line ternary expression:
-\begin{lstlisting}
-if score >= 50:
-    result = "Pass"
-else:
-    result = "Fail"
-\end{lstlisting}
+    \item \textbf{Chained Comparisons \& Compound Range Partitioning:}
+    Analyze the following snippet. What will be printed, and why?
+    \begin{lstlisting}[language=Python]
+    x = 10
+    val = (5 < x < 20 == 20)
+    print("Result:", val)
+    \end{lstlisting}
 
-    \item \textbf{Random Sampling:} Write a 3-line script that imports the \texttt{random} library and simulates rolling two 6-sided dice, printing their individual values and total sum.
+    \item \textbf{Ternary Conditional \& Dynamic Feature Normalization:}
+    In feature engineering, we often replace missing or out-of-bound values with a median clamp. Write a single-line Python assignment using the ternary conditional expression that assigns to \texttt{norm\_x} the value of $x$ clamped between lower bound $L$ and upper bound $U$ (assume $L \le U$).
 
-    \item \textbf{Data Science Application (Anomaly Detection):} An IoT sensor sends temperature readings. If the temperature is between $18^\circ$C and $28^\circ$C (inclusive), it is \texttt{"Normal"}. If it is below $18^\circ$C, it is \texttt{"Warning: Low Temp"}. If it exceeds $28^\circ$C, it is \texttt{"Alert: Overheating"}. Write the \texttt{if-elif-else} block for \texttt{temp = 31.5}.
+    \item \textbf{Decision Boundary Modeling in 2D Feature Space:}
+    A binary classification model assigns label $\hat{y} = 1$ if a data point $(x_1, x_2)$ falls inside the polygon bounded by:
+    $x_1 \ge 0, \quad x_2 \ge 0, \quad x_1 + x_2 \le 4, \quad \text{and} \quad (x_1 \le 2 \lor x_2 \le 2)$.
+    Write an optimal Python function \texttt{classify(x1, x2)} implementing this logic with minimal evaluation overhead.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions (Single Correct)}
+
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item \textbf{Operator Precedence and Bitwise vs. Logical Traps:}
+    Consider the following code snippet executed in a clean Python 3 environment:
+    \begin{lstlisting}[language=Python]
+    a = 4
+    b = 8
+    result = a < 5 & b > 6
+    \end{lstlisting}
+    What is the evaluated value of \texttt{result}?
+    \begin{enumerate}
+        \item \texttt{True}
+        \item \texttt{False}
+        \item \texttt{TypeError: unsupported operand type(s) for \&: 'int' and 'int'}
+        \item \texttt{SyntaxError: invalid syntax}
+    \end{enumerate}
+
+    \item \textbf{Evaluation Order and Truthiness Semantics:}
+    Given the variables:
+    \begin{lstlisting}[language=Python]
+    items = []
+    default_items = ["root"]
+    output = items or default_items and items.append("init")
+    \end{lstlisting}
+    What is the final value of \texttt{output} and the contents of \texttt{items}?
+    \begin{enumerate}
+        \item \texttt{output = None}, \quad \texttt{items = ["init"]}
+        \item \texttt{output = ["root"]}, \quad \texttt{items = []}
+        \item \texttt{output = ["init"]}, \quad \texttt{items = ["init"]}
+        \item \texttt{output = []}, \quad \texttt{items = []}
+    \end{enumerate}
 \end{enumerate}

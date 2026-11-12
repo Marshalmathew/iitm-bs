@@ -1,34 +1,37 @@
 \chapter{Joint \& Marginal Discrete PMFs, Conditional Distributions}
 
-In real-world data science, outcomes rarely depend on a single variable in isolation. We often observe pairs or vectors of random variables simultaneously. In this chapter, we extend single-variable probability concepts to \textbf{Joint Probability Mass Functions (Joint PMFs)}, \index{Marginal Distributions}\textbf{Marginal Distributions}, and \index{Conditional Distributions}\textbf{Conditional Distributions} for discrete random variables.
-
+In real-world data science, outcomes rarely depend on a single variable in isolation. We often observe pairs or vectors of random variables simultaneously---such as a user's device type and their likelihood of converting, or a borrower's credit score and their default status. In this chapter, we extend univariate probability to \textbf{Joint Probability Mass Functions (Joint PMFs)}, \index{Marginal Distributions}\textbf{Marginal Distributions}, and \index{Conditional Distributions}\textbf{Conditional Distributions} for discrete random variables.
 
 \vspace{0.5cm}
 \begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
 \begin{itemize}
-    \item Joint Probability Mass Function (Joint PMF)
-    \item Marginal PMFs
-    \item Conditional PMFs
+    \item Formal construction and normalization axioms of bivariate discrete Joint PMFs $p_{X,Y}(x, y)$.
+    \item The process of \textbf{marginalization} (summing out nuisance variables).
+    \item Construction and probabilistic interpretation of \textbf{conditional distributions} $p_{X|Y}(x \mid y)$.
+    \item The fundamental distinction between marginals and joints: why marginals do not determine the joint distribution.
+    \item Contingency tables in pandas for tabular data analysis.
 \end{itemize}
 \end{tcolorbox}
+
 \section{Joint Probability Mass Function (Joint PMF)}
 
-When two discrete random variables $X$ and $Y$ are defined on the same sample space, their combined behavior is specified by their \index{Joint PMF}\textbf{Joint PMF}.
+When two discrete random variables $X$ and $Y$ are defined on the same underlying sample space $\Omega$, their simultaneous behavior is completely governed by their \index{Joint PMF}\textbf{Joint PMF}.
 
 \begin{definitionbox}{Joint PMF $p_{X,Y}(x, y)$}
 The \textbf{Joint Probability Mass Function} of discrete random variables $X$ and $Y$ is defined as:
 $$p_{X,Y}(x, y) = \P(X = x \text{ and } Y = y) = \P(X = x, Y = y)$$
-A valid joint PMF must satisfy two fundamental conditions:
+A mathematically valid bivariate joint PMF must satisfy two axiomatic conditions:
 \begin{enumerate}
-    \item Non-negativity: $p_{X,Y}(x, y) \ge 0$ for all $(x, y)$.
-    \item Normalization: $\sum_{x} \sum_{y} p_{X,Y}(x, y) = 1$.
+    \item \textbf{Non-negativity:} $p_{X,Y}(x, y) \ge 0$ for all $(x, y) \in \mathcal{R}_{X,Y}$.
+    \item \textbf{Total Normalization:} The sum over the entire joint support must equal unity:
+    $$\sum_{x \in \mathcal{R}_X} \sum_{y \in \mathcal{R}_Y} p_{X,Y}(x, y) = 1$$
 \end{enumerate}
 \end{definitionbox}
 
 \begin{examplebox}{Two Dice Roll Joint PMF}
-Let $X$ be the number shown on die 1 and $Y$ be the number on die 2. Since the dice are independent and fair:
-$$p_{X,Y}(x, y) = \frac{1}{36} \quad \text{for } x \in \{1,\dots,6\}, y \in \{1,\dots,6\}$$
-The sum of all 36 probabilities is $36 \times \frac{1}{36} = 1$.
+Let $X$ be the outcome of die 1 and $Y$ be the outcome of die 2. Because the dice are fair and independent:
+$$p_{X,Y}(x, y) = \frac{1}{36} \quad \text{for } x \in \{1,\dots,6\}, \; y \in \{1,\dots,6\}$$
+Summing across all 36 grid cells gives $\sum_{x=1}^6 \sum_{y=1}^6 \frac{1}{36} = 36 \times \frac{1}{36} = 1$.
 \end{examplebox}
 
 \begin{videocard}{IITM BS Lecture: Joint PMF of Two Discrete Random Variables}{https://www.youtube.com/watch?v=MNwap6ewego}
@@ -37,79 +40,133 @@ Official lecture introducing joint probability tables, bivariate discrete distri
 
 \section{Marginal PMFs}
 
-\begin{intuitionbox}{Marginalization is "Squashing" Data}
-Imagine a 3D bar chart where $X$ is on the floor pointing left, $Y$ is on the floor pointing forward, and the bars grow upwards representing probability. "Marginalizing out Y" is like shining a flashlight from the front so that all the bars squash against the back wall. You lose the specific $Y$ information, but you perfectly preserve the total probability of each $X$ slice!
+\begin{intuitionbox}{Marginalization is "Collapsing Dimensions"}
+Imagine a 3D bar chart where $X$ represents rows, $Y$ represents columns, and the vertical height of each tower represents probability mass. "Marginalizing out $Y$" corresponds to collapsing all columns into the left margin. You discard the granular breakdown across $Y$, but you retain the exact total probability for each value of $X$.
 \end{intuitionbox}
 
-\begin{lstlisting}[language=Python, caption=Data Science: Marginal distributions via pandas crosstab]
+\begin{lstlisting}[language=Python, caption=Data Science: Computing Joint and Marginal PMFs in Pandas]
 import pandas as pd
 
-# Creating a joint frequency table
-df = pd.DataFrame({"Device": ["Mobile", "Mobile", "Desktop", "Desktop"],
-                   "Click":  [0, 1, 0, 1]})
+# Creating a joint frequency dataset
+df = pd.DataFrame({
+    "Device": ["Mobile", "Mobile", "Desktop", "Desktop", "Mobile", "Desktop"],
+    "Clicked": [0, 1, 0, 1, 0, 0]
+})
 
-# 'margins=True' computes the Marginal Distributions!
-joint_pmf = pd.crosstab(df['Device'], df['Click'], margins=True, normalize=True)
-print(joint_pmf)
+# Normalize='all' produces the Joint PMF; margins=True computes Marginal PMFs
+contingency_table = pd.crosstab(
+    df['Device'], 
+    df['Clicked'], 
+    normalize='all', 
+    margins=True, 
+    margins_name="Marginal Total"
+)
+print(contingency_table)
 \end{lstlisting}
 
-Given the joint PMF $p_{X,Y}(x, y)$, we can recover the individual distribution of $X$ alone (or $Y$ alone) by summing over all possible values of the other variable. This process is called \index{Marginalization}\textbf{Marginalization}.
+Given the joint PMF $p_{X,Y}(x, y)$, we recover the individual univariate distribution of $X$ alone (or $Y$ alone) by summing over all possible values of the unwanted variable. This process is called \index{Marginalization}\textbf{Marginalization}.
 
 \begin{formulabox}{Marginal PMF Formulas}
 \begin{itemize}
-    \item \textbf{Marginal PMF of $X$:}
+    \item \textbf{Marginal PMF of $X$ (summing over all $y$):}
+    $$p_X(x) = \P(X = x) = \sum_{y \in \mathcal{R}_Y} p_{X,Y}(x, y)$$
+    \item \textbf{Marginal PMF of $Y$ (summing over all $x$):}
+    $$p_Y(y) = \P(Y = y) = \sum_{x \in \mathcal{R}_X} p_{X,Y}(x, y)$$
 \end{itemize}
-  $$p_X(x) = \P(X = x) = \sum_{y} p_{X,Y}(x, y)$$
-\begin{itemize}
-    \item \textbf{Marginal PMF of $Y$:}
-\end{itemize}
-  $$p_Y(y) = \P(Y = y) = \sum_{x} p_{X,Y}(x, y)$$
 \end{formulabox}
 
 \begin{examplebox}{Step-by-Step Marginalization}
-Consider a joint PMF table for $X$ (rows: 0, 1) and $Y$ (cols: 1, 2):
-$p_{X,Y}(0,1) = 0.1, \quad p_{X,Y}(0,2) = 0.3$
-$p_{X,Y}(1,1) = 0.4, \quad p_{X,Y}(1,2) = 0.2$
-To find the marginal probability $p_X(0) = \P(X=0)$, we sum across the row for $X=0$:
-$$p_X(0) = p_{X,Y}(0,1) + p_{X,Y}(0,2) = 0.1 + 0.3 = 0.4$$
-Similarly, $p_X(1) = 0.4 + 0.2 = 0.6$. Note that $0.4 + 0.6 = 1$.
+Consider a joint PMF table for $X \in \{0, 1\}$ and $Y \in \{1, 2\}$:
+\begin{center}
+\begin{tabular}{c|cc|c}
+$p_{X,Y}(x, y)$ & $Y = 1$ & $Y = 2$ & \textbf{Marginal $p_X(x)$} \\
+\hline
+$X = 0$ & $0.10$ & $0.30$ & $\mathbf{0.40}$ \\
+$X = 1$ & $0.40$ & $0.20$ & $\mathbf{0.60}$ \\
+\hline
+\textbf{Marginal $p_Y(y)$} & $\mathbf{0.50}$ & $\mathbf{0.50}$ & $\mathbf{1.00}$ \\
+\end{tabular}
+\end{center}
+Summing row $X=0$: $p_X(0) = 0.10 + 0.30 = 0.40$. Summing row $X=1$: $p_X(1) = 0.40 + 0.20 = 0.60$. Note that $0.40 + 0.60 = 1.00$.
 \end{examplebox}
 
-\textbf{Data Science Relevance:} In tabular data (e.g. customer churn vs age bracket), computing column totals or row totals in a contingency table corresponds directly to finding marginal PMFs!
-
 \begin{videocard}{IITM BS Lecture: Marginal PMF of Discrete Random Variables}{https://www.youtube.com/watch?v=exwWKHFV3GA}
-Official lecture deriving row/column marginal distributions from joint probability tables.
+Official lecture deriving row and column marginal distributions from joint probability tables.
 \end{videocard}
 
 \section{Conditional PMFs}
 
-How does knowing the value of $Y$ update our belief about the distribution of $X$? This is captured by the \index{Conditional PMF}\textbf{Conditional PMF}.
+When we observe that $Y = y$, how does that knowledge update the distribution of $X$? This updated belief is the \index{Conditional PMF}\textbf{Conditional PMF}.
 
 \begin{definitionbox}{Conditional PMF $p_{X|Y}(x \mid y)$}
-For any $y$ such that $p_Y(y) > 0$, the \index{Conditional PMF}\textbf{Conditional PMF} of $X$ given $Y = y$ is:
-$$p_{X|Y}(x \mid y) = \P(X = x \mid Y = y) = \frac{p_{X,Y}(x, y)}{p_Y(y)}$$
-For a fixed $y$, $\sum_{x} p_{X|Y}(x \mid y) = 1$, making $p_{X|Y}(\cdot \mid y)$ a valid probability distribution over $x$.
+For any fixed value $y$ where $p_Y(y) > 0$, the \textbf{Conditional PMF} of $X$ given $Y = y$ is:
+$$p_{X|Y}(x \mid y) = \P(X = x \mid Y = y) = \frac{p_{X,Y}(x, y)}{p_Y(y)} = \frac{p_{X,Y}(x, y)}{\sum_{x'} p_{X,Y}(x', y)}$$
+For a fixed $y$, summing over all $x$ yields exactly 1:
+$$\sum_{x \in \mathcal{R}_X} p_{X|Y}(x \mid y) = \sum_{x \in \mathcal{R}_X} \frac{p_{X,Y}(x, y)}{p_Y(y)} = \frac{p_Y(y)}{p_Y(y)} = 1$$
+Thus, for any observed $y$, $p_{X|Y}(\cdot \mid y)$ is a genuine, fully normalized univariate PMF.
 \end{definitionbox}
-
-\begin{warningbox}{Conditioning vs Marginalizing}
-A very common mistake is confusing $p_{X|Y}(x \mid y)$ with $p_{X,Y}(x, y)$. The joint probability $p_{X,Y}(x, y)$ is the probability that \textbf{both} $X=x$ and $Y=y$ happen out of the entire sample space. The conditional probability $p_{X|Y}(x \mid y)$ is the probability that $X=x$ happens, \textbf{restricting the universe only to cases where $Y=y$ has already happened}. The denominator $p_Y(y)$ is the scaling factor that forces the new restricted universe to sum to 1!
-\end{warningbox}
 
 \begin{videocard}{IITM BS Lecture: Conditional Distribution of One Random Variable Given Another}{https://www.youtube.com/watch?v=6eQxA6ElXOo}
 Official lecture defining conditional PMFs and constructing conditional probability slices.
 \end{videocard}
 
+\section{Exam Gotchas \& Cognitive Traps}
+
+\begin{trapbox}{Marginals Alone Do NOT Determine the Joint PMF}
+\textbf{The Trap:} Assuming that if you know the marginal distributions $p_X(x)$ and $p_Y(y)$, you can uniquely reconstruct the joint distribution $p_{X,Y}(x, y)$.
+
+\textbf{The Reality:} You \emph{cannot} reconstruct the joint distribution from marginals unless $X$ and $Y$ are already known to be independent. Infinitely many distinct joint distributions share identical marginals!
+
+For example, consider two variables $X, Y \in \{0, 1\}$ with marginals $p_X(0)=0.5, p_Y(0)=0.5$.
+\begin{itemize}
+    \item \textbf{Case A (Independent):} $p_{X,Y}(0,0)=0.25, \; p_{X,Y}(0,1)=0.25, \; p_{X,Y}(1,0)=0.25, \; p_{X,Y}(1,1)=0.25$.
+    \item \textbf{Case B (Perfect Correlation $X=Y$):} $p_{X,Y}(0,0)=0.50, \; p_{X,Y}(0,1)=0, \; p_{X,Y}(1,0)=0, \; p_{X,Y}(1,1)=0.50$.
+\end{itemize}
+Both cases have identical marginals ($0.5, 0.5$), but represent radically different physical universes!
+\end{trapbox}
+
+\begin{trapbox}{The Conditioning Index Summation Trap}
+\textbf{The Trap:} Writing $\sum_y p_{X|Y}(x \mid y) = 1$.
+
+\textbf{The Reality:} This sum is generally \textbf{not} equal to 1.
+\begin{itemize}
+    \item $\sum_x p_{X|Y}(x \mid y) = 1$ is \textbf{always true} (for fixed condition $y$, the probabilities over all possible outcomes $x$ sum to 1).
+    \item $\sum_y p_{X|Y}(x \mid y)$ sums over the condition $y$ for a fixed outcome $x$. This sum has no requirement to equal 1, and frequently equals values far above or below 1.
+\end{itemize}
+\end{trapbox}
+
+\section{Comparative Synthesis Matrix}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{3.2cm}p{3.8cm}p{3.8cm}p{3.5cm}}
+\toprule
+\textbf{Feature} & \textbf{Joint PMF $p_{X,Y}(x, y)$} & \textbf{Marginal PMF $p_X(x)$} & \textbf{Conditional PMF $p_{X|Y}(x \mid y)$} \\
+\midrule
+\textbf{Probabilistic Meaning} & $\P(X=x \text{ AND } Y=y)$ & $\P(X=x)$ regardless of $Y$ & $\P(X=x)$ given that $Y=y$ occurred \\
+\addlinespace
+\textbf{Reference Universe} & Entire joint space $\Omega$ & Entire joint space $\Omega$ & Restricted slice where $Y=y$ \\
+\addlinespace
+\textbf{Summation Condition} & $\sum_x \sum_y p_{X,Y}(x,y) = 1$ & $\sum_x p_X(x) = 1$ & $\sum_x p_{X|Y}(x \mid y) = 1$ (fixed $y$) \\
+\addlinespace
+\textbf{Information Content} & Full bivariate information + dependence & Univariate only (loses interaction) & Univariate behavior conditioned on evidence \\
+\addlinespace
+\textbf{Pandas Equivalent} & \texttt{crosstab(..., normalize='all')} & Row/Column sums \texttt{df.sum(axis=...)} & Row normalized \texttt{crosstab(..., normalize='index')} \\
+\bottomrule
+\end{tabular}
+\caption{Comparison of Joint, Marginal, and Conditional Discrete Distributions.}
+\end{table}
+
 \begin{videocard}{IITM BS Lecture: Joint PMF of More Than Two Random Variables}{https://www.youtube.com/watch?v=1d-6FI33HmY}
 Official lecture extending joint PMFs and conditional distributions to multivariate vectors $(X_1, X_2, \dots, X_n)$.
 \end{videocard}
 
-\vspace{0.3cm}
-\textbf{Checkpoint:} If $X$ and $Y$ are independent random variables, what does the conditional PMF $p_{X|Y}(x \mid y)$ equal?
-\vspace{0.3cm}
-
 \newpage
 \section{Practice Exercises}
 \textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\subsection*{Part A: Analytical \& Computational Problems}
 
 \begin{enumerate}
 \item \textbf{Joint PMF Table Verification:} The joint PMF of $X \in \{0, 1\}$ and $Y \in \{1, 2\}$ is given by the table:
@@ -140,4 +197,28 @@ Find the value of constant $k$ so that $p_{X,Y}$ is a valid joint PMF.
 \item \textbf{Data Science Application (A/B Testing Click-Through Distribution):} In an online ad campaign, $X \in \{0, 1\}$ represents device type ($0 = \text{Mobile}, 1 = \text{Desktop}$) and $Y \in \{0, 1\}$ represents click outcome ($0 = \text{No Click}, 1 = \text{Click}$). Given joint probabilities:
 $$p_{X,Y}(0,0) = 0.50, \quad p_{X,Y}(0,1) = 0.10, \quad p_{X,Y}(1,0) = 0.32, \quad p_{X,Y}(1,1) = 0.08$$
 Compare the Click-Through Rate (CTR) for Mobile users $\P(Y=1 \mid X=0)$ versus Desktop users $\P(Y=1 \mid X=1)$.
+\end{enumerate}
+
+\subsection*{Part B: Conceptual Diagnostic Traps (Exam Gotchas)}
+
+\begin{enumerate}[resume]
+\item \textbf{Diagnostic Trap (Joint Reconstruction from Marginals):}
+A machine learning engineer extracts two discrete features $X \in \{1, 2\}$ and $Y \in \{1, 2\}$. Their marginal PMFs are computed as:
+$$p_X(1) = 0.4, \quad p_X(2) = 0.6 \qquad \text{and} \qquad p_Y(1) = 0.3, \quad p_Y(2) = 0.7$$
+The engineer wants to calculate $\P(X \ge Y)$. Which of the following statements is strictly correct?
+\begin{enumerate}
+    \item $\P(X \ge Y)$ can be uniquely calculated by setting $p_{X,Y}(x, y) = p_X(x) p_Y(y)$.
+    \item $\P(X \ge Y)$ cannot be uniquely determined from the marginal distributions alone without knowing the joint dependence structure.
+    \item $\P(X \ge Y) = p_X(1)p_Y(1) + p_X(2)p_Y(1) + p_X(2)p_Y(2) = 0.88$.
+    \item Since $X$ and $Y$ are on the same sample space, their joint distribution is uniquely fixed by linear programming.
+\end{enumerate}
+
+\item \textbf{Diagnostic Trap (Summation of Conditional Probabilities):}
+Let $X$ and $Y$ be discrete random variables with joint PMF $p_{X,Y}(x, y)$. Which of the following expressions is guaranteed to equal $1$ for any valid $y$ such that $p_Y(y) > 0$?
+\begin{enumerate}
+    \item $\sum_{y} p_{X|Y}(x \mid y)$
+    \item $\sum_{x} p_{X|Y}(x \mid y)$
+    \item $\sum_{x} \sum_{y} p_{X|Y}(x \mid y)$
+    \item $\sum_{x} p_{X,Y}(x, y) \cdot p_Y(y)$
+\end{enumerate}
 \end{enumerate}

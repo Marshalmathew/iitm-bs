@@ -1,113 +1,241 @@
-\chapter{Expectation and Variance of Random Variables}
+\chapter{Expectation, Variance \& LOTUS of Random Variables}
 
-Once we have defined a Random Variable and its Probability Mass Function (PMF), we want to summarize its behavior. Just like we summarized physical data using Mean and Variance in Chapter 3, we can mathematically summarize the theoretical distributions of Random Variables using \index{Expectation}\textbf{Expectation} and \index{Variance}\textbf{Variance}.
-
+Once a discrete random variable and its probability mass function (PMF) are defined, we require theoretical summary metrics to quantify its central location and dispersion across infinitely many hypothetical repetitions. Just as sample data is described by the sample mean $\bar{x}$ and sample variance $s^2$, the probabilistic behavior of a random variable is governed by its \textbf{Expected Value ($\E[X]$)} and \textbf{Variance ($\Var(X)$)}. In this chapter, we master \textbf{Mathematical Expectation}, the \textbf{Law of the Unconscious Statistician (LOTUS)}, the \textbf{Unconditional Linearity of Expectation}, the \textbf{Quadratic Scaling of Variance}, \textbf{Chebyshev's Inequality}, and the critical cognitive traps: \textbf{Jensen's non-linear expectation gap}, \textbf{the negative variance fallacy}, and \textbf{why variances of differences add}.
 
 \vspace{0.5cm}
 \begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
 \begin{itemize}
-    \item Expectation (Expected Value)
-    \item Variance of a Random Variable
+    \item Mathematical formalization of Expected Value as probability-weighted center of mass: $\E[X] = \sum x p(x)$.
+    \item The Law of the Unconscious Statistician (LOTUS) for functions of random variables: $\E[g(X)] = \sum g(x) p(x)$.
+    \item Universal Linearity of Expectation: $\E[aX + bY + c] = a\E[X] + b\E[Y] + c$ (holds without requiring independence).
+    \item Theoretical Variance $\Var(X) = \E[(X - \mu)^2]$ and its computational shortcut $\Var(X) = \E[X^2] - (\E[X])^2$.
+    \item Properties of Variance and Standard Deviation: $\Var(aX + b) = a^2\Var(X)$ and $\SD(aX + b) = |a|\SD(X)$.
+    \item Variance of sums and differences: $\Var(X \pm Y) = \Var(X) + \Var(Y) \pm 2\Cov(X, Y)$.
+    \item Cognitive traps: $\E[g(X)] \neq g(\E[X])$, negative variance errors, and subtracting variances.
+    \item Two-tier exercises with diagnostic multiple choice questions on affine transformations and independent differences.
 \end{itemize}
 \end{tcolorbox}
-\section{Expectation (Expected Value)}
 
-\begin{intuitionbox}{The Center of Mass}
-If you were to cut a piece of wood in the exact shape of a PMF histogram, the Expected Value $E[X]$ is the exact physical point on the x-axis where you could balance that wood on your finger. If you have a massive weight (a high probability) at $x=100$, it will violently pull the balance point towards it, even if $x=1$ through $99$ all have tiny probabilities.
-\end{intuitionbox}
+\section{Mathematical Expectation (The Expected Value)}
 
-\begin{lstlisting}[language=Python, caption=Data Science: Expectation]
-import numpy as np
-
-# X values and their probabilities
-x = np.array([1, 2, 3, 4, 5, 6])
-px = np.array([1/6, 1/6, 1/6, 1/6, 1/6, 1/6])
-
-# E[X] = sum(x * P(x))
-expected_value = np.sum(x * px)
-print("Expected Value of a Die Roll:", expected_value)
-\end{lstlisting}
-
-\begin{definitionbox}{Expected Value (Mean) of a Random Variable}
-The \index{Expected Value}\textbf{Expected Value}, denoted $E[X]$ or $\mu_X$, is the long-run average value of repetitions of the experiment it represents. For a discrete random variable, it is the probability-weighted sum of all possible values.
-$$E[X] = \sum_{x} x \cdot P(X=x)$$
-\textit{Note:} $E[X]$ is not necessarily a value that $X$ can actually take! For example, the expected value of a standard die roll is $3.5$.
+\begin{definitionbox}{Expected Value (Mean) of a Discrete Random Variable}
+\index{Expected Value}\index{Mathematical Expectation}
+Let $X$ be a discrete random variable with support $\mathcal{R}_X$ and PMF $p_X(x)$. The \textbf{Expected Value} of $X$, denoted $\E[X]$ or $\mu_X$, is defined by:
+$$\E[X] = \sum_{x \in \mathcal{R}_X} x \cdot p_X(x)$$
+provided that the sum is absolutely convergent: $\sum_{x} |x| p_X(x) < \infty$.
+\begin{itemize}
+    \item \textbf{Center of Mass Interpretation:} $\E[X]$ represents the physical balance point (fulcrum) of the PMF histogram on the real line.
+    \item \textbf{Non-Support Realization:} $\E[X]$ does \textbf{not} have to belong to the support $\mathcal{R}_X$! (e.g. For a fair 6-sided die, $\mathcal{R}_X = \{1, 2, 3, 4, 5, 6\}$, yet $\E[X] = \frac{1+2+3+4+5+6}{6} = 3.5$, a value the die can never show).
+\end{itemize}
 \end{definitionbox}
 
-\begin{theorembox}{Properties of Expectation (Linearity)}
-Expectation is a strictly linear operator. For any constants $a$ and $b$, and any random variables $X$ and $Y$:
-\begin{itemize}
-    \item \textbf{Constants:} $E[c] = c$
-    \item \textbf{Scaling and Shifting:} $E[aX + b] = aE[X] + b$
-    \item \textbf{Addition:} $E[X + Y] = E[X] + E[Y]$ (This holds true \emph{even if $X$ and $Y$ are dependent!})
-\end{itemize}
+\begin{theorembox}{The Law of the Unconscious Statistician (LOTUS)}
+\index{LOTUS}
+Let $X$ be a discrete random variable and $g \colon \mathbb{R} \to \mathbb{R}$ be any real-valued function. To compute the expected value of the transformed random variable $Y = g(X)$, one does \textbf{not} need to derive the PMF of $Y$; one simply evaluates:
+$$\E[g(X)] = \sum_{x \in \mathcal{R}_X} g(x) \cdot p_X(x)$$
 \end{theorembox}
 
-\textbf{Data Science Relevance:} In Reinforcement Learning, an AI agent takes actions to maximize its "Expected Return". Because the environment is stochastic (random), the AI cannot predict exactly what reward it will get, so it calculates the mathematical Expected Value of all possible future states and chooses the path with the highest $E[X]$.
+\begin{theorembox}{Universal Linearity of Expectation}
+\index{Linearity of Expectation}
+Expectation is a strictly linear functional. For any real constants $a, b, c \in \mathbb{R}$ and any random variables $X$ and $Y$ (whether independent or arbitrarily dependent):
+$$\E[aX + bY + c] = a\E[X] + b\E[Y] + c$$
+\textit{Crucial Insight:} Linearity holds universally across all joint dependency structures. Even if $X$ and $Y$ are fiercely correlated, $\E[X + Y] = \E[X] + \E[Y]$ holds without exception!
+\end{theorembox}
 
-\begin{videocard}{IITM BS Lecture: W9\_L2 \& L3 Expectation}{https://www.youtube.com/watch?v=NEgNVzox418}
-Official lectures defining $E[X]$ and proving the Linearity of Expectation.
+\begin{videocard}{IITM BS Lecture: Expectation}{https://www.youtube.com/watch?v=NEgNVzox418}
+Official lectures defining $\E[X]$ and proving the Linearity of Expectation.
 \end{videocard}
 
-\section{Variance of a Random Variable}
-
-While Expectation tells us the theoretical center, we also need to know the theoretical spread. 
+\section{Theoretical Variance and Standard Deviation}
 
 \begin{definitionbox}{Variance and Standard Deviation}
-\index{Variance and Standard Deviation}
-The \index{Variance}\textbf{Variance} of a random variable $X$, denoted $Var(X)$ or $\sigma_X^2$, measures the expected squared distance from the mean.
-$$Var(X) = E[(X - \mu)^2]$$
-A mathematically equivalent (and computationally faster) formula is:
-$$Var(X) = E[X^2] - (E[X])^2$$
-The \index{Standard Deviation}\textbf{Standard Deviation} is simply the square root of the variance: $\sigma_X = \sqrt{Var(X)}$.
+\index{Variance}\index{Standard Deviation}
+The \textbf{Variance} of a random variable $X$, denoted $\Var(X)$ or $\sigma_X^2$, measures the expected squared distance of $X$ from its mean $\mu_X = \E[X]$:
+$$\Var(X) = \E[(X - \E[X])^2] = \sum_{x \in \mathcal{R}_X} (x - \mu_X)^2 \cdot p_X(x)$$
+\begin{itemize}
+    \item \textbf{Computational Shortcut Formula:}
+    $$\Var(X) = \E[X^2] - (\E[X])^2$$
+    where $\E[X^2] = \sum_{x} x^2 p_X(x)$ is the second raw moment via LOTUS.
+    \item \textbf{Standard Deviation ($\sigma_X$):} The positive square root of variance, restoring dispersion to original units:
+    $$\sigma_X = \SD(X) = \sqrt{\Var(X)}$$
+\end{itemize}
 \end{definitionbox}
 
 \begin{theorembox}{Properties of Variance (Non-Linearity)}
-Unlike Expectation, Variance is \index{NOT}\textbf{NOT} linear. For any constants $a$ and $b$:
-\begin{itemize}
-    \item \textbf{Constants:} $Var(c) = 0$ (A constant has no spread, it never varies).
-    \item \textbf{Shifting:} $Var(X + b) = Var(X)$ (Adding a flat number to everything shifts the center, but does not change the spread).
-    \item \textbf{Scaling:} $Var(aX) = a^2 Var(X)$ (Multiplying by a constant scales the variance by the \emph{square} of that constant).
-    \item \textbf{Addition:} $Var(X + Y) = Var(X) + Var(Y)$ \index{ONLY IF}\textbf{ONLY IF} $X$ and $Y$ are strictly independent.
-\end{itemize}
+\index{Properties of Variance}
+Unlike Expectation, Variance is \textbf{not linear}:
+\begin{enumerate}
+    \item \textbf{Variance of a Constant:} $\Var(c) = 0$ for any constant $c \in \mathbb{R}$.
+    \item \textbf{Shift Invariance:} $\Var(X + c) = \Var(X)$. Shifting a distribution horizontally alters its center but leaves its spread identical.
+    \item \textbf{Quadratic Scaling:} For any constant $a \in \mathbb{R}$:
+    $$\Var(aX) = a^2 \Var(X) \implies \SD(aX) = |a|\SD(X)$$
+    Combining shift and scale: $\Var(aX + b) = a^2\Var(X)$ and $\SD(aX + b) = |a|\SD(X)$.
+    \item \textbf{Variance of Sums and Differences:}
+    $$\Var(X + Y) = \Var(X) + \Var(Y) + 2\Cov(X, Y)$$
+    $$\Var(X - Y) = \Var(X) + \Var(Y) - 2\Cov(X, Y)$$
+    If $X$ and $Y$ are independent ($\Cov(X, Y) = 0$):
+    $$\Var(X + Y) = \Var(X) + \Var(Y) \quad \text{and} \quad \Var(X - Y) = \Var(X) + \Var(Y)$$
+\end{enumerate}
 \end{theorembox}
 
-\textbf{Data Science Relevance:} In Finance and Quantitative Trading, Expected Value represents your projected profit, and Variance represents your \index{Risk}\textbf{Risk}. Modern Portfolio Theory aims to construct a basket of stocks that maximizes $E[X]$ while minimizing $Var(X)$.
-
-\begin{videocard}{IITM BS Lecture: W9\_L4 \& L5 Variance Properties}{https://www.youtube.com/watch?v=KOBa-Y9pKD8}
-Official lectures deriving $Var(X)$ and proving why $Var(aX) = a^2Var(X)$.
+\begin{videocard}{IITM BS Lecture: Variance Properties}{https://www.youtube.com/watch?v=KOBa-Y9pKD8}
+Official lectures deriving $\Var(X)$ and proving why $\Var(aX) = a^2\Var(X)$.
 \end{videocard}
+
+\section{Cognitive Traps in Expectation and Variance}
+
+\begin{trapbox}{Trap 1: The Non-Linear Expectation Fallacy ($\E[g(X)] \neq g(\E[X])$)}
+A catastrophic blunder is pushing the expectation operator inside non-linear functions:
+\begin{itemize}
+    \item \textbf{Powers:} $\E[X^2] \neq (\E[X])^2$ (In fact, $\E[X^2] - (\E[X])^2 = \Var(X) > 0$ for any non-constant random variable!).
+    \item \textbf{Inverses (Jensen's Inequality):} If $X$ is positive and non-degenerate, $\E[1/X] > \frac{1}{\E[X]}$.
+    \item \textbf{Square Roots / Logs:} $\E[\sqrt{X}] < \sqrt{\E[X]}$ and $\E[\ln X] < \ln(\E[X])$ for strictly concave functions.
+    \item \textbf{Rule:} $\E[g(X)] = g(\E[X])$ holds \textbf{strictly and only if} $g(x) = ax + b$ is affine!
+\end{itemize}
+\end{trapbox}
+
+\begin{trapbox}{Trap 2: The Negative Variance Hallucination}
+Variance is the expectation of a squared quantity $(X - \mu)^2$.
+\begin{itemize}
+    \item Therefore, variance is \textbf{strictly non-negative}: $\Var(X) \ge 0$ always.
+    \item Under negative scaling:
+    $$\Var(-3X + 5) = (-3)^2 \Var(X) = \mathbf{+9\Var(X)}$$
+    Writing $-9\Var(X)$ or $-3\Var(X)$ is a severe mathematical violation!
+\end{itemize}
+\end{trapbox}
+
+\begin{trapbox}{Trap 3: Variances of Independent Differences DO NOT Subtract!}
+When subtracting two independent random variables $X$ and $Y$:
+\begin{itemize}
+    \item \textbf{The Fallacy:} Writing $\Var(X - Y) = \Var(X) - \Var(Y)$.
+    \item \textbf{The Physical Reality:} Subtracting two noisy signals introduces \textbf{more} uncertainty, not less!
+    $$\Var(X - Y) = \Var(X + (-1)Y) = \Var(X) + (-1)^2\Var(Y) = \mathbf{\Var(X) + \Var(Y)}$$
+    Dispersion always compounds positively when combining independent random sources!
+\end{itemize}
+\end{trapbox}
+
+\section{Comparative Synthesis: Expectation vs. Variance}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{p{3.2cm}p{4.2cm}p{4.2cm}}
+\toprule
+\textbf{Attribute} & \textbf{Mathematical Expectation ($\E[X]$)} & \textbf{Theoretical Variance ($\Var(X)$)} \\
+\midrule
+\textbf{Physical Meaning} & Long-run average center of mass & Expected squared dispersion around center \\
+\textbf{Units of Measurement} & Same units as $X$ & Squared units ($[X]^2$) \\
+\textbf{Shift Transformation} & $\E[X + c] = \E[X] + c$ & $\Var(X + c) = \Var(X)$ (Invariant) \\
+\textbf{Scale Transformation} & $\E[aX] = a\E[X]$ (Linear) & $\Var(aX) = a^2\Var(X)$ (Quadratic) \\
+\textbf{Standard Deviation} & $\SD(X) = \sqrt{\Var(X)}$ & Rescaled metric: $\SD(aX) = |a|\SD(X)$ \\
+\textbf{Sum of Variables} & $\E[X + Y] = \E[X] + \E[Y]$ (Always) & $\Var(X + Y) = \Var(X) + \Var(Y)$ (Requires $\Cov=0$) \\
+\textbf{Non-Negativity} & Can be positive, negative, or zero & $\Var(X) \ge 0$ strictly \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Python Implementation: LOTUS and Moment Calculations}
+
+\begin{lstlisting}[caption={Numerical Verification of LOTUS and Linearity in Python}]
+import numpy as np
+
+# Discrete random variable support and PMF
+support = np.array([-2, -1, 0, 1, 3])
+pmf = np.array([0.10, 0.20, 0.40, 0.20, 0.10])
+
+# 1. Expectation E[X]
+mean_x = np.sum(support * pmf)
+
+# 2. Second raw moment E[X^2] via LOTUS
+e_x2 = np.sum((support**2) * pmf)
+
+# 3. Variance Var(X) = E[X^2] - (E[X])^2
+var_x = e_x2 - (mean_x**2)
+sd_x = np.sqrt(var_x)
+
+print(f"E[X]     = {mean_x:.4f}")
+print(f"E[X^2]   = {e_x2:.4f}")
+print(f"Var(X)   = {var_x:.4f}")
+print(f"SD(X)    = {sd_x:.4f}")
+
+# 4. Verifying affine scaling: Y = -3X + 5
+y_vals = -3 * support + 5
+mean_y = np.sum(y_vals * pmf)
+var_y = np.sum((y_vals - mean_y)**2 * pmf)
+
+print(f"\nTransformed Y = -3X + 5:")
+print(f"Empirical E[Y] = {mean_y:.4f} (Matches -3*E[X]+5 = {-3*mean_x+5:.4f})")
+print(f"Empirical Var(Y) = {var_y:.4f} (Matches (-3)^2 * Var(X) = {9 * var_x:.4f})")
+\end{lstlisting}
 
 \newpage
 \section{Practice Exercises}
 \textit{Detailed step-by-step solutions are available in the Appendix.}
 
+\subsection*{Part A: Computational and Analytical Problems}
+
 \begin{enumerate}
-    \item \textbf{Calculating Expectation:} A lottery ticket costs Rs.~10 to play. You have a $1\%$ chance of winning Rs.~500, a $5\%$ chance of winning Rs.~50, and a $94\%$ chance of winning nothing (Rs.~0). Let $X$ be the gross payout of the ticket.
+    \item \textbf{Expectation in Financial Decision Making:} An angel investment fund reviews a seed-stage AI startup. The venture has:
+    \begin{itemize}
+        \item A $2\%$ probability of generating an IPO payout of \$10,000,000.
+        \item An $8\%$ probability of an acquisition payout of \$1,000,000.
+        \item A $90\%$ probability of total company failure (payout of \$0).
+    \end{itemize}
     \begin{enumerate}
-        \item What is the PMF of $X$?
-        \item Calculate the Expected Value $E[X]$.
-        \item Factoring in the Rs.~10 cost to play, what is your expected net profit?
+        \item Define the PMF of the gross payout $X$.
+        \item Calculate the Expected Gross Payout $\E[X]$.
+        \item If the fund must invest \$250,000 to acquire this equity stake, compute the expected net profit. Is the investment statistically rational?
     \end{enumerate}
 
-    \item \textbf{Calculating Variance:} A discrete random variable $Y$ has the following PMF:
-    $P(Y=-1) = 0.2, \quad P(Y=0) = 0.5, \quad P(Y=1) = 0.3$.
+    \item \textbf{Variance and Moment Calculation via LOTUS:} A discrete random variable $Z$ has PMF:
+    $$p_Z(-2) = 0.15, \quad p_Z(0) = 0.50, \quad p_Z(2) = 0.35$$
     \begin{enumerate}
-        \item Calculate the Expected Value $\mu = E[Y]$.
-        \item Calculate $E[Y^2]$.
-        \item Calculate the Variance $Var(Y)$ using the computational formula.
+        \item Calculate $\E[Z]$.
+        \item Using LOTUS, compute the second moment $\E[Z^2]$.
+        \item Calculate $\Var(Z)$ using the shortcut formula $\E[Z^2] - (\E[Z])^2$.
+        \item Calculate the Standard Deviation $\SD(Z)$.
     \end{enumerate}
 
-    \item \textbf{Properties of Expectation and Variance:} Let $X$ be a random variable representing the temperature in Celsius. You know $E[X] = 25^\circ$C and $Var(X) = 4$. You want to convert this to Fahrenheit using the formula $F = 1.8X + 32$.
+    \item \textbf{Affine Scaling of Expectation and Variance:} Ambient temperature sensor readings $C$ in Celsius have mean $\E[C] = 20^\circ\text{C}$ and standard deviation $\SD(C) = 5^\circ\text{C}$. The sensor values are converted to Fahrenheit via $F = 1.8 C + 32$.
     \begin{enumerate}
-        \item What is the Expected Value of the temperature in Fahrenheit, $E[F]$?
-        \item What is the Variance of the temperature in Fahrenheit, $Var(F)$? (Be very careful with the properties).
-        \item What is the Standard Deviation in Fahrenheit?
+        \item Compute $\E[F]$.
+        \item Compute $\Var(F)$.
+        \item Compute $\SD(F)$.
     \end{enumerate}
 
-    \item \textbf{Independence and Variance:} You flip a fair coin, where Heads = $1$ and Tails = $0$. Let this random variable be $X$. You roll a fair 6-sided die, yielding values 1 through 6. Let this random variable be $Y$.
+    \item \textbf{Variance of Independent Sums and Differences:} Let $X_1$ and $X_2$ be two independent random variables measuring component weights (in grams), with:
+    $$\E[X_1] = 120, \quad \Var(X_1) = 16, \qquad \E[X_2] = 80, \quad \Var(X_2) = 9$$
     \begin{enumerate}
-        \item $E[X] = 0.5$ and $E[Y] = 3.5$. What is $E[X + Y]$?
-        \item Are $X$ and $Y$ independent? What does this mean for $Var(X + Y)$?
+        \item Compute $\E[X_1 + X_2]$ and $\Var(X_1 + X_2)$.
+        \item Compute $\E[X_1 - X_2]$ and $\Var(X_1 - X_2)$.
+        \item State $\SD(X_1 - X_2)$.
     \end{enumerate}
+
+    \item \textbf{Jensen's Inequality Demonstration:} Let $X$ take values $2$ and $8$ with equal probability: $\P(X = 2) = 0.5, \P(X = 8) = 0.5$.
+    \begin{enumerate}
+        \item Compute $\E[X]$ and evaluate $g(\E[X])$ for $g(x) = x^2$.
+        \item Compute $\E[X^2]$ directly via LOTUS.
+        \item Show that $\E[X^2] > (\E[X])^2$ and verify that the difference equals $\Var(X)$.
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Conceptual and Diagnostic Multiple Choice Questions}
+
+\begin{enumerate}[resume]
+\item \textbf{Conceptual Diagnostic: Transformations of Variance and Standard Deviation} \\
+Let $X$ be a random variable with mean $\E[X] = 10$ and standard deviation $\SD(X) = 3$. An engineer defines the linear transformation $W = -5X + 12$. What are the variance $\Var(W)$ and standard deviation $\SD(W)$ of the transformed variable?
+\begin{enumerate}
+    \item $\Var(W) = -45, \quad \SD(W) = -15$
+    \item $\Var(W) = 225, \quad \SD(W) = 15$
+    \item $\Var(W) = 225, \quad \SD(W) = -15$
+    \item $\Var(W) = 45, \quad \SD(W) = 15$
+\end{enumerate}
+
+\item \textbf{Conceptual Diagnostic: Uncertainty in Difference of Independent Processes} \\
+A quality assurance lab measures the thickness of a coating by taking the difference between total coated thickness $T \sim (\mu_T = 5.0\,\text{mm}, \sigma_T^2 = 0.04)$ and baseline substrate thickness $S \sim (\mu_S = 4.2\,\text{mm}, \sigma_S^2 = 0.01)$, where $T$ and $S$ are measured independently. An intern reports that the variance of the coating thickness $C = T - S$ is $\sigma_C^2 = 0.04 - 0.01 = 0.03\,\text{mm}^2$. Which of the following correctly identifies the error in the intern's calculation?
+\begin{enumerate}
+    \item The intern should have multiplied the variances because thicknesses are on a ratio scale.
+    \item The calculation is correct because subtraction of physical variables subtracts their respective variances.
+    \item The intern committed the variance subtraction fallacy; because $T$ and $S$ are independent, their variances add: $\Var(T - S) = \Var(T) + (-1)^2\Var(S) = 0.04 + 0.01 = 0.05\,\text{mm}^2$.
+    \item The intern should have reported the standard deviation directly as $0.2 - 0.1 = 0.1\,\text{mm}$.
+\end{enumerate}
 \end{enumerate}

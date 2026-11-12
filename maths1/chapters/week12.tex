@@ -1,95 +1,316 @@
-\chapter{Course Revision and Final Review}
-\index{Course Revision and Final Review}
+\chapter{Course Synthesis and Comprehensive Final Review}
+\index{Course Synthesis and Comprehensive Final Review}
 
-
-\vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Core Concept Cheat Sheet
-    \item Official IITM Revision Lectures
+    \item \textbf{Curricular Synthesis:} Unify the 5 core pillars of Mathematics for Data Science: Sets \& Relations, Analytic Geometry, Polynomial \& Transcendental Functions, Differential \& Integral Calculus, and Graph Theory.
+    \item \textbf{Mathematical Pipeline of Machine Learning:} Connect feature spaces to geometric decision boundaries, convex loss functions, gradient descent optimization, and computational execution graphs.
+    \item \textbf{Grand Pitfalls \& Diagnostics:} Master the cross-disciplinary gotchas spanning convexity, learning rate divergence, domain restrictions, and graph algorithmic limits.
+    \item \textbf{End-to-End Computation:} Implement an integrated Python laboratory linking data scaling, gradient updates, continuous loss accumulation, and DAG dependency execution.
+    \item \textbf{Capstone Exam Preparation:} Solve comprehensive, multi-part synthesis problems and diagnostic misconception questions mirroring end-term assessment standards.
 \end{itemize}
 \end{tcolorbox}
-Congratulations on reaching the final week! This chapter serves as a comprehensive synthesis of the entire Maths 1 curriculum. We will review the core conceptual pillars that form the foundation for all subsequent Data Science and Machine Learning coursework. 
 
-\section{Core Concept Cheat Sheet}
+\section{Mathematical \& Theoretical Foundations}
 
-\begin{lstlisting}[language=Python, caption=Data Science: Set Operations in Python]
-A = {1, 2, 3}
-B = {3, 4, 5}
+The curriculum of Mathematics for Data Science 1 forms the foundational language of modern artificial intelligence. Rather than isolated topics, the five structural units constitute a single interconnected pipeline:
 
-# Union and Intersection
-print(f'Union: {A | B}')
-print(f'Intersection: {A & B}')
+\subsection{The Five Pillars of Foundation Mathematics}
+
+\begin{enumerate}
+    \item \textbf{Pillar I: Sets, Relations, and Mappings (Weeks 1 \& 5)}
+    \begin{itemize}
+        \item Sets define data domains ($\mathcal{X} \subseteq \R^d$) and categorical label spaces ($\mathcal{Y} = \{0, 1\}$).
+        \item Relations model relational databases (SQL joins as Cartesian intersections) and clustering partitions via equivalence relations:
+        \begin{equation}
+        [x] = \{y \in X \mid x \sim y\}, \quad X / \sim = \bigcup [x], \quad [x] \cap [y] = \emptyset \text{ for } x \not\sim y
+        \end{equation}
+        \item Invertible bijections enable lossless coordinate transformations, feature normalization, and logit-sigmoid link functions:
+        \begin{equation}
+        \sigma(z) = \frac{1}{1 + e^{-z}}, \quad \sigma^{-1}(p) = \operatorname{logit}(p) = \ln\left(\frac{p}{1 - p}\right)
+        \end{equation}
+    \end{itemize}
+
+    \item \textbf{Pillar II: Analytic Geometry \& Linear Models (Week 2)}
+    \begin{itemize}
+        \item Linear equations $w_1 x_1 + w_2 x_2 + b = 0$ define hyperplanes separating classification classes.
+        \item The perpendicular geometric margin from sample point $(x_0, y_0)$ to decision boundary $Ax + By + C = 0$ is:
+        \begin{equation}
+        d = \frac{|Ax_0 + By_0 + C|}{\sqrt{A^2 + B^2}}
+        \end{equation}
+        This metric forms the core objective maximized in Support Vector Machines (SVM).
+    \end{itemize}
+
+    \item \textbf{Pillar III: Non-linear Approximations \& Information Scaling (Weeks 3, 4, 6)}
+    \begin{itemize}
+        \item Quadratic loss functions $L(w) = a(w - w^*)^2 + c$ yield closed-form OLS solutions and convex regularizations ($w^* = \frac{w_{\text{OLS}}}{1 + \lambda}$).
+        \item Higher-degree polynomials provide non-linear curve fitting via Taylor/Weierstrass approximations, but require degree control to prevent Runge's phenomenon and high-variance overfitting.
+        \item Logarithms compress massive exponential spreads, eliminate floating-point probability underflow via log-likelihood $\ell(\theta) = \sum \ln p_i$, and measure uncertainty via Shannon entropy:
+        \begin{equation}
+        H(X) = -\sum_{i=1}^k p_i \log_2(p_i)
+        \end{equation}
+    \end{itemize}
+
+    \item \textbf{Pillar IV: Infinitesimal Calculus \& Optimization (Weeks 7, 8, 9)}
+    \begin{itemize}
+        \item Derivatives measure instantaneous rates of change. The Chain Rule powers deep learning backpropagation:
+        \begin{equation}
+        \frac{d}{dx}[f(g(x))] = f'(g(x)) \cdot g'(x)
+        \end{equation}
+        \item Optimization is guided by stationary points ($f'(w^*) = 0$) and convexity conditions ($f''(w^*) > 0$).
+        \item Gradient descent updates $w_{t+1} = w_t - \eta \nabla L(w_t)$ converge if step size satisfies the Lipschitz stability bound $0 < \eta < \frac{2}{L}$.
+        \item Integration computes cumulative probabilities $\int_a^b p(x) \dx = 1$ and risk expectations $\E[L] = \int L(x) p(x) \dx$.
+    \end{itemize}
+
+    \item \textbf{Pillar V: Discrete Relational Structures \& Graph Optimization (Weeks 10 \& 11)}
+    \begin{itemize}
+        \item Graphs $G = (V, E)$ formalize network topologies, knowledge graphs, and relational constraints.
+        \item The Handshaking Lemma bounds connectivity: $\sum \deg(v) = 2|E|$.
+        \item Directed Acyclic Graphs (DAGs) govern task pipelines and autograd execution engines via Topological Sorting.
+        \item Shortest path algorithms (Dijkstra: $\mathcal{O}(|E| \log |V|)$, Bellman-Ford: $\mathcal{O}(|V| \cdot |E|)$) and Minimum Spanning Trees (Kruskal, Prim) optimize physical network topologies and manifold learning distances.
+    \end{itemize}
+\end{enumerate}
+
+\section{Visual \& Geometric Intuition}
+
+The following diagram illustrates how the individual mathematical disciplines combine into the end-to-end Machine Learning Pipeline.
+
+\begin{center}
+\begin{tikzpicture}[scale=1.0, auto, >=stealth, node distance=2.8cm]
+    % Pipeline Nodes
+    \node[rectangle, draw=primarydark, fill=primarylight, thick, rounded corners, minimum width=3.4cm, minimum height=1.1cm, align=center] (sets) 
+        {\textbf{Data Space $\mathcal{X} \times \mathcal{Y}$} \\ (Set Theory \& Mappings)};
+        
+    \node[rectangle, draw=blue!80!black, fill=blue!10, thick, rounded corners, minimum width=3.4cm, minimum height=1.1cm, align=center, right of=sets, xshift=1.8cm] (geom) 
+        {\textbf{Decision Boundaries} \\ (Analytic Geometry \& SVM)};
+
+    \node[rectangle, draw=red!80!black, fill=red!10, thick, rounded corners, minimum width=3.4cm, minimum height=1.1cm, align=center, below of=geom, yshift=-0.5cm] (opt) 
+        {\textbf{Convex Loss $L(w)$} \\ (Differential Calculus)};
+
+    \node[rectangle, draw=green!60!black, fill=green!10, thick, rounded corners, minimum width=3.4cm, minimum height=1.1cm, align=center, below of=sets, yshift=-0.5cm] (dag) 
+        {\textbf{Computational Engine} \\ (DAGs \& Topological Sort)};
+
+    % Arrows
+    \draw[->, very thick] (sets) -- (geom) node[midway, above] {Feature Maps};
+    \draw[->, very thick] (geom) -- (opt) node[midway, right] {Residual Error};
+    \draw[->, very thick] (opt) -- (dag) node[midway, above] {Gradient Updates};
+    \draw[->, very thick] (dag) -- (sets) node[midway, left] {Learned Models};
+\end{tikzpicture}
+\end{center}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{The Universal Convergence of Gradient Descent}
+Consider the minimization of a strictly convex, $L$-Lipschitz smooth quadratic loss function:
+\begin{equation}
+J(w) = \frac{1}{2} L (w - w^*)^2, \quad \text{where } L > 0
+\end{equation}
+The gradient is $J'(w) = L(w - w^*)$. Gradient descent with learning rate $\eta > 0$ applies the update rule:
+\begin{equation}
+w_{t+1} = w_t - \eta J'(w_t) = w_t - \eta L (w_t - w^*)
+\end{equation}
+Subtracting the optimal parameter $w^*$ from both sides:
+\begin{equation}
+w_{t+1} - w^* = (w_t - w^*) - \eta L (w_t - w^*) = (1 - \eta L)(w_t - w^*)
+\end{equation}
+Applying this recurrence relation recursively across $t$ steps yields:
+\begin{equation}
+w_t - w^* = (1 - \eta L)^t (w_0 - w^*)
+\end{equation}
+For the parameter error to converge to zero as $t \to \infty$, the contraction factor must strictly satisfy:
+\begin{equation}
+|1 - \eta L| < 1 \iff -1 < 1 - \eta L < 1 \iff 0 < \eta < \frac{2}{L}
+\end{equation}
+\begin{itemize}
+    \item If $\eta = \frac{1}{L}$: $|1 - 1| = 0$, convergence occurs in exactly \textbf{1 step} (the Newton step).
+    \item If $0 < \eta < \frac{1}{L}$: Monotonic geometric convergence without oscillations.
+    \item If $\frac{1}{L} < \eta < \frac{2}{L}$: Damped oscillatory convergence around $w^*$.
+    \item If $\eta \ge \frac{2}{L}$: Immediate numerical explosion and divergence to $\pm \infty$.
+\end{itemize}
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Trap 1: Stationarity Does Not Imply Optimality}
+Setting $f'(w) = 0$ identifies critical points, which can be local minima, local maxima, or inflection points. For $f(w) = w^3$, $f'(0) = 0$, but $w=0$ is an inflection saddle point, not an extremum. Rigorous optimization always checks the Second Derivative Test ($f''(w) > 0$ for minima) or establishes global convexity.
+\end{trapbox}
+
+\begin{trapbox}{Trap 2: Ignoring Domain Restrictions in Inverse \& Log Functions}
+Equations involving logarithms $\ln(g(x))$ require $g(x) > 0$. Solving $\ln(x - 2) + \ln(x - 3) = \ln(2)$ algebraically gives $x^2 - 5x + 6 = 2 \implies x^2 - 5x + 4 = 0 \implies x = 4 \text{ or } x = 1$. The candidate root $x = 1$ is completely extraneous because $\ln(1 - 2) = \ln(-1)$ is undefined in real numbers!
+\end{trapbox}
+
+\begin{trapbox}{Trap 3: Linear Parallel Line Distance Normalization Oversight}
+The distance between parallel lines $Ax + By + C_1 = 0$ and $Ax + By + C_2 = 0$ is $d = \frac{|C_1 - C_2|}{\sqrt{A^2 + B^2}}$. If the equations are given as $2x + 4y + 5 = 0$ and $x + 2y - 3 = 0$, you cannot compute $|5 - (-3)| = 8$. You must first scale the second equation to matching coefficients: $2x + 4y - 6 = 0 \implies d = \frac{|5 - (-6)|}{\sqrt{2^2 + 4^2}} = \frac{11}{\sqrt{20}}$.
+\end{trapbox}
+
+\begin{trapbox}{Trap 4: Shortest Path Blindness on Graphs with Negative Weights}
+Executing Dijkstra's algorithm on a graph with negative edges yields incorrect distances because Dijkstra permanently closes nodes upon extraction from the min-heap. When negative edges exist, the Bellman-Ford algorithm must be used.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2.6cm} p{3.2cm} p{3.8cm} p{4.2cm}}
+\toprule
+\textbf{Foundational Pillar} & \textbf{Key Mathematical Tools} & \textbf{Core Theoretical Invariant} & \textbf{Data Science \& ML Manifestation} \\
+\midrule
+\textbf{Sets \& Mappings} & Set algebra, Equivalence classes, Invertible bijections & Quotient sets partition domains; $(f \circ g)^{-1} = g^{-1} \circ f^{-1}$ & Relational SQL database schema, one-hot encoding, feature normalization. \\
+\addlinespace
+\textbf{Analytic Geometry} & Line forms, Normal vectors, Perpendicular distances & Orthogonality $\vec{u} \cdot \vec{v} = 0$; Margin $\frac{|Ax_0+By_0+C|}{\|\vec{w}\|}$ & Linear classifiers, maximum margin separation in SVMs, hyperplane projections. \\
+\addlinespace
+\textbf{Polynomials \& Logs} & Synthetic division, Vieta formulas, Log rules & Turning points $\le n-1$; $\ln(ab) = \ln a + \ln b$ & High-capacity overfitting control, cross-entropy loss, log-likelihood estimation. \\
+\addlinespace
+\textbf{Calculus} & Chain rule, Critical points, Definite integrals, FTC & $f'(w^*) = 0, f''(w^*) > 0$; $\int_a^b p(x) \dx = 1$ & Backpropagation in neural nets, gradient descent, continuous expected loss. \\
+\addlinespace
+\textbf{Graph Theory} & Adjacency lists, BFS, DFS, Dijkstra, Kahn's Topo & Handshaking $\sum \deg(v) = 2|E|$; DAG acyclicity & Network analysis, PyTorch computational DAGs, shortest path logistics. \\
+\bottomrule
+\end{tabular}
+\caption{Cross-Curricular Synthesis of Mathematics 1 Disciplines and Machine Learning Implementations.}
+\end{table}
+
+\section{Python Scientific Computing Lab}
+
+The following laboratory executes an integrated end-to-end demonstration combining feature normalization, gradient descent optimization of a convex loss function, and computational graph DAG topological execution.
+
+\begin{lstlisting}[language=Python, caption=Integrated Mathematics 1 Capstone Pipeline]
+import numpy as np
+from collections import deque
+
+# 1. Feature Transformation and Min-Max Normalization (Week 1 & 5)
+raw_features = np.array([12.0, 45.0, 78.0, 110.0, 150.0])
+x_min, x_max = raw_features.min(), raw_features.max()
+norm_features = (raw_features - x_min) / (x_max - x_min)
+print("Normalized Features [0, 1]:", np.round(norm_features, 3))
+
+# 2. Convex Loss Optimization via Gradient Descent (Week 7 & 8)
+# Loss function: L(w) = 0.5 * L_smooth * (w - w_true)^2
+L_smooth = 4.0
+w_true = 3.5
+w = 0.0 # Initial guess
+eta = 0.2 # Learning rate satisfying 0 < eta < 2 / L_smooth (0 < 0.2 < 0.5)
+
+print("\n--- Gradient Descent Optimization ---")
+for step in range(1, 11):
+    grad = L_smooth * (w - w_true)
+    w = w - eta * grad
+    loss = 0.5 * L_smooth * (w - w_true)**2
+    if step in [1, 2, 5, 10]:
+        print(f"Step {step:2d} | Weight: {w:.4f} | Loss: {loss:.6e}")
+
+# 3. Continuous Probability Verification via Integration (Week 9)
+from scipy.integrate import quad
+pdf = lambda x: (3.0 / 64.0) * x**2 # Defined on [0, 4]
+total_p, _ = quad(pdf, 0, 4)
+mean_val, _ = quad(lambda x: x * pdf(x), 0, 4)
+print(f"\nPDF Integral [0, 4]: {total_p:.4f} (Must equal 1.0)")
+print(f"Expected Value E[X]: {mean_val:.4f} (Expected: 3.0)")
+
+# 4. Computational Dependency DAG Topological Sort (Week 10)
+# Nodes: X (Input), W (Weights), Z (Linear: X*W), A (Activation: Sigmoid), L (Loss)
+dependencies = {
+    'X': ['Z'],
+    'W': ['Z'],
+    'Z': ['A'],
+    'A': ['L'],
+    'L': []
+}
+
+in_deg = {u: 0 for u in dependencies}
+for u in dependencies:
+    for v in dependencies[u]:
+        in_deg[v] += 1
+
+q = deque([u for u in in_deg if in_deg[u] == 0])
+forward_pass = []
+while q:
+    u = q.popleft()
+    forward_pass.append(u)
+    for v in dependencies[u]:
+        in_deg[v] -= 1
+        if in_deg[v] == 0:
+            q.append(v)
+
+print("\nAutograd Execution Order:", " -> ".join(forward_pass))
 \end{lstlisting}
-
-
-\begin{intuitionbox}{The Mathematics of Data}
-Every topic in this course forms a pillar of Data Science. Sets organize data, functions map inputs to predictions, derivatives optimize those predictions to reduce error, and graphs model complex networks. You now have the mathematical vocabulary to understand exactly what machine learning algorithms are doing under the hood!
-\end{intuitionbox}
-
-\subsection{1. Set Theory and Relations}
-\begin{itemize}
-    \item \textbf{Sets:} Collections of distinct objects. Operations include Union ($\cup$), Intersection ($\cap$), Difference ($-$), and Complement ($A^c$).
-    \item \textbf{Relations:} Subsets of Cartesian products ($A \times B$). Equivalence relations must be \textit{Reflexive}, \textit{Symmetric}, and \textit{Transitive}.
-    \item \textbf{Data Science Link:} Relational databases (SQL) are entirely built on set theory operations (e.g., INNER JOIN is an intersection).
-\end{itemize}
-
-\subsection{2. Functions and Polynomials}
-\begin{itemize}
-    \item \textbf{Functions:} A mapping where each input has exactly one output. Checked via the Vertical Line Test.
-    \item \textbf{Polynomials:} $P(x) = a_n x^n + \dots + a_0$. The degree determines the maximum number of roots ($n$) and turning points ($n-1$).
-    \item \textbf{Data Science Link:} Polynomial Regression captures non-linear trends, but high-degree polynomials risk "overfitting" the training data.
-\end{itemize}
-
-\subsection{3. Exponentials and Logarithms}
-\begin{itemize}
-    \item \textbf{Exponentials ($e^x$):} Represent rapid, compounding growth.
-    \item \textbf{Logarithms ($\ln x$):} The inverse of exponentials. They scale massive numbers down and turn multiplication into addition ($\ln(xy) = \ln(x) + \ln(y)$).
-    \item \textbf{Data Science Link:} Log transformations normalize skewed datasets. The natural logarithm is the engine of the Cross-Entropy Loss function in classification tasks.
-\end{itemize}
-
-\subsection{4. Calculus (Limits and Derivatives)}
-\begin{itemize}
-    \item \textbf{Derivative ($f'(x)$):} The instantaneous rate of change (slope of the tangent line), defined by the limit $\limit{h}{0} \frac{f(x+h) - f(x)}{h}$.
-    \item \textbf{Chain Rule:} $\deriv{}{x} f(g(x)) = f'(g(x))g'(x)$.
-    \item \textbf{Data Science Link:} The Chain Rule is the exact mechanism of \textbf{Backpropagation}, the algorithm used to train deep neural networks via \textbf{Gradient Descent} (finding where $f'(x) = 0$).
-\end{itemize}
-
-\subsection{5. Graph Theory and Algorithms}
-\begin{itemize}
-    \item \textbf{Representations:} Adjacency Matrices (dense) vs. Adjacency Lists (sparse).
-    \item \textbf{Algorithms:} BFS (shortest paths unweighted), DFS (cycles/topological sort), Dijkstra (shortest paths positive weights), Kruskal/Prim (Minimum Spanning Trees).
-    \item \textbf{Data Science Link:} Directed Acyclic Graphs (DAGs) model workflow dependencies (Apache Airflow) and causal networks.
-\end{itemize}
-
-\section{Official IITM Revision Lectures}
-
-To solidify your understanding before the final exam, the official IIT Madras curriculum provides dedicated revision lectures for every core topic. 
-
-\begin{videocard}{IITM BS Lecture: W12\_L4 Revision on Functions}{https://www.youtube.com/watch?v=sHPX4vwNplo}
-A complete review of domains, ranges, injectivity, and mapping types.
-\end{videocard}
-
-\begin{videocard}{IITM BS Lecture: W12\_L3 Revision on Polynomials}{https://www.youtube.com/watch?v=PBqfqFqnvpw}
-A complete review of roots, turning points, and end behavior visualization.
-\end{videocard}
-
-\begin{videocard}{IITM BS Lecture: W12\_L5 Revision on Logarithms}{https://www.youtube.com/watch?v=9jbRtJjuNiY}
-A complete review of logarithmic laws, equation solving, and inverse properties.
-\end{videocard}
-
-\begin{videocard}{IITM BS Lecture: W12\_L6 Revision on Graph Theory}{https://www.youtube.com/watch?v=jCe_9qtCv7k}
-A complete review of adjacency matrices, topological sorting, and shortest path logic.
-\end{videocard}
 
 \newpage
 \section{Comprehensive Final Practice Exam}
-\textit{Test your mastery of the entire course. Detailed step-by-step solutions are available in the Appendix at the end of the book.}
+
+\subsection*{Part A: Capstone Synthesis Problems}
 
 \begin{enumerate}
-    \item \textbf{Sets \& Logic:} In a dataset of 100 users, 60 like Apples ($A$), 50 like Bananas ($B$), and 20 like neither. How many users like \textit{both} Apples and Bananas?
-    \item \textbf{Functions \& Exponentials:} Given $f(x) = e^{2x}$ and $g(x) = \ln(x)$, find the composite function $(f \circ g)(x)$ and simplify it completely.
-    \item \textbf{Calculus:} Find the critical points of the loss function $L(w) = w^3 - 3w^2 - 9w + 15$. Use the Second Derivative Test to determine which point is a local minimum (the optimal weight).
-    \item \textbf{Integration:} Calculate the total probability area under the curve $p(x) = 3x^2$ between $x=0$ and $x=1$.
-    \item \textbf{Graph Theory:} You are using Dijkstra's algorithm to find the fastest driving route. You discover a toll road that pays you \$5 to drive on it (a negative weight of $-5$). Will Dijkstra's algorithm still guarantee the correct shortest path? What algorithm should you use instead?
+    \item \textbf{Sets, Inclusions, and Relational Partitions:}
+    In a cohort of 120 machine learning engineering students:
+    \begin{itemize}
+        \item 70 are proficient in Python ($P$).
+        \item 55 are proficient in SQL ($S$).
+        \item 45 are proficient in Linear Algebra ($L$).
+        \item 30 are proficient in both Python and SQL.
+        \item 25 are proficient in both Python and Linear Algebra.
+        \item 20 are proficient in both SQL and Linear Algebra.
+        \item 10 are proficient in all three subjects.
+    \end{itemize}
+    \begin{enumerate}
+        \item Using the Principle of Inclusion-Exclusion, determine how many students are proficient in at least one subject.
+        \item How many students are proficient in \textbf{none} of the three subjects?
+        \item How many students are proficient in \textbf{only} Python?
+    \end{enumerate}
+
+    \item \textbf{Analytic Geometry and Distance Normalization:}
+    Find the exact perpendicular distance between the two parallel hyperplanes represented by the straight lines:
+    \begin{equation}
+    L_1: 3x - 4y + 12 = 0 \quad \text{and} \quad L_2: 6x - 8y - 15 = 0
+    \end{equation}
+    State the normal vector $\vec{w}$ and show the normalization step required before applying the parallel distance formula.
+
+    \item \textbf{Functions, Inverses, and Cross-Entropy Loss:}
+    Given the sigmoid activation function $\sigma(z) = \frac{1}{1 + e^{-z}}$:
+    \begin{enumerate}
+        \item Derive its analytical inverse function $\sigma^{-1}(p) = \operatorname{logit}(p)$ and state its exact mathematical domain.
+        \item For a true binary label $y = 1$ and predicted probability $p = \sigma(z)$, write down the Binary Cross-Entropy loss $L = -\ln(p)$. Express $L$ directly in terms of the pre-activation input $z$.
+    \end{enumerate}
+
+    \item \textbf{Calculus, Convexity, and Global Optimization:}
+    A regression model evaluates error using the loss function:
+    \begin{equation}
+    J(w) = 2w^4 - 4w^2 + 5
+    \end{equation}
+    \begin{enumerate}
+        \item Find all critical points of $J(w)$.
+        \item Compute the second derivative $J''(w)$ and classify each critical point as a local minimum, local maximum, or inflection point using the Second Derivative Test.
+        \item State the global minimum value of the loss function.
+    \end{enumerate}
+
+    \item \textbf{Graph Theory Synthesis (Shortest Paths \& Spanning Trees):}
+    Consider a connected weighted graph with vertices $\{1, 2, 3, 4, 5\}$ and edge set:
+    \begin{align*}
+    \{1, 2\}: 3, \quad \{1, 3\}: 5, \quad \{2, 3\}: 1, \quad \{2, 4\}: 6, \quad \{3, 4\}: 2, \quad \{3, 5\}: 7, \quad \{4, 5\}: 4
+    \end{align*}
+    \begin{enumerate}
+        \item Use Dijkstra's algorithm to compute the shortest path distance from vertex $1$ to all other vertices.
+        \item Use Kruskal's algorithm to determine the Minimum Spanning Tree (MST) and state its total weight.
+        \item Is the shortest path from vertex $1$ to vertex $5$ contained entirely within the edges of the Minimum Spanning Tree? Justify mathematically.
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Misconception MCQs}
+
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item A machine learning engineer runs Gradient Descent on a strictly convex loss function $L(w)$ whose second derivative satisfies $L''(w) \le 8$ everywhere. The engineer initializes at $w_0 = 10.0$ and sets the constant learning rate $\eta = 0.30$. What will happen to the parameter iterates $w_t$ as $t \to \infty$?
+    \begin{enumerate}
+        \item The iterates will converge monotonically to the global minimum $w^*$.
+        \item The iterates will oscillate with decreasing amplitude, eventually converging to $w^*$.
+        \item The iterates will diverge to $\pm \infty$ because the learning rate exceeds the critical stability threshold $\eta_{\text{max}} = \frac{2}{L_{\text{smooth}}} = \frac{2}{8} = 0.25$.
+        \item The iterates will become trapped in a local minimum because the learning rate is too small.
+    \end{enumerate}
+
+    \item A student is asked whether adding an edge of weight 0 between two existing vertices in a connected weighted graph can ever increase the total weight of the graph's Minimum Spanning Tree (MST). Which response is rigorously correct?
+    \begin{enumerate}
+        \item Yes, because adding an edge increases the number of vertices by 1.
+        \item No; by the Cut Property, adding any edge can only either decrease or maintain the total weight of the MST, as the new edge can replace a heavier edge in a cycle or be ignored.
+        \item Yes, if the edge forms a cycle with negative edges.
+        \item It depends on whether Prim's or Kruskal's algorithm is used.
+    \end{enumerate}
 \end{enumerate}

@@ -7,331 +7,1063 @@ This appendix contains complete, step-by-step mathematical solutions for all pra
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Vector Dot Product \& Norms}
+\textbf{1. Vector Algebra, Norms, and Orthogonality}
+Given vectors $\mathbf{u} = \begin{bmatrix} 3 \\ -2 \\ 4 \end{bmatrix}$ and $\mathbf{v} = \begin{bmatrix} 2 \\ 5 \\ 1 \end{bmatrix}$:
+\begin{enumerate}
+    \item \textbf{Dot Product $\mathbf{u} \cdot \mathbf{v}$:}
+    \begin{equation*}
+    \mathbf{u} \cdot \mathbf{v} = (3)(2) + (-2)(5) + (4)(1) = 6 - 10 + 4 = \mathbf{0}
+    \end{equation*}
+    \item \textbf{Euclidean Norms $\|\mathbf{u}\|$ and $\|\mathbf{v}\|$:}
+    \begin{align*}
+    \|\mathbf{u}\| &= \sqrt{3^2 + (-2)^2 + 4^2} = \sqrt{9 + 4 + 16} = \mathbf{\sqrt{29}} \approx 5.3852 \\
+    \|\mathbf{v}\| &= \sqrt{2^2 + 5^2 + 1^2} = \sqrt{4 + 25 + 1} = \mathbf{\sqrt{30}} \approx 5.4772
+    \end{align*}
+    \item \textbf{Angle and Orthogonality:}
+    \begin{equation*}
+    \cos \theta = \frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\| \|\mathbf{v}\|} = \frac{0}{\sqrt{29}\sqrt{30}} = 0 \implies \theta = \frac{\pi}{2} = 90^\circ
+    \end{equation*}
+    Because their dot product is zero, $\mathbf{u}$ and $\mathbf{v}$ are \textbf{strictly orthogonal} ($\mathbf{u} \perp \mathbf{v}$).
+    \item \textbf{Outer Product Matrix $P = \mathbf{u} \mathbf{v}^T$:}
+    \begin{equation*}
+    P = \mathbf{u} \mathbf{v}^T = \begin{bmatrix} 3 \\ -2 \\ 4 \end{bmatrix} \begin{bmatrix} 2 & 5 & 1 \end{bmatrix} = \begin{bmatrix} 3(2) & 3(5) & 3(1) \\ -2(2) & -2(5) & -2(1) \\ 4(2) & 4(5) & 4(1) \end{bmatrix} = \mathbf{\begin{bmatrix} 6 & 15 & 3 \\ -4 & -10 & -2 \\ 8 & 20 & 4 \end{bmatrix}}
+    \end{equation*}
+    Notice that $P$ is a $3 \times 3$ rank-1 matrix whose columns are scalar multiples of $\mathbf{u}$.
+\end{enumerate}
+
+\textbf{2. Matrix Multiplication and Transpose Identities}
+Given $A = \begin{bmatrix} 2 & 1 \\ -1 & 3 \end{bmatrix}$ and $B = \begin{bmatrix} 4 & -2 \\ 1 & 0 \end{bmatrix}$:
+\begin{enumerate}
+    \item \textbf{Matrix Product $AB$:}
+    \begin{equation*}
+    AB = \begin{bmatrix} 2(4) + 1(1) & 2(-2) + 1(0) \\ -1(4) + 3(1) & -1(-2) + 3(0) \end{bmatrix} = \mathbf{\begin{bmatrix} 9 & -4 \\ -1 & 2 \end{bmatrix}}
+    \end{equation*}
+    \item \textbf{Matrix Product $BA$:}
+    \begin{equation*}
+    BA = \begin{bmatrix} 4(2) + (-2)(-1) & 4(1) + (-2)(3) \\ 1(2) + 0(-1) & 1(1) + 0(3) \end{bmatrix} = \mathbf{\begin{bmatrix} 10 & -2 \\ 2 & 1 \end{bmatrix}}
+    \end{equation*}
+    Because $\begin{bmatrix} 9 & -4 \\ -1 & 2 \end{bmatrix} \neq \begin{bmatrix} 10 & -2 \\ 2 & 1 \end{bmatrix}$, $AB \neq BA$. Matrices $A$ and $B$ \textbf{do not commute}.
+    \item \textbf{Direct Transpose vs. Reversal Property:}
+    Transposing $AB$ directly:
+    \begin{equation*}
+    (AB)^T = \mathbf{\begin{bmatrix} 9 & -1 \\ -4 & 2 \end{bmatrix}}
+    \end{equation*}
+    Evaluating $B^T A^T$:
+    \begin{equation*}
+    B^T = \begin{bmatrix} 4 & 1 \\ -2 & 0 \end{bmatrix}, \quad A^T = \begin{bmatrix} 2 & -1 \\ 1 & 3 \end{bmatrix}
+    \end{equation*}
+    \begin{equation*}
+    B^T A^T = \begin{bmatrix} 4(2) + 1(1) & 4(-1) + 1(3) \\ -2(2) + 0(1) & -2(-1) + 0(3) \end{bmatrix} = \mathbf{\begin{bmatrix} 9 & -1 \\ -4 & 2 \end{bmatrix}}
+    \end{equation*}
+    This confirms the socks-and-shoes reversal identity: $(AB)^T = B^T A^T$.
+\end{enumerate}
+
+\textbf{3. Linear Systems: Row Picture vs. Column Picture}
+System: $x_1 + 2x_2 = 5$ and $3x_1 - x_2 = 1$.
+\begin{enumerate}
+    \item \textbf{Matrix Form:}
+    \begin{equation*}
+    A\mathbf{x} = \mathbf{b} \iff \mathbf{\begin{bmatrix} 1 & 2 \\ 3 & -1 \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \end{bmatrix} = \begin{bmatrix} 5 \\ 1 \end{bmatrix}}
+    \end{equation*}
+    \item \textbf{Row Picture:}
+    Equation 1: $x_2 = -\frac{1}{2}x_1 + \frac{5}{2}$ (Line $L_1$ with slope $m_1 = -0.5$). \\
+    Equation 2: $x_2 = 3x_1 - 1$ (Line $L_2$ with slope $m_2 = 3$). \\
+    Setting the two lines equal to find their intersection:
+    \begin{equation*}
+    3x_1 - 1 = -\frac{1}{2}x_1 + \frac{5}{2} \implies \frac{7}{2}x_1 = \frac{7}{2} \implies x_1 = 1 \implies x_2 = 3(1) - 1 = 2
+    \end{equation*}
+    The Row Picture interprets the solution as the unique point of intersection: $\mathbf{(x_1, x_2) = (1, 2)}$.
+    \item \textbf{Column Picture:}
+    The system is expressed as a linear combination of the column vectors of $A$:
+    \begin{equation*}
+    x_1 \begin{bmatrix} 1 \\ 3 \end{bmatrix} + x_2 \begin{bmatrix} 2 \\ -1 \end{bmatrix} = \begin{bmatrix} 5 \\ 1 \end{bmatrix}
+    \end{equation*}
+    Substituting the coordinates $x_1 = 1$ and $x_2 = 2$:
+    \begin{equation*}
+    \mathbf{1 \begin{bmatrix} 1 \\ 3 \end{bmatrix} + 2 \begin{bmatrix} 2 \\ -1 \end{bmatrix} = \begin{bmatrix} 1 + 4 \\ 3 - 2 \end{bmatrix} = \begin{bmatrix} 5 \\ 1 \end{bmatrix}}
+    \end{equation*}
+    The Column Picture demonstrates that 1 unit of column 1 added to 2 units of column 2 exactly constructs the target vector $\mathbf{b}$.
+\end{enumerate}
+
+\textbf{4. Determinants and Singularity Conditions}
+Matrix $M_k = \begin{bmatrix} 2 & 1 & 3 \\ 0 & k & 4 \\ 1 & -1 & 2 \end{bmatrix}$.
+\begin{enumerate}
+    \item \textbf{Determinant via Laplace Expansion along Column 1:}
+    \begin{align*}
+    \det(M_k) &= 2 \begin{vmatrix} k & 4 \\ -1 & 2 \end{vmatrix} - 0 \begin{vmatrix} 1 & 3 \\ -1 & 2 \end{vmatrix} + 1 \begin{vmatrix} 1 & 3 \\ k & 4 \end{vmatrix} \\
+    &= 2(2k - (-4)) + (4 - 3k) = 2(2k + 4) + 4 - 3k \\
+    &= 4k + 8 + 4 - 3k = \mathbf{k + 12}
+    \end{align*}
+    \item \textbf{Singularity Condition:}
+    A matrix is singular if and only if its determinant is zero:
+    \begin{equation*}
+    \det(M_k) = 0 \iff k + 12 = 0 \iff \mathbf{k = -12}
+    \end{equation*}
+    \item \textbf{Inverse Matrix Determinant for $k = 5$:}
+    For $k = 5$, $\det(M_5) = 5 + 12 = 17 \neq 0$.
+    By the determinant multiplicative property $\det(A^{-1}) = \frac{1}{\det(A)}$:
+    \begin{equation*}
+    \det(M_5^{-1}) = \frac{1}{\det(M_5)} = \mathbf{\frac{1}{17}}
+    \end{equation*}
+\end{enumerate}
+
+\textbf{5. Covariance Matrices and Mahalanobis Distance}
+Given $\boldsymbol{\mu} = \begin{bmatrix} 0 \\ 0 \end{bmatrix}$, $\Sigma = \begin{bmatrix} 5 & 2 \\ 2 & 2 \end{bmatrix}$, and $\mathbf{x} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$:
+\begin{enumerate}
+    \item \textbf{Generalized Variance $\det(\Sigma)$:}
+    \begin{equation*}
+    \det(\Sigma) = (5)(2) - (2)(2) = 10 - 4 = \mathbf{6}
+    \end{equation*}
+    \item \textbf{Analytical Matrix Inverse $\Sigma^{-1}$:}
+    Using the $2 \times 2$ formula $\begin{bmatrix} a & b \\ c & d \end{bmatrix}^{-1} = \frac{1}{ad - bc}\begin{bmatrix} d & -b \\ -c & a \end{bmatrix}$:
+    \begin{equation*}
+    \Sigma^{-1} = \frac{1}{6} \begin{bmatrix} 2 & -2 \\ -2 & 5 \end{bmatrix} = \mathbf{\begin{bmatrix} 1/3 & -1/3 \\ -1/3 & 5/6 \end{bmatrix}}
+    \end{equation*}
+    \item \textbf{Squared Mahalanobis Distance $d_M^2$:}
+    Since $\boldsymbol{\mu} = \mathbf{0}$, $\mathbf{x} - \boldsymbol{\mu} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$.
+    \begin{align*}
+    d_M^2 &= \begin{bmatrix} 1 & 2 \end{bmatrix} \begin{bmatrix} 1/3 & -1/3 \\ -1/3 & 5/6 \end{bmatrix} \begin{bmatrix} 1 \\ 2 \end{bmatrix} \\
+    &= \begin{bmatrix} 1(1/3) + 2(-1/3) & 1(-1/3) + 2(5/6) \end{bmatrix} \begin{bmatrix} 1 \\ 2 \end{bmatrix} \\
+    &= \begin{bmatrix} -1/3 & 4/3 \end{bmatrix} \begin{bmatrix} 1 \\ 2 \end{bmatrix} = \left(-\frac{1}{3}\right)(1) + \left(\frac{4}{3}\right)(2) = -\frac{1}{3} + \frac{8}{3} = \mathbf{\frac{7}{3} \approx 2.3333}
+    \end{align*}
+\end{enumerate}
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Transpose of Matrix Product Sequence}
 \begin{itemize}
-    \item \textbf{(a) Dot Product:}
-    $$\mathbf{u} \cdot \mathbf{v} = (2)(1) + (3)(-2) + (-1)(4) = 2 - 6 - 4 = \mathbf{-8}$$
-    \item \textbf{(b) Norms:}
-    $$\|\mathbf{u}\| = \sqrt{2^2 + 3^2 + (-1)^2} = \sqrt{4 + 9 + 1} = \mathbf{\sqrt{14}}$$
-    $$\|\mathbf{v}\| = \sqrt{1^2 + (-2)^2 + 4^2} = \sqrt{1 + 4 + 16} = \mathbf{\sqrt{21}}$$
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} Transposing a matrix product reverses the order of every term: $(ABC)^T = C^T B^T A^T$. If $A \in \R^{4 \times 3}, B \in \R^{3 \times 5}, C \in \R^{5 \times 2}$, their transposes have dimensions $A^T \in \R^{3 \times 4}, B^T \in \R^{5 \times 3}, C^T \in \R^{2 \times 5}$. Evaluating $A^T B^T$ attempts to multiply a $3 \times 4$ matrix by a $5 \times 3$ matrix; because the inner dimensions (4 and 5) do not match, the expression $A^T B^T C^T$ is completely undefined. Conversely, $C^T B^T A^T$ multiplies $(2 \times 5)(5 \times 3)(3 \times 4) = 2 \times 4$, which matches $(ABC)^T \in \R^{2 \times 4}$.
+    \item \textbf{Why (a) is false:} Transposition does not distribute without order reversal.
+    \item \textbf{Why (c) is false:} The matrices are non-square ($4 \times 3$, etc.), so determinants do not exist for them anyway.
+    \item \textbf{Why (d) is false:} Even if matrices are square and symmetric, $A^T B^T = AB \neq (AB)^T$ unless $A$ and $B$ commute.
 \end{itemize}
 
-\textbf{2. Matrix Multiplication}
-$$AB = \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} \begin{bmatrix} 0 & -1 \\ 2 & 5 \end{bmatrix} = \begin{bmatrix} 1(0)+2(2) & 1(-1)+2(5) \\ 3(0)+4(2) & 3(-1)+4(5) \end{bmatrix} = \mathbf{\begin{bmatrix} 4 & 9 \\ 8 & 17 \end{bmatrix}}$$
-$$BA = \begin{bmatrix} 0 & -1 \\ 2 & 5 \end{bmatrix} \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} = \begin{bmatrix} 0(1)-1(3) & 0(2)-1(4) \\ 2(1)+5(3) & 2(2)+5(4) \end{bmatrix} = \mathbf{\begin{bmatrix} -3 & -4 \\ 17 & 24 \end{bmatrix}}$$
-Since $\begin{bmatrix} 4 & 9 \\ 8 & 17 \end{bmatrix} \neq \begin{bmatrix} -3 & -4 \\ 17 & 24 \end{bmatrix}$, matrix multiplication is non-commutative ($AB \neq BA$).
-
-\textbf{3. Matrix-Vector System Formulation}
-$$A = \begin{bmatrix} 2 & 3 & -1 \\ 4 & -1 & 2 \\ -1 & 5 & 3 \end{bmatrix}, \quad \mathbf{x} = \begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix}, \quad \mathbf{b} = \begin{bmatrix} 7 \\ 3 \\ 10 \end{bmatrix}$$
-Augmented Matrix $[A \mid \mathbf{b}]$:
-$$[A \mid \mathbf{b}] = \mathbf{\left[\begin{array}{ccc|c} 2 & 3 & -1 & 7 \\ 4 & -1 & 2 & 3 \\ -1 & 5 & 3 & 10 \end{array}\right]}$$
-
-\textbf{4. Determinant Calculation}
-Expand $M$ along row 1:
-$$\det(M) = 3 \begin{vmatrix} 4 & 5 \\ 2 & 1 \end{vmatrix} - 1 \begin{vmatrix} 0 & 5 \\ 1 & 1 \end{vmatrix} + 2 \begin{vmatrix} 0 & 4 \\ 1 & 2 \end{vmatrix}$$
-$$\det(M) = 3(4 - 10) - 1(0 - 5) + 2(0 - 4) = 3(-6) - 1(-5) + 2(-4) = -18 + 5 - 8 = \mathbf{-21}$$
-Since $\det(M) = -21 \neq 0$, the matrix $M$ is \textbf{invertible}.
-
-\textbf{5. Data Science Application: Covariance Determinant}
-$$\det(\Sigma) = \begin{vmatrix} \sigma_1^2 & \sigma_{12} \\ \sigma_{12} & \sigma_2^2 \end{vmatrix} = \sigma_1^2 \sigma_2^2 - \sigma_{12}^2$$
-$$\det(\Sigma) = (4)(9) - (3)^2 = 36 - 9 = \mathbf{27}$$
+\textbf{7. Geometric Meaning of $\det(A) = 0$}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} The determinant represents the factor by which the linear transformation scales the volume of any region in space. If $\det(A) = 0$, the transformation compresses non-zero volumes in 3D space down to zero volume, flattening the entire space into a 2D plane, a 1D line, or a 0D point. This loss of dimensionality means multiple distinct input vectors are mapped to the same output vector, making it impossible to invert the transformation.
+    \item \textbf{Why (a) is false:} Rotations preserve volumes and have $\det(R) = +1$.
+    \item \textbf{Why (c) is false:} Scaling volume by 2 corresponds to $\det(A) = 2$.
+    \item \textbf{Why (d) is false:} The identity transformation has $\det(I) = 1$.
+\end{itemize}
 
 \section*{Week 2: Cramer's Rule, Row Echelon Form \& Gaussian Elimination}
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Cramer's Rule ($2 \times 2$)}
-$$\det(A) = \begin{vmatrix} 3 & 4 \\ 1 & -2 \end{vmatrix} = 3(-2) - 4(1) = -6 - 4 = \mathbf{-10}$$
-$$\det(A_1(\mathbf{b})) = \begin{vmatrix} 10 & 4 \\ -3 & -2 \end{vmatrix} = 10(-2) - 4(-3) = -20 + 12 = -8 \implies x_1 = \frac{-8}{-10} = \mathbf{0.8}$$
-$$\det(A_2(\mathbf{b})) = \begin{vmatrix} 3 & 10 \\ 1 & -3 \end{vmatrix} = 3(-3) - 10(1) = -9 - 10 = -19 \implies x_2 = \frac{-19}{-10} = \mathbf{1.9}$$
+\textbf{1. Cramer's Rule on a $2 \times 2$ Linear System}
+Given the linear system $3x_1 + 4x_2 = 10$ and $x_1 - 2x_2 = -3$:
+\begin{enumerate}
+    \item \textbf{Determinant of Coefficient Matrix $A$:}
+    \begin{equation*}
+    \det(A) = \begin{vmatrix} 3 & 4 \\ 1 & -2 \end{vmatrix} = 3(-2) - 4(1) = -6 - 4 = \mathbf{-10}
+    \end{equation*}
+    Since $\det(A) = -10 \neq 0$, the system has a unique solution.
+    \item \textbf{Modified Matrices and Determinants:}
+    Replace column 1 with $\mathbf{b} = \begin{bmatrix} 10 \\ -3 \end{bmatrix}$:
+    \begin{equation*}
+    \det(A_1(\mathbf{b})) = \begin{vmatrix} 10 & 4 \\ -3 & -2 \end{vmatrix} = 10(-2) - 4(-3) = -20 + 12 = \mathbf{-8}
+    \end{equation*}
+    Replace column 2 with $\mathbf{b}$:
+    \begin{equation*}
+    \det(A_2(\mathbf{b})) = \begin{vmatrix} 3 & 10 \\ 1 & -3 \end{vmatrix} = 3(-3) - 10(1) = -9 - 10 = \mathbf{-19}
+    \end{equation*}
+    \item \textbf{Solution Coordinates via Cramer's Rule:}
+    \begin{align*}
+    x_1 &= \frac{\det(A_1(\mathbf{b}))}{\det(A)} = \frac{-8}{-10} = \mathbf{\frac{4}{5} = 0.8} \\
+    x_2 &= \frac{\det(A_2(\mathbf{b}))}{\det(A)} = \frac{-19}{-10} = \mathbf{\frac{19}{10} = 1.9}
+    \end{align*}
+    The unique solution vector is $\mathbf{x} = \begin{bmatrix} 0.8 \\ 1.9 \end{bmatrix}$.
+\end{enumerate}
 
-\textbf{2. Identifying REF}
+\textbf{2. Classifying Echelon Forms and Pivot Structures}
 \begin{itemize}
-    \item \textbf{(a)} \textbf{REF}: Pivots are at $(1,1)$ and $(2,2)$, entry below pivots is 0, zero row is at bottom.
-    \item \textbf{(b)} \textbf{REF}: Upper triangular with pivots at $(1,1), (2,2), (3,3)$.
-    \item \textbf{(c)} \textbf{Neither}: The pivot in row 2 is in column 1, which is to the left of the pivot in row 1 (column 2).
+    \item \textbf{Matrix $A = \begin{bmatrix} 1 & 3 & 0 & 2 \\ 0 & 1 & 0 & 4 \\ 0 & 0 & 0 & 0 \end{bmatrix}$:}
+    \textbf{Row Echelon Form (REF)}. Pivots are at $(1, 1)$ and $(2, 2)$, the zero row is at the bottom, and all entries below pivots are zero. It is \textbf{not RREF} because the entry above the second pivot is $3 \neq 0$.
+    \item \textbf{Matrix $B = \begin{bmatrix} 1 & 0 & 5 \\ 0 & 1 & -2 \\ 0 & 0 & 1 \end{bmatrix}$:}
+    \textbf{Row Echelon Form (REF)}. Pivots are at $(1, 1), (2, 2), (3, 3)$. It is \textbf{not RREF} because entries above the pivot in column 3 are $5 \neq 0$ and $-2 \neq 0$.
+    \item \textbf{Matrix $C = \begin{bmatrix} 0 & 1 & 2 \\ 1 & 0 & 3 \end{bmatrix}$:}
+    \textbf{Neither REF nor RREF}. The leading non-zero entry of row 1 is in column 2, while the leading entry of row 2 is in column 1. The pivot of row 2 lies to the left of the pivot of row 1, violating the strict staircase property. Performing row swap $R_1 \leftrightarrow R_2$ would place it in RREF.
+    \item \textbf{Matrix $D = \begin{bmatrix} 1 & 0 & 3 \\ 0 & 1 & -1 \\ 0 & 0 & 0 \end{bmatrix}$:}
+    \textbf{Reduced Row Echelon Form (RREF)}. Pivots are both 1, entries above and below pivots are strictly 0, and the zero row is at the bottom. Column 3 has non-zero entries, but it is a non-pivot column representing a free variable.
 \end{itemize}
 
-\textbf{3. Gaussian Elimination ($3 \times 3$)}
-Augmented matrix $[A \mid \mathbf{b}]$:
-$$\left[\begin{array}{ccc|c} 1 & 2 & 1 & 8 \\ 2 & 3 & 4 & 20 \\ 4 & 3 & 2 & 16 \end{array}\right]$$
-1. $R_2 \to R_2 - 2R_1$ and $R_3 \to R_3 - 4R_1$:
-$$\left[\begin{array}{ccc|c} 1 & 2 & 1 & 8 \\ 0 & -1 & 2 & 4 \\ 0 & -5 & -2 & -16 \end{array}\right]$$
-2. $R_3 \to R_3 - 5R_2$:
-$$\left[\begin{array}{ccc|c} 1 & 2 & 1 & 8 \\ 0 & -1 & 2 & 4 \\ 0 & 0 & -12 & -36 \end{array}\right]$$
-3. \textbf{Back-Substitution:}
-\begin{itemize}
-    \item Row 3: $-12 x_3 = -36 \implies \mathbf{x_3 = 3}$.
-    \item Row 2: $-x_2 + 2(3) = 4 \implies -x_2 + 6 = 4 \implies \mathbf{x_2 = 2}$.
-    \item Row 1: $x_1 + 2(2) + 3 = 8 \implies x_1 + 7 = 8 \implies \mathbf{x_1 = 1}$.
-\end{itemize}
-Solution: $\mathbf{(x_1, x_2, x_3) = (1, 2, 3)}$.
+\textbf{3. Gaussian Elimination with Back-Substitution ($3 \times 3$)}
+Linear system:
+\begin{align*}
+x_1 + 2x_2 + x_3 &= 8 \\
+2x_1 + 3x_2 + 4x_3 &= 20 \\
+4x_1 + 3x_2 + 2x_3 &= 16
+\end{align*}
+\begin{enumerate}
+    \item \textbf{Augmented Matrix Setup:}
+    \begin{equation*}
+    [A \mid \mathbf{b}] = \left[\begin{array}{ccc|c}
+    1 & 2 & 1 & 8 \\
+    2 & 3 & 4 & 20 \\
+    4 & 3 & 2 & 16
+    \end{array}\right]
+    \end{equation*}
+    \item \textbf{Forward Elimination to REF:}
+    Eliminate column 1 entries below row 1 via $R_2 \to R_2 - 2R_1$ and $R_3 \to R_3 - 4R_1$:
+    \begin{equation*}
+    \left[\begin{array}{ccc|c}
+    1 & 2 & 1 & 8 \\
+    0 & 3 - 4 & 4 - 2 & 20 - 16 \\
+    0 & 3 - 8 & 2 - 4 & 16 - 32
+    \end{array}\right]
+    = \left[\begin{array}{ccc|c}
+    1 & 2 & 1 & 8 \\
+    0 & -1 & 2 & 4 \\
+    0 & -5 & -2 & -16
+    \end{array}\right]
+    \end{equation*}
+    Eliminate column 2 entry below row 2 via $R_3 \to R_3 - 5R_2$:
+    \begin{equation*}
+    \left[\begin{array}{ccc|c}
+    1 & 2 & 1 & 8 \\
+    0 & -1 & 2 & 4 \\
+    0 & -5 - 5(-1) & -2 - 5(2) & -16 - 5(4)
+    \end{array}\right]
+    = \left[\begin{array}{ccc|c}
+    1 & 2 & 1 & 8 \\
+    0 & -1 & 2 & 4 \\
+    0 & 0 & -12 & -36
+    \end{array}\right]
+    \end{equation*}
+    The augmented matrix is now in Row Echelon Form.
+    \item \textbf{Back-Substitution:}
+    \begin{itemize}
+        \item From Row 3: $-12 x_3 = -36 \implies \mathbf{x_3 = 3}$.
+        \item From Row 2: $-x_2 + 2(3) = 4 \implies -x_2 + 6 = 4 \implies \mathbf{x_2 = 2}$.
+        \item From Row 1: $x_1 + 2(2) + 1(3) = 8 \implies x_1 + 4 + 3 = 8 \implies \mathbf{x_1 = 1}$.
+    \end{itemize}
+    Unique Solution Vector: $\mathbf{x} = \mathbf{\begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix}}$.
+\end{enumerate}
 
-\textbf{4. Free Variables \& Infinite Solutions}
-$$\left[\begin{array}{ccc|c} 1 & 2 & -1 & 4 \\ 2 & 4 & 1 & 11 \end{array}\right] \xrightarrow{R_2 \to R_2 - 2R_1} \left[\begin{array}{ccc|c} 1 & 2 & -1 & 4 \\ 0 & 0 & 3 & 3 \end{array}\right]$$
-\begin{itemize}
-    \item Row 2: $3x_3 = 3 \implies \mathbf{x_3 = 1}$.
-    \item Row 1: $x_1 + 2x_2 - 1 = 4 \implies x_1 = 5 - 2x_2$.
-\end{itemize}
-Here $x_2$ is a \textbf{free variable} ($x_2 = t$).
-General Parametric Solution: $\mathbf{\begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix} = \begin{bmatrix} 5 - 2t \\ t \\ 1 \end{bmatrix}}$ for any $t \in \mathbb{R}$.
+\textbf{4. Free Variables, Rank, and Parametric Solution Families}
+Underdetermined system $x_1 + 2x_2 - x_3 = 4$ and $2x_1 + 4x_2 + x_3 = 11$:
+\begin{enumerate}
+    \item \textbf{Row Reduction to RREF:}
+    \begin{equation*}
+    \left[\begin{array}{ccc|c}
+    1 & 2 & -1 & 4 \\
+    2 & 4 & 1 & 11
+    \end{array}\right]
+    \xrightarrow{R_2 \to R_2 - 2R_1}
+    \left[\begin{array}{ccc|c}
+    1 & 2 & -1 & 4 \\
+    0 & 0 & 3 & 3
+    \end{array}\right]
+    \end{equation*}
+    Normalize pivot in row 2 via $R_2 \to \frac{1}{3} R_2$:
+    \begin{equation*}
+    \left[\begin{array}{ccc|c}
+    1 & 2 & -1 & 4 \\
+    0 & 0 & 1 & 1
+    \end{array}\right]
+    \end{equation*}
+    Eliminate entry above pivot in column 3 via $R_1 \to R_1 + R_2$:
+    \begin{equation*}
+    \left[\begin{array}{ccc|c}
+    1 & 2 & 0 & 5 \\
+    0 & 0 & 1 & 1
+    \end{array}\right] \quad \text{\textbf{(RREF)}}
+    \end{equation*}
+    \item \textbf{Rank and Variable Identification:}
+    \begin{itemize}
+        \item $\rank(A) = 2$ and $\rank([A \mid \mathbf{b}]) = 2$. Since ranks are equal, the system is consistent.
+        \item Number of variables $n = 3$. Since $\rank < 3$, there are infinitely many solutions.
+        \item \textbf{Pivot Columns:} Columns 1 and 3 $\implies x_1$ and $x_3$ are \textbf{pivot variables}.
+        \item \textbf{Free Columns:} Column 2 has no pivot $\implies x_2$ is a \textbf{free variable} (let $x_2 = t \in \R$).
+    \end{itemize}
+    \item \textbf{Parametric Vector Form:}
+    From row 1: $x_1 + 2t = 5 \implies x_1 = 5 - 2t$. \\
+    From row 2: $x_3 = 1$. \\
+    Expressing as particular and homogeneous vector components:
+    \begin{equation*}
+    \mathbf{x} = \begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix} = \begin{bmatrix} 5 - 2t \\ t \\ 1 \end{bmatrix} = \mathbf{\begin{bmatrix} 5 \\ 0 \\ 1 \end{bmatrix} + t \begin{bmatrix} -2 \\ 1 \\ 0 \end{bmatrix}}, \quad \forall t \in \R
+    \end{equation*}
+    The solution set is a 1-dimensional line in $\R^3$ passing through $\mathbf{x}_p = [5, 0, 1]^T$ along direction $\mathbf{v}_h = [-2, 1, 0]^T$.
+\end{enumerate}
 
-\textbf{5. Data Science Application: Least Squares Normal Equations}
-Using Cramer's Rule on $\begin{bmatrix} 4 & 2 \\ 2 & 3 \end{bmatrix} \begin{bmatrix} w_0 \\ w_1 \end{bmatrix} = \begin{bmatrix} 10 \\ 9 \end{bmatrix}$:
-$$\det(A) = 4(3) - 2(2) = 12 - 4 = 8$$
-$$w_0 = \frac{\begin{vmatrix} 10 & 2 \\ 9 & 3 \end{vmatrix}}{8} = \frac{30 - 18}{8} = \frac{12}{8} = \mathbf{1.5}$$
-$$w_1 = \frac{\begin{vmatrix} 4 & 10 \\ 2 & 9 \end{vmatrix}}{8} = \frac{36 - 20}{8} = \frac{16}{8} = \mathbf{2.0}$$
-Parameter Vector: $\mathbf{w} = \mathbf{\begin{bmatrix} 1.5 \\ 2.0 \end{bmatrix}}$.
+\textbf{5. Ordinary Least Squares (OLS) Normal Equations}
+Given $(X^T X)\mathbf{w} = X^T \mathbf{y}$ with $X^T X = \begin{bmatrix} 4 & 2 \\ 2 & 3 \end{bmatrix}$ and $X^T \mathbf{y} = \begin{bmatrix} 10 \\ 9 \end{bmatrix}$:
+\begin{enumerate}
+    \item \textbf{Invertibility Check:}
+    \begin{equation*}
+    \det(X^T X) = (4)(3) - (2)(2) = 12 - 4 = \mathbf{8} \neq 0
+    \end{equation*}
+    Since $\det(X^T X) = 8 > 0$, the normal equations matrix is non-singular and strictly invertible.
+    \item \textbf{Solution via Cramer's Rule:}
+    \begin{align*}
+    w_0 &= \frac{\det \begin{bmatrix} 10 & 2 \\ 9 & 3 \end{bmatrix}}{\det(X^T X)} = \frac{10(3) - 2(9)}{8} = \frac{30 - 18}{8} = \frac{12}{8} = \mathbf{1.5} \\
+    w_1 &= \frac{\det \begin{bmatrix} 4 & 10 \\ 2 & 9 \end{bmatrix}}{\det(X^T X)} = \frac{4(9) - 10(2)}{8} = \frac{36 - 20}{8} = \frac{16}{8} = \mathbf{2.0}
+    \end{align*}
+    Optimal weight vector: $\mathbf{w}^* = \mathbf{\begin{bmatrix} 1.5 \\ 2.0 \end{bmatrix}}$.
+    \item \textbf{Confirmation via Matrix Inversion:}
+    \begin{equation*}
+    (X^T X)^{-1} = \frac{1}{8} \begin{bmatrix} 3 & -2 \\ -2 & 4 \end{bmatrix}
+    \end{equation*}
+    \begin{equation*}
+    \mathbf{w}^* = (X^T X)^{-1} (X^T \mathbf{y}) = \frac{1}{8} \begin{bmatrix} 3 & -2 \\ -2 & 4 \end{bmatrix} \begin{bmatrix} 10 \\ 9 \end{bmatrix} = \frac{1}{8} \begin{bmatrix} 3(10) - 2(9) \\ -2(10) + 4(9) \end{bmatrix} = \frac{1}{8} \begin{bmatrix} 12 \\ 16 \end{bmatrix} = \mathbf{\begin{bmatrix} 1.5 \\ 2.0 \end{bmatrix}}
+    \end{equation*}
+\end{enumerate}
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Contradiction Rows and System Inconsistency}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} Row 3 of the augmented matrix translates to the algebraic equation $0x_1 + 0x_2 + 0x_3 = 5$, which simplifies to $0 = 5$. Since zero cannot equal five, no set of real values for $(x_1, x_2, x_3)$ can ever satisfy this constraint. Under the Rouché-Capelli Theorem, $\rank(A) = 2$ while $\rank([A \mid \mathbf{b}]) = 3$. Because $\rank(A) < \rank([A \mid \mathbf{b}])$, the system is strictly inconsistent and has \textbf{no solutions}.
+    \item \textbf{Why (a) is false:} Free variables only yield infinite solutions if the system is consistent (no contradiction row).
+    \item \textbf{Why (c) is false:} Zero rows in REF are already correctly positioned at the bottom.
+    \item \textbf{Why (d) is false:} Cramer's Rule only applies to square matrices with $\det(A) \neq 0$; here the system is non-square ($4 \times 3$).
+\end{itemize}
+
+\textbf{7. Complexity of Gaussian Elimination vs. Cramer's Rule}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} Cramer's Rule requires calculating $n + 1$ separate determinants of size $n \times n$. Computing a determinant via standard cofactor expansion scales factorially as $\mathcal{O}((n+1)!)$, making it impossible to solve even moderate systems (e.g. $n = 50$). In contrast, Gaussian Elimination requires only $\frac{2}{3}n^3$ arithmetic operations ($\mathcal{O}(n^3)$), which runs in milliseconds on modern hardware.
+    \item \textbf{Why (a) is false:} Cramer's Rule works on negative and positive entries alike.
+    \item \textbf{Why (c) is false:} Gaussian Elimination works on all matrices, but OLS solves systems where $X^T X$ is invertible.
+    \item \textbf{Why (d) is false:} Cramer's Rule does not compute or alter eigenvalues.
+\end{itemize}
 
 \section*{Week 3: Vector Spaces, Subspaces \& Linear Independence}
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Subspace Test for $W = \set{ [x, y]^T \mid 2x - 3y = 0 }$}
+\textbf{1. Subspace Test and Geometric Verification}
 \begin{enumerate}
-    \item \textbf{Zero Vector:} For $\mathbf{0} = [0, 0]^T$, $2(0) - 3(0) = 0$. $\mathbf{0} \in W$.
-    \item \textbf{Closure under Addition:} Let $\mathbf{u} = [x_1, y_1]^T, \mathbf{v} = [x_2, y_2]^T \in W$. Then $2x_1 - 3y_1 = 0$ and $2x_2 - 3y_2 = 0$.
-    For $\mathbf{u} + \mathbf{v} = [x_1 + x_2, y_1 + y_2]^T$:
-    $$2(x_1 + x_2) - 3(y_1 + y_2) = (2x_1 - 3y_1) + (2x_2 - 3y_2) = 0 + 0 = 0 \implies \mathbf{u} + \mathbf{v} \in W$$
-    \item \textbf{Closure under Scalar Multiplication:} For any scalar $c \in \mathbb{R}$:
-    $$2(cx_1) - 3(cy_1) = c(2x_1 - 3y_1) = c(0) = 0 \implies c\mathbf{u} \in W$$
+    \item \textbf{Subset $W_1 = \left\{ [x, y, z]^T \in \R^3 \mid 2x - y + 3z = 0 \right\}$:}
+    \begin{itemize}
+        \item \textbf{Zero Vector:} For $\mathbf{0} = [0, 0, 0]^T$, $2(0) - (0) + 3(0) = 0$. Thus $\mathbf{0} \in W_1$.
+        \item \textbf{Closure under Addition:} Let $\mathbf{u} = [x_1, y_1, z_1]^T, \mathbf{v} = [x_2, y_2, z_2]^T \in W_1$, so $2x_1 - y_1 + 3z_1 = 0$ and $2x_2 - y_2 + 3z_2 = 0$.
+        For $\mathbf{u} + \mathbf{v} = [x_1 + x_2, y_1 + y_2, z_1 + z_2]^T$:
+        \begin{equation*}
+        2(x_1 + x_2) - (y_1 + y_2) + 3(z_1 + z_2) = (2x_1 - y_1 + 3z_1) + (2x_2 - y_2 + 3z_2) = 0 + 0 = 0
+        \end{equation*}
+        Thus $\mathbf{u} + \mathbf{v} \in W_1$.
+        \item \textbf{Closure under Scalar Multiplication:} For any scalar $c \in \R$:
+        \begin{equation*}
+        2(cx_1) - (cy_1) + 3(cz_1) = c(2x_1 - y_1 + 3z_1) = c(0) = 0 \implies c\mathbf{u} \in W_1
+        \end{equation*}
+    \end{itemize}
+    $W_1$ satisfies all 3 criteria and is a \textbf{valid subspace of $\R^3$} (a plane passing through the origin).
+
+    \item \textbf{Subset $W_2 = \left\{ [x, y, z]^T \in \R^3 \mid 2x - y + 3z = 4 \right\}$:}
+    \begin{itemize}
+        \item \textbf{Zero Vector Test:} For $\mathbf{0} = [0, 0, 0]^T$, $2(0) - (0) + 3(0) = 0 \neq 4$.
+    \end{itemize}
+    Because $\mathbf{0} \notin W_2$, $W_2$ fails immediately. $W_2$ is \textbf{NOT a subspace} (it is an affine plane shifted by 4 units).
+
+    \item \textbf{Subset $W_3 = \left\{ [x, y, z]^T \in \R^3 \mid x \ge 0, y \ge 0, z \ge 0 \right\}$:}
+    \begin{itemize}
+        \item The zero vector is in $W_3$, and $W_3$ is closed under addition.
+        \item \textbf{Scalar Multiplication Failure:} Let $\mathbf{v} = [1, 2, 3]^T \in W_3$ and let scalar $c = -1 \in \R$.
+        Then $c\mathbf{v} = [-1, -2, -3]^T \notin W_3$ because all components are negative.
+    \end{itemize}
+    Because it is not closed under negative scalar multiplication, $W_3$ is \textbf{NOT a subspace} (it is the positive octant cone).
 \end{enumerate}
-Conclusion: $W$ satisfies all 3 criteria and is a \textbf{valid subspace of $\mathbb{R}^2$}.
 
-\textbf{2. Non-Subspace Counterexample}
-For $W = \set{ [x, y]^T \mid x + y = 1 }$:
+\textbf{2. Linear Independence Testing in $\R^3$}
+Given vectors $\mathbf{v}_1 = \begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix}, \mathbf{v}_2 = \begin{bmatrix} 0 \\ 1 \\ 4 \end{bmatrix}, \mathbf{v}_3 = \begin{bmatrix} 5 \\ 6 \\ 0 \end{bmatrix}$:
+\begin{enumerate}
+    \item \textbf{Matrix Formulation:}
+    \begin{equation*}
+    A = [\mathbf{v}_1 \ \mathbf{v}_2 \ \mathbf{v}_3] = \begin{bmatrix} 1 & 0 & 5 \\ 2 & 1 & 6 \\ 3 & 4 & 0 \end{bmatrix}
+    \end{equation*}
+    \item \textbf{Laplace Expansion along Row 1:}
+    \begin{align*}
+    \det(A) &= 1 \begin{vmatrix} 1 & 6 \\ 4 & 0 \end{vmatrix} - 0 \begin{vmatrix} 2 & 6 \\ 3 & 0 \end{vmatrix} + 5 \begin{vmatrix} 2 & 1 \\ 3 & 4 \end{vmatrix} \\
+    &= 1(1(0) - 6(4)) + 5(2(4) - 1(3)) = 1(-24) + 5(8 - 3) \\
+    &= -24 + 5(5) = -24 + 25 = \mathbf{1}
+    \end{align*}
+    \item \textbf{Conclusion:}
+    Since $\det(A) = 1 \neq 0$, the matrix is non-singular and has full rank ($\rank(A) = 3$). The set $S = \{\mathbf{v}_1, \mathbf{v}_2, \mathbf{v}_3\}$ is \textbf{Linearly Independent}.
+\end{enumerate}
+
+\textbf{3. Parameterized Linear Dependence}
+Matrix $M = \begin{bmatrix} 1 & 3 & 2 \\ 2 & k & 0 \\ 1 & 2 & 1 \end{bmatrix}$. The vectors are linearly dependent if and only if $\det(M) = 0$.
+Expanding along row 2:
+\begin{align*}
+\det(M) &= -2 \begin{vmatrix} 3 & 2 \\ 2 & 1 \end{vmatrix} + k \begin{vmatrix} 1 & 2 \\ 1 & 1 \end{vmatrix} - 0 \begin{vmatrix} 1 & 3 \\ 1 & 2 \end{vmatrix} \\
+&= -2(3(1) - 2(2)) + k(1(1) - 2(1)) = -2(3 - 4) + k(1 - 2) \\
+&= -2(-1) - k = \mathbf{2 - k}
+\end{align*}
+Setting $\det(M) = 0$:
+\begin{equation*}
+2 - k = 0 \implies \mathbf{k = 2}
+\end{equation*}
+
+\textbf{4. Linear Combinations and Span Verification}
+Vectors $\mathbf{u}_1 = \begin{bmatrix} 1 \\ -1 \\ 2 \end{bmatrix}, \mathbf{u}_2 = \begin{bmatrix} 3 \\ 0 \\ 1 \end{bmatrix}$, and target $\mathbf{b} = \begin{bmatrix} 7 \\ -2 \\ 5 \end{bmatrix}$.
+\begin{enumerate}
+    \item We seek scalars $c_1, c_2$ such that $c_1 \mathbf{u}_1 + c_2 \mathbf{u}_2 = \mathbf{b}$:
+    \begin{equation*}
+    \begin{bmatrix} 1 & 3 \\ -1 & 0 \\ 2 & 1 \end{bmatrix} \begin{bmatrix} c_1 \\ c_2 \end{bmatrix} = \begin{bmatrix} 7 \\ -2 \\ 5 \end{bmatrix}
+    \end{equation*}
+    \begin{itemize}
+        \item From equation 2: $-c_1 = -2 \implies \mathbf{c_1 = 2}$.
+        \item From equation 1: $c_1 + 3c_2 = 7 \implies 2 + 3c_2 = 7 \implies 3c_2 = 5 \implies \mathbf{c_2 = \frac{5}{3}}$.
+    \end{itemize}
+    \item \textbf{Consistency Check on Equation 3:}
+    Substitute $c_1 = 2$ and $c_2 = \frac{5}{3}$ into equation 3:
+    \begin{equation*}
+    2c_1 + c_2 = 2(2) + \frac{5}{3} = 4 + \frac{5}{3} = \frac{17}{3} \approx 5.6667
+    \end{equation*}
+    However, the third entry of $\mathbf{b}$ is $5 = \frac{15}{3} \neq \frac{17}{3}$.
+    The system is inconsistent; no such scalars exist. Therefore, $\mathbf{b}$ \textbf{does NOT belong to $\vspan\{\mathbf{u}_1, \mathbf{u}_2\}$}.
+\end{enumerate}
+
+\textbf{5. Multicollinearity in Regression Design Matrices}
+\begin{enumerate}
+    \item \textbf{Non-Trivial Linear Combination:}
+    Given $x_2 = 0.092903 x_1$, we rearrange:
+    \begin{equation*}
+    0.092903 x_1 - 1 \cdot x_2 + 0 \cdot x_3 = \mathbf{0}
+    \end{equation*}
+    Because the scalar coefficients $(0.092903, -1, 0)$ are not all zero, the feature vector set $\{x_1, x_2, x_3\}$ is strictly \textbf{linearly dependent}.
+    \item \textbf{Maximum Possible Rank of Design Matrix $X \in \R^{N \times 3}$:}
+    Since column 2 is an exact scalar multiple of column 1 ($\operatorname{col}_2(X) = 0.092903 \operatorname{col}_1(X)$), column 2 cannot contribute a new pivot. Thus:
+    \begin{equation*}
+    \rank(X) \le \mathbf{2} < 3
+    \end{equation*}
+    \item \textbf{Singularity of the Normal Equations Matrix $X^T X$:}
+    A fundamental linear algebra theorem states that $\rank(X^T X) = \rank(X)$.
+    Since $X^T X \in \R^{3 \times 3}$, its rank is at most 2:
+    \begin{equation*}
+    \rank(X^T X) \le 2 < 3 \implies \det(X^T X) = 0
+    \end{equation*}
+    $X^T X$ is strictly singular (rank-deficient). Its inverse $(X^T X)^{-1}$ does not exist, causing the closed-form OLS estimator $\hat{\mathbf{w}} = (X^T X)^{-1} X^T \mathbf{y}$ to fail. One of the redundant size features must be removed before fitting.
+\end{enumerate}
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Number of Vectors Exceeding Dimension}
 \begin{itemize}
-    \item \textbf{Zero vector test:} $\mathbf{0} = [0, 0]^T \implies 0 + 0 = 0 \neq 1$. $\mathbf{0} \notin W$.
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} In any vector space $\R^n$, the maximum number of linearly independent vectors is equal to the dimension $n$. When placing $k = 5$ vectors in $\R^4$ into a matrix $A \in \R^{4 \times 5}$, the homogeneous equation $A\mathbf{c} = \mathbf{0}$ represents 4 equations in 5 unknowns. By the Rank-Nullity Theorem, $\rank(A) \le 4$, so the number of free variables is $5 - \rank(A) \ge 5 - 4 = 1$. The existence of at least one free variable guarantees non-trivial solutions, making any set of 5 vectors in $\R^4$ strictly linearly dependent.
+    \item \textbf{Why (a) is false:} Non-zero vectors can easily be linearly dependent (e.g. collinear or coplanar vectors).
+    \item \textbf{Why (c) is false:} Determinants are defined only for square matrices; a $4 \times 5$ matrix has no determinant.
+    \item \textbf{Why (d) is false:} Orthogonality cannot overcome the dimensional ceiling; at most 4 mutually orthogonal non-zero vectors can exist in $\R^4$.
 \end{itemize}
-Failing the zero vector test immediately proves $W$ is \textbf{NOT a vector subspace}.
 
-\textbf{3. Testing Linear Independence ($3 \times 3$)}
-Form matrix $A = [\mathbf{v}_1 \; \mathbf{v}_2 \; \mathbf{v}_3] = \begin{bmatrix} 1 & 0 & 5 \\ 2 & 1 & 6 \\ 3 & 4 & 0 \end{bmatrix}$.
-Compute $\det(A)$ expanding along row 1:
-$$\det(A) = 1(1 \cdot 0 - 4 \cdot 6) - 0 + 5(2 \cdot 4 - 3 \cdot 1) = 1(-24) + 5(8 - 3) = -24 + 25 = \mathbf{1}$$
-Since $\det(A) = 1 \neq 0$, the set $\{\mathbf{v}_1, \mathbf{v}_2, \mathbf{v}_3\}$ is \textbf{Linearly Independent}.
-
-\textbf{4. Linear Dependence Condition}
-Vectors are linearly dependent iff $\det([\mathbf{u} \; \mathbf{v}]) = 0$:
-$$\begin{vmatrix} 1 & 3 \\ 2 & k \end{vmatrix} = 1(k) - 3(2) = k - 6 = 0 \implies \mathbf{k = 6}$$
-
-\textbf{5. Data Science Application: Feature Multicollinearity}
-Since $1 \text{ sq ft} = 0.092903 \text{ sq m}$, $x_2 = 0.092903 x_1$.
-The linear combination $0.092903 \cdot x_1 - 1 \cdot x_2 + 0 \cdot x_3 = 0$ holds with non-zero coefficients. Thus the feature set $\set{x_1, x_2, x_3}$ is \textbf{linearly dependent}.
-In linear regression, this exact linear dependence leads to a singular matrix $X^T X$ ($\det(X^T X) = 0$), making $(X^T X)^{-1}$ undefined. One of the redundant size features must be dropped.
+\textbf{7. Subspace Failure of the Quadrant Union $xy \ge 0$}
+\begin{itemize}
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} To be a subspace, $W$ must be closed under addition. The vector $\mathbf{u} = \begin{bmatrix} 1 \\ 3 \end{bmatrix} \in W$ (since $(1)(3) = 3 \ge 0$) and $\mathbf{v} = \begin{bmatrix} -3 \\ -1 \end{bmatrix} \in W$ (since $(-3)(-1) = 3 \ge 0$). However, their vector sum is $\mathbf{u} + \mathbf{v} = \begin{bmatrix} 1 + (-3) \\ 3 + (-1) \end{bmatrix} = \begin{bmatrix} -2 \\ 2 \end{bmatrix}$. Evaluating the product: $(-2)(2) = -4 < 0$. The sum lands in the second quadrant, which is outside $W$. Thus $W$ fails additive closure.
+    \item \textbf{Why (a) is false:} $\mathbf{0} = [0, 0]^T \in W$ because $(0)(0) = 0 \ge 0$.
+    \item \textbf{Why (b) is false:} For any scalar $c \in \R$ and $[x, y]^T \in W$, $(cx)(cy) = c^2 (xy) \ge 0$, so it is closed under scalar multiplication.
+    \item \textbf{Why (d) is false:} It satisfies the zero vector and scalar multiplication criteria; only additive closure fails.
+\end{itemize}
 
 \section*{Week 4: Basis, Dimension \& Matrix Rank}
 
 \subsection*{Detailed Solutions}
 
 \textbf{1. Basis Verification \& Coordinate Representation}
-Form matrix $M = \begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix}$. $\det(M) = 1(-1) - 1(1) = -2 \neq 0$.
-Since $\det(M) \neq 0$, $\mathcal{B}$ consists of $2$ linearly independent vectors in $\mathbb{R}^2$. Therefore, $\mathcal{B}$ is a \textbf{valid basis for $\mathbb{R}^2$}.
+\begin{enumerate}
+    \item \textbf{Basis Verification in $\mathbb{R}^2$:}
+    A set of 2 vectors forms a basis for $\mathbb{R}^2$ if and only if they are linearly independent. Form the matrix $M$ with the vectors as columns:
+    \begin{equation*}
+    M = [\mathbf{b}_1 \; \mathbf{b}_2] = \begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix}
+    \end{equation*}
+    Compute the determinant:
+    \begin{equation*}
+    \det(M) = (1)(-1) - (1)(1) = -1 - 1 = -2 \neq 0
+    \end{equation*}
+    Because $\det(M) \neq 0$, the columns are linearly independent and span $\mathbb{R}^2$. Therefore, $\mathcal{B} = \left\{ \begin{bmatrix} 1 \\ 1 \end{bmatrix}, \begin{bmatrix} 1 \\ -1 \end{bmatrix} \right\}$ is a \textbf{valid basis for $\mathbb{R}^2$}.
+    
+    \item \textbf{Coordinate Representation:}
+    To express $\mathbf{v} = \begin{bmatrix} 5 \\ 1 \end{bmatrix}$ in basis $\mathcal{B}$, we solve $c_1 \mathbf{b}_1 + c_2 \mathbf{b}_2 = \mathbf{v}$, or $M [\mathbf{v}]_\mathcal{B} = \mathbf{v}$:
+    \begin{equation*}
+    \begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix} \begin{bmatrix} c_1 \\ c_2 \end{bmatrix} = \begin{bmatrix} 5 \\ 1 \end{bmatrix} \implies \begin{cases} c_1 + c_2 = 5 \\ c_1 - c_2 = 1 \end{cases}
+    \end{equation*}
+    Adding the two equations yields $2c_1 = 6 \implies \mathbf{c_1 = 3}$. Substituting into the first equation yields $3 + c_2 = 5 \implies \mathbf{c_2 = 2}$.
+    Thus, $\mathbf{v} = 3 \begin{bmatrix} 1 \\ 1 \end{bmatrix} + 2 \begin{bmatrix} 1 \\ -1 \end{bmatrix}$, and the coordinate vector is:
+    \begin{equation*}
+    [\mathbf{v}]_\mathcal{B} = \mathbf{\begin{bmatrix} 3 \\ 2 \end{bmatrix}}
+    \end{equation*}
+\end{enumerate}
 
-To find coordinates $c_1, c_2$ for $\mathbf{v} = \begin{bmatrix} 5 \\ 1 \end{bmatrix}$:
-$$\begin{cases} c_1 + c_2 = 5 \\ c_1 - c_2 = 1 \end{cases} \implies 2c_1 = 6 \implies \mathbf{c_1 = 3}, \, \mathbf{c_2 = 2}$$
-Vector $\mathbf{v} = 3 \begin{bmatrix} 1 \\ 1 \end{bmatrix} + 2 \begin{bmatrix} 1 \\ -1 \end{bmatrix}$.
+\textbf{2. Finding a Basis and Dimension for Subspace $W$}
+Given subspace $W = \left\{ [x, y, z]^T \in \mathbb{R}^3 \mid x + 2y - z = 0 \right\}$:
+\begin{enumerate}
+    \item \textbf{Parametric Solution Form:}
+    The linear constraint isolates $z$ as a dependent variable: $z = x + 2y$. Here $x$ and $y$ are independent free variables.
+    \item \textbf{Vector Decomposition:}
+    Every arbitrary vector $\mathbf{w} \in W$ can be uniquely decomposed as:
+    \begin{equation*}
+    \begin{bmatrix} x \\ y \\ z \end{bmatrix} = \begin{bmatrix} x \\ y \\ x + 2y \end{bmatrix} = x \begin{bmatrix} 1 \\ 0 \\ 1 \end{bmatrix} + y \begin{bmatrix} 0 \\ 1 \\ 2 \end{bmatrix}
+    \end{equation*}
+    \item \textbf{Basis and Dimension Extraction:}
+    The spanning vectors are $\mathbf{w}_1 = \begin{bmatrix} 1 \\ 0 \\ 1 \end{bmatrix}$ and $\mathbf{w}_2 = \begin{bmatrix} 0 \\ 1 \\ 2 \end{bmatrix}$. Since neither vector is a scalar multiple of the other, they are linearly independent.
+    Hence, a basis for $W$ is:
+    \begin{equation*}
+    \mathcal{B}_W = \mathbf{\left\{ \begin{bmatrix} 1 \\ 0 \\ 1 \end{bmatrix}, \begin{bmatrix} 0 \\ 1 \\ 2 \end{bmatrix} \right\}}
+    \end{equation*}
+    Since the basis contains 2 vectors, the dimension is $\mathbf{\dim(W) = 2}$ (geometrically, a 2D plane passing through the origin in $\mathbb{R}^3$).
+\end{enumerate}
 
-\textbf{2. Finding a Basis for Subspace $W$}
-From $x + 2y - z = 0 \implies z = x + 2y$.
-Any vector in $W$ can be written as:
-$$\begin{bmatrix} x \\ y \\ z \end{bmatrix} = \begin{bmatrix} x \\ y \\ x + 2y \end{bmatrix} = x \begin{bmatrix} 1 \\ 0 \\ 1 \end{bmatrix} + y \begin{bmatrix} 0 \\ 1 \\ 2 \end{bmatrix}$$
-Basis for $W$: $\mathbf{\mathcal{B}_W = \left\{ \begin{bmatrix} 1 \\ 0 \\ 1 \end{bmatrix}, \begin{bmatrix} 0 \\ 1 \\ 2 \end{bmatrix} \right\}}$. Since there are 2 basis vectors, $\mathbf{\dim(W) = 2}$.
+\textbf{3. Matrix Rank via Gaussian Elimination}
+Given matrix $A = \begin{bmatrix} 1 & 2 & 1 & 4 \\ 2 & 4 & 3 & 11 \\ 3 & 6 & 4 & 15 \end{bmatrix}$:
+\begin{enumerate}
+    \item \textbf{Row Reduction to REF:}
+    Forward elimination via $R_2 \to R_2 - 2R_1$ and $R_3 \to R_3 - 3R_1$:
+    \begin{equation*}
+    \begin{bmatrix} 1 & 2 & 1 & 4 \\ 0 & 0 & 3 - 2(1) & 11 - 2(4) \\ 0 & 0 & 4 - 3(1) & 15 - 3(4) \end{bmatrix} = \begin{bmatrix} 1 & 2 & 1 & 4 \\ 0 & 0 & 1 & 3 \\ 0 & 0 & 1 & 3 \end{bmatrix}
+    \end{equation*}
+    Eliminate row 3 via $R_3 \to R_3 - R_2$:
+    \begin{equation*}
+    \begin{bmatrix} 1 & 2 & 1 & 4 \\ 0 & 0 & 1 & 3 \\ 0 & 0 & 0 & 0 \end{bmatrix}
+    \end{equation*}
+    \item \textbf{Rank Determination:}
+    The Row Echelon Form contains exactly 2 non-zero rows with leading pivot entries located in Column 1 and Column 3. Therefore:
+    \begin{equation*}
+    \mathbf{\rank(A) = 2}
+    \end{equation*}
+    \item \textbf{Row Space and Column Space Bases:}
+    \begin{itemize}
+        \item \textbf{Basis for $\operatorname{Row}(A)$:} The non-zero rows of the REF:
+        \begin{equation*}
+        \mathcal{B}_{\operatorname{Row}(A)} = \left\{ \begin{bmatrix} 1 \\ 2 \\ 1 \\ 4 \end{bmatrix}, \begin{bmatrix} 0 \\ 0 \\ 1 \\ 3 \end{bmatrix} \right\}
+        \end{equation*}
+        \item \textbf{Basis for $\operatorname{Col}(A)$:} The pivot columns of the \textbf{original} matrix $A$ (columns 1 and 3):
+        \begin{equation*}
+        \mathcal{B}_{\operatorname{Col}(A)} = \left\{ \begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix}, \begin{bmatrix} 1 \\ 3 \\ 4 \end{bmatrix} \right\}
+        \end{equation*}
+    \end{itemize}
+\end{enumerate}
 
-\textbf{3. Matrix Rank Calculation}
-$$\begin{bmatrix} 1 & 2 & 1 & 4 \\ 2 & 4 & 3 & 11 \\ 3 & 6 & 4 & 15 \end{bmatrix} \xrightarrow{\substack{R_2 \to R_2 - 2R_1 \\ R_3 \to R_3 - 3R_1}} \begin{bmatrix} 1 & 2 & 1 & 4 \\ 0 & 0 & 1 & 3 \\ 0 & 0 & 1 & 3 \end{bmatrix} \xrightarrow{R_3 \to R_3 - R_2} \begin{bmatrix} 1 & 2 & 1 & 4 \\ 0 & 0 & 1 & 3 \\ 0 & 0 & 0 & 0 \end{bmatrix}$$
-The REF has $2$ non-zero rows (pivots in column 1 and column 3). Therefore, $\mathbf{\rank(A) = 2}$.
+\textbf{4. Full Rank vs. Rank Deficient Data Matrices}
+\begin{enumerate}
+    \item \textbf{Maximum Theoretical Rank:}
+    For any matrix $X \in \mathbb{R}^{m \times n}$, $\rank(X) \le \min(m, n)$.
+    For $X \in \mathbb{R}^{100 \times 5}$, the maximum possible rank is $\mathbf{\min(100, 5) = 5}$.
+    \item \textbf{Implications of $\rank(X) = 3$:}
+    \begin{itemize}
+        \item \textbf{Feature Geometry:} The 5 feature columns span only a 3-dimensional subspace of $\mathbb{R}^{100}$. Exactly $5 - 3 = 2$ features are redundant linear combinations (perfect multicollinearity).
+        \item \textbf{Normal Equations Invertibility:} The Gram matrix $X^T X \in \mathbb{R}^{5 \times 5}$ has rank equal to $\rank(X) = 3$. Because $\rank(X^T X) = 3 < 5$, $X^T X$ is \textbf{singular (non-invertible)}. Consequently, Ordinary Least Squares cannot be solved via direct matrix inversion $(X^T X)^{-1} X^T \mathbf{y}$ without Ridge regularization ($L_2$ penalty) or PCA feature pruning.
+    \end{itemize}
+\end{enumerate}
 
-\textbf{4. Full Rank vs Rank Deficient}
+\textbf{5. Minimal Basis Extraction for Redundant Features}
+Form matrix $F = [\mathbf{f}_1 \; \mathbf{f}_2 \; \mathbf{f}_3] = \begin{bmatrix} 1 & 2 & 0 \\ 2 & 4 & 1 \\ 3 & 6 & 5 \end{bmatrix}$:
+\begin{enumerate}
+    \item \textbf{Gaussian Elimination to REF:}
+    Apply $R_2 \to R_2 - 2R_1$ and $R_3 \to R_3 - 3R_1$:
+    \begin{equation*}
+    \begin{bmatrix} 1 & 2 & 0 \\ 0 & 0 & 1 \\ 0 & 0 & 5 \end{bmatrix} \xrightarrow{R_3 \to R_3 - 5R_2} \begin{bmatrix} 1 & 2 & 0 \\ 0 & 0 & 1 \\ 0 & 0 & 0 \end{bmatrix}
+    \end{equation*}
+    \item \textbf{Rank and Redundancy Analysis:}
+    Pivots appear in Column 1 and Column 3. Column 2 has no pivot.
+    The rank is $\mathbf{\rank(F) = 2}$.
+    Feature $\mathbf{f}_2 = \begin{bmatrix} 2 \\ 4 \\ 6 \end{bmatrix} = 2 \begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix} = 2\mathbf{f}_1$ is completely redundant.
+    \item \textbf{Minimal Feature Basis:}
+    Retaining original pivot columns yields the minimal basis:
+    \begin{equation*}
+    \mathcal{B} = \mathbf{\left\{ \mathbf{f}_1, \mathbf{f}_3 \right\} = \left\{ \begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix}, \begin{bmatrix} 0 \\ 1 \\ 5 \end{bmatrix} \right\}}
+    \end{equation*}
+\end{enumerate}
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Dimensional Bounds and Spanning Properties}
 \begin{itemize}
-    \item \textbf{Maximum Possible Rank:} $\min(100, 5) = \mathbf{5}$.
-    \item \textbf{Interpretation if $\rank(X) = 3$:} The dataset is \textbf{rank deficient}. Out of 5 feature columns, only 3 are linearly independent; 2 features are redundant linear combinations of the others.
-
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} By the Fundamental Dimension Theorem, any collection of $k$ vectors in an $n$-dimensional space with $k > n$ is guaranteed to be linearly dependent. Here, $k = 4$ and $n = \dim(\mathbb{R}^3) = 3$. Because $4 > 3$, the linear system $\sum_{i=1}^4 c_i \mathbf{v}_i = \mathbf{0}$ represents 3 equations with 4 unknowns, guaranteeing at least $4 - 3 = 1$ non-trivial free variable. Thus, $S$ is strictly linearly dependent.
+    \item \textbf{Why (a) is false:} Containing $k > n$ vectors does not guarantee spanning; all 4 vectors could lie along a single line (e.g., scalar multiples of $[1, 0, 0]^T$), spanning only a 1D line.
+    \item \textbf{Why (c) is false:} A basis for $\mathbb{R}^3$ must contain \textbf{exactly 3} linearly independent vectors. A set of 4 vectors can never be a basis for $\mathbb{R}^3$, regardless of orthogonality.
+    \item \textbf{Why (d) is false:} The rank of $M \in \mathbb{R}^{3 \times 4}$ is bounded by $\min(3, 4) = 3$. A rank of 4 is mathematically impossible because the ambient column space only has 3 rows.
 \end{itemize}
-\textbf{5. Data Science Application: Collinear Feature Removal}
-Form matrix $F = [\mathbf{f}_1 \; \mathbf{f}_2 \; \mathbf{f}_3] = \begin{bmatrix} 1 & 2 & 0 \\ 2 & 4 & 1 \\ 3 & 6 & 5 \end{bmatrix}$.
-Row operations:
-$$\begin{bmatrix} 1 & 2 & 0 \\ 2 & 4 & 1 \\ 3 & 6 & 5 \end{bmatrix} \xrightarrow{\substack{R_2 \to R_2 - 2R_1 \\ R_3 \to R_3 - 3R_1}} \begin{bmatrix} 1 & 2 & 0 \\ 0 & 0 & 1 \\ 0 & 0 & 5 \end{bmatrix} \xrightarrow{R_3 \to R_3 - 5R_2} \begin{bmatrix} 1 & 2 & 0 \\ 0 & 0 & 1 \\ 0 & 0 & 0 \end{bmatrix}$$
-\begin{itemize}
-    \item Matrix Rank: $\mathbf{\rank(F) = 2}$.
-    \item \textbf{Redundant Feature:} $\mathbf{f}_2 = 2 \mathbf{f}_1$ is completely redundant.
-    \item \textbf{Minimal Basis:} $\mathbf{\{\mathbf{f}_1, \mathbf{f}_3\} = \left\{ \begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix}, \begin{bmatrix} 0 \\ 1 \\ 5 \end{bmatrix} \right\}}$.
 
+\textbf{7. Matrix Rank and Fundamental Subspace Dimensions}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} By the Fundamental Theorem of Matrix Rank, $\dim(\operatorname{Row}(A)) = \dim(\operatorname{Col}(A)) = \rank(A) = 4$. By the Rank-Nullity Theorem applied to $A \in \mathbb{R}^{5 \times 7}$, $\rank(A) + \nullity(A) = n \implies 4 + \nullity(A) = 7 \implies \nullity(A) = 3$. The nullity corresponds precisely to the number of non-pivot (free) columns in the homogeneous system $A\mathbf{x} = \mathbf{0}$.
+    \item \textbf{Why (a) is false:} Row rank must equal column rank ($\dim(\operatorname{Row}(A)) = 4$, not 5).
+    \item \textbf{Why (c) is false:} The column space cannot exceed the rank ($4 \neq 7$), and a $5 \times 7$ matrix cannot have column space dimension 7 in $\mathbb{R}^5$.
+    \item \textbf{Why (d) is false:} Row rank and column rank are always identical for every real matrix; the difference is always zero.
 \end{itemize}
 \section*{Week 5: Null Space, Nullity \& Linear Mappings}
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Null Space Calculation}
-Solve $A \mathbf{x} = \mathbf{0}$ for $A = \begin{bmatrix} 1 & 2 & -1 \\ 2 & 4 & 5 \end{bmatrix}$:
-$$\left[\begin{array}{ccc|c} 1 & 2 & -1 & 0 \\ 2 & 4 & 5 & 0 \end{array}\right] \xrightarrow{R_2 \to R_2 - 2R_1} \left[\begin{array}{ccc|c} 1 & 2 & -1 & 0 \\ 0 & 0 & 7 & 0 \end{array}\right]$$
-\begin{itemize}
-    \item Row 2: $7x_3 = 0 \implies \mathbf{x_3 = 0}$.
-    \item Row 1: $x_1 + 2x_2 - 0 = 0 \implies x_1 = -2x_2$.
-\end{itemize}
-Here $x_2 = t$ is a free variable.
-$$\mathbf{x} = \begin{bmatrix} -2t \\ t \\ 0 \end{bmatrix} = t \begin{bmatrix} -2 \\ 1 \\ 0 \end{bmatrix}$$
-\begin{itemize}
-    \item \textbf{Basis for $\text{Null}(A)$:} $\mathbf{\left\{ \begin{bmatrix} -2 \\ 1 \\ 0 \end{bmatrix} \right\}}$.
-    \item \textbf{Nullity:} $\nullity(A) = \dim(\text{Null}(A)) = \mathbf{1}$.
+\textbf{1. Null Space Calculation \& Basis Extraction}
+Solve the homogeneous linear system $A \mathbf{x} = \mathbf{0}$ for $A = \begin{bmatrix} 1 & 2 & -1 \\ 2 & 4 & 5 \end{bmatrix}$:
+\begin{enumerate}
+    \item \textbf{Row Reduction to REF:}
+    Form the augmented matrix and apply $R_2 \to R_2 - 2R_1$:
+    \begin{equation*}
+    \left[\begin{array}{ccc|c} 1 & 2 & -1 & 0 \\ 2 & 4 & 5 & 0 \end{array}\right] \to \left[\begin{array}{ccc|c} 1 & 2 & -1 & 0 \\ 0 & 0 & 7 & 0 \end{array}\right]
+    \end{equation*}
+    \item \textbf{Back-Substitution:}
+    \begin{itemize}
+        \item Row 2 gives: $7x_3 = 0 \implies x_3 = 0$.
+        \item Row 1 gives: $x_1 + 2x_2 - x_3 = 0 \implies x_1 + 2x_2 - 0 = 0 \implies x_1 = -2x_2$.
+    \end{itemize}
+    \item \textbf{Parametric Null Space Vector:}
+    Here $x_2 = t$ ($t \in \mathbb{R}$) is the single free variable. The general solution is:
+    \begin{equation*}
+    \mathbf{x} = \begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix} = \begin{bmatrix} -2t \\ t \\ 0 \end{bmatrix} = t \begin{bmatrix} -2 \\ 1 \\ 0 \end{bmatrix}
+    \end{equation*}
+    \item \textbf{Basis and Nullity:}
+    \begin{equation*}
+    \mathcal{B}_{\operatorname{Null}(A)} = \mathbf{\left\{ \begin{bmatrix} -2 \\ 1 \\ 0 \end{bmatrix} \right\}}, \quad \nullity(A) = \dim(\operatorname{Null}(A)) = \mathbf{1}
+    \end{equation*}
+\end{enumerate}
 
-\end{itemize}
 \textbf{2. Testing Linearity of Mappings}
-\begin{itemize}
+\begin{enumerate}
     \item \textbf{(a)} $T\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} 2x - y \\ x + 3y \end{bmatrix}$:
-    Notice that $T(\mathbf{x}) = \begin{bmatrix} 2 & -1 \\ 1 & 3 \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix}$. Since $T$ is induced by matrix multiplication, it is a \textbf{valid Linear Transformation}.
+    We can express $T$ directly as a matrix product:
+    \begin{equation*}
+    T\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} 2 & -1 \\ 1 & 3 \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix}
+    \end{equation*}
+    Since every matrix-vector product preserves vector addition ($A(\mathbf{u}+\mathbf{v}) = A\mathbf{u}+A\mathbf{v}$) and scalar multiplication ($A(c\mathbf{u}) = cA\mathbf{u}$), $T$ is a \textbf{valid linear transformation}.
+
     \item \textbf{(b)} $T\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} x^2 \\ y \end{bmatrix}$:
-    Test scalar multiplication for $c = 2, \mathbf{v} = [1, 1]^T$:
-    $$T(2\mathbf{v}) = T\left(\begin{bmatrix} 2 \\ 2 \end{bmatrix}\right) = \begin{bmatrix} 2^2 \\ 2 \end{bmatrix} = \begin{bmatrix} 4 \\ 2 \end{bmatrix}$$
-    $$2 T(\mathbf{v}) = 2 T\left(\begin{bmatrix} 1 \\ 1 \end{bmatrix}\right) = 2 \begin{bmatrix} 1 \\ 1 \end{bmatrix} = \begin{bmatrix} 2 \\ 2 \end{bmatrix}$$
-    Since $\begin{bmatrix} 4 \\ 2 \end{bmatrix} \neq \begin{bmatrix} 2 \\ 2 \end{bmatrix}$, $T$ fails scalar homogeneity and is \textbf{NOT a Linear Transformation}.
-\end{itemize}
+    Test scalar multiplication with $\mathbf{v} = \begin{bmatrix} 1 \\ 1 \end{bmatrix}$ and scalar $c = 2$:
+    \begin{equation*}
+    T(c\mathbf{v}) = T\left(\begin{bmatrix} 2 \\ 2 \end{bmatrix}\right) = \begin{bmatrix} 2^2 \\ 2 \end{bmatrix} = \begin{bmatrix} 4 \\ 2 \end{bmatrix}
+    \end{equation*}
+    However, $c\, T(\mathbf{v}) = 2 T\left(\begin{bmatrix} 1 \\ 1 \end{bmatrix}\right) = 2 \begin{bmatrix} 1^2 \\ 1 \end{bmatrix} = 2 \begin{bmatrix} 1 \\ 1 \end{bmatrix} = \begin{bmatrix} 2 \\ 2 \end{bmatrix}$.
+    Since $\begin{bmatrix} 4 \\ 2 \end{bmatrix} \neq \begin{bmatrix} 2 \\ 2 \end{bmatrix}$, $T(c\mathbf{v}) \neq c\, T(\mathbf{v})$.
+    Therefore, $T$ fails scalar homogeneity and is \textbf{NOT a linear transformation}.
 
-\textbf{3. Matrix-Induced Transformation}
-$$T\left(\begin{bmatrix} 3 \\ -1 \end{bmatrix}\right) = \begin{bmatrix} 1 & 0 \\ -2 & 3 \\ 5 & 4 \end{bmatrix} \begin{bmatrix} 3 \\ -1 \end{bmatrix} = \begin{bmatrix} 1(3) + 0(-1) \\ -2(3) + 3(-1) \\ 5(3) + 4(-1) \end{bmatrix} = \mathbf{\begin{bmatrix} 3 \\ -9 \\ 11 \end{bmatrix}}$$
+    \item \textbf{(c)} $T\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} x + 1 \\ y - 2 \end{bmatrix}$:
+    Test the zero vector condition:
+    \begin{equation*}
+    T\left(\begin{bmatrix} 0 \\ 0 \end{bmatrix}\right) = \begin{bmatrix} 0 + 1 \\ 0 - 2 \end{bmatrix} = \begin{bmatrix} 1 \\ -2 \end{bmatrix} \neq \begin{bmatrix} 0 \\ 0 \end{bmatrix}
+    \end{equation*}
+    Because $T(\mathbf{0}) \neq \mathbf{0}$, $T$ fails the foundational necessary condition. Thus, $T$ is an affine translation, \textbf{NOT a linear transformation}.
+\end{enumerate}
 
-\textbf{4. Homogenous System Solutions}
-For matrix $A \in \mathbb{R}^{3 \times 5}$:
+\textbf{3. Matrix-Induced Transformation \& Forward Pass}
+\begin{enumerate}
+    \item \textbf{Forward Image Computation:}
+    \begin{equation*}
+    T\left(\begin{bmatrix} 3 \\ -1 \end{bmatrix}\right) = \begin{bmatrix} 1 & 0 \\ -2 & 3 \\ 5 & 4 \end{bmatrix} \begin{bmatrix} 3 \\ -1 \end{bmatrix} = \begin{bmatrix} 1(3) + 0(-1) \\ -2(3) + 3(-1) \\ 5(3) + 4(-1) \end{bmatrix} = \begin{bmatrix} 3 \\ -6 - 3 \\ 15 - 4 \end{bmatrix} = \mathbf{\begin{bmatrix} 3 \\ -9 \\ 11 \end{bmatrix}}
+    \end{equation*}
+    \item \textbf{Image Membership Test for $\mathbf{y} = [2, 5, 1]^T$:}
+    Check consistency of $A\mathbf{x} = \mathbf{y}$:
+    \begin{equation*}
+    \left[\begin{array}{cc|c} 1 & 0 & 2 \\ -2 & 3 & 5 \\ 5 & 4 & 1 \end{array}\right] \xrightarrow{\substack{R_2 \to R_2 + 2R_1 \\ R_3 \to R_3 - 5R_1}} \left[\begin{array}{cc|c} 1 & 0 & 2 \\ 0 & 3 & 5 + 4 \\ 0 & 4 & 1 - 10 \end{array}\right] = \left[\begin{array}{cc|c} 1 & 0 & 2 \\ 0 & 3 & 9 \\ 0 & 4 & -9 \end{array}\right]
+    \end{equation*}
+    From row 2: $3x_2 = 9 \implies x_2 = 3$. From row 3: $4x_2 = -9 \implies x_2 = -2.25$.
+    This is an explicit contradiction ($3 \neq -2.25$).
+    Hence the system is inconsistent, and $\mathbf{y} \mathbf{\notin \operatorname{im}(T)}$.
+\end{enumerate}
+
+\textbf{4. Homogeneous System Solutions \& Free Variables}
+For $A \in \mathbb{R}^{3 \times 5}$ with $\rank(A) = 3$:
+\begin{enumerate}
+    \item \textbf{Domain Dimension:} The matrix multiplies vectors in $\mathbb{R}^5$, so the domain is $\mathbb{R}^n$ with $n = \mathbf{5}$.
+    \item \textbf{Nullity Calculation:} By the Rank-Nullity Theorem:
+    \begin{equation*}
+    \nullity(A) = n - \rank(A) = 5 - 3 = \mathbf{2}
+    \end{equation*}
+    \item \textbf{Solution Characterization:}
+    Because $\nullity(A) = 2 > 0$, the system $A\mathbf{x} = \mathbf{0}$ has \textbf{infinitely many non-trivial solutions}. The solution manifold forms a 2-dimensional subspace spanned by exactly $2$ linearly independent parameter vectors.
+\end{enumerate}
+
+\textbf{5. Data Science Application: Lossless Compression Null Space}
+Let $W \in \mathbb{R}^{10 \times 50}$ with inputs $\mathbf{x} \in \mathbb{R}^{50}$ and latent codes $\mathbf{y} = W\mathbf{x} \in \mathbb{R}^{10}$.
+\begin{enumerate}
+    \item \textbf{Maximum Possible Rank:} $\rank(W) \le \min(10, 50) = \mathbf{10}$.
+    \item \textbf{Minimum Nullity:}
+    \begin{equation*}
+    \nullity(W) = n - \rank(W) \ge 50 - 10 = \mathbf{40}
+    \end{equation*}
+    At least 40 dimensions of input information are irrevocably collapsed to zero in $\operatorname{Null}(W)$.
+    \item \textbf{Impossibility of Lossless Linear Reconstruction:}
+    No linear decoder $D \in \mathbb{R}^{50 \times 10}$ can achieve $D(W\mathbf{x}) = \mathbf{x}$ for all $\mathbf{x}$.
+    For any non-zero vector $\mathbf{n} \in \operatorname{Null}(W)$, $W\mathbf{n} = \mathbf{0}$. The reconstructed output is $D(W\mathbf{n}) = D(\mathbf{0}) = \mathbf{0} \neq \mathbf{n}$.
+    Hence, input signals lying within the 40-dimensional null space are permanently erased.
+\end{enumerate}
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Linearity Axioms and Diagnostic Counterexamples}
 \begin{itemize}
-    \item Domain dimension $n = \mathbf{5}$ (number of columns).
-    \item By the Rank-Nullity Theorem: $\nullity(A) = n - \rank(A) = 5 - 3 = \mathbf{2}$.
-    \item Since $\nullity(A) = 2 > 0$, there exist \textbf{infinitely many non-trivial solutions} to $A \mathbf{x} = \mathbf{0}$.
-
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:}
+    $T_1\left([x, y]^T\right) = \begin{bmatrix} 3 & 0 \\ 0 & -1 \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix}$ is matrix multiplication, so it is strictly linear.
+    $T_2\left([x, y]^T\right) = \begin{bmatrix} 1 & 2 \\ 0 & 0 \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix}$ is also matrix multiplication, hence linear.
+    Therefore, $\{T_1, T_2\}$ consists exclusively of linear transformations.
+    \item \textbf{Why (a) is false:} $T_3$ and $T_4$ are nonlinear.
+    \item \textbf{Why (c) is false:} $T_3$ uses absolute value $|x|$; scaling by $c = -1$ yields $T_3(-1, 0) = [1, 0]^T \neq -T_3(1, 0) = [-1, 0]^T$, violating scalar homogeneity.
+    \item \textbf{Why (d) is false:} $T_4$ contains the bilinear cross-product term $x y$; scaling both components by scalar $c$ scales the second output by $c^2$, violating degree-1 homogeneity.
 \end{itemize}
-\textbf{5. Data Science Application: Linear Compression Null Space}
-Matrix $W \in \mathbb{R}^{10 \times 50}$ maps inputs $\mathbf{x} \in \mathbb{R}^{50}$ ($n=50$) to outputs $\mathbf{y} \in \mathbb{R}^{10}$.
-The maximum possible rank of $W$ is $\min(10, 50) = 10$.
-$$\nullity(W) = n - \rank(W) = 50 - \rank(W) \ge 50 - 10 = \mathbf{40}$$
-At least $\mathbf{40}$ dimensions of input variation are mapped to zero in the null space, representing the minimum lost information during linear compression.
+
+\textbf{7. Bottleneck Projection and Information Loss}
+\begin{itemize}
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} The domain dimension is $n = 64$ (the number of input features / columns of $W$). By the Rank-Nullity Theorem:
+    \begin{equation*}
+    \nullity(W) = n - \rank(W) = 64 - 16 = 48
+    \end{equation*}
+    The kernel is a 48-dimensional subspace of $\mathbb{R}^{64}$. Any vector residing in this 48D subspace produces an output of $\mathbf{0} \in \mathbb{R}^{16}$.
+    \item \textbf{Why (a) is false:} Information is lost whenever the output dimension is smaller than the input dimension (nullity cannot be 0).
+    \item \textbf{Why (b) is false:} 16 is the rank (dimension of the reachable output image), not the nullity.
+    \item \textbf{Why (d) is false:} 64 is the total domain dimension; only 48 dimensions collapse.
+\end{itemize}
 
 \section*{Week 6: Matrix Representation, Kernel, Image \& Rank-Nullity}
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Matrix Representation Construction}
-$$T(\mathbf{e}_1) = T\left(\begin{bmatrix} 1 \\ 0 \end{bmatrix}\right) = \begin{bmatrix} 3(1) + 0 \\ 2(1) - 0 \end{bmatrix} = \begin{bmatrix} 3 \\ 2 \end{bmatrix}$$
-$$T(\mathbf{e}_2) = T\left(\begin{bmatrix} 0 \\ 1 \end{bmatrix}\right) = \begin{bmatrix} 0 + 1 \\ 0 - 4(1) \end{bmatrix} = \begin{bmatrix} 1 \\ -4 \end{bmatrix}$$
-$$A = [T]_{\mathcal{E}} = \mathbf{\begin{bmatrix} 3 & 1 \\ 2 & -4 \end{bmatrix}}$$
+\textbf{1. Matrix Representation Construction in Standard Basis}
+Given $T\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} 3x + y \\ 2x - 4y \end{bmatrix}$ and standard basis $\mathcal{E} = \{\mathbf{e}_1, \mathbf{e}_2\}$:
+\begin{enumerate}
+    \item Evaluate $T$ on each standard basis vector:
+    \begin{align*}
+    T(\mathbf{e}_1) &= T\left(\begin{bmatrix} 1 \\ 0 \end{bmatrix}\right) = \begin{bmatrix} 3(1) + 0 \\ 2(1) - 4(0) \end{bmatrix} = \begin{bmatrix} 3 \\ 2 \end{bmatrix} \\
+    T(\mathbf{e}_2) &= T\left(\begin{bmatrix} 0 \\ 1 \end{bmatrix}\right) = \begin{bmatrix} 3(0) + 1 \\ 2(0) - 4(1) \end{bmatrix} = \begin{bmatrix} 1 \\ -4 \end{bmatrix}
+    \end{align*}
+    \item Assemble coordinates into column vectors:
+    \begin{equation*}
+    [T]_{\mathcal{E}} = \begin{bmatrix} T(\mathbf{e}_1) & T(\mathbf{e}_2) \end{bmatrix} = \mathbf{\begin{bmatrix} 3 & 1 \\ 2 & -4 \end{bmatrix}}
+    \end{equation*}
+\end{enumerate}
 
 \textbf{2. Non-Standard Basis Matrix Representation}
-Basis $\mathcal{B} = \left\{ \mathbf{v}_1 = \begin{bmatrix} 1 \\ 1 \end{bmatrix}, \, \mathbf{v}_2 = \begin{bmatrix} 1 \\ 0 \end{bmatrix} \right\}$.
-\begin{itemize}
-    \item Apply $T$ to $\mathbf{v}_1$: $T(\mathbf{v}_1) = \begin{bmatrix} 1+1 \\ 2(1)-1 \end{bmatrix} = \begin{bmatrix} 2 \\ 1 \end{bmatrix}$.
-\end{itemize}
-  Express in basis $\mathcal{B}$: $c_1 \begin{bmatrix} 1 \\ 1 \end{bmatrix} + c_2 \begin{bmatrix} 1 \\ 0 \end{bmatrix} = \begin{bmatrix} 2 \\ 1 \end{bmatrix} \implies c_1 = 1, c_2 = 1 \implies [T(\mathbf{v}_1)]_{\mathcal{B}} = \begin{bmatrix} 1 \\ 1 \end{bmatrix}$.
-\begin{itemize}
-    \item Apply $T$ to $\mathbf{v}_2$: $T(\mathbf{v}_2) = \begin{bmatrix} 1+0 \\ 2(1)-0 \end{bmatrix} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$.
-\end{itemize}
-  Express in basis $\mathcal{B}$: $c_1 \begin{bmatrix} 1 \\ 1 \end{bmatrix} + c_2 \begin{bmatrix} 1 \\ 0 \end{bmatrix} = \begin{bmatrix} 1 \\ 2 \end{bmatrix} \implies c_1 = 2, c_2 = -1 \implies [T(\mathbf{v}_2)]_{\mathcal{B}} = \begin{bmatrix} 2 \\ -1 \end{bmatrix}$.
-Matrix Representation: $[T]_{\mathcal{B}} = \mathbf{\begin{bmatrix} 1 & 2 \\ 1 & -1 \end{bmatrix}}$.
+Let $\mathcal{B} = \left\{ \mathbf{v}_1 = \begin{bmatrix} 1 \\ 1 \end{bmatrix}, \, \mathbf{v}_2 = \begin{bmatrix} 1 \\ 0 \end{bmatrix} \right\}$ and $T\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} x + y \\ 2x - y \end{bmatrix}$.
+\begin{enumerate}
+    \item \textbf{Image of $\mathbf{v}_1$:}
+    \begin{equation*}
+    T(\mathbf{v}_1) = T\left(\begin{bmatrix} 1 \\ 1 \end{bmatrix}\right) = \begin{bmatrix} 1 + 1 \\ 2(1) - 1 \end{bmatrix} = \begin{bmatrix} 2 \\ 1 \end{bmatrix}
+    \end{equation*}
+    Find coordinates $[T(\mathbf{v}_1)]_\mathcal{B} = [c_1, c_2]^T$ such that $c_1 \begin{bmatrix} 1 \\ 1 \end{bmatrix} + c_2 \begin{bmatrix} 1 \\ 0 \end{bmatrix} = \begin{bmatrix} 2 \\ 1 \end{bmatrix}$:
+    \begin{equation*}
+    \begin{cases} c_1 + c_2 = 2 \\ c_1 = 1 \end{cases} \implies c_1 = 1, \, c_2 = 1 \implies [T(\mathbf{v}_1)]_{\mathcal{B}} = \begin{bmatrix} 1 \\ 1 \end{bmatrix}
+    \end{equation*}
+    \item \textbf{Image of $\mathbf{v}_2$:}
+    \begin{equation*}
+    T(\mathbf{v}_2) = T\left(\begin{bmatrix} 1 \\ 0 \end{bmatrix}\right) = \begin{bmatrix} 1 + 0 \\ 2(1) - 0 \end{bmatrix} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}
+    \end{equation*}
+    Find coordinates $[T(\mathbf{v}_2)]_\mathcal{B} = [d_1, d_2]^T$ such that $d_1 \begin{bmatrix} 1 \\ 1 \end{bmatrix} + d_2 \begin{bmatrix} 1 \\ 0 \end{bmatrix} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$:
+    \begin{equation*}
+    \begin{cases} d_1 + d_2 = 1 \\ d_1 = 2 \end{cases} \implies d_1 = 2, \, d_2 = -1 \implies [T(\mathbf{v}_2)]_{\mathcal{B}} = \begin{bmatrix} 2 \\ -1 \end{bmatrix}
+    \end{equation*}
+    \item \textbf{Assembled Matrix Representation:}
+    \begin{equation*}
+    [T]_{\mathcal{B}} = \mathbf{\begin{bmatrix} 1 & 2 \\ 1 & -1 \end{bmatrix}}
+    \end{equation*}
+\end{enumerate}
 
 \textbf{3. Bases for Kernel and Image}
-Row reduce $A = \begin{bmatrix} 1 & 2 & 3 \\ 2 & 4 & 6 \\ 1 & 1 & 1 \end{bmatrix} \xrightarrow{\text{REF}} \begin{bmatrix} 1 & 2 & 3 \\ 0 & -1 & -2 \\ 0 & 0 & 0 \end{bmatrix}$.
-\begin{itemize}
-    \item \textbf{Pivots} are in Column 1 and Column 2.
-    \item \textbf{(a) Basis for $\image(A)$:} Take original columns 1 and 2 of $A$:
-\end{itemize}
-$$\mathbf{\mathcal{B}_{\image} = \left\{ \begin{bmatrix} 1 \\ 2 \\ 1 \end{bmatrix}, \begin{bmatrix} 2 \\ 4 \\ 1 \end{bmatrix} \right\}}, \quad \rank(A) = 2$$
-\begin{itemize}
-    \item \textbf{(b) Basis for $\kernel(A)$:} Solve REF $A\mathbf{x} = \mathbf{0}$:
-    \item Row 2: $-x_2 - 2x_3 = 0 \implies x_2 = -2x_3$.
-    \item Row 1: $x_1 + 2(-2x_3) + 3x_3 = 0 \implies x_1 = x_3$.
-\end{itemize}
-  Set $x_3 = t$: $\mathbf{x} = t \begin{bmatrix} 1 \\ -2 \\ 1 \end{bmatrix}$.
-$$\mathbf{\mathcal{B}_{\kernel} = \left\{ \begin{bmatrix} 1 \\ -2 \\ 1 \end{bmatrix} \right\}}, \quad \nullity(A) = 1$$
+Given $A = \begin{bmatrix} 1 & 2 & 3 \\ 2 & 4 & 6 \\ 1 & 1 & 1 \end{bmatrix}$:
+\begin{enumerate}
+    \item \textbf{Row Reduction to REF:}
+    Apply $R_2 \to R_2 - 2R_1$ and $R_3 \to R_3 - R_1$:
+    \begin{equation*}
+    \begin{bmatrix} 1 & 2 & 3 \\ 0 & 0 & 0 \\ 0 & -1 & -2 \end{bmatrix} \xrightarrow{R_2 \leftrightarrow R_3} \begin{bmatrix} 1 & 2 & 3 \\ 0 & -1 & -2 \\ 0 & 0 & 0 \end{bmatrix}
+    \end{equation*}
+    Pivots appear in Column 1 and Column 2. Column 3 has no pivot.
+    \item \textbf{Basis for $\operatorname{im}(A)$ (Column Space):}
+    Take original pivot columns 1 and 2 of $A$:
+    \begin{equation*}
+    \mathcal{B}_{\operatorname{im}(A)} = \mathbf{\left\{ \begin{bmatrix} 1 \\ 2 \\ 1 \end{bmatrix}, \begin{bmatrix} 2 \\ 4 \\ 1 \end{bmatrix} \right\}}, \quad \rank(A) = 2
+    \end{equation*}
+    \item \textbf{Basis for $\ker(A)$ (Null Space):}
+    From row 2: $-x_2 - 2x_3 = 0 \implies x_2 = -2x_3$.
+    From row 1: $x_1 + 2(-2x_3) + 3x_3 = 0 \implies x_1 - x_3 = 0 \implies x_1 = x_3$.
+    Parametrize with free variable $x_3 = t$:
+    \begin{equation*}
+    \mathbf{x} = \begin{bmatrix} t \\ -2t \\ t \end{bmatrix} = t \begin{bmatrix} 1 \\ -2 \\ 1 \end{bmatrix} \implies \mathcal{B}_{\ker(A)} = \mathbf{\left\{ \begin{bmatrix} 1 \\ -2 \\ 1 \end{bmatrix} \right\}}, \quad \nullity(A) = 1
+    \end{equation*}
+\end{enumerate}
 
-\textbf{4. Rank-Nullity Verification}
-Domain $V = \mathbb{R}^3$, so $\dim(V) = 3$.
-$$\nullity(A) + \rank(A) = 1 + 2 = \mathbf{3} = \dim(\mathbb{R}^3) \quad \checkmark$$
+\textbf{4. Rank-Nullity Theorem Verification}
+The domain of $A$ is $\mathbb{R}^3$, so $\dim(V) = 3$.
+From Problem 3: $\rank(A) = 2$ and $\nullity(A) = 1$.
+\begin{equation*}
+\rank(A) + \nullity(A) = 2 + 1 = \mathbf{3} = \dim(V) \quad \checkmark
+\end{equation*}
+The dimensional conservation law holds with exact equality.
 
 \textbf{5. Data Science Application: Linear Autoencoder Information Loss}
-Given $W \in \mathbb{R}^{20 \times 100}$ and $\rank(W) = 18$:
+Let $W \in \mathbb{R}^{20 \times 100}$ with $\rank(W) = 18$:
+\begin{enumerate}
+    \item \textbf{Code Space Dimension:} The dimension of reachable compressed codes is $\dim(\operatorname{im}(W)) = \rank(W) = \mathbf{18}$.
+    \item \textbf{Lost Feature Dimensions:} By the Rank-Nullity Theorem, the dimension of the null space is:
+    \begin{equation*}
+    \dim(\ker(W)) = 100 - \rank(W) = 100 - 18 = \mathbf{82}
+    \end{equation*}
+    82 independent feature directions are permanently discarded into the kernel.
+    \item \textbf{Redundant Bottleneck Dimensions:} The bottleneck layer allocates 20 neurons, but its image spans only an 18-dimensional subspace. Thus, $20 - 18 = \mathbf{2}$ neurons represent redundant or linearly dependent output dimensions.
+\end{enumerate}
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Injectivity and Surjectivity via Dimension Bounds}
 \begin{itemize}
-    \item \textbf{(a) Code Space Dimension:} $\dim(\image(W)) = \rank(W) = \mathbf{18}$.
-    \item \textbf{(b) Lost Feature Dimensions:} By Rank-Nullity Theorem:
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} For any linear transformation $T: \mathbb{R}^5 \to \mathbb{R}^3$, the Rank-Nullity Theorem requires $\rank(T) + \nullity(T) = 5$. Since $\operatorname{im}(T) \subseteq \mathbb{R}^3$, the maximum possible rank is $\dim(\mathbb{R}^3) = 3$. If $T$ were injective, its nullity would be $\nullity(T) = 0$, implying $\rank(T) = 5 - 0 = 5$. But a subspace of $\mathbb{R}^3$ cannot have dimension 5! Thus, an injective linear mapping from $\mathbb{R}^5$ to $\mathbb{R}^3$ is mathematically impossible.
+    \item \textbf{Why (a) is possible:} If $\rank(T) = 3$, then $T$ is surjective onto $\mathbb{R}^3$, yielding $\nullity(T) = 5 - 3 = 2$.
+    \item \textbf{Why (c) is possible:} A rank of 2 with nullity 3 satisfies $2 + 3 = 5$ with $\rank \le 3$.
+    \item \textbf{Why (d) is possible:} When the transformation has full row rank ($\rank = 3$), the image is the entire 3D space $\mathbb{R}^3$.
 \end{itemize}
-$$\dim(\kernel(W)) = 100 - \rank(W) = 100 - 18 = \mathbf{82} \text{ lost feature dimensions}$$
+
+\textbf{7. Basis Change and Matrix Similarity}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} Let $[\mathbf{x}]_\mathcal{B}$ be the coordinates in basis $\mathcal{B}$. The change-of-basis matrix $P$ converts coordinates from $\mathcal{B}$ to standard basis $\mathcal{E}$: $\mathbf{x} = P [\mathbf{x}]_\mathcal{B}$. Applying the standard transformation yields $A(P [\mathbf{x}]_\mathcal{B})$. To convert the resulting output vector back into $\mathcal{B}$-coordinates, we multiply by $P^{-1}$, giving $[T(\mathbf{x})]_\mathcal{B} = P^{-1} A P [\mathbf{x}]_\mathcal{B}$. Hence, the transformed matrix in basis $\mathcal{B}$ is strictly $B = P^{-1} A P$ (a similarity transformation).
+    \item \textbf{Why (a) is false:} $P A P^T$ only equals $P^{-1} A P$ when $P$ is an orthogonal matrix ($P^T = P^{-1}$). For arbitrary non-orthogonal bases, $P^T \neq P^{-1}$.
+    \item \textbf{Why (c) is false:} $P A P^{-1}$ reverses the direction of the basis transition.
+    \item \textbf{Why (d) is false:} $A P$ transforms input coordinates from $\mathcal{B}$ but leaves the output in standard basis $\mathcal{E}$.
+\end{itemize}
 
 \section*{Week 7: Matrix Similarity, Affine Spaces, Norms \& Inner Products}
 
 \subsection*{Detailed Solutions}
 
 \textbf{1. Matrix Similarity Check}
-\begin{itemize}
-    \item \textbf{(a) Determinants:} $\det(A) = 1(3) - 0 = \mathbf{3}$, $\det(B) = 3(1) - 0 = \mathbf{3}$.
-    \item \textbf{(b) Traces:} $\trace(A) = 1 + 3 = \mathbf{4}$, $\trace(B) = 3 + 1 = \mathbf{4}$.
-    \item \textbf{(c) Similarity:} The eigenvalues of upper triangular $A$ are $\lambda_1 = 1, \lambda_2 = 3$. The eigenvalues of lower triangular $B$ are $\lambda_1 = 3, \lambda_2 = 1$. Since both have distinct eigenvalues $\set{1, 3}$, both matrices are diagonalizable to $D = \begin{bmatrix} 1 & 0 \\ 0 & 3 \end{bmatrix}$. Therefore, \textbf{$A$ and $B$ are SIMILAR} ($A \sim B$).
-\end{itemize}
+Given $A = \begin{bmatrix} 1 & 2 \\ 0 & 3 \end{bmatrix}$ and $B = \begin{bmatrix} 3 & 0 \\ 1 & 1 \end{bmatrix}$:
+\begin{enumerate}
+    \item \textbf{Determinants:}
+    \begin{equation*}
+    \det(A) = (1)(3) - (2)(0) = \mathbf{3}, \quad \det(B) = (3)(1) - (0)(1) = \mathbf{3}
+    \end{equation*}
+    \item \textbf{Traces:}
+    \begin{equation*}
+    \trace(A) = 1 + 3 = \mathbf{4}, \quad \trace(B) = 3 + 1 = \mathbf{4}
+    \end{equation*}
+    \item \textbf{Similarity Determination:}
+    Because $A$ is upper triangular, its eigenvalues are its diagonal entries: $\lambda_1 = 1, \lambda_2 = 3$.
+    Because $B$ is lower triangular, its eigenvalues are its diagonal entries: $\lambda_1 = 3, \lambda_2 = 1$.
+    Since both $2 \times 2$ matrices have two distinct real eigenvalues $\{1, 3\}$, each is diagonalizable to the same diagonal matrix $D = \begin{bmatrix} 1 & 0 \\ 0 & 3 \end{bmatrix}$.
+    Thus, there exist invertible matrices $P_1, P_2$ such that $P_1^{-1} A P_1 = D$ and $P_2^{-1} B P_2 = D$, which implies:
+    \begin{equation*}
+    B = P_2 D P_2^{-1} = P_2 (P_1^{-1} A P_1) P_2^{-1} = (P_1 P_2^{-1})^{-1} A (P_1 P_2^{-1})
+    \end{equation*}
+    Setting $P = P_1 P_2^{-1}$, we have $B = P^{-1} A P$. Therefore, \textbf{$A$ and $B$ are strictly similar} ($A \sim B$).
+\end{enumerate}
 
-\textbf{2. Weighted Inner Product}
-\begin{itemize}
-    \item \textbf{(a) Inner Product:}
-    $$\left\langle \begin{bmatrix} 1 \\ 2 \end{bmatrix}, \begin{bmatrix} 3 \\ -1 \end{bmatrix} \right\rangle_Q = 2(1)(3) + 5(2)(-1) = 6 - 10 = \mathbf{-4}$$
-    \item \textbf{(b) Induced Norm:}
-    $$\left\| \begin{bmatrix} 1 \\ 2 \end{bmatrix} \right\|_Q = \sqrt{2(1)^2 + 5(2)^2} = \sqrt{2 + 20} = \mathbf{\sqrt{22}}$$
-\end{itemize}
+\textbf{2. Weighted Inner Product Evaluation}
+Given $\langle \mathbf{u}, \mathbf{v} \rangle_Q = 2 u_1 v_1 + 5 u_2 v_2$:
+\begin{enumerate}
+    \item \textbf{Inner Product Computation:}
+    For $\mathbf{u} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$ and $\mathbf{v} = \begin{bmatrix} 3 \\ -1 \end{bmatrix}$:
+    \begin{equation*}
+    \langle \mathbf{u}, \mathbf{v} \rangle_Q = 2(1)(3) + 5(2)(-1) = 6 - 10 = \mathbf{-4}
+    \end{equation*}
+    \item \textbf{Induced Norm Computation:}
+    \begin{equation*}
+    \|\mathbf{u}\|_Q = \sqrt{\langle \mathbf{u}, \mathbf{u} \rangle_Q} = \sqrt{2(1)^2 + 5(2)^2} = \sqrt{2(1) + 5(4)} = \sqrt{2 + 20} = \mathbf{\sqrt{22} \approx 4.6904}
+    \end{equation*}
+\end{enumerate}
 
-\textbf{3. Cosine Similarity}
-$$\mathbf{d}_1 \cdot \mathbf{d}_2 = (1)(0) + (2)(1) + (0)(1) + (2)(1) = 0 + 2 + 0 + 2 = \mathbf{4}$$
-$$\|\mathbf{d}_1\| = \sqrt{1^2 + 2^2 + 0^2 + 2^2} = \sqrt{9} = \mathbf{3}$$
-$$\|\mathbf{d}_2\| = \sqrt{0^2 + 1^2 + 1^2 + 1^2} = \mathbf{\sqrt{3}}$$
-$$\cos(\theta) = \frac{4}{3\sqrt{3}} \approx \mathbf{0.7698}$$
+\textbf{3. Cosine Similarity in NLP}
+For $\mathbf{d}_1 = [1, 2, 0, 2]^T$ and $\mathbf{d}_2 = [0, 1, 1, 1]^T$:
+\begin{enumerate}
+    \item \textbf{Dot Product:}
+    \begin{equation*}
+    \mathbf{d}_1 \cdot \mathbf{d}_2 = (1)(0) + (2)(1) + (0)(1) + (2)(1) = 0 + 2 + 0 + 2 = \mathbf{4}
+    \end{equation*}
+    \item \textbf{Euclidean Norms:}
+    \begin{align*}
+    \|\mathbf{d}_1\|_2 &= \sqrt{1^2 + 2^2 + 0^2 + 2^2} = \sqrt{1 + 4 + 0 + 4} = \sqrt{9} = \mathbf{3} \\
+    \|\mathbf{d}_2\|_2 &= \sqrt{0^2 + 1^2 + 1^2 + 1^2} = \sqrt{0 + 1 + 1 + 1} = \mathbf{\sqrt{3}}
+    \end{align*}
+    \item \textbf{Cosine Similarity:}
+    \begin{equation*}
+    \cos(\theta) = \frac{\mathbf{d}_1 \cdot \mathbf{d}_2}{\|\mathbf{d}_1\|_2 \|\mathbf{d}_2\|_2} = \frac{4}{3\sqrt{3}} = \frac{4\sqrt{3}}{9} \approx \mathbf{0.7698}
+    \end{equation*}
+\end{enumerate}
 
 \textbf{4. Cauchy-Schwarz Verification}
-$$\mathbf{u} \cdot \mathbf{v} = 3(1) + 4(2) = 11 \implies |\mathbf{u} \cdot \mathbf{v}| = \mathbf{11}$$
-$$\|\mathbf{u}\| \|\mathbf{v}\| = \left(\sqrt{3^2 + 4^2}\right) \left(\sqrt{1^2 + 2^2}\right) = 5 \sqrt{5} \approx \mathbf{11.1803}$$
-Since $11 \le 11.1803$, the \textbf{Cauchy-Schwarz inequality $|\mathbf{u} \cdot \mathbf{v}| \le \|\mathbf{u}\| \|\mathbf{v}\|$ holds true}.
+For $\mathbf{u} = \begin{bmatrix} 3 \\ 4 \end{bmatrix}$ and $\mathbf{v} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$:
+\begin{enumerate}
+    \item \textbf{Absolute Inner Product:}
+    \begin{equation*}
+    \mathbf{u} \cdot \mathbf{v} = 3(1) + 4(2) = 3 + 8 = 11 \implies |\mathbf{u} \cdot \mathbf{v}| = \mathbf{11}
+    \end{equation*}
+    \item \textbf{Product of Norms:}
+    \begin{equation*}
+    \|\mathbf{u}\|_2 = \sqrt{3^2 + 4^2} = 5, \quad \|\mathbf{v}\|_2 = \sqrt{1^2 + 2^2} = \sqrt{5}
+    \end{equation*}
+    \begin{equation*}
+    \|\mathbf{u}\|_2 \|\mathbf{v}\|_2 = 5\sqrt{5} = \sqrt{125} \approx \mathbf{11.1803}
+    \end{equation*}
+    \item \textbf{Verification \& Equality Condition:}
+    Since $11 \le 11.1803$, the inequality $|\mathbf{u} \cdot \mathbf{v}| \le \|\mathbf{u}\|_2 \|\mathbf{v}\|_2$ holds strictly.
+    Equality holds if and only if $\mathbf{u}$ and $\mathbf{v}$ are collinear ($\mathbf{u} = c\mathbf{v}$). Here $\frac{3}{1} \neq \frac{4}{2}$, so they are not collinear, explaining why the inequality is strict ($11 < 11.1803$).
+\end{enumerate}
 
-\textbf{5. Data Science Application: $L_1$ vs $L_2$ Norm Regularization}
+\textbf{5. Data Science Application: $L_1$ vs. $L_2$ Regularization Penalties}
+Given $\mathbf{w} = [3, -4, 0, 12]^T$:
+\begin{enumerate}
+    \item \textbf{$L_1$ Norm (Lasso):}
+    \begin{equation*}
+    \|\mathbf{w}\|_1 = |3| + |-4| + |0| + |12| = 3 + 4 + 0 + 12 = \mathbf{19}
+    \end{equation*}
+    \item \textbf{$L_2$ Norm (Ridge):}
+    \begin{equation*}
+    \|\mathbf{w}\|_2 = \sqrt{3^2 + (-4)^2 + 0^2 + 12^2} = \sqrt{9 + 16 + 0 + 144} = \sqrt{169} = \mathbf{13}
+    \end{equation*}
+    Notice that $\|\mathbf{w}\|_2 = 13 \le \|\mathbf{w}\|_1 = 19$, consistent with the universal norm inequality $\|\mathbf{w}\|_2 \le \|\mathbf{w}\|_1 \le \sqrt{n}\|\mathbf{w}\|_2$.
+\end{enumerate}
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Similarity Invariants and Diagonalizability}
 \begin{itemize}
-    \item \textbf{(a) $L_1$ Norm (Lasso):}
-    $$\|\mathbf{w}\|_1 = |3| + |-4| + |0| + |12| = 3 + 4 + 0 + 12 = \mathbf{19}$$
-    \item \textbf{(b) $L_2$ Norm (Ridge):}
-    $$\|\mathbf{w}\|_2 = \sqrt{3^2 + (-4)^2 + 0^2 + 12^2} = \sqrt{9 + 16 + 0 + 144} = \sqrt{169} = \mathbf{13}$$
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} The matrix $M_1 = 4I = \begin{bmatrix} 4 & 0 \\ 0 & 4 \end{bmatrix}$ commutes with every matrix, meaning for any invertible $P$, $P^{-1}(4I)P = 4 P^{-1} P = 4I = M_1$. Thus, the only matrix similar to $M_1$ is $M_1$ itself! Meanwhile, $M_2 = \begin{bmatrix} 4 & 1 \\ 0 & 4 \end{bmatrix}$ has a single eigenvalue $\lambda = 4$ with algebraic multiplicity 2, but its eigenspace has dimension $\nullity(M_2 - 4I) = \nullity\left(\begin{bmatrix} 0 & 1 \\ 0 & 0 \end{bmatrix}\right) = 1$. Because geometric multiplicity (1) is less than algebraic multiplicity (2), $M_2$ is defective and non-diagonalizable. Therefore, $M_1$ and $M_2$ \textbf{cannot be similar}.
+    \item \textbf{Why (a) is false:} Sharing the same trace and determinant is a necessary condition, but not a sufficient condition for similarity.
+    \item \textbf{Why (c) is false:} Having identical eigenvalues does not guarantee similarity when geometric multiplicities differ.
+    \item \textbf{Why (d) is false:} Orthogonal rotations preserve symmetry; $M_1$ is symmetric while $M_2$ is asymmetric.
+\end{itemize}
+
+\textbf{7. Axioms of Valid Inner Products via Matrix Forms}
+\begin{itemize}
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} A matrix $Q \in \mathbb{R}^{2 \times 2}$ induces a valid inner product $\langle \mathbf{u}, \mathbf{v} \rangle = \mathbf{u}^T Q \mathbf{v}$ if and only if it is \textbf{Symmetric Positive Definite (SPD)}.
+    Matrix $Q = \begin{bmatrix} 4 & 1 \\ 1 & 3 \end{bmatrix}$ is symmetric ($Q^T = Q$).
+    By Sylvester's criterion: the first leading principal minor is $4 > 0$, and the determinant is $\det(Q) = 4(3) - (1)(1) = 12 - 1 = 11 > 0$.
+    Because all principal minors are strictly positive, $Q$ is positive definite. Hence it satisfies all inner product axioms.
+    \item \textbf{Why (a) is false:} $Q = \begin{bmatrix} 2 & 1 \\ 1 & -3 \end{bmatrix}$ has $\det(Q) = 2(-3) - 1 = -7 < 0$; it has a negative eigenvalue, violating positive definiteness.
+    \item \textbf{Why (b) is false:} $Q = \begin{bmatrix} 1 & 3 \\ 0 & 2 \end{bmatrix}$ is asymmetric ($Q_{12} \neq Q_{21}$), violating symmetry $\langle \mathbf{u}, \mathbf{v} \rangle = \langle \mathbf{v}, \mathbf{u} \rangle$.
+    \item \textbf{Why (d) is false:} $Q = \begin{bmatrix} 0 & 0 \\ 0 & 5 \end{bmatrix}$ is only positive semi-definite; for non-zero $\mathbf{v} = [1, 0]^T$, $\mathbf{v}^T Q \mathbf{v} = 0$, violating strict positive definiteness.
 \end{itemize}
 
 \section*{Week 8: Orthogonality, Gram-Schmidt Process \& Projections}
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Projection onto a Vector}
-$$\proj_{\mathbf{u}}(\mathbf{v}) = \frac{\mathbf{v} \cdot \mathbf{u}}{\|\mathbf{u}\|^2} \mathbf{u} = \frac{4(1) + 3(2)}{1^2 + 2^2} \begin{bmatrix} 1 \\ 2 \end{bmatrix} = \frac{10}{5} \begin{bmatrix} 1 \\ 2 \end{bmatrix} = 2 \begin{bmatrix} 1 \\ 2 \end{bmatrix} = \mathbf{\begin{bmatrix} 2 \\ 4 \end{bmatrix}}$$
-
-\textbf{2. Gram-Schmidt Process ($2 \times 2$)}
+\textbf{1. Projection onto a Vector \& Residual Verification}
+Given $\mathbf{v} = \begin{bmatrix} 4 \\ 3 \end{bmatrix}$ and $\mathbf{u} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$:
 \begin{enumerate}
-    \item \textbf{Step 1:} $\mathbf{u}_1 = \mathbf{v}_1 = \begin{bmatrix} 3 \\ 4 \end{bmatrix}$. $\|\mathbf{u}_1\| = \sqrt{3^2 + 4^2} = 5$.
-    $$\mathbf{q}_1 = \frac{\mathbf{u}_1}{5} = \mathbf{\begin{bmatrix} 3/5 \\ 4/5 \end{bmatrix}}$$
-    \item \textbf{Step 2:} $\mathbf{u}_2 = \mathbf{v}_2 - (\mathbf{v}_2 \cdot \mathbf{q}_1) \mathbf{q}_1 = \begin{bmatrix} 1 \\ 0 \end{bmatrix} - \left(1 \cdot \frac{3}{5} + 0\right) \begin{bmatrix} 3/5 \\ 4/5 \end{bmatrix} = \begin{bmatrix} 1 - 9/25 \\ -12/25 \end{bmatrix} = \begin{bmatrix} 16/25 \\ -12/25 \end{bmatrix}$.
-    $\|\mathbf{u}_2\| = \sqrt{(16/25)^2 + (-12/25)^2} = \frac{20}{25} = \frac{4}{5}$.
-    $$\mathbf{q}_2 = \frac{\mathbf{u}_2}{4/5} = \mathbf{\begin{bmatrix} 4/5 \\ -3/5 \end{bmatrix}}$$
+    \item \textbf{Projection Formula:}
+    \begin{equation*}
+    \proj_{\mathbf{u}}(\mathbf{v}) = \frac{\mathbf{v} \cdot \mathbf{u}}{\|\mathbf{u}\|^2} \mathbf{u} = \frac{4(1) + 3(2)}{1^2 + 2^2} \begin{bmatrix} 1 \\ 2 \end{bmatrix} = \frac{4 + 6}{1 + 4} \begin{bmatrix} 1 \\ 2 \end{bmatrix} = \frac{10}{5} \begin{bmatrix} 1 \\ 2 \end{bmatrix} = \mathbf{\begin{bmatrix} 2 \\ 4 \end{bmatrix}}
+    \end{equation*}
+    \item \textbf{Residual Error Vector:}
+    \begin{equation*}
+    \mathbf{e} = \mathbf{v} - \proj_{\mathbf{u}}(\mathbf{v}) = \begin{bmatrix} 4 \\ 3 \end{bmatrix} - \begin{bmatrix} 2 \\ 4 \end{bmatrix} = \begin{bmatrix} 2 \\ -1 \end{bmatrix}
+    \end{equation*}
+    \item \textbf{Orthogonality Verification:}
+    \begin{equation*}
+    \mathbf{e} \cdot \mathbf{u} = 2(1) + (-1)(2) = 2 - 2 = 0 \implies \mathbf{e} \perp \mathbf{u} \quad \checkmark
+    \end{equation*}
 \end{enumerate}
-Orthonormal Basis: $\mathbf{\left\{ \begin{bmatrix} 3/5 \\ 4/5 \end{bmatrix}, \begin{bmatrix} 4/5 \\ -3/5 \end{bmatrix} \right\}}$.
 
-\textbf{3. Gram-Schmidt Process ($3 \times 3$)}
-\begin{itemize}
-    \item $\mathbf{u}_1 = \begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix} \implies \|\mathbf{u}_1\| = \sqrt{2} \implies \mathbf{q}_1 = \mathbf{\begin{bmatrix} 1/\sqrt{2} \\ 1/\sqrt{2} \\ 0 \end{bmatrix}}$.
-    \item $\mathbf{u}_2 = \mathbf{v}_2 - (\mathbf{v}_2 \cdot \mathbf{q}_1)\mathbf{q}_1 = \begin{bmatrix} 1 \\ 0 \\ 1 \end{bmatrix} - \frac{1}{\sqrt{2}} \begin{bmatrix} 1/\sqrt{2} \\ 1/\sqrt{2} \\ 0 \end{bmatrix} = \begin{bmatrix} 1/2 \\ -1/2 \\ 1 \end{bmatrix}$.
-\end{itemize}
-  $\|\mathbf{u}_2\| = \sqrt{\frac{1}{4} + \frac{1}{4} + 1} = \sqrt{\frac{3}{2}} \implies \mathbf{q}_2 = \mathbf{\begin{bmatrix} 1/\sqrt{6} \\ -1/\sqrt{6} \\ 2/\sqrt{6} \end{bmatrix}}$.
-\begin{itemize}
-    \item Repeating for $\mathbf{u}_3 \implies \mathbf{q}_3 = \mathbf{\begin{bmatrix} 1/\sqrt{3} \\ -1/\sqrt{3} \\ -1/\sqrt{3} \end{bmatrix}}$.
+\textbf{2. Gram-Schmidt Process in $\mathbb{R}^2$}
+Given $\mathbf{v}_1 = \begin{bmatrix} 3 \\ 4 \end{bmatrix}$ and $\mathbf{v}_2 = \begin{bmatrix} 1 \\ 0 \end{bmatrix}$:
+\begin{enumerate}
+    \item \textbf{First Orthonormal Vector $\mathbf{q}_1$:}
+    \begin{equation*}
+    \mathbf{u}_1 = \mathbf{v}_1 = \begin{bmatrix} 3 \\ 4 \end{bmatrix}, \quad \|\mathbf{u}_1\| = \sqrt{3^2 + 4^2} = 5 \implies \mathbf{q}_1 = \frac{\mathbf{u}_1}{5} = \mathbf{\begin{bmatrix} 3/5 \\ 4/5 \end{bmatrix}}
+    \end{equation*}
+    \item \textbf{Subtract Projection onto $\mathbf{q}_1$:}
+    \begin{equation*}
+    \langle \mathbf{v}_2, \mathbf{q}_1 \rangle = 1\left(\frac{3}{5}\right) + 0\left(\frac{4}{5}\right) = \frac{3}{5}
+    \end{equation*}
+    \begin{equation*}
+    \mathbf{u}_2 = \mathbf{v}_2 - \langle \mathbf{v}_2, \mathbf{q}_1 \rangle \mathbf{q}_1 = \begin{bmatrix} 1 \\ 0 \end{bmatrix} - \frac{3}{5} \begin{bmatrix} 3/5 \\ 4/5 \end{bmatrix} = \begin{bmatrix} 1 - 9/25 \\ -12/25 \end{bmatrix} = \begin{bmatrix} 16/25 \\ -12/25 \end{bmatrix}
+    \end{equation*}
+    \item \textbf{Normalize to $\mathbf{q}_2$:}
+    \begin{equation*}
+    \|\mathbf{u}_2\| = \sqrt{\left(\frac{16}{25}\right)^2 + \left(-\frac{12}{25}\right)^2} = \frac{\sqrt{256 + 144}}{25} = \frac{\sqrt{400}}{25} = \frac{20}{25} = \frac{4}{5}
+    \end{equation*}
+    \begin{equation*}
+    \mathbf{q}_2 = \frac{\mathbf{u}_2}{4/5} = \frac{5}{4} \begin{bmatrix} 16/25 \\ -12/25 \end{bmatrix} = \mathbf{\begin{bmatrix} 4/5 \\ -3/5 \end{bmatrix}}
+    \end{equation*}
+    Orthonormal basis: $\mathcal{B}_{\text{ONB}} = \mathbf{\left\{ \begin{bmatrix} 3/5 \\ 4/5 \end{bmatrix}, \begin{bmatrix} 4/5 \\ -3/5 \end{bmatrix} \right\}}$.
+\end{enumerate}
 
-\end{itemize}
+\textbf{3. Gram-Schmidt Process in $\mathbb{R}^3$}
+Given $\mathbf{v}_1 = [1, 1, 0]^T, \mathbf{v}_2 = [1, 0, 1]^T, \mathbf{v}_3 = [0, 1, 1]^T$:
+\begin{enumerate}
+    \item \textbf{First Vector $\mathbf{q}_1$:}
+    \begin{equation*}
+    \mathbf{u}_1 = \begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix}, \quad \|\mathbf{u}_1\| = \sqrt{2} \implies \mathbf{q}_1 = \mathbf{\begin{bmatrix} 1/\sqrt{2} \\ 1/\sqrt{2} \\ 0 \end{bmatrix}}
+    \end{equation*}
+    \item \textbf{Second Vector $\mathbf{q}_2$:}
+    $\langle \mathbf{v}_2, \mathbf{q}_1 \rangle = 1(1/\sqrt{2}) + 0 + 0 = 1/\sqrt{2}$.
+    \begin{equation*}
+    \mathbf{u}_2 = \mathbf{v}_2 - \langle \mathbf{v}_2, \mathbf{q}_1 \rangle \mathbf{q}_1 = \begin{bmatrix} 1 \\ 0 \\ 1 \end{bmatrix} - \frac{1}{\sqrt{2}} \begin{bmatrix} 1/\sqrt{2} \\ 1/\sqrt{2} \\ 0 \end{bmatrix} = \begin{bmatrix} 1 - 1/2 \\ -1/2 \\ 1 \end{bmatrix} = \begin{bmatrix} 1/2 \\ -1/2 \\ 1 \end{bmatrix}
+    \end{equation*}
+    $\|\mathbf{u}_2\| = \sqrt{1/4 + 1/4 + 1} = \sqrt{6/4} = \frac{\sqrt{6}}{2}$.
+    \begin{equation*}
+    \mathbf{q}_2 = \frac{\mathbf{u}_2}{\sqrt{6}/2} = \mathbf{\begin{bmatrix} 1/\sqrt{6} \\ -1/\sqrt{6} \\ 2/\sqrt{6} \end{bmatrix}}
+    \end{equation*}
+    \item \textbf{Third Vector $\mathbf{q}_3$:}
+    $\langle \mathbf{v}_3, \mathbf{q}_1 \rangle = 0 + 1/\sqrt{2} + 0 = 1/\sqrt{2}$.
+    $\langle \mathbf{v}_3, \mathbf{q}_2 \rangle = 0 - 1/\sqrt{6} + 2/\sqrt{6} = 1/\sqrt{6}$.
+    \begin{align*}
+    \mathbf{u}_3 &= \mathbf{v}_3 - \langle \mathbf{v}_3, \mathbf{q}_1 \rangle \mathbf{q}_1 - \langle \mathbf{v}_3, \mathbf{q}_2 \rangle \mathbf{q}_2 \\
+    &= \begin{bmatrix} 0 \\ 1 \\ 1 \end{bmatrix} - \frac{1}{\sqrt{2}} \begin{bmatrix} 1/\sqrt{2} \\ 1/\sqrt{2} \\ 0 \end{bmatrix} - \frac{1}{\sqrt{6}} \begin{bmatrix} 1/\sqrt{6} \\ -1/\sqrt{6} \\ 2/\sqrt{6} \end{bmatrix} \\
+    &= \begin{bmatrix} 0 - 1/2 - 1/6 \\ 1 - 1/2 + 1/6 \\ 1 - 0 - 2/6 \end{bmatrix} = \begin{bmatrix} -2/3 \\ 2/3 \\ 2/3 \end{bmatrix}
+    \end{align*}
+    $\|\mathbf{u}_3\| = \sqrt{4/9 + 4/9 + 4/9} = \sqrt{12/9} = \frac{2\sqrt{3}}{3} = \frac{2}{\sqrt{3}}$.
+    \begin{equation*}
+    \mathbf{q}_3 = \frac{\mathbf{u}_3}{2/\sqrt{3}} = \mathbf{\begin{bmatrix} -1/\sqrt{3} \\ 1/\sqrt{3} \\ 1/\sqrt{3} \end{bmatrix}}
+    \end{equation*}
+\end{enumerate}
+
 \textbf{4. Orthogonal Matrix Properties}
+Let $Q = \begin{bmatrix} \cos \theta & -\sin \theta \\ \sin \theta & \cos \theta \end{bmatrix}$:
+\begin{enumerate}
+    \item \textbf{Product $Q^T Q$:}
+    \begin{equation*}
+    Q^T Q = \begin{bmatrix} \cos\theta & \sin\theta \\ -\sin\theta & \cos\theta \end{bmatrix} \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix} = \begin{bmatrix} \cos^2\theta + \sin^2\theta & 0 \\ 0 & \sin^2\theta + \cos^2\theta \end{bmatrix} = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} = I
+    \end{equation*}
+    Because $Q^T Q = I$, $Q$ is orthogonal and $Q^{-1} = Q^T$.
+    \item \textbf{Length Preservation (Isometry):}
+    \begin{equation*}
+    \|Q\mathbf{x}\|^2 = (Q\mathbf{x})^T (Q\mathbf{x}) = \mathbf{x}^T (Q^T Q) \mathbf{x} = \mathbf{x}^T I \mathbf{x} = \mathbf{x}^T \mathbf{x} = \|\mathbf{x}\|^2 \implies \mathbf{\|Q\mathbf{x}\| = \|\mathbf{x}\|}
+    \end{equation*}
+    \item \textbf{Inner Product \& Angle Preservation:}
+    \begin{equation*}
+    \langle Q\mathbf{x}, Q\mathbf{y} \rangle = (Q\mathbf{x})^T (Q\mathbf{y}) = \mathbf{x}^T (Q^T Q) \mathbf{y} = \mathbf{x}^T I \mathbf{y} = \mathbf{x}^T \mathbf{y} = \langle \mathbf{x}, \mathbf{y} \rangle
+    \end{equation*}
+\end{enumerate}
+
+\textbf{5. Data Science Application: Least Squares Projection Matrix}
+Given $P = X(X^T X)^{-1} X^T$:
+\begin{enumerate}
+    \item \textbf{Symmetry ($P^T = P$):}
+    \begin{equation*}
+    P^T = \left( X (X^T X)^{-1} X^T \right)^T = (X^T)^T \left( (X^T X)^{-1} \right)^T X^T = X (X^T X)^{-1} X^T = \mathbf{P}
+    \end{equation*}
+    \item \textbf{Idempotence ($P^2 = P$):}
+    \begin{equation*}
+    P^2 = \left(X(X^T X)^{-1} X^T\right) \left(X(X^T X)^{-1} X^T\right) = X (X^T X)^{-1} \underbrace{(X^T X) (X^T X)^{-1}}_{I} X^T = \mathbf{P}
+    \end{equation*}
+    \item \textbf{Eigenvalues and Trace:}
+    For any idempotent matrix, $P\mathbf{v} = \lambda \mathbf{v} \implies P^2 \mathbf{v} = \lambda^2 \mathbf{v} \implies \lambda^2 = \lambda \implies \lambda \in \{0, 1\}$.
+    Since $\operatorname{Col}(P) = \operatorname{Col}(X)$ has dimension 5, there are exactly 5 eigenvalues equal to 1, and $100 - 5 = 95$ eigenvalues equal to 0.
+    The trace is the sum of eigenvalues: $\trace(P) = 5(1) + 95(0) = \mathbf{5} = \rank(X)$.
+\end{enumerate}
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Spectral Properties of Projection Matrices}
 \begin{itemize}
-    \item \textbf{(a) $Q^T Q$ Computation:}
-    $$Q^T Q = \begin{bmatrix} \cos\theta & \sin\theta \\ -\sin\theta & \cos\theta \end{bmatrix} \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix} = \begin{bmatrix} \cos^2\theta + \sin^2\theta & 0 \\ 0 & \sin^2\theta + \cos^2\theta \end{bmatrix} = \mathbf{I}$$
-    \item \textbf{(b) Norm Preservation:}
-    $$\|Q\mathbf{x}\|^2 = (Q\mathbf{x})^T (Q\mathbf{x}) = \mathbf{x}^T (Q^T Q) \mathbf{x} = \mathbf{x}^T I \mathbf{x} = \mathbf{x}^T \mathbf{x} = \|\mathbf{x}\|^2 \implies \mathbf{\|Q\mathbf{x}\| = \|\mathbf{x}\|}$$
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} By idempotence $P^2 = P$, any eigenvalue $\lambda$ satisfies $\lambda^2 = \lambda$, restricting eigenvalues strictly to $\lambda \in \{0, 1\}$. The eigenspace corresponding to $\lambda = 1$ is the subspace $W$ ($\dim(W) = k$), while the eigenspace for $\lambda = 0$ is the orthogonal complement $W^\perp$ ($\dim(W^\perp) = m - k$). The trace equals the sum of eigenvalues: $\trace(P) = k(1) + (m - k)(0) = k$.
+    \item \textbf{Why (a) is false:} Only the identity matrix has all eigenvalues equal to 1. For $k < m$, $P$ has $m - k$ zero eigenvalues.
+    \item \textbf{Why (c) is false:} Because $k < m$, $P$ has at least one zero eigenvalue, making $\det(P) = 0$, not 1.
+    \item \textbf{Why (d) is false:} Since $\det(P) = 0$, $P$ is singular and non-invertible.
 \end{itemize}
 
-\textbf{5. Data Science Application: Projection Matrix Properties}
-Given $P = X(X^T X)^{-1} X^T$:
+\textbf{7. Orthogonal Decomposition and Distance Minimization}
 \begin{itemize}
-    \item \textbf{Symmetry ($P^T = P$):}
-    $$P^T = \left(X (X^T X)^{-1} X^T\right)^T = (X^T)^T \left((X^T X)^{-1}\right)^T X^T = X (X^T X)^{-1} X^T = \mathbf{P}$$
-    \item \textbf{Idempotence ($P^2 = P$):}
-    $$P^2 = P P = X (X^T X)^{-1} \underbrace{(X^T X) (X^T X)^{-1}}_{I} X^T = X (X^T X)^{-1} X^T = \mathbf{P}$$
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} By the Orthogonal Decomposition Theorem, $\mathbf{y} = \hat{\mathbf{y}} + \mathbf{e}$, where $\hat{\mathbf{y}} \in W$ and $\mathbf{e} \in W^\perp$. Since $\hat{\mathbf{y}}$ and $\mathbf{e}$ are strictly orthogonal ($\hat{\mathbf{y}} \perp \mathbf{e}$), the Pythagorean Theorem gives:
+    \begin{equation*}
+    \|\mathbf{y}\|_2^2 = \|\hat{\mathbf{y}}\|_2^2 + \|\mathbf{e}\|_2^2 \implies \|\mathbf{e}\|_2^2 = \|\mathbf{y}\|_2^2 - \|\hat{\mathbf{y}}\|_2^2 \implies \|\mathbf{e}\|_2 = \sqrt{\|\mathbf{y}\|_2^2 - \|\hat{\mathbf{y}}\|_2^2}
+    \end{equation*}
+    Since $\mathbf{e} = \mathbf{y} - \hat{\mathbf{y}}$ is the residual error vector whose length is the minimum distance to $W$, the exact distance is $\sqrt{\|\mathbf{y}\|_2^2 - \|\hat{\mathbf{y}}\|_2^2}$.
+    \item \textbf{Why (a) is false:} $\|\hat{\mathbf{y}}\|_2$ is the length of the projection, not the distance from $\mathbf{y}$ to $W$.
+    \item \textbf{Why (b) is false:} Euclidean norms obey the Pythagorean relationship in quadrature ($\sqrt{a^2 - b^2}$), not linear difference ($a - b$).
+    \item \textbf{Why (d) is false:} $\|\mathbf{y} + \hat{\mathbf{y}}\|_2$ adds the vectors rather than finding the orthogonal difference.
 \end{itemize}
 
 \section*{Week 9: Multivariable Functions, Partial Derivatives \& Gradient}
@@ -340,92 +1072,281 @@ Given $P = X(X^T X)^{-1} X^T$:
 
 \textbf{1. First-Order Partial Derivatives}
 For $f(x, y) = x^2 y^3 + e^{2x} \sin(y)$:
-$$\frac{\partial f}{\partial x} = \mathbf{2x y^3 + 2 e^{2x} \sin(y)}$$
-$$\frac{\partial f}{\partial y} = \mathbf{3x^2 y^2 + e^{2x} \cos(y)}$$
+\begin{enumerate}
+    \item \textbf{Partial with respect to $x$ (treat $y$ as a constant):}
+    \begin{equation*}
+    \frac{\partial f}{\partial x} = \frac{\partial}{\partial x}(x^2) y^3 + \frac{\partial}{\partial x}(e^{2x}) \sin(y) = 2x y^3 + 2 e^{2x} \sin(y) = \mathbf{2x y^3 + 2 e^{2x} \sin(y)}
+    \end{equation*}
+    \item \textbf{Partial with respect to $y$ (treat $x$ as a constant):}
+    \begin{equation*}
+    \frac{\partial f}{\partial y} = x^2 \frac{\partial}{\partial y}(y^3) + e^{2x} \frac{\partial}{\partial y}(\sin(y)) = x^2 (3y^2) + e^{2x} \cos(y) = \mathbf{3x^2 y^2 + e^{2x} \cos(y)}
+    \end{equation*}
+\end{enumerate}
 
 \textbf{2. Gradient Vector Evaluation}
 For $f(x, y) = 4x^2 y - 3y^2 + 5x$:
-$$\frac{\partial f}{\partial x} = 8xy + 5 \implies f_x(1, 2) = 8(1)(2) + 5 = 16 + 5 = 21$$
-$$\frac{\partial f}{\partial y} = 4x^2 - 6y \implies f_y(1, 2) = 4(1)^2 - 6(2) = 4 - 12 = -8$$
-$$\nabla f(1, 2) = \mathbf{\begin{bmatrix} 21 \\ -8 \end{bmatrix}}$$
+\begin{enumerate}
+    \item Compute general partial derivatives:
+    \begin{align*}
+    f_x(x, y) &= \frac{\partial}{\partial x}(4x^2 y - 3y^2 + 5x) = 8xy + 5 \\
+    f_y(x, y) &= \frac{\partial}{\partial y}(4x^2 y - 3y^2 + 5x) = 4x^2 - 6y
+    \end{align*}
+    \item Evaluate at point $(x_0, y_0) = (1, 2)$:
+    \begin{align*}
+    f_x(1, 2) &= 8(1)(2) + 5 = 16 + 5 = 21 \\
+    f_y(1, 2) &= 4(1)^2 - 6(2) = 4 - 12 = -8
+    \end{align*}
+    \item Assemble into gradient column vector:
+    \begin{equation*}
+    \nabla f(1, 2) = \mathbf{\begin{bmatrix} 21 \\ -8 \end{bmatrix}}
+    \end{equation*}
+\end{enumerate}
 
-\textbf{3. Directional Derivative}
-1. Gradient $\nabla f(x, y) = \begin{bmatrix} 2x + 3y \\ 3x + 2y \end{bmatrix}$. At $(2, 1)$: $\nabla f(2, 1) = \begin{bmatrix} 2(2)+3(1) \\ 3(2)+2(1) \end{bmatrix} = \begin{bmatrix} 7 \\ 8 \end{bmatrix}$.
-2. Normalize direction vector $\mathbf{v} = \begin{bmatrix} 3 \\ 4 \end{bmatrix} \implies \mathbf{u} = \frac{\mathbf{v}}{\|\mathbf{v}\|} = \begin{bmatrix} 3/5 \\ 4/5 \end{bmatrix}$.
-3. Directional derivative:
-$$D_{\mathbf{u}} f(2, 1) = \nabla f(2, 1) \cdot \mathbf{u} = \begin{bmatrix} 7 \\ 8 \end{bmatrix} \cdot \begin{bmatrix} 3/5 \\ 4/5 \end{bmatrix} = \frac{21 + 32}{5} = \frac{53}{5} = \mathbf{10.6}$$
+\textbf{3. Directional Derivative along a Vector}
+For $f(x, y) = x^2 + 3xy + y^2$ at point $(2, 1)$ in direction $\mathbf{v} = \begin{bmatrix} 3 \\ 4 \end{bmatrix}$:
+\begin{enumerate}
+    \item \textbf{Gradient Vector at $(2, 1)$:}
+    \begin{equation*}
+    \nabla f(x, y) = \begin{bmatrix} 2x + 3y \\ 3x + 2y \end{bmatrix} \implies \nabla f(2, 1) = \begin{bmatrix} 2(2) + 3(1) \\ 3(2) + 2(1) \end{bmatrix} = \begin{bmatrix} 7 \\ 8 \end{bmatrix}
+    \end{equation*}
+    \item \textbf{Direction Vector Normalization:}
+    \begin{equation*}
+    \|\mathbf{v}\| = \sqrt{3^2 + 4^2} = 5 \implies \mathbf{u} = \frac{\mathbf{v}}{\|\mathbf{v}\|} = \begin{bmatrix} 3/5 \\ 4/5 \end{bmatrix}
+    \end{equation*}
+    \item \textbf{Directional Derivative Inner Product:}
+    \begin{equation*}
+    D_{\mathbf{u}} f(2, 1) = \nabla f(2, 1) \cdot \mathbf{u} = \begin{bmatrix} 7 \\ 8 \end{bmatrix} \cdot \begin{bmatrix} 3/5 \\ 4/5 \end{bmatrix} = 7\left(\frac{3}{5}\right) + 8\left(\frac{4}{5}\right) = \frac{21 + 32}{5} = \frac{53}{5} = \mathbf{10.6}
+    \end{equation*}
+\end{enumerate}
 
-\textbf{4. Steepest Ascent Direction}
-For $f(x, y) = x^3 y - 2x y^2$:
-\begin{itemize}
-    \item $f_x = 3x^2 y - 2y^2 \implies f_x(1, -1) = 3(1)(-1) - 2(1) = -5$.
-    \item $f_y = x^3 - 4xy \implies f_y(1, -1) = 1 - 4(1)(-1) = 1 + 4 = 5$.
-\end{itemize}
-Gradient: $\nabla f(1, -1) = \begin{bmatrix} -5 \\ 5 \end{bmatrix}$.
-\begin{itemize}
-    \item \textbf{Unit Direction of Steepest Ascent:} $\mathbf{u} = \frac{\nabla f}{\|\nabla f\|} = \mathbf{\begin{bmatrix} -1/\sqrt{2} \\ 1/\sqrt{2} \end{bmatrix}}$.
-    \item \textbf{Maximum Rate of Increase:} $\|\nabla f(1, -1)\| = \sqrt{(-5)^2 + 5^2} = \sqrt{50} = \mathbf{5\sqrt{2} \approx 7.071}$.
+\textbf{4. Steepest Ascent and Descent Rates}
+For $f(x, y) = x^3 y - 2x y^2$ at $(1, -1)$:
+\begin{enumerate}
+    \item \textbf{Gradient Evaluation:}
+    \begin{align*}
+    f_x &= 3x^2 y - 2y^2 \implies f_x(1, -1) = 3(1)^2(-1) - 2(-1)^2 = -3 - 2 = -5 \\
+    f_y &= x^3 - 4xy \implies f_y(1, -1) = (1)^3 - 4(1)(-1) = 1 + 4 = 5
+    \end{align*}
+    \begin{equation*}
+    \nabla f(1, -1) = \begin{bmatrix} -5 \\ 5 \end{bmatrix}
+    \end{equation*}
+    \item \textbf{Unit Direction of Steepest Ascent:}
+    \begin{equation*}
+    \|\nabla f(1, -1)\| = \sqrt{(-5)^2 + 5^2} = \sqrt{25 + 25} = \sqrt{50} = 5\sqrt{2}
+    \end{equation*}
+    \begin{equation*}
+    \mathbf{u}_{\text{ascent}} = \frac{\nabla f}{\|\nabla f\|} = \frac{1}{5\sqrt{2}} \begin{bmatrix} -5 \\ 5 \end{bmatrix} = \mathbf{\begin{bmatrix} -1/\sqrt{2} \\ 1/\sqrt{2} \end{bmatrix}}
+    \end{equation*}
+    \item \textbf{Maximum Rate of Increase:}
+    \begin{equation*}
+    \max_{\|\mathbf{u}\|=1} D_{\mathbf{u}} f = \|\nabla f(1, -1)\| = \mathbf{5\sqrt{2} \approx 7.0711}
+    \end{equation*}
+    \item \textbf{Unit Direction of Steepest Descent:}
+    \begin{equation*}
+    \mathbf{u}_{\text{descent}} = -\mathbf{u}_{\text{ascent}} = \mathbf{\begin{bmatrix} 1/\sqrt{2} \\ -1/\sqrt{2} \end{bmatrix}}
+    \end{equation*}
+\end{enumerate}
 
-\end{itemize}
 \textbf{5. Data Science Application: MSE Loss Gradient}
-For $L(m, b) = (m x_i + b - y_i)^2$:
+Given single-sample loss $L(m, b) = (m x_i + b - y_i)^2$:
+Let residual error be $e_i = m x_i + b - y_i$, so $L = e_i^2$.
 Using the chain rule:
-$$\frac{\partial L}{\partial m} = 2(m x_i + b - y_i) \cdot x_i = 2 x_i (m x_i + b - y_i)$$
-$$\frac{\partial L}{\partial b} = 2(m x_i + b - y_i) \cdot 1 = 2 (m x_i + b - y_i)$$
-$$\nabla L(m, b) = \mathbf{\begin{bmatrix} 2 x_i (m x_i + b - y_i) \\ 2 (m x_i + b - y_i) \end{bmatrix}}$$
+\begin{align*}
+\frac{\partial L}{\partial m} &= \frac{d L}{d e_i} \frac{\partial e_i}{\partial m} = 2 e_i \cdot x_i = 2 x_i (m x_i + b - y_i) \\
+\frac{\partial L}{\partial b} &= \frac{d L}{d e_i} \frac{\partial e_i}{\partial b} = 2 e_i \cdot 1 = 2 (m x_i + b - y_i)
+\end{align*}
+The gradient vector is:
+\begin{equation*}
+\nabla L(m, b) = \mathbf{\begin{bmatrix} 2 x_i (m x_i + b - y_i) \\ 2 (m x_i + b - y_i) \end{bmatrix}}
+\end{equation*}
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Orthogonality of Gradient to Level Sets}
+\begin{itemize}
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} By the Level Set Orthogonality Theorem, if $\mathbf{r}(t)$ is any smooth curve parameterizing the level curve $x^2 + 4y^2 = 8$, the identity $f(\mathbf{r}(t)) = 8$ holds identically. Differentiating with respect to $t$ yields $\frac{d}{dt} f(\mathbf{r}(t)) = \nabla f(\mathbf{r}(t)) \cdot \mathbf{r}'(t) = 0$. Since $\mathbf{r}'(t)$ is the tangent vector, $\nabla f(2, 1) \cdot \mathbf{t} = 0$, meaning the gradient is strictly perpendicular ($90^\circ$) to the tangent line. Because $\nabla f(2, 1) = [2x, 8y]^T = [4, 8]^T$, it points outward toward larger values of $x^2 + 4y^2$.
+    \item \textbf{Why (a) is false:} The gradient is perpendicular to the tangent vector, not parallel.
+    \item \textbf{Why (b) is false:} The angle between a gradient vector and a level curve tangent is always exactly $90^\circ$ ($\pi/2$), never $45^\circ$.
+    \item \textbf{Why (d) is false:} Being tangent to the curve would imply zero directional derivative along the gradient, which contradicts steepest ascent.
+\end{itemize}
+
+\textbf{7. Directional Derivative Extremal Properties}
+\begin{itemize}
+    \item \textbf{Correct Answer: (a)}
+    \item \textbf{Why (a) is correct:} By the Cauchy-Schwarz inequality, the directional derivative satisfies:
+    \begin{equation*}
+    D_{\mathbf{u}} g(\mathbf{p}) = \nabla g(\mathbf{p}) \cdot \mathbf{u} = \|\nabla g(\mathbf{p})\| \cos(\theta)
+    \end{equation*}
+    where $\theta$ is the angle between $\nabla g$ and unit vector $\mathbf{u}$.
+    The minimum possible value occurs when $\cos(\theta) = -1$ (anti-parallel direction $\mathbf{u} = -\nabla g / \|\nabla g\|$), which yields:
+    \begin{equation*}
+    \min_{\|\mathbf{u}\|=1} D_{\mathbf{u}} g(\mathbf{p}) = -\|\nabla g(\mathbf{p})\| = -\sqrt{2^2 + (-2)^2 + 1^2} = -\sqrt{4 + 4 + 1} = -\sqrt{9} = -3
+    \end{equation*}
+    \item \textbf{Why (b) is false:} 0 is the rate along directions perpendicular to the gradient, not the global minimum.
+    \item \textbf{Why (c) is false:} $-1$ ignores the magnitude of the gradient vector.
+    \item \textbf{Why (d) is false:} $-9$ squares the norm instead of taking the negative Euclidean length.
+\end{itemize}
 
 \section*{Week 10: Tangent Planes, Steepest Descent \& Critical Points}
 
 \subsection*{Detailed Solutions}
 
 \textbf{1. Tangent Plane Equation}
-For $z = x^2 + 3y^2 - 4x$ at $(x_0, y_0) = (2, 1)$:
-\begin{itemize}
-    \item $z_0 = f(2, 1) = 2^2 + 3(1)^2 - 4(2) = 4 + 3 - 8 = -1$.
-    \item $f_x = 2x - 4 \implies f_x(2, 1) = 2(2) - 4 = 0$.
-    \item $f_y = 6y \implies f_y(2, 1) = 6(1) = 6$.
-\end{itemize}
-Tangent Plane:
-$$z - (-1) = 0(x - 2) + 6(y - 1) \implies z + 1 = 6y - 6 \implies \mathbf{z = 6y - 7}$$
+For surface $z = x^2 + 3y^2 - 4x$ at point $(x_0, y_0) = (2, 1)$:
+\begin{enumerate}
+    \item \textbf{Evaluate $z_0$:}
+    \begin{equation*}
+    z_0 = f(2, 1) = (2)^2 + 3(1)^2 - 4(2) = 4 + 3 - 8 = -1
+    \end{equation*}
+    The point of tangency is $(x_0, y_0, z_0) = (2, 1, -1)$.
+    \item \textbf{Compute First Partial Derivatives:}
+    \begin{align*}
+    f_x(x, y) &= 2x - 4 \implies f_x(2, 1) = 2(2) - 4 = 0 \\
+    f_y(x, y) &= 6y \implies f_y(2, 1) = 6(1) = 6
+    \end{align*}
+    \item \textbf{Assemble Tangent Plane Equation:}
+    \begin{equation*}
+    z - z_0 = f_x(x_0, y_0)(x - x_0) + f_y(x_0, y_0)(y - y_0)
+    \end{equation*}
+    \begin{equation*}
+    z - (-1) = 0(x - 2) + 6(y - 1) \implies z + 1 = 6y - 6
+    \end{equation*}
+    Standard form: $\mathbf{6y - z = 7}$ (or $z = 6y - 7$).
+\end{enumerate}
 
 \textbf{2. Gradient Descent Iteration Step}
-\begin{itemize}
-    \item \textbf{(a) Gradient:} $\nabla L(w_1, w_2) = \mathbf{\begin{bmatrix} 2w_1 \\ 8w_2 \end{bmatrix}}$.
-    \item \textbf{(b) Update Step:} At $\mathbf{w}^{(0)} = \begin{bmatrix} 3 \\ 2 \end{bmatrix}$: $\nabla L(3, 2) = \begin{bmatrix} 6 \\ 16 \end{bmatrix}$.
-    $$\mathbf{w}^{(1)} = \mathbf{w}^{(0)} - \alpha \nabla L = \begin{bmatrix} 3 \\ 2 \end{bmatrix} - 0.1 \begin{bmatrix} 6 \\ 16 \end{bmatrix} = \begin{bmatrix} 3 - 0.6 \\ 2 - 1.6 \end{bmatrix} = \mathbf{\begin{bmatrix} 2.4 \\ 0.4 \end{bmatrix}}$$
-\end{itemize}
-
-\textbf{3. Finding Critical Points ($2 \times 2$)}
-Set first partial derivatives of $f(x, y) = x^3 + y^3 - 3xy$ to zero:
+Given loss function $L(w_1, w_2) = w_1^2 + 4 w_2^2$:
 \begin{enumerate}
-    \item $f_x = 3x^2 - 3y = 0 \implies y = x^2$.
-    \item $f_y = 3y^2 - 3x = 0 \implies x = y^2$.
+    \item \textbf{Gradient Vector:}
+    \begin{equation*}
+    \nabla L(w_1, w_2) = \begin{bmatrix} \frac{\partial L}{\partial w_1} \\ \frac{\partial L}{\partial w_2} \end{bmatrix} = \mathbf{\begin{bmatrix} 2w_1 \\ 8w_2 \end{bmatrix}}
+    \end{equation*}
+    \item \textbf{Gradient Evaluation at $\mathbf{w}^{(0)} = [3, 2]^T$:}
+    \begin{equation*}
+    \nabla L(3, 2) = \begin{bmatrix} 2(3) \\ 8(2) \end{bmatrix} = \begin{bmatrix} 6 \\ 16 \end{bmatrix}
+    \end{equation*}
+    \item \textbf{Update with Learning Rate $\alpha = 0.1$:}
+    \begin{equation*}
+    \mathbf{w}^{(1)} = \mathbf{w}^{(0)} - \alpha \nabla L(\mathbf{w}^{(0)}) = \begin{bmatrix} 3 \\ 2 \end{bmatrix} - 0.1 \begin{bmatrix} 6 \\ 16 \end{bmatrix} = \begin{bmatrix} 3 - 0.6 \\ 2 - 1.6 \end{bmatrix} = \mathbf{\begin{bmatrix} 2.4 \\ 0.4 \end{bmatrix}}
+    \end{equation*}
+    \item \textbf{Loss Reduction Verification:}
+    \begin{align*}
+    L(\mathbf{w}^{(0)}) &= 3^2 + 4(2)^2 = 9 + 16 = 25.0 \\
+    L(\mathbf{w}^{(1)}) &= (2.4)^2 + 4(0.4)^2 = 5.76 + 4(0.16) = 5.76 + 0.64 = 6.40 < 25.0 \quad \checkmark
+    \end{align*}
+    The loss decreases substantially by $25.0 - 6.40 = 18.60$ in one step.
 \end{enumerate}
-Substitute $y = x^2$ into $x = y^2$:
-$$x = (x^2)^2 = x^4 \implies x^4 - x = 0 \implies x(x^3 - 1) = 0$$
-\begin{itemize}
-    \item If $x = 0 \implies y = 0^2 = 0 \implies$ Critical point $\mathbf{(0, 0)}$.
-    \item If $x = 1 \implies y = 1^2 = 1 \implies$ Critical point $\mathbf{(1, 1)}$.
 
-\end{itemize}
-\textbf{4. Linear Approximation}
-For $f(x, y) = \sqrt{x^2 + y^2}$ at $(3, 4)$: $f(3, 4) = 5$.
-\begin{itemize}
-    \item $f_x = \frac{x}{\sqrt{x^2 + y^2}} \implies f_x(3, 4) = \frac{3}{5} = 0.6$.
-    \item $f_y = \frac{y}{\sqrt{x^2 + y^2}} \implies f_y(3, 4) = \frac{4}{5} = 0.8$.
-\end{itemize}
-Linear approximation function: $L(x, y) = 5 + 0.6(x - 3) + 0.8(y - 4)$.
-For $(3.06, 3.92)$:
-$$L(3.06, 3.92) = 5 + 0.6(0.06) + 0.8(-0.08) = 5 + 0.036 - 0.064 = \mathbf{4.972}$$
+\textbf{3. Finding Critical Points ($2 \times 2$ System)}
+For $f(x, y) = x^3 + y^3 - 3xy$:
+\begin{enumerate}
+    \item Set first-order partial derivatives to zero:
+    \begin{align}
+    f_x &= 3x^2 - 3y = 0 \implies y = x^2 \label{eq:crit_x} \\
+    f_y &= 3y^2 - 3x = 0 \implies x = y^2 \label{eq:crit_y}
+    \end{align}
+    \item Substitute \eqref{eq:crit_x} into \eqref{eq:crit_y}:
+    \begin{equation*}
+    x = (x^2)^2 = x^4 \implies x^4 - x = 0 \implies x(x^3 - 1) = 0
+    \end{equation*}
+    This factors as $x(x - 1)(x^2 + x + 1) = 0$. Since $x^2 + x + 1 = 0$ has no real roots, the real solutions are $x = 0$ and $x = 1$.
+    \item Find corresponding $y$-values:
+    \begin{itemize}
+        \item If $x = 0 \implies y = 0^2 = 0 \implies$ Critical point $\mathbf{(0, 0)}$.
+        \item If $x = 1 \implies y = 1^2 = 1 \implies$ Critical point $\mathbf{(1, 1)}$.
+    \end{itemize}
+    Thus, the complete set of critical points is $\mathbf{\{(0, 0), (1, 1)\}}$.
+\end{enumerate}
+
+\textbf{4. Linear Approximation and Differential Estimates}
+For $f(x, y) = \sqrt{x^2 + y^2}$ at $(x_0, y_0) = (3, 4)$:
+\begin{enumerate}
+    \item \textbf{Base Value and Gradients:}
+    \begin{equation*}
+    f(3, 4) = \sqrt{3^2 + 4^2} = 5
+    \end{equation*}
+    \begin{align*}
+    f_x(x, y) &= \frac{x}{\sqrt{x^2 + y^2}} \implies f_x(3, 4) = \frac{3}{5} = 0.6 \\
+    f_y(x, y) &= \frac{y}{\sqrt{x^2 + y^2}} \implies f_y(3, 4) = \frac{4}{5} = 0.8
+    \end{align*}
+    \item \textbf{Linear Approximation Formula:}
+    \begin{equation*}
+    L(x, y) = 5 + 0.6(x - 3) + 0.8(y - 4)
+    \end{equation*}
+    \item \textbf{Evaluation at $(3.06, 3.92)$:}
+    Here $\Delta x = 3.06 - 3 = 0.06$ and $\Delta y = 3.92 - 4 = -0.08$.
+    \begin{equation*}
+    L(3.06, 3.92) = 5 + 0.6(0.06) + 0.8(-0.08) = 5 + 0.036 - 0.064 = \mathbf{4.972}
+    \end{equation*}
+    Exact value: $\sqrt{(3.06)^2 + (3.92)^2} = \sqrt{9.3636 + 15.3664} = \sqrt{24.73} \approx 4.972926$.
+    The absolute error is only $|4.972926 - 4.972000| \approx 0.000926$, showing high accuracy.
+\end{enumerate}
 
 \textbf{5. Data Science Application: Least Squares Gradient Descent Update}
-For $L(w) = (2w - 6)^2$:
-$$\frac{dL}{dw} = 2(2w - 6) \cdot 2 = 8w - 24$$
+For 1D loss $L(w) = (2w - 6)^2$:
+\begin{enumerate}
+    \item \textbf{First Derivative:}
+    \begin{equation*}
+    \frac{dL}{dw} = 2(2w - 6) \cdot 2 = 8w - 24 = 8(w - 3)
+    \end{equation*}
+    \item \textbf{Gradient Descent Iterations ($\alpha = 0.05$):}
+    \begin{itemize}
+        \item Step 1: At $w^{(0)} = 0$, $\frac{dL}{dw}(0) = -24$.
+        \begin{equation*}
+        w^{(1)} = 0 - 0.05(-24) = \mathbf{1.2}
+        \end{equation*}
+        \item Step 2: At $w^{(1)} = 1.2$, $\frac{dL}{dw}(1.2) = 8(1.2) - 24 = 9.6 - 24 = -14.4$.
+        \begin{equation*}
+        w^{(2)} = 1.2 - 0.05(-14.4) = 1.2 + 0.72 = \mathbf{1.92}
+        \end{equation*}
+    \end{itemize}
+    \item \textbf{Closed-Form Recurrence and Convergence:}
+    The general recurrence is:
+    \begin{equation*}
+    w^{(k+1)} = w^{(k)} - 0.05(8w^{(k)} - 24) = (1 - 0.40) w^{(k)} + 1.2 = 0.6 w^{(k)} + 1.2
+    \end{equation*}
+    Subtracting the fixed point $w^* = 3$:
+    \begin{equation*}
+    w^{(k+1)} - 3 = 0.6(w^{(k)} - 3) \implies w^{(k)} - 3 = 0.6^k (w^{(0)} - 3) = -3(0.6)^k
+    \end{equation*}
+    \begin{equation*}
+    w^{(k)} = 3 - 3(0.6)^k \implies \lim_{k \to \infty} w^{(k)} = 3 - 0 = \mathbf{3} = w^*
+    \end{equation*}
+    The parameter converges geometrically at rate $0.6^k$.
+\end{enumerate}
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Normal Vectors and Tangent Plane Equations}
 \begin{itemize}
-    \item \textbf{Step 1:} At $w^{(0)} = 0$, $\frac{dL}{dw} = -24 \implies w^{(1)} = 0 - 0.05(-24) = \mathbf{1.2}$.
-    \item \textbf{Step 2:} At $w^{(1)} = 1.2$, $\frac{dL}{dw} = 8(1.2) - 24 = -14.4 \implies w^{(2)} = 1.2 - 0.05(-14.4) = 1.2 + 0.72 = \mathbf{1.92}$.
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} The surface $z = f(x, y)$ can be rewritten as the zero level surface of $F(x, y, z) = 3x^2 - 5y^2 + 2xy - z = 0$. The normal vector is given by the 3D gradient $\nabla F = \left[ \frac{\partial F}{\partial x}, \frac{\partial F}{\partial y}, \frac{\partial F}{\partial z} \right]^T = [f_x, f_y, -1]^T$.
+    Evaluating partial derivatives:
+    \begin{align*}
+    f_x &= 6x + 2y \implies f_x(1, 1) = 6(1) + 2(1) = 8 \\
+    f_y &= -10y + 2x \implies f_y(1, 1) = -10(1) + 2(1) = -8
+    \end{align*}
+    Hence, $\mathbf{n} = [8, -8, -1]^T$.
+    \item \textbf{Why (a) is false:} The $z$-component of the normal is $-1$, not 0; a normal with $z = 0$ represents a vertical plane.
+    \item \textbf{Why (c) is false:} The cross-term $2xy$ contributes to both $f_x$ and $f_y$, which was omitted here.
+    \item \textbf{Why (d) is false:} $[1, 1, 0]^T$ is the evaluation point, not the surface normal.
 \end{itemize}
-The weight sequence $0 \to 1.2 \to 1.92$ rapidly converges toward the optimal minimum $w^* = 3$.
+
+\textbf{7. Learning Rate Stability Ceiling}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} For the quadratic loss $L(\mathbf{w}) = \frac{1}{2}\mathbf{w}^T A \mathbf{w}$, the gradient is $\nabla L = A\mathbf{w}$, and the GD iteration is $\mathbf{w}^{(k+1)} = (I - \alpha A)\mathbf{w}^{(k)}$.
+    For the sequence to converge for all initial points, the spectral radius of the transition matrix must satisfy $\rho(I - \alpha A) < 1$.
+    Since $A$ is diagonal with eigenvalues $\lambda_1 = 10$ and $\lambda_2 = 2$:
+    \begin{equation*}
+    |1 - \alpha \lambda_{\max}| < 1 \iff |1 - 10\alpha| < 1 \iff -1 < 1 - 10\alpha < 1 \iff 0 < 10\alpha < 2 \iff \alpha < \frac{2}{10} = \mathbf{0.2}
+    \end{equation*}
+    If $\alpha \ge 0.2$, the system oscillates with increasing amplitude along the principal eigenvector and diverges.
+    \item \textbf{Why (a) is false:} $\alpha = 1.0$ is 5 times greater than the instability threshold, leading to explosive divergence.
+    \item \textbf{Why (c) is false:} $\alpha < 0.1$ is a valid stable choice, but the question asks for the strict upper bound (the maximum ceiling), which is $0.2$.
+    \item \textbf{Why (d) is false:} $\alpha < 0.5$ is too large and exceeds the stability ceiling of $0.2$.
+\end{itemize}
 
 \section*{Week 11: Hessian Matrix, Multivariable Extrema \& Differentiability}
 
@@ -433,88 +1354,286 @@ The weight sequence $0 \to 1.2 \to 1.92$ rapidly converges toward the optimal mi
 
 \textbf{1. Hessian Matrix Computation}
 For $f(x, y) = x^3 - 3xy^2 + y^4$:
-\begin{itemize}
-    \item First partials: $f_x = 3x^2 - 3y^2$, $f_y = -6xy + 4y^3$.
-    \item Second partials: $f_{xx} = 6x$, $f_{xy} = -6y$, $f_{yy} = -6x + 12y^2$.
-\end{itemize}
-$$H(f)(x, y) = \begin{bmatrix} 6x & -6y \\ -6y & -6x + 12y^2 \end{bmatrix}$$
-At point $(1, 2)$:
-$$H(f)(1, 2) = \begin{bmatrix} 6(1) & -6(2) \\ -6(2) & -6(1) + 12(2^2) \end{bmatrix} = \mathbf{\begin{bmatrix} 6 & -12 \\ -12 & 42 \end{bmatrix}}$$
+\begin{enumerate}
+    \item \textbf{First-Order Partial Derivatives:}
+    \begin{align*}
+    f_x &= 3x^2 - 3y^2 \\
+    f_y &= -6xy + 4y^3
+    \end{align*}
+    \item \textbf{Second-Order Partial Derivatives:}
+    \begin{align*}
+    f_{xx} &= \frac{\partial}{\partial x}(3x^2 - 3y^2) = 6x \\
+    f_{yy} &= \frac{\partial}{\partial y}(-6xy + 4y^3) = -6x + 12y^2 \\
+    f_{xy} &= \frac{\partial}{\partial y}(3x^2 - 3y^2) = -6y \\
+    f_{yx} &= \frac{\partial}{\partial x}(-6xy + 4y^3) = -6y
+    \end{align*}
+    Notice that $f_{xy} = f_{yx} = -6y$, satisfying Clairaut's Theorem.
+    \item \textbf{General Hessian Matrix:}
+    \begin{equation*}
+    H(f)(x, y) = \begin{bmatrix} 6x & -6y \\ -6y & -6x + 12y^2 \end{bmatrix}
+    \end{equation*}
+    \item \textbf{Evaluation at $(1, 2)$:}
+    \begin{equation*}
+    H(f)(1, 2) = \begin{bmatrix} 6(1) & -6(2) \\ -6(2) & -6(1) + 12(2^2) \end{bmatrix} = \begin{bmatrix} 6 & -12 \\ -12 & -6 + 48 \end{bmatrix} = \mathbf{\begin{bmatrix} 6 & -12 \\ -12 & 42 \end{bmatrix}}
+    \end{equation*}
+\end{enumerate}
 
 \textbf{2. Classifying 2D Critical Points}
-For $f(x, y) = x^3 + y^3 - 3xy$, second partials are $f_{xx} = 6x, f_{xy} = -3, f_{yy} = 6y$.
-Hessian Discriminant: $D(x, y) = f_{xx} f_{yy} - (f_{xy})^2 = (6x)(6y) - (-3)^2 = 36xy - 9$.
-\begin{itemize}
-    \item \textbf{At $(0, 0)$:} $D(0, 0) = 36(0) - 9 = -9 < 0$. Therefore, $(0, 0)$ is a \textbf{Saddle Point}.
-    \item \textbf{At $(1, 1)$:} $D(1, 1) = 36(1)(1) - 9 = 27 > 0$, and $f_{xx}(1, 1) = 6 > 0$. Therefore, $(1, 1)$ is a \textbf{Local Minimum}.
-\end{itemize}
+For $f(x, y) = x^3 + y^3 - 3xy$, the critical points are $(0, 0)$ and $(1, 1)$.
+The second partial derivatives are $f_{xx} = 6x, f_{yy} = 6y, f_{xy} = -3$.
+The Hessian determinant is:
+\begin{equation*}
+D(x, y) = f_{xx} f_{yy} - (f_{xy})^2 = (6x)(6y) - (-3)^2 = 36xy - 9
+\end{equation*}
+\begin{enumerate}
+    \item \textbf{At Critical Point $(0, 0)$:}
+    \begin{equation*}
+    D(0, 0) = 36(0)(0) - 9 = -9 < 0
+    \end{equation*}
+    Because $D < 0$, the Hessian matrix is indefinite. Therefore, $(0, 0)$ is a \textbf{Saddle Point}.
+    \item \textbf{At Critical Point $(1, 1)$:}
+    \begin{equation*}
+    D(1, 1) = 36(1)(1) - 9 = 27 > 0
+    \end{equation*}
+    Check the sign of $f_{xx}$:
+    \begin{equation*}
+    f_{xx}(1, 1) = 6(1) = 6 > 0
+    \end{equation*}
+    Because $D > 0$ and $f_{xx} > 0$, the Hessian is strictly positive definite ($H \succ 0$).
+    Therefore, $(1, 1)$ is a strict \textbf{Local Minimum}.
+\end{enumerate}
 
-\textbf{3. Saddle Point Identification}
-For $f(x, y) = x^2 - y^2$ at critical point $(0, 0)$:
-$$H(f)(0, 0) = \begin{bmatrix} 2 & 0 \\ 0 & -2 \end{bmatrix}$$
-Determinant $D = 2(-2) - 0 = -4 < 0$. Since $D < 0$, the Hessian is indefinite with eigenvalues $\lambda_1 = 2 > 0$ and $\lambda_2 = -2 < 0$. Thus $(0, 0)$ is a \textbf{Saddle Point}.
+\textbf{3. Saddle Point Identification via Hyperbolic Geometry}
+For $f(x, y) = x^2 - y^2$:
+\begin{enumerate}
+    \item \textbf{Critical Point:}
+    $\nabla f(x, y) = \begin{bmatrix} 2x \\ -2y \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \end{bmatrix} \implies (x^*, y^*) = \mathbf{(0, 0)}$.
+    \item \textbf{Hessian Matrix:}
+    \begin{equation*}
+    H(f)(0, 0) = \begin{bmatrix} 2 & 0 \\ 0 & -2 \end{bmatrix}
+    \end{equation*}
+    \item \textbf{Eigenvalues and Classification:}
+    Because $H$ is diagonal, its eigenvalues are simply its diagonal entries: $\lambda_1 = 2 > 0$ and $\lambda_2 = -2 < 0$.
+    Along the $x$-axis ($y=0$), $f(x, 0) = x^2 \ge 0$, curving upwards like a cup ($\lambda_1 = 2$).
+    Along the $y$-axis ($x=0$), $f(0, y) = -y^2 \le 0$, curving downwards like an arch ($\lambda_2 = -2$).
+    Since the eigenvalues have opposite signs (indefinite quadratic form), $(0, 0)$ is strictly a \textbf{Saddle Point}.
+\end{enumerate}
 
-\textbf{4. Classifying 3D Critical Points}
+\textbf{4. Classifying 3D Critical Points via Eigenvalues}
 For $f(x, y, z) = x^2 + 2y^2 + 3z^2 - 4x + 8y - 12z$:
-\begin{itemize}
-    \item First partials: $f_x = 2x - 4 = 0 \implies x = 2$, $f_y = 4y + 8 = 0 \implies y = -2$, $f_z = 6z - 12 = 0 \implies z = 2$.
-\end{itemize}
-  Critical point: $\mathbf{(2, -2, 2)}$.
-\begin{itemize}
-    \item Hessian matrix:
-\end{itemize}
-$$H(f)(2, -2, 2) = \begin{bmatrix} 2 & 0 & 0 \\ 0 & 4 & 0 \\ 0 & 0 & 6 \end{bmatrix}$$
-All diagonal entries (eigenvalues) are strictly positive ($2, 4, 6 > 0$), meaning $H(f)$ is positive-definite. Therefore, $(2, -2, 2)$ is a \textbf{Local Minimum}.
+\begin{enumerate}
+    \item \textbf{Critical Point Determination:}
+    \begin{align*}
+    f_x &= 2x - 4 = 0 \implies x^* = 2 \\
+    f_y &= 4y + 8 = 0 \implies y^* = -2 \\
+    f_z &= 6z - 12 = 0 \implies z^* = 2
+    \end{align*}
+    The unique critical point is $(x^*, y^*, z^*) = \mathbf{(2, -2, 2)}$.
+    \item \textbf{$3 \times 3$ Hessian Construction:}
+    \begin{equation*}
+    H(f)(2, -2, 2) = \begin{bmatrix}
+    f_{xx} & f_{xy} & f_{xz} \\
+    f_{yx} & f_{yy} & f_{yz} \\
+    f_{zx} & f_{zy} & f_{zz}
+    \end{bmatrix} = \begin{bmatrix}
+    2 & 0 & 0 \\
+    0 & 4 & 0 \\
+    0 & 0 & 6
+    \end{bmatrix}
+    \end{equation*}
+    \item \textbf{Classification:}
+    The eigenvalues of $H(f)$ are $\lambda_1 = 2$, $\lambda_2 = 4$, and $\lambda_3 = 6$.
+    Since all three eigenvalues are strictly positive ($\lambda_i > 0$), the Hessian is strictly Positive Definite everywhere on $\mathbb{R}^3$.
+    Because $H(f)$ is positive definite everywhere, $f$ is strictly convex, and $(2, -2, 2)$ is a \textbf{strict Global Minimum}.
+\end{enumerate}
 
 \textbf{5. Data Science Application: Convexity of Mean Squared Error}
-For $L(w) = \frac{1}{N} \sum_{i=1}^N (w x_i - y_i)^2$:
+For linear regression with loss $L(w) = \frac{1}{N} \sum_{i=1}^N (w x_i - y_i)^2$:
+\begin{enumerate}
+    \item \textbf{First Derivative:}
+    \begin{equation*}
+    \frac{dL}{dw} = \frac{1}{N} \sum_{i=1}^N 2(w x_i - y_i) \cdot x_i = \frac{2}{N} \sum_{i=1}^N (w x_i^2 - x_i y_i)
+    \end{equation*}
+    \item \textbf{Second Derivative (1D Hessian):}
+    \begin{equation*}
+    \frac{d^2 L}{dw^2} = \frac{2}{N} \sum_{i=1}^N x_i^2
+    \end{equation*}
+    \item \textbf{Convexity Verification:}
+    Because $x_i \in \mathbb{R}$, $x_i^2 \ge 0$ for all $i$. Thus $\sum_{i=1}^N x_i^2 \ge 0$.
+    As long as the dataset contains at least one non-zero feature value ($\sum x_i^2 > 0$), we have $\frac{d^2 L}{dw^2} > 0$ strictly for all $w \in \mathbb{R}$.
+    Since the second derivative is strictly positive everywhere, $L(w)$ is \textbf{strictly convex}.
+    Consequently, $L(w)$ contains no local maxima, no saddle points, and has a \textbf{single unique global minimum} given by $w^* = \frac{\sum x_i y_i}{\sum x_i^2}$.
+\end{enumerate}
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Hessian Test Invariants and Saddle Points}
 \begin{itemize}
-    \item First derivative: $\frac{dL}{dw} = \frac{2}{N} \sum_{i=1}^N x_i (w x_i - y_i)$.
-    \item Second derivative: $\frac{d^2 L}{dw^2} = \frac{2}{N} \sum_{i=1}^N x_i^2$.
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} The classification of a 2D critical point depends fundamentally on the Hessian determinant $D = \det(H) = f_{xx} f_{yy} - (f_{xy})^2$.
+    Here, $D = (4)(1) - (3)^2 = 4 - 9 = -5 < 0$.
+    Whenever $D < 0$, the Hessian matrix has one strictly positive eigenvalue and one strictly negative eigenvalue ($\det(H) = \lambda_1 \lambda_2 < 0$), meaning the quadratic form takes both positive and negative values in different directions. Hence, $(2, 3)$ is unequivocally a \textbf{Saddle Point}.
+    \item \textbf{Why (a) is false:} $f_{xx} > 0$ indicates positive curvature along the $x$-axis only; it does not protect against negative curvature along rotated directions when $D < 0$.
+    \item \textbf{Why (b) is false:} A positive trace $\trace(H) = f_{xx} + f_{yy} = 5$ merely indicates $\lambda_1 + \lambda_2 = 5$; it does not prevent $\lambda_1 > 0$ and $\lambda_2 < 0$ (e.g. $\lambda_1 = 5.7, \lambda_2 = -0.7$).
+    \item \textbf{Why (d) is false:} Higher-order derivatives are required only in the degenerate case $D = 0$. When $D < 0$, the second-order test is completely decisive.
 \end{itemize}
-Since $x_i^2 \ge 0$ for all real sample features $x_i$, the second derivative $\frac{d^2 L}{dw^2} \ge 0$ for all $w$.
-Because the second derivative is non-negative everywhere, $L(w)$ is \textbf{strictly convex}, ensuring that any local minimum found by Gradient Descent is the \textbf{unique global minimum}.
+
+\textbf{7. Multivariable Differentiability vs. Partial Derivatives}
+\begin{itemize}
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} By the Continuous Differentiability Theorem, if the first partial derivatives $\frac{\partial f}{\partial x_i}$ exist and are \textbf{continuous} on an open neighborhood around $\mathbf{x}_0$ ($f \in C^1$), then $f$ is guaranteed to be differentiable at $\mathbf{x}_0$.
+    \item \textbf{Why (a) is false:} Mere existence of partial derivatives does not even guarantee continuity. As shown by $f(x, y) = \frac{xy}{x^2 + y^2}$, partials can exist at the origin while the function is severely discontinuous.
+    \item \textbf{Why (b) is false:} Existence of all directional derivatives along straight lines still does not imply differentiability; functions can fail continuity along parabolic curves while having linear directional derivatives.
+    \item \textbf{Why (d) is false:} Differentiability depends on first partial derivatives, not the second-order Hessian determinant.
+\end{itemize}
 
 \section*{Week 12: Eigenvalues, Eigenvectors, Diagonalization \& SVD}
 
 \subsection*{Detailed Solutions}
 
 \textbf{1. Eigenvalues \& Eigenvectors ($2 \times 2$)}
-$$\det(A - \lambda I) = \begin{vmatrix} 4 - \lambda & 1 \\ 2 & 3 - \lambda \end{vmatrix} = (4 - \lambda)(3 - \lambda) - 2 = \lambda^2 - 7\lambda + 10 = (\lambda - 5)(\lambda - 2) = 0$$
-\begin{itemize}
-    \item Eigenvalues: $\mathbf{\lambda_1 = 5}, \, \mathbf{\lambda_2 = 2}$.
-    \item \textbf{Eigenvector for $\lambda_1 = 5$:} $(A - 5I)\mathbf{v}_1 = \mathbf{0} \implies \begin{bmatrix} -1 & 1 \\ 2 & -2 \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} = \mathbf{0} \implies x = y \implies \mathbf{\mathbf{v}_1 = \begin{bmatrix} 1 \\ 1 \end{bmatrix}}$.
-    \item \textbf{Eigenvector for $\lambda_2 = 2$:} $(A - 2I)\mathbf{v}_2 = \mathbf{0} \implies \begin{bmatrix} 2 & 1 \\ 2 & 1 \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} = \mathbf{0} \implies 2x + y = 0 \implies y = -2x \implies \mathbf{\mathbf{v}_2 = \begin{bmatrix} 1 \\ -2 \end{bmatrix}}$.
+Given matrix $A = \begin{bmatrix} 4 & 1 \\ 2 & 3 \end{bmatrix}$:
+\begin{enumerate}
+    \item \textbf{Characteristic Equation:}
+    \begin{align*}
+    \det(A - \lambda I) &= \begin{vmatrix} 4 - \lambda & 1 \\ 2 & 3 - \lambda \end{vmatrix} = (4 - \lambda)(3 - \lambda) - (1)(2) \\
+    &= \lambda^2 - 7\lambda + 12 - 2 = \lambda^2 - 7\lambda + 10 = (\lambda - 5)(\lambda - 2) = 0
+    \end{align*}
+    The eigenvalues are $\mathbf{\lambda_1 = 5}$ and $\mathbf{\lambda_2 = 2}$.
+    \item \textbf{Eigenvector for $\lambda_1 = 5$:}
+    Solve $(A - 5I)\mathbf{v}_1 = \mathbf{0}$:
+    \begin{equation*}
+    \begin{bmatrix} 4 - 5 & 1 \\ 2 & 3 - 5 \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} = \begin{bmatrix} -1 & 1 \\ 2 & -2 \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \end{bmatrix} \implies -x + y = 0 \implies y = x
+    \end{equation*}
+    Choosing $x = 1$ yields:
+    \begin{equation*}
+    \mathbf{v}_1 = \mathbf{\begin{bmatrix} 1 \\ 1 \end{bmatrix}}
+    \end{equation*}
+    \item \textbf{Eigenvector for $\lambda_2 = 2$:}
+    Solve $(A - 2I)\mathbf{v}_2 = \mathbf{0}$:
+    \begin{equation*}
+    \begin{bmatrix} 4 - 2 & 1 \\ 2 & 3 - 2 \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} = \begin{bmatrix} 2 & 1 \\ 2 & 1 \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \end{bmatrix} \implies 2x + y = 0 \implies y = -2x
+    \end{equation*}
+    Choosing $x = 1$ yields:
+    \begin{equation*}
+    \mathbf{v}_2 = \mathbf{\begin{bmatrix} 1 \\ -2 \end{bmatrix}}
+    \end{equation*}
+\end{enumerate}
 
-\end{itemize}
 \textbf{2. Matrix Diagonalization \& Matrix Powers}
-$$P = \begin{bmatrix} 1 & 1 \\ 1 & -2 \end{bmatrix}, \quad D = \begin{bmatrix} 5 & 0 \\ 0 & 2 \end{bmatrix}, \quad P^{-1} = \frac{1}{-3} \begin{bmatrix} -2 & -1 \\ -1 & 1 \end{bmatrix} = \frac{1}{3} \begin{bmatrix} 2 & 1 \\ 1 & -1 \end{bmatrix}$$
-To compute $A^4 = P D^4 P^{-1}$:
-$$D^4 = \begin{bmatrix} 5^4 & 0 \\ 0 & 2^4 \end{bmatrix} = \begin{bmatrix} 625 & 0 \\ 0 & 16 \end{bmatrix}$$
-$$A^4 = \begin{bmatrix} 1 & 1 \\ 1 & -2 \end{bmatrix} \begin{bmatrix} 625 & 0 \\ 0 & 16 \end{bmatrix} \frac{1}{3} \begin{bmatrix} 2 & 1 \\ 1 & -1 \end{bmatrix} = \frac{1}{3} \begin{bmatrix} 625 & 16 \\ 625 & -32 \end{bmatrix} \begin{bmatrix} 2 & 1 \\ 1 & -1 \end{bmatrix}$$
-$$A^4 = \frac{1}{3} \begin{bmatrix} 1266 & 609 \\ 1218 & 657 \end{bmatrix} = \mathbf{\begin{bmatrix} 422 & 203 \\ 406 & 219 \end{bmatrix}}$$
+\begin{enumerate}
+    \item \textbf{Assembling $P$ and $D$:}
+    \begin{equation*}
+    P = [\mathbf{v}_1 \; \mathbf{v}_2] = \begin{bmatrix} 1 & 1 \\ 1 & -2 \end{bmatrix}, \quad D = \begin{bmatrix} \lambda_1 & 0 \\ 0 & \lambda_2 \end{bmatrix} = \begin{bmatrix} 5 & 0 \\ 0 & 2 \end{bmatrix}
+    \end{equation*}
+    \item \textbf{Inversion of $P$:}
+    $\det(P) = (1)(-2) - (1)(1) = -3$.
+    \begin{equation*}
+    P^{-1} = \frac{1}{-3} \begin{bmatrix} -2 & -1 \\ -1 & 1 \end{bmatrix} = \frac{1}{3} \begin{bmatrix} 2 & 1 \\ 1 & -1 \end{bmatrix}
+    \end{equation*}
+    \item \textbf{Analytical Computation of $A^4 = P D^4 P^{-1}$:}
+    \begin{equation*}
+    D^4 = \begin{bmatrix} 5^4 & 0 \\ 0 & 2^4 \end{bmatrix} = \begin{bmatrix} 625 & 0 \\ 0 & 16 \end{bmatrix}
+    \end{equation*}
+    \begin{align*}
+    P D^4 &= \begin{bmatrix} 1 & 1 \\ 1 & -2 \end{bmatrix} \begin{bmatrix} 625 & 0 \\ 0 & 16 \end{bmatrix} = \begin{bmatrix} 625 & 16 \\ 625 & -32 \end{bmatrix} \\
+    A^4 &= (P D^4) P^{-1} = \frac{1}{3} \begin{bmatrix} 625 & 16 \\ 625 & -32 \end{bmatrix} \begin{bmatrix} 2 & 1 \\ 1 & -1 \end{bmatrix} \\
+    &= \frac{1}{3} \begin{bmatrix} 625(2) + 16(1) & 625(1) + 16(-1) \\ 625(2) - 32(1) & 625(1) - 32(-1) \end{bmatrix} = \frac{1}{3} \begin{bmatrix} 1250 + 16 & 625 - 16 \\ 1250 - 32 & 625 + 32 \end{bmatrix} \\
+    &= \frac{1}{3} \begin{bmatrix} 1266 & 609 \\ 1218 & 657 \end{bmatrix} = \mathbf{\begin{bmatrix} 422 & 203 \\ 406 & 219 \end{bmatrix}}
+    \end{align*}
+\end{enumerate}
 
 \textbf{3. Symmetric Matrix Spectral Decomposition}
 For $A = \begin{bmatrix} 3 & 1 \\ 1 & 3 \end{bmatrix}$:
-$\det(A - \lambda I) = (3 - \lambda)^2 - 1 = 0 \implies (3 - \lambda) = \pm 1 \implies \lambda_1 = 4, \lambda_2 = 2$.
-\begin{itemize}
-    \item For $\lambda_1 = 4$: Normalized unit eigenvector $\mathbf{q}_1 = \begin{bmatrix} 1/\sqrt{2} \\ 1/\sqrt{2} \end{bmatrix}$.
-    \item For $\lambda_2 = 2$: Normalized unit eigenvector $\mathbf{q}_2 = \begin{bmatrix} 1/\sqrt{2} \\ -1/\sqrt{2} \end{bmatrix}$.
-\end{itemize}
-Orthogonal Matrix $Q = \mathbf{\frac{1}{\sqrt{2}} \begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix}}$ satisfies $Q^T Q = I$ and $A = Q D Q^T$.
+\begin{enumerate}
+    \item \textbf{Symmetry Verification:} $A^T = \begin{bmatrix} 3 & 1 \\ 1 & 3 \end{bmatrix} = A$, so $A$ is real symmetric.
+    \item \textbf{Characteristic Equation:}
+    \begin{equation*}
+    \det(A - \lambda I) = (3 - \lambda)^2 - 1 = \lambda^2 - 6\lambda + 8 = (\lambda - 4)(\lambda - 2) = 0 \implies \lambda_1 = 4, \, \lambda_2 = 2
+    \end{equation*}
+    \item \textbf{Orthonormal Eigenvectors:}
+    \begin{itemize}
+        \item For $\lambda_1 = 4$: $(A - 4I)\mathbf{v} = \mathbf{0} \implies -x + y = 0 \implies \mathbf{v}_1 = [1, 1]^T$.
+        Normalized: $\mathbf{q}_1 = \frac{1}{\sqrt{2}} \begin{bmatrix} 1 \\ 1 \end{bmatrix}$.
+        \item For $\lambda_2 = 2$: $(A - 2I)\mathbf{v} = \mathbf{0} \implies x + y = 0 \implies \mathbf{v}_2 = [1, -1]^T$.
+        Normalized: $\mathbf{q}_2 = \frac{1}{\sqrt{2}} \begin{bmatrix} 1 \\ -1 \end{bmatrix}$.
+    \end{itemize}
+    \item \textbf{Orthogonal Matrix $Q$:}
+    \begin{equation*}
+    Q = [\mathbf{q}_1 \; \mathbf{q}_2] = \mathbf{\frac{1}{\sqrt{2}} \begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix}}
+    \end{equation*}
+    Check $Q^T Q = \frac{1}{2} \begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix} \begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix} = \frac{1}{2} \begin{bmatrix} 2 & 0 \\ 0 & 2 \end{bmatrix} = I$.
+    Thus $A = Q \begin{bmatrix} 4 & 0 \\ 0 & 2 \end{bmatrix} Q^T$.
+\end{enumerate}
 
 \textbf{4. Singular Values Calculation}
-For $A = \begin{bmatrix} 3 & 0 \\ 0 & -2 \end{bmatrix}$:
-$$A^T A = \begin{bmatrix} 3 & 0 \\ 0 & -2 \end{bmatrix} \begin{bmatrix} 3 & 0 \\ 0 & -2 \end{bmatrix} = \begin{bmatrix} 9 & 0 \\ 0 & 4 \end{bmatrix}$$
-Eigenvalues of $A^T A$ are $\lambda_1 = 9, \lambda_2 = 4$.
-Singular Values: $\sigma_1 = \sqrt{9} = \mathbf{3}$, $\sigma_2 = \sqrt{4} = \mathbf{2}$.
+Given $A = \begin{bmatrix} 3 & 0 \\ 0 & -2 \end{bmatrix}$:
+\begin{enumerate}
+    \item \textbf{Gram Matrix $A^T A$:}
+    \begin{equation*}
+    A^T A = \begin{bmatrix} 3 & 0 \\ 0 & -2 \end{bmatrix} \begin{bmatrix} 3 & 0 \\ 0 & -2 \end{bmatrix} = \begin{bmatrix} 9 & 0 \\ 0 & 4 \end{bmatrix}
+    \end{equation*}
+    \item \textbf{Eigenvalues of $A^T A$:}
+    Because $A^T A$ is diagonal, its eigenvalues are $\lambda_1 = 9$ and $\lambda_2 = 4$.
+    \item \textbf{Singular Values:}
+    \begin{align*}
+    \sigma_1 &= \sqrt{\lambda_1(A^T A)} = \sqrt{9} = \mathbf{3} \\
+    \sigma_2 &= \sqrt{\lambda_2(A^T A)} = \sqrt{4} = \mathbf{2}
+    \end{align*}
+    Notice that while the second eigenvalue of $A$ is $-2$, the singular value is strictly $\sigma_2 = |-2| = 2 > 0$.
+\end{enumerate}
 
 \textbf{5. Comprehensive Course Review: PCA via SVD}
+Let $X \in \mathbb{R}^{N \times d}$ be centered, with covariance matrix $C = \frac{1}{N} X^T X$.
+\begin{enumerate}
+    \item \textbf{Why Principal Directions are Eigenvectors of $C$:}
+    By SVD, $X = U \Sigma V^T$. Substituting into $C$:
+    \begin{equation*}
+    C = \frac{1}{N} (V \Sigma^T U^T)(U \Sigma V^T) = \frac{1}{N} V \Sigma^T (U^T U) \Sigma V^T = V \left(\frac{\Sigma^2}{N}\right) V^T
+    \end{equation*}
+    Since $V$ is an orthogonal matrix ($V^T V = I$) and $\frac{\Sigma^2}{N}$ is diagonal, this is the exact spectral decomposition of $C$. Therefore, the right singular vectors $V$ are precisely the orthonormal eigenvectors of the covariance matrix $C$, maximizing the projected feature variance.
+    \item \textbf{Percentage of Variance Explained:}
+    Total dataset variance equals the sum of covariance eigenvalues:
+    \begin{equation*}
+    \text{Total Variance} = \sum_{i=1}^3 \lambda_i = 80 + 15 + 5 = 100
+    \end{equation*}
+    Variance captured by the top 2 principal components:
+    \begin{equation*}
+    \text{Variance Explained} = \frac{\lambda_1 + \lambda_2}{\text{Total Variance}} = \frac{80 + 15}{100} = \frac{95}{100} = \mathbf{95\%}
+    \end{equation*}
+\end{enumerate}
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Trace, Determinant, and Invertibility via Eigenvalues}
 \begin{itemize}
-    \item \textbf{(a) Why Principal Components are Eigenvectors of $C$:} The covariance matrix $C = \frac{1}{N} X^T X$ measures feature variances and co-variances. The eigenvectors of $C$ define orthogonal axes along which feature variance is maximized, decorrelating features.
-    \item \textbf{(b) Percentage of Variance Explained:}
-    $$\text{Total Variance} = \lambda_1 + \lambda_2 + \lambda_3 = 80 + 15 + 5 = 100$$
-    $$\text{Explained Variance by PC1 \& PC2} = \frac{\lambda_1 + \lambda_2}{\text{Total}} = \frac{80 + 15}{100} = \frac{95}{100} = \mathbf{95\%}$$
+    \item \textbf{Correct Answer: (a)}
+    \item \textbf{Why (a) is correct:} By the Trace and Determinant Invariant Theorems, the sum of all eigenvalues equals $\trace(M)$ and their product equals $\det(M)$.
+    \begin{align*}
+    \lambda_1 + \lambda_2 + \lambda_3 &= \trace(M) \implies 2 + 4 + \lambda_3 = 6 \implies 6 + \lambda_3 = 6 \implies \lambda_3 = 0 \\
+    \lambda_1 \lambda_2 \lambda_3 &= \det(M) \implies (2)(4)(0) = 0 = \det(M) \quad \checkmark
+    \end{align*}
+    Because one eigenvalue is $\lambda_3 = 0$, $\det(M) = 0$. By the Invertible Matrix Theorem, any matrix with a zero eigenvalue has a non-trivial null space ($\nullity(M) \ge 1$) and is \textbf{singular (non-invertible)}.
+    \item \textbf{Why (b) is false:} If $\lambda_3 = 2$, the trace would be $2 + 4 + 2 = 8 \neq 6$ and $\det(M) = 16 \neq 0$.
+    \item \textbf{Why (c) is false:} The trace alone strictly determines $\lambda_3 = 6 - (2 + 4) = 0$.
+    \item \textbf{Why (d) is false:} A matrix is invertible if and only if \textbf{all} of its eigenvalues are non-zero. Having two positive eigenvalues does not prevent the third from being zero.
+\end{itemize}
+
+\textbf{7. Eckart-Young Low-Rank Matrix Approximation}
+\begin{itemize}
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:}
+    \begin{enumerate}
+        \item The rank of $A$ equals the number of non-zero singular values. Since there are exactly 4 non-zero singular values ($\sigma_1=25, \sigma_2=15, \sigma_3=8, \sigma_4=4$), we have $\mathbf{\rank(A) = 4}$.
+        \item By the Eckart-Young-Mirsky Theorem, the optimal rank-$k$ approximation error in the spectral norm is equal to the largest discarded singular value:
+        \begin{equation*}
+        \|A - A_k\|_2 = \sigma_{k+1}
+        \end{equation*}
+        For $k = 2$, the first discarded singular value is $\sigma_{2+1} = \sigma_3 = \mathbf{8}$.
+    \end{enumerate}
+    \item \textbf{Why (a) is false:} The rank cannot exceed the number of non-zero singular values ($\rank \neq 50$), and 15 is $\sigma_2$, not the truncation error.
+    \item \textbf{Why (c) is false:} 4 is $\sigma_4$, which would be the error for a rank-3 truncation ($k=3$), not rank-2.
+    \item \textbf{Why (d) is false:} A rank-2 approximation to a rank-4 matrix carries non-zero error because $\sigma_3, \sigma_4 > 0$.
 \end{itemize}
 
 

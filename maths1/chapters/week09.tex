@@ -1,133 +1,379 @@
 \chapter{Integration}
 \index{Integration}
 
-
-\vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Riemann Sums and the Definite Integral
-    \item The Fundamental Theorem of Calculus (FTC)
-    \item Indefinite Integrals and Basic Techniques
-    \item Area Between Curves
+    \item \textbf{Riemann Sums \& Definite Integrals:} Formalize continuous accumulation via partitions, mesh norms, and the limit of Riemann sums.
+    \item \textbf{Fundamental Theorem of Calculus (FTC):} Bridge differential rates with integral accumulation via FTC Parts 1 and 2.
+    \item \textbf{Analytical Techniques:} Master standard antiderivative rules and integration by $u$-substitution with rigorous bound transformation.
+    \item \textbf{Geometric Area Between Curves:} Compute total geometric enclosures and piecewise split regions.
+    \item \textbf{Data Science Foundations:} Connect continuous integration to probability density functions (PDFs), cumulative distribution functions (CDFs), expected values, and integrated loss metrics.
 \end{itemize}
 \end{tcolorbox}
-Integration is the inverse operation of differentiation. While differentiation measures the instantaneous slope of a curve, integration calculates the continuous accumulation of quantities, geometrically represented as the area under a curve. In data science, integration is the mathematical cornerstone for probability. Specifically, it is used to calculate cumulative probability distributions, find expected values (means) of continuous random variables, and determine expected loss over distributions.
 
-\section{Riemann Sums and the Definite Integral}
+\section{Mathematical \& Theoretical Foundations}
 
-\begin{lstlisting}[language=Python, caption=Data Science: Numerical Optimization]
-from scipy.optimize import minimize
+Differential calculus decomposes continuous processes into instantaneous rates of change. Conversely, \textbf{integral calculus} synthesizes infinitely many infinitesimal quantities into macroscopic totals. In machine learning, continuous optimization, Bayesian inference, and probabilistic modelling rely fundamentally on integration to compute normalization constants, marginal distributions, and risk expectations.
 
-def f(x):
-    return (x - 3)**2 + 4
+\subsection{Riemann Sums and the Definite Integral}
 
-# Find minimum of f(x)
-res = minimize(f, x0=0)
-print(f'Minimum is at x = {res.x[0]:.2f}') # Outputs 3.00
-\end{lstlisting}
+Let $f: [a, b] \to \R$ be a bounded function on a compact interval $[a, b]$. 
 
+\begin{definitionbox}{Partition and Riemann Sum}
+A \textbf{partition} $P$ of $[a, b]$ is a finite ordered sequence of points:
+\begin{equation}
+P = \{x_0, x_1, x_2, \dots, x_n\}, \quad \text{where } a = x_0 < x_1 < x_2 < \dots < x_n = b
+\end{equation}
+The width of the $i$-th subinterval $[x_{i-1}, x_i]$ is $\Delta x_i = x_i - x_{i-1}$. The \textbf{mesh norm} of the partition is:
+\begin{equation}
+\|P\| = \max_{1 \le i \le n} \Delta x_i
+\end{equation}
+For a uniform partition into $n$ equal subintervals, $\Delta x = \frac{b - a}{n}$.
 
-\begin{intuitionbox}{Adding Up the Slices}
-Integration is like finding the area of an irregular shape by cutting it into thousands of tiny, thin rectangular slices. We know how to find the area of a rectangle (base $\times$ height). By making the slices infinitely thin (a limit!) and adding them all up, we get the exact area of the smooth shape.
-\end{intuitionbox}
-
-Consider a continuous function $f(x)$ defined on a closed interval $[a, b]$. We want to find the exact area bounded by the curve $y = f(x)$, the x-axis, and the vertical boundaries $x = a$ and $x = b$.
-
-\begin{definitionbox}{Riemann Sums and Definite Integral}
+For any selection of sample evaluation points $x_i^* \in [x_{i-1}, x_i]$, the \textbf{Riemann Sum} $R(f, P)$ is:
+\begin{equation}
+R(f, P) = \sum_{i=1}^n f(x_i^*) \Delta x_i
+\end{equation}
+Depending on the choice of $x_i^*$:
 \begin{itemize}
-    \item \textbf{Partition:} Divide the interval $[a, b]$ into $n$ subintervals of equal width:
-    $$\Delta x = \frac{b - a}{n}$$
-    \item \textbf{Riemann Sum:} Approximate the area using $n$ rectangles. The sum of the areas of these rectangles is:
-    $$\text{Riemann Sum} = \sum_{i=1}^n f(x_i^*) \Delta x$$
-    where $x_i^*$ is a sample point in the $i$-th subinterval $[x_{i-1}, x_i]$.
-    \item \textbf{Definite Integral:} The definite integral of $f$ from $a$ to $b$ is defined as the limit of the Riemann sum as the number of rectangles approaches infinity ($n \to \infty$):
-    $$\int_{a}^{b} f(x) \dx = \limit{n}{\infty} \sum_{i=1}^n f(x_i^*) \Delta x$$
-    The numbers $a$ and $b$ are called the lower and upper limits of integration.
+    \item \textbf{Left Riemann Sum:} $x_i^* = x_{i-1}$
+    \item \textbf{Right Riemann Sum:} $x_i^* = x_i$
+    \item \textbf{Midpoint Riemann Sum:} $x_i^* = \frac{x_{i-1} + x_i}{2}$
 \end{itemize}
 \end{definitionbox}
 
-\textbf{Data Science Relevance:} In statistics, a Probability Density Function (PDF), $p(x)$, describes the likelihood of a continuous random variable taking on a certain value. The probability that the variable falls between $a$ and $b$ is exactly the area under the curve between those points, calculated as $\int_a^b p(x) \dx$. 
+\begin{definitionbox}{The Definite Integral}
+A function $f$ is \textbf{Riemann integrable} on $[a, b]$ if there exists a number $I \in \R$ such that for every $\varepsilon > 0$, there exists $\delta > 0$ such that for every partition $P$ with $\|P\| < \delta$ and every choice of sample points $x_i^*$:
+\begin{equation}
+\left| \sum_{i=1}^n f(x_i^*) \Delta x_i - I \right| < \varepsilon
+\end{equation}
+We write this limit as the \textbf{definite integral}:
+\begin{equation}
+\int_a^b f(x) \dx = \lim_{\|P\| \to 0} \sum_{i=1}^n f(x_i^*) \Delta x_i
+\end{equation}
+\textbf{Integrability Guarantee:} If $f$ is continuous on $[a, b]$, or bounded with a finite number of jump discontinuities, $f$ is guaranteed to be Riemann integrable on $[a, b]$.
+\end{definitionbox}
 
+\subsection{The Fundamental Theorem of Calculus}
 
+The Fundamental Theorem of Calculus establishes that differentiation and integration are inverse operations.
 
-\section{The Fundamental Theorem of Calculus (FTC)}
-
-The FTC is one of the most remarkable discoveries in mathematics because it connects the two seemingly unrelated concepts of differentiation (slopes) and integration (areas).
-
-\begin{theorembox}{The Fundamental Theorem of Calculus}
-Let $f(x)$ be a continuous function on $[a, b]$.
+\begin{theorembox}{Fundamental Theorem of Calculus (FTC)}
+Let $f: [a, b] \to \R$ be continuous on $[a, b]$.
 \begin{itemize}
-    \item \textbf{FTC Part 1 (Derivative of an Integral):} If we define an area accumulation function $g(x) = \int_{a}^{x} f(t) \,dt$, then its rate of change is simply the curve's height:
-    $$g'(x) = \deriv{}{x} \left[ \int_{a}^{x} f(t) \,dt \right] = f(x)$$
-    \item \textbf{FTC Part 2 (Evaluation Theorem):} If $F(x)$ is any antiderivative of $f(x)$ (meaning $F'(x) = f(x)$), then the definite integral can be evaluated simply by subtracting the bounds:
-    $$\int_{a}^{b} f(x) \dx = F(b) - F(a) = \Big[ F(x) \Big]_a^b$$
+    \item \textbf{FTC Part 1 (Accumulation Derivative):} Define the area accumulation function $g: [a, b] \to \R$ by:
+    \begin{equation}
+    g(x) = \int_a^x f(t) \, dt
+    \end{equation}
+    Then $g$ is continuous on $[a, b]$, differentiable on $(a, b)$, and:
+    \begin{equation}
+    g'(x) = \frac{d}{dx} \left[ \int_a^x f(t) \, dt \right] = f(x)
+    \end{equation}
+    \item \textbf{FTC Part 2 (Evaluation Theorem):} If $F: [a, b] \to \R$ is any antiderivative of $f$ on $[a, b]$ (that is, $F'(x) = f(x)$ for all $x \in [a, b]$), then:
+    \begin{equation}
+    \int_a^b f(x) \dx = F(b) - F(a) = \Big[ F(x) \Big]_a^b
+    \end{equation}
 \end{itemize}
 \end{theorembox}
 
+\subsection{Indefinite Integrals and Standard Rules}
 
+An \textbf{indefinite integral} denotes the entire family of antiderivatives of $f(x)$, parameterized by an arbitrary integration constant $C \in \R$:
+\begin{equation}
+\int f(x) \dx = F(x) + C \iff \frac{d}{dx}[F(x) + C] = f(x)
+\end{equation}
 
-\section{Indefinite Integrals and Basic Techniques}
-
-An indefinite integral represents the family of all possible antiderivatives of a function. Because the derivative of a constant is zero, integration leaves ambiguity that we capture with $+ C$.
-$$\int f(x) \dx = F(x) + C$$
-
-\begin{formulabox}{Standard Integration Formulas}
+\begin{formulabox}{Essential Antiderivative Rules}
 \begin{itemize}
-    \item \textbf{Power Rule:} $\int x^n \dx = \frac{x^{n+1}}{n+1} + C \quad (\text{for } n \neq -1)$
-    \item \textbf{Log Rule:} $\int \frac{1}{x} \dx = \ln|x| + C$
-    \item \textbf{Exponential Rule:} $\int e^x \dx = e^x + C$
-    \item \textbf{Constant Multiple Rule:} $\int c \cdot f(x) \dx = c \int f(x) \dx$
-    \item \textbf{Sum Rule:} $\int [f(x) \pm g(x)] \dx = \int f(x) \dx \pm \int g(x) \dx$
+    \item \textbf{Power Rule:} $\int x^n \dx = \frac{x^{n+1}}{n+1} + C \quad (\text{for all } n \neq -1)$
+    \item \textbf{Logarithmic Rule:} $\int \frac{1}{x} \dx = \ln|x| + C \quad (\text{for } x \neq 0)$
+    \item \textbf{Exponential Rule:} $\int e^{kx} \dx = \frac{1}{k}e^{kx} + C \quad (k \neq 0)$
+    \item \textbf{Linearity:} $\int [\alpha f(x) + \beta g(x)] \dx = \alpha \int f(x) \dx + \beta \int g(x) \dx$
 \end{itemize}
 \end{formulabox}
 
-\begin{examplebox}{Definite Integral Evaluation}
-Evaluate the definite integral: $\int_{1}^{3} (3x^2 + 2x - 1) \dx$.
-\begin{enumerate}
-    \item Find the general antiderivative $F(x)$ using the Sum and Power Rules:
-    $$F(x) = \int (3x^2 + 2x - 1) \dx = 3\left(\frac{x^3}{3}\right) + 2\left(\frac{x^2}{2}\right) - x = x^3 + x^2 - x$$
-    \item Evaluate $F(x)$ at the upper and lower limits:
-    $$F(3) = (3)^3 + (3)^2 - 3 = 27 + 9 - 3 = 33$$
-    $$F(1) = (1)^3 + (1)^2 - 1 = 1 + 1 - 1 = 1$$
-    \item Apply FTC Part 2 ($F(b) - F(a)$):
-    $$\int_{1}^{3} (3x^2 + 2x - 1) \dx = F(3) - F(1) = 33 - 1 = 32$$
-\end{enumerate}
-\end{examplebox}
+\subsection{Integration by Substitution (The Chain Rule in Reverse)}
 
-\subsection{The Substitution Rule (U-Substitution)}
-U-substitution is the "reverse Chain Rule". If a function and its derivative are both present inside the integral, we can compress it.
+When an integrand contains a composite function multiplied by the derivative of the inner function, substitution transforms the integral into an elementary form.
+
 \begin{theorembox}{The Substitution Rule}
-If $u = g(x)$ is a differentiable function, then $du = g'(x) \dx$, allowing the transformation:
-$$\int f(g(x))g'(x) \dx = \int f(u) \,du$$
+Let $u = g(x)$ be a differentiable function whose range is an interval $I$, and let $f$ be continuous on $I$. Then:
+\begin{equation}
+\int f(g(x)) g'(x) \dx = \int f(u) \, du
+\end{equation}
+For definite integrals, transforming the variable requires transforming the limits of integration:
+\begin{equation}
+\int_a^b f(g(x)) g'(x) \dx = \int_{g(a)}^{g(b)} f(u) \, du
+\end{equation}
 \end{theorembox}
 
-\begin{examplebox}{Substitution Rule Application}
-Evaluate the indefinite integral: $\int 2x e^{x^2} \dx$.
-\begin{enumerate}
-    \item Let the inner exponent $u = x^2$. Differentiating with respect to $x$ gives:
-    $$du = 2x \dx$$
-    \item Substitute $u$ and $du$ entirely into the original integral:
-    $$\int e^{x^2} \cdot (2x \dx) = \int e^u \,du$$
-    \item Integrate with respect to $u$:
-    $$\int e^u \,du = e^u + C$$
-    \item Substitute back $u = x^2$ to return to the original variable:
-    $$e^{x^2} + C$$
-\end{enumerate}
-\end{examplebox}
+\subsection{Area Between Curves}
 
-\section{Area Between Curves}
+If $f(x)$ and $g(x)$ are continuous on $[a, b]$ with $f(x) \ge g(x)$ for all $x \in [a, b]$, the geometric area $A$ enclosed between the curves and the vertical boundaries $x = a, x = b$ is:
+\begin{equation}
+A = \int_a^b [f(x) - g(x)] \dx
+\end{equation}
+If the curves cross at intermediate points $c \in (a, b)$, the total geometric area is computed by partitioning the integral:
+\begin{equation}
+A = \int_a^b |f(x) - g(x)| \dx = \int_a^c [f(x) - g(x)] \dx + \int_c^b [g(x) - f(x)] \dx
+\end{equation}
 
-If $f(x) \ge g(x)$ for all $x$ in $[a, b]$, the area $A$ of the region bounded by the curves $y = f(x)$ on top, $y = g(x)$ on the bottom, and the vertical lines $x = a$, $x = b$ is simply the integral of the difference:
-$$A = \int_{a}^{b} [f(x) - g(x)] \dx$$
+\section{Visual \& Geometric Intuition}
+
+Integration calculates continuous accumulations by summing infinitesimal rectangular elements of area $dA = f(x) \dx$.
+
+\begin{center}
+\begin{tikzpicture}[scale=1.1]
+    \draw[->, thick] (-0.5, 0) -- (6.5, 0) node[right] {$x$};
+    \draw[->, thick] (0, -0.5) -- (0, 4.5) node[above] {$y$};
+    
+    % Shaded Riemann rectangles
+    \fill[primarylight!60] (1, 0) rectangle (1.8, 1.4);
+    \fill[primarylight!60] (1.8, 0) rectangle (2.6, 2.1);
+    \fill[primarylight!60] (2.6, 0) rectangle (3.4, 2.9);
+    \fill[primarylight!60] (3.4, 0) rectangle (4.2, 3.6);
+    \fill[primarylight!60] (4.2, 0) rectangle (5.0, 3.8);
+    \fill[primarylight!60] (5.0, 0) rectangle (5.8, 3.5);
+
+    % Draw rectangles outlines
+    \foreach \x/\y in {1/1.4, 1.8/2.1, 2.6/2.9, 3.4/3.6, 4.2/3.8, 5.0/3.5} {
+        \draw[thick, primarydark] (\x, 0) rectangle (\x+0.8, \y);
+    }
+
+    % Continuous curve
+    \draw[ultra thick, red!80!black, domain=0.8:6.0, samples=100] 
+        plot (\x, {-0.25*(\x-4.5)^2 + 3.8});
+    \node[red!80!black, above] at (4.5, 3.85) {$y = f(x)$};
+
+    % Boundaries
+    \draw[dashed, thick] (1, 0) -- (1, 1.5) node[below=1.5cm] {$a = x_0$};
+    \draw[dashed, thick] (5.8, 0) -- (5.8, 3.5) node[below=3.5cm] {$b = x_n$};
+
+    % Width label
+    \draw[<->, thick] (2.6, -0.3) -- (3.4, -0.3) node[midway, below] {$\Delta x$};
+    \node at (3.5, 1.5) {$\text{Area} \approx \sum f(x_i^*) \Delta x \xrightarrow{n \to \infty} \int_a^b f(x) \dx$};
+\end{tikzpicture}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}[scale=1.0]
+    \draw[->, thick] (-0.5, 0) -- (5.5, 0) node[right] {$x$};
+    \draw[->, thick] (0, -0.5) -- (0, 4.2) node[above] {$y$};
+    
+    % Curves
+    \draw[ultra thick, blue!80!black, domain=0.5:4.5, samples=100] plot (\x, {0.2*(\x-1)^2 + 2.5}) node[right] {$y = f(x)$ (top)};
+    \draw[ultra thick, green!60!black, domain=0.5:4.5, samples=100] plot (\x, {0.1*(\x-2)^2 + 0.8}) node[right] {$y = g(x)$ (bottom)};
+
+    % Shaded Region
+    \fill[cyan!20, domain=1:4, samples=100] 
+        plot (\x, {0.2*(\x-1)^2 + 2.5}) -- 
+        plot ({5-\x}, {0.1*((5-\x)-2)^2 + 0.8}) -- cycle;
+
+    % Differential strip
+    \fill[orange!60] (2.4, 0.816) rectangle (2.6, 2.892);
+    \draw[thick, red] (2.4, 0.816) rectangle (2.6, 2.892);
+    \node[right, red] at (2.6, 1.85) {$dA = [f(x) - g(x)] \dx$};
+
+    \draw[dashed] (1, 0) node[below] {$a$} -- (1, 2.5);
+    \draw[dashed] (4, 0) node[below] {$b$} -- (4, 4.3);
+\end{tikzpicture}
+\end{center}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Proof of the Fundamental Theorem of Calculus (Part 1)}
+To understand why the derivative of an accumulation function recovers the original rate, consider the Newton difference quotient of $g(x) = \int_a^x f(t) \, dt$:
+\begin{equation}
+g'(x) = \lim_{h \to 0} \frac{g(x+h) - g(x)}{h} = \lim_{h \to 0} \frac{1}{h} \left[ \int_a^{x+h} f(t) \, dt - \int_a^x f(t) \, dt \right] = \lim_{h \to 0} \frac{1}{h} \int_x^{x+h} f(t) \, dt
+\end{equation}
+By the \textbf{Mean Value Theorem for Integrals}, because $f$ is continuous on $[x, x+h]$, there exists a point $c_h \in [x, x+h]$ such that:
+\begin{equation}
+\int_x^{x+h} f(t) \, dt = f(c_h) \cdot h \implies \frac{1}{h} \int_x^{x+h} f(t) \, dt = f(c_h)
+\end{equation}
+As $h \to 0$, the interval $[x, x+h]$ shrinks to the single point $x$, forcing $c_h \to x$. By the continuity of $f$:
+\begin{equation}
+\lim_{h \to 0} f(c_h) = f(x) \implies g'(x) = f(x) \quad \blacksquare
+\end{equation}
+
+\subsection{Derivation of the Evaluation Theorem (FTC Part 2)}
+Let $F(x)$ be any antiderivative of $f(x)$, meaning $F'(x) = f(x)$. From FTC Part 1, we know that $g(x) = \int_a^x f(t) \, dt$ also satisfies $g'(x) = f(x)$. 
+Because two functions with identical derivatives differ only by a constant:
+\begin{equation}
+F(x) = g(x) + C = \int_a^x f(t) \, dt + C
+\end{equation}
+Evaluating at $x = a$:
+\begin{equation}
+F(a) = \int_a^a f(t) \, dt + C = 0 + C = C
+\end{equation}
+Now evaluating at $x = b$:
+\begin{equation}
+F(b) = \int_a^b f(t) \, dt + C = \int_a^b f(t) \, dt + F(a)
+\end{equation}
+Rearranging terms yields FTC Part 2:
+\begin{equation}
+\int_a^b f(t) \, dt = F(b) - F(a) \quad \blacksquare
+\end{equation}
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Trap 1: Omitting the $+ C$ in Indefinite Integrals}
+An indefinite integral represents an entire equivalence class of vertically shifted functions. Omitting $+C$ causes boundary-value problems and differential equation solutions to fail. For example, solving $\frac{dy}{dx} = 2x$ with initial condition $y(0) = 5$ yields $y = x^2 + C \implies y = x^2 + 5$. Dropping $+C$ yields the wrong function $y = x^2$.
+\end{trapbox}
+
+\begin{trapbox}{Trap 2: Conflating Net Signed Area with Total Geometric Area}
+The definite integral $\int_a^b f(x) \dx$ computes \textit{net signed area}, where regions below the $x$-axis contribute negative quantities. For example, $\int_0^{2\pi} \sin(x) \dx = [-\cos(x)]_0^{2\pi} = -1 - (-1) = 0$. If an engineer or data scientist seeks the \textit{total physical/geometric area}, they must compute:
+\begin{equation*}
+\int_a^b |f(x)| \dx = \int_0^\pi \sin(x) \dx + \int_\pi^{2\pi} (-\sin(x)) \dx = 2 + 2 = 4
+\end{equation*}
+\end{trapbox}
+
+\begin{trapbox}{Trap 3: Forgetting to Transform Limits During $u$-Substitution}
+When evaluating $\int_a^b f(g(x))g'(x) \dx$ via substitution $u = g(x)$, the bounds $a$ and $b$ apply to $x$, not $u$. Writing $\int_a^b f(u) \, du$ is mathematically false. You must either update bounds to $[g(a), g(b)]$ immediately:
+\begin{equation*}
+\int_0^1 2x e^{x^2} \dx = \int_{0^2}^{1^2} e^u \, du = \int_0^1 e^u \, du = e^1 - e^0 = e - 1
+\end{equation*}
+or solve the indefinite integral first, substitute back $x$, and evaluate at the original limits.
+\end{trapbox}
+
+\begin{trapbox}{Trap 4: Applying FTC Across Discontinuities (The Cauchy Principal Failure)}
+FTC Part 2 requires $f$ to be continuous on the entire closed interval $[a, b]$. Blindly integrating across an essential pole produces non-physical, contradictory results. For example:
+\begin{equation*}
+\int_{-1}^1 \frac{1}{x^2} \dx \ne \left[ -\frac{1}{x} \right]_{-1}^1 = -1 - (1) = -2 \quad \text{\textbf{(WRONG!)}}
+\end{equation*}
+The integrand $\frac{1}{x^2} > 0$ everywhere on its domain, yet blind evaluation yields a negative area! The integral is an improper integral that diverges to $+\infty$ at $x = 0$.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2.6cm} p{3.2cm} p{3.8cm} p{4.2cm}}
+\toprule
+\textbf{Concept} & \textbf{Mathematical Form} & \textbf{Core Condition / Property} & \textbf{Data Science \& ML Application} \\
+\midrule
+\textbf{Definite Integral} & $\int_a^b f(x) \dx = \lim \sum f(x_i^*) \Delta x$ & Continuous on $[a, b]$; measures net signed accumulation & Continuous probability $P(a \le X \le b) = \int_a^b p(x) \dx$. \\
+\addlinespace
+\textbf{Indefinite Integral} & $\int f(x) \dx = F(x) + C$ & Family of antiderivatives; $F'(x) = f(x)$ & Recovering loss potentials from known analytical gradients. \\
+\addlinespace
+\textbf{FTC Part 1} & $\frac{d}{dx} \int_a^x f(t) \, dt = f(x)$ & $f$ continuous; rate of area change equals curve height & Differentiating cumulative distribution functions (CDF) to obtain PDF: $F'(x) = p(x)$. \\
+\addlinespace
+\textbf{FTC Part 2} & $\int_a^b f(x) \dx = F(b) - F(a)$ & Requires $F'(x) = f(x)$ on $[a, b]$ without poles & Rapid closed-form calculation of expected losses and risk metrics. \\
+\addlinespace
+\textbf{Substitution Rule} & $\int f(g(x))g'(x) \dx = \int f(u) du$ & Reverse chain rule; limits change to $u = g(x)$ & Normalizing coordinate transformations and change of variables in continuous PDFs. \\
+\bottomrule
+\end{tabular}
+\caption{Comparison of Integration Operations, Conditions, and Machine Learning Roles.}
+\end{table}
+
+\section{Python Scientific Computing Lab}
+
+The following laboratory illustrates numerical quadrature (`scipy.integrate.quad`), Riemann sum approximations, and symbolic integration (`sympy`).
+
+\begin{lstlisting}[language=Python, caption=Numerical Quadrature and Riemann Approximations]
+import numpy as np
+from scipy.integrate import quad
+import sympy as sp
+
+# 1. Exact Symbolic Integration via SymPy
+x = sp.Symbol('x')
+f_sym = 3 * x**2 + 2 * x + 1
+
+# Indefinite integral: returns x**3 + x**2 + x (constant omitted by convention)
+indef_res = sp.integrate(f_sym, x)
+print(f"Indefinite Integral: {indef_res} + C")
+
+# Definite integral from 0 to 2: (8 + 4 + 2) - 0 = 14
+def_res = sp.integrate(f_sym, (x, 0, 2))
+print(f"SymPy Definite Integral [0, 2]: {def_res}")
+
+# 2. High-Precision Numerical Quadrature via SciPy
+f_num = lambda t: 3 * t**2 + 2 * t + 1
+integral_val, abs_error = quad(f_num, 0, 2)
+print(f"SciPy quad result: {integral_val:.6f} (Error est: {abs_error:.2e})")
+
+# 3. Riemann Sum Convergence
+def riemann_sum(func, a, b, n, method='midpoint'):
+    dx = (b - a) / n
+    if method == 'left':
+        x_pts = np.linspace(a, b - dx, n)
+    elif method == 'right':
+        x_pts = np.linspace(a + dx, b, n)
+    elif method == 'midpoint':
+        x_pts = np.linspace(a + dx/2, b - dx/2, n)
+    return np.sum(func(x_pts) * dx)
+
+for n in [5, 20, 100, 1000]:
+    r_mid = riemann_sum(f_num, 0, 2, n, method='midpoint')
+    print(f"n = {n:4d} | Midpoint Riemann Sum: {r_mid:.6f} | Error: {abs(r_mid - 14):.6e}")
+
+# 4. Continuous Probability Density Verification
+# PDF: p(x) = (3/8)*x^2 on [0, 2]
+p = lambda x: (3.0 / 8.0) * x**2
+total_prob, _ = quad(p, 0, 2)
+expected_x, _ = quad(lambda x: x * p(x), 0, 2)
+print(f"Total Probability Area: {total_prob:.6f}") # Must equal 1.0
+print(f"Expected Value E[X]: {expected_x:.6f}")    # Integral of (3/8)x^3 is (3/32)(16) = 1.5
+\end{lstlisting}
 
 \newpage
 \section{Practice Exercises}
-\textit{Try to solve these exercises independently. Detailed step-by-step solutions are available in the Appendix at the end of the book.}
+
+\subsection*{Part A: Analytical \& Computational Problems}
 
 \begin{enumerate}
-    \item \textbf{Pure Math:} Evaluate the indefinite integral: $\int \left( 4x^3 - \frac{1}{x} + e^x \right) \dx$.
-    \item \textbf{Pure Math:} Use u-substitution to evaluate the integral: $\int x^2(x^3 + 5)^4 \dx$.
-    \item \textbf{Data Science:} The Probability Density Function of a uniform distribution is given by $p(x) = 0.5$ on the interval $[0, 2]$. Verify that the total probability over this entire interval is exactly $1$ by calculating $\int_{0}^{2} 0.5 \dx$.
-    \item \textbf{Pure Math:} Evaluate the definite integral using FTC Part 2: $\int_{1}^{2} \frac{1}{x^2} \dx$.
-    \item \textbf{Pure Math:} Find the area of the region enclosed between the curves $y = x^2$ and $y = x$ on the interval $[0, 1]$.
+    \item \textbf{Analytical Indefinite Integrals:}
+    Determine the following general antiderivatives showing all algebraic simplification steps:
+    \begin{enumerate}
+        \item $\int \left( 6x^5 - \frac{4}{x^3} + \frac{5}{\sqrt{x}} - 3e^{4x} \right) \dx$
+        \item $\int \frac{x^3 + 5x^2 - 4}{x^2} \dx$
+    \end{enumerate}
+
+    \item \textbf{The Substitution Technique \& Limit Transformation:}
+    \begin{enumerate}
+        \item Evaluate the indefinite integral $\int x^2 (2x^3 + 7)^5 \dx$ using $u$-substitution.
+        \item Evaluate the definite integral $\int_0^{\sqrt{\pi}} x \sin(x^2) \dx$ by explicitly converting the bounds of integration to the $u$-domain.
+    \end{enumerate}
+
+    \item \textbf{Definite Integrals and Absolute Value Splitting:}
+    Evaluate the definite integral $\int_{-2}^3 |2x - 2| \dx$. Contrast the net signed integral of $(2x - 2)$ over $[-2, 3]$ with this total geometric area.
+
+    \item \textbf{Area Enclosed Between Two Curves:}
+    Find the exact area of the finite region bounded between the parabola $y = 4 - x^2$ and the line $y = x + 2$. Identify the intersection points and illustrate the setup of the integral.
+
+    \item \textbf{Continuous Probability \& Cumulative Metrics:}
+    A continuous random variable $X$ representing model inference latency (in milliseconds) has the probability density function (PDF):
+    \begin{equation}
+    p(x) = \begin{cases} c(4x - x^2) & \text{for } 0 \le x \le 4 \\ 0 & \text{otherwise} \end{cases}
+    \end{equation}
+    \begin{enumerate}
+        \item Use the total probability normalization condition $\int_{-\infty}^\infty p(x) \dx = 1$ to find the exact value of the normalizing constant $c$.
+        \item Compute the Cumulative Distribution Function (CDF) $F(x) = P(X \le x)$ for $x \in [0, 4]$.
+        \item Calculate the expected latency $\E[X] = \int_{-\infty}^\infty x p(x) \dx$.
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Misconception MCQs}
+
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item A student attempts to evaluate the definite integral $I = \int_{-2}^2 \frac{1}{x^4} \dx$ using FTC Part 2:
+    \begin{equation}
+    I = \left[ -\frac{1}{3x^3} \right]_{-2}^2 = -\frac{1}{3(8)} - \left( -\frac{1}{3(-8)} \right) = -\frac{1}{24} - \frac{1}{24} = -\frac{1}{12}
+    \end{equation}
+    Which of the following statements provides the rigorous mathematical diagnosis of this evaluation?
+    \begin{enumerate}
+        \item The calculation is correct because the power rule $\int x^{-4} \dx = -\frac{1}{3}x^{-3}$ is universally valid for all negative integers.
+        \item The calculation is invalid because FTC Part 2 requires the integrand to be continuous on the entire interval $[-2, 2]$, whereas $f(x) = x^{-4}$ has an infinite discontinuity at $x = 0$; the integral diverges to $+\infty$.
+        \item The calculation is invalid only because the student made an arithmetic error in distributing the negative sign; the true value is $+\frac{1}{12}$.
+        \item The calculation is invalid because $u$-substitution $u = x^2$ should have been applied before using the power rule.
+    \end{enumerate}
+
+    \item Consider the definite integral $J = \int_0^1 x e^{x^2} \dx$. If the substitution $u = x^2$ is performed, which of the following expressions represents the valid transformed integral in the $u$-variable?
+    \begin{enumerate}
+        \item $\int_0^1 e^u \, du$
+        \item $\frac{1}{2} \int_0^1 e^u \, du$
+        \item $\frac{1}{2} \int_0^2 e^u \, du$
+        \item $2 \int_0^1 e^u \, du$
+    \end{enumerate}
 \end{enumerate}

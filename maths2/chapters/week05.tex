@@ -1,93 +1,292 @@
 \chapter{Null Space, Nullity \& Linear Mappings}
 
-Matrices are not merely static arrays of numbers—they act as dynamic geometric transformations between vector spaces. In this chapter, we explore the \index{Null Space}\textbf{Null Space} of a matrix and formalize \index{Linear Mappings}\textbf{Linear Mappings} (Linear Transformations).
-
+Matrices are not static numerical arrays; they represent dynamic geometric transformations mapping vectors between vector spaces. When a matrix transformation compresses higher-dimensional data, certain non-zero input directions inevitably collapse into the origin. The collection of all such collapsed vectors forms the \index{Null Space}\textbf{Null Space} (or Kernel), while its dimension—the \index{Nullity}\textbf{Nullity}—quantifies the exact loss of geometric degrees of freedom. In this chapter, we formalize \index{Linear Transformations}\textbf{Linear Transformations}, their structural invariants, and the mechanics of the null space.
 
 \vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Null Space and Nullity
-    \item Linear Mappings and Linear Transformations
+    \item \textbf{Target Competencies:} Extract an explicit basis and compute the nullity of matrix null spaces; verify linearity of vector space mappings via additivity and scalar homogeneity; analyze the geometry of matrix-induced transformations $T(\mathbf{x}) = A\mathbf{x}$; solve homogeneous systems $A\mathbf{x} = \mathbf{0}$; quantify dimensionality loss in linear bottleneck layers of deep neural networks.
+    \item \textbf{Prerequisites:} Matrix-vector products (Week 1), Gaussian elimination and free variables (Week 2), vector spaces and linear combinations (Week 3), basis and dimension (Week 4).
+    \item \textbf{Mathematical Notation:} Matrix null space $\operatorname{Null}(A)$ or $\ker(A)$; nullity $\nullity(A) = \dim(\operatorname{Null}(A))$; linear mapping $T: V \to W$; image/range $\operatorname{im}(T)$; identity transformation $I$.
 \end{itemize}
 \end{tcolorbox}
-\section{Null Space and Nullity}
 
-\begin{intuitionbox}{Eigenvalues are Scaling Factors}
-If a matrix represents a complex rotation and stretch of space, the Eigenvectors are the few special directions that don't get knocked off their span during the transformation. They only get stretched or squished! The Eigenvalue is simply the factor by which they are stretched or squished.
-\end{intuitionbox}
+\section{Mathematical \& Theoretical Foundations}
 
+\subsection{The Null Space (Kernel) of a Matrix}
 
-\begin{definitionbox}{Null Space ($\text{Null}(A)$ or $\kernel(A)$)}
-For a matrix $A \in \mathbb{R}^{m \times n}$, the \index{Null Space}\textbf{Null Space} (or Kernel) of $A$ is the set of all input vectors $\mathbf{x} \in \mathbb{R}^n$ that map to the zero vector $\mathbf{0} \in \mathbb{R}^m$:
-$$\text{Null}(A) = \left\{ \mathbf{x} \in \mathbb{R}^n \Big| A \mathbf{x} = \mathbf{0} \right\}$$
-The dimension of the null space is called the \index{Nullity}\textbf{Nullity} of $A$:
-$$\nullity(A) = \dim(\text{Null}(A))$$
+\begin{definitionbox}{Null Space and Nullity}
+\index{Null Space} \index{Nullity}
+Let $A \in \mathbb{R}^{m \times n}$ represent a linear transformation from $\mathbb{R}^n$ (domain) to $\mathbb{R}^m$ (codomain). The \textbf{Null Space} (or \textbf{Kernel}) of $A$, denoted $\operatorname{Null}(A)$ or $\ker(A)$, is the set of all input vectors $\mathbf{x} \in \mathbb{R}^n$ mapped to the zero vector $\mathbf{0} \in \mathbb{R}^m$:
+\begin{equation}
+\operatorname{Null}(A) = \left\{ \mathbf{x} \in \mathbb{R}^n \;\middle|\; A \mathbf{x} = \mathbf{0} \right\}
+\end{equation}
+The dimension of the null space is called the \textbf{Nullity} of $A$:
+\begin{equation}
+\nullity(A) = \dim(\operatorname{Null}(A))
+\end{equation}
 \end{definitionbox}
 
-\begin{theorembox}{Null Space is a Subspace}
-The null space $\text{Null}(A)$ is always a valid vector subspace of the domain $\mathbb{R}^n$.
-To find a basis for $\text{Null}(A)$, reduce $[A \mid \mathbf{0}]$ to REF/RREF, identify free variables, and solve for the basic variables in terms of the free variables.
+\begin{theorembox}{Subspace Property of the Null Space}
+For any matrix $A \in \mathbb{R}^{m \times n}$, the null space $\operatorname{Null}(A)$ is a valid vector subspace of the \textbf{domain} $\mathbb{R}^n$.
 \end{theorembox}
 
-\begin{videocard}{IITM BS Lecture: The Null Space of a Matrix (Parts 1 \& 2)}{https://www.youtube.com/watch?v=3_U6oMJeklc}
-Official lectures defining null space, solving homogenous systems $A\mathbf{x}=\mathbf{0}$, and extracting a basis for $\text{Null}(A)$.
-\end{videocard}
-
-\section{Linear Mappings and Linear Transformations}
-
-A function $T: V \to W$ between two vector spaces $V$ and $W$ is a \index{Linear Mapping}\textbf{Linear Mapping} (or Linear Transformation) if it preserves vector addition and scalar multiplication.
-
-\begin{definitionbox}{Linear Transformation Axioms}
-\index{Linear Transformation Axioms}
-A mapping $T: V \to W$ is \index{Linear}\textbf{Linear} if for all $\mathbf{u}, \mathbf{v} \in V$ and all scalars $c \in \mathbb{R}$:
+\begin{proof}
+We test the three fundamental subspace criteria:
 \begin{enumerate}
-    \item \textbf{Additivity:} $T(\mathbf{u} + \mathbf{v}) = T(\mathbf{u}) + T(\mathbf{v})$.
-    \item \textbf{Homogeneity (Scalar Scaling):} $T(c \mathbf{v}) = c T(\mathbf{v})$.
+    \item \textbf{Contains Zero Vector:} $A \mathbf{0} = \mathbf{0}$, hence $\mathbf{0} \in \operatorname{Null}(A)$.
+    \item \textbf{Closed under Addition:} Let $\mathbf{u}, \mathbf{v} \in \operatorname{Null}(A)$, so $A\mathbf{u} = \mathbf{0}$ and $A\mathbf{v} = \mathbf{0}$. By the distributive property of matrix multiplication:
+    \begin{equation*}
+    A(\mathbf{u} + \mathbf{v}) = A\mathbf{u} + A\mathbf{v} = \mathbf{0} + \mathbf{0} = \mathbf{0} \implies \mathbf{u} + \mathbf{v} \in \operatorname{Null}(A)
+    \end{equation*}
+    \item \textbf{Closed under Scalar Multiplication:} Let $\mathbf{u} \in \operatorname{Null}(A)$ and $c \in \mathbb{R}$. Then:
+    \begin{equation*}
+    A(c\mathbf{u}) = c(A\mathbf{u}) = c(\mathbf{0}) = \mathbf{0} \implies c\mathbf{u} \in \operatorname{Null}(A)
+    \end{equation*}
 \end{enumerate}
-Together, this implies $T(c_1 \mathbf{u} + c_2 \mathbf{v}) = c_1 T(\mathbf{u}) + c_2 T(\mathbf{v})$.
-Crucial consequence: $T(\mathbf{0}) = \mathbf{0}$ for any linear transformation.
+Thus, $\operatorname{Null}(A)$ is a subspace of $\mathbb{R}^n$.
+\end{proof}
+
+\subsection{Linear Transformations and Mappings}
+
+\begin{definitionbox}{Axioms of a Linear Transformation}
+\index{Linear Transformation}
+Let $V$ and $W$ be vector spaces over $\mathbb{R}$. A mapping $T: V \to W$ is called a \textbf{linear transformation} (or linear operator) if it satisfies two conditions for all $\mathbf{u}, \mathbf{v} \in V$ and all scalars $c \in \mathbb{R}$:
+\begin{enumerate}
+    \item \textbf{Additivity:} $T(\mathbf{u} + \mathbf{v}) = T(\mathbf{u}) + T(\mathbf{v})$
+    \item \textbf{Homogeneity of Degree 1:} $T(c\mathbf{u}) = c\, T(\mathbf{u})$
+\end{enumerate}
+Equivalently, $T$ preserves arbitrary linear combinations:
+\begin{equation}
+T(c_1 \mathbf{u} + c_2 \mathbf{v}) = c_1 T(\mathbf{u}) + c_2 T(\mathbf{v})
+\end{equation}
 \end{definitionbox}
 
-\textbf{Data Science Relevance:} Linear layers in Deep Learning ($\mathbf{y} = W \mathbf{x}$), dimensionality reduction mappings, and continuous linear projections in SVMs are all formal linear transformations!
+\begin{theorembox}{Fundamental Properties of Linear Transformations}
+If $T: V \to W$ is a linear transformation, then:
+\begin{enumerate}
+    \item $T(\mathbf{0}_V) = \mathbf{0}_W$ (the zero vector of the domain maps strictly to the zero vector of the codomain).
+    \item $T(-\mathbf{v}) = -T(\mathbf{v})$ for all $\mathbf{v} \in V$.
+    \item $T\left(\sum_{i=1}^k c_i \mathbf{v}_i\right) = \sum_{i=1}^k c_i T(\mathbf{v}_i)$.
+\end{enumerate}
+\end{theorembox}
 
-\begin{lstlisting}[language=Python, caption=Data Science: Finding Null Space]
+\section{Visual \& Geometric Intuition: The Kernel Collapse}
+
+A matrix transformation $A \in \mathbb{R}^{2 \times 3}$ projects 3-dimensional Euclidean space into a 2-dimensional plane. By the conservation of dimensions, at least one dimension must collapse entirely into the origin. The null space $\operatorname{Null}(A)$ is the exact line of collapse.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[>=stealth, scale=1.05]
+    % Domain R^3 (Represented as 3D box)
+    \draw[thick, fill=blue!5, rounded corners] (-4.5,-2.5) rectangle (-0.5,2.5);
+    \node[above, font=\bfseries] at (-2.5, 2.0) {Domain $\mathbb{R}^3$};
+
+    % Coordinate axes in Domain
+    \draw[->, thick, gray] (-2.5,0) -- (-1.2,0) node[right] {$x_1$};
+    \draw[->, thick, gray] (-2.5,0) -- (-2.5,1.5) node[above] {$x_3$};
+    \draw[->, thick, gray] (-2.5,0) -- (-3.3,-1.0) node[below left] {$x_2$};
+
+    % Null space line in domain
+    \draw[ultra thick, red!80!black] (-3.8,-1.8) -- (-1.2,1.8) node[above right] {$\operatorname{Null}(A) = \vspan(\mathbf{n})$};
+    \filldraw[red!80!black] (-2.5,0) circle (2pt) node[below right=2pt] {$\mathbf{0}_{\mathbb{R}^3}$};
+    \draw[->, thick, purple] (-2.5,0) -- (-1.7,1.0) node[above left] {$\mathbf{n}$};
+
+    % Inhomogeneous affine fiber: x_p + Null(A)
+    \draw[thick, dashed, forest] (-4.2,-0.8) -- (-1.6,2.8) node[right] {$\mathbf{x}_p + \operatorname{Null}(A)$};
+    \filldraw[forest] (-2.9, 1.0) circle (2pt) node[left] {$\mathbf{x}_p$};
+
+    % Transformation Arrow
+    \draw[->, ultra thick, primarydark] (0.0,0.5) -- (2.0,0.5) node[midway, above] {$T(\mathbf{x}) = A\mathbf{x}$};
+
+    % Codomain R^2
+    \draw[thick, fill=orange!5, rounded corners] (2.5,-2.5) rectangle (6.5,2.5);
+    \node[above, font=\bfseries] at (4.5, 2.0) {Codomain $\mathbb{R}^2$};
+
+    % Codomain axes
+    \draw[->, thick, gray] (4.5,0) -- (6.0,0) node[right] {$y_1$};
+    \draw[->, thick, gray] (4.5,0) -- (4.5,1.5) node[above] {$y_2$};
+
+    % Origin in Codomain
+    \filldraw[red!80!black] (4.5,0) circle (3pt) node[below right] {$\mathbf{0}_{\mathbb{R}^2}$};
+    \node[red!80!black, align=center] at (4.5, -1.2) {\small All of $\operatorname{Null}(A)$\\ \small collapses here!};
+
+    % Image of x_p
+    \filldraw[forest] (5.5, 1.0) circle (2.5pt) node[above right] {$\mathbf{b} = A\mathbf{x}_p$};
+    \draw[->, dashed, forest] (-2.9, 1.0) to[bend left=25] (5.4, 1.0);
+\end{tikzpicture}
+\caption{Geometric collapse of the 1D subspace $\operatorname{Null}(A)$ into the origin $\mathbf{0} \in \mathbb{R}^2$, and the affine solution fiber $\mathbf{x}_p + \operatorname{Null}(A)$ mapping to the target vector $\mathbf{b}$.}
+\label{fig:null_space_collapse}
+\end{figure}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Affine Solution Geometry: $A\mathbf{x} = \mathbf{b}$}
+
+Why does the null space matter when solving inhomogeneous real-world equations $A\mathbf{x} = \mathbf{b}$?
+\begin{theorembox}{General Solution Decomposition Theorem}
+Let $A \in \mathbb{R}^{m \times n}$ and $\mathbf{b} \in \mathbb{R}^m$. Suppose $\mathbf{x}_p$ is a specific \textbf{particular solution} satisfying $A\mathbf{x}_p = \mathbf{b}$. Then the complete solution set $S$ is the affine space:
+\begin{equation}
+S = \left\{ \mathbf{x}_p + \mathbf{x}_h \;\middle|\; \mathbf{x}_h \in \operatorname{Null}(A) \right\} = \mathbf{x}_p + \operatorname{Null}(A)
+\end{equation}
+\end{theorembox}
+
+\begin{proof}
+Let $\mathbf{x}$ be any valid solution to $A\mathbf{x} = \mathbf{b}$. Consider the difference vector $\mathbf{x}_h = \mathbf{x} - \mathbf{x}_p$.
+Evaluating $A\mathbf{x}_h$:
+\begin{equation*}
+A\mathbf{x}_h = A(\mathbf{x} - \mathbf{x}_p) = A\mathbf{x} - A\mathbf{x}_p = \mathbf{b} - \mathbf{b} = \mathbf{0}
+\end{equation*}
+This proves that $\mathbf{x}_h \in \operatorname{Null}(A)$. Therefore, every solution can be expressed as $\mathbf{x} = \mathbf{x}_p + \mathbf{x}_h$.
+Conversely, if $\mathbf{x}_h \in \operatorname{Null}(A)$, then $A(\mathbf{x}_p + \mathbf{x}_h) = A\mathbf{x}_p + A\mathbf{x}_h = \mathbf{b} + \mathbf{0} = \mathbf{b}$.
+Thus, the solution manifold is a translated copy of $\operatorname{Null}(A)$ shifted away from the origin by $\mathbf{x}_p$.
+\end{proof}
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Trap 1: Confusing Domain Ambient Dimension with Codomain Dimension}
+For a non-square matrix $A \in \mathbb{R}^{m \times n}$, the null space resides in the \textbf{domain} $\mathbb{R}^n$, NOT the codomain $\mathbb{R}^m$. For instance, if $A$ is $3 \times 5$, vectors in $\operatorname{Null}(A)$ have length 5, not 3. In contrast, the column space $\operatorname{Col}(A)$ resides in the codomain $\mathbb{R}^3$.
+\end{trapbox}
+
+\begin{trapbox}{Trap 2: Believing $T(\mathbf{0}) = \mathbf{0}$ is Sufficient to Prove Linearity}
+While every linear transformation must map zero to zero ($T(\mathbf{0}) = \mathbf{0}$), this condition is merely \textbf{necessary, not sufficient}. Functions such as $f(x) = x^2$, $f(x) = |x|$, or $T(x, y) = [x^3, y]^T$ all satisfy $T(\mathbf{0}) = \mathbf{0}$, yet all fail additivity and scalar homogeneity.
+\end{trapbox}
+
+\begin{trapbox}{Trap 3: Classifying Affine Mappings as Linear Transformations}
+A mapping of the form $T(\mathbf{x}) = A\mathbf{x} + \mathbf{b}$ with constant offset $\mathbf{b} \neq \mathbf{0}$ (e.g., $f(x) = 3x + 5$) is an \textbf{affine transformation}, NOT a linear transformation. Evaluating at zero yields $T(\mathbf{0}) = \mathbf{b} \neq \mathbf{0}$, violating the foundational axiom of vector space linearity.
+\end{trapbox}
+
+\begin{trapbox}{Trap 4: Assuming a Trivial Null Space Means Invertibility for Rectangular Matrices}
+If a tall rectangular matrix $A \in \mathbb{R}^{10 \times 4}$ has $\operatorname{Null}(A) = \{\mathbf{0}\}$, its columns are linearly independent and the mapping is injective (one-to-one). However, $A$ is \textbf{not invertible} because it is not square; it possesses no two-sided inverse. It maps $\mathbb{R}^4$ onto a 4D subspace of $\mathbb{R}^{10}$, leaving a 6D orthogonal complement unreachable.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{3.2cm} p{2.2cm} p{2.5cm} p{2.5cm} p{3.2cm}}
+\toprule
+\textbf{Subspace / Concept} & \textbf{Ambient Space} & \textbf{Dimension} & \textbf{Linear Condition} & \textbf{ML / Data Science Meaning} \\
+\midrule
+\textbf{Null Space $\operatorname{Null}(A)$} & Domain $\mathbb{R}^n$ & $\nullity(A) = n - r$ & $A\mathbf{x} = \mathbf{0}$ & Invisible input variations, unidentifiable model parameters \\
+\textbf{Column Space $\operatorname{Col}(A)$} & Codomain $\mathbb{R}^m$ & $\rank(A) = r$ & $A\mathbf{x} = \mathbf{y}$ & Reachable outputs, span of linear regression predictions \\
+\textbf{Affine Solution Set} & Domain $\mathbb{R}^n$ & $\nullity(A) = n - r$ & $A\mathbf{x} = \mathbf{b}$ & Family of weight configurations achieving identical loss \\
+\textbf{Kernel of Linear Layer} & Input $\mathbb{R}^{d_{\text{in}}}$ & $d_{\text{in}} - \rank(W)$ & $W\mathbf{x} = \mathbf{0}$ & Information lost in linear bottleneck layer \\
+\bottomrule
+\end{tabular}
+\caption{Structural breakdown of fundamental subspaces associated with matrix transformations in machine learning.}
+\label{tab:nullspace_linear_summary}
+\end{table}
+
+\section{Python / Scientific Computing Lab}
+
+The following Python script computes the exact rational basis for the null space using SymPy, verifies the Rank-Nullity Theorem, and demonstrates how non-trivial null space vectors produce zero activations in linear layers.
+
+\begin{lstlisting}[language=Python, caption={Python Lab: Null Space Extraction and Transformation Verification}]
 import numpy as np
+import sympy as sp
 from scipy.linalg import null_space
 
-# Define a transformation matrix
-A = np.array([[1, 2, -1], [2, 4, 5]])
-# Compute the basis for the null space
-ns = null_space(A)
-print("Null Space Basis:\n", ns)
+# 1. Exact Symbolic Null Space Basis via SymPy
+A_sym = sp.Matrix([[1, 2, -1],
+                   [2, 4,  5]])
+
+null_basis_sym = A_sym.nullspace()
+print("Symbolic Null Space Basis:")
+for v in null_basis_sym:
+    sp.pprint(v)
+
+# 2. Numerical Null Space via SciPy (Orthonormal Basis)
+A_num = np.array([[1.0, 2.0, -1.0],
+                  [2.0, 4.0,  5.0]])
+
+ns = null_space(A_num)
+print(f"\nNumerical Null Space Basis (Shape {ns.shape}):\n{ns}")
+print("Verification A @ null_space == 0:")
+print(np.allclose(A_num @ ns, 0))
+
+# 3. Rank-Nullity Theorem Check
+n_cols = A_num.shape[1]
+rank_A = np.linalg.matrix_rank(A_num)
+nullity_A = ns.shape[1]
+print(f"\nDomain Dim (n): {n_cols}")
+print(f"Rank(A): {rank_A}")
+print(f"Nullity(A): {nullity_A}")
+assert rank_A + nullity_A == n_cols, "Rank-Nullity Theorem Violated!"
+print("Rank-Nullity Theorem confirmed: 2 + 1 = 3")
+
+# 4. Neural Network Linear Projection Bottleneck Simulation
+# Layer mapping R^50 -> R^10
+np.random.seed(42)
+W = np.random.randn(10, 50)
+ns_W = null_space(W)
+print(f"\nLinear bottleneck W (10x50): Nullity = {ns_W.shape[1]} dimensions of information lost.")
+# Feeding a vector from the null space produces exactly zero output
+x_null = ns_W[:, 0]
+y_out = W @ x_null
+print(f"Output norm for null space input: {np.linalg.norm(y_out):.2e}")
 \end{lstlisting}
-
-\begin{videocard}{IITM BS Lecture: What is a Linear Mapping? (Parts 1 \& 2)}{https://www.youtube.com/watch?v=MvCkhmYhTkw}
-Official lectures defining linear mappings, testing additivity and scalar homogeneity.
-\end{videocard}
-
-\begin{videocard}{IITM BS Lecture: What is a Linear Transformation?}{https://www.youtube.com/watch?v=6jA-RRGbmOw}
-Official lecture demonstrating matrix-induced transformations $T(\mathbf{x}) = A \mathbf{x}$ and geometric transformations (rotations, reflections, shears).
-\end{videocard}
 
 \newpage
 \section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\textit{Detailed step-by-step solutions and distractor rationales are available in the Appendix.}
 
+\subsection*{Part A: Computational \& Analytical Problems}
 \begin{enumerate}
-\item \textbf{Null Space Calculation:} Find a basis for the null space $\text{Null}(A)$ and determine the nullity $\nullity(A)$ for:
-    $$A = \begin{bmatrix} 1 & 2 & -1 \\ 2 & 4 & 5 \end{bmatrix}$$
+\item \textbf{Null Space Calculation:} Find a basis for the null space $\operatorname{Null}(A)$ and determine the nullity $\nullity(A)$ for:
+\begin{equation*}
+A = \begin{bmatrix} 1 & 2 & -1 \\ 2 & 4 & 5 \end{bmatrix}
+\end{equation*}
 
-\item \textbf{Testing Linearity of Mappings:} Determine whether each function $T: \mathbb{R}^2 \to \mathbb{R}^2$ is a linear transformation:
-    \begin{enumerate}
-        \item $T\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} 2x - y \\ x + 3y \end{bmatrix}$
-        \item $T\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} x^2 \\ y \end{bmatrix}$
-    \end{enumerate}
+\item \textbf{Testing Linearity of Mappings:} Determine whether each vector mapping $T: \mathbb{R}^2 \to \mathbb{R}^2$ is a linear transformation. Provide a rigorous mathematical proof or counterexample for each:
+\begin{enumerate}
+    \item $T\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} 2x - y \\ x + 3y \end{bmatrix}$
+    \item $T\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} x^2 \\ y \end{bmatrix}$
+    \item $T\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} x + 1 \\ y - 2 \end{bmatrix}$
+\end{enumerate}
 
-\item \textbf{Matrix-Induced Transformation:} Let $T: \mathbb{R}^2 \to \mathbb{R}^3$ be defined by $T(\mathbf{x}) = A \mathbf{x}$, where:
-    $$A = \begin{bmatrix} 1 & 0 \\ -2 & 3 \\ 5 & 4 \end{bmatrix}$$
-    Compute $T\left(\begin{bmatrix} 3 \\ -1 \end{bmatrix}\right)$.
+\item \textbf{Matrix-Induced Transformation \& Forward Pass:} Let $T: \mathbb{R}^2 \to \mathbb{R}^3$ be defined by $T(\mathbf{x}) = A \mathbf{x}$, where:
+\begin{equation*}
+A = \begin{bmatrix} 1 & 0 \\ -2 & 3 \\ 5 & 4 \end{bmatrix}
+\end{equation*}
+Compute $T\left(\begin{bmatrix} 3 \\ -1 \end{bmatrix}\right)$, and determine whether $\mathbf{y} = \begin{bmatrix} 2 \\ 5 \\ 1 \end{bmatrix}$ belongs to the image $\operatorname{im}(T)$.
 
-\item \textbf{Homogenous System Solutions:} A matrix $A \in \mathbb{R}^{3 \times 5}$ has $\rank(A) = 3$. What is the dimension of the domain $\mathbb{R}^n$? What is the nullity $\nullity(A)$? Are there non-trivial solutions to $A \mathbf{x} = \mathbf{0}$?
+\item \textbf{Homogeneous System Solutions \& Free Variables:} A linear system matrix $A \in \mathbb{R}^{3 \times 5}$ has $\rank(A) = 3$.
+\begin{enumerate}
+    \item What is the dimension of the domain?
+    \item What is the nullity $\nullity(A)$?
+    \item Are there non-trivial solutions to $A \mathbf{x} = \mathbf{0}$? How many linearly independent parameter directions exist?
+\end{enumerate}
 
-\item \textbf{Data Science Application (Lossless Linear Compression Null Space):} A linear projection layer $W \in \mathbb{R}^{10 \times 50}$ compresses a 50-dimensional input vector $\mathbf{x} \in \mathbb{R}^{50}$ into a 10-dimensional representation $\mathbf{y} = W \mathbf{x}$. What is the minimum possible dimension of information lost in the null space $\text{Null}(W)$?
+\item \textbf{Data Science Application (Lossless Compression Null Space):} A linear projection layer $W \in \mathbb{R}^{10 \times 50}$ in a neural autoencoder compresses a 50-dimensional input vector $\mathbf{x} \in \mathbb{R}^{50}$ into a 10-dimensional latent code $\mathbf{y} = W \mathbf{x}$.
+\begin{enumerate}
+    \item What is the maximum possible rank of $W$?
+    \item What is the minimum possible dimension of the null space $\operatorname{Null}(W)$?
+    \item Can any linear decoding matrix $D \in \mathbb{R}^{50 \times 10}$ achieve perfect lossless reconstruction $D(W\mathbf{x}) = \mathbf{x}$ for all $\mathbf{x} \in \mathbb{R}^{50}$? Explain mathematically.
+\end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions}
+\begin{enumerate}
+\setcounter{enumi}{5}
+\item \textbf{Linearity Axioms and Diagnostic Counterexamples:} Consider four mappings from $\mathbb{R}^2 \to \mathbb{R}^2$:
+\begin{equation*}
+T_1\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} 3x \\ -y \end{bmatrix}, \quad T_2\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} x + 2y \\ 0 \end{bmatrix}, \quad T_3\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} |x| \\ y \end{bmatrix}, \quad T_4\left(\begin{bmatrix} x \\ y \end{bmatrix}\right) = \begin{bmatrix} x \\ x y \end{bmatrix}
+\end{equation*}
+Which of the following subsets consists \textbf{exclusively} of valid linear transformations?
+\begin{enumerate}
+    \item $\{T_1, T_2, T_3, T_4\}$
+    \item $\{T_1, T_2\}$
+    \item $\{T_1, T_3\}$
+    \item $\{T_2, T_4\}$
+\end{enumerate}
+
+\item \textbf{Bottleneck Projection and Information Loss:} A linear neural network layer uses weight matrix $W \in \mathbb{R}^{16 \times 64}$. If $\rank(W) = 16$, what is the exact dimension of the input feature subspace that is mapped entirely to $\mathbf{0}$ (the kernel)?
+\begin{enumerate}
+    \item 0 dimensions (no information is lost)
+    \item 16 dimensions
+    \item 48 dimensions
+    \item 64 dimensions
+\end{enumerate}
 \end{enumerate}

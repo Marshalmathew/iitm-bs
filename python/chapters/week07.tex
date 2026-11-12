@@ -1,127 +1,329 @@
-\chapter{Functional Programming, Comprehensions \& Generators}
+\chapter{Functional Programming, Comprehensions \& Streaming Generators}
 
-Python supports \index{Functional Programming}\textbf{Functional Programming} idioms. Instead of explicitly writing multi-line \texttt{for} loops, functional Python allows developers to write concise, expressive expressions using list comprehensions, anonymous \texttt{lambda} functions, higher-order utilities (\texttt{map}, \texttt{filter}, \texttt{zip}), and memory-efficient \texttt{yield} generators.
-
+Modern high-performance data processing demands declarative elegance and memory efficiency. As datasets grow to millions of observations, allocating entire intermediate arrays in memory becomes a critical system bottleneck. Python bridges imperative control with \index{Functional Programming}\textbf{Functional Programming} abstractions, offering set-builder comprehensions, anonymous lambda transformations, and lazy \index{Generators}\textbf{Generators} driven by the iterator protocol and the \texttt{yield} keyword. Mastering these primitives allows machine learning practitioners to construct expressive, streaming data pipelines that process infinite or out-of-core data sequences in strictly $\mathcal{O}(1)$ working memory.
 
 \vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item List, Dictionary, and Set Comprehensions
-    \item Lambda Functions, map()
-    \item Generators and the yield
+    \item \textbf{Target Competencies:} Construct nested list, set, and dictionary comprehensions; formalize the Python Iterator Protocol (\texttt{\_\_iter\_\_}, \texttt{\_\_next\_\_}, \texttt{StopIteration}); contrast eager evaluation against lazy evaluation; implement generator functions and generator expressions for out-of-core data streaming; deploy higher-order functional combinators (\texttt{map}, \texttt{filter}, \texttt{reduce}, \texttt{zip}, \texttt{enumerate}).
+    \item \textbf{Prerequisites:} Loops, functions, variable scope, built-in collection types.
+    \item \textbf{Syntax \& Built-in Functions:} \texttt{yield}, \texttt{yield from}, \texttt{next()}, \texttt{iter()}; comprehensions \texttt{[...]}, \texttt{\{...\}}; \texttt{map()}, \texttt{filter()}, \texttt{zip()}, \texttt{enumerate()}, \texttt{functools.reduce()}.
 \end{itemize}
 \end{tcolorbox}
-\section{List, Dictionary, and Set Comprehensions}
 
-\begin{intuitionbox}{Reading Comprehensions Aloud}
-Comprehensions look intimidating at first, but they read exactly like standard English mathematics. $[x^2 \text{ for } x \text{ in } \text{numbers} \text{ if } x > 5]$ reads as: "Give me $x$ squared, for every $x$ in the numbers list, but only if $x$ is greater than 5." It combines a map and a filter into a single, beautiful sentence.
-\end{intuitionbox}
+\section{Mathematical \& Computational Foundations}
 
-Comprehensions provide a compact 1-line syntax to construct new sequences from existing iterables.
+\subsection{Set-Builder Isomorphism and Comprehension Calculus}
 
-\begin{formulabox}{Comprehension Syntax}
-$$\text{List Comprehension: } [\text{expression } \mathbf{for} \text{ item } \mathbf{in} \text{ iterable } \mathbf{if} \text{ condition}]$$
-$$\text{Dict Comprehension: } \{\text{key\_expr}: \text{val\_expr } \mathbf{for} \text{ item } \mathbf{in} \text{ iterable}\}$$
-\end{formulabox}
-
-\begin{examplebox}{Filtering and Transforming}
-\begin{lstlisting}
-numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-
-# List Comprehension: Squares of even numbers
-even_squares = [x**2 for x in numbers if x % 2 == 0]
-print(even_squares)  # Output: [4, 16, 36, 64, 100]
-
-# Dict Comprehension: Number to its cube
-cubes = {x: x**3 for x in range(1, 6)}
-print(cubes)  # Output: {1: 1, 2: 8, 3: 27, 4: 64, 5: 125}
-\end{lstlisting}
-\end{examplebox}
-
-\begin{videocard}{IITM BS Lecture: Inline Statements and List Comprehensions}{https://www.youtube.com/watch?v=MNe03MfOLto}
-Official lecture explaining syntax, conditional filtering, and nested list comprehensions.
-\end{videocard}
-
-\section{Lambda Functions, \texttt{map()}, \texttt{filter()}, \texttt{zip()}, and \texttt{enumerate()}}
-
-\begin{definitionbox}{Lambda and Higher-Order Functions}
-\index{Lambda and Higher-Order Functions}
-\begin{itemize}
-    \item \textbf{Lambda (\texttt{lambda x: expr}):} Small anonymous 1-line inline functions.
-    \item \textbf{\texttt{map(func, iterable}):} Applies \texttt{func} to every item in \texttt{iterable}.
-    \item \textbf{\texttt{filter(predicate, iterable}):} Retains items where \texttt{predicate(item)} is \texttt{True}.
-    \item \textbf{\texttt{zip(seq1, seq2}):} Pairs elements from multiple sequences element-wise into tuples.
-    \item \textbf{\texttt{enumerate(seq}):} Yields \texttt{(index, item)} pairs during iteration.
-\end{itemize}
+\begin{definitionbox}{Set-Builder Notation Isomorphism}
+\index{Comprehensions} \index{Set-Builder Notation}
+In mathematics, a set is defined declaratively using set-builder notation:
+\begin{equation}
+S = \{ f(x) \mid x \in X \land P(x) \}
+\end{equation}
+Python comprehensions provide a direct computational mapping:
+\begin{enumerate}
+    \item \textbf{List Comprehension:} \texttt{[f(x) for x in X if P(x)]} $\implies$ constructs ordered dynamic array.
+    \item \textbf{Set Comprehension:} \texttt{\{f(x) for x in X if P(x)\}} $\implies$ constructs deduplicated hash set.
+    \item \textbf{Dict Comprehension:} \texttt{\{k(x): v(x) for x in X if P(x)\}} $\implies$ constructs key-value hash map.
+\end{enumerate}
+In Python 3 (PEP 274/3115), all comprehensions execute within their own isolated function-level scope, preventing loop variables from polluting the enclosing namespace.
 \end{definitionbox}
 
-\begin{examplebox}{Functional Pipeline Example}
-\begin{lstlisting}
-nums = [1, 2, 3, 4, 5]
+\subsection{The Python Iterator Protocol}
 
-# Square all numbers using map and lambda
-squares = list(map(lambda x: x**2, nums))  # [1, 4, 9, 16, 25]
-
-# Filter odd numbers
-odds = list(filter(lambda x: x % 2 != 0, nums))  # [1, 3, 5]
-
-# Zip two lists together
-names = ["Alice", "Bob"]
-scores = [85, 92]
-paired = list(zip(names, scores))  # [('Alice', 85), ('Bob', 92)]
+\begin{theorembox}{The Formal Iterator Protocol Invariant}
+\index{Iterator Protocol} \index{StopIteration}
+Python's iteration mechanism is governed by two complementary dunder methods:
+\begin{enumerate}
+    \item \textbf{Iterable Object:} Any container providing an \texttt{\_\_iter\_\_()} method that returns an iterator instance.
+    \item \textbf{Iterator Object:} An object maintaining state that provides:
+    \begin{itemize}
+        \item \texttt{\_\_iter\_\_()}: Returns \texttt{self}.
+        \item \texttt{\_\_next\_\_()}: Returns the next element in the sequence. When no elements remain, it must raise the \texttt{StopIteration} exception.
+    \end{itemize}
+\end{enumerate}
+A \texttt{for} loop is syntactic sugar for this protocol:
+\begin{lstlisting}[language=Python]
+iterator = iter(collection)  # Calls collection.__iter__()
+while True:
+    try:
+        item = next(iterator)  # Calls iterator.__next__()
+        # execute loop body
+    except StopIteration:
+        break  # Clean termination
 \end{lstlisting}
-\end{examplebox}
-
-\textbf{Data Science Relevance:} Feature extraction pipelines (like \texttt{df['col'].apply(lambda x: clean(x))}) and model training loops (\texttt{for idx, (batch\_x, batch\_y) in enumerate(dataloader)}) heavily utilize these exact tools.
-
-\begin{videocard}{IITM BS Lecture: Lambda, Enumerate, Zip, Map, and Filter}{https://www.youtube.com/watch?v=ueIignqReDY}
-Official lecture covering functional iteration helpers and lambda syntax.
-\end{videocard}
-
-\section{Generators and the \texttt{yield} Keyword}
-
-Unlike regular functions that return a full dataset at once (storing everything in RAM), \index{Generators}\textbf{Generators} compute items lazily on demand using the \texttt{yield} keyword.
-
-\begin{theorembox}{Generators vs Functions}
-A function with \texttt{yield} pauses execution after sending a value back and resumes right where it left off when the next item is requested via \texttt{next()} or a \texttt{for} loop.
 \end{theorembox}
 
-\begin{examplebox}{Infinite Stream Generator}
-\begin{lstlisting}
-def fibonacci_stream():
-    a, b = 0, 1
-    while True:
-        yield a
-        a, b = b, a + b
+\subsection{Generators and the \texttt{yield} Execution Mechanics}
 
-fib = fibonacci_stream()
-for _ in range(6):
-    print(next(fib), end=" ")  # Output: 0 1 1 2 3 5
-print()
+\begin{theorembox}{Suspension and Resumption of Generator Frames}
+\index{yield Keyword} \index{Generator Function}
+A function containing the \texttt{yield} keyword is compiled as a \textbf{generator function}. Calling it does not execute the function body; instead, it returns a \textbf{generator-iterator} object.
+\begin{itemize}
+    \item When \texttt{next(gen)} is invoked, execution commences or resumes from its current instruction pointer until reaching a \texttt{yield expr} statement.
+    \item The value of \texttt{expr} is returned to the caller, and the function's stack frame (including all local variables and instruction state) is \textbf{frozen in heap memory}.
+    \item Subsequent \texttt{next(gen)} calls resume execution immediately after the \texttt{yield} statement.
+    \item When the function exits (via \texttt{return} or end of body), Python automatically raises \texttt{StopIteration}.
+\end{itemize}
+\end{theorembox}
+
+\section{Visual \& Computational Intuition: Eager vs. Lazy Streaming Pipelines}
+
+Figure~\ref{fig:streaming_pipeline} contrasts the memory profiles of eager in-memory list transformations with lazy streaming generator pipelines.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=0.9,
+    box/.style={rectangle, draw=primarydark, fill=primarylight!30, thick, rounded corners, minimum width=2.4cm, minimum height=0.7cm, font=\small},
+    gen/.style={rectangle, draw=forest, fill=forest!15, thick, rounded corners, minimum width=2.4cm, minimum height=0.7cm, font=\small\bfseries},
+    arr/.style={-stealth, thick, primarydark}
+]
+    % Eager
+    \node[font=\bfseries, primarydark] at (-3.5, 2.5) {Eager List Processing ($\mathcal{O}(n)$ RAM)};
+    \node[box] (e1) at (-3.5, 1.5) {Raw List (1M rows)};
+    \node[box] (e2) at (-3.5, 0.2) {Filtered List (500k)};
+    \node[box] (e3) at (-3.5, -1.1) {Transformed List};
+    \draw[arr] (e1) -- node[right, font=\footnotesize] {Allocates RAM} (e2);
+    \draw[arr] (e2) -- node[right, font=\footnotesize] {Allocates RAM} (e3);
+
+    % Lazy
+    \node[font=\bfseries, forest] at (3.5, 2.5) {Lazy Generator Pipeline ($\mathcal{O}(1)$ RAM)};
+    \node[gen] (g1) at (3.5, 1.5) {File Stream};
+    \node[gen] (g2) at (3.5, 0.2) {Filter Generator};
+    \node[gen] (g3) at (3.5, -1.1) {Transform Generator};
+    \draw[-stealth, thick, forest] (g3) -- node[right, font=\footnotesize] {\texttt{next()} demand} (g2);
+    \draw[-stealth, thick, forest] (g2) -- node[right, font=\footnotesize] {\texttt{next()} demand} (g1);
+    \draw[-stealth, dashed, thick, accent] (g1) -- node[left, font=\footnotesize] {Yield 1 Item} (g2);
+    \draw[-stealth, dashed, thick, accent] (g2) -- node[left, font=\footnotesize] {Yield 1 Item} (g3);
+
+\end{tikzpicture}
+\caption{Eager allocation versus Lazy consumer-driven streaming. Generators pull single data records through the pipeline strictly on demand, maintaining constant memory overhead.}
+\label{fig:streaming_pipeline}
+\end{figure}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Functional Composition and Equivalence}
+In theoretical computer science, a filtering step followed by a mapping step can be written in terms of functional composition:
+\begin{equation}
+(f \circ \text{filter}_p)(X) \equiv [f(x) \text{ for } x \text{ in } X \text{ if } p(x)] \equiv \text{map}(f, \text{filter}(p, X))
+\end{equation}
+In modern Python, list comprehensions are preferred over raw \texttt{map} and \texttt{filter} with lambdas because comprehensions avoid the overhead of repeated lambda function call frames, executing directly at C-speed in the bytecode evaluation loop.
+
+\subsection{Generator Expressions vs. List Comprehensions}
+Replacing square brackets with parentheses transforms an eager comprehension into a lazy generator expression:
+\begin{lstlisting}[language=Python]
+import sys
+# Eager: builds 10 million integers in memory
+eager_list = [x**2 for x in range(10_000_000)]
+print(sys.getsizeof(eager_list))  # ~85 Megabytes!
+
+# Lazy: generates elements on demand
+lazy_gen = (x**2 for x in range(10_000_000))
+print(sys.getsizeof(lazy_gen))   # Only 112 bytes!
 \end{lstlisting}
-\end{examplebox}
 
-\begin{videocard}{IITM BS Lecture: Iterators, Generators, and Yield}{https://www.youtube.com/watch?v=29A7HhnzxPU}
-Official lecture explaining memory optimization, lazy evaluation, and \texttt{yield} semantics.
-\end{videocard}
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Generators Are Single-Use (Exhaustion Trap)}
+Unlike lists, iterators and generators have state and can only be traversed \textbf{exactly once}:
+\begin{lstlisting}[language=Python]
+gen = (x for x in [1, 2, 3])
+print(list(gen))  # Output: [1, 2, 3]
+print(list(gen))  # Output: [] -- Exhausted! No warning or error is raised.
+\end{lstlisting}
+If data needs to be passed to multiple consumers or processed in multiple epochs, either restart the generator function or store items in a persistent collection.
+\end{trapbox}
+
+\begin{trapbox}{Reading Nested Comprehensions Outside-In}
+The order of \texttt{for} clauses in a nested comprehension matches the order of nested \texttt{for} statements in conventional loop blocks:
+\begin{lstlisting}[language=Python]
+matrix = [[1, 2], [3, 4]]
+# Flattens matrix:
+flat = [x for row in matrix for x in row]  # CORRECT!
+\end{lstlisting}
+Writing \texttt{[x for x in row for row in matrix]} is a syntax error because \texttt{row} is referenced before it is bound by the outer clause.
+\end{trapbox}
+
+\begin{trapbox}{The \texttt{map()} and \texttt{filter()} Iterator Trap in Python 3}
+In Python 2, \texttt{map()} and \texttt{filter()} returned lists. In Python 3, they return lazy iterator objects:
+\begin{lstlisting}[language=Python]
+res = map(lambda x: x * 2, [1, 2, 3])
+print(len(res))  # Raises TypeError: object of type 'map' has no len()!
+\end{lstlisting}
+To obtain length or access by index, the result must be explicitly materialized: \texttt{len(list(res))}.
+\end{trapbox}
+
+\begin{trapbox}{Comprehensions with Side Effects}
+Never use comprehensions solely for side effects (such as printing or appending to external lists):
+\begin{lstlisting}[language=Python]
+# ANTI-PATTERN:
+[print(x) for x in data]  # Allocates a list of None values purely to print!
+\end{lstlisting}
+Use a standard \texttt{for} loop when executing operations that do not yield a meaningful target collection.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2.6cm} p{2.2cm} p{2.4cm} p{4.6cm}}
+\hline
+\textbf{Construct} & \textbf{Evaluation} & \textbf{Memory} & \textbf{Primary Use Case} \\
+\hline
+\textbf{List Comp} & Eager & $\mathcal{O}(n)$ & Constructing collections needing random indexing \\
+\textbf{Dict Comp} & Eager & $\mathcal{O}(n)$ & Inverting mappings, frequency tables \\
+\textbf{Set Comp} & Eager & $\mathcal{O}(n)$ & Deduplicated transformations, unique tokens \\
+\textbf{Gen Expression} & Lazy & $\mathcal{O}(1)$ & Immediate feeding into reductions: \texttt{sum()}, \texttt{max()} \\
+\textbf{Generator Func} & Lazy & $\mathcal{O}(1)$ & Multi-step streaming pipelines, batch data loaders \\
+\textbf{\texttt{map} / \texttt{filter}} & Lazy & $\mathcal{O}(1)$ & Interfacing with pre-existing named functions \\
+\hline
+\end{tabular}
+\caption{Comparison of Python functional and comprehension mechanisms.}
+\label{tab:comprehension_taxonomy}
+\end{table}
+
+\section{Python / Scientific Computing Lab}
+
+The following industrial script implements a Streaming Machine Learning Data Loader that generates synthetic regression batches, filters outliers on the fly, applies Min-Max normalization lazily, and yields mini-batches for Stochastic Gradient Descent.
+
+\begin{lstlisting}[language=Python]
+import random
+from typing import Generator, List, Tuple
+
+def streaming_data_source(n_samples: int) -> Generator[Tuple[float, float], None, None]:
+    """Simulates an out-of-core continuous data stream: yields (x, y)."""
+    for _ in range(n_samples):
+        x = random.uniform(-10.0, 10.0)
+        # Underlying model: y = 2.5*x - 1.2 + Gaussian noise
+        noise = random.gauss(0.0, 0.5)
+        y = 2.5 * x - 1.2 + noise
+        yield (round(x, 4), round(y, 4))
+
+def filter_outliers(
+    stream: Generator[Tuple[float, float], None, None],
+    x_bound: float = 8.0
+) -> Generator[Tuple[float, float], None, None]:
+    """Lazy filter removing samples beyond boundary limits."""
+    for x, y in stream:
+        if abs(x) <= x_bound:
+            yield (x, y)
+
+def batch_generator(
+    stream: Generator[Tuple[float, float], None, None],
+    batch_size: int = 4
+) -> Generator[List[Tuple[float, float]], None, None]:
+    """Chunks an infinite or long stream into discrete mini-batches for SGD."""
+    batch = []
+    for sample in stream:
+        batch.append(sample)
+        if len(batch) == batch_size:
+            yield batch
+            batch = []
+    if batch:
+        yield batch  # Remaining residual batch
+
+# Assemble end-to-end streaming ML generator pipeline
+random.seed(42)
+raw_stream = streaming_data_source(n_samples=20)
+clean_stream = filter_outliers(raw_stream, x_bound=7.0)
+mini_batches = batch_generator(clean_stream, batch_size=4)
+
+print("Streaming Mini-Batch Pipeline Active:")
+for batch_idx, batch in enumerate(mini_batches, 1):
+    x_mean = round(sum(item[0] for item in batch) / len(batch), 3)
+    y_mean = round(sum(item[1] for item in batch) / len(batch), 3)
+    print(f"Batch {batch_idx}: Size = {len(batch)}, Centroid = ({x_mean}, {y_mean})")
+# Pipeline executes in constant O(1) memory!
+\end{lstlisting}
 
 \newpage
-\section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\section{Comprehensive Practice Problems}
+\textit{Detailed step-by-step solutions and distractor analyses are provided in the Appendix.}
+
+\subsection*{Part A: Computational \& Analytical Problems}
 
 \begin{enumerate}
-    \item \textbf{List Comprehension Filtering:} Given \texttt{words = ["python", "data", "science", "ai", "machine", "ml"]}, write a 1-line list comprehension to extract words that have a length greater than $3$ characters, converted to UPPERCASE.
-
-    \item \textbf{Lambda Sorting:} Given a list of tuples representing student names and test scores \texttt{students = [("Alice", 88), ("Bob", 95), ("Charlie", 78), ("David", 90)]}, sort the list in descending order based on their test scores using \texttt{sorted()} and a \texttt{lambda} key.
-
-    \item \textbf{Zipping Vectors:} Given two lists \texttt{x = [1, 2, 3]} and \texttt{y = [10, 20, 30]}, write a 1-line list comprehension using \texttt{zip(x, y)} to compute the element-wise sum \texttt{[11, 22, 33]}.
-
-    \item \textbf{Fibonacci Generator:} Write a generator function \texttt{generate\_squares(n)} that yields the squares of numbers from $1$ up to $n$ one by one. Iterate over it using a \texttt{for} loop.
-
-    \item \textbf{Data Science Application (Text Preprocessing Pipeline):} In Natural Language Processing (NLP), a raw text string \texttt{text = "   Data Science and Machine Learning 101   "} needs cleaning. Write a functional pipeline using \texttt{map()}, \texttt{filter()}, and string methods to:
+    \item \textbf{Nested Comprehensions and Matrix Flattening:}
+    Given the 2D matrix:
+    \begin{lstlisting}[language=Python]
+    matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    \end{lstlisting}
     \begin{enumerate}
-        \item Strip whitespace and convert to lowercase.
-        \item Tokenize into words.
-        \item Filter out words that are numbers (using \texttt{.isdigit()}).
+        \item Write a single-line list comprehension that flattens \texttt{matrix} into a 1D list of odd numbers only.
+        \item Write a single-line nested comprehension to compute the matrix transpose $M^T$.
+    \end{enumerate}
+
+    \item \textbf{The Generator State Protocol and Exhaustion:}
+    Trace the exact sequence of outputs printed by the following code:
+    \begin{lstlisting}[language=Python]
+    def count_up():
+        print("Start")
+        yield 1
+        print("Middle")
+        yield 2
+        print("End")
+
+    c = count_up()
+    print("A:", next(c))
+    for val in c:
+        print("B:", val)
+    print("C:", list(c))
+    \end{lstlisting}
+
+    \item \textbf{Higher-Order Reduction: Cumulative Product and Factorials:}
+    Using Python's \texttt{functools.reduce()} and \texttt{lambda}:
+    \begin{enumerate}
+        \item Formulate a single functional expression that computes the factorial $N! = \prod_{i=1}^N i$ for $N = 6$.
+        \item Formulate an expression using \texttt{reduce()} that finds the maximum value in an arbitrary non-empty list of numbers without calling \texttt{max()}.
+    \end{enumerate}
+
+    \item \textbf{Dictionary Inversion with Collision Handling via Set Comprehension:}
+    Given a word-to-category mapping:
+    \begin{lstlisting}[language=Python]
+    word_cat = {"apple": "fruit", "carrot": "vegetable", "banana": "fruit", "spinach": "vegetable"}
+    \end{lstlisting}
+    Write a dictionary comprehension that constructs the inverted map \texttt{cat\_words} mapping each category to a \textbf{set} of words belonging to that category (e.g. \texttt{\{"fruit": \{"apple", "banana"\}, \dots\}}).
+
+    \item \textbf{Infinite Prime Generator via Sieve Mechanics:}
+    Write a generator function \texttt{prime\_stream()} that yields prime numbers indefinitely ($2, 3, 5, 7, 11, \dots$). Demonstrate taking the first 10 primes using \texttt{[next(prime\_stream()) for \_ in range(10)]}.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions (Single Correct)}
+
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item \textbf{Generator Expressions vs. List Materialization:}
+    Consider the following code snippet:
+    \begin{lstlisting}[language=Python]
+    data = [1, 2, 3]
+    g = (x * 2 for x in data)
+    data.append(4)
+    res = list(g)
+    \end{lstlisting}
+    What is the evaluated value of \texttt{res}?
+    \begin{enumerate}
+        \item \texttt{[2, 4, 6, 8]}
+        \item \texttt{[2, 4, 6]}
+        \item \texttt{[]}
+        \item \texttt{TypeError: generator cannot be modified}
+    \end{enumerate}
+
+    \item \textbf{Comprehension Scoping Rules in Python 3:}
+    Examine the following code executed in Python 3:
+    \begin{lstlisting}[language=Python]
+    i = 100
+    squares = [i**2 for i in range(5)]
+    print(i)
+    \end{lstlisting}
+    What is the value printed by \texttt{print(i)}?
+    \begin{enumerate}
+        \item \texttt{100}
+        \item \texttt{4}
+        \item \texttt{16}
+        \item \texttt{NameError: name 'i' is not defined}
     \end{enumerate}
 \end{enumerate}

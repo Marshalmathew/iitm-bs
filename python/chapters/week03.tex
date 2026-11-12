@@ -1,126 +1,338 @@
-\chapter{Loops \& Iteration}
+\chapter{Loops, Iteration \& Convergence Algorithms}
 
-In computer science, \index{Iteration}\textbf{Iteration} is the repetition of a process in order to generate a sequence of outcomes. Python provides two primary loop constructs: the \texttt{while} loop (condition-driven) and the \texttt{for} loop (sequence-driven).
-
+Iteration is the engine of computational science. Whether training a deep neural network over millions of gradient updates, traversing sparse graph structures, or calculating Monte Carlo approximations, programs rely on repetitive execution constructs. In Python, iteration is elevated from primitive pointer manipulation to an expressive, protocol-driven architecture. Understanding how the \texttt{range} object generates arithmetic progressions in $O(1)$ space, how condition-driven \texttt{while} loops converge toward fixed points, and how the loop \texttt{else} construct guarantees invariant verification provides the groundwork for scalable scientific computing.
 
 \vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item The while
-    \item The for
-    \item Nested Loops
-    \item Loop Control Statements: break
+    \item \textbf{Target Competencies:} Construct condition-driven (\texttt{while}) and sequence-driven (\texttt{for}) loops; prove loop termination using formal loop variants; master the iterator protocol and the $O(1)$ memory architecture of \texttt{range}; control execution trajectories with \texttt{break}, \texttt{continue}, and loop \texttt{else} clauses; implement numerical convergence loops in machine learning.
+    \item \textbf{Prerequisites:} Control flow branching, boolean logic, relational operators, arithmetic operators.
+    \item \textbf{Syntax \& Built-in Functions:} \texttt{for}, \texttt{while}, \texttt{range()}, \texttt{enumerate()}, \texttt{zip()}, \texttt{break}, \texttt{continue}, \texttt{pass}, loop \texttt{else}.
 \end{itemize}
 \end{tcolorbox}
-\section{The \texttt{while} Loop}
 
-A \texttt{while} loop repeatedly executes a block of code as long as a specified boolean condition remains \texttt{True}.
+\section{Mathematical \& Computational Foundations}
 
-\begin{definitionbox}{Syntax of \texttt{while} Loop}
-\begin{lstlisting}
-count = 1
-while count <= 5:
-    print(f"Iteration: {count}")
-    count += 1  # Increment to avoid an infinite loop!
-\end{lstlisting}
+\subsection{Loop Variants, Invariants, and Termination Proofs}
+
+\begin{definitionbox}{Formal Loop Invariants and Variants}
+\index{Loop Invariant} \index{Loop Variant}
+A \textbf{loop invariant} is a mathematical predicate $I$ that holds true immediately before and immediately after every iteration of a loop.
+A \textbf{loop variant} is an integer-valued function $V(s)$ of the program state $s$ satisfying two strict criteria:
+\begin{enumerate}
+    \item $V(s) \ge 0$ whenever the loop guard condition evaluates to \texttt{True}.
+    \item $V(s)$ strictly decreases with each successive loop iteration: $V(s_{k+1}) < V(s_k)$.
+\end{enumerate}
+By the well-ordering principle of the non-negative integers, any loop possessing a valid variant function is mathematically guaranteed to terminate in at most $V(s_0)$ steps, proving the impossibility of an infinite loop.
 \end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: Introduction to While Loop}{https://www.youtube.com/watch?v=KTvVNN7ia8o}
-Official lecture defining \texttt{while} loops, termination criteria, and preventing infinite loops.
-\end{videocard}
+\subsection{The \texttt{range} Arithmetic Sequence Object}
 
-\section{The \texttt{for} Loop and \texttt{range()} Function}
-
-Python's \texttt{for} loop is designed to iterate directly over the elements of any sequence (such as a string, range, list, or tuple).
-
-\begin{formulabox}{The \texttt{range(start, stop, step)} Function}
-\begin{itemize}
-    \item \texttt{range(n)} $\to$ generates integers from $0$ up to $n-1$.
-    \item \texttt{range(a, b)} $\to$ generates integers from $a$ up to $b-1$.
-    \item \texttt{range(a, b, s)} $\to$ generates integers from $a$ to $b-1$ stepping by $s$.
-\end{itemize}
-\end{formulabox}
-
-\begin{examplebox}{Summing Numbers with a \texttt{for} Loop}
-\begin{lstlisting}
-n = 100
-total_sum = 0
-
-for i in range(1, n + 1):
-    total_sum += i
-
-print(f"Sum of 1 to 100: {total_sum}")  # Output: 5050
+\begin{theorembox}{Space and Time Complexity of \texttt{range}}
+\index{range Object}
+In Python 3, \texttt{range(start, stop, step)} is not a list in memory; it is an \textbf{immutable sequence type} that represents an arithmetic progression:
+\begin{equation}
+r_k = \text{start} + k \times \text{step}, \quad \text{for } 0 \le k < \left\lceil \frac{\text{stop} - \text{start}}{\text{step}} \right\rceil
+\end{equation}
+The memory consumption of a \texttt{range} object is strictly $\mathcal{O}(1)$ regardless of the span between \texttt{start} and \texttt{stop}. A range representing a trillion numbers:
+\begin{lstlisting}[language=Python]
+import sys
+r = range(0, 10**12, 2)
+print(sys.getsizeof(r))  # Consumes only 48 bytes!
 \end{lstlisting}
-\end{examplebox}
-
-\textbf{Data Science Relevance:} Loops allow data scientists to process rows of datasets, compute iterative optimization steps (like Gradient Descent in Machine Learning), and run Monte Carlo simulations.
-
-\begin{videocard}{IITM BS Lecture: Introduction to For Loop}{https://www.youtube.com/watch?v=lvXuQ_x7EsI}
-Official lecture explaining sequence iteration using the \texttt{for} loop.
-\end{videocard}
-
-\begin{videocard}{IITM BS Lecture: Range Function and Iteration}{https://www.youtube.com/watch?v=ihL3Eac9tFc}
-Official lecture demonstrating \texttt{range()} start, stop, step parameters and iterating over strings directly.
-\end{videocard}
-
-\section{Nested Loops}
-
-A loop can be placed inside another loop. The inner loop completes all its iterations for every single iteration of the outer loop.
-
-\begin{examplebox}{Generating a Multiplication Table}
-\begin{lstlisting}
-for i in range(1, 4):
-    for j in range(1, 4):
-        print(f"{i}x{j}={i*j}", end="\t")
-    print()  # New line after each row
-\end{lstlisting}
-\end{examplebox}
-
-\begin{intuitionbox}{Loop Execution Count and Big-$O$ Time Complexity}
-\begin{itemize}
-    \item \textbf{Single Loop:} A loop running $N$ times executes $O(N)$ operations (Linear Time).
-    \item \textbf{Nested Loops:} If an outer loop runs $N$ times and an inner loop runs $N$ times, the total number of body executions is $N \times N = N^2$, yielding $O(N^2)$ time complexity (Quadratic Time).
-\end{itemize}
-When working with millions of rows in Data Science, nested loops ($O(N^2)$) become very slow—which is why we use vectorized operations in NumPy!
-\end{intuitionbox}
-
-\begin{videocard}{IITM BS Lecture: Nested For Loops}{https://www.youtube.com/watch?v=-4MRaWABCuo}
-Official lecture demonstrating multi-dimensional iteration using nested loops.
-\end{videocard}
-
-
-\section{Loop Control Statements: \texttt{break}, \texttt{continue}, and \texttt{pass}}
-
-\begin{theorembox}{Loop Controls}
-\begin{itemize}
-    \item \textbf{\texttt{break}:} Immediately terminates the loop and jumps to the code outside.
-    \item \textbf{\texttt{continue}:} Skips the rest of the current iteration and moves directly to the next iteration.
-    \item \textbf{\texttt{pass}:} A null statement used as a placeholder when syntax requires a statement but no action is needed.
-\end{itemize}
+Furthermore, membership testing ($x \in r$) operates in $\mathcal{O}(1)$ time via direct arithmetic:
+\begin{equation}
+x \in r \iff \left( \frac{x - \text{start}}{\text{step}} \in \mathbb{Z}_{\ge 0} \right) \land (\text{start} \le x < \text{stop})
+\end{equation}
 \end{theorembox}
 
-\begin{videocard}{IITM BS Lecture: Break, Continue, and Pass}{https://www.youtube.com/watch?v=SVAVQHfJbE0}
-Official lecture explaining loop control flow modification using \texttt{break}, \texttt{continue}, and \texttt{pass}.
-\end{videocard}
+\subsection{Loop Control Algebra: \texttt{break}, \texttt{continue}, and Loop \texttt{else}}
 
-\newpage
-\section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\begin{theorembox}{Operational Semantics of the Loop \texttt{else} Clause}
+\index{Loop else Clause}
+Python features a distinctive syntactical construct: an \texttt{else} clause attached directly to a \texttt{for} or \texttt{while} statement:
+\begin{lstlisting}[language=Python]
+for item in collection:
+    if target_condition(item):
+        found = True
+        break
+else:
+    # Executed ONLY if the loop completed without encountering 'break'
+    handle_target_not_found()
+\end{lstlisting}
+The \texttt{else} block executes if and only if the loop terminates normally (either the sequence was exhausted in a \texttt{for} loop, or the loop guard condition became false in a \texttt{while} loop). If the loop is terminated prematurely by a \texttt{break} statement, the \texttt{else} block is entirely skipped.
+\end{theorembox}
 
+\section{Visual \& Computational Intuition: Loop Control Topologies}
+
+The execution topology of loop constructs, highlighting the distinct bypass mechanics of \texttt{break}, \texttt{continue}, and the loop \texttt{else} branch, is illustrated in Figure~\ref{fig:loop_topology}.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    decision/.style={diamond, draw=primarydark, fill=primarylight!40, thick, text width=2.2cm, align=center, inner sep=1pt, font=\small\bfseries},
+    block/.style={rectangle, draw=forest, fill=forest!10, thick, rounded corners, text width=3.0cm, align=center, minimum height=0.8cm, font=\small},
+    control/.style={diamond, draw=accent, fill=accent!15, thick, text width=1.8cm, align=center, font=\footnotesize\bfseries},
+    terminal/.style={rectangle, draw=primarydark, fill=gray!20, thick, rounded corners, text width=2.4cm, align=center, minimum height=0.7cm, font=\small\bfseries},
+    line/.style={draw=primarydark, -stealth, thick}
+]
+    % Nodes
+    \node[decision] (guard) at (0, 0) {Items left in sequence?};
+    \node[block] (body) at (0, -2.2) {Execute Loop Body Statements};
+    \node[control] (check) at (0, -4.2) {Encounter \texttt{break}?};
+    \node[block] (elseblock) at (4.5, 0) {\textbf{Loop \texttt{else} Block}\\(Exhaustion)};
+    \node[terminal] (exit) at (4.5, -4.2) {\textbf{Exit Loop}\\(Post-loop code)};
+
+    % Connections
+    \path[line] (guard) -- node[left, font=\footnotesize\bfseries, color=forest] {Yes} (body);
+    \path[line] (guard) -- node[above, font=\footnotesize\bfseries, color=red!70!black] {No} (elseblock);
+    \path[line] (elseblock) -- (exit);
+    \path[line] (body) -- (check);
+    \path[line] (check) -- node[above, font=\footnotesize\bfseries, color=red!70!black] {Yes} (exit);
+    
+    % Loop back path for No break
+    \draw[line] (check.west) -| node[near start, below, font=\footnotesize\bfseries, color=forest] {No} (-3.0, -4.2) |- (guard.west);
+
+\end{tikzpicture}
+\caption{Topology of Python's \texttt{for-else} execution engine. The \texttt{else} block is reached exclusively through sequence exhaustion, bypassing the exit triggered by \texttt{break}.}
+\label{fig:loop_topology}
+\end{figure}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Numerical Convergence Loops in Machine Learning}
+Many machine learning algorithms (such as Logistic Regression, $k$-Means, and Gradient Descent) find optimal parameters $\theta$ by iteratively updating an initial estimate:
+\begin{equation}
+\theta_{k+1} = \theta_k - \eta \nabla L(\theta_k)
+\end{equation}
+where $\eta > 0$ is the learning rate and $\nabla L$ is the gradient of the loss function. In computational implementations, iteration stops when either:
 \begin{enumerate}
-    \item \textbf{Factorial Calculation:} Write a \texttt{while} loop that calculates the factorial of a number $N = 6$ ($6! = 6 \times 5 \times 4 \times 3 \times 2 \times 1 = 720$).
+    \item \textbf{Absolute convergence:} $\|\theta_{k+1} - \theta_k\| < \epsilon$, where $\epsilon$ is the convergence tolerance.
+    \item \textbf{Resource exhaustion guard:} $k \ge \text{max\_iter}$ (preventing infinite loops when gradients oscillate or diverge).
+\end{enumerate}
 
-    \item \textbf{Pattern Printing:} Write nested \texttt{for} loops to print the following triangle pattern for $N = 4$ rows:
-\begin{lstlisting}
-*
-**
-***
-****
+\subsection{Time Complexity of Nested Iteration}
+When nesting loops, the total iterations scale multiplicatively:
+\begin{equation}
+T(N, M) = \sum_{i=1}^N \sum_{j=1}^M \mathcal{O}(1) = \mathcal{O}(N \times M)
+\end{equation}
+For quadratic problems ($M = N$), $T(N) = \mathcal{O}(N^2)$. For triangular patterns ($\sum_{i=1}^N i = \frac{N(N+1)}{2}$), the asymptotic complexity remains $\mathcal{O}(N^2)$. In large-scale data science, raw Python nested loops must be replaced by vectorized array operations to eliminate bytecode interpretation overhead.
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Mutating a Sequence During Active Iteration}
+Modifying a list while iterating over it with a \texttt{for} loop causes silent element skipping:
+\begin{lstlisting}[language=Python]
+numbers = [1, 2, 3, 4, 5, 6]
+for num in numbers:
+    if num % 2 == 0:
+        numbers.remove(num)  # Modifying container during traversal!
+print(numbers)  # Output: [1, 3, 5] -- wait, why did 4 get skipped?
+\end{lstlisting}
+Python tracks iteration using an internal integer index counter. When element \texttt{2} at index 1 is deleted, element \texttt{3} shifts left into index 1, and element \texttt{4} shifts into index 2. The next loop step advances the counter to index 2, pointing to \texttt{4}'s new position and completely skipping the examination of \texttt{3}! Always iterate over a copy (\texttt{for num in numbers[:]:}) or construct a new list via comprehension.
+\end{trapbox}
+
+\begin{trapbox}{Infinite Floating-Point \texttt{while} Loops}
+Using exact equality comparisons in floating-point iteration guards causes infinite loops:
+\begin{lstlisting}[language=Python]
+x = 0.0
+while x != 1.0:  # INFINITE LOOP!
+    x += 0.1
+\end{lstlisting}
+Because $0.1$ is a repeating fraction in binary IEEE 754 floating-point, repeated addition yields $0.9999999999999999$ followed by $1.0999999999999999$. The variable \texttt{x} never strictly equals \texttt{1.0}. Guard condition should always use inequalities (\texttt{while x < 1.0:}) or tolerance intervals.
+\end{trapbox}
+
+\begin{trapbox}{The Misconception of Loop \texttt{else}}
+A common misconception is that the loop \texttt{else} executes whenever the loop condition is false. In reality, the loop condition is ALWAYS false when a loop exits normally. The \texttt{else} block is specifically a \textbf{"no-break"} clause:
+\begin{lstlisting}[language=Python]
+for x in [1, 2, 3]:
+    if x == 2:
+        break
+else:
+    print("Completed")  # Will NEVER execute because break occurred!
+\end{lstlisting}
+\end{trapbox}
+
+\begin{trapbox}{Off-by-One Non-Inclusivity in \texttt{range()}}
+The mathematical interval of \texttt{range(a, b)} is half-open: $[a, b) = \{x \in \mathbb{Z} \mid a \le x < b\}$.
+Programmers frequently forget that \texttt{range(1, 10)} terminates at $9$, omitting $10$. To iterate over $N$ items inclusive of both endpoints, the upper bound must be explicitly written as $N + 1$.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2.6cm} p{3.0cm} p{2.8cm} p{4.2cm}}
+\hline
+\textbf{Construct} & \textbf{Loop Driving Mechanism} & \textbf{Memory Complexity} & \textbf{Typical Application} \\
+\hline
+\textbf{\texttt{for item in seq}} & Sequence/Iterable exhaustion & $\mathcal{O}(1)$ overhead & Iterating over known collections, lists, strings \\
+\textbf{\texttt{for i in range()}} & Arithmetic progression generator & $\mathcal{O}(1)$ fixed size & Fixed iteration counts, index tracking \\
+\textbf{\texttt{while condition}} & Boolean predicate state & $\mathcal{O}(1)$ & Numerical convergence, event loops, retries \\
+\textbf{\texttt{enumerate(seq)}} & Yields index-element tuples & $\mathcal{O}(1)$ lazy stream & Simultaneous tracking of positions and elements \\
+\textbf{\texttt{zip(seq1, seq2)}} & Parallel iteration over streams & $\mathcal{O}(1)$ lazy stream & Pairing feature vectors and target labels \\
+\hline
+\end{tabular}
+\caption{Characteristics and memory profiles of Python iteration mechanisms.}
+\label{tab:iteration_summary}
+\end{table}
+
+\section{Python / Scientific Computing Lab}
+
+The following industrial script implements a 1D Gradient Descent optimization solver for finding the local minimum of a convex loss function, utilizing convergence thresholding, adaptive step sizes, and the \texttt{for-else} non-convergence detector.
+
+\begin{lstlisting}[language=Python]
+import math
+
+def loss_function(w: float) -> float:
+    """Quadratic loss: L(w) = (w - 3)^2 + 4"""
+    return (w - 3.0) ** 2 + 4.0
+
+def loss_derivative(w: float) -> float:
+    """dL/dw = 2*(w - 3)"""
+    return 2.0 * (w - 3.0)
+
+def gradient_descent_1d(
+    w_init: float,
+    learning_rate: float = 0.1,
+    tolerance: float = 1e-6,
+    max_iters: int = 100
+) -> dict:
+    """
+    Performs iterative gradient descent with early stopping and loop else validation.
+    """
+    w = w_init
+    trajectory = []
+
+    for step in range(1, max_iters + 1):
+        grad = loss_derivative(w)
+        loss = loss_function(w)
+        trajectory.append((step, w, loss))
+
+        # Check convergence using step size reduction
+        delta_w = learning_rate * grad
+        if abs(delta_w) < tolerance:
+            return {
+                "converged": True,
+                "optimal_w": round(w, 6),
+                "min_loss": round(loss, 6),
+                "iterations": step,
+                "trajectory_sample": trajectory[:3] + trajectory[-2:]
+            }
+
+        # Update weight parameter
+        w -= delta_w
+    else:
+        # Loop else executes ONLY if max_iters was reached without convergence
+        return {
+            "converged": False,
+            "optimal_w": round(w, 6),
+            "min_loss": round(loss_function(w), 6),
+            "iterations": max_iters,
+            "warning": "Maximum iterations reached before meeting tolerance."
+        }
+
+# Execute optimization
+result = gradient_descent_1d(w_init=10.0, learning_rate=0.2, tolerance=1e-5)
+print("Optimization Status:", result["converged"])
+print(f"Optimal Parameter: w* = {result['optimal_w']}, Iterations = {result['iterations']}")
+# Output: Optimization Status: True
+#         Optimal Parameter: w* = 3.0, Iterations = 31
 \end{lstlisting}
 
-    \item \textbf{Sum of Evens:} Write a \texttt{for} loop using \texttt{range()} that computes the sum of all \emph{even} numbers between $1$ and $50$ (inclusive).
+\newpage
+\section{Comprehensive Practice Problems}
+\textit{Detailed step-by-step solutions and distractor analyses are provided in the Appendix.}
 
-    \item \textbf{Early Stopping (\texttt{break}):} Given a list of search scores \texttt{scores = [12, 45, 67, 89, 92, 40]}, write a \texttt{for} loop that iterates through scores and prints \texttt{"Threshold Met: X"} for the first score $\ge 80$, then immediately stops using \texttt{break}.
+\subsection*{Part A: Computational \& Analytical Problems}
 
-    \item \textbf{Data Science Simulation (Convergence Check):} In optimization, an algorithm updates a parameter $x$ until the difference between consecutive values is smaller than a tolerance $\epsilon = 0.001$. Simulate this using a \texttt{while} loop starting with \texttt{x = 10.0}, repeatedly updating \texttt{x = x * 0.5} until \texttt{x < 0.01}, counting the total iterations taken.
+\begin{enumerate}
+    \item \textbf{Loop Variant Formulation and Invariant Proof:}
+    Consider the following Euclidean greatest common divisor (GCD) loop:
+    \begin{lstlisting}[language=Python]
+    def gcd(a: int, b: int) -> int:
+        while b != 0:
+            a, b = b, a % b
+        return a
+    \end{lstlisting}
+    State the formal loop invariant $I(a, b)$ and define a strict loop variant function $V(a, b)$ that proves the algorithm terminates for all positive integers $a, b \in \mathbb{Z}^+$.
+
+    \item \textbf{Algorithmic Step Counting in Nested Loops:}
+    Analyze the exact number of times the inner print statement is executed as a closed-form function of $N$:
+    \begin{lstlisting}[language=Python]
+    count = 0
+    for i in range(1, N + 1):
+        for j in range(1, i + 1):
+            for k in range(1, j + 1):
+                count += 1
+    \end{lstlisting}
+    Compute the exact count for $N = 4$ and express its asymptotic complexity in Big-$\mathcal{O}$ notation.
+
+    \item \textbf{The In-Place Sequence Mutation Pitfall:}
+    Predict the exact contents of the list \texttt{data} after the loop terminates:
+    \begin{lstlisting}[language=Python]
+    data = [10, 20, 30, 40, 50, 60]
+    for idx, val in enumerate(data):
+        if val % 20 == 0:
+            data.pop(idx)
+    \end{lstlisting}
+    Explain the internal indexing shifts responsible for the resulting sequence.
+
+    \item \textbf{The Loop \texttt{else} Execution Engine:}
+    Trace the following function and determine the exact string output when invoked as \texttt{search\_prime([4, 6, 8, 9, 11, 15])}:
+    \begin{lstlisting}[language=Python]
+    def search_prime(numbers: list) -> str:
+        for n in numbers:
+            if n > 1:
+                for i in range(2, int(n**0.5) + 1):
+                    if n % i == 0:
+                        break
+                else:
+                    return f"First prime found: {n}"
+        else:
+            return "No primes found in collection"
+    \end{lstlisting}
+
+    \item \textbf{Monte Carlo $\pi$ Approximation via Rejection Sampling:}
+    Write a complete Python simulation using a \texttt{for} loop that draws $N = 100{,}000$ points uniformly distributed on the unit square $[-1, 1] \times [-1, 1]$. Using the geometric rejection condition $x^2 + y^2 \le 1$, compute and print the estimated value of $\pi$ and calculate its absolute error relative to \texttt{math.pi}.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions (Single Correct)}
+
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item \textbf{The \texttt{range} Object Memory and Step Semantics:}
+    Consider the following statement:
+    \begin{lstlisting}[language=Python]
+    r = range(10, 2, -2)
+    val = list(r)
+    check = 4 in r
+    \end{lstlisting}
+    What are the values of \texttt{val} and \texttt{check}?
+    \begin{enumerate}
+        \item \texttt{val = [10, 8, 6, 4]}, \quad \texttt{check = True}
+        \item \texttt{val = [10, 8, 6, 4, 2]}, \quad \texttt{check = True}
+        \item \texttt{val = [10, 8, 6]}, \quad \texttt{check = False}
+        \item \texttt{val = []}, \quad \texttt{check = False}
+    \end{enumerate}
+
+    \item \textbf{Loop \texttt{else} and Nested Break Traps:}
+    Examine the following code:
+    \begin{lstlisting}[language=Python]
+    output = []
+    for i in range(3):
+        for j in range(2):
+            if i == j:
+                break
+        else:
+            output.append(i)
+    \end{lstlisting}
+    What is the final value of \texttt{output}?
+    \begin{enumerate}
+        \item \texttt{[]}
+        \item \texttt{[2]}
+        \item \texttt{[0, 1, 2]}
+        \item \texttt{[1, 2]}
+    \end{enumerate}
 \end{enumerate}

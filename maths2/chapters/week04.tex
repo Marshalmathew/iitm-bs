@@ -1,106 +1,313 @@
 \chapter{Basis, Dimension \& Matrix Rank}
 
-A \index{Basis}\textbf{Basis} is a minimal generating set of linearly independent vectors that spans a vector space. The number of vectors in any basis defines the unique \index{Dimension}\textbf{Dimension} of the vector space, while \index{Matrix Rank}\textbf{Matrix Rank} counts the dimension of its row and column spaces.
-
+A \index{Basis}\textbf{Basis} is the minimal generating skeletal coordinate framework of a vector space: every vector can be synthesized in exactly one unique way as a linear combination of its elements. The cardinality of this minimal generating set defines the intrinsic, invariant \index{Dimension}\textbf{Dimension} of the space. In computational matrix theory, \index{Matrix Rank}\textbf{Matrix Rank} quantifies the true degrees of geometric freedom within the row and column spaces, distinguishing genuine signals from redundant linear multicollinearities.
 
 \vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Basis for a Vector Space
-    \item Dimension of a Vector Space
-    \item Matrix Rank via Gaussian Elimination
+    \item \textbf{Target Competencies:} Verify whether a collection of vectors constitutes a valid basis; compute coordinate vectors $[\mathbf{x}]_\mathcal{B}$ with respect to arbitrary bases; determine dimensions of vector spaces, polynomial spaces, and subspaces; compute matrix rank via Gaussian elimination pivots; diagnose rank deficiency and multicollinearity in data matrices.
+    \item \textbf{Prerequisites:} Systems of linear equations and REF (Week 2), vector spaces, subspaces, linear combinations, and linear independence (Week 3).
+    \item \textbf{Mathematical Notation:} Basis $\mathcal{B} = \{\mathbf{b}_1, \dots, \mathbf{b}_n\}$; coordinate representation $[\mathbf{x}]_\mathcal{B}$; vector space dimension $\dim(V)$; matrix rank $\rank(A)$; span $\vspan(S)$.
 \end{itemize}
 \end{tcolorbox}
-\section{Basis for a Vector Space}
 
-\begin{intuitionbox}{What is a Vector Space?}
-A vector space is just a mathematical sandbox where you can add things together and scale them up or down without ever leaving the sandbox. Whether those things are arrows, polynomials, or audio signals, as long as they obey the rules of scaling and addition, the math works exactly the same!
-\end{intuitionbox}
+\section{Mathematical \& Theoretical Foundations}
 
+\subsection{Axiomatic Definition of a Basis}
 
-\begin{definitionbox}{Basis Definition}
-\index{Basis Definition}
-A set of vectors $\mathcal{B} = \{\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_n\} \subset V$ is a \index{Basis}\textbf{Basis} for a vector space $V$ if it satisfies two conditions:
+\begin{definitionbox}{Basis for a Vector Space}
+\index{Basis}
+Let $V$ be a vector space over $\mathbb{R}$. A subset $\mathcal{B} = \{\mathbf{b}_1, \mathbf{b}_2, \dots, \mathbf{b}_n\} \subseteq V$ is called an \textbf{ordered basis} for $V$ if and only if it satisfies two simultaneous structural conditions:
 \begin{enumerate}
-    \item $\mathcal{B}$ is \index{Linearly Independent}\textbf{Linearly Independent}.
-    \item $\mathcal{B}$ \index{Spans}\textbf{Spans} $V$, i.e., $\vspan(\mathcal{B}) = V$.
+    \item \textbf{Linear Independence:} $\mathcal{B}$ contains no redundant vectors, meaning
+    \begin{equation}
+    c_1 \mathbf{b}_1 + c_2 \mathbf{b}_2 + \dots + c_n \mathbf{b}_n = \mathbf{0} \implies c_1 = c_2 = \dots = c_n = 0
+    \end{equation}
+    \item \textbf{Spanning Set:} $\mathcal{B}$ generates the entire ambient space $V$:
+    \begin{equation}
+    \vspan(\mathcal{B}) = \left\{ \sum_{i=1}^n c_i \mathbf{b}_i \;\middle|\; c_i \in \mathbb{R} \right\} = V
+    \end{equation}
 \end{enumerate}
-Every vector $\mathbf{x} \in V$ can be expressed as a \index{unique}\textbf{unique} linear combination of the basis vectors.
 \end{definitionbox}
 
-\begin{examplebox}{Standard Basis for $\mathbb{R}^n$}
-The standard basis for $\mathbb{R}^3$ is $\mathcal{E} = \{\mathbf{e}_1, \mathbf{e}_2, \mathbf{e}_3\} = \left\{ \begin{bmatrix} 1 \\ 0 \\ 0 \end{bmatrix}, \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix}, \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix} \right\}$.
-Any vector $[x, y, z]^T = x \mathbf{e}_1 + y \mathbf{e}_2 + z \mathbf{e}_3$.
-\end{examplebox}
+\begin{theorembox}{Unique Representation Theorem}
+\index{Unique Coordinates}
+Let $\mathcal{B} = \{\mathbf{b}_1, \mathbf{b}_2, \dots, \mathbf{b}_n\}$ be a basis for $V$. For every vector $\mathbf{x} \in V$, there exists an \textbf{uniquely determined} sequence of scalar coordinates $(c_1, c_2, \dots, c_n) \in \mathbb{R}^n$ such that:
+\begin{equation}
+\mathbf{x} = c_1 \mathbf{b}_1 + c_2 \mathbf{b}_2 + \dots + c_n \mathbf{b}_n
+\end{equation}
+The vector $[\mathbf{x}]_\mathcal{B} = [c_1, c_2, \dots, c_n]^T \in \mathbb{R}^n$ is the \textbf{coordinate vector of $\mathbf{x}$ relative to $\mathcal{B}$}.
+\end{theorembox}
 
-\begin{videocard}{IITM BS Lecture: What is a Basis for a Vector Space?}{https://www.youtube.com/watch?v=lhAQIaFOPxA}
-Official lecture introducing basis criteria and unique coordinate representations.
-\end{videocard}
+\begin{proof}
+Suppose there exist two representation expansions for the same vector $\mathbf{x} \in V$:
+\begin{equation*}
+\mathbf{x} = \sum_{i=1}^n c_i \mathbf{b}_i \quad \text{and} \quad \mathbf{x} = \sum_{i=1}^n d_i \mathbf{b}_i
+\end{equation*}
+Subtracting the second equation from the first yields:
+\begin{equation*}
+\mathbf{0} = \mathbf{x} - \mathbf{x} = \sum_{i=1}^n (c_i - d_i) \mathbf{b}_i
+\end{equation*}
+Since $\mathcal{B}$ is linearly independent by definition, the only linear combination that equals the zero vector is the trivial linear combination. Consequently:
+\begin{equation*}
+c_i - d_i = 0 \implies c_i = d_i \quad \forall i \in \{1, 2, \dots, n\}
+\end{equation*}
+Hence, the coordinate representation is strictly unique.
+\end{proof}
 
-\begin{videocard}{IITM BS Lecture: Finding Bases for Vector Spaces}{https://www.youtube.com/watch?v=SxPhClO9zSU}
-Official lecture demonstrating methods to extract bases from spanning sets.
-\end{videocard}
+\subsection{Dimension of Vector Spaces and Subspaces}
 
-\section{Dimension of a Vector Space}
-
-\begin{theorembox}{Dimension Theorem}
-All bases for a given finite-dimensional vector space $V$ contain the \index{exact same number of vectors}\textbf{exact same number of vectors}. This invariant number is called the \index{Dimension}\textbf{Dimension} of $V$, denoted $\dim(V)$.
+\begin{theorembox}{Dimension Invariance Theorem}
+\index{Dimension}
+If a vector space $V$ is spanned by a finite set of vectors, then every basis of $V$ contains the exact same number of vectors. This fundamental topological invariant is called the \textbf{dimension} of $V$, denoted $\dim(V)$.
 \begin{itemize}
-    \item $\dim(\mathbb{R}^n) = n$.
-    \item $\dim(\mathbb{R}^{m \times n}) = m \cdot n$.
-    \item The zero subspace $\{\mathbf{0}\}$ has dimension $0$.
+    \item Standard Euclidean space: $\dim(\mathbb{R}^n) = n$.
+    \item Polynomial space of degree at most $n$: $\dim(\mathbb{P}_n) = n + 1$ (basis $\{1, t, t^2, \dots, t^n\}$).
+    \item Matrix space: $\dim(\mathbb{R}^{m \times n}) = m \cdot n$.
+    \item Trivial zero space: $\dim(\{\mathbf{0}\}) = 0$ (the empty set $\emptyset$ serves as its basis).
 \end{itemize}
 \end{theorembox}
 
-\begin{videocard}{IITM BS Lecture: Rank and Dimension for Vector Spaces}{https://www.youtube.com/watch?v=oATXqim4F5Q}
-Official lecture defining dimension, subspace dimension bounds ($\dim(W) \le \dim(V)$), and basis extensions.
-\end{videocard}
+\begin{theorembox}{Subspace Dimension Bounds \& Equality Criterion}
+Let $W$ be a vector subspace of a finite-dimensional space $V$. Then:
+\begin{enumerate}
+    \item $\dim(W) \le \dim(V)$.
+    \item If $\dim(W) = \dim(V)$, then $W = V$.
+\end{enumerate}
+\end{theorembox}
 
-\section{Matrix Rank via Gaussian Elimination}
+\subsection{Matrix Rank via Row and Column Spaces}
 
-\begin{formulabox}{Column Rank, Row Rank, and Matrix Rank}
+\begin{definitionbox}{Row Space, Column Space, and Matrix Rank}
+\index{Matrix Rank}
 For any matrix $A \in \mathbb{R}^{m \times n}$:
 \begin{itemize}
-    \item \textbf{Column Rank:} The dimension of the column space $\vspan(\text{columns of } A)$.
-    \item \textbf{Row Rank:} The dimension of the row space $\vspan(\text{rows of } A)$.
-    \item \textbf{Fundamental Theorem:} $\text{Row Rank}(A) = \text{Column Rank}(A) = \mathbf{\rank(A)}$.
-    \item \textbf{REF Calculation:} $\rank(A)$ is equal to the \textbf{number of non-zero rows (or pivot columns)} in the Row Echelon Form (REF) of $A$.
+    \item The \textbf{Row Space} $\vspan(\text{rows of } A) \subseteq \mathbb{R}^n$ has dimension equal to the row rank.
+    \item The \textbf{Column Space} $\vspan(\text{columns of } A) \subseteq \mathbb{R}^m$ has dimension equal to the column rank.
+    \item \textbf{Fundamental Theorem of Matrix Rank:} For any matrix, the row rank and column rank are identically equal:
+    \begin{equation}
+    \dim(\operatorname{Row}(A)) = \dim(\operatorname{Col}(A)) = \rank(A) \le \min(m, n)
+    \end{equation}
+    \item $\rank(A)$ is exactly the number of leading pivot entries in any Row Echelon Form (REF) of $A$.
 \end{itemize}
-\end{formulabox}
+\end{definitionbox}
 
-\textbf{Data Science Relevance:} In \textbf{Principal Component Analysis (PCA)} and low-rank matrix approximations (SVD), matrix rank tells us the effective number of independent latent signals in a dataset!
+\section{Visual \& Geometric Intuition: Coordinate Systems}
 
-\begin{lstlisting}[language=Python, caption=Data Science: PCA and Basis]
+Every choice of basis establishes an internal coordinate grid across the vector space. The standard Euclidean basis $\mathcal{E} = \{\mathbf{e}_1, \mathbf{e}_2\}$ generates the familiar rigid Cartesian orthogonal lattice. Any non-collinear pair of basis vectors $\{\mathbf{b}_1, \mathbf{b}_2\}$ generates a valid, sheared (skewed) affine coordinate grid.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[>=stealth, scale=1.1]
+    % Cartesian Grid
+    \draw[very thin, gray!30, step=1cm] (-0.5,-0.5) grid (4.5,3.5);
+    \draw[->, thick, black!60] (-0.5,0) -- (4.8,0) node[right] {$x_1$};
+    \draw[->, thick, black!60] (0,-0.5) -- (0,3.8) node[above] {$x_2$};
+
+    % Standard basis vectors
+    \draw[->, ultra thick, blue!80!black] (0,0) -- (1,0) node[below=2pt] {$\mathbf{e}_1 = \begin{bmatrix} 1 \\ 0 \end{bmatrix}$};
+    \draw[->, ultra thick, blue!80!black] (0,0) -- (0,1) node[left=2pt] {$\mathbf{e}_2 = \begin{bmatrix} 0 \\ 1 \end{bmatrix}$};
+
+    % Skew basis vectors
+    \draw[->, ultra thick, red!80!black] (0,0) -- (2,0.5) node[right=2pt] {$\mathbf{b}_1 = \begin{bmatrix} 2 \\ 0.5 \end{bmatrix}$};
+    \draw[->, ultra thick, purple!80!black] (0,0) -- (0.5,1.5) node[above left=2pt] {$\mathbf{b}_2 = \begin{bmatrix} 0.5 \\ 1.5 \end{bmatrix}$};
+
+    % Target vector v = 1*b1 + 2*b2 = [2 + 1, 0.5 + 3]^T = [3, 3.5]^T
+    \draw[dashed, red!60, thick] (0.5,1.5) -- (1.5,4.0);
+    \draw[dashed, purple!60, thick] (2,0.5) -- (2.5,2.0);
+    \draw[dashed, purple!60, thick] (2,0.5) -- (3,3.5);
+    \draw[dashed, red!60, thick] (1,3.0) -- (3,3.5);
+
+    \draw[->, ultra thick, forest] (0,0) -- (3,3.5) node[above right] {$\mathbf{v} = \begin{bmatrix} 3 \\ 3.5 \end{bmatrix} = 1\mathbf{b}_1 + 2\mathbf{b}_2$};
+
+    % Coordinate callout
+    \node[draw=accent, fill=accent!10, rounded corners, align=left] at (6.5, 2.0) {
+        \textbf{Coordinate Transformations:}\\
+        Standard Coordinates:\\
+        $[\mathbf{v}]_\mathcal{E} = \begin{bmatrix} 3 \\ 3.5 \end{bmatrix}$\\
+        Basis $\mathcal{B} = \{\mathbf{b}_1, \mathbf{b}_2\}$ Coordinates:\\
+        $[\mathbf{v}]_\mathcal{B} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$\\
+        Change of Basis:\\
+        $\mathbf{v} = P_\mathcal{B} [\mathbf{v}]_\mathcal{B} = \begin{bmatrix} 2 & 0.5 \\ 0.5 & 1.5 \end{bmatrix} \begin{bmatrix} 1 \\ 2 \end{bmatrix}$
+    };
+\end{tikzpicture}
+\caption{Geometric comparison of standard Cartesian coordinates versus skewed non-orthogonal basis coordinates in $\mathbb{R}^2$.}
+\label{fig:basis_skew_coordinates}
+\end{figure}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{The Equivalence of Row Rank and Column Rank}
+
+A profound result in linear algebra is that the maximum number of linearly independent rows in any matrix $A \in \mathbb{R}^{m \times n}$ equals the maximum number of linearly independent columns, despite their residing in completely different ambient vector spaces ($\mathbb{R}^n$ versus $\mathbb{R}^m$).
+
+\begin{proof}
+Let $A \in \mathbb{R}^{m \times n}$ have row rank $r$. Let $\mathbf{r}_1^T, \mathbf{r}_2^T, \dots, \mathbf{r}_r^T \in \mathbb{R}^{1 \times n}$ be a basis for the row space $\operatorname{Row}(A)$.
+Since every row of $A$ belongs to $\operatorname{Row}(A)$, each row $\mathbf{a}_i^T$ can be expressed as a linear combination:
+\begin{equation*}
+\mathbf{a}_i^T = c_{i1}\mathbf{r}_1^T + c_{i2}\mathbf{r}_2^T + \dots + c_{ir}\mathbf{r}_r^T
+\end{equation*}
+In matrix form, this yields the low-rank factorization:
+\begin{equation}
+A = C R
+\end{equation}
+where $C \in \mathbb{R}^{m \times r}$ contains the coefficient coordinates $c_{ij}$, and $R \in \mathbb{R}^{r \times n}$ contains the basis row vectors.
+Now examine the columns of $A$. Multiplying $C$ by the columns of $R$, each column $\mathbf{a}_{*j}$ of $A$ is given by:
+\begin{equation*}
+\mathbf{a}_{*j} = C \mathbf{r}_{*j} = \sum_{k=1}^r R_{kj} \mathbf{c}_{*k}
+\end{equation*}
+This explicitly proves that every column of $A$ lies in the span of the $r$ columns of $C$. Therefore:
+\begin{equation*}
+\dim(\operatorname{Col}(A)) \le r = \dim(\operatorname{Row}(A)) \implies \text{Column Rank}(A) \le \text{Row Rank}(A)
+\end{equation*}
+Applying this identical argument to $A^T$ yields:
+\begin{equation*}
+\text{Row Rank}(A) = \text{Column Rank}(A^T) \le \text{Row Rank}(A^T) = \text{Column Rank}(A)
+\end{equation*}
+Sandwiching the two inequalities establishes exact equality: $\text{Row Rank}(A) = \text{Column Rank}(A) = \rank(A)$.
+\end{proof}
+
+\subsection{The Basis Extension and Contraction Principle}
+
+In an $n$-dimensional vector space $V$:
+\begin{enumerate}
+    \item Any linearly independent subset of fewer than $n$ vectors can always be \textbf{extended} to form a full basis by appending vectors outside its current span.
+    \item Any spanning set of more than $n$ vectors can always be \textbf{contracted} to form a basis by sequentially eliminating redundant vectors.
+    \item If a subset contains \textbf{exactly} $n$ vectors, linear independence and spanning are completely equivalent: proving one automatically guarantees the other!
+\end{enumerate}
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Trap 1: Conflating a Spanning Set with a Minimal Basis}
+Every basis spans the space, but an arbitrary spanning set is almost never a basis. Appending ten collinear vectors to a basis produces a valid spanning set that completely fails linear independence. A basis requires \textbf{both} generation ($\vspan(S) = V$) and minimality ($\text{redundancy} = 0$).
+\end{trapbox}
+
+\begin{trapbox}{Trap 2: Assuming Basis Vectors Must Be Perpendicular (Orthogonal)}
+A widespread misconception is that basis vectors must be orthogonal (at $90^\circ$ angles) and normalized to unit length. While \textbf{orthonormal bases} offer tremendous computational advantages (such as trivial coordinate projections via inner products), any collection of linearly independent vectors that spans the space constitutes a perfectly valid basis, regardless of skew angles or unequal vector lengths.
+\end{trapbox}
+
+\begin{trapbox}{Trap 3: The Off-by-One Dimension Error in Polynomial and Matrix Spaces}
+Students frequently assert that the space of polynomials of degree at most $n$, denoted $\mathbb{P}_n$, has dimension $n$. This misses the constant polynomial term $t^0 = 1$. The standard monomial basis is $\mathcal{B} = \{1, t, t^2, \dots, t^n\}$, which contains precisely $n + 1$ elements. Thus $\dim(\mathbb{P}_n) = n + 1$. Similarly, the space of $m \times n$ matrices has dimension $m \cdot n$, not $m + n$.
+\end{trapbox}
+
+\begin{trapbox}{Trap 4: Confusing Matrix Rank with Matrix Dimensions}
+A matrix $X \in \mathbb{R}^{1000 \times 10}$ has 10,000 numerical entries and 1000 rows, but its rank can \textbf{never exceed 10}. Because $\rank(X) \le \min(m, n)$, the dimension of both the row space and column space is capped by the smaller dimension: $\min(1000, 10) = 10$. If two feature columns are linearly dependent, the rank drops further to $\le 8$.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{3.0cm} p{2.2cm} p{2.5cm} p{2.8cm} p{3.2cm}}
+\toprule
+\textbf{Mathematical Concept} & \textbf{Linear Independence?} & \textbf{Spans Space?} & \textbf{Coordinate Uniqueness} & \textbf{Data Science \& ML Application} \\
+\midrule
+\textbf{Standard Cartesian Basis} & Yes & Yes & Unique & Canonical feature representation \\
+\textbf{Non-Orthogonal Basis} & Yes & Yes & Unique & Oblique coordinates, ICA latent axes \\
+\textbf{Overcomplete Dictionary} & No (Redundant) & Yes & Non-unique ($\infty$ representations) & Sparse coding, dictionary learning, compressed sensing \\
+\textbf{Linearly Independent Set} & Yes & No (Spans subspace) & Unique in its span & Feature extraction, low-rank projection \\
+\textbf{Rank-Deficient Matrix} & Columns/rows dependent & No (Fails full dimension) & Singular ($A\mathbf{x}=\mathbf{b}$ non-unique) & Multicollinearity, PCA dimensionality reduction \\
+\bottomrule
+\end{tabular}
+\caption{Systematic structural comparison of vector systems, spanning sets, and rank conditions in machine learning.}
+\label{tab:basis_rank_comparison}
+\end{table}
+
+\section{Python / Scientific Computing Lab}
+
+The following self-contained scientific computing script demonstrates basis verification, coordinate computation, matrix rank determination, and redundant column elimination using NumPy and SciPy.
+
+\begin{lstlisting}[language=Python, caption={Python Lab: Basis Coordinates, Rank, and Subspace Basis Extraction}]
 import numpy as np
-from sklearn.decomposition import PCA
+from scipy.linalg import null_space
 
-X = np.array([[1, 2], [3, 4], [5, 6]])
-# PCA identifies the dominant basis vectors (principal components)
-pca = PCA(n_components=1)
-pca.fit(X)
-print("Principal Basis Vector:", pca.components_)
+# 1. Coordinate Computation in an Oblique Basis
+# Basis vectors for R^2: b1 = [2, 0.5]^T, b2 = [0.5, 1.5]^T
+B = np.array([[2.0, 0.5],
+              [0.5, 1.5]])
+v = np.array([3.0, 3.5])
+
+# Coordinates [v]_B satisfy: B @ c = v  ==>  c = inv(B) @ v
+coords = np.linalg.solve(B, v)
+print(f"Oblique Basis Coordinates [c1, c2]: {coords}")
+assert np.allclose(B @ coords, v), "Verification failed!"
+
+# 2. Matrix Rank & Pivot Identification
+A = np.array([[1, 2, 1, 4],
+              [2, 4, 3, 11],
+              [3, 6, 4, 15]], dtype=float)
+
+rank_A = np.linalg.matrix_rank(A)
+print(f"\nMatrix Shape: {A.shape}, Computed Rank: {rank_A}")
+
+# QR Decomposition with Column Pivoting to extract a minimal column basis
+Q, R, P = np.linalg.qr(A, pivoting=True)
+independent_cols = P[:rank_A]
+print(f"Indices of Linearly Independent Columns (Basis for Col(A)): {independent_cols}")
+column_basis = A[:, independent_cols]
+print("Extracted Column Space Basis:\n", column_basis)
+
+# 3. Diagnosing Multicollinearity in a Design Matrix
+# Simulating 5 features where feature 2 is 2*f0 + 3*f1 (perfect multicollinearity)
+np.random.seed(42)
+X = np.random.randn(100, 4)
+col_redundant = 2.0 * X[:, 0] + 3.0 * X[:, 1]
+X_collinear = np.column_stack([X[:, :2], col_redundant, X[:, 2:]])
+
+rank_X = np.linalg.matrix_rank(X_collinear)
+print(f"\nData Matrix (100 samples, 5 features) Rank: {rank_X}")
+if rank_X < X_collinear.shape[1]:
+    print(f"WARNING: Matrix is rank deficient by {X_collinear.shape[1] - rank_X} dimensions (Multicollinearity present!).")
 \end{lstlisting}
-
-\begin{videocard}{IITM BS Lecture: Rank and Dimension using Gaussian Elimination}{https://www.youtube.com/watch?v=0yEKEavVQJE}
-Official lecture computing matrix rank by row reducing matrices to REF.
-\end{videocard}
 
 \newpage
 \section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\textit{Detailed step-by-step solutions and distractor rationales are available in the Appendix.}
 
+\subsection*{Part A: Computational \& Analytical Problems}
 \begin{enumerate}
-\item \textbf{Basis Verification:} Check whether $\mathcal{B} = \left\{ \begin{bmatrix} 1 \\ 1 \end{bmatrix}, \begin{bmatrix} 1 \\ -1 \end{bmatrix} \right\}$ forms a valid basis for $\mathbb{R}^2$. If so, express $\mathbf{v} = \begin{bmatrix} 5 \\ 1 \end{bmatrix}$ as a linear combination of $\mathcal{B}$.
+\item \textbf{Basis Verification \& Coordinate Representation:} Check whether $\mathcal{B} = \left\{ \begin{bmatrix} 1 \\ 1 \end{bmatrix}, \begin{bmatrix} 1 \\ -1 \end{bmatrix} \right\}$ forms a valid basis for $\mathbb{R}^2$. If so, express $\mathbf{v} = \begin{bmatrix} 5 \\ 1 \end{bmatrix}$ as a linear combination of $\mathcal{B}$ and find $[\mathbf{v}]_\mathcal{B}$.
 
-\item \textbf{Finding a Basis for a Subspace:} Find a basis and the dimension for the subspace of $\mathbb{R}^3$:
-$$W = \left\{ \begin{bmatrix} x \\ y \\ z \end{bmatrix} \in \mathbb{R}^3 \Big| x + 2y - z = 0 \right\}$$
+\item \textbf{Finding a Basis for a Subspace:} Find an explicit basis and the dimension for the subspace of $\mathbb{R}^3$:
+\begin{equation*}
+W = \left\{ \begin{bmatrix} x \\ y \\ z \end{bmatrix} \in \mathbb{R}^3 \;\middle|\; x + 2y - z = 0 \right\}
+\end{equation*}
 
-\item \textbf{Matrix Rank Calculation:} Compute the rank of the $3 \times 4$ matrix $A$ by reducing it to REF:
-$$A = \begin{bmatrix} 1 & 2 & 1 & 4 \\ 2 & 4 & 3 & 11 \\ 3 & 6 & 4 & 15 \end{bmatrix}$$
+\item \textbf{Matrix Rank via Gaussian Elimination:} Compute the rank of the $3 \times 4$ matrix $A$ by reducing it to Row Echelon Form (REF), and write down an explicit basis for both its row space and column space:
+\begin{equation*}
+A = \begin{bmatrix} 1 & 2 & 1 & 4 \\ 2 & 4 & 3 & 11 \\ 3 & 6 & 4 & 15 \end{bmatrix}
+\end{equation*}
 
-\item \textbf{Full Rank vs Rank Deficient:} A dataset matrix $X \in \mathbb{R}^{100 \times 5}$ has 100 samples and 5 features. What is the maximum possible rank of $X$? If $\rank(X) = 3$, what does this reveal about the features?
+\item \textbf{Full Rank vs. Rank Deficient Data Matrices:} A machine learning feature matrix $X \in \mathbb{R}^{100 \times 5}$ has 100 sample observations and 5 feature attributes.
+\begin{enumerate}
+    \item What is the maximum theoretical rank of $X$?
+    \item If numerical rank estimation reveals $\rank(X) = 3$, what does this indicate about the geometry of the feature space and the invertibility of the normal equations matrix $X^T X$?
+\end{enumerate}
 
-\item \textbf{Data Science Application (Collinear Feature Removal):} Given 3 feature vectors:
-$$\mathbf{f}_1 = \begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix}, \quad \mathbf{f}_2 = \begin{bmatrix} 2 \\ 4 \\ 6 \end{bmatrix}, \quad \mathbf{f}_3 = \begin{bmatrix} 0 \\ 1 \\ 5 \end{bmatrix}$$
-Find the rank of the matrix $F = [\mathbf{f}_1 \; \mathbf{f}_2 \; \mathbf{f}_3]$, extract a minimal basis of independent feature vectors, and identify which feature is redundant.
+\item \textbf{Minimal Basis Extraction for Redundant Features:} Given three feature vectors:
+\begin{equation*}
+\mathbf{f}_1 = \begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix}, \quad \mathbf{f}_2 = \begin{bmatrix} 2 \\ 4 \\ 6 \end{bmatrix}, \quad \mathbf{f}_3 = \begin{bmatrix} 0 \\ 1 \\ 5 \end{bmatrix}
+\end{equation*}
+Find the rank of matrix $F = [\mathbf{f}_1 \; \mathbf{f}_2 \; \mathbf{f}_3]$, extract a minimal basis of independent feature vectors, and identify which feature is redundant.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions}
+\begin{enumerate}
+\setcounter{enumi}{5}
+\item \textbf{Dimensional Bounds and Spanning Properties:} Suppose $S = \{\mathbf{v}_1, \mathbf{v}_2, \mathbf{v}_3, \mathbf{v}_4\}$ is a collection of four distinct vectors residing in $\mathbb{R}^3$. Which of the following statements is mathematically guaranteed to be true?
+\begin{enumerate}
+    \item $S$ must span $\mathbb{R}^3$ because it contains more vectors than the dimension of the space.
+    \item $S$ is guaranteed to be linearly dependent because the number of vectors exceeds the dimension of the space.
+    \item $S$ forms a valid basis for $\mathbb{R}^3$ if and only if all four vectors are mutually perpendicular.
+    \item The rank of the matrix $M = [\mathbf{v}_1 \; \mathbf{v}_2 \; \mathbf{v}_3 \; \mathbf{v}_4]$ must be equal to 4.
+\end{enumerate}
+
+\item \textbf{Matrix Rank and Fundamental Subspace Dimensions:} Let $A \in \mathbb{R}^{5 \times 7}$ be a real matrix with $\rank(A) = 4$. Which of the following statements correctly characterizes the row and column spaces of $A$?
+\begin{enumerate}
+    \item The column space has dimension 4, the row space has dimension 5, and $A$ has 1 redundant column.
+    \item The row space has dimension 4, the column space has dimension 4, and the system $A\mathbf{x} = \mathbf{0}$ has 3 free variables.
+    \item The column space has dimension 7, the row space has dimension 5, and the matrix is full rank.
+    \item The dimension of the row space exceeds the dimension of the column space by $\min(5, 7) - \rank(A) = 1$.
+\end{enumerate}
 \end{enumerate}

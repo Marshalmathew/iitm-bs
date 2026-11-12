@@ -1,101 +1,360 @@
-\chapter{File Handling \& Exception Management}
+\chapter{File I/O, Context Managers \& Exception Architecture}
 
-Data science datasets rarely start in memory—they live on disk as CSV, JSON, text logs, or database dumps. In this chapter, we cover \index{File I/O}\textbf{File I/O} (Input/Output) operations and \index{Exception Handling}\textbf{Exception Handling} to ensure robust data ingestion pipelines that don't crash when encountering missing or corrupted data.
-
+Production data science pipelines rarely operate in isolation with clean, in-memory datasets. Data originates from heterogeneous external sources---network sockets, streaming sensors, unstructured text logs, and multi-gigabyte disk files. In these stochastic environments, operations are prone to external disruptions: missing files, network dropouts, corrupted binary records, and numerical overflows. Python governs input/output and runtime error handling through \index{Context Managers}\textbf{Context Managers} and a structured \index{Exception Handling}\textbf{Exception Hierarchy}. Understanding the low-level operating system file descriptor lifecycle, the \texttt{\_\_enter\_\_}/\texttt{\_\_exit\_\_} protocol, and the exact evaluation order of the \texttt{try-except-else-finally} engine is essential for building mission-critical machine learning systems that fail safely without corrupting disk state or leaking system resources.
 
 \vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Reading and Writing Files
-    \item Processing Large Datasets
-    \item Exception Handling (try
+    \item \textbf{Target Competencies:} Manage operating system file descriptors, buffer flushes, and text encodings (UTF-8); master the Context Management Protocol (\texttt{\_\_enter\_\_}, \texttt{\_\_exit\_\_}); evaluate the complete four-branch \texttt{try-except-else-finally} execution topology; design domain-specific custom exception hierarchies; enforce the "Easier to Ask for Forgiveness than Permission" (EAFP) design paradigm over fragile race-condition-prone checks (LBYL).
+    \item \textbf{Prerequisites:} Control flow, functions, dynamic scoping, memory reference model.
+    \item \textbf{Syntax \& Built-in Functions:} \texttt{open()}, \texttt{with}, \texttt{try}, \texttt{except}, \texttt{else}, \texttt{finally}, \texttt{raise}; \texttt{FileNotFoundError}, \texttt{ValueError}, \texttt{TypeError}, \texttt{IOError}; \texttt{contextlib.contextmanager}.
 \end{itemize}
 \end{tcolorbox}
-\section{Reading and Writing Files}
 
-\begin{intuitionbox}{Context Managers and Resource Cleanup}
-Think of opening a file like borrowing a book from a library. If you don't return it, no one else can read it, and the library eventually runs out of books (a memory leak!). The \texttt{with open()} block in Python acts as an automatic librarian: the moment your code exits the block, it instantly forces the file to close and be returned, guaranteeing safe resource management.
-\end{intuitionbox}
+\section{Mathematical \& Computational Foundations}
 
-Python uses the built-in \texttt{open(filename, mode)} function to interact with files on disk. Using the Context Manager \texttt{with} guarantees that file handles are automatically closed, even if errors occur.
+\subsection{Operating System I/O and File Descriptors}
 
-\begin{definitionbox}{File Modes and Context Managers}
-\index{File Modes and Context Managers}
-Common modes: \texttt{'r'} (read), \texttt{'w'} (write / overwrite), \texttt{'a'} (append), \texttt{'b'} (binary mode).
-\begin{lstlisting}
-# Writing to a text file
-with open("data.txt", "w") as f:
-    f.write("Line 1: Data Science\n")
-    f.write("Line 2: Machine Learning\n")
-
-# Reading line by line (memory efficient)
-with open("data.txt", "r") as f:
-    for line in f:
-        print(line.strip())
-\end{lstlisting}
+\begin{definitionbox}{File Descriptors, Buffering, and Encoding}
+\index{File Descriptors} \index{I/O Buffering}
+When Python opens a file on disk:
+\begin{enumerate}
+    \item The operating system allocates an integer \textbf{file descriptor} ($fd$) in the process's file table.
+    \item \textbf{User-Space Buffering:} To avoid expensive kernel syscalls on every character, standard Python file streams maintain an internal memory buffer (typically $4$ to $8$ KB). Data written via \texttt{f.write()} resides in RAM until the buffer fills, the stream is flushed via \texttt{f.flush()}, or the file descriptor is released via \texttt{f.close()}.
+    \item \textbf{Encoding Layer:} In text mode (\texttt{'r'}, \texttt{'w'}), Python decodes binary bytes into Unicode strings using an encoding codec (defaulting to UTF-8). In binary mode (\texttt{'rb'}, \texttt{'wb'}), raw \texttt{bytes} objects are read and written directly without newline translation or character decoding.
+\end{enumerate}
+Operating systems enforce a hard limit on open file descriptors per process (e.g., 1024 on Linux/macOS). Failing to close files leads to descriptor leaks, crashing long-running training loops.
 \end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: Reading and Writing to a File}{https://www.youtube.com/watch?v=rYLJaAdgLhI}
-Official lecture demonstrating file modes, \texttt{open()}, \texttt{.read()}, \texttt{.readline()}, and \texttt{with} context blocks.
-\end{videocard}
+\subsection{The Context Management Protocol (PEP 343)}
 
-\section{Processing Large Datasets}
-
-When log files or text datasets exceed available RAM, loading the entire file with \texttt{.read()} causes an Out-Of-Memory (OOM) crash. Instead, stream the file line by line using an iterator or chunked reads.
-
-\begin{theorembox}{Line-by-Line Streaming}
-Iterating over a file object \texttt{for line in f:} streams one line at a time into memory ($\mathcal{O}(1)$ memory complexity).
+\begin{theorembox}{The \texttt{\_\_enter\_\_} and \texttt{\_\_exit\_\_} Invariants}
+\index{Context Management Protocol} \index{with Statement}
+The \texttt{with} statement provides deterministic resource acquisition and release regardless of whether code blocks complete normally or terminate with an unhandled exception:
+\begin{lstlisting}[language=Python]
+with expression as target:
+    suite
+\end{lstlisting}
+The exact operational semantics:
+\begin{enumerate}
+    \item Evaluates \texttt{expression} to obtain a context manager object $M$.
+    \item Invokes $M\text{.\_\_enter\_\_()}$. Its return value is bound to \texttt{target}.
+    \item Executes the code in \texttt{suite}.
+    \item \textbf{Normal Termination:} When \texttt{suite} completes without error, Python invokes:
+    \begin{equation}
+    M.\_\_\text{exit}\_\_(\text{None}, \text{None}, \text{None})
+    \end{equation}
+    \item \textbf{Exceptional Termination:} If an exception $E$ occurs within \texttt{suite}, Python invokes:
+    \begin{equation}
+    \text{suppress} = M.\_\_\text{exit}\_\_(\text{type}(E), E, \text{traceback})
+    \end{equation}
+    If $M\text{.\_\_exit\_\_()}$ returns \texttt{True}, the exception is \textbf{suppressed}; otherwise, $E$ is re-raised automatically.
+\end{enumerate}
 \end{theorembox}
 
-\begin{videocard}{IITM BS Lecture: Handling Very Big Files}{https://www.youtube.com/watch?v=NwFpo_KGvOA}
-Official lecture discussing memory considerations when searching and processing massive files.
-\end{videocard}
+\subsection{The Exception Hierarchy and Catching Semantics}
 
-\section{Exception Handling (\texttt{try}, \texttt{except}, \texttt{else}, \texttt{finally})}
+\begin{theorembox}{The Class Inheritance Exception Model}
+\index{Exception Hierarchy}
+All built-in exceptions form an object-oriented class hierarchy rooted at \texttt{BaseException}:
+\begin{center}
+\small
+\texttt{BaseException} $\longrightarrow$ \texttt{KeyboardInterrupt}, \texttt{SystemExit}, \texttt{GeneratorExit}\\
+$\rotatebox[origin=c]{270}{$\longrightarrow$}$ \textbf{\texttt{Exception}} $\longrightarrow$ \texttt{ArithmeticError}, \texttt{LookupError}, \texttt{OSError}, \texttt{ValueError}, \texttt{TypeError}
+\end{center}
+An \texttt{except TargetError:} clause catches any exception whose class is identical to \texttt{TargetError} or is a \textbf{subclass} of \texttt{TargetError}.
+\textbf{Compiler Invariant:} Never catch \texttt{BaseException} in normal application code; doing so intercepts \texttt{KeyboardInterrupt} (Ctrl+C) and \texttt{SystemExit}, rendering the program unresponsive to manual termination signals.
+\end{theorembox}
 
-An \index{Exception}\textbf{Exception} is a runtime error that halts program execution. Exception handling allows Python to catch runtime errors gracefully.
+\section{Visual \& Computational Intuition: The Exception Control Engine}
 
-\begin{formulabox}{The Exception Handling Block}
-\begin{lstlisting}
-try:
-    # Code that might raise an exception
-    num = int(input("Enter a number: "))
-    result = 100 / num
-except ValueError:
-    print("Invalid input! Please enter a number.")
-except ZeroDivisionError:
-    print("Division by zero is undefined.")
-else:
-    # Executed ONLY if NO exception occurred
-    print(f"Result: {result}")
-finally:
-    # Executed ALWAYS (used for cleanup)
-    print("Execution complete.")
+Figure~\ref{fig:exception_flow} illustrates the four-branch execution engine of \texttt{try-except-else-finally}.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=0.9,
+    block/.style={rectangle, draw=primarydark, fill=primarylight!30, thick, rounded corners, minimum width=2.6cm, minimum height=0.7cm, font=\small\bfseries, align=center},
+    decision/.style={diamond, draw=accent, fill=accent!15, thick, text width=2.0cm, align=center, font=\footnotesize\bfseries},
+    finalblock/.style={rectangle, draw=forest, fill=forest!15, thick, rounded corners, minimum width=2.6cm, minimum height=0.7cm, font=\small\bfseries, align=center},
+    arr/.style={-stealth, thick, primarydark}
+]
+    % Try Block
+    \node[block] (try) at (0, 2.5) {\texttt{try} Block};
+    \node[decision] (err) at (0, 0.5) {Exception Raised?};
+    
+    % Branches
+    \node[block, draw=red!80!black, fill=red!10] (except) at (-3.5, -1.5) {\texttt{except} Handler};
+    \node[block, draw=forest, fill=forest!10] (else) at (3.5, -1.5) {\texttt{else} Block\\(No Errors)};
+    
+    % Finally Block
+    \node[finalblock] (finally) at (0, -3.5) {\texttt{finally} Block\\(Always Executes)};
+
+    % Connectors
+    \draw[arr] (try) -- (err);
+    \draw[arr] (err) -| node[above, font=\footnotesize\bfseries, color=red!80!black] {Yes (Match)} (except);
+    \draw[arr] (err) -| node[above, font=\footnotesize\bfseries, color=forest] {No} (else);
+    \draw[arr] (except) |- (finally);
+    \draw[arr] (else) |- (finally);
+
+\end{tikzpicture}
+\caption{The Four-Branch \texttt{try-except-else-finally} Engine. The \texttt{else} block runs strictly when no exception occurs, while \texttt{finally} executes unconditionally before control leaves the construct.}
+\label{fig:exception_flow}
+\end{figure}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{EAFP versus LBYL Paradigms in Python}
+In programming languages like C, developers follow \textbf{LBYL} ("Look Before You Leap"):
+\begin{lstlisting}[language=Python]
+# LBYL Paradigm (Prone to Race Conditions):
+if os.path.exists(file_path):
+    f = open(file_path, "r")
 \end{lstlisting}
-\end{formulabox}
+Between checking \texttt{os.path.exists()} and invoking \texttt{open()}, an external process could delete or lock the file (a Time-of-Check to Time-of-Use [TOCTOU] race condition).
+Python strongly advocates \textbf{EAFP} ("Easier to Ask for Forgiveness than Permission"):
+\begin{lstlisting}[language=Python]
+# EAFP Paradigm (Atomic and Thread-Safe):
+try:
+    with open(file_path, "r") as f:
+        data = f.read()
+except FileNotFoundError:
+    handle_missing_file()
+\end{lstlisting}
+EAFP is faster in common paths where exceptions are infrequent, avoiding duplicate filesystem inquiries.
 
-\textbf{Data Science Relevance:} Web scrapers, data loaders, and model training loops use \texttt{try-except} blocks to skip corrupted rows or bad images without crashing overnight training runs.
+\subsection{Custom Domain Exception Hierarchies}
+In machine learning engineering, standard exceptions like \texttt{ValueError} lack domain specificity. We define modular custom hierarchies:
+\begin{lstlisting}[language=Python]
+class MLEngineError(Exception):
+    """Base exception for machine learning pipeline failures."""
+    pass
 
-\begin{videocard}{IITM BS Lecture: Exception Handling Explained}{https://www.youtube.com/watch?v=me3_XR7Iz60}
-Official lecture explaining \texttt{try}, \texttt{except}, \texttt{finally}, built-in exception types, and raising custom errors.
-\end{videocard}
+class DataSchemaError(MLEngineError):
+    """Raised when incoming features violate model schema."""
+    pass
+
+class ModelNotTrainedError(MLEngineError):
+    """Raised when prediction is invoked prior to fitting."""
+    pass
+\end{lstlisting}
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{The Bare \texttt{except:} Anti-Pattern}
+Writing a bare \texttt{except:} without specifying an exception class catches \texttt{BaseException}:
+\begin{lstlisting}[language=Python]
+try:
+    run_training_loop()
+except:  # CATASTROPHIC BUG!
+    print("An error occurred.")
+\end{lstlisting}
+This prevents users from stopping the process using Ctrl+C (\texttt{KeyboardInterrupt}) or programmatic termination (\texttt{sys.exit()}). Always write at minimum: \texttt{except Exception:}.
+\end{trapbox}
+
+\begin{trapbox}{The \texttt{finally} Return Value Override Trap}
+Executing a \texttt{return} statement inside a \texttt{finally} block silently discards any active exception:
+\begin{lstlisting}[language=Python]
+def risky_calculation():
+    try:
+        return 10 / 0  # ZeroDivisionError
+    finally:
+        return 42      # SILENTLY SWALLOWS THE ZERO DIVISION!
+
+print(risky_calculation())  # Prints 42! ZeroDivisionError is lost.
+\end{lstlisting}
+Never place \texttt{return}, \texttt{break}, or \texttt{continue} statements inside a \texttt{finally} block.
+\end{trapbox}
+
+\begin{trapbox}{Text Mode Line Ending Translations Across Operating Systems}
+When opening files in text mode on Windows, Python automatically translates UNIX line endings (\texttt{\textbackslash n}) to Windows CRLF (\texttt{\textbackslash r\textbackslash n}) on write, and reverse on read. For binary datasets (such as NumPy `.npy` arrays, images, or pickled models), opening in text mode corrupts binary bytes. Always open non-text data with \texttt{'rb'} or \texttt{'wb'}.
+\end{trapbox}
+
+\begin{trapbox}{Resource Leaks from Manual \texttt{.close()} Calls}
+Relying on manual \texttt{f.close()} statements without a \texttt{try-finally} or \texttt{with} context manager guarantees resource leaks if an exception occurs between opening and closing the file handle.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2.2cm} p{2.6cm} p{3.2cm} p{4.2cm}}
+\hline
+\textbf{Construct} & \textbf{Trigger Condition} & \textbf{Typical Operation} & \textbf{Key Invariant} \\
+\hline
+\textbf{\texttt{try}} & Always executed & Risky operations, I/O calls & Encapsulates fault-tolerant boundary \\
+\textbf{\texttt{except E}} & Exception matching $E$ & Error logging, fallback logic & Catch most specific subclass first \\
+\textbf{\texttt{else}} & No exceptions in \texttt{try} & Code dependent on success & Prevents accidental exception catching \\
+\textbf{\texttt{finally}} & Always executed & Releasing locks, closing $fd$s & Guaranteed execution before block exit \\
+\textbf{\texttt{with}} & Enters block scope & Acquire and release resources & Automatic \texttt{\_\_enter\_\_} and \texttt{\_\_exit\_\_} \\
+\hline
+\end{tabular}
+\caption{Operational mechanics of Python exception handling and resource control constructs.}
+\label{tab:exception_taxonomy}
+\end{table}
+
+\section{Python / Scientific Computing Lab}
+
+The following industrial script implements an Atomic File Writer Context Manager (writing to a temporary file and atomically swapping on success to prevent corruptions during crashes) and a Robust CSV Feature Ingestion Engine with schema validation.
+
+\begin{lstlisting}[language=Python]
+import os
+import tempfile
+from typing import List, Dict, Generator
+
+class AtomicFileWriter:
+    """
+    Context manager guaranteeing atomic file writes.
+    Writes to a temporary file and atomically replaces target file upon clean exit.
+    """
+    def __init__(self, target_filepath: str):
+        self.target_path = target_filepath
+        self.temp_file = None
+
+    def __enter__(self):
+        dir_name = os.path.dirname(self.target_path) or "."
+        self.temp_file = tempfile.NamedTemporaryFile(
+            mode="w", dir=dir_name, delete=False, encoding="utf-8"
+        )
+        return self.temp_file
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.temp_file.close()
+        if exc_type is None:
+            # Atomic replacement on clean execution
+            os.replace(self.temp_file.name, self.target_path)
+            return False  # Propagate nothing
+        else:
+            # Clean up temporary file on failure without touching target file
+            if os.path.exists(self.temp_file.name):
+                os.remove(self.temp_file.name)
+            return False  # Propagate exception to caller
+
+def parse_dataset_stream(filepath: str) -> Generator[Dict[str, float], None, None]:
+    """
+    Robust generator streaming and parsing numeric CSV records with error logging.
+    """
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Source file not located: {filepath}")
+
+    with open(filepath, "r", encoding="utf-8") as f:
+        header = f.readline().strip().split(",")
+        for line_num, line in enumerate(f, start=2):
+            raw_line = line.strip()
+            if not raw_line or raw_line.startswith("#"):
+                continue  # Skip empty lines and comments
+            parts = raw_line.split(",")
+            try:
+                record = {col: float(val) for col, val in zip(header, parts)}
+                yield record
+            except (ValueError, TypeError) as err:
+                # EAFP logging of corrupted records
+                print(f"[WARNING] Line {line_num} corrupted: {raw_line} -> {err}")
+                continue
+
+# Demonstration: Write atomic dataset
+csv_filename = "training_data.csv"
+sample_data = "feat1,feat2,target\n1.2,3.4,10.5\n# corrupted row below\n2.1,bad_data,15.2\n3.0,4.5,22.1\n"
+
+with AtomicFileWriter(csv_filename) as f:
+    f.write(sample_data)
+
+# Stream and parse clean records
+print("Streaming Parsed Records:")
+for row in parse_dataset_stream(csv_filename):
+    print("Clean Record:", row)
+
+# Clean up demonstration file
+if os.path.exists(csv_filename):
+    os.remove(csv_filename)
+# Output:
+# [WARNING] Line 4 corrupted: 2.1,bad_data,15.2 -> could not convert string to float: 'bad_data'
+# Clean Record: {'feat1': 1.2, 'feat2': 3.4, 'target': 10.5}
+# Clean Record: {'feat1': 3.0, 'feat2': 4.5, 'target': 22.1}
+\end{lstlisting}
 
 \newpage
-\section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\section{Comprehensive Practice Problems}
+\textit{Detailed step-by-step solutions and distractor analyses are provided in the Appendix.}
+
+\subsection*{Part A: Computational \& Analytical Problems}
 
 \begin{enumerate}
-    \item \textbf{File Writing \& Reading:} Write a Python script that:
+    \item \textbf{Trace of the Four-Branch Exception Engine:}
+    Determine the exact sequence of printed statements and final return value for the function call \texttt{evaluate(0)} and \texttt{evaluate(2)}:
+    \begin{lstlisting}[language=Python]
+    def evaluate(divisor: int) -> int:
+        res = 10
+        try:
+            res = 100 // divisor
+            print("Try Success")
+        except ZeroDivisionError:
+            print("Catch Zero")
+            return -1
+        else:
+            print("Else Block")
+            res += 5
+        finally:
+            print("Finally Block")
+        return res
+    \end{lstlisting}
+
+    \item \textbf{Custom Context Manager Implementation via Class Protocol:}
+    Write a class \texttt{TimerContext} that implements the context management protocol (\texttt{\_\_enter\_\_} and \texttt{\_\_exit\_\_}).
+    When entering the \texttt{with} block, it captures the start time via \texttt{time.perf\_counter()}.
+    When exiting, it calculates elapsed time and prints \texttt{"Execution took: X seconds"}. Ensure that if an exception occurs within the block, the elapsed time is still printed, and the exception is not suppressed.
+
+    \item \textbf{Memory-Efficient Large File Line Aggregation:}
+    Given an 8-Gigabyte text file \texttt{"server\_logs.txt"}:
     \begin{enumerate}
-        \item Creates a file named \texttt{log.txt} and writes $3$ lines of sample log entries.
-        \item Reopens \texttt{log.txt} in read mode and counts the total number of lines in the file.
+        \item Explain why calling \texttt{lines = open("server\_logs.txt").readlines()} crashes on an 8 GB RAM system.
+        \item Write a function \texttt{count\_error\_occurrences(filepath: str, keyword: str) -> int} that counts keyword occurrences while maintaining strictly $\mathcal{O}(1)$ working memory.
     \end{enumerate}
 
-    \item \textbf{Handling Missing Files:} Write a script using \texttt{try-except} that attempts to open \texttt{"missing\_dataset.csv"}. If the file does not exist, catch \texttt{FileNotFoundError} and print \texttt{"Dataset file not found. Please check filepath."}.
+    \item \textbf{The EAFP vs. LBYL Dictionary Key Access Paradigm:}
+    Contrast the LBYL approach and the EAFP approach for extracting the nested key \texttt{config["model"]["optimizer"]["lr"]}. Write the idiomatic Python EAFP version that catches \texttt{KeyError} and returns a default learning rate of \texttt{0.001}.
 
-    \item \textbf{Safe Type Conversion Function:} Write a function \texttt{safe\_float(value)} that attempts to convert \texttt{value} to a \texttt{float}. If a \texttt{ValueError} or \texttt{TypeError} occurs, return \texttt{None}. Test with \texttt{"3.14"}, \texttt{"abc"}, and \texttt{[1, 2]}.
+    \item \textbf{Custom Machine Learning Exception Architecture:}
+    Define a custom exception hierarchy with a base class \texttt{ModelError(Exception)} and subclasses \texttt{ConvergenceError} and \texttt{DimensionMismatchError}. Write a mock model training function that validates matrix shapes and raises \texttt{DimensionMismatchError} with an informative error message if row counts disagree.
+\end{enumerate}
 
-    \item \textbf{Parsing Log File Data:} Suppose a text file \texttt{scores.txt} contains numeric test scores, one per line. Write a script to read the file, convert each line to float inside a \texttt{try} block (skipping invalid lines), and calculate the average score.
+\subsection*{Part B: Diagnostic Multiple-Choice Questions (Single Correct)}
 
-    \item \textbf{Data Science Application (CSV Line Counter \& Cleaner):} Write a script \texttt{clean\_csv(input\_path, output\_path)} that reads a CSV file line by line, removes empty lines or lines starting with \texttt{\#} (comments), and writes clean lines to \texttt{output\_path}.
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item \textbf{The Exception Subclass Masking Pitfall:}
+    Examine the following exception block:
+    \begin{lstlisting}[language=Python]
+    try:
+        val = int("invalid_number")
+    except Exception:
+        status = "Handled Exception"
+    except ValueError:
+        status = "Handled ValueError"
+    \end{lstlisting}
+    What is the evaluated value of \texttt{status}?
+    \begin{enumerate}
+        \item \texttt{"Handled Exception"}
+        \item \texttt{"Handled ValueError"}
+        \item \texttt{ValueError: invalid literal for int() with base 10}
+        \item \texttt{SyntaxError: multiple exception handlers}
+    \end{enumerate}
+
+    \item \textbf{The \texttt{finally} Return Value Hijack Trap:}
+    Consider the following code snippet:
+    \begin{lstlisting}[language=Python]
+    def calculate():
+        try:
+            return 10
+        finally:
+            return 20
+    \end{lstlisting}
+    What is the return value of \texttt{calculate()}?
+    \begin{enumerate}
+        \item \texttt{20}
+        \item \texttt{10}
+        \item \texttt{30}
+        \item \texttt{SyntaxError: return in finally not allowed}
+    \end{enumerate}
 \end{enumerate}

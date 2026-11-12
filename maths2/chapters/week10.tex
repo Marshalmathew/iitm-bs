@@ -1,125 +1,288 @@
 \chapter{Tangent Planes, Steepest Descent \& Critical Points}
 
-Optimization is the heart of Machine Learning. Training a model means finding parameter values that minimize a loss function $L(\mathbf{w})$. In this chapter, we master \index{Tangent Planes/Hyperplanes}\textbf{Tangent Planes/Hyperplanes}, the \index{Gradient Descent Update Rule}\textbf{Gradient Descent Update Rule}, and \index{Critical Points}\textbf{Critical Points} ($\nabla f(\mathbf{x}) = \mathbf{0}$).
-
+Optimization is the computational engine of modern artificial intelligence. Training a neural network or fitting a statistical model requires navigating an ultra-high-dimensional loss surface $L(\mathbf{w})$ to find parameter configurations where the error cannot be decreased. Locally, every smooth curved surface can be approximated by a flat \index{Tangent Plane}\textbf{Tangent Plane} (or Hyperplane). Moving along the direction of steepest loss reduction leads directly to the \index{Gradient Descent}\textbf{Gradient Descent} algorithm, terminating at stationary \index{Critical Points}\textbf{Critical Points} where the gradient vector vanishes ($\nabla f(\mathbf{x}^*) = \mathbf{0}$).
 
 \vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Tangent Planes and Hyperplanes
-    \item Steepest Descent and Gradient Descent Algorithm
-    \item Critical Points
+    \item \textbf{Target Competencies:} Derive equations for tangent planes and hyperplanes to curved multivariable surfaces; construct first-order Taylor linear approximations; execute Gradient Descent iterations with specified learning rates $\alpha$; identify and classify all critical points where $\nabla f = \mathbf{0}$; determine maximum learning rate stability bounds to prevent gradient explosion.
+    \item \textbf{Prerequisites:} Multivariable partial derivatives, gradient vectors, and directional derivatives (Week 9), vector algebra and dot products (Week 1).
+    \item \textbf{Mathematical Notation:} Surface $z = f(x, y)$; tangent plane at $(x_0, y_0, z_0)$; linear approximation $L(\mathbf{x})$; surface normal vector $\mathbf{n} = [f_x, f_y, -1]^T$; gradient update $\mathbf{w}^{(k+1)} = \mathbf{w}^{(k)} - \alpha \nabla L(\mathbf{w}^{(k)})$; learning rate $\alpha$; critical point condition $\nabla f(\mathbf{x}^*) = \mathbf{0}$.
 \end{itemize}
 \end{tcolorbox}
-\section{Tangent Planes and Hyperplanes}
 
-The 1D tangent line generalizes in higher dimensions to a \index{Tangent Plane}\textbf{Tangent Plane} (for $f: \mathbb{R}^2 \to \mathbb{R}$) or a \index{Tangent Hyperplane}\textbf{Tangent Hyperplane} (for $f: \mathbb{R}^n \to \mathbb{R}$).
+\section{Mathematical \& Theoretical Foundations}
 
-\begin{definitionbox}{Tangent Plane Formula}
-\index{Tangent Plane Formula}
-For a surface $z = f(x, y)$, the tangent plane at point $(x_0, y_0, z_0)$ where $z_0 = f(x_0, y_0)$ is given by:
-$$z - z_0 = f_x(x_0, y_0)(x - x_0) + f_y(x_0, y_0)(y - y_0)$$
-In general for $f: \mathbb{R}^n \to \mathbb{R}$, the linear approximation (tangent hyperplane) at $\mathbf{x}_0$ is:
-$$L(\mathbf{x}) = f(\mathbf{x}_0) + \nabla f(\mathbf{x}_0)^T (\mathbf{x} - \mathbf{x}_0)$$
+\subsection{Tangent Planes and Hyperplanes}
+
+\begin{definitionbox}{Tangent Plane to a Surface $z = f(x, y)$}
+\index{Tangent Plane}
+Let $f: \mathbb{R}^2 \to \mathbb{R}$ have continuous partial derivatives at $(x_0, y_0)$, and let $z_0 = f(x_0, y_0)$. The \textbf{tangent plane} to the surface $z = f(x, y)$ at the point $(x_0, y_0, z_0)$ is the plane containing all tangent lines to the surface at that point:
+\begin{equation}
+z - z_0 = f_x(x_0, y_0)(x - x_0) + f_y(x_0, y_0)(y - y_0)
+\end{equation}
+Equivalently, rewriting as a level surface $F(x, y, z) = f(x, y) - z = 0$, the \textbf{normal vector} to the tangent plane is:
+\begin{equation}
+\mathbf{n} = \begin{bmatrix} f_x(x_0, y_0) \\ f_y(x_0, y_0) \\ -1 \end{bmatrix} \implies \mathbf{n} \cdot \begin{bmatrix} x - x_0 \\ y - y_0 \\ z - z_0 \end{bmatrix} = 0
+\end{equation}
 \end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: Tangents for Scalar-Valued Functions}{https://www.youtube.com/watch?v=9yeyc472W5Q}
-Official lecture deriving tangent plane equations and linear approximations.
-\end{videocard}
+\begin{definitionbox}{First-Order Taylor Linear Approximation}
+\index{Linear Approximation}
+For a general multivariable function $f: \mathbb{R}^n \to \mathbb{R}$, the \textbf{tangent hyperplane} (linear approximation) centered at $\mathbf{x}_0$ is:
+\begin{equation}
+L(\mathbf{x}) = f(\mathbf{x}_0) + \nabla f(\mathbf{x}_0)^T (\mathbf{x} - \mathbf{x}_0)
+\end{equation}
+The approximation error satisfies $\lim_{\mathbf{x} \to \mathbf{x}_0} \frac{|f(\mathbf{x}) - L(\mathbf{x})|}{\|\mathbf{x} - \mathbf{x}_0\|} = 0$.
+\end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: Finding the Tangent Hyperplane}{https://www.youtube.com/watch?v=bz1gtPvNIAg}
-Official lecture extending tangent planes to $n$-dimensional hyperplanes $\nabla f(\mathbf{x}_0)^T (\mathbf{x} - \mathbf{x}_0) = 0$.
-\end{videocard}
+\subsection{Steepest Descent and the Gradient Descent Algorithm}
 
-\section{Steepest Descent and Gradient Descent Algorithm}
+\begin{definitionbox}{Gradient Descent Update Rule}
+\index{Gradient Descent}
+To minimize a differentiable objective loss function $L(\mathbf{w}): \mathbb{R}^d \to \mathbb{R}$, the \textbf{Gradient Descent} algorithm initializes at a starting weight vector $\mathbf{w}^{(0)}$ and iteratively updates:
+\begin{equation}
+\mathbf{w}^{(k+1)} = \mathbf{w}^{(k)} - \alpha \nabla L(\mathbf{w}^{(k)})
+\end{equation}
+where $\alpha > 0$ is the \textbf{learning rate} (step size parameter).
+\end{definitionbox}
 
-\begin{theorembox}{Direction of Steepest Descent}
-\begin{itemize}
-    \item \textbf{Steepest Ascent:} The unit vector direction along which $f(\mathbf{x})$ increases fastest is $\frac{\nabla f(\mathbf{x})}{\|\nabla f(\mathbf{x})\|}$.
-    \item \textbf{Steepest Descent:} The unit vector direction along which $f(\mathbf{x})$ decreases fastest is $-\frac{\nabla f(\mathbf{x})}{\|\nabla f(\mathbf{x})\|}$.
-\end{itemize}
-\end{theorembox}
-
-\begin{formulabox}{Gradient Descent Update Rule}
-To minimize a cost function $L(\mathbf{w})$, start at an initial point $\mathbf{w}^{(0)}$ and iteratively update:
-$$\mathbf{w}^{(k+1)} = \mathbf{w}^{(k)} - \alpha \nabla L(\mathbf{w}^{(k)})$$
-where $\alpha > 0$ is the \index{Learning Rate}\textbf{Learning Rate} (step size).
-\end{formulabox}
-
-\textbf{Data Science Relevance:} Gradient Descent (and its variants like Adam, RMSprop, SGD) is used to train almost all modern Machine Learning models, from Logistic Regression to 70-Billion parameter Large Language Models!
-
-\begin{lstlisting}[language=Python, caption=Data Science: Gradient Descent]
-import numpy as np
-
-w = np.array([3.0, 2.0]) # Initial weights
-alpha = 0.1 # Learning rate
-
-# Simulate 3 steps of Gradient Descent for L = w1^2 + 4w2^2
-for step in range(3):
-    grad = np.array([2 * w[0], 8 * w[1]])
-    w = w - alpha * grad
-    print(f"Step {step+1}: w = {w}")
-\end{lstlisting}
-
-\begin{intuitionbox}{Gradient Descent Step Trajectory on Contour Map}
-Gradient descent takes steps perpendicular to contour curves, moving in the direction of $-\nabla f$ toward the global minimum.
-\begin{center}
-\begin{tikzpicture}[scale=0.8]
-% Concentric contour ellipses
-\draw[thick, teal!70] (0,0) circle (0.6cm);
-\draw[thick, teal!60] (0,0) circle (1.2cm);
-\draw[thick, teal!40] (0,0) circle (2.0cm);
-\draw[thick, teal!20] (0,0) circle (2.8cm);
-
-% Center minimum
-\fill[red] (0,0) circle (2pt) node[below right] {$\mathbf{w}^*$ (Minimum)};
-
-% GD Path
-\fill[blue] (2.4, 1.4) circle (2.5pt) node[above right] {$\mathbf{w}^{(0)}$};
-\draw[->, very thick, red!80!black] (2.4, 1.4) -- (1.2, 0.4) node[midway, above] {$-\alpha \nabla L$};
-\fill[blue] (1.2, 0.4) circle (2.5pt) node[above right] {$\mathbf{w}^{(1)}$};
-\draw[->, very thick, red!80!black] (1.2, 0.4) -- (0.4, 0.1);
-\fill[blue] (0.4, 0.1) circle (2.5pt) node[above] {$\mathbf{w}^{(2)}$};
-\draw[->, dashed, red] (0.4, 0.1) -- (0.05, 0.02);
-\end{tikzpicture}
-\end{center}
-\end{intuitionbox}
-
-\begin{videocard}{IITM BS Lecture: The Direction of Steepest Ascent / Descent}{https://www.youtube.com/watch?v=0H7ca6dFvQ8}
-Official lecture proving why $-\nabla f$ is the optimal search direction for loss minimization.
-\end{videocard}
-
-
-\section{Critical Points}
+\subsection{Critical (Stationary) Points}
 
 \begin{definitionbox}{Critical Points}
-An interior point $\mathbf{x}_0$ in the domain of $f$ is a \index{Critical Point}\textbf{Critical Point} (or Stationary Point) if:
-$$\nabla f(\mathbf{x}_0) = \mathbf{0} \iff \frac{\partial f}{\partial x_1}(\mathbf{x}_0) = 0, \, \frac{\partial f}{\partial x_2}(\mathbf{x}_0) = 0, \, \dots, \, \frac{\partial f}{\partial x_n}(\mathbf{x}_0) = 0$$
-Critical points can be \index{Local Minima}\textbf{Local Minima}, \index{Local Maxima}\textbf{Local Maxima}, or \index{Saddle Points}\textbf{Saddle Points}.
+\index{Critical Points}
+An interior point $\mathbf{x}^* \in \mathbb{R}^n$ is called a \textbf{critical point} (or stationary point) of $f$ if the gradient vanishes completely:
+\begin{equation}
+\nabla f(\mathbf{x}^*) = \mathbf{0} \iff \frac{\partial f}{\partial x_i}(\mathbf{x}^*) = 0 \quad \forall i \in \{1, 2, \dots, n\}
+\end{equation}
 \end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: Critical Points for Multivariable Functions}{https://www.youtube.com/watch?v=9pciPOO19wQ}
-Official lecture finding critical points by setting all first partial derivatives to zero simultaneously.
-\end{videocard}
+\begin{theorembox}{Fermat's Theorem for Multivariable Functions}
+If $f: \mathbb{R}^n \to \mathbb{R}$ attains a local minimum or local maximum at an interior point $\mathbf{x}^*$, and if all partial derivatives exist at $\mathbf{x}^*$, then:
+\begin{equation}
+\nabla f(\mathbf{x}^*) = \mathbf{0}
+\end{equation}
+Vanishing gradient is a \textbf{necessary condition} for a local extremum, but NOT a sufficient condition (due to saddle points).
+\end{theorembox}
+
+\section{Visual \& Geometric Intuition: The Tangent Plane}
+
+At any smooth point on a 3D curved surface, zooming in infinitely close reveals a flat sheet: the tangent plane. The normal vector $\mathbf{n} = [f_x, f_y, -1]^T$ stands strictly perpendicular to this sheet.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[>=stealth, scale=1.1]
+    % Curved Paraboloid Surface Patch
+    \draw[thick, fill=blue!8, draw=blue!40] (-2, -1) to[bend left=20] (3, -1) to[bend right=25] (4, 2.5) to[bend left=15] (-1, 2.5) to[bend left=20] cycle;
+    \node[blue!80!black, font=\bfseries] at (-1.2, -0.6) {Surface $z = f(x, y)$};
+
+    % Tangent Point P
+    \coordinate (P) at (1.0, 0.8);
+    \filldraw[red!80!black] (P) circle (2.5pt) node[below=3pt] {$(x_0, y_0, z_0)$};
+
+    % Tangent Plane (Flat parallelogram touching at P)
+    \draw[ultra thick, forest, fill=forest!15, fill opacity=0.5] ($(P) + (-2.2, -0.8)$) -- ($(P) + (1.8, -1.0)$) -- ($(P) + (2.2, 1.2)$) -- ($(P) + (-1.8, 1.4)$) -- cycle;
+    \node[forest, font=\bfseries] at ($(P) + (2.5, 0.3)$) {Tangent Plane};
+
+    % Normal Vector n = [fx, fy, -1]^T
+    \draw[->, ultra thick, purple] (P) -- ($(P) + (0.5, 2.2)$) node[above] {$\mathbf{n} = \begin{bmatrix} f_x \\ f_y \\ -1 \end{bmatrix}$};
+
+    % Tangent vectors in plane
+    \draw[->, thick, primarydark] (P) -- ($(P) + (1.2, -0.1)$) node[right, font=\scriptsize] {$\mathbf{t}_1 = [1, 0, f_x]^T$};
+    \draw[->, thick, primarydark] (P) -- ($(P) + (-0.2, 0.9)$) node[left, font=\scriptsize] {$\mathbf{t}_2 = [0, 1, f_y]^T$};
+
+    % Right angle marks
+    \draw[thick, gray!80] ($(P) + (0.1, 0.44)$) -- ($(P) + (0.3, 0.42)$) -- ($(P) + (0.2, -0.02)$);
+
+    % Information Callout
+    \node[draw=primarydark, fill=white, rounded corners, font=\scriptsize, align=left] at (-1.8, 2.8) {
+        \textbf{Tangent Plane Invariants:}\\
+        $z - z_0 = f_x(x - x_0) + f_y(y - y_0)$\\
+        $\mathbf{n} \cdot \mathbf{t}_1 = f_x(1) + f_y(0) - 1(f_x) = 0$\\
+        $\mathbf{n} \cdot \mathbf{t}_2 = f_x(0) + f_y(1) - 1(f_y) = 0$
+    };
+\end{tikzpicture}
+\caption{Geometric construction of the tangent plane touching a curved surface $z = f(x, y)$ at $(x_0, y_0, z_0)$ with perpendicular normal vector $\mathbf{n}$.}
+\label{fig:tangent_plane_normal}
+\end{figure}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Optimal Learning Rate and Convergence of Gradient Descent}
+
+Consider a canonical convex quadratic loss function:
+\begin{equation}
+L(\mathbf{w}) = \frac{1}{2} \mathbf{w}^T A \mathbf{w}
+\end{equation}
+where $A \in \mathbb{R}^{d \times d}$ is Symmetric Positive Definite with eigenvalues $\lambda_{\max} \ge \dots \ge \lambda_{\min} > 0$. The unique minimum is $\mathbf{w}^* = \mathbf{0}$.
+The gradient is $\nabla L(\mathbf{w}) = A \mathbf{w}$. The Gradient Descent recurrence is:
+\begin{equation}
+\mathbf{w}^{(k+1)} = \mathbf{w}^{(k)} - \alpha A \mathbf{w}^{(k)} = (I - \alpha A) \mathbf{w}^{(k)}
+\end{equation}
+Applying this recurrence $k$ times:
+\begin{equation}
+\mathbf{w}^{(k)} = (I - \alpha A)^k \mathbf{w}^{(0)}
+\end{equation}
+
+\begin{theorembox}{Convergence Criterion for Gradient Descent}
+The weight sequence converges to the global minimum $\mathbf{w}^* = \mathbf{0}$ for all initializations $\mathbf{w}^{(0)}$ if and only if all eigenvalues of $(I - \alpha A)$ have absolute value strictly less than 1:
+\begin{equation}
+|1 - \alpha \lambda_i| < 1 \quad \forall i \in \{1, \dots, d\}
+\end{equation}
+This yields the fundamental stability bounds on the learning rate $\alpha$:
+\begin{equation}
+-1 < 1 - \alpha \lambda_{\max} < 1 \iff 0 < \alpha < \frac{2}{\lambda_{\max}(A)}
+\end{equation}
+The optimal learning rate minimizing the spectral radius is:
+\begin{equation}
+\alpha^* = \frac{2}{\lambda_{\min}(A) + \lambda_{\max}(A)}
+\end{equation}
+If $\alpha \ge \frac{2}{\lambda_{\max}}$, Gradient Descent oscillates wildly and diverges (gradient explosion).
+\end{theorembox}
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Trap 1: Confusing Normal Vectors of Explicit Surfaces with Level Curves}
+For a 2D level curve $f(x, y) = c$, the 2D normal vector is the gradient $\nabla f = [f_x, f_y]^T$.
+However, for an explicit 3D surface $z = f(x, y)$, the 3D normal vector is $\mathbf{n} = [f_x, f_y, -1]^T$. Forgetting the $-1$ component in the $z$-direction is an extremely common error that collapses 3D plane equations into 2D line equations.
+\end{trapbox}
+
+\begin{trapbox}{Trap 2: Believing $\nabla f(\mathbf{x}^*) = \mathbf{0}$ Guarantees a Local Minimum or Maximum}
+A vanishing gradient is only a \textbf{stationary condition}. At a saddle point (such as $f(x, y) = x^2 - y^2$ at $(0, 0)$), $\nabla f(0, 0) = \mathbf{0}$. Yet walking in the $x$-direction increases $f$, while walking in the $y$-direction decreases $f$. Without second-order derivative testing (the Hessian matrix), one cannot assert whether a critical point is a minimum, maximum, or saddle point.
+\end{trapbox}
+
+\begin{trapbox}{Trap 3: Believing Gradient Descent Always Decreases Loss in a Single Step}
+If the learning rate $\alpha$ is chosen too large ($\alpha > 2/\lambda_{\max}$), the update $\mathbf{w}^{(1)} = \mathbf{w}^{(0)} - \alpha \nabla L$ overshoots the valley entirely, landing higher up the opposite wall ($L(\mathbf{w}^{(1)}) > L(\mathbf{w}^{(0)})$). Descent is guaranteed only for sufficiently small step sizes $\alpha$.
+\end{trapbox}
+
+\begin{trapbox}{Trap 4: Using Linear Approximations Far from the Expansion Point}
+The linear approximation $L(\mathbf{x}) = f(\mathbf{x}_0) + \nabla f(\mathbf{x}_0)^T(\mathbf{x} - \mathbf{x}_0)$ is accurate only in an infinitesimal neighborhood of $\mathbf{x}_0$. For non-linear loss surfaces, quadratic and higher-order curvature terms dominate rapidly as $\|\mathbf{x} - \mathbf{x}_0\|$ grows, rendering first-order Taylor estimates highly inaccurate.
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{3.0cm} p{2.6cm} p{2.6cm} p{3.2cm} p{2.6cm}}
+\toprule
+\textbf{Optimization Method} & \textbf{Update Equation} & \textbf{Memory Cost} & \textbf{Convergence Rate} & \textbf{Primary Advantage} \\
+\midrule
+\textbf{Batch Gradient Descent} & $\mathbf{w} \leftarrow \mathbf{w} - \alpha \frac{1}{N}\sum \nabla L_i$ & $\mathcal{O}(d)$ & Linear ($\mathcal{O}(1/k)$ on convex) & Smooth, monotonic descent \\
+\textbf{Stochastic GD (SGD)} & $\mathbf{w} \leftarrow \mathbf{w} - \alpha \nabla L_i$ & $\mathcal{O}(d)$ & Sublinear ($\mathcal{O}(1/\sqrt{k})$) & Escapes shallow saddle points \\
+\textbf{Mini-Batch GD} & $\mathbf{w} \leftarrow \mathbf{w} - \alpha \frac{1}{B}\sum_{b} \nabla L_b$ & $\mathcal{O}(d)$ & Linear / Sublinear & Vectorized GPU acceleration \\
+\textbf{Momentum GD} & $\mathbf{v} \leftarrow \beta \mathbf{v} + \alpha \nabla L$ & $\mathcal{O}(d)$ & Accelerated linear & Dampens ravine oscillations \\
+\textbf{Newton-Raphson} & $\mathbf{w} \leftarrow \mathbf{w} - H^{-1} \nabla L$ & $\mathcal{O}(d^2)$ & Quadratic ($\mathcal{O}(k^2)$ near min) & Scale-invariant, 1-step on quadratics \\
+\bottomrule
+\end{tabular}
+\caption{Systematic comparison of first-order and second-order multivariable optimization algorithms.}
+\label{tab:optimization_algorithms_comparison}
+\end{table}
+
+\section{Python / Scientific Computing Lab}
+
+The following scientific computing script verifies tangent plane approximations, simulates gradient descent trajectories on an anisotropic loss surface, and demonstrates divergence when the learning rate exceeds the theoretical ceiling.
+
+\begin{lstlisting}[language=Python, caption={Python Lab: Tangent Planes, Gradient Descent, and Step Size Stability}]
+import numpy as np
+
+# 1. Tangent Plane Linear Approximation
+# f(x, y) = sqrt(x^2 + y^2) at (3.0, 4.0)
+def f(p):
+    return np.sqrt(p[0]**2 + p[1]**2)
+
+p0 = np.array([3.0, 4.0])
+z0 = f(p0)  # 5.0
+grad_p0 = p0 / z0  # [3/5, 4/5] = [0.6, 0.8]
+
+# Linear approximation function: L(p) = z0 + grad . (p - p0)
+def L_approx(p):
+    return z0 + np.dot(grad_p0, p - p0)
+
+test_point = np.array([3.06, 3.92])
+exact_val = f(test_point)
+approx_val = L_approx(test_point)
+print(f"Exact f(3.06, 3.92):       {exact_val:.6f}")
+print(f"Linear Approx L(3.06, 3.92): {approx_val:.6f}")
+print(f"Absolute Error:             {abs(exact_val - approx_val):.2e}")
+
+# 2. Gradient Descent Simulation: L(w) = w1^2 + 4*w2^2
+# Hessian A = [[2, 0], [0, 8]] --> lambda_max = 8.0, lambda_min = 2.0
+lambda_max = 8.0
+alpha_max = 2.0 / lambda_max
+print(f"\nTheoretical Maximum Stable Learning Rate: alpha < {alpha_max:.3f}")
+
+def run_gd(alpha, steps=5):
+    w = np.array([3.0, 2.0])
+    trajectory = [w.copy()]
+    for _ in range(steps):
+        grad = np.array([2.0 * w[0], 8.0 * w[1]])
+        w = w - alpha * grad
+        trajectory.append(w.copy())
+    return np.array(trajectory)
+
+# Stable run with alpha = 0.1
+traj_stable = run_gd(alpha=0.1, steps=3)
+print("\nStable Gradient Descent Trajectory (alpha = 0.1):")
+for step, pos in enumerate(traj_stable):
+    loss = pos[0]**2 + 4.0*pos[1]**2
+    print(f"  Step {step}: w = [{pos[0]:.4f}, {pos[1]:.4f}], Loss = {loss:.4f}")
+
+# Divergent run with alpha = 0.28 (> 0.25)
+traj_divergent = run_gd(alpha=0.28, steps=3)
+print("\nDivergent Gradient Descent Trajectory (alpha = 0.28):")
+for step, pos in enumerate(traj_divergent):
+    loss = pos[0]**2 + 4.0*pos[1]**2
+    print(f"  Step {step}: w = [{pos[0]:.4f}, {pos[1]:.4f}], Loss = {loss:.4f}")
+\end{lstlisting}
 
 \newpage
 \section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\textit{Detailed step-by-step solutions and distractor rationales are available in the Appendix.}
 
+\subsection*{Part A: Computational \& Analytical Problems}
 \begin{enumerate}
-\item \textbf{Tangent Plane Equation:} Find the equation of the tangent plane to the surface $z = x^2 + 3y^2 - 4x$ at the point $(x_0, y_0) = (2, 1)$.
+\item \textbf{Tangent Plane Equation:} Find the algebraic equation of the tangent plane to the surface $z = x^2 + 3y^2 - 4x$ at the point $(x_0, y_0) = (2, 1)$. Write the equation in standard form $A x + B y + C z = D$.
 
-\item \textbf{Gradient Descent Iteration Step:} A 2D loss function is $L(w_1, w_2) = w_1^2 + 4 w_2^2$.
-    \begin{enumerate}
-        \item Compute the gradient $\nabla L(w_1, w_2)$.
-        \item Starting from $\mathbf{w}^{(0)} = \begin{bmatrix} 3 \\ 2 \end{bmatrix}$ with learning rate $\alpha = 0.1$, compute the next weight vector $\mathbf{w}^{(1)}$.
-    \end{enumerate}
+\item \textbf{Gradient Descent Iteration Step:} An objective loss function is $L(w_1, w_2) = w_1^2 + 4 w_2^2$.
+\begin{enumerate}
+    \item Compute the analytical gradient vector $\nabla L(w_1, w_2)$.
+    \item Starting from initial weight vector $\mathbf{w}^{(0)} = \begin{bmatrix} 3 \\ 2 \end{bmatrix}$ with learning rate $\alpha = 0.1$, compute the updated weight vector $\mathbf{w}^{(1)}$.
+    \item Show that $L(\mathbf{w}^{(1)}) < L(\mathbf{w}^{(0)})$.
+\end{enumerate}
 
-\item \textbf{Finding Critical Points ($2 \times 2$):} Find all critical points of the function:
-    $$f(x, y) = x^3 + y^3 - 3xy$$
-    by setting $f_x = 0$ and $f_y = 0$.
+\item \textbf{Finding Critical Points ($2 \times 2$ System):} Find all real critical points of the function:
+\begin{equation*}
+f(x, y) = x^3 + y^3 - 3xy
+\end{equation*}
+by setting $f_x = 0$ and $f_y = 0$ simultaneously.
 
-\item \textbf{Linear Approximation:} Use the tangent plane linear approximation of $f(x, y) = \sqrt{x^2 + y^2}$ at $(3, 4)$ to estimate $f(3.06, 3.92)$.
+\item \textbf{Linear Approximation and Differential Estimates:} Use the tangent plane linear approximation of $f(x, y) = \sqrt{x^2 + y^2}$ centered at $(3, 4)$ to approximate $f(3.06, 3.92)$. Compare your estimate with the exact value $\sqrt{(3.06)^2 + (3.92)^2}$.
 
-\item \textbf{Data Science Application (Least Squares Gradient Descent Update):} For a simple regression model with loss $L(w) = (2w - 6)^2$, start at $w^{(0)} = 0$ with learning rate $\alpha = 0.05$. Perform $2$ steps of Gradient Descent to find $w^{(1)}$ and $w^{(2)}$. Show that $w$ moves towards the true minimum $w^* = 3$.
+\item \textbf{Data Science Application (Least Squares Gradient Descent Update):} For a simple 1D linear model with Mean Squared Error loss $L(w) = (2w - 6)^2$:
+\begin{enumerate}
+    \item Compute $\frac{d L}{d w}$.
+    \item Starting at $w^{(0)} = 0$ with learning rate $\alpha = 0.05$, compute $w^{(1)}$ and $w^{(2)}$.
+    \item Compute the closed-form recurrence $w^{(k)}$ and confirm convergence to the optimal parameter $w^* = 3$.
+\end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions}
+\begin{enumerate}
+\setcounter{enumi}{5}
+\item \textbf{Normal Vectors and Tangent Plane Equations:} What is an outward normal vector $\mathbf{n}$ to the tangent plane of the curved surface $z = 3x^2 - 5y^2 + 2xy$ at the point $(1, 1, 0)$?
+\begin{enumerate}
+    \item $\mathbf{n} = \begin{bmatrix} 8 \\ -8 \\ 0 \end{bmatrix}$
+    \item $\mathbf{n} = \begin{bmatrix} 8 \\ -8 \\ -1 \end{bmatrix}$
+    \item $\mathbf{n} = \begin{bmatrix} 6 \\ -10 \\ 1 \end{bmatrix}$
+    \item $\mathbf{n} = \begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix}$
+\end{enumerate}
+
+\item \textbf{Learning Rate Stability Ceiling:} For a quadratic loss function $L(\mathbf{w}) = \frac{1}{2} \mathbf{w}^T A \mathbf{w}$ where $A = \begin{bmatrix} 10 & 0 \\ 0 & 2 \end{bmatrix}$, what is the strict upper bound on the learning rate $\alpha$ for Gradient Descent to guarantee convergence to the minimum $\mathbf{0}$?
+\begin{enumerate}
+    \item $\alpha < 1.0$
+    \item $\alpha < 0.2$
+    \item $\alpha < 0.1$
+    \item $\alpha < 0.5$
+\end{enumerate}
 \end{enumerate}

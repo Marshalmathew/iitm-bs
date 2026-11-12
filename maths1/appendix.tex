@@ -7,537 +7,1430 @@ This appendix provides detailed, step-by-step solutions for the practice exercis
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Pure Math: Let $A = \set{1, 2, 3}$ and $B = \set{3, 4, 5}$. Find $(A \cup B) \setminus (A \cap B)$.}
+\textbf{1. Set Algebra, Cardinality, and Power Sets}
+Given $A = \{x \in \Z \mid -2 \le x \le 2\}$ and $B = \{x \in \N \mid x^2 \le 9\}$ with $\N = \{1, 2, 3, \dots\}$:
+\begin{enumerate}
+    \item \textbf{Element Listings:}
+    $$A = \{-2, -1, 0, 1, 2\}, \qquad B = \{1, 2, 3\}$$
+    $$A \cap B = \{1, 2\}, \qquad A \cup B = \{-2, -1, 0, 1, 2, 3\}$$
+    \item \textbf{Set Differences:}
+    $$A \setminus B = \{-2, -1, 0, 1, 2\} \setminus \{1, 2, 3\} = \mathbf{\{-2, -1, 0\}}$$
+    $$B \setminus A = \{1, 2, 3\} \setminus \{-2, -1, 0, 1, 2\} = \mathbf{\{3\}}$$
+    \item \textbf{Symmetric Difference $A \Delta B$:}
+    $$A \Delta B = (A \setminus B) \cup (B \setminus A) = \{-2, -1, 0\} \cup \{3\} = \mathbf{\{-2, -1, 0, 3\}}$$
+    (Equivalently, $(A \cup B) \setminus (A \cap B) = \{-2, -1, 0, 1, 2, 3\} \setminus \{1, 2\} = \{-2, -1, 0, 3\}$).
+    \item \textbf{Power Set Cardinality $|\mathcal{P}(A \cap B)|$:}
+    Since $A \cap B = \{1, 2\}$, its cardinality is $|A \cap B| = 2$.
+    $$|\mathcal{P}(A \cap B)| = 2^{|A \cap B|} = 2^2 = \mathbf{4}$$
+    The explicit subsets are $\mathcal{P}(A \cap B) = \{\emptyset, \{1\}, \{2\}, \{1, 2\}\}$.
+\end{enumerate}
+
+\textbf{2. Equivalence Relations and Quotient Partitions}
+Relation on $\Z$: $a R b \iff 5 \mid (2a + 3b)$.
+\begin{enumerate}
+    \item \textbf{Reflexivity:} For any $a \in \Z$:
+    $$2a + 3a = 5a = 5(a)$$
+    Since $a \in \Z$, $5 \mid 5a$. Thus $a R a$ holds for all $a \in \Z$, so $R$ is reflexive.
+    \item \textbf{Symmetry:} Assume $a R b$. Then $2a + 3b = 5k$ for some integer $k$. Consider $2b + 3a$:
+    $$(2b + 3a) + (2a + 3b) = 5a + 5b = 5(a + b)$$
+    $$2b + 3a = 5(a + b) - (2a + 3b) = 5(a + b) - 5k = 5(a + b - k)$$
+    Since $a + b - k \in \Z$, $5 \mid (2b + 3a)$, which implies $b R a$. Thus, $R$ is symmetric.
+    \item \textbf{Transitivity:} Assume $a R b$ and $b R c$. Then $2a + 3b = 5k$ and $2b + 3c = 5m$ for integers $k, m$.
+    Adding both equations:
+    $$(2a + 3b) + (2b + 3c) = 2a + 5b + 3c = 5(k + m)$$
+    $$2a + 3c = 5(k + m) - 5b = 5(k + m - b)$$
+    Since $k + m - b \in \Z$, $5 \mid (2a + 3c)$, which implies $a R c$. Thus, $R$ is transitive.
+    
+    Since $R$ is reflexive, symmetric, and transitive, $R$ is an \textbf{equivalence relation}.
+    \item \textbf{Partition into Equivalence Classes:}
+    Notice $2a + 3b = 2(a - b) + 5b$. Hence $5 \mid (2a + 3b) \iff 5 \mid 2(a - b) \iff 5 \mid (a - b) \iff a \equiv b \pmod 5$.
+    Thus $R$ partitions $\Z$ into the 5 standard residue classes modulo 5:
+    \begin{align*}
+        [0] &= \{\dots, -10, -5, 0, 5, 10, \dots\} = \{5k \mid k \in \Z\} \\
+        [1] &= \{\dots, -9, -4, 1, 6, 11, \dots\} = \{5k + 1 \mid k \in \Z\} \\
+        [2] &= \{\dots, -8, -3, 2, 7, 12, \dots\} = \{5k + 2 \mid k \in \Z\} \\
+        [3] &= \{\dots, -7, -2, 3, 8, 13, \dots\} = \{5k + 3 \mid k \in \Z\} \\
+        [4] &= \{\dots, -6, -1, 4, 9, 14, \dots\} = \{5k + 4 \mid k \in \Z\}
+    \end{align*}
+\end{enumerate}
+
+\textbf{3. Domain and Codomain Impacts on Injectivity and Surjectivity}
+Consider $f(x) = \frac{x}{x^2 + 1}$.
+\begin{enumerate}
+    \item \textbf{Injectivity on $\func{f}{\R}{\R}$:}
+    Notice that $f(2) = \frac{2}{2^2 + 1} = \frac{2}{5}$, and $f(1/2) = \frac{1/2}{(1/2)^2 + 1} = \frac{1/2}{5/4} = \frac{2}{5}$.
+    Since $2 \neq \frac{1}{2}$ but $f(2) = f(1/2)$, $f$ is \textbf{not injective} on $\R$. (In fact, $f(x) = f(1/x)$ for all $x \neq 0$).
+    \item \textbf{Surjectivity on $\func{f}{\R}{\R}$:}
+    Set $y = 1$ (which lies in codomain $\R$).
+    $$\frac{x}{x^2 + 1} = 1 \implies x^2 - x + 1 = 0$$
+    The discriminant is $\Delta = (-1)^2 - 4(1)(1) = 1 - 4 = -3 < 0$. There are no real solutions $x \in \R$.
+    Because $y = 1$ has no pre-image, $\text{Range}(f) \neq \R$ (the true range is $[-\frac{1}{2}, \frac{1}{2}]$). Therefore, $f$ is \textbf{not surjective} on $\R$.
+    \item \textbf{Bijectivity on $\func{f}{[1, \infty)}{(0, \frac{1}{2}]}$:}
+    Differentiating: $f'(x) = \frac{(x^2 + 1)(1) - x(2x)}{(x^2 + 1)^2} = \frac{1 - x^2}{(x^2 + 1)^2}$.
+    For all $x > 1$, $x^2 > 1 \implies f'(x) < 0$. The function is strictly monotonically decreasing on $[1, \infty)$, guaranteeing that distinct inputs produce distinct outputs, so $f$ is \textbf{strictly injective}.
+    Evaluating boundaries: $f(1) = \frac{1}{1 + 1} = \frac{1}{2}$, and $\lim_{x \to \infty} f(x) = 0$. Since $f$ is continuous, by the Intermediate Value Theorem its range is precisely $(0, \frac{1}{2}]$, matching the declared codomain. Thus, $f$ is \textbf{surjective}.
+    Being both injective and surjective, $f$ is a \textbf{bijection}.
+\end{enumerate}
+
+\textbf{4. Feature Scaling as a Bijective Isomorphism}
+Given $f(x) = \frac{x - x_{\min}}{x_{\max} - x_{\min}}$ for $x \in [x_{\min}, x_{\max}]$ with $x_{\max} > x_{\min}$:
+\begin{enumerate}
+    \item \textbf{Injectivity:} Assume $f(x_1) = f(x_2)$:
+    $$\frac{x_1 - x_{\min}}{x_{\max} - x_{\min}} = \frac{x_2 - x_{\min}}{x_{\max} - x_{\min}}$$
+    Since $x_{\max} - x_{\min} > 0$, multiplying both sides gives $x_1 - x_{\min} = x_2 - x_{\min} \implies x_1 = x_2$. Hence, $f$ is injective.
+    \item \textbf{Surjectivity:} Let $y \in [0, 1]$. We solve for $x$:
+    $$y = \frac{x - x_{\min}}{x_{\max} - x_{\min}} \implies x = x_{\min} + y(x_{\max} - x_{\min})$$
+    Since $0 \le y \le 1$, $0 \le y(x_{\max} - x_{\min}) \le x_{\max} - x_{\min}$. Adding $x_{\min}$ gives $x_{\min} \le x \le x_{\max}$.
+    Thus, every $y \in [0, 1]$ has a pre-image in $[x_{\min}, x_{\max}]$, proving surjectivity.
+    \item \textbf{Inverse Function and Identity Composition:}
+    $$f^{-1}(y) = x_{\min} + y(x_{\max} - x_{\min})$$
+    Composing:
+    $$(f^{-1} \circ f)(x) = f^{-1}(f(x)) = x_{\min} + \left( \frac{x - x_{\min}}{x_{\max} - x_{\min}} \right)(x_{\max} - x_{\min}) = x_{\min} + (x - x_{\min}) = \mathbf{x}$$
+    This proves that Min-Max scaling is a lossless, perfectly invertible transformation.
+\end{enumerate}
+
+\textbf{5. Rational Function Composition and Inversion}
+Given $\func{f}{\R \setminus \{1\}}{\R \setminus \{2\}}$ with $f(x) = \frac{2x + 1}{x - 1}$:
+\begin{enumerate}
+    \item \textbf{Bijectivity:}
+    \begin{itemize}
+        \item \textit{Injective:} $f(x_1) = f(x_2) \implies \frac{2x_1 + 1}{x_1 - 1} = \frac{2x_2 + 1}{x_2 - 1} \implies (2x_1 + 1)(x_2 - 1) = (2x_2 + 1)(x_1 - 1) \implies 2x_1 x_2 - 2x_1 + x_2 - 1 = 2x_1 x_2 - 2x_2 + x_1 - 1 \implies -3x_1 = -3x_2 \implies x_1 = x_2$.
+        \item \textit{Surjective:} Let $y \in \R \setminus \{2\}$. Set $y = \frac{2x + 1}{x - 1} \implies y(x - 1) = 2x + 1 \implies x(y - 2) = y + 1 \implies x = \frac{y + 1}{y - 2}$. Since $y \neq 2$, this $x$ is well-defined. If $x = 1$, then $\frac{y + 1}{y - 2} = 1 \implies y + 1 = y - 2 \implies 1 = -2$ (contradiction). Hence $x \in \R \setminus \{1\}$.
+    \end{itemize}
+    Thus $f$ is a bijection.
+    \item \textbf{Explicit Inverse:}
+    $$f^{-1}(y) = \mathbf{\frac{y + 1}{y - 2}}, \qquad y \neq 2$$
+    \item \textbf{Composition $(f \circ f)(x)$ and Natural Domain:}
+    $$(f \circ f)(x) = f(f(x)) = \frac{2\left(\frac{2x+1}{x-1}\right) + 1}{\left(\frac{2x+1}{x-1}\right) - 1} = \frac{2(2x+1) + (x-1)}{(2x+1) - (x-1)} = \frac{4x + 2 + x - 1}{2x + 1 - x + 1} = \mathbf{\frac{5x + 1}{x + 2}}$$
+    The domain requires $x \neq 1$ (for inner $f(x)$) and $f(x) \neq 1 \implies \frac{2x+1}{x-1} \neq 1 \implies 2x+1 \neq x-1 \implies x \neq -2$.
+    Thus, the natural domain of $(f \circ f)$ is $\mathbf{\R \setminus \{-2, 1\}}$.
+\end{enumerate}
+
+\textbf{6. Conceptual Diagnostic: Element Membership vs. Subset Inclusion}
 \begin{itemize}
-    \item First, find the union $A \cup B$, which represents all elements in either set: $A \cup B = \set{1, 2, 3, 4, 5}$.
-    \item Next, find the intersection $A \cap B$, which represents elements present in both sets: $A \cap B = \set{3}$.
-    \item Finally, take the difference, which removes elements of the intersection from the union: $(A \cup B) \setminus (A \cap B) = \set{1, 2, 4, 5}$.
+    \item \textbf{Correct Answer: (d)}
+    \item \textbf{Why (d) is strictly false:} $2 \notin S$. The elements of $S = \{\emptyset, 1, \{1, 2\}\}$ are precisely $\emptyset$, $1$, and the set $\{1, 2\}$. The number $2$ is an element of $\{1, 2\}$, but set membership is \textbf{not transitive}: $x \in A$ and $A \in S$ does \textbf{not} imply $x \in S$. Thus, $2 \in S$ is mathematically false.
+    \item \textbf{Why (a) is true:} $\emptyset \in S$ is true because $\emptyset$ is explicitly listed as the first element of $S$. $\emptyset \subseteq S$ is true because the empty set is vacuously a subset of every set.
+    \item \textbf{Why (b) is true:} $\{1\} \subseteq S$ is true because its only element, $1$, is in $S$. $\{1, 2\} \in S$ is true because the set $\{1, 2\}$ is listed as an element of $S$.
+    \item \textbf{Why (c) is true:} $\{\{1, 2\}\} \subseteq S$ is true because its sole element is $\{1, 2\}$, which belongs to $S$. However, $\{1, 2\} \subseteq S$ is false because $2 \notin S$.
 \end{itemize}
 
-\textbf{2. Data Science: Express "Users who clicked the ad but did not buy the product" using set notation.}
+\textbf{7. Conceptual Diagnostic: Invertibility and Bijective Constraints}
 \begin{itemize}
-    \item Let $C$ be the set of users who clicked the ad.
-    \item Let $B$ be the set of users who bought the product.
-    \item We want elements in $C$ that are NOT in $B$. This is the definition of set difference.
-    \item Therefore, the expression is $C \setminus B$ (or $C - B$).
-\end{itemize}
-
-\textbf{3. Pure Math: Determine if the relation $R$ on $\R$ defined by $x R y \iff x < y$ is an equivalence relation.}
-\begin{itemize}
-    \item \textbf{Reflexivity:} Is $x < x$ for all real numbers $x$? No. For example, $5 \not< 5$. Since reflexivity fails, $R$ cannot be an equivalence relation.
-    \item \textbf{Symmetry:} If $x < y$, is $y < x$? No. If $3 < 5$, $5 \not< 3$. Symmetry fails.
-    \item \textbf{Transitivity:} If $x < y$ and $y < z$, then $x < z$. Yes, this property holds.
-    \item Conclusion: It is not an equivalence relation because it is neither reflexive nor symmetric.
-\end{itemize}
-
-\textbf{4. Data Science: Is the relation "lives in the same city as" an equivalence relation?}
-\begin{itemize}
-    \item \textbf{Reflexivity:} Does User A live in the same city as User A? Yes.
-    \item \textbf{Symmetry:} If User A lives in the same city as User B, does User B live in the same city as User A? Yes.
-    \item \textbf{Transitivity:} If User A lives in the same city as User B, and User B lives in the same city as User C, does User A live in the same city as User C? Yes.
-    \item Conclusion: Since it satisfies all three properties, it is an equivalence relation. It perfectly partitions users into disjoint sets (cities).
-\end{itemize}
-
-\textbf{5. Pure Math: Prove whether the function $\func{f}{\Z}{\Z}$ given by $f(x) = x^2$ is injective, surjective, both, or neither.}
-\begin{itemize}
-    \item \textbf{Injectivity:} Does $f(x_1) = f(x_2)$ imply $x_1 = x_2$? Let's test negative numbers. $f(2) = 4$ and $f(-2) = 4$. Since $2 \neq -2$ but their outputs are the same, the function is NOT injective.
-    \item \textbf{Surjectivity:} For every integer $y$, is there an integer $x$ such that $x^2 = y$? Consider $y = -1$ (which is in the codomain $\Z$). There is no integer $x$ such that $x^2 = -1$. The function is NOT surjective.
-    \item Conclusion: The function is neither injective nor surjective.
-\end{itemize}
-
-\textbf{6. Data Science: Prove that the Min-Max scaling function $\func{g}{[0, 10]}{[0, 1]}$ defined by $g(x) = \frac{x}{10}$ is a bijection.}
-\begin{itemize}
-    \item \textbf{Injectivity:} Assume $g(x_1) = g(x_2)$.
-    $$\frac{x_1}{10} = \frac{x_2}{10} \implies x_1 = x_2$$
-    Thus, $g$ is injective.
-    \item \textbf{Surjectivity:} Let $y \in [0, 1]$. We need to find an $x \in [0, 10]$ such that $g(x) = y$.
-    $$\frac{x}{10} = y \implies x = 10y$$
-    Since $0 \le y \le 1$, it follows that $0 \le 10y \le 10$. Therefore, $x = 10y$ is a valid input in the domain $[0, 10]$.
-    Check: $g(10y) = \frac{10y}{10} = y$. Thus, $g$ is surjective.
-    \item Conclusion: Since it is both injective and surjective, $g$ is a bijection. This guarantees that our data scaling is a perfectly reversible operation.
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} By the Fundamental Inversion Theorem of mappings, a function $\func{h}{A}{B}$ possesses a well-defined two-sided inverse function $\func{h^{-1}}{B}{A}$ if and only if $h$ is a \textbf{bijection} (simultaneously injective and surjective). For finite sets, bijectivity immediately implies $|A| = |B|$. Injectivity ensures that each $b \in B$ has at most one pre-image (preventing $h^{-1}$ from being one-to-many), and surjectivity ensures that each $b \in B$ has at least one pre-image (preventing $h^{-1}$ from being undefined on elements of $B$).
+    \item \textbf{Why (a) is false:} Injectivity alone only guarantees a left inverse; if $|A| < |B|$, there exist elements in $B$ without pre-images, so $h^{-1}$ cannot be a valid total function on $B$.
+    \item \textbf{Why (b) is false:} Surjectivity alone only guarantees a right inverse; if $|A| > |B|$, multiple elements in $A$ map to the same $b$, making $h^{-1}$ multi-valued (not a function).
+    \item \textbf{Why (d) is false:} An equivalence relation is defined on a set to itself ($A \times A$), not between arbitrary domain and codomain sets $A$ and $B$, and equivalence relations are generally many-to-many.
 \end{itemize}
 
 \section*{Week 2: Coordinate Geometry and Straight Lines}
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Pure Math: Find the distance between the points $A(3, 4)$ and $B(7, 1)$.}
+\textbf{1. Distances, Section Formulas, and Centroids}
+Given points $A(-2, 3)$, $B(4, -1)$, and $C(6, 5)$:
+\begin{enumerate}
+    \item \textbf{Collinearity and Triangle Verification:}
+    Compute the slopes between pairs of points:
+    $$m_{AB} = \frac{-1 - 3}{4 - (-2)} = \frac{-4}{6} = -\frac{2}{3}$$
+    $$m_{BC} = \frac{5 - (-1)}{6 - 4} = \frac{6}{2} = 3$$
+    Since $m_{AB} \neq m_{BC}$ ($-\frac{2}{3} \neq 3$), the three points are non-collinear and form a non-degenerate triangle $\triangle ABC$.
+    \item \textbf{Perimeter via Euclidean Distance:}
+    $$d(A, B) = \sqrt{(4 - (-2))^2 + (-1 - 3)^2} = \sqrt{6^2 + (-4)^2} = \sqrt{52} = 2\sqrt{13} \approx 7.2111$$
+    $$d(B, C) = \sqrt{(6 - 4)^2 + (5 - (-1))^2} = \sqrt{2^2 + 6^2} = \sqrt{40} = 2\sqrt{10} \approx 6.3246$$
+    $$d(C, A) = \sqrt{(6 - (-2))^2 + (5 - 3)^2} = \sqrt{8^2 + 2^2} = \sqrt{68} = 2\sqrt{17} \approx 8.2462$$
+    $$\text{Perimeter} = \sqrt{52} + \sqrt{40} + \sqrt{68} \approx 7.2111 + 6.3246 + 8.2462 = \mathbf{21.7819}$$
+    \item \textbf{Geometric Centroid $G$:}
+    $$x_G = \frac{x_A + x_B + x_C}{3} = \frac{-2 + 4 + 6}{3} = \mathbf{\frac{8}{3} \approx 2.6667}$$
+    $$y_G = \frac{y_A + y_B + y_C}{3} = \frac{3 + (-1) + 5}{3} = \mathbf{\frac{7}{3} \approx 2.3333}$$
+    $$G = \left( \frac{8}{3}, \frac{7}{3} \right)$$
+    \item \textbf{Internal Section Point $P$ ($2 : 1$ Ratio):}
+    Using the section formula with $m = 2, n = 1$:
+    $$x_P = \frac{2(4) + 1(-2)}{2 + 1} = \frac{8 - 2}{3} = \mathbf{2.0}$$
+    $$y_P = \frac{2(-1) + 1(3)}{2 + 1} = \frac{-2 + 3}{3} = \mathbf{\frac{1}{3} \approx 0.3333}$$
+    $$P = \left( 2, \frac{1}{3} \right)$$
+\end{enumerate}
+
+\textbf{2. Line Equations, Intercepts, and Orthogonal Projections}
+Given $L_1: 3x - 4y + 12 = 0$:
+\begin{enumerate}
+    \item \textbf{Intercepts and Slope:}
+    \begin{itemize}
+        \item $x$-intercept ($y=0$): $3x + 12 = 0 \implies x = -4 \implies \mathbf{a = -4}$.
+        \item $y$-intercept ($x=0$): $-4y + 12 = 0 \implies y = 3 \implies \mathbf{b = 3}$.
+        \item Slope: $4y = 3x + 12 \implies y = \frac{3}{4}x + 3 \implies \mathbf{m_1 = \frac{3}{4} = 0.75}$.
+    \end{itemize}
+    \item \textbf{Perpendicular Line $L_2$ Through $(5, -2)$:}
+    The perpendicular slope is $m_2 = -\frac{1}{m_1} = -\frac{4}{3}$.
+    $$y - (-2) = -\frac{4}{3}(x - 5) \implies 3(y + 2) = -4(x - 5) \implies 3y + 6 = -4x + 20$$
+    $$\mathbf{4x + 3y - 14 = 0}$$
+    \item \textbf{Intersection Point and Orthogonal Projection:}
+    Solving the linear system:
+    \begin{align*}
+        3x - 4y &= -12 \quad \times 3 \implies 9x - 12y = -36 \\
+        4x + 3y &= 14 \quad \times 4 \implies 16x + 12y = 56
+    \end{align*}
+    Adding the equations gives $25x = 20 \implies \mathbf{x = \frac{4}{5} = 0.80}$.
+    Substituting $x = 0.80$ into $4x + 3y = 14$:
+    $$4(0.80) + 3y = 14 \implies 3.2 + 3y = 14 \implies 3y = 10.8 \implies \mathbf{y = \frac{18}{5} = 3.60}$$
+    Intersection point is $\mathbf{(0.80, 3.60)}$.
+    
+    Verifying via projection formula:
+    $$t = \frac{Ax_0 + By_0 + C}{A^2 + B^2} = \frac{3(5) - 4(-2) + 12}{3^2 + (-4)^2} = \frac{15 + 8 + 12}{25} = \frac{35}{25} = 1.40$$
+    $$x_{\text{proj}} = 5 - (1.40)(3) = 5 - 4.2 = 0.80$$
+    $$y_{\text{proj}} = -2 - (1.40)(-4) = -2 + 5.6 = 3.60$$
+    The intersection matches the orthogonal projection point identically!
+\end{enumerate}
+
+\textbf{3. Support Vector Machine Decision Margins}
+Given hyperplanes $H_1: 2x - 3y + 6 = 0$ and $H_2: 4x - 6y - 14 = 0$:
+\begin{enumerate}
+    \item \textbf{Normalized Form of $H_2$:}
+    Dividing the entire equation of $H_2$ by $2$:
+    $$\mathbf{2x - 3y - 7 = 0}$$
+    Now $A = 2, B = -3, C_1 = 6, C_2 = -7$.
+    \item \textbf{Perpendicular Margin Separation $d$:}
+    $$d = \frac{|C_1 - C_2|}{\sqrt{A^2 + B^2}} = \frac{|6 - (-7)|}{\sqrt{2^2 + (-3)^2}} = \frac{13}{\sqrt{4 + 9}} = \frac{13}{\sqrt{13}} = \mathbf{\sqrt{13} \approx 3.6056}$$
+    \item \textbf{Midway Decision Boundary $H_0$:}
+    The central decision line has the same slope and an intercept constant equal to the arithmetic mean of $C_1$ and $C_2$:
+    $$C_0 = \frac{C_1 + C_2}{2} = \frac{6 + (-7)}{2} = -\frac{1}{2} = -0.5$$
+    $$2x - 3y - 0.5 = 0 \implies \mathbf{4x - 6y - 1 = 0}$$
+\end{enumerate}
+
+\textbf{4. Point-to-Line Distance as Classification Confidence}
+Decision boundary: $5x + 12y - 26 = 0$. Query point: $(3, 4)$.
+\begin{enumerate}
+    \item \textbf{Perpendicular Distance:}
+    $$d = \frac{|Ax_0 + By_0 + C|}{\sqrt{A^2 + B^2}} = \frac{|5(3) + 12(4) - 26|}{\sqrt{5^2 + 12^2}} = \frac{|15 + 48 - 26|}{\sqrt{25 + 144}} = \frac{|37|}{\sqrt{169}} = \mathbf{\frac{37}{13} \approx 2.8462}$$
+    \item \textbf{Predicted Classes:}
+    \begin{itemize}
+        \item For $(3, 4)$: $5(3) + 12(4) - 26 = 37 > 0 \implies \mathbf{\text{Class } +1}$.
+        \item For origin $(0, 0)$: $5(0) + 12(0) - 26 = -26 < 0 \implies \mathbf{\text{Class } -1}$.
+    \end{itemize}
+    \item \textbf{Classification Margins:}
+    Point $(3, 4)$ is separated by distance $\mathbf{2.8462}$ units into the positive half-space. The origin $(0, 0)$ is separated by distance $\frac{|-26|}{13} = \mathbf{2.0}$ units into the negative half-space.
+\end{enumerate}
+
+\textbf{5. Ordinary Least Squares (OLS) Closed-Form Derivation}
+Data: $\{(1, 2), (2, 3), (3, 5), (4, 4), (5, 6)\}$, $N = 5$.
+\begin{enumerate}
+    \item \textbf{Sample Means:}
+    $$\bar{x} = \frac{1 + 2 + 3 + 4 + 5}{5} = \frac{15}{5} = \mathbf{3.0}$$
+    $$\bar{y} = \frac{2 + 3 + 5 + 4 + 6}{5} = \frac{20}{5} = \mathbf{4.0}$$
+    \item \textbf{Optimal Slope $m$ and Intercept $c$:}
+    Compute deviance sums:
+    $$\sum_{i=1}^5 (x_i - \bar{x})^2 = (-2)^2 + (-1)^2 + 0^2 + 1^2 + 2^2 = 4 + 1 + 0 + 1 + 4 = 10$$
+    $$\sum_{i=1}^5 (x_i - \bar{x})(y_i - \bar{y}) = (-2)(-2) + (-1)(-1) + (0)(1) + (1)(0) + (2)(2) = 4 + 1 + 0 + 0 + 4 = 9$$
+    $$m = \frac{\sum (x_i - \bar{x})(y_i - \bar{y})}{\sum (x_i - \bar{x})^2} = \frac{9}{10} = \mathbf{0.90}$$
+    $$c = \bar{y} - m\bar{x} = 4.0 - (0.90)(3.0) = 4.0 - 2.70 = \mathbf{1.30}$$
+    Fitted regression line: $\mathbf{\hat{y} = 0.90x + 1.30}$.
+    \item \textbf{Target Prediction for $x = 6$:}
+    $$\hat{y}(6) = 0.90(6) + 1.30 = 5.40 + 1.30 = \mathbf{6.70}$$
+    \item \textbf{Sum of Squared Errors (SSE):}
+    \begin{align*}
+        e_1 &= 2 - (0.9(1) + 1.3) = 2 - 2.2 = -0.2 \implies e_1^2 = 0.04 \\
+        e_2 &= 3 - (0.9(2) + 1.3) = 3 - 3.1 = -0.1 \implies e_2^2 = 0.01 \\
+        e_3 &= 5 - (0.9(3) + 1.3) = 5 - 4.0 = +1.0 \implies e_3^2 = 1.00 \\
+        e_4 &= 4 - (0.9(4) + 1.3) = 4 - 4.9 = -0.9 \implies e_4^2 = 0.81 \\
+        e_5 &= 6 - (0.9(5) + 1.3) = 6 - 5.8 = +0.2 \implies e_5^2 = 0.04
+    \end{align*}
+    $$\text{SSE} = \sum_{i=1}^5 e_i^2 = 0.04 + 0.01 + 1.00 + 0.81 + 0.04 = \mathbf{1.90}$$
+\end{enumerate}
+
+\textbf{6. Conceptual Diagnostic: Parallel Line Separation Formula Trap}
 \begin{itemize}
-    \item Use the distance formula: $d = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}$.
-    \item $d = \sqrt{(7 - 3)^2 + (1 - 4)^2} = \sqrt{4^2 + (-3)^2}$.
-    \item $d = \sqrt{16 + 9} = \sqrt{25} = 5$.
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} The formula $d = \frac{|C_1 - C_2|}{\sqrt{A^2 + B^2}}$ is derived on the strict mathematical precondition that the normal vectors $(A, B)$ are identical in both equations. For $L_1: 3x - 4y + 5 = 0$ and $L_2: 6x - 8y - 15 = 0$, the normal vector of $L_2$ has length $10$, while that of $L_1$ has length $5$. Dividing $L_2$ by $2$ gives $3x - 4y - 7.5 = 0$. Now $A = 3, B = -4, C_1 = 5, C_2 = -7.5$, yielding $d = \frac{|5 - (-7.5)|}{\sqrt{3^2 + (-4)^2}} = \frac{12.5}{5} = \mathbf{2.50}$.
+    \item \textbf{Why (a) is false:} Distance represents physical geometric length and is never squared in the final distance metric.
+    \item \textbf{Why (c) is false:} The denominator requires the Euclidean norm of the common normal vector $\sqrt{A^2 + B^2}$, not the sum across four mixed coefficients.
+    \item \textbf{Why (d) is false:} Opposing signs in constant terms indicate that the two parallel lines lie on opposite sides of the origin; the absolute value difference $|C_1 - C_2|$ handles this correctly.
 \end{itemize}
 
-\textbf{2. Pure Math: A point $P$ divides the line segment joining $X(1, -2)$ and $Y(-3, 6)$ internally in the ratio $1:3$. Find the coordinates of $P$.}
+\textbf{7. Conceptual Diagnostic: OLS Vertical Errors vs. Orthogonal PCA Projection}
 \begin{itemize}
-    \item Use the internal section formula with $m=1, n=3$, $(x_1, y_1)=(1, -2)$, and $(x_2, y_2)=(-3, 6)$.
-    \item $x = \frac{1(-3) + 3(1)}{1 + 3} = \frac{-3 + 3}{4} = 0$.
-    \item $y = \frac{1(6) + 3(-2)}{1 + 3} = \frac{6 - 6}{4} = 0$.
-    \item The coordinates of point $P$ are $(0, 0)$.
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} Ordinary Least Squares regression solves the asymmetric loss minimization problem $\min_{m, c} \sum_{i=1}^N (y_i - (mx_i + c))^2$, which measures strictly \textbf{vertical deviations} parallel to the $y$-axis. This formulation mathematically assumes that feature $x$ is measured without noise, attributing all residual variance to $y$. In contrast, Principal Component Analysis (orthogonal regression / Total Least Squares) minimizes the perpendicular Euclidean distance $\frac{|Ax_i + By_i + C|}{\sqrt{A^2 + B^2}}$, treating both $x$ and $y$ symmetrically as noisy random variables. Consequently, OLS attenuates the estimated slope relative to PCA whenever $x$ has noise.
+    \item \textbf{Why (a) is false:} Both OLS and PCA work perfectly on centered or uncentered data; mean-centering is simply standard algebraic convenience.
+    \item \textbf{Why (b) is false:} Both OLS simple regression and first-component PCA define strictly linear straight lines in 2D space.
+    \item \textbf{Why (d) is false:} PCA maximizes variance along the principal projection axis, not minimizes it.
 \end{itemize}
 
-\textbf{3. Data Science: A K-Means clustering algorithm places a centroid at $(5, 5)$. A new data point arrives at $(2, 9)$. What is the Euclidean distance from the point to the centroid?}
-\begin{itemize}
-    \item Euclidean distance is exactly the distance formula.
-    \item $d = \sqrt{(2 - 5)^2 + (9 - 5)^2} = \sqrt{(-3)^2 + 4^2}$.
-    \item $d = \sqrt{9 + 16} = \sqrt{25} = 5$.
-\end{itemize}
-
-\textbf{4. Pure Math: Find the equation of the line passing through the points $(2, 3)$ and $(4, 7)$ in slope-intercept form.}
-\begin{itemize}
-    \item First find the slope $m = \frac{7 - 3}{4 - 2} = \frac{4}{2} = 2$.
-    \item Use point-slope form: $y - y_1 = m(x - x_1) \implies y - 3 = 2(x - 2)$.
-    \item Simplify to slope-intercept form ($y = mx + c$): $y = 2x - 4 + 3 \implies y = 2x - 1$.
-\end{itemize}
-
-\textbf{5. Data Science: A simple linear regression model predicts housing prices ($y$) based on square footage ($x$). The model parameters are learned as slope $m = 150$ and intercept $c = 50000$. If a house has $2000$ square feet, what is the predicted price?}
-\begin{itemize}
-    \item The model equation is $y = mx + c = 150x + 50000$.
-    \item Substitute $x = 2000$: $y = 150(2000) + 50000 = 300000 + 50000$.
-    \item The predicted price is $350,000$.
-\end{itemize}
-
-\textbf{6. Pure Math: Find the perpendicular distance from the origin $(0,0)$ to the line $3x - 4y + 15 = 0$.}
-\begin{itemize}
-    \item Use the point-to-line distance formula: $d = \frac{|Ax_0 + By_0 + C|}{\sqrt{A^2 + B^2}}$.
-    \item Here $(x_0, y_0) = (0, 0)$ and the line is $3x - 4y + 15 = 0$ ($A=3, B=-4, C=15$).
-    \item $d = \frac{|3(0) - 4(0) + 15|}{\sqrt{3^2 + (-4)^2}} = \frac{15}{\sqrt{9 + 16}} = \frac{15}{5} = 3$.
-\end{itemize}
-
-\section*{Week 3: Quadratic Functions}
+\section*{Week 3: Quadratic Functions and Optimization}
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Pure Math: Find the roots of the quadratic equation $3x^2 - 5x - 2 = 0$ using factorization.}
+\textbf{1. Vieta's Relations and Polynomial Transformation}
+Given quadratic equation $2x^2 - 7x + 3 = 0$ with roots $r_1, r_2$:
+\begin{enumerate}
+    \item \textbf{Vieta's Formulas ($a = 2, b = -7, c = 3$):}
+    $$r_1 + r_2 = -\frac{b}{a} = -\frac{-7}{2} = \mathbf{\frac{7}{2} = 3.50}$$
+    $$r_1 r_2 = \frac{c}{a} = \mathbf{\frac{3}{2} = 1.50}$$
+    \item \textbf{Analytical Root Verification:}
+    Factoring: $2x^2 - 6x - x + 3 = 0 \implies 2x(x - 3) - 1(x - 3) = 0 \implies (2x - 1)(x - 3) = 0$.
+    The roots are $\mathbf{r_1 = 3}$ and $\mathbf{r_2 = \frac{1}{2} = 0.5}$.
+    Check: $3 + 0.5 = 3.5$, and $3 \times 0.5 = 1.5$.
+    \item \textbf{Monic Polynomial with Roots $r_1^2$ and $r_2^2$:}
+    Compute the new root sum $S'$ and product $P'$:
+    $$S' = r_1^2 + r_2^2 = (r_1 + r_2)^2 - 2r_1 r_2 = \left( \frac{7}{2} \right)^2 - 2\left( \frac{3}{2} \right) = \frac{49}{4} - 3 = \frac{37}{4} = 9.25$$
+    $$P' = r_1^2 \cdot r_2^2 = (r_1 r_2)^2 = \left( \frac{3}{2} \right)^2 = \frac{9}{4} = 2.25$$
+    The monic quadratic equation is $x^2 - S'x + P' = 0$:
+    $$\mathbf{x^2 - \frac{37}{4}x + \frac{9}{4} = 0 \iff 4x^2 - 37x + 9 = 0}$$
+    \item \textbf{Symmetric Sum of Cubes $r_1^3 + r_2^3$:}
+    $$r_1^3 + r_2^3 = (r_1 + r_2)\left[(r_1 + r_2)^2 - 3r_1 r_2\right] = \left(\frac{7}{2}\right)\left[\frac{49}{4} - 3\left(\frac{3}{2}\right)\right] = \left(\frac{7}{2}\right)\left[\frac{49}{4} - \frac{18}{4}\right]$$
+    $$r_1^3 + r_2^3 = \left(\frac{7}{2}\right)\left(\frac{31}{4}\right) = \mathbf{\frac{217}{8} = 27.125}$$
+    (Direct verification: $3^3 + (0.5)^3 = 27 + 0.125 = 27.125$).
+\end{enumerate}
+
+\textbf{2. Vertex Form and Interval-Constrained Optimization}
+Given $f(x) = -3x^2 + 12x - 5$:
+\begin{enumerate}
+    \item \textbf{Vertex Form via Completing the Square:}
+    $$f(x) = -3(x^2 - 4x) - 5 = -3(x^2 - 4x + 4 - 4) - 5 = -3((x - 2)^2 - 4) - 5$$
+    $$f(x) = -3(x - 2)^2 + 12 - 5 = \mathbf{-3(x - 2)^2 + 7}$$
+    \item \textbf{Unconstrained Extremum:}
+    The vertex is at $(h, k) = (2, 7)$. Since $a = -3 < 0$, the parabola opens downward, so $f(x)$ has a \textbf{global maximum} of $7.0$ achieved at $x = 2.0$.
+    \item \textbf{Constrained Extrema on $[3, 5]$:}
+    The vertex $x = 2.0$ lies \textbf{outside} the interval $[3, 5]$ ($2 < 3$).
+    Because $f(x)$ is strictly decreasing for $x \ge 2$, the maximum must occur at the leftmost boundary and the minimum at the rightmost boundary:
+    $$f(3) = -3(3 - 2)^2 + 7 = -3(1) + 7 = \mathbf{4.0 \quad (\text{Absolute Maximum on } [3, 5])}$$
+    $$f(5) = -3(5 - 2)^2 + 7 = -3(9) + 7 = -27 + 7 = \mathbf{-20.0 \quad (\text{Absolute Minimum on } [3, 5])}$$
+    \item \textbf{Constrained Extrema on $[-2, 1]$:}
+    The vertex $x = 2.0$ is again \textbf{outside} $[-2, 1]$ ($2 > 1$).
+    For $x \le 2$, $f(x)$ is strictly increasing, so the maximum is at $x = 1$ and the minimum at $x = -2$:
+    $$f(1) = -3(1 - 2)^2 + 7 = -3(1) + 7 = \mathbf{4.0 \quad (\text{Absolute Maximum on } [-2, 1])}$$
+    $$f(-2) = -3(-2 - 2)^2 + 7 = -3(16) + 7 = -48 + 7 = \mathbf{-41.0 \quad (\text{Absolute Minimum on } [-2, 1])}$$
+\end{enumerate}
+
+\textbf{3. Convex Quadratic Loss and Ridge ($L_2$) Regularization}
+Given $L(w) = \frac{1}{2}(w - 4)^2 + \frac{\lambda}{2} w^2$:
+\begin{enumerate}
+    \item \textbf{Standard Quadratic Form:}
+    $$L(w) = \frac{1}{2}(w^2 - 8w + 16) + \frac{\lambda}{2}w^2 = \mathbf{\left(\frac{1 + \lambda}{2}\right)w^2 - 4w + 8}$$
+    Here, $a = \frac{1 + \lambda}{2}, b = -4, c = 8$.
+    \item \textbf{Strict Convexity:}
+    The second derivative with respect to $w$ is:
+    $$\frac{d^2 L}{dw^2} = 2a = 1 + \lambda$$
+    Since $\lambda \ge 0$, $\frac{d^2 L}{dw^2} \ge 1.0 > 0$ for all $\lambda \ge 0$. The second derivative is strictly positive everywhere, confirming that $L(w)$ is strictly convex.
+    \item \textbf{Optimal Parameter $w^*(\lambda)$:}
+    $$w^* = -\frac{b}{2a} = -\frac{-4}{2\left(\frac{1 + \lambda}{2}\right)} = \mathbf{\frac{4}{1 + \lambda}}$$
+    \item \textbf{Shrinkage Demonstration:}
+    $$\lim_{\lambda \to 0} w^*(\lambda) = \frac{4}{1 + 0} = \mathbf{4.0 = w_{\text{OLS}}}$$
+    $$\lim_{\lambda \to \infty} w^*(\lambda) = \lim_{\lambda \to \infty} \frac{4}{1 + \lambda} = \mathbf{0}$$
+    As the penalty weight $\lambda$ grows, the model parameter is continuously shrunk toward zero.
+    \item \textbf{Numerical Evaluation for $\lambda = 0.5$:}
+    $$w^*(0.5) = \frac{4}{1 + 0.5} = \frac{4}{1.5} = \mathbf{\frac{8}{3} \approx 2.6667}$$
+    $$L\left(\frac{8}{3}\right) = \frac{1}{2}\left(\frac{8}{3} - 4\right)^2 + \frac{0.5}{2}\left(\frac{8}{3}\right)^2 = \frac{1}{2}\left(-\frac{4}{3}\right)^2 + \frac{1}{4}\left(\frac{64}{9}\right) = \frac{8}{9} + \frac{16}{9} = \mathbf{\frac{24}{9} = \frac{8}{3} \approx 2.6667}$$
+\end{enumerate}
+
+\textbf{4. Discriminant Analysis and Strictly Positive Quadratic Forms}
+Given $g(x) = k x^2 + 6x + (k - 8)$:
+\begin{enumerate}
+    \item \textbf{Discriminant Formulation:}
+    $$\Delta(k) = 6^2 - 4(k)(k - 8) = 36 - 4k^2 + 32k = \mathbf{-4k^2 + 32k + 36 = -4(k - 9)(k + 1)}$$
+    \item \textbf{Repeated Real Root Condition ($\Delta = 0$):}
+    $$-4(k - 9)(k + 1) = 0 \implies \mathbf{k = 9 \quad \text{or} \quad k = -1}$$
+    (Both values ensure $k \neq 0$, so $g(x)$ remains quadratic).
+    \item \textbf{Strict Positivity Condition ($g(x) > 0$ for all $x \in \R$):}
+    For a quadratic to be strictly positive everywhere, it must open upward ($a > 0$) and have no real roots ($\Delta < 0$):
+    \begin{itemize}
+        \item $a > 0 \implies k > 0$.
+        \item $\Delta(k) < 0 \implies -4(k - 9)(k + 1) < 0 \implies (k - 9)(k + 1) > 0 \implies k > 9$ or $k < -1$.
+    \end{itemize}
+    Taking the intersection of $k > 0$ with $(-\infty, -1) \cup (9, \infty)$ yields:
+    $$\mathbf{k > 9 \quad (k \in (9, \infty))}$$
+\end{enumerate}
+
+\textbf{5. Mean Squared Error (MSE) Parameter Estimation}
+Model: $\hat{y} = w x$. Data: $\{(1, 3), (2, 5), (3, 8)\}$.
+\begin{enumerate}
+    \item \textbf{MSE Loss as Explicit Quadratic in $w$:}
+    $$L(w) = \frac{1}{3} \left[ (3 - w)^2 + (5 - 2w)^2 + (8 - 3w)^2 \right]$$
+    $$L(w) = \frac{1}{3} \left[ (9 - 6w + w^2) + (25 - 20w + 4w^2) + (64 - 48w + 9w^2) \right]$$
+    $$L(w) = \frac{1}{3} \left[ 14w^2 - 74w + 98 \right] = \mathbf{\frac{14}{3}w^2 - \frac{74}{3}w + \frac{98}{3}}$$
+    \item \textbf{Optimal Parameter Weight $w^*$:}
+    $$w^* = -\frac{b}{2a} = \frac{74/3}{2(14/3)} = \frac{74}{28} = \mathbf{\frac{37}{14} \approx 2.6429}$$
+    \item \textbf{Minimum MSE Loss:}
+    Compute the residuals at $w^* = \frac{37}{14}$:
+    \begin{align*}
+        e_1 &= 3 - \frac{37}{14}(1) = \frac{42 - 37}{14} = \frac{5}{14} \implies e_1^2 = \frac{25}{196} \\
+        e_2 &= 5 - \frac{37}{14}(2) = \frac{70 - 74}{14} = -\frac{4}{14} \implies e_2^2 = \frac{16}{196} \\
+        e_3 &= 8 - \frac{37}{14}(3) = \frac{112 - 111}{14} = \frac{1}{14} \implies e_3^2 = \frac{1}{196}
+    \end{align*}
+    $$\text{SSE} = \sum_{i=1}^3 e_i^2 = \frac{25 + 16 + 1}{196} = \frac{42}{196} = \frac{3}{14}$$
+    $$\text{MSE}^* = \frac{1}{3} \times \frac{3}{14} = \mathbf{\frac{1}{14} \approx 0.0714}$$
+\end{enumerate}
+
+\textbf{6. Conceptual Diagnostic: Parabola Extrema and Strict Positivity}
 \begin{itemize}
-    \item We need two numbers that multiply to $(3)(-2) = -6$ and add to $-5$. These numbers are $-6$ and $1$.
-    \item Rewrite the middle term: $3x^2 - 6x + x - 2 = 0$.
-    \item Factor by grouping: $3x(x - 2) + 1(x - 2) = 0 \implies (3x + 1)(x - 2) = 0$.
-    \item The roots are $x = -\frac{1}{3}$ and $x = 2$.
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} The leading coefficient $a > 0$ guarantees that the second derivative $f''(x) = 2a > 0$ everywhere, so the parabola is strictly convex and possesses a unique global minimum at the vertex $x = -\frac{b}{2a}$. The discriminant $\Delta = b^2 - 4ac < 0$ strictly guarantees that the equation $f(x) = 0$ has zero real roots, meaning the graph never crosses or touches the $x$-axis. Since the minimum value is $k = -\frac{\Delta}{4a} > 0$, the function value $f(x)$ is strictly positive ($f(x) > 0$) for all real numbers $x \in \R$.
+    \item \textbf{Why (a) is false:} $f(x)$ is defined for all real numbers and produces valid real values; only the equation $f(x) = 0$ has complex roots.
+    \item \textbf{Why (b) is false:} $a > 0$ produces a global minimum, not a maximum, and $\Delta < 0$ implies zero $x$-intercepts.
+    \item \textbf{Why (d) is false:} $f(x)$ is strictly positive, not negative.
 \end{itemize}
 
-\textbf{2. Pure Math: Calculate the discriminant of $4x^2 + 12x + 9 = 0$ and state the nature of its roots.}
+\textbf{7. Conceptual Diagnostic: Ridge Regularization Shrinkage Mechanism}
 \begin{itemize}
-    \item The discriminant is $D = b^2 - 4ac$. Here, $a=4, b=12, c=9$.
-    \item $D = (12)^2 - 4(4)(9) = 144 - 144 = 0$.
-    \item Since $D = 0$, the equation has one repeated real root.
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} The closed-form Ridge parameter $w^*(\lambda) = \frac{w_{\text{OLS}}}{1 + \lambda}$ has the penalty $\lambda$ in the denominator. As $\lambda > 0$ increases, the denominator strictly increases, smoothly and monotonically shrinking $w^*$ toward zero. However, because the numerator $w_{\text{OLS}} \neq 0$ and the denominator is finite for all finite $\lambda$, $w^*$ is never set exactly to zero.
+    \item \textbf{Why (a) is false:} The shrinkage is strictly monotonic and non-oscillatory.
+    \item \textbf{Why (c) is false:} Setting weights exactly to zero is the property of $L_1$ Lasso regularization (due to the sharp vertex of the $L_1$ diamond norm), not $L_2$ Ridge.
+    \item \textbf{Why (d) is false:} Regularization reduces model variance (preventing overfitting) at the expense of introducing small bias.
 \end{itemize}
 
-\textbf{3. Data Science: A Mean Squared Error loss function for a single parameter $w$ is defined as $L(w) = 2w^2 - 16w + 35$. Find the value of $w$ that minimizes the loss, and the minimum loss value itself.}
-\begin{itemize}
-    \item This is an optimization problem where $a = 2, b = -16, c = 35$. Since $a > 0$, it is a parabola opening upward (a minimum exists).
-    \item The minimum occurs at the vertex: $w = -\frac{b}{2a} = -\frac{-16}{2(2)} = \frac{16}{4} = 4$.
-    \item The minimum loss value is $L(4) = 2(4)^2 - 16(4) + 35 = 32 - 64 + 35 = 3$.
-    \item So, setting parameter $w = 4$ minimizes the loss to $3$.
-\end{itemize}
-
-\textbf{4. Pure Math: Convert the quadratic function $y = x^2 + 6x + 5$ into vertex form and identify its vertex.}
-\begin{itemize}
-    \item The vertex form is $y = a(x - h)^2 + k$. We complete the square.
-    \item Half of the $x$ coefficient is $\frac{6}{2} = 3$, and $3^2 = 9$.
-    \item Add and subtract 9: $y = (x^2 + 6x + 9) - 9 + 5$.
-    \item $y = (x + 3)^2 - 4$.
-    \item The vertex $(h, k)$ is $(-3, -4)$.
-\end{itemize}
-
-\textbf{5. Data Science: A manufacturing algorithm predicts that producing $n$ items yields a cost $C(n) = 0.5n^2 - 50n + 1500$. How many items should be produced to minimize the cost?}
-\begin{itemize}
-    \item Here $a = 0.5, b = -50$. Since $a > 0$, this parabola has a minimum.
-    \item The number of items that minimizes cost is given by the vertex x-coordinate: $n = -\frac{b}{2a}$.
-    \item $n = -\frac{-50}{2(0.5)} = \frac{50}{1} = 50$.
-    \item Producing 50 items minimizes the cost.
-\end{itemize}
-
-\section*{Week 4: Algebra of Polynomials}
+\section*{Week 4: Algebra of Polynomials and Model Capacity}
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Pure Math: Use the Remainder Theorem to find the remainder when $P(x) = x^4 - 2x^3 + 5x - 7$ is divided by $(x - 1)$.}
+\textbf{1. Remainder and Factor Theorems in Parameter Recovery}
+Given $P(x) = 2x^3 + k x^2 - 11x + 6$:
+\begin{enumerate}
+    \item \textbf{Recovering $k$ via the Factor Theorem:}
+    If $(x - 2)$ is a factor, then $P(2) = 0$:
+    $$P(2) = 2(2)^3 + k(2)^2 - 11(2) + 6 = 2(8) + 4k - 22 + 6 = 16 + 4k - 16 = 4k = 0 \implies \mathbf{k = 0}$$
+    Thus, $P(x) = 2x^3 - 11x + 6$.
+    \item \textbf{Complete Linear Factorization:}
+    Divide $P(x)$ by $(x - 2)$:
+    $$2x^3 - 11x + 6 = (x - 2)(2x^2 + 4x - 3)$$
+    Finding the roots of the quadratic factor $2x^2 + 4x - 3 = 0$:
+    $$x = \frac{-4 \pm \sqrt{4^2 - 4(2)(-3)}}{2(2)} = \frac{-4 \pm \sqrt{16 + 24}}{4} = \frac{-4 \pm \sqrt{40}}{4} = \mathbf{-1 \pm \frac{\sqrt{10}}{2}}$$
+    The complete factorization over $\R$ is:
+    $$\mathbf{P(x) = 2(x - 2)\left(x - \left(-1 + \frac{\sqrt{10}}{2}\right)\right)\left(x - \left(-1 - \frac{\sqrt{10}}{2}\right)\right)}$$
+    \item \textbf{Remainder when Divided by $(x + 3)$:}
+    By the Remainder Theorem, the remainder is $P(-3)$:
+    $$R = P(-3) = 2(-3)^3 - 11(-3) + 6 = 2(-27) + 33 + 6 = -54 + 39 = \mathbf{-15}$$
+\end{enumerate}
+
+\textbf{2. Global End Behavior and Parity Analysis}
+\begin{enumerate}
+    \item \textbf{Degree and Leading Coefficients:}
+    \begin{itemize}
+        \item $f_1(x) = -3x^5 + 7x^3 - 2x + 10$: Degree $n = 5$ (odd), leading coefficient $a_5 = -3$ (negative).
+        \item $f_2(x) = 4x^6 - 2x^5 + 8x^2 - 15$: Degree $n = 6$ (even), leading coefficient $a_6 = 4$ (positive).
+        \item $f_3(x) = -(x - 1)^2 (x + 2)^2 (x - 4)$: Degree $n = 2 + 2 + 1 = 5$ (odd), leading coefficient $a_5 = -(1)^2(1)^2(1) = -1$ (negative).
+    \end{itemize}
+    \item \textbf{Asymptotic Limit Behaviors:}
+    \begin{itemize}
+        \item $f_1(x)$: $\lim_{x \to \infty} f_1(x) = \mathbf{-\infty}$, $\lim_{x \to -\infty} f_1(x) = \mathbf{+\infty}$ (Up-Down).
+        \item $f_2(x)$: $\lim_{x \to \infty} f_2(x) = \mathbf{+\infty}$, $\lim_{x \to -\infty} f_2(x) = \mathbf{+\infty}$ (Up-Up).
+        \item $f_3(x)$: $\lim_{x \to \infty} f_3(x) = \mathbf{-\infty}$, $\lim_{x \to -\infty} f_3(x) = \mathbf{+\infty}$ (Up-Down).
+    \end{itemize}
+    \item \textbf{Maximum Turning Points ($n - 1$):}
+    \begin{itemize}
+        \item $f_1(x)$: At most $5 - 1 = \mathbf{4}$ turning points.
+        \item $f_2(x)$: At most $6 - 1 = \mathbf{5}$ turning points.
+        \item $f_3(x)$: At most $5 - 1 = \mathbf{4}$ turning points.
+    \end{itemize}
+\end{enumerate}
+
+\textbf{3. Root Multiplicity and Curve Topology}
+Given $g(x) = -\frac{1}{4} (x + 4)^3 (x + 1)^2 (x - 2) (x - 5)^4$:
+\begin{enumerate}
+    \item \textbf{Degree and End Behavior:}
+    Total degree $n = 3 + 2 + 1 + 4 = 10$ (even degree). Leading coefficient is $-\frac{1}{4} < 0$.
+    By the leading coefficient test, $\lim_{x \to \pm\infty} g(x) = \mathbf{-\infty}$ (Down-Down).
+    \item \textbf{Real Zeros and Multiplicities:}
+    $x = -4$ (multiplicity 3), $x = -1$ (multiplicity 2), $x = 2$ (multiplicity 1), $x = 5$ (multiplicity 4).
+    \item \textbf{Geometric Axis Behavior:}
+    \begin{itemize}
+        \item At $x = -4$ (odd multiplicity $3 > 1$): The graph \textbf{flattens into an inflection point and crosses} the $x$-axis.
+        \item At $x = -1$ (even multiplicity $2$): The graph is \textbf{tangent and bounces} off the $x$-axis without crossing.
+        \item At $x = 2$ (odd multiplicity $1$): The graph \textbf{crosses} the $x$-axis linearly without flattening.
+        \item At $x = 5$ (even multiplicity $4$): The graph is \textbf{tangent and bounces} off the $x$-axis with high-order flattening.
+    \end{itemize}
+    \item \textbf{$y$-Intercept:}
+    $$g(0) = -\frac{1}{4} (4)^3 (1)^2 (-2) (-5)^4 = -\frac{1}{4}(64)(1)(-2)(625) = (-16)(-2)(625) = \mathbf{20{,}000}$$
+\end{enumerate}
+
+\textbf{4. Polynomial Long Division and Asymptotic Quotients}
+Divide $A(x) = 3x^4 - 5x^3 + 4x - 8$ by $B(x) = x^2 - 2x + 3$:
+\begin{enumerate}
+    \item \textbf{Step-by-Step Division:}
+    \begin{align*}
+        \text{Leading term: } & \frac{3x^4}{x^2} = 3x^2 \implies 3x^2(x^2 - 2x + 3) = 3x^4 - 6x^3 + 9x^2 \\
+        \text{Subtracting: } & (3x^4 - 5x^3 + 4x - 8) - (3x^4 - 6x^3 + 9x^2) = x^3 - 9x^2 + 4x - 8 \\
+        \text{Next term: } & \frac{x^3}{x^2} = x \implies x(x^2 - 2x + 3) = x^3 - 2x^2 + 3x \\
+        \text{Subtracting: } & (x^3 - 9x^2 + 4x - 8) - (x^3 - 2x^2 + 3x) = -7x^2 + x - 8 \\
+        \text{Next term: } & \frac{-7x^2}{x^2} = -7 \implies -7(x^2 - 2x + 3) = -7x^2 + 14x - 21 \\
+        \text{Subtracting: } & (-7x^2 + x - 8) - (-7x^2 + 14x - 21) = \mathbf{-13x + 13}
+    \end{align*}
+    Quotient: $\mathbf{Q(x) = 3x^2 + x - 7}$, Remainder: $\mathbf{R(x) = -13x + 13}$.
+    \item \textbf{Degree Verification:} $\deg(R) = 1 < \deg(B) = 2$, satisfying the division algorithm stopping criterion.
+    \item \textbf{Division Identity:}
+    $$\mathbf{3x^4 - 5x^3 + 4x - 8 = (x^2 - 2x + 3)(3x^2 + x - 7) + (-13x + 13)}$$
+\end{enumerate}
+
+\textbf{5. Machine Learning Overfitting and Model Capacity}
+\begin{enumerate}
+    \item \textbf{Minimum Interpolating Degree:} To pass through $N = 4$ distinct data points, the Lagrange polynomial interpolation theorem requires a minimum degree of $d = N - 1 = 4 - 1 = \mathbf{3}$ (cubic polynomial).
+    \item \textbf{Maximum Turning Points:} A cubic polynomial can have at most $d - 1 = 3 - 1 = \mathbf{2}$ turning points.
+    \item \textbf{Generalization Failure and Runge's Phenomenon:} An unregularized degree-10 polynomial fitting 10 points achieves $\text{Training MSE} = 0$, but suffers from \textbf{Runge's Phenomenon}—extreme high-frequency oscillations that explode toward $\pm \infty$ between training points and near interval edges. The model memorizes sample-specific noise rather than the underlying data generating signal, resulting in massive variance and poor generalization test performance compared to a simpler degree-2 polynomial.
+\end{enumerate}
+
+\textbf{6. Conceptual Diagnostic: Turning Points Upper Bound Fallacy}
 \begin{itemize}
-    \item By the Remainder Theorem, the remainder is $P(1)$.
-    \item Substitute $x = 1$: $P(1) = (1)^4 - 2(1)^3 + 5(1) - 7$.
-    \item $P(1) = 1 - 2 + 5 - 7 = 6 - 9 = -3$.
-    \item The remainder is $-3$.
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} The theorem states that a polynomial of degree $n$ has \textbf{at most} $n - 1$ turning points. Evaluating the derivative of $P(x) = x^5 + 2x^3 + 4x - 7$:
+    $$P'(x) = 5x^4 + 6x^2 + 4$$
+    Since $x^4 \ge 0$ and $x^2 \ge 0$ for all real $x$, $5x^4 + 6x^2 + 4 \ge 4 > 0$ strictly for all $x \in \R$. Because the derivative is strictly positive everywhere, $P(x)$ has no critical points and is strictly monotonically increasing on $(-\infty, \infty)$. Therefore, $P(x)$ has \textbf{zero} turning points.
+    \item \textbf{Why (a) is false:} Turning points cannot exceed $n - 1$.
+    \item \textbf{Why (c) is false:} A degree-5 polynomial can have 4, 2, or 0 turning points (always even parity, not guaranteed to be non-zero).
+    \item \textbf{Why (d) is false:} Odd-degree polynomials are not guaranteed to achieve maximum turning points.
 \end{itemize}
 
-\textbf{2. Pure Math: Determine the end behavior of the polynomial $f(x) = 3x^5 - 4x^3 + 2x - 1$.}
+\textbf{7. Conceptual Diagnostic: Multiplicity and Sign Preservation}
 \begin{itemize}
-    \item The leading term is $3x^5$.
-    \item The degree $n = 5$ is odd, and the leading coefficient $a_n = 3$ is positive.
-    \item According to the Leading Coefficient Test for odd degree/positive coefficient, the end behavior is Down-Up.
-    \item As $x \to \infty, y \to \infty$, and as $x \to -\infty, y \to -\infty$.
-\end{itemize}
-
-\textbf{3. Data Science: You are fitting a polynomial regression curve to 4 data points. What is the maximum number of turning points a degree-3 polynomial curve can have as it passes through the data?}
-\begin{itemize}
-    \item A polynomial of degree $n$ has at most $n - 1$ turning points.
-    \item For $n = 3$, the maximum number of turning points is $3 - 1 = 2$.
-\end{itemize}
-
-\textbf{4. Pure Math: Find the x-intercepts and state their multiplicities for the polynomial $g(x) = x^2(x + 3)^3(x - 5)$. Will the graph cross or bounce at $x = -3$?}
-\begin{itemize}
-    \item Set $g(x) = 0$ to find the roots:
-    \item $x = 0$ has multiplicity 2 (even).
-    \item $x = -3$ has multiplicity 3 (odd).
-    \item $x = 5$ has multiplicity 1 (odd).
-    \item At $x = -3$, because the multiplicity is odd, the graph will \textbf{cross} the x-axis (with flattening, since $3 > 1$).
-\end{itemize}
-
-\textbf{5. Data Science: A complex machine learning boundary is defined by the polynomial equation $B(x) = -2x^6 + 5x^4 - 3x^2 + 1$. As $x \to \infty$ and $x \to -\infty$, in which direction does the boundary eventually head?}
-\begin{itemize}
-    \item Look at the leading term: $-2x^6$.
-    \item The degree $n = 6$ is even, and the leading coefficient $a_n = -2$ is negative.
-    \item By the Leading Coefficient Test for even degree/negative coefficient, the end behavior is Down-Down.
-    \item As $x \to \infty$, $B(x) \to -\infty$, and as $x \to -\infty$, $B(x) \to -\infty$.
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} For any even positive integer $k$, $(x - c)^k > 0$ for all $x \neq c$. Because $Q(c) \neq 0$ and polynomials are continuous, $Q(x)$ maintains a constant non-zero sign in an open interval containing $c$. Consequently, $P(x) = (x - c)^k Q(x)$ does not change sign as $x$ moves from $c - \epsilon$ to $c + \epsilon$. Geometrically, this forces the graph to be \textbf{tangent} to the $x$-axis at $(c, 0)$ and bounce back into the same half-plane.
+    \item \textbf{Why (a) is false:} Sign changes across the root occur only for odd multiplicities.
+    \item \textbf{Why (b) is false:} Polynomials are infinitely differentiable smooth functions and cannot have jump discontinuities.
+    \item \textbf{Why (d) is false:} Crossing with flattening occurs for odd multiplicities $k \ge 3$, not even multiplicities.
 \end{itemize}
 
 \section*{Week 5: Functions, Compositions, and Exponentials}
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Pure Math: Use the horizontal line test conceptually to determine if $f(x) = x^2$ is one-to-one on the domain $\R$. What if the domain is restricted to $[0, \infty)$?}
+\textbf{1. Composite Function Formulations and Restricted Domains}
+Given $f(x) = \sqrt{2x - 6}$ and $g(x) = \frac{x + 2}{x - 3}$:
+\begin{enumerate}
+    \item \textbf{Natural Domains:}
+    \begin{itemize}
+        \item For $f(x)$: Requires radicand $2x - 6 \ge 0 \implies 2x \ge 6 \implies \mathbf{\text{Dom}(f) = [3, \infty)}$.
+        \item For $g(x)$: Requires non-zero denominator $x - 3 \neq 0 \implies \mathbf{\text{Dom}(g) = (-\infty, 3) \cup (3, \infty)}$.
+    \end{itemize}
+    \item \textbf{Composite Expression $(f \circ g)(x)$:}
+    $$(f \circ g)(x) = \sqrt{2g(x) - 6} = \sqrt{2\left(\frac{x + 2}{x - 3}\right) - 6} = \sqrt{\frac{2x + 4 - 6(x - 3)}{x - 3}} = \mathbf{\sqrt{\frac{22 - 4x}{x - 3}} = \sqrt{\frac{2(11 - 2x)}{x - 3}}}$$
+    \item \textbf{Rigorous Domain of $(f \circ g)(x)$:}
+    By formal definition: $\text{Dom}(f \circ g) = \{x \in \text{Dom}(g) \mid g(x) \in \text{Dom}(f)\}$.
+    \begin{itemize}
+        \item Condition 1: $x \in \text{Dom}(g) \implies x \neq 3$.
+        \item Condition 2: $g(x) \ge 3 \implies \frac{x + 2}{x - 3} - 3 \ge 0 \implies \frac{11 - 2x}{x - 3} \ge 0$.
+    \end{itemize}
+    Testing sign intervals across critical values $x = 3$ and $x = \frac{11}{2} = 5.5$:
+    \begin{itemize}
+        \item On $(-\infty, 3)$: $\frac{+}{-} = - < 0$ (Invalid).
+        \item On $(3, 5.5]$: $\frac{+}{+} = + \ge 0$ (Valid).
+        \item On $(5.5, \infty)$: $\frac{-}{+} = - < 0$ (Invalid).
+    \end{itemize}
+    Thus, the exact domain is $\mathbf{\text{Dom}(f \circ g) = \left(3, \frac{11}{2}\right] = (3, 5.5]}$.
+    \item \textbf{Expression and Domain of $(g \circ f)(x)$:}
+    $$(g \circ f)(x) = \frac{f(x) + 2}{f(x) - 3} = \mathbf{\frac{\sqrt{2x - 6} + 2}{\sqrt{2x - 6} - 3}}$$
+    Requires $x \in \text{Dom}(f) \implies x \ge 3$, and $f(x) \neq 3 \implies \sqrt{2x - 6} \neq 3 \implies 2x - 6 \neq 9 \implies x \neq \frac{15}{2} = 7.5$.
+    $$\mathbf{\text{Dom}(g \circ f) = [3, 7.5) \cup (7.5, \infty) = \left[3, \frac{15}{2}\right) \cup \left(\frac{15}{2}, \infty\right)}$$
+\end{enumerate}
+
+\textbf{2. Analytical Inversion of Rational Mappings}
+Given $\func{f}{\R \setminus \{2\}}{\R \setminus \{4\}}$ with $f(x) = \frac{4x + 1}{x - 2}$:
+\begin{enumerate}
+    \item \textbf{Injectivity Proof:}
+    Assume $f(x_1) = f(x_2)$:
+    $$\frac{4x_1 + 1}{x_1 - 2} = \frac{4x_2 + 1}{x_2 - 2} \implies (4x_1 + 1)(x_2 - 2) = (4x_2 + 1)(x_1 - 2)$$
+    $$4x_1 x_2 - 8x_1 + x_2 - 2 = 4x_1 x_2 - 8x_2 + x_1 - 2$$
+    Subtracting common terms: $-8x_1 + x_2 = -8x_2 + x_1 \implies -9x_1 = -9x_2 \implies x_1 = x_2$.
+    Thus, $f$ is strictly injective.
+    \item \textbf{Explicit Inverse $f^{-1}(y)$:}
+    Set $y = \frac{4x + 1}{x - 2}$ and isolate $x$:
+    $$y(x - 2) = 4x + 1 \implies xy - 2y = 4x + 1 \implies xy - 4x = 2y + 1$$
+    $$x(y - 4) = 2y + 1 \implies x = \frac{2y + 1}{y - 4}$$
+    $$\mathbf{f^{-1}(y) = \frac{2y + 1}{y - 4}, \qquad y \in \R \setminus \{4\}}$$
+    \item \textbf{Algebraic Identity Verification:}
+    $$(f \circ f^{-1})(y) = \frac{4\left(\frac{2y+1}{y-4}\right) + 1}{\left(\frac{2y+1}{y-4}\right) - 2} = \frac{4(2y+1) + (y-4)}{(2y+1) - 2(y-4)} = \frac{8y + 4 + y - 4}{2y + 1 - 2y + 8} = \frac{9y}{9} = \mathbf{y}$$
+    $$(f^{-1} \circ f)(x) = \frac{2\left(\frac{4x+1}{x-2}\right) + 1}{\left(\frac{4x+1}{x-2}\right) - 4} = \frac{2(4x+1) + (x-2)}{(4x+1) - 4(x-2)} = \frac{8x + 2 + x - 2}{4x + 1 - 4x + 8} = \frac{9x}{9} = \mathbf{x}$$
+\end{enumerate}
+
+\textbf{3. The Sigmoid Function and Logit Probability Link}
+Given $\sigma(z) = \frac{1}{1 + e^{-z}}$:
+\begin{enumerate}
+    \item \textbf{Reflection Identity Proof:}
+    $$\sigma(-z) = \frac{1}{1 + e^{-(-z)}} = \frac{1}{1 + e^z} = \frac{e^{-z}}{e^{-z}(1 + e^z)} = \frac{e^{-z}}{e^{-z} + 1} = \frac{(1 + e^{-z}) - 1}{1 + e^{-z}} = 1 - \frac{1}{1 + e^{-z}} = \mathbf{1 - \sigma(z)}$$
+    \item \textbf{Probability for $z = 2.0$ ($e^2 \approx 7.389$):}
+    $$\sigma(2.0) = \frac{1}{1 + e^{-2}} = \frac{e^2}{e^2 + 1} \approx \frac{7.389}{1 + 7.389} = \frac{7.389}{8.389} \approx \mathbf{0.8808 \quad (88.08\%)}$$
+    \item \textbf{Logit Score for $p = 0.80$:}
+    $$z = \text{logit}(0.80) = \ln\left( \frac{0.80}{1 - 0.80} \right) = \ln\left( \frac{0.80}{0.20} \right) = \ln(4.0) = 2 \ln(2) \approx \mathbf{1.3863}$$
+\end{enumerate}
+
+\textbf{4. Neural Layer Activation Pipelines}
+Given $z(x) = 2x - 4$, $a(z) = \max(0, z)$, and $p(a) = \frac{1}{1 + e^{-a}}$:
+\begin{enumerate}
+    \item \textbf{Full Composite Forward Pass:}
+    $$P(x) = (p \circ a \circ z)(x) = \mathbf{\frac{1}{1 + e^{-\max(0, 2x - 4)}}}$$
+    \item \textbf{Numerical Pipeline Evaluations:}
+    \begin{itemize}
+        \item For $x = 1.0$: $z = 2(1) - 4 = -2 \implies a = \max(0, -2) = 0 \implies P(1.0) = \frac{1}{1 + e^0} = \frac{1}{2} = \mathbf{0.50}$.
+        \item For $x = 2.0$: $z = 2(2) - 4 = 0 \implies a = \max(0, 0) = 0 \implies P(2.0) = \frac{1}{1 + e^0} = \mathbf{0.50}$.
+        \item For $x = 5.0$: $z = 2(5) - 4 = 6 \implies a = \max(0, 6) = 6 \implies P(5.0) = \frac{1}{1 + e^{-6}} \approx \frac{1}{1 + 0.002479} \approx \mathbf{0.9975}$.
+    \end{itemize}
+    \item \textbf{Clamping Threshold Behavior:} For all inputs $x \le 2.0$, $2x - 4 \le 0$. The ReLU activation clamps negative pre-activations to exactly $a = 0$. Consequently, the output probability remains constant at $\frac{1}{1 + e^0} = 0.50$ (the uncertainty threshold) for the entire inactive half-space.
+\end{enumerate}
+
+\textbf{5. Reversal Property of Composite Inverses}
+Given $f(x) = 3x - 5$ and $g(x) = \frac{x + 4}{2}$:
+\begin{enumerate}
+    \item \textbf{Direct Composition $h(x) = (f \circ g)(x)$:}
+    $$h(x) = f(g(x)) = 3\left(\frac{x + 4}{2}\right) - 5 = \frac{3x + 12 - 10}{2} = \mathbf{\frac{3x + 2}{2}}$$
+    \item \textbf{Direct Inversion $h^{-1}(x)$:}
+    $$y = \frac{3x + 2}{2} \implies 2y = 3x + 2 \implies 3x = 2y - 2 \implies x = \frac{2y - 2}{3} \implies \mathbf{h^{-1}(x) = \frac{2x - 2}{3}}$$
+    \item \textbf{Individual Inverses:}
+    $$y = 3x - 5 \implies x = \frac{y + 5}{3} \implies \mathbf{f^{-1}(x) = \frac{x + 5}{3}}$$
+    $$y = \frac{x + 4}{2} \implies x = 2y - 4 \implies \mathbf{g^{-1}(x) = 2x - 4}$$
+    \item \textbf{Reversed Composition $(g^{-1} \circ f^{-1})(x)$:}
+    $$(g^{-1} \circ f^{-1})(x) = g^{-1}\left( \frac{x + 5}{3} \right) = 2\left(\frac{x + 5}{3}\right) - 4 = \frac{2x + 10 - 12}{3} = \mathbf{\frac{2x - 2}{3}}$$
+    $(g^{-1} \circ f^{-1})(x) \equiv h^{-1}(x)$, rigorously proving $(f \circ g)^{-1} = g^{-1} \circ f^{-1}$.
+\end{enumerate}
+
+\textbf{6. Conceptual Diagnostic: Composite Domain Fallacy}
 \begin{itemize}
-    \item On the domain $\R$, the graph of $f(x) = x^2$ is a full parabola opening upwards. A horizontal line like $y = 4$ intersects the graph at two points: $(-2, 4)$ and $(2, 4)$. Thus, it is \textbf{not} one-to-one on $\R$.
-    \item If restricted to $[0, \infty)$, we only have the right half of the parabola. Any horizontal line $y > 0$ will intersect the graph exactly once. Thus, it \textbf{is} one-to-one on $[0, \infty)$.
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} By definition of composite mappings, $x \in \text{Dom}(f \circ g)$ requires $x \in \text{Dom}(g)$ and $g(x) \in \text{Dom}(f)$. While $g(x) = x^2 - 9$ is defined on all $\R$, the outer square root function $f(u) = \sqrt{u}$ strictly requires $u \ge 0$. Hence, we must satisfy $x^2 - 9 \ge 0 \implies x^2 \ge 9$, which yields $(-\infty, -3] \cup [3, \infty)$. For any input $x \in (-3, 3)$, $x^2 - 9 < 0$, making $\sqrt{x^2 - 9}$ undefined over the real numbers.
+    \item \textbf{Why (a) is false:} $x^2 \ge 0$ does not imply $x^2 - 9 \ge 0$.
+    \item \textbf{Why (b) is false:} Negative values like $x = -4$ produce valid real outputs: $\sqrt{(-4)^2 - 9} = \sqrt{7}$.
+    \item \textbf{Why (d) is false:} On $[-3, 3]$, $x^2 - 9 \le 0$, exactly where the square root fails to exist.
 \end{itemize}
 
-\textbf{2. Pure Math: Let $f(x) = x^2 + 1$ and $g(x) = 2x - 3$. Find $(f \circ g)(x)$ and $(g \circ f)(x)$. Are they equal?}
+\textbf{7. Conceptual Diagnostic: Reversal Law of Inversion}
 \begin{itemize}
-    \item $(f \circ g)(x) = f(g(x)) = f(2x - 3) = (2x - 3)^2 + 1 = 4x^2 - 12x + 9 + 1 = 4x^2 - 12x + 10$.
-    \item $(g \circ f)(x) = g(f(x)) = g(x^2 + 1) = 2(x^2 + 1) - 3 = 2x^2 + 2 - 3 = 2x^2 - 1$.
-    \item $4x^2 - 12x + 10 \neq 2x^2 - 1$. Thus, function composition is \textbf{not} commutative in general.
+    \item \textbf{Correct Answer: (a)}
+    \item \textbf{Why (a) is correct:} Inversion of composite functions requires reversing the sequential order of the component inverses: $(f_2 \circ f_1)^{-1} = f_1^{-1} \circ f_2^{-1}$. Given $\mathbf{z} = f_2(f_1(\mathbf{x}))$, the outer layer $f_2$ must be inverted first by applying $f_2^{-1}$ to both sides: $f_2^{-1}(\mathbf{z}) = f_1(\mathbf{x})$. Next, the inner layer $f_1$ is inverted by applying $f_1^{-1}$: $\mathbf{x} = f_1^{-1}(f_2^{-1}(\mathbf{z})) = (f_1^{-1} \circ f_2^{-1})(\mathbf{z})$.
+    \item \textbf{Why (b) is false:} Applying $f_2^{-1} \circ f_1^{-1}$ fails because $f_1^{-1}$ operates on the codomain of $f_1$, not on the latent output $\mathbf{z}$ produced by $f_2$.
+    \item \textbf{Why (c) is false:} The formula incorrectly asserts $(f_1 \circ f_2)^{-1} = f_1^{-1} \circ f_2^{-1}$ without reversing the composition order.
+    \item \textbf{Why (d) is false:} This applies forward transformations, not inverses.
 \end{itemize}
 
-\textbf{3. Data Science: In a neural network, a linear transformation $L(x) = 3x - 2$ is followed by a ReLU activation function $R(x) = \max(0, x)$. Evaluate the composite output $(R \circ L)(1)$ and $(R \circ L)(0)$.}
-\begin{itemize}
-    \item For $x = 1$: First, $L(1) = 3(1) - 2 = 1$. Then, $R(1) = \max(0, 1) = 1$. So, $(R \circ L)(1) = 1$.
-    \item For $x = 0$: First, $L(0) = 3(0) - 2 = -2$. Then, $R(-2) = \max(0, -2) = 0$. So, $(R \circ L)(0) = 0$.
-    \item This composite structure ($R(L(x))$) acts as an "activation" switch, only passing positive signals forward.
-\end{itemize}
-
-\textbf{4. Pure Math: Find the inverse function $f^{-1}(x)$ for $f(x) = \frac{4x}{x - 2}$.}
-\begin{itemize}
-    \item Set $y = \frac{4x}{x - 2}$.
-    \item Multiply by $(x - 2)$: $y(x - 2) = 4x \implies xy - 2y = 4x$.
-    \item Collect $x$ terms on one side: $xy - 4x = 2y \implies x(y - 4) = 2y$.
-    \item Solve for $x$: $x = \frac{2y}{y - 4}$.
-    \item Swap variables: $f^{-1}(x) = \frac{2x}{x - 4}$.
-\end{itemize}
-
-\textbf{5. Pure Math: Simplify the exponential expression: $\frac{(e^{2x})^3 \cdot e^{-x}}{e^{4x}}$.}
-\begin{itemize}
-    \item Apply power of a power rule: $(e^{2x})^3 = e^{6x}$.
-    \item The expression becomes: $\frac{e^{6x} \cdot e^{-x}}{e^{4x}}$.
-    \item Apply multiplication rule (add exponents) in numerator: $e^{6x + (-x)} = e^{5x}$.
-    \item Apply division rule (subtract exponents): $\frac{e^{5x}}{e^{4x}} = e^{5x - 4x} = e^x$.
-    \item The simplified expression is simply $e^x$.
-\end{itemize}
-
-\section*{Week 6: Logarithmic Functions}
+\section*{Week 6: Logarithmic Functions and Information Metrics}
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Pure Math: Evaluate the expression without a calculator: $\log_3(81) - \log_2\left(\frac{1}{8}\right)$.}
+\textbf{1. Logarithmic Evaluation and Change of Base}
+\begin{enumerate}
+    \item \textbf{Integer Evaluation of $A$:}
+    $$A = \log_2(64) - \log_3\left(\frac{1}{27}\right) + \log_5(\sqrt{125})$$
+    \begin{itemize}
+        \item $\log_2(64) = \log_2(2^6) = 6$
+        \item $\log_3\left(\frac{1}{27}\right) = \log_3(3^{-3}) = -3$
+        \item $\log_5(\sqrt{125}) = \log_5((5^3)^{1/2}) = \log_5(5^{3/2}) = \frac{3}{2} = 1.5$
+    \end{itemize}
+    $$A = 6 - (-3) + 1.5 = 6 + 3 + 1.5 = \mathbf{10.5 = \frac{21}{2}}$$
+    \item \textbf{Change of Base Evaluation for $\log_2(10)$:}
+    $$\log_2(10) = \frac{\ln(10)}{\ln(2)} \approx \frac{2.3026}{0.6931} \approx \mathbf{3.3222}$$
+    (Meaning $2^{3.3222} \approx 10$).
+    \item \textbf{Reciprocal Inversion Proof:}
+    By the change of base formula to natural base $e$:
+    $$\log_a(b) \cdot \log_b(a) = \left( \frac{\ln(b)}{\ln(a)} \right) \cdot \left( \frac{\ln(a)}{\ln(b)} \right) = \mathbf{1.0}$$
+\end{enumerate}
+
+\textbf{2. Expanding and Compressing Logarithmic Expressions}
+\begin{enumerate}
+    \item \textbf{Expanding $E(x, y, z)$:}
+    $$E(x, y, z) = \ln\left( \frac{x^5 \cdot y^{2/3}}{e^4 \cdot (z^2 + 1)^3} \right)$$
+    Applying quotient, product, and power rules:
+    $$E = \ln(x^5) + \ln(y^{2/3}) - \ln(e^4) - \ln((z^2 + 1)^3)$$
+    $$E = \mathbf{5\ln(x) + \frac{2}{3}\ln(y) - 4 - 3\ln(z^2 + 1)}$$
+    \item \textbf{Compressing $C(x)$:}
+    $$C(x) = 3\log_2(x) - \frac{1}{2}\log_2(x^2 + 4) + 2\log_2(x - 1)$$
+    $$C(x) = \log_2(x^3) - \log_2(\sqrt{x^2 + 4}) + \log_2((x - 1)^2) = \mathbf{\log_2\left( \frac{x^3 (x - 1)^2}{\sqrt{x^2 + 4}} \right)}$$
+\end{enumerate}
+
+\textbf{3. Solving Exponential and Quadratic-Form Equations}
+\begin{enumerate}
+    \item \textbf{Solving $3^{2x - 1} = 7^{x + 2}$:}
+    Take natural logarithms of both sides:
+    $$\ln(3^{2x - 1}) = \ln(7^{x + 2}) \implies (2x - 1)\ln(3) = (x + 2)\ln(7)$$
+    $$2x\ln(3) - \ln(3) = x\ln(7) + 2\ln(7) \implies x(2\ln(3) - \ln(7)) = 2\ln(7) + \ln(3)$$
+    $$x = \mathbf{\frac{2\ln(7) + \ln(3)}{2\ln(3) - \ln(7)} = \frac{\ln(49) + \ln(3)}{\ln(9) - \ln(7)} = \frac{\ln(147)}{\ln(9/7)} \approx 19.857}$$
+    \item \textbf{Solving $e^{2x} - 5e^x + 6 = 0$:}
+    Substitute $u = e^x \implies u^2 - 5u + 6 = 0 \implies (u - 2)(u - 3) = 0$.
+    \begin{itemize}
+        \item $u = 2 \implies e^x = 2 \implies \mathbf{x = \ln(2) \approx 0.6931}$
+        \item $u = 3 \implies e^x = 3 \implies \mathbf{x = \ln(3) \approx 1.0986}$
+    \end{itemize}
+    \item \textbf{Solving $e^x - 12e^{-x} = 1$:}
+    Multiply the entire equation by $e^x$:
+    $$e^{2x} - 12 = e^x \implies e^{2x} - e^x - 12 = 0$$
+    Setting $u = e^x \implies u^2 - u - 12 = 0 \implies (u - 4)(u + 3) = 0$.
+    \begin{itemize}
+        \item $u = 4 \implies e^x = 4 \implies \mathbf{x = \ln(4) = 2\ln(2) \approx 1.3863}$.
+        \item $u = -3 \implies e^x = -3$. Since $e^x > 0$ strictly for all real $x$, $e^x = -3$ yields no real solutions.
+    \end{itemize}
+\end{enumerate}
+
+\textbf{4. Logarithmic Equations and Extraneous Root Detection}
+\begin{enumerate}
+    \item \textbf{Equation: $\log_3(x) + \log_3(x - 6) = 3$:}
+    Domain requires $x > 0$ and $x - 6 > 0 \implies x > 6$.
+    $$\log_3(x(x - 6)) = 3 \implies x^2 - 6x = 3^3 = 27 \implies x^2 - 6x - 27 = 0 \implies (x - 9)(x + 3) = 0$$
+    Testing roots: $x = -3$ is \textbf{extraneous} because $\log_3(-3)$ is undefined.
+    The sole valid solution is $\mathbf{x = 9}$.
+    \item \textbf{Equation: $\ln(x + 5) - \ln(x - 1) = \ln(3)$:}
+    Domain requires $x > 1$.
+    $$\ln\left(\frac{x + 5}{x - 1}\right) = \ln(3) \implies \frac{x + 5}{x - 1} = 3 \implies x + 5 = 3x - 3 \implies 2x = 8 \implies \mathbf{x = 4}$$
+    Since $4 > 1$, this root is valid.
+    \item \textbf{Equation: $\log_2(x + 1) + \log_2(x + 3) = 3$:}
+    Domain requires $x > -1$.
+    $$\log_2((x + 1)(x + 3)) = 3 \implies x^2 + 4x + 3 = 2^3 = 8 \implies x^2 + 4x - 5 = 0 \implies (x + 5)(x - 1) = 0$$
+    Testing roots: $x = -5$ is \textbf{extraneous} ($\log_2(-4)$ is undefined).
+    The sole valid solution is $\mathbf{x = 1}$.
+\end{enumerate}
+
+\textbf{5. Data Science: Cross-Entropy Loss and Skewness Compression}
+\begin{enumerate}
+    \item \textbf{BCE Loss for Confident False Prediction ($y = 1, \hat{p} = 0.05$):}
+    $$L = -\ln(\hat{p}) = -\ln(0.05) = -\ln\left(\frac{1}{20}\right) = \ln(20) \approx \mathbf{2.9957}$$
+    \item \textbf{BCE Loss for Accurate Prediction ($y = 1, \hat{p} = 0.95$):}
+    $$L = -\ln(0.95) = -\ln\left(\frac{19}{20}\right) = \ln\left(\frac{20}{19}\right) \approx \mathbf{0.0513}$$
+    The loss for the erroneous prediction ($2.9957$) is over $58$ times larger than for the correct prediction ($0.0513$). Because $\lim_{p \to 0^+} (-\ln(p)) = +\infty$, the negative logarithmic curve exerts an asymptotic barrier penalty against overconfident incorrect predictions, heavily steering gradient updates.
+    \item \textbf{Feature Range Compression:}
+    $$P'_{\min} = \log_{10}(10{,}000) = \log_{10}(10^4) = \mathbf{4.0}$$
+    $$P'_{\max} = \log_{10}(10{,}000{,}000) = \log_{10}(10^7) = \mathbf{7.0}$$
+    The raw dynamic span of $\$9{,}990{,}000$ across three orders of magnitude is smoothly compressed to the well-behaved interval $\mathbf{[4.0, 7.0]}$.
+\end{enumerate}
+
+\textbf{6. Conceptual Diagnostic: Extraneous Logarithmic Solutions}
 \begin{itemize}
-    \item Evaluate the first term: $3^4 = 81$, so $\log_3(81) = 4$.
-    \item Evaluate the second term: $2^{-3} = \frac{1}{2^3} = \frac{1}{8}$, so $\log_2\left(\frac{1}{8}\right) = -3$.
-    \item Subtract the values: $4 - (-3) = 4 + 3 = 7$.
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} The domain of the original logarithmic expression requires the arguments of all logarithms to be strictly positive: $x > 0$ and $x - 3 > 0$, establishing the strict domain requirement $x > 3$. Although $x = -1$ algebraically satisfies the converted quadratic equation $x^2 - 3x - 4 = 0$ (because $(-1)(-4) = +4 > 0$), substituting $x = -1$ back into the original uncombined expression yields $\log_4(-1)$, which is mathematically undefined over the real numbers. Hence, $x = -1$ is an extraneous root, and the only valid solution is $x = 4$.
+    \item \textbf{Why (a) is false:} Algebraic quadratic roots must always be checked against original domain constraints.
+    \item \textbf{Why (b) is false:} $x = 4$ is the true valid root ($4 > 3$), not an extraneous root.
+    \item \textbf{Why (d) is false:} Eliminating a base-4 logarithm requires exponentiating base 4 ($4^{\log_4(\dots)}$), not fourth roots.
 \end{itemize}
 
-\textbf{2. Data Science: In binary classification, the Cross-Entropy loss for a true label $y=1$ and predicted probability $p$ is defined as $L = -\ln(p)$. If the predicted probability is $p = e^{-2}$, what is the loss?}
+\textbf{7. Conceptual Diagnostic: Log-Likelihood vs. Numerical Underflow}
 \begin{itemize}
-    \item Substitute $p$ into the loss function: $L = -\ln(e^{-2})$.
-    \item Use the inverse property $\ln(e^x) = x$: $L = -(-2) = 2$.
-    \item The loss is $2$.
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} In probabilistic modeling, the likelihood of $N$ independent observations is given by the product $\prod_{i=1}^N p(x_i \mid \theta)$. When $N = 1000$ and individual density values are small (e.g. $p(x_i) \sim 10^{-3}$), the product decays to $\sim 10^{-3000}$. In standard IEEE 754 double-precision floating-point arithmetic, the smallest positive representable non-zero number is $\approx 2.22 \times 10^{-308}$. Values below this threshold trigger fatal **arithmetic underflow** to exact zero ($0.0$), destroying all gradient information. Because the natural logarithm is a strictly monotonically increasing function, maximizing $\sum_{i=1}^N \ln p(x_i \mid \theta)$ produces the exact same optimal parameter $\theta^*$ while keeping computations in a numerically safe regime (e.g. sum of moderate negative floats).
+    \item \textbf{Why (a) is false:} The argmax is invariant under strictly monotonic transformations.
+    \item \textbf{Why (c) is false:} Derivatives of log-likelihood are still computed (and are much simpler).
+    \item \textbf{Why (d) is false:} GPU hardware can compute products; the failure is universal IEEE 754 precision underflow.
 \end{itemize}
 
-\textbf{3. Pure Math: Use the laws of logarithms to expand the expression completely: $\ln\left(\frac{x^4 \sqrt{y^3}}{e^2}\right)$.}
-\begin{itemize}
-    \item First, apply the quotient rule: $\ln(x^4 \sqrt{y^3}) - \ln(e^2)$.
-    \item Apply the product rule to the first term: $\ln(x^4) + \ln(y^{3/2}) - \ln(e^2)$.
-    \item Apply the power rule to all terms, and use $\ln(e) = 1$: $4\ln(x) + \frac{3}{2}\ln(y) - 2(1)$.
-    \item The expanded form is: $4\ln(x) + \frac{3}{2}\ln(y) - 2$.
-\end{itemize}
-
-\textbf{4. Data Science: A dataset feature $X$ ranges from $1$ to $1,000,000$. A data scientist applies a base-10 log transformation to create a new feature $X' = \log_{10}(X)$. What is the new range of $X'$?}
-\begin{itemize}
-    \item Find the minimum value of $X'$: $\log_{10}(1) = 0$.
-    \item Find the maximum value of $X'$: $\log_{10}(1,000,000) = \log_{10}(10^6) = 6$.
-    \item The new range of $X'$ is incredibly compressed, spanning from $0$ to $6$.
-\end{itemize}
-
-\textbf{5. Pure Math: Solve the equation for $x$: $e^{2x} - 3e^x + 2 = 0$. (Hint: treat it as a quadratic in form).}
-\begin{itemize}
-    \item Let $u = e^x$. The equation becomes a quadratic: $u^2 - 3u + 2 = 0$.
-    \item Factor the quadratic: $(u - 1)(u - 2) = 0$.
-    \item So, $u = 1$ or $u = 2$.
-    \item Substitute back $e^x = u$: $e^x = 1 \implies x = \ln(1) = 0$.
-    \item And $e^x = 2 \implies x = \ln(2)$.
-    \item The solutions are $x = 0$ and $x = \ln(2)$.
-\end{itemize}
-
-\textbf{6. Pure Math: Solve the logarithmic equation: $\log(x + 3) - \log(x) = 1$.}
-\begin{itemize}
-    \item (Note: $\log$ without a base usually means base 10). Apply the quotient rule: $\log\left(\frac{x + 3}{x}\right) = 1$.
-    \item Convert to exponential form: $\frac{x + 3}{x} = 10^1 = 10$.
-    \item Multiply by $x$: $x + 3 = 10x$.
-    \item Solve for $x$: $3 = 9x \implies x = \frac{3}{9} = \frac{1}{3}$.
-    \item Check validity: Both $x+3 = \frac{10}{3} > 0$ and $x = \frac{1}{3} > 0$ are valid inside the logs. The solution is $x = \frac{1}{3}$.
-\end{itemize}
-
-\section*{Week 7: Sequences and Limits (Part 1)}
+\section*{Week 7: Sequences, Limits, and Rates of Change}
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Pure Math: Determine if the sequence $b_n = \frac{5n^3 - n + 2}{7n^3 + 4n^2}$ converges, and if so, find its limit.}
+\textbf{1. Sequence Convergence and Dominant Degree Analysis}
+\begin{enumerate}
+    \item \textbf{Sequence $a_n = \frac{6n^3 - 2n + 5}{2n^3 + 7n^2 - 1}$:}
+    Divide numerator and denominator by the highest power $n^3$:
+    $$\lim_{n \to \infty} a_n = \lim_{n \to \infty} \frac{6 - \frac{2}{n^2} + \frac{5}{n^3}}{2 + \frac{7}{n} - \frac{1}{n^3}} = \frac{6 - 0 + 0}{2 + 0 - 0} = \mathbf{3.0 \quad (\text{Converges to } 3.0)}$$
+    \item \textbf{Sequence $b_n = \frac{4n^2 + 10}{n^3 - 3n + 8}$:}
+    Divide by $n^3$:
+    $$\lim_{n \to \infty} b_n = \lim_{n \to \infty} \frac{\frac{4}{n} + \frac{10}{n^3}}{1 - \frac{3}{n^2} + \frac{8}{n^3}} = \frac{0 + 0}{1 - 0 + 0} = \mathbf{0.0 \quad (\text{Converges to } 0.0)}$$
+    \item \textbf{Sequence $c_n = \frac{3n^4 - 5}{2n^2 + 11}$:}
+    Divide by $n^2$:
+    $$\lim_{n \to \infty} c_n = \lim_{n \to \infty} \frac{3n^2 - \frac{5}{n^2}}{2 + \frac{11}{n^2}} = \frac{+\infty}{2} = \mathbf{+\infty \quad (\text{Diverges to } +\infty)}$$
+    \item \textbf{Sequence $d_n = \frac{(-1)^n \cdot 5}{n + 2}$:}
+    By the Squeeze Theorem, since $-\frac{5}{n + 2} \le d_n \le \frac{5}{n + 2}$ and $\lim_{n \to \infty} \pm \frac{5}{n + 2} = 0$:
+    $$\lim_{n \to \infty} d_n = \mathbf{0.0 \quad (\text{Converges to } 0.0)}$$
+\end{enumerate}
+
+\textbf{2. Secant Line Slopes vs. Instantaneous Tangent Slopes}
+Given $f(x) = 2x^2 - 3x + 4$:
+\begin{enumerate}
+    \item \textbf{Average Rate of Change on $[1, 4]$:}
+    $$f(1) = 2(1)^2 - 3(1) + 4 = 3, \qquad f(4) = 2(4)^2 - 3(4) + 4 = 32 - 12 + 4 = 24$$
+    $$m_{\text{sec}} = \frac{f(4) - f(1)}{4 - 1} = \frac{24 - 3}{3} = \frac{21}{3} = \mathbf{7.0}$$
+    \item \textbf{Secant Line Slope on $[1, 1.1]$:}
+    $$f(1.1) = 2(1.1)^2 - 3(1.1) + 4 = 2(1.21) - 3.30 + 4 = 2.42 - 3.30 + 4 = 3.12$$
+    $$m_{\text{sec}} = \frac{f(1.1) - f(1.0)}{1.1 - 1.0} = \frac{3.12 - 3.0}{0.10} = \frac{0.12}{0.10} = \mathbf{1.20}$$
+    \item \textbf{First-Principles Instantaneous Slope at $x = 1$:}
+    $$f(1 + h) = 2(1 + h)^2 - 3(1 + h) + 4 = 2(1 + 2h + h^2) - 3 - 3h + 4 = 2h^2 + h + 3$$
+    $$m_{\text{tan}} = \lim_{h \to 0} \frac{f(1+h) - f(1)}{h} = \lim_{h \to 0} \frac{(2h^2 + h + 3) - 3}{h} = \lim_{h \to 0} \frac{h(2h + 1)}{h} = \lim_{h \to 0} (2h + 1) = \mathbf{1.0}$$
+    Notice how the secant slope rapidly contracts toward the true tangent: $7.0 \to 1.20 \to 1.00$.
+    \item \textbf{Tangent Line Equation at $(1, 3)$:}
+    $$y - 3 = 1.0(x - 1) \implies \mathbf{y = x + 2 \iff x - y + 2 = 0}$$
+\end{enumerate}
+
+\textbf{3. Resolving $\left[\frac{0}{0}\right]$ Indeterminate Forms via Algebraic Manipulation}
+\begin{enumerate}
+    \item \textbf{Factoring Cancellation:}
+    $$\lim_{x \to 3} \frac{x^2 - 2x - 3}{x - 3} = \lim_{x \to 3} \frac{(x - 3)(x + 1)}{x - 3} = \lim_{x \to 3} (x + 1) = 3 + 1 = \mathbf{4.0}$$
+    \item \textbf{Conjugate Rationalization:}
+    $$\lim_{x \to 4} \frac{\sqrt{x} - 2}{x - 4} = \lim_{x \to 4} \frac{(\sqrt{x} - 2)(\sqrt{x} + 2)}{(x - 4)(\sqrt{x} + 2)} = \lim_{x \to 4} \frac{x - 4}{(x - 4)(\sqrt{x} + 2)} = \lim_{x \to 4} \frac{1}{\sqrt{x} + 2} = \frac{1}{2 + 2} = \mathbf{\frac{1}{4} = 0.25}$$
+    \item \textbf{Binomial Expansion:}
+    $$\lim_{h \to 0} \frac{(2 + h)^3 - 8}{h} = \lim_{h \to 0} \frac{(8 + 12h + 6h^2 + h^3) - 8}{h} = \lim_{h \to 0} \frac{h(12 + 6h + h^2)}{h} = \lim_{h \to 0} (12 + 6h + h^2) = \mathbf{12.0}$$
+\end{enumerate}
+
+\textbf{4. First-Principles Derivative of Rational and Radical Functions}
+\begin{enumerate}
+    \item \textbf{Reciprocal Function $f(x) = \frac{1}{x}$:}
+    $$f'(x) = \lim_{h \to 0} \frac{\frac{1}{x+h} - \frac{1}{x}}{h} = \lim_{h \to 0} \frac{\frac{x - (x+h)}{x(x+h)}}{h} = \lim_{h \to 0} \frac{-h}{h x(x + h)} = \lim_{h \to 0} \frac{-1}{x(x + h)} = \mathbf{-\frac{1}{x^2}}$$
+    \item \textbf{Radical Function $f(x) = \sqrt{x}$:}
+    $$f'(x) = \lim_{h \to 0} \frac{\sqrt{x+h} - \sqrt{x}}{h} = \lim_{h \to 0} \frac{(\sqrt{x+h} - \sqrt{x})(\sqrt{x+h} + \sqrt{x})}{h(\sqrt{x+h} + \sqrt{x})} = \lim_{h \to 0} \frac{(x + h) - x}{h(\sqrt{x+h} + \sqrt{x})} = \mathbf{\frac{1}{2\sqrt{x}}}$$
+    \item \textbf{Tangent and Normal Slopes at $x = 4$:}
+    $$m_{\text{tan}} = f'(4) = \frac{1}{2\sqrt{4}} = \mathbf{\frac{1}{4} = 0.25}$$
+    $$m_{\text{norm}} = -\frac{1}{m_{\text{tan}}} = -\frac{1}{0.25} = \mathbf{-4.0}$$
+\end{enumerate}
+
+\textbf{5. Gradient Descent Sequence Stability and Learning Rates}
+Given $L(w) = 3w^2 - 12w + 15$:
+\begin{enumerate}
+    \item \textbf{First-Principles Derivative $L'(w)$:}
+    $$L'(w) = \lim_{h \to 0} \frac{3(w+h)^2 - 12(w+h) + 15 - (3w^2 - 12w + 15)}{h} = \lim_{h \to 0} \frac{6wh + 3h^2 - 12h}{h} = \mathbf{6w - 12}$$
+    \item \textbf{Optimal Parameter $w^*$:}
+    $$L'(w^*) = 0 \implies 6w^* - 12 = 0 \implies \mathbf{w^* = 2.0}$$
+    \item \textbf{Recurrence Relation:}
+    $$w_{t+1} = w_t - \eta L'(w_t) = w_t - \eta(6w_t - 12) = w_t - 6\eta(w_t - 2)$$
+    Subtracting $w^* = 2$ from both sides:
+    $$w_{t+1} - 2 = (w_t - 2) - 6\eta(w_t - 2) = \mathbf{(1 - 6\eta)(w_t - 2)}$$
+    \item \textbf{Convergence Bound for Learning Rate $\eta$:}
+    The error sequence converges to $0$ if and only if the contraction factor satisfies $|1 - 6\eta| < 1$:
+    $$-1 < 1 - 6\eta < 1 \implies -2 < -6\eta < 0 \implies \mathbf{0 < \eta < \frac{1}{3} \approx 0.3333}$$
+\end{enumerate}
+
+\textbf{6. Conceptual Diagnostic: Resolving the Indeterminate Difference Quotient}
 \begin{itemize}
-    \item Divide numerator and denominator by the highest power of $n$, which is $n^3$:
-    $$b_n = \frac{\frac{5n^3}{n^3} - \frac{n}{n^3} + \frac{2}{n^3}}{\frac{7n^3}{n^3} + \frac{4n^2}{n^3}} = \frac{5 - \frac{1}{n^2} + \frac{2}{n^3}}{7 + \frac{4}{n}}$$
-    \item Take the limit as $n \to \infty$. All fraction terms with $n$ in the denominator go to $0$:
-    $$\limit{n}{\infty} b_n = \frac{5 - 0 + 0}{7 + 0} = \frac{5}{7}$$
-    \item The sequence converges to $\frac{5}{7}$.
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} The expression $\left[\frac{0}{0}\right]$ is an indeterminate form, meaning that evaluating the limit by naive direct substitution fails because both numerator and denominator simultaneously vanish at $h = 0$. In smooth differentiable curves, as the secant displacement $h \to 0$, the change $\Delta y = f(a+h) - f(a)$ contains $h$ as a factor. Factoring $h$ from the numerator allows it to cancel algebraically with the denominator $h$, resolving the indeterminate singularity and revealing the exact finite instantaneous rate of change.
+    \item \textbf{Why (a) is false:} Derivatives are formally defined rigorous real numbers underpinning modern mathematics.
+    \item \textbf{Why (b) is false:} Division by zero is undefined; $[0/0]$ does not equal $1.0$.
+    \item \textbf{Why (d) is false:} In calculus, $h$ approaches zero arbitrarily closely ($h \to 0$).
 \end{itemize}
 
-\textbf{2. Pure Math: Determine if the sequence $c_n = \frac{n^2}{3n + 1}$ converges or diverges.}
+\textbf{7. Conceptual Diagnostic: Learning Rate Convergence Boundary in Gradient Descent}
 \begin{itemize}
-    \item Divide numerator and denominator by the highest power of $n$ in the denominator, which is $n$:
-    $$c_n = \frac{\frac{n^2}{n}}{\frac{3n}{n} + \frac{1}{n}} = \frac{n}{3 + \frac{1}{n}}$$
-    \item Take the limit as $n \to \infty$:
-    $$\limit{n}{\infty} c_n = \frac{\infty}{3 + 0} = \infty$$
-    \item Since the limit is infinity, the sequence \textbf{diverges}.
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} The gradient descent recurrence relation $w_t = (1 - \eta L)^t w_0$ is a geometric sequence with common ratio $r = 1 - \eta L$. When $\eta = \frac{2.5}{L}$, the ratio is $r = 1 - 2.5 = -1.5$. Because the absolute value $|r| = 1.5 > 1.0$, the magnitude of the error $|w_t|$ is multiplied by $1.5$ at every single iteration, alternating between positive and negative numbers and **diverging exponentially to infinity** ($|w_t| \to \infty$).
+    \item \textbf{Why (a) is false:} Large learning rates beyond $2/L$ guarantee divergence, not fast convergence.
+    \item \textbf{Why (c) is false:} The parameter is multiplied by $-1.5$ each step; it does not freeze.
+    \item \textbf{Why (d) is false:} Convex quadratics possess only one critical point (global minimum); divergence prevents finding any extremum.
 \end{itemize}
 
-\textbf{3. Data Science: A machine learning model's loss over $n$ epochs is modeled by the sequence $L_n = 2 + \frac{10}{n^2}$. As training goes on infinitely ($n \to \infty$), what is the theoretical minimum loss the model converges to?}
-\begin{itemize}
-    \item Take the limit of $L_n$ as $n \to \infty$:
-    $$\limit{n}{\infty} L_n = \limit{n}{\infty} \left(2 + \frac{10}{n^2}\right)$$
-    \item By limit laws, this is $\limit{n}{\infty} 2 + \limit{n}{\infty} \frac{10}{n^2} = 2 + 0 = 2$.
-    \item The theoretical minimum loss is $2$.
-\end{itemize}
-
-\textbf{4. Pure Math: Find the average rate of change of the function $f(x) = x^3$ over the interval $[1, 3]$.}
-\begin{itemize}
-    \item Use the average rate of change formula: $\frac{f(x_2) - f(x_1)}{x_2 - x_1}$.
-    \item $f(3) = 3^3 = 27$.
-    \item $f(1) = 1^3 = 1$.
-    \item Average rate of change = $\frac{27 - 1}{3 - 1} = \frac{26}{2} = 13$.
-\end{itemize}
-
-\textbf{5. Pure Math: Using the limit definition of the tangent slope $m_{\text{tan}} = \limit{h}{0} \frac{f(c + h) - f(c)}{h}$, find the instantaneous slope of $f(x) = x^2$ at the point $x = 4$.}
-\begin{itemize}
-    \item Here $c = 4$. $f(4) = 4^2 = 16$.
-    \item $f(4+h) = (4+h)^2 = 16 + 8h + h^2$.
-    \item Set up the limit: $\limit{h}{0} \frac{(16 + 8h + h^2) - 16}{h}$.
-    \item Simplify the numerator: $\limit{h}{0} \frac{8h + h^2}{h}$.
-    \item Factor out $h$: $\limit{h}{0} \frac{h(8 + h)}{h} = \limit{h}{0} (8 + h)$.
-    \item Apply the limit as $h \to 0$: $8 + 0 = 8$.
-    \item The instantaneous slope is $8$.
-\end{itemize}
-
-\section*{Week 8: Differentiation}
+\section*{Week 8: Differential Calculus and Optimization}
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Pure Math: Differentiate $f(x) = x^3 e^x$ using the Product Rule.}
+\textbf{1. Product and Quotient Differentiation Rules}
+\begin{enumerate}
+    \item \textbf{Differentiating $f(x) = (3x^2 - 5x)e^{2x}$:}
+    Using the Product Rule with $u = 3x^2 - 5x \implies u' = 6x - 5$ and $v = e^{2x} \implies v' = 2e^{2x}$:
+    $$f'(x) = u'v + uv' = (6x - 5)e^{2x} + (3x^2 - 5x)(2e^{2x}) = e^{2x}\left[(6x - 5) + 6x^2 - 10x\right] = \mathbf{e^{2x}(6x^2 - 4x - 5)}$$
+    \item \textbf{Differentiating $g(x) = \frac{x^2 + 1}{2x - 3}$ via Quotient Rule:}
+    With $u = x^2 + 1 \implies u' = 2x$ and $v = 2x - 3 \implies v' = 2$:
+    $$g'(x) = \frac{u'v - uv'}{v^2} = \frac{2x(2x - 3) - 2(x^2 + 1)}{(2x - 3)^2} = \frac{4x^2 - 6x - 2x^2 - 2}{(2x - 3)^2} = \mathbf{\frac{2x^2 - 6x - 2}{(2x - 3)^2} = \frac{2(x^2 - 3x - 1)}{(2x - 3)^2}}$$
+    \item \textbf{Sigmoid Function Derivative $\sigma'(x)$:}
+    Write $\sigma(x) = (1 + e^{-x})^{-1}$. Applying the Chain Rule:
+    $$\sigma'(x) = -(1 + e^{-x})^{-2} \cdot \deriv{}{x}(1 + e^{-x}) = -(1 + e^{-x})^{-2}(-e^{-x}) = \frac{e^{-x}}{(1 + e^{-x})^2}$$
+    Factoring into component terms:
+    $$\sigma'(x) = \left(\frac{1}{1 + e^{-x}}\right) \left(\frac{e^{-x}}{1 + e^{-x}}\right) = \sigma(x) \left(\frac{(1 + e^{-x}) - 1}{1 + e^{-x}}\right) = \sigma(x)\left(1 - \frac{1}{1 + e^{-x}}\right) = \mathbf{\sigma(x)(1 - \sigma(x))}$$
+\end{enumerate}
+
+\textbf{2. Composite Chain Rule in Neural Backpropagation}
+Given $u(x) = 3x - 1$, $v(u) = u^2 + 4$, and $L(v) = \ln(v)$:
+\begin{enumerate}
+    \item \textbf{Single Composite Expression $L(x)$:}
+    $$L(x) = \ln(v(u(x))) = \ln((3x - 1)^2 + 4) = \mathbf{\ln(9x^2 - 6x + 5)}$$
+    \item \textbf{Three Component Derivatives:}
+    $$\frac{dL}{dv} = \frac{1}{v}, \qquad \frac{dv}{du} = 2u, \qquad \frac{du}{dx} = 3$$
+    \item \textbf{Chain Rule Evaluation:}
+    $$\frac{dL}{dx} = \frac{dL}{dv} \cdot \frac{dv}{du} \cdot \frac{du}{dx} = \left(\frac{1}{v}\right)(2u)(3) = \frac{6u}{v} = \frac{6(3x - 1)}{(3x - 1)^2 + 4} = \mathbf{\frac{18x - 6}{9x^2 - 6x + 5}}$$
+    \item \textbf{Gradient at $x = 1$:}
+    $$\left.\frac{dL}{dx}\right|_{x=1} = \frac{18(1) - 6}{9(1)^2 - 6(1) + 5} = \frac{12}{8} = \mathbf{\frac{3}{2} = 1.50}$$
+\end{enumerate}
+
+\textbf{3. L'Hôpital's Rule for Indeterminate Forms}
+\begin{enumerate}
+    \item \textbf{Evaluating $\lim_{x \to 0} \frac{e^{4x} - 1 - 4x}{x^2}$:}
+    Direct substitution: $\frac{e^0 - 1 - 0}{0} = \left[\frac{0}{0}\right]$ (Indeterminate). Apply L'Hôpital:
+    $$\lim_{x \to 0} \frac{4e^{4x} - 4}{2x} = \left[\frac{0}{0}\right]$$
+    Apply L'Hôpital a second time:
+    $$\lim_{x \to 0} \frac{16e^{4x}}{2} = \frac{16e^0}{2} = \mathbf{8.0}$$
+    \item \textbf{Evaluating $\lim_{x \to \infty} \frac{\ln(x)}{x^2}$:}
+    Direct substitution yields $\left[\frac{\infty}{\infty}\right]$ (Indeterminate). Apply L'Hôpital:
+    $$\lim_{x \to \infty} \frac{\frac{1}{x}}{2x} = \lim_{x \to \infty} \frac{1}{2x^2} = \mathbf{0.0}$$
+    (Demonstrating that quadratic powers dominate logarithmic growth asymptotically).
+    \item \textbf{Evaluating $\lim_{x \to 1} \frac{x^5 - 1}{x^3 - 1}$:}
+    Direct substitution yields $\left[\frac{0}{0}\right]$ (Indeterminate). Apply L'Hôpital:
+    $$\lim_{x \to 1} \frac{5x^4}{3x^2} = \frac{5(1)^4}{3(1)^2} = \mathbf{\frac{5}{3} \approx 1.6667}$$
+\end{enumerate}
+
+\textbf{4. Extrema and Optimization of Non-Linear Functions}
+Given $f(x) = 2x^3 - 9x^2 + 12x + 5$:
+\begin{enumerate}
+    \item \textbf{Critical Points:}
+    $$f'(x) = 6x^2 - 18x + 12 = 6(x^2 - 3x + 2) = 6(x - 1)(x - 2) = 0 \implies \mathbf{x = 1, \quad x = 2}$$
+    \item \textbf{Second Derivative Classification:}
+    $$f''(x) = 12x - 18$$
+    \begin{itemize}
+        \item At $x = 1$: $f''(1) = 12(1) - 18 = -6 < 0 \implies \mathbf{\text{Local Maximum}}$ of value $f(1) = 2(1) - 9(1) + 12(1) + 5 = \mathbf{10.0}$.
+        \item At $x = 2$: $f''(2) = 12(2) - 18 = +6 > 0 \implies \mathbf{\text{Local Minimum}}$ of value $f(2) = 2(8) - 9(4) + 12(2) + 5 = \mathbf{9.0}$.
+    \end{itemize}
+    \item \textbf{Inflection Point:}
+    $$f''(x) = 0 \implies 12x - 18 = 0 \implies x = \mathbf{\frac{3}{2} = 1.50}$$
+    $$f(1.5) = 2(1.5)^3 - 9(1.5)^2 + 12(1.5) + 5 = 6.75 - 20.25 + 18 + 5 = \mathbf{9.50}$$
+    Point of inflection is $(1.5, 9.5)$.
+    \item \textbf{Absolute Extrema on $[0, 3]$:}
+    Evaluate endpoints and interior critical points:
+    $$f(0) = 5.0, \quad f(1) = 10.0, \quad f(2) = 9.0, \quad f(3) = 2(27) - 9(9) + 12(3) + 5 = 14.0$$
+    $$\mathbf{\text{Absolute Maximum on } [0, 3]: \quad 14.0 \quad (\text{at } x = 3)}$$
+    $$\mathbf{\text{Absolute Minimum on } [0, 3]: \quad 5.0 \quad (\text{at } x = 0)}$$
+\end{enumerate}
+
+\textbf{5. Mean Squared Error Convex Optimization}
+Given $J(w) = \frac{1}{2}(w - 5)^2 + \ln(w^2 + 1)$:
+\begin{enumerate}
+    \item \textbf{Gradient $\frac{dJ}{dw}$:}
+    $$\frac{dJ}{dw} = \mathbf{(w - 5) + \frac{2w}{w^2 + 1}}$$
+    \item \textbf{Second Derivative (Hessian):}
+    $$\frac{d^2 J}{dw^2} = 1 + \frac{2(w^2 + 1) - 2w(2w)}{(w^2 + 1)^2} = 1 + \frac{2w^2 + 2 - 4w^2}{(w^2 + 1)^2} = \mathbf{1 + \frac{2 - 2w^2}{(w^2 + 1)^2}}$$
+    \item \textbf{Strict Convexity Proof:}
+    Analyze the minimum of the rational perturbation $g(w) = \frac{2(1 - w^2)}{(1 + w^2)^2}$.
+    Setting $u = w^2 \ge 0$, we minimize $h(u) = \frac{2(1 - u)}{(1 + u)^2}$. Differentiating with respect to $u$:
+    $$h'(u) = 2\left[\frac{-(1+u)^2 - (1-u)(2(1+u))}{(1+u)^4}\right] = 2\left[\frac{-1 - u - 2 + 2u}{(1+u)^3}\right] = \frac{2(u - 3)}{(1+u)^3}$$
+    Setting $h'(u) = 0 \implies u = 3 \implies w = \pm\sqrt{3}$.
+    The minimum value achieved is $h(3) = \frac{2(1 - 3)}{(1 + 3)^2} = \frac{-4}{16} = -0.25$.
+    Consequently:
+    $$\frac{d^2 J}{dw^2} \ge 1 + (-0.25) = \mathbf{0.75 > 0}$$
+    Since $\frac{d^2 J}{dw^2} \ge 0.75 > 0$ strictly for all $w \in \R$, $J(w)$ is strictly convex everywhere, guaranteeing a unique global minimum.
+\end{enumerate}
+
+\textbf{6. Conceptual Diagnostic: Continuity vs. Differentiability Kink Fallacy}
 \begin{itemize}
-    \item Let $u(x) = x^3$ and $v(x) = e^x$.
-    \item $u'(x) = 3x^2$ and $v'(x) = e^x$.
-    \item Apply Product Rule: $f'(x) = u'v + uv' = (3x^2)(e^x) + (x^3)(e^x)$.
-    \item Factor out $x^2 e^x$: $f'(x) = x^2 e^x (3 + x)$.
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} By definition of differentiability, the two-sided limit of the difference quotient must exist and be equal. For $f(x) = |x - 3|$ at $x = 3$:
+    $$\lim_{h \to 0^+} \frac{|3+h - 3| - 0}{h} = \lim_{h \to 0^+} \frac{h}{h} = +1$$
+    $$\lim_{h \to 0^-} \frac{|3+h - 3| - 0}{h} = \lim_{h \to 0^-} \frac{-h}{h} = -1$$
+    Because the left derivative ($-1$) does not match the right derivative ($+1$), the derivative $f'(3)$ does not exist. A continuous function is non-differentiable at sharp corners and kinks.
+    \item \textbf{Why (a) is false:} Stationary zero derivatives require a smooth horizontal tangent, which $|x-3|$ lacks at the vertex.
+    \item \textbf{Why (c) is false:} $f(x)$ is continuous everywhere on $\R$.
+    \item \textbf{Why (d) is false:} $f'(x) = 1$ for all $x > 3$ and $f'(x) = -1$ for all $x < 3$; it is undefined only at $x = 3$.
 \end{itemize}
 
-\textbf{2. Data Science: A machine learning Mean Squared Error cost function for a single parameter $w$ is given by $C(w) = (w - 3)^2 + 4$. Find the critical point $w$ where the gradient (derivative) is zero. Is this a maximum or minimum?}
+\textbf{7. Conceptual Diagnostic: L'Hôpital's Rule Precondition Violation}
 \begin{itemize}
-    \item Find derivative using the Chain Rule: $C'(w) = 2(w - 3)(1) + 0 = 2w - 6$.
-    \item Set derivative to zero to find critical points: $2w - 6 = 0 \implies 2w = 6 \implies w = 3$.
-    \item Check the second derivative: $C''(w) = 2$.
-    \item Since $C''(3) = 2 > 0$, the function is concave up, meaning $w=3$ is a \textbf{minimum}.
-\end{itemize}
-
-\textbf{3. Pure Math: Find the derivative of $g(x) = \ln(3x^4 - 2x)$ using the Chain Rule.}
-\begin{itemize}
-    \item Let the outer function be $\ln(u)$ and the inner function be $u = 3x^4 - 2x$.
-    \item The derivative of the outer function is $\frac{1}{u}$. The derivative of the inner function is $12x^3 - 2$.
-    \item Apply the Chain Rule: $g'(x) = \frac{1}{3x^4 - 2x} \cdot (12x^3 - 2) = \frac{12x^3 - 2}{3x^4 - 2x}$.
-\end{itemize}
-
-\textbf{4. Pure Math: Use L'Hôpital's Rule to evaluate the limit: $\limit{x}{0} \frac{\sin(x)}{x}$.}
-\begin{itemize}
-    \item Direct substitution gives $\frac{\sin(0)}{0} = \frac{0}{0}$, an indeterminate form.
-    \item Differentiate the numerator: $\deriv{}{x}(\sin(x)) = \cos(x)$.
-    \item Differentiate the denominator: $\deriv{}{x}(x) = 1$.
-    \item Take the limit of the new fraction: $\limit{x}{0} \frac{\cos(x)}{1} = \cos(0) = 1$.
-    \item The limit is $1$.
-\end{itemize}
-
-\textbf{5. Data Science: A simple neural network maps input $x$ through two layers: $y = (2x + 1)^3$. Using the Chain Rule, what is $\deriv{y}{x}$?}
-\begin{itemize}
-    \item Let the outer function be $u^3$ and the inner layer be $u = 2x + 1$.
-    \item Derivative of the outer function is $3u^2$. Derivative of the inner function is $2$.
-    \item Apply the Chain Rule: $\deriv{y}{x} = 3(2x + 1)^2 \cdot 2 = 6(2x + 1)^2$.
-    \item This is exactly how backpropagation calculates gradients to update weights!
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} L'Hôpital's Rule is an exceptional theorem valid \textbf{only} when evaluating an indeterminate quotient of the form $\left[\frac{0}{0}\right]$ or $\left[\frac{\pm\infty}{\pm\infty}\right]$. For $\lim_{x \to 0} \frac{\cos(x)}{x + 1}$, direct substitution gives $\frac{\cos(0)}{0 + 1} = \frac{1}{1} = 1.0$. Because the limit is determinate, applying L'Hôpital's Rule is a severe mathematical error that differentiates numerator and denominator illegally, producing the false answer $0$ instead of $1.0$.
+    \item \textbf{Why (a) is false:} $\frac{d}{dx}\cos(x) = -\sin(x)$ is correct.
+    \item \textbf{Why (b) is false:} $\frac{d}{dx}(x + 1) = 1$ is correct.
+    \item \textbf{Why (d) is false:} L'Hôpital applies to all differentiable functions, provided the form is indeterminate.
 \end{itemize}
 
 \section*{Week 9: Integration}
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Pure Math: Evaluate the indefinite integral: $\int \left( 4x^3 - \frac{1}{x} + e^x \right) \dx$.}
+\textbf{1. Analytical Indefinite Integrals}
+\begin{enumerate}
+    \item Evaluate $\int \left( 6x^5 - \frac{4}{x^3} + \frac{5}{\sqrt{x}} - 3e^{4x} \right) \dx$:
+    Rewrite negative and fractional powers before integrating:
+    \begin{equation*}
+    \int \left( 6x^5 - 4x^{-3} + 5x^{-1/2} - 3e^{4x} \right) \dx
+    \end{equation*}
+    Applying the linearity and power rules term-by-term:
+    \begin{align*}
+    \int 6x^5 \dx &= 6 \left(\frac{x^6}{6}\right) = x^6 \\
+    \int -4x^{-3} \dx &= -4 \left(\frac{x^{-2}}{-2}\right) = \frac{2}{x^2} \\
+    \int 5x^{-1/2} \dx &= 5 \left(\frac{x^{1/2}}{1/2}\right) = 10\sqrt{x} \\
+    \int -3e^{4x} \dx &= -3 \left(\frac{e^{4x}}{4}\right) = -\frac{3}{4}e^{4x}
+    \end{align*}
+    Summing all terms and adding the arbitrary integration constant $C$:
+    \begin{equation*}
+    \mathbf{x^6 + \frac{2}{x^2} + 10\sqrt{x} - \frac{3}{4}e^{4x} + C}
+    \end{equation*}
+
+    \item Evaluate $\int \frac{x^3 + 5x^2 - 4}{x^2} \dx$:
+    Decompose the rational integrand into separate polynomial terms:
+    \begin{equation*}
+    \frac{x^3 + 5x^2 - 4}{x^2} = x + 5 - 4x^{-2}
+    \end{equation*}
+    Integrating term-by-term:
+    \begin{equation*}
+    \int (x + 5 - 4x^{-2}) \dx = \frac{x^2}{2} + 5x - 4\left(\frac{x^{-1}}{-1}\right) + C = \mathbf{\frac{x^2}{2} + 5x + \frac{4}{x} + C}
+    \end{equation*}
+\end{enumerate}
+
+\textbf{2. The Substitution Technique \& Limit Transformation}
+\begin{enumerate}
+    \item Evaluate $\int x^2 (2x^3 + 7)^5 \dx$:
+    Let $u = 2x^3 + 7$. Differentiating gives $du = 6x^2 \dx$, which yields $x^2 \dx = \frac{1}{6} \, du$.
+    Substituting into the integral:
+    \begin{equation*}
+    \int (2x^3 + 7)^5 \cdot (x^2 \dx) = \int u^5 \left(\frac{1}{6} \, du\right) = \frac{1}{6} \int u^5 \, du = \frac{1}{6} \left(\frac{u^6}{6}\right) + C = \frac{u^6}{36} + C
+    \end{equation*}
+    Substituting back $u = 2x^3 + 7$:
+    \begin{equation*}
+    \mathbf{\frac{(2x^3 + 7)^6}{36} + C}
+    \end{equation*}
+
+    \item Evaluate $\int_0^{\sqrt{\pi}} x \sin(x^2) \dx$:
+    Let $u = x^2$. Then $du = 2x \dx \implies x \dx = \frac{1}{2} \, du$.
+    \textbf{Transform Limits:}
+    \begin{itemize}
+        \item Lower limit: $x = 0 \implies u = 0^2 = 0$.
+        \item Upper limit: $x = \sqrt{\pi} \implies u = (\sqrt{\pi})^2 = \pi$.
+    \end{itemize}
+    Transforming the definite integral into the $u$-variable:
+    \begin{align*}
+    \int_0^{\sqrt{\pi}} x \sin(x^2) \dx &= \int_0^\pi \sin(u) \left(\frac{1}{2} \, du\right) = \frac{1}{2} \int_0^\pi \sin(u) \, du \\
+    &= \frac{1}{2} \Big[ -\cos(u) \Big]_0^\pi = \frac{1}{2} \Big( -\cos(\pi) - (-\cos(0)) \Big) \\
+    &= \frac{1}{2} \Big( -(-1) - (-1) \Big) = \frac{1}{2} (1 + 1) = \mathbf{1}
+    \end{align*}
+\end{enumerate}
+
+\textbf{3. Definite Integrals and Absolute Value Splitting}
+To evaluate $\int_{-2}^3 |2x - 2| \dx$, find the root where the integrand changes sign:
+\begin{equation*}
+2x - 2 = 0 \implies x = 1
+\end{equation*}
+Piecewise definition of $|2x - 2|$:
+\begin{equation*}
+|2x - 2| = \begin{cases} -(2x - 2) = 2 - 2x & \text{for } x \le 1 \\ 2x - 2 & \text{for } x \ge 1 \end{cases}
+\end{equation*}
+Partition the integral at $x = 1$:
+\begin{align*}
+\int_{-2}^3 |2x - 2| \dx &= \int_{-2}^1 (2 - 2x) \dx + \int_1^3 (2x - 2) \dx \\
+&= \Big[ 2x - x^2 \Big]_{-2}^1 + \Big[ x^2 - 2x \Big]_1^3 \\
+&= \Big( (2(1) - 1^2) - (2(-2) - (-2)^2) \Big) + \Big( (3^2 - 2(3)) - (1^2 - 2(1)) \Big) \\
+&= \Big( (2 - 1) - (-4 - 4) \Big) + \Big( (9 - 6) - (1 - 2) \Big) \\
+&= \Big( 1 - (-8) \Big) + \Big( 3 - (-1) \Big) = 9 + 4 = \mathbf{13}
+\end{align*}
+\textbf{Contrast with Net Signed Integral:}
+\begin{equation*}
+\int_{-2}^3 (2x - 2) \dx = \Big[ x^2 - 2x \Big]_{-2}^3 = (9 - 6) - (4 - (-4)) = 3 - 8 = \mathbf{-5}
+\end{equation*}
+The net signed integral is $-5$ because negative area below the $x$-axis on $[-2, 1]$ cancels positive area above the $x$-axis on $[1, 3]$. The total geometric area is $13$.
+
+\textbf{4. Area Enclosed Between Two Curves}
+Given $y = 4 - x^2$ and $y = x + 2$:
+\begin{enumerate}
+    \item \textbf{Intersection Points:} Set equations equal:
+    \begin{equation*}
+    4 - x^2 = x + 2 \implies x^2 + x - 2 = 0 \implies (x + 2)(x - 1) = 0
+    \end{equation*}
+    The intersection points occur at $x = -2$ and $x = 1$.
+    \item \textbf{Relative Orientation:} For test point $x = 0 \in (-2, 1)$, $4 - 0^2 = 4 > 0 + 2 = 2$. Thus, $y = 4 - x^2$ is the upper boundary curve and $y = x + 2$ is the lower boundary curve.
+    \item \textbf{Integration:}
+    \begin{align*}
+    A &= \int_{-2}^1 \Big( (4 - x^2) - (x + 2) \Big) \dx = \int_{-2}^1 (2 - x - x^2) \dx \\
+    &= \left[ 2x - \frac{x^2}{2} - \frac{x^3}{3} \right]_{-2}^1 \\
+    &= \left( 2(1) - \frac{1}{2} - \frac{1}{3} \right) - \left( 2(-2) - \frac{(-2)^2}{2} - \frac{(-2)^3}{3} \right) \\
+    &= \left( 2 - \frac{5}{6} \right) - \left( -4 - 2 + \frac{8}{3} \right) = \frac{7}{6} - \left( -\frac{10}{3} \right) = \frac{7}{6} + \frac{20}{6} = \frac{27}{6} = \mathbf{\frac{9}{2} = 4.5}
+    \end{align*}
+\end{enumerate}
+
+\textbf{5. Continuous Probability \& Cumulative Metrics}
+\begin{enumerate}
+    \item \textbf{Normalizing Constant $c$:}
+    \begin{align*}
+    \int_{-\infty}^\infty p(x) \dx &= \int_0^4 c(4x - x^2) \dx = c \left[ 2x^2 - \frac{x^3}{3} \right]_0^4 \\
+    &= c \left( 2(16) - \frac{64}{3} \right) = c \left( 32 - \frac{64}{3} \right) = c \left( \frac{32}{3} \right)
+    \end{align*}
+    Equating to 1 gives $c \cdot \frac{32}{3} = 1 \implies \mathbf{c = \frac{3}{32}}$.
+    \item \textbf{Cumulative Distribution Function (CDF):} For $x \in [0, 4]$:
+    \begin{equation*}
+    F(x) = \int_0^x \frac{3}{32}(4t - t^2) \, dt = \frac{3}{32} \left[ 2t^2 - \frac{t^3}{3} \right]_0^x = \mathbf{\frac{6x^2 - x^3}{32}}
+    \end{equation*}
+    (With $F(x) = 0$ for $x < 0$, and $F(x) = 1$ for $x > 4$).
+    \item \textbf{Expected Value $\E[X]$:}
+    \begin{align*}
+    \E[X] &= \int_0^4 x \cdot \left[ \frac{3}{32}(4x - x^2) \right] \dx = \frac{3}{32} \int_0^4 (4x^2 - x^3) \dx \\
+    &= \frac{3}{32} \left[ \frac{4x^3}{3} - \frac{x^4}{4} \right]_0^4 = \frac{3}{32} \left( \frac{4(64)}{3} - \frac{256}{4} \right) = \frac{3}{32} \left( \frac{256}{3} - 64 \right) \\
+    &= \frac{3}{32} \left( \frac{64}{3} \right) = \mathbf{2.0}
+    \end{align*}
+    The expected inference latency is exactly $2.0\text{ ms}$, which aligns with the symmetric parabola centered on $[0, 4]$.
+\end{enumerate}
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Diagnosis of FTC Application on $x^{-4}$ over $[-2, 2]$}
 \begin{itemize}
-    \item Apply the Sum Rule to integrate term by term.
-    \item $\int 4x^3 \dx = 4 \left(\frac{x^4}{4}\right) = x^4$.
-    \item $\int -\frac{1}{x} \dx = -\ln|x|$.
-    \item $\int e^x \dx = e^x$.
-    \item Combine and add the integration constant: $x^4 - \ln|x| + e^x + C$.
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} The Fundamental Theorem of Calculus Part 2 requires that the integrand $f(x)$ be continuous on the entire closed interval $[a, b]$. The function $f(x) = \frac{1}{x^4}$ has an essential infinite discontinuity at $x = 0 \in [-2, 2]$. Because $f(x) \ge 0$ everywhere, any valid integral must be non-negative. Splitting the improper integral yields $\lim_{\varepsilon \to 0^+} \int_\varepsilon^2 x^{-4} \dx = +\infty$, so the integral diverges. Applying FTC blindly yields a negative number, which is a mathematical impossibility for a strictly positive integrand.
+    \item \textbf{Why (a) is false:} The power rule applies to antiderivatives on intervals where $x \neq 0$; it cannot be evaluated across a singularity.
+    \item \textbf{Why (c) is false:} There is no arithmetic sign error; the underlying theorem is violated.
+    \item \textbf{Why (d) is false:} Substitution cannot fix an improper integral across an infinite pole.
 \end{itemize}
 
-\textbf{2. Pure Math: Use u-substitution to evaluate the integral: $\int x^2(x^3 + 5)^4 \dx$.}
+\textbf{7. Substitution Bound Transformation for $\int_0^1 x e^{x^2} \dx$}
 \begin{itemize}
-    \item Let $u = x^3 + 5$. Then $du = 3x^2 \dx$.
-    \item We have $x^2 \dx$ in the integral, so we can write $\frac{1}{3} du = x^2 \dx$.
-    \item Substitute into the integral: $\int u^4 \left(\frac{1}{3}\right) du = \frac{1}{3} \int u^4 du$.
-    \item Integrate with respect to $u$: $\frac{1}{3} \left(\frac{u^5}{5}\right) + C = \frac{u^5}{15} + C$.
-    \item Substitute back $u = x^3 + 5$: $\frac{(x^3 + 5)^5}{15} + C$.
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} Let $u = x^2$. Then $du = 2x \dx \implies x \dx = \frac{1}{2} \, du$. When $x = 0$, $u = 0^2 = 0$. When $x = 1$, $u = 1^2 = 1$. Substituting into the integral: $\int_0^1 e^u \left(\frac{1}{2} \, du\right) = \frac{1}{2} \int_0^1 e^u \, du$.
+    \item \textbf{Why (a) is false:} Missing the factor of $\frac{1}{2}$ from the differential $x \dx = \frac{1}{2} \, du$.
+    \item \textbf{Why (c) is false:} The upper limit in the $u$-variable is $1^2 = 1$, not $2$.
+    \item \textbf{Why (d) is false:} Multiply by 2 rather than dividing by 2.
 \end{itemize}
 
-\textbf{3. Data Science: The Probability Density Function of a uniform distribution is given by $p(x) = 0.5$ on the interval $[0, 2]$. Verify that the total probability over this entire interval is exactly $1$ by calculating $\int_{0}^{2} 0.5 \dx$.}
-\begin{itemize}
-    \item Find the antiderivative of $0.5$: $F(x) = 0.5x$.
-    \item Evaluate from $0$ to $2$: $F(2) - F(0) = (0.5 \cdot 2) - (0.5 \cdot 0)$.
-    \item $1 - 0 = 1$. The total probability is exactly $1$.
-\end{itemize}
-
-\textbf{4. Pure Math: Evaluate the definite integral using FTC Part 2: $\int_{1}^{2} \frac{1}{x^2} \dx$.}
-\begin{itemize}
-    \item Rewrite the integrand as $x^{-2}$.
-    \item Find the antiderivative using the Power Rule: $\int x^{-2} \dx = \frac{x^{-1}}{-1} = -\frac{1}{x}$.
-    \item Evaluate from $1$ to $2$: $\left[ -\frac{1}{2} \right] - \left[ -\frac{1}{1} \right]$.
-    \item $-\frac{1}{2} + 1 = \frac{1}{2}$.
-\end{itemize}
-
-\textbf{5. Pure Math: Find the area of the region enclosed between the curves $y = x^2$ and $y = x$ on the interval $[0, 1]$.}
-\begin{itemize}
-    \item On the interval $(0, 1)$, $x > x^2$, so the top curve is $f(x) = x$ and the bottom is $g(x) = x^2$.
-    \item Set up the integral: $\int_{0}^{1} (x - x^2) \dx$.
-    \item Antiderivative: $\frac{x^2}{2} - \frac{x^3}{3}$.
-    \item Evaluate at limits: $\left( \frac{1}{2} - \frac{1}{3} \right) - (0 - 0)$.
-    \item Common denominator is $6$: $\frac{3}{6} - \frac{2}{6} = \frac{1}{6}$.
-    \item The area is $\frac{1}{6}$.
-\end{itemize}
-
-\section*{Week 10: Graph Theory (I)}
+\section*{Week 10: Graph Theory (I): BFS, DFS, and Topological Sorting}
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Computer Science: An undirected graph has $6$ vertices and $15$ edges. Is it a simple graph, or must it contain multiple edges/loops?}
+\textbf{1. The Handshaking Lemma \& Graphic Sequences}
+\begin{enumerate}
+    \item \textbf{Degree Sequence $(5, 4, 3, 3, 2, 2, 1)$ on 7 Vertices:}
+    First check the Handshaking Lemma:
+    \begin{equation*}
+    \sum \deg(v) = 5 + 4 + 3 + 3 + 2 + 2 + 1 = 20
+    \end{equation*}
+    The sum is even ($2|E| = 20 \implies |E| = 10$). The number of odd-degree vertices is 4 (vertices with degrees 5, 3, 3, 1), which is an even integer, so the parity condition holds.
+    
+    Now test realizability as a simple graph using the \textbf{Havel-Hakimi Theorem}:
+    \begin{itemize}
+        \item Initial sequence: $(5, 4, 3, 3, 2, 2, 1)$.
+        \item Remove the first degree $5$, and subtract $1$ from the next $5$ largest degrees:
+        $(4-1, 3-1, 3-1, 2-1, 2-1, 1) = (3, 2, 2, 1, 1, 1)$.
+        \item Remove $3$, subtract $1$ from the next $3$ largest:
+        $(2-1, 2-1, 1-1, 1, 1) = (1, 1, 0, 1, 1)$.
+        \item Re-sort in descending order: $(1, 1, 1, 1, 0)$.
+        \item Remove $1$, subtract $1$ from the next largest:
+        $(1-1, 1, 1, 0) = (0, 1, 1, 0) \to \text{re-sort: } (1, 1, 0, 0)$.
+        \item Remove $1$, subtract $1$:
+        $(1-1, 0, 0) = (0, 0, 0)$.
+    \end{itemize}
+    Since the reduction terminates in an all-zero sequence, the sequence is \textbf{graphic} (a simple undirected graph exists).
+    
+    \item \textbf{3-Regular Graph on 10 Vertices:}
+    By the Handshaking Lemma:
+    \begin{equation*}
+    \sum_{v \in V} \deg(v) = 2|E| \implies 10 \times 3 = 2|E| \implies 30 = 2|E| \implies \mathbf{|E| = 15}
+    \end{equation*}
+    The graph contains exactly $15$ edges.
+\end{enumerate}
+
+\textbf{2. Adjacency Matrix Powers and Walks}
+\begin{enumerate}
+    \item \textbf{Diagonal Entry $(A^2)_{ii}$:}
+    By matrix multiplication:
+    \begin{equation*}
+    (A^2)_{ii} = \sum_{k=1}^n A_{ik} A_{ki}
+    \end{equation*}
+    For an undirected graph, $A_{ki} = A_{ik}$, so $A_{ik} A_{ki} = A_{ik}^2 = A_{ik}$. Thus:
+    \begin{equation*}
+    (A^2)_{ii} = \sum_{k=1}^n A_{ik} = \mathbf{\deg(i)}
+    \end{equation*}
+    $(A^2)_{ii}$ represents the number of walks of length 2 from vertex $i$ back to itself. In a simple graph, any walk of length 2 from $i$ must travel to an adjacent neighbor $k$ and immediately return to $i$. Therefore, $(A^2)_{ii}$ equals the \textbf{degree of vertex $i$}.
+    \item \textbf{Off-Diagonal Entry $(A^k)_{ij}$:}
+    The $(i, j)$-th entry of $A^k$ is the exact number of distinct \textbf{walks of length $k$} from vertex $i$ to vertex $j$.
+\end{enumerate}
+
+\textbf{3. BFS Traversal Trace and Shortest Paths}
+Vertices $V = \{A, B, C, D, E, F\}$, edges $E = \{AB, AC, BD, BE, CF, DE, EF\}$, source $A$.
+\begin{enumerate}
+    \item \textbf{Queue Trace:}
+    \begin{itemize}
+        \item \textbf{Step 0:} Visited = $\{A\}$, $\text{dist}[A] = 0$. Queue = $[A]$.
+        \item \textbf{Step 1:} Dequeue $A$. Neighbors of $A$ are $B, C$. Mark $B, C$ visited, $\text{dist}[B] = 1, \text{dist}[C] = 1$. Queue = $[B, C]$.
+        \item \textbf{Step 2:} Dequeue $B$. Neighbors of $B$ are $A$ (visited), $D, E$. Mark $D, E$ visited, $\text{dist}[D] = 2, \text{dist}[E] = 2$. Queue = $[C, D, E]$.
+        \item \textbf{Step 3:} Dequeue $C$. Neighbors of $C$ are $A$ (visited), $F$. Mark $F$ visited, $\text{dist}[F] = 2$. Queue = $[D, E, F]$.
+        \item \textbf{Step 4:} Dequeue $D$. Neighbors are $B$ (visited), $E$ (already visited). Queue = $[E, F]$.
+        \item \textbf{Step 5:} Dequeue $E$. Neighbors $B, D, F$ all visited. Queue = $[F]$.
+        \item \textbf{Step 6:} Dequeue $F$. Neighbors $C, E$ all visited. Queue = $[\ ]$ (empty).
+    \end{itemize}
+    \item \textbf{Shortest Path Distances from $A$:}
+    \begin{equation*}
+    \mathbf{\text{dist}[A] = 0, \quad \text{dist}[B] = 1, \quad \text{dist}[C] = 1, \quad \text{dist}[D] = 2, \quad \text{dist}[E] = 2, \quad \text{dist}[F] = 2}
+    \end{equation*}
+\end{enumerate}
+
+\textbf{4. DFS and Cycle Detection}
+In the three-color scheme:
 \begin{itemize}
-    \item The maximum number of edges in a simple undirected graph is given by the combination formula $\binom{n}{2} = \frac{n(n-1)}{2}$.
-    \item For $n=6$, max edges = $\frac{6 \times 5}{2} = 15$.
-    \item Because the graph has exactly $15$ edges, it is fully connected (a complete graph $K_6$). It \textbf{can} be a simple graph (it does not require multiple edges or loops to fit 15 edges).
+    \item \textbf{White:} Vertex has not yet been discovered.
+    \item \textbf{Gray:} Vertex has been discovered, and its subtree is actively being explored on the recursion stack.
+    \item \textbf{Black:} Vertex and all its descendants have been completely processed.
+\end{itemize}
+When traversing a directed edge $(u, v)$:
+\begin{itemize}
+    \item If $v$ is White: Tree edge (standard recursive descent).
+    \item If $v$ is Gray: $v$ is an active ancestor of $u$ on the call stack. The directed edge $(u, v)$ points back to an active ancestor, forming a \textbf{back-edge}.
+    \item \textbf{Theorem:} A directed graph contains a directed cycle if and only if DFS encounters at least one \textbf{back-edge}.
 \end{itemize}
 
-\textbf{2. Data Structure: A graph is represented by an Adjacency Matrix. What does it mean if the sum of all elements in the $i$-th row is $3$? Assume the graph is unweighted and directed.}
+\textbf{5. Kahn's Algorithm Execution on a DAG}
+Given edges $E = \{(1, 2), (1, 3), (2, 4), (3, 4), (3, 5), (4, 6), (5, 6)\}$:
+\begin{enumerate}
+    \item \textbf{Initial In-Degrees:}
+    $\deg^-(1) = 0, \quad \deg^-(2) = 1, \quad \deg^-(3) = 1, \quad \deg^-(4) = 2, \quad \deg^-(5) = 1, \quad \deg^-(6) = 2$.
+    \item \textbf{Trace:}
+    \begin{itemize}
+        \item Initialize queue with source nodes ($\deg^- = 0$): $Q = [1]$.
+        \item Dequeue $1$, append to order: $L = [1]$. Decrement neighbors $2, 3$: $\deg^-(2) = 0, \deg^-(3) = 0$. $Q = [2, 3]$.
+        \item Dequeue $2$ (smaller index): $L = [1, 2]$. Decrement neighbor $4$: $\deg^-(4) = 1$. $Q = [3]$.
+        \item Dequeue $3$: $L = [1, 2, 3]$. Decrement neighbors $4, 5$: $\deg^-(4) = 0, \deg^-(5) = 0$. $Q = [4, 5]$.
+        \item Dequeue $4$: $L = [1, 2, 3, 4]$. Decrement neighbor $6$: $\deg^-(6) = 1$. $Q = [5]$.
+        \item Dequeue $5$: $L = [1, 2, 3, 4, 5]$. Decrement neighbor $6$: $\deg^-(6) = 0$. $Q = [6]$.
+        \item Dequeue $6$: $L = [1, 2, 3, 4, 5, 6]$. $Q = [\ ]$.
+    \end{itemize}
+    Final Topological Order: $\mathbf{1 \to 2 \to 3 \to 4 \to 5 \to 6}$.
+\end{enumerate}
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Number of Edges in a 3-Regular Graph on 6 Vertices}
 \begin{itemize}
-    \item In a directed adjacency matrix, the $i$-th row represents all edges \textbf{leaving} vertex $i$.
-    \item Since the graph is unweighted, a $1$ represents an edge.
-    \item A sum of $3$ means there are exactly $3$ outgoing edges from vertex $i$. This is known as the \textbf{out-degree} of vertex $i$.
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} By the Handshaking Lemma, $\sum_{v \in V} \deg(v) = 2|E|$. With 6 vertices each of degree 3, the sum of degrees is $6 \times 3 = 18$. Therefore, $2|E| = 18 \implies |E| = 9$.
+    \item \textbf{Why (a) is false:} 18 is the sum of degrees, not the number of edges (each edge has two ends).
+    \item \textbf{Why (c) is false:} 6 edges would give an average degree of 2, not 3.
+    \item \textbf{Why (d) is false:} The theorem requires the \textit{number} of odd-degree vertices to be even; here there are 6 odd-degree vertices, and 6 is an even number.
 \end{itemize}
 
-\textbf{3. Algorithms: You are traversing a graph to find the shortest path out of a maze. The graph is unweighted. Should you use BFS or DFS, and why?}
+\textbf{7. Why BFS Fails to Guarantee Shortest Paths on Weighted Graphs}
 \begin{itemize}
-    \item You should use \textbf{BFS (Breadth-First Search)}.
-    \item BFS guarantees finding the shortest path in an unweighted graph because it explores layer by layer. DFS will wander deeply into a path and might find a very long, convoluted way out before ever checking a much shorter branch.
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} BFS explores graphs by topological levels based strictly on edge counts (hop counts). It treats all edges as having weight 1. If an unweighted 1-hop path has weight 100, and a 2-hop path has weights $1 + 1 = 2$, BFS will select the 1-hop path because level 1 is visited before level 2.
+    \item \textbf{Why (a) is false:} BFS uses a queue, not a stack, and queues can easily store weights.
+    \item \textbf{Why (c) is false:} BFS operates on general graphs, not just DAGs.
+    \item \textbf{Why (d) is false:} BFS can handle cycles easily via a visited set.
 \end{itemize}
 
-\textbf{4. Algorithms: You have a DAG representing university course prerequisites. You want to generate a valid semester-by-semester graduation plan. Which graph algorithm should you use?}
-\begin{itemize}
-    \item You should use \textbf{Topological Sorting}.
-    \item This algorithm takes a Directed Acyclic Graph and returns a linear sequence of nodes where every prerequisite comes before its dependent course, guaranteeing a valid graduation plan.
-\end{itemize}
-
-\textbf{5. Complexity: An undirected graph $G = (V, E)$ has $|V| = 10,000$ and $|E| = 20,000$. Which storage representation is more memory efficient: an Adjacency Matrix or an Adjacency List? Justify mathematically.}
-\begin{itemize}
-    \item \textbf{Adjacency Matrix:} Requires $|V|^2$ entries. $10,000^2 = 100,000,000$ entries.
-    \item \textbf{Adjacency List:} Requires roughly $O(|V| + 2|E|)$ space for an undirected graph. $10,000 + 40,000 = 50,000$ entries.
-    \item The graph is extremely sparse ($50,000 \ll 100,000,000$). The \textbf{Adjacency List} is far more efficient, saving $99.95\%$ of the memory.
-\end{itemize}
-
-\section*{Week 11: Graph Theory (II)}
+\section*{Week 11: Graph Theory (II): Shortest Paths and Spanning Trees}
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Algorithms: You are writing navigation software for a delivery drone. The drone battery drains faster if it flies into a headwind, which is modeled as an edge with a negative weight (cost). Which shortest-path algorithm \textit{must} you use?}
+\textbf{1. Warshall's Transitive Closure Matrix}
+Digraph on vertices $\{1, 2, 3, 4\}$ with edges $1 \to 2, 2 \to 3, 3 \to 4$:
+\begin{equation*}
+R^{(0)} = A = \begin{pmatrix}
+0 & 1 & 0 & 0 \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1 \\
+0 & 0 & 0 & 0
+\end{pmatrix}
+\end{equation*}
+Applying Warshall's recurrence $R^{(k)}_{ij} = R^{(k-1)}_{ij} \lor (R^{(k-1)}_{ik} \land R^{(k-1)}_{kj})$:
 \begin{itemize}
-    \item You must use the \textbf{Bellman-Ford Algorithm}.
-    \item Dijkstra's Algorithm will fail because its greedy logic assumes that adding more edges to a path can only increase the total cost. It cannot handle negative edge weights.
+    \item \textbf{Pass $k = 1$:} Vertex 1 has no incoming edges ($R^{(0)}_{i1} = 0$). Thus no new paths are formed: $R^{(1)} = R^{(0)}$.
+    \item \textbf{Pass $k = 2$:} $R^{(1)}_{12} = 1$ and $R^{(1)}_{23} = 1$, which establishes a path $1 \to 3$:
+    \begin{equation*}
+    R^{(2)} = \begin{pmatrix}
+    0 & 1 & 1 & 0 \\
+    0 & 0 & 1 & 0 \\
+    0 & 0 & 0 & 1 \\
+    0 & 0 & 0 & 0
+    \end{pmatrix}
+    \end{equation*}
+    \item \textbf{Pass $k = 3$:} Paths reaching 3 are $1 \to 3$ and $2 \to 3$. Vertex 3 connects to 4 ($3 \to 4$). Thus $1 \to 4$ and $2 \to 4$ are formed:
+    \begin{equation*}
+    R^{(3)} = \begin{pmatrix}
+    0 & 1 & 1 & 1 \\
+    0 & 0 & 1 & 1 \\
+    0 & 0 & 0 & 1 \\
+    0 & 0 & 0 & 0
+    \end{pmatrix}
+    \end{equation*}
+    \item \textbf{Pass $k = 4$:} Vertex 4 has no outgoing edges ($R^{(3)}_{4j} = 0$). Thus $R^{(4)} = R^{(3)}$.
+\end{itemize}
+The final reachability matrix $R^{(4)}$ confirms that vertex 1 can reach $\{2, 3, 4\}$, vertex 2 can reach $\{3, 4\}$, vertex 3 can reach $\{4\}$, and vertex 4 reaches none.
+
+\textbf{2. Dijkstra's Algorithm Trace}
+Edges: $(S, A, 3), (S, B, 6), (A, B, 2), (A, C, 8), (B, C, 3), (B, D, 7), (C, D, 1)$.
+\begin{itemize}
+    \item \textbf{Initialization:} $\text{dist} = \{S: 0, A: \infty, B: \infty, C: \infty, D: \infty\}$. Finalized set $S = \emptyset$.
+    \item \textbf{Iter 1:} Extract min $S$ ($\text{dist}=0$). Finalize $S$. Relax edges from $S$:
+    $\text{dist}[A] = \min(\infty, 0 + 3) = 3$, $\text{dist}[B] = \min(\infty, 0 + 6) = 6$.
+    \item \textbf{Iter 2:} Extract min $A$ ($\text{dist}=3$). Finalize $A$. Relax edges from $A$:
+    $\text{dist}[B] = \min(6, 3 + 2) = 5$, $\text{dist}[C] = \min(\infty, 3 + 8) = 11$.
+    \item \textbf{Iter 3:} Extract min $B$ ($\text{dist}=5$). Finalize $B$. Relax edges from $B$:
+    $\text{dist}[C] = \min(11, 5 + 3) = 8$, $\text{dist}[D] = \min(\infty, 5 + 7) = 12$.
+    \item \textbf{Iter 4:} Extract min $C$ ($\text{dist}=8$). Finalize $C$. Relax edges from $C$:
+    $\text{dist}[D] = \min(12, 8 + 1) = 9$.
+    \item \textbf{Iter 5:} Extract min $D$ ($\text{dist}=9$). Finalize $D$. All nodes finalized.
+\end{itemize}
+Final Shortest Distances: $\mathbf{\text{dist}[S] = 0, \quad \text{dist}[A] = 3, \quad \text{dist}[B] = 5, \quad \text{dist}[C] = 8, \quad \text{dist}[D] = 9}$.
+
+\textbf{3. Dijkstra's Failure on Negative Weights}
+Edges: $(S, A, 2), (S, B, 5), (B, A, -4)$.
+\begin{enumerate}
+    \item \textbf{Dijkstra Execution:}
+    \begin{itemize}
+        \item Start at $S$: $\text{dist}[S] = 0$. Relax $S \to A$ (dist 2) and $S \to B$ (dist 5).
+        \item Next minimum is $A$ ($\text{dist}=2$). Dijkstra finalizes $A$ and records its shortest distance as $2$.
+        \item Next minimum is $B$ ($\text{dist}=5$). Finalize $B$. Relax $B \to A$: $\text{dist}[B] + w(B, A) = 5 + (-4) = 1$.
+        \item Because vertex $A$ is already marked finalized, Dijkstra ignores this update. It outputs $\mathbf{\text{dist}[A] = 2}$.
+    \end{itemize}
+    \item \textbf{True Shortest Path:} The path $S \to B \to A$ has length $5 + (-4) = \mathbf{1}$.
+    Dijkstra failed because the negative edge weight $-4$ violated the greedy non-negativity assumption, allowing a path with more edges to have a smaller total weight than a previously finalized shortest distance.
+\end{enumerate}
+
+\textbf{4. Kruskal's Algorithm Step-by-Step}
+Vertices $\{1, 2, 3, 4, 5, 6\}$.
+Sorted edges by weight:
+\begin{enumerate}
+    \item $\{2, 3\}$ (weight 1): Accept. Components: $\{1\}, \{2, 3\}, \{4\}, \{5\}, \{6\}$.
+    \item $\{1, 3\}$ (weight 2): Accept. Components: $\{1, 2, 3\}, \{4\}, \{5\}, \{6\}$.
+    \item $\{4, 5\}$ (weight 2): Accept. Components: $\{1, 2, 3\}, \{4, 5\}, \{6\}$.
+    \item $\{5, 6\}$ (weight 3): Accept. Components: $\{1, 2, 3\}, \{4, 5, 6\}$.
+    \item $\{1, 2\}$ (weight 4): \textbf{Reject}. Both vertices 1 and 2 already belong to component $\{1, 2, 3\}$; adding it would form cycle $1 - 3 - 2 - 1$.
+    \item $\{2, 4\}$ (weight 5): Accept. Connects $\{1, 2, 3\}$ and $\{4, 5, 6\}$.
+\end{enumerate}
+We have accepted $|V| - 1 = 6 - 1 = 5$ edges. The algorithm terminates.
+Total MST Weight: $1 + 2 + 2 + 3 + 5 = \mathbf{13}$.
+
+\textbf{5. Prim's Algorithm Trace}
+Start at vertex $1$. Visited set $S = \{1\}$.
+\begin{itemize}
+    \item \textbf{Step 1:} Cut edges crossing $S$ and $V \setminus S$: $\{1, 3\}$ (wt 2), $\{1, 2\}$ (wt 4).
+    Select minimum edge $\{1, 3\}$ (wt 2). Add vertex $3$. $S = \{1, 3\}$.
+    \item \textbf{Step 2:} Crossing edges: $\{1, 2\}$ (wt 4), $\{2, 3\}$ (wt 1), $\{3, 4\}$ (wt 8), $\{3, 5\}$ (wt 10).
+    Select minimum edge $\{2, 3\}$ (wt 1). Add vertex $2$. $S = \{1, 2, 3\}$.
+    \item \textbf{Step 3:} Crossing edges: $\{2, 4\}$ (wt 5), $\{3, 4\}$ (wt 8), $\{3, 5\}$ (wt 10).
+    Select minimum edge $\{2, 4\}$ (wt 5). Add vertex $4$. $S = \{1, 2, 3, 4\}$.
+    \item \textbf{Step 4:} Crossing edges: $\{4, 5\}$ (wt 2), $\{4, 6\}$ (wt 6), $\{3, 5\}$ (wt 10).
+    Select minimum edge $\{4, 5\}$ (wt 2). Add vertex $5$. $S = \{1, 2, 3, 4, 5\}$.
+    \item \textbf{Step 5:} Crossing edges: $\{5, 6\}$ (wt 3), $\{4, 6\}$ (wt 6).
+    Select minimum edge $\{5, 6\}$ (wt 3). Add vertex $6$. $S = \{1, 2, 3, 4, 5, 6\}$.
+\end{itemize}
+Total MST Weight: $2 + 1 + 5 + 2 + 3 = \mathbf{13}$. Matches Kruskal's algorithm perfectly.
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Invalidity of Adding Constant $C$ to Fix Negative Edges}
+\begin{itemize}
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} Adding a constant $C$ to every edge weight increases the length of a path with $k$ edges by $k \cdot C$. If Path 1 has 1 edge of weight 5, and Path 2 has 3 edges of weight 1, their original lengths are 5 and 3 (Path 2 is shorter). Adding $C = 10$ makes Path 1 length $5 + 10 = 15$, but Path 2 length $3 + 3(10) = 33$. Path 1 is now falsely chosen. The shortest path topology is fundamentally distorted.
+    \item \textbf{Why (a) is false:} Adding a constant to existing edge weights does not add new edges or self-loops.
+    \item \textbf{Why (b) is false:} Priority queues work with any numerical values.
+    \item \textbf{Why (d) is false:} Adding a large positive constant cannot create negative cycles.
 \end{itemize}
 
-\textbf{2. Algorithms: An undirected graph has $8$ vertices. How many edges will its Minimum Spanning Tree have?}
+\textbf{7. Graphs with Distinct Edge Weights}
 \begin{itemize}
-    \item By definition, any spanning tree of a connected graph with $|V|$ vertices will have exactly $|V| - 1$ edges.
-    \item Therefore, the MST will have $8 - 1 = 7$ edges.
-\end{itemize}
-
-\textbf{3. Pure Math: You apply Kruskal's algorithm to a graph. The next lightest edge connects Node A and Node B. However, Node A and Node B are already in the same connected component of your growing MST. Should you add the edge? Why or why not?}
-\begin{itemize}
-    \item You should \textbf{not} add the edge.
-    \item If two nodes are already in the same connected component, it means there is already a path between them. Adding a direct edge between them would create a \textbf{cycle}, which violates the definition of a tree.
-\end{itemize}
-
-\textbf{4. Complexity: Why is Floyd-Warshall ($\mathcal{O}(|V|^3)$) preferred over running Dijkstra's algorithm from every single node ($\mathcal{O}(|V| \cdot |E| \log |V|)$) for dense graphs when finding all-pairs shortest paths?}
-\begin{itemize}
-    \item In a dense graph, the number of edges $|E|$ approaches $|V|^2$.
-    \item Substituting $|E| = |V|^2$ into the repeated Dijkstra complexity gives $\mathcal{O}(|V| \cdot |V|^2 \log |V|) = \mathcal{O}(|V|^3 \log |V|)$.
-    \item $\mathcal{O}(|V|^3)$ (Floyd-Warshall) is faster than $\mathcal{O}(|V|^3 \log |V|)$ (Repeated Dijkstra). Additionally, Floyd-Warshall is much simpler to implement and handles negative weights, whereas Dijkstra does not.
-\end{itemize}
-
-\textbf{5. Graph Theory: What mathematical operation on an Adjacency Matrix $A$ calculates the number of walks of exactly length $k$ between any two nodes?}
-\begin{itemize}
-    \item You take the matrix $A$ to the power of $k$ (i.e., compute $A^k$).
-    \item The value in row $i$, column $j$ of the resulting matrix $A^k$ is exactly the number of walks of length $k$ from node $i$ to node $j$.
+    \item \textbf{Correct Answer: (a)}
+    \item \textbf{Why (a) is correct:} By the Cut Property, across every cut partition of vertices, the strictly lightest edge must belong to every MST. If all edge weights are unique, every cut has a unique minimum crossing edge, making the entire Minimum Spanning Tree mathematically unique.
+    \item \textbf{Why (b) is false:} Shortest path trees minimize source-to-vertex distances, not total edge sums; they frequently differ from the MST.
+    \item \textbf{Why (c) is false:} If the heaviest edge is a bridge (the only edge connecting two components), it must belong to every spanning tree.
+    \item \textbf{Why (d) is false:} Prim's explores from a single root vertex, while Kruskal sorts all edges globally; they generally process edges in different orders.
 \end{itemize}
 
 \section*{Week 12: Comprehensive Final Review}
 
 \subsection*{Detailed Solutions}
 
-\textbf{1. Sets \& Logic: In a dataset of 100 users, 60 like Apples ($A$), 50 like Bananas ($B$), and 20 like neither. How many users like \textit{both} Apples and Bananas?}
+\textbf{1. Sets, Inclusions, and Relational Partitions}
+Total cohort $N = 120$. $|P| = 70, |S| = 55, |L| = 45$.
+Pairwise intersections: $|P \cap S| = 30, |P \cap L| = 25, |S \cap L| = 20$.
+Three-way intersection: $|P \cap S \cap L| = 10$.
+\begin{enumerate}
+    \item \textbf{Proficient in at Least One Subject ($|P \cup S \cup L|$):}
+    Using the Principle of Inclusion-Exclusion for 3 sets:
+    \begin{align*}
+    |P \cup S \cup L| &= (|P| + |S| + |L|) - (|P \cap S| + |P \cap L| + |S \cap L|) + |P \cap S \cap L| \\
+    &= (70 + 55 + 45) - (30 + 25 + 20) + 10 \\
+    &= 170 - 75 + 10 = \mathbf{105}
+    \end{align*}
+    \item \textbf{Proficient in None of the Three Subjects:}
+    \begin{equation*}
+    |\text{None}| = N - |P \cup S \cup L| = 120 - 105 = \mathbf{15}
+    \end{equation*}
+    \item \textbf{Proficient in ONLY Python:}
+    \begin{align*}
+    |\text{Only } P| &= |P| - |P \cap S| - |P \cap L| + |P \cap S \cap L| \\
+    &= 70 - 30 - 25 + 10 = \mathbf{25}
+    \end{align*}
+\end{enumerate}
+
+\textbf{2. Analytic Geometry and Distance Normalization}
+Given parallel lines $L_1: 3x - 4y + 12 = 0$ and $L_2: 6x - 8y - 15 = 0$.
+\begin{enumerate}
+    \item \textbf{Coefficient Normalization:} Multiply $L_1$ by $2$ so both lines have the identical normal vector $\vec{w} = (6, -8)^T$:
+    \begin{equation*}
+    L_1': 6x - 8y + 24 = 0, \qquad L_2: 6x - 8y - 15 = 0
+    \end{equation*}
+    Here $A = 6, B = -8, C_1 = 24, C_2 = -15$.
+    \item \textbf{Normal Vector Magnitude:}
+    \begin{equation*}
+    \|\vec{w}\| = \sqrt{A^2 + B^2} = \sqrt{6^2 + (-8)^2} = \sqrt{36 + 64} = \sqrt{100} = 10
+    \end{equation*}
+    \item \textbf{Perpendicular Distance:}
+    \begin{equation*}
+    d = \frac{|C_1 - C_2|}{\sqrt{A^2 + B^2}} = \frac{|24 - (-15)|}{10} = \frac{|39|}{10} = \mathbf{3.9}
+    \end{equation*}
+\end{enumerate}
+
+\textbf{3. Functions, Inverses, and Cross-Entropy Loss}
+\begin{enumerate}
+    \item \textbf{Derivation of the Logit Inverse:}
+    Let $p = \sigma(z) = \frac{1}{1 + e^{-z}}$.
+    \begin{equation*}
+    1 + e^{-z} = \frac{1}{p} \implies e^{-z} = \frac{1}{p} - 1 = \frac{1 - p}{p}
+    \end{equation*}
+    Taking the natural logarithm of both sides:
+    \begin{equation*}
+    -z = \ln\left(\frac{1 - p}{p}\right) \implies z = -\ln\left(\frac{1 - p}{p}\right) = \ln\left(\frac{p}{1 - p}\right) = \operatorname{logit}(p)
+    \end{equation*}
+    \textbf{Mathematical Domain:} The argument $\frac{p}{1 - p}$ must be strictly positive and defined, requiring $p \in \mathbf{(0, 1)}$.
+    \item \textbf{Loss Function in Terms of Pre-Activation Input $z$:}
+    For $y = 1$, the Binary Cross-Entropy loss is $L = -\ln(p)$:
+    \begin{equation*}
+    L = -\ln\left(\frac{1}{1 + e^{-z}}\right) = -\Big( \ln(1) - \ln(1 + e^{-z}) \Big) = \mathbf{\ln(1 + e^{-z})}
+    \end{equation*}
+    This is the softplus function $\operatorname{softplus}(-z)$, which ensures smooth, stable gradients during neural network training.
+\end{enumerate}
+
+\textbf{4. Calculus, Convexity, and Global Optimization}
+Loss function $J(w) = 2w^4 - 4w^2 + 5$.
+\begin{enumerate}
+    \item \textbf{Critical Points:} Differentiate with respect to $w$:
+    \begin{equation*}
+    J'(w) = 8w^3 - 8w = 8w(w^2 - 1) = 8w(w - 1)(w + 1)
+    \end{equation*}
+    Setting $J'(w) = 0$ yields three critical points: $\mathbf{w = -1, \quad w = 0, \quad w = 1}$.
+    \item \textbf{Second Derivative Test:}
+    \begin{equation*}
+    J''(w) = 24w^2 - 8
+    \end{equation*}
+    \begin{itemize}
+        \item At $w = 0$: $J''(0) = -8 < 0 \implies \mathbf{w = 0 \text{ is a Local Maximum}}$.
+        \item At $w = 1$: $J''(1) = 24(1)^2 - 8 = 16 > 0 \implies \mathbf{w = 1 \text{ is a Local Minimum}}$.
+        \item At $w = -1$: $J''(-1) = 24(-1)^2 - 8 = 16 > 0 \implies \mathbf{w = -1 \text{ is a Local Minimum}}$.
+    \end{itemize}
+    \item \textbf{Global Minimum Value:}
+    Evaluate $J(w)$ at both local minima:
+    \begin{equation*}
+    J(1) = 2(1)^4 - 4(1)^2 + 5 = 2 - 4 + 5 = 3
+    \end{equation*}
+    \begin{equation*}
+    J(-1) = 2(-1)^4 - 4(-1)^2 + 5 = 2 - 4 + 5 = 3
+    \end{equation*}
+    The global minimum value is $\mathbf{3}$ (achieved at the dual symmetric optima $w = \pm 1$).
+\end{enumerate}
+
+\textbf{5. Graph Theory Synthesis (Shortest Paths \& Spanning Trees)}
+Graph with vertices $\{1, 2, 3, 4, 5\}$ and edges: $\{1, 2\}: 3, \{1, 3\}: 5, \{2, 3\}: 1, \{2, 4\}: 6, \{3, 4\}: 2, \{3, 5\}: 7, \{4, 5\}: 4$.
+\begin{enumerate}
+    \item \textbf{Dijkstra's Algorithm from Vertex 1:}
+    \begin{itemize}
+        \item $\text{dist}[1] = 0$. Extract $1$. Relax $1 \to 2$ (3), $1 \to 3$ (5).
+        \item Extract $2$ ($\text{dist}=3$). Relax $2 \to 3$: $\text{dist}[3] = \min(5, 3 + 1) = 4$. Relax $2 \to 4$: $\text{dist}[4] = \min(\infty, 3 + 6) = 9$.
+        \item Extract $3$ ($\text{dist}=4$). Relax $3 \to 4$: $\text{dist}[4] = \min(9, 4 + 2) = 6$. Relax $3 \to 5$: $\text{dist}[5] = \min(\infty, 4 + 7) = 11$.
+        \item Extract $4$ ($\text{dist}=6$). Relax $4 \to 5$: $\text{dist}[5] = \min(11, 6 + 4) = 10$.
+        \item Extract $5$ ($\text{dist}=10$). All vertices finalized.
+    \end{itemize}
+    Shortest distances from 1: $\mathbf{\text{dist}[1]=0, \, \text{dist}[2]=3, \, \text{dist}[3]=4, \, \text{dist}[4]=6, \, \text{dist}[5]=10}$.
+    Shortest path from 1 to 5: $1 \to 2 \to 3 \to 4 \to 5$.
+    
+    \item \textbf{Kruskal's Algorithm for MST:}
+    Sorted edges:
+    \begin{itemize}
+        \item $\{2, 3\}$ (wt 1): Accept.
+        \item $\{3, 4\}$ (wt 2): Accept.
+        \item $\{1, 2\}$ (wt 3): Accept.
+        \item $\{4, 5\}$ (wt 4): Accept.
+    \end{itemize}
+    $|V| - 1 = 4$ edges selected. Total MST Weight: $1 + 2 + 3 + 4 = \mathbf{10}$.
+    
+    \item \textbf{Path Containment:}
+    The shortest path from 1 to 5 is the sequence of edges $\{1, 2\}, \{2, 3\}, \{3, 4\}, \{4, 5\}$.
+    The Minimum Spanning Tree contains the exact edges $\{\{2, 3\}, \{3, 4\}, \{1, 2\}, \{4, 5\}\}$.
+    Therefore, the shortest path from vertex 1 to vertex 5 is \textbf{contained entirely within the Minimum Spanning Tree}.
+\end{enumerate}
+
+\subsection*{Diagnostic MCQ Explanations}
+
+\textbf{6. Gradient Descent Divergence for $\eta > \frac{2}{L}$}
 \begin{itemize}
-    \item Total users $N = 100$. Users who like neither is 20.
-    \item Therefore, the number of users who like at least one fruit is $|A \cup B| = 100 - 20 = 80$.
-    \item Using the Principle of Inclusion-Exclusion: $|A \cup B| = |A| + |B| - |A \cap B|$.
-    \item $80 = 60 + 50 - |A \cap B| \implies 80 = 110 - |A \cap B|$.
-    \item $|A \cap B| = 110 - 80 = 30$. Exactly 30 users like both.
+    \item \textbf{Correct Answer: (c)}
+    \item \textbf{Why (c) is correct:} The gradient descent recurrence error for an $L$-Lipschitz smooth function behaves as $e_{t+1} = (1 - \eta L) e_t$. Convergence requires $|1 - \eta L| < 1$, which imposes the upper stability bound $\eta < \frac{2}{L}$. Here $L = 8$, so $\eta_{\text{max}} = \frac{2}{8} = 0.25$. With $\eta = 0.30$, the contraction factor is $|1 - 0.30 \times 8| = |1 - 2.4| = |-1.4| = 1.4 > 1$. The error grows by a factor of $1.4$ each iteration, causing immediate numerical divergence to $\pm \infty$.
+    \item \textbf{Why (a) is false:} Monotonic convergence requires $0 < \eta \le \frac{1}{L} = 0.125$.
+    \item \textbf{Why (b) is false:} Damped oscillation occurs only in the range $\frac{1}{L} < \eta < \frac{2}{L} = (0.125, 0.250)$.
+    \item \textbf{Why (d) is false:} The function is strictly convex (only one global minimum, no local minimum traps).
 \end{itemize}
 
-\textbf{2. Functions \& Exponentials: Given $f(x) = e^{2x}$ and $g(x) = \ln(x)$, find the composite function $(f \circ g)(x)$ and simplify it completely.}
+\textbf{7. Adding an Edge of Weight 0 to an MST}
 \begin{itemize}
-    \item Substitute $g(x)$ into $f(x)$: $(f \circ g)(x) = f(\ln(x)) = e^{2\ln(x)}$.
-    \item Apply the logarithm power rule: $2\ln(x) = \ln(x^2)$.
-    \item The expression becomes $e^{\ln(x^2)}$.
-    \item Using the inverse property of exponentials and logarithms ($e^{\ln(y)} = y$), the simplified function is exactly $x^2$ (for $x > 0$).
-\end{itemize}
-
-\textbf{3. Calculus: Find the critical points of the loss function $L(w) = w^3 - 3w^2 - 9w + 15$. Use the Second Derivative Test to determine which point is a local minimum (the optimal weight).}
-\begin{itemize}
-    \item Find the first derivative: $L'(w) = 3w^2 - 6w - 9$.
-    \item Set to zero: $3(w^2 - 2w - 3) = 0 \implies 3(w - 3)(w + 1) = 0$.
-    \item The critical points are $w = 3$ and $w = -1$.
-    \item Find the second derivative: $L''(w) = 6w - 6$.
-    \item Test $w = -1$: $L''(-1) = 6(-1) - 6 = -12$. Since this is negative, $w=-1$ is a \textbf{maximum}.
-    \item Test $w = 3$: $L''(3) = 6(3) - 6 = 12$. Since this is positive, $w=3$ is the \textbf{local minimum}.
-\end{itemize}
-
-\textbf{4. Integration: Calculate the total probability area under the curve $p(x) = 3x^2$ between $x=0$ and $x=1$.}
-\begin{itemize}
-    \item Set up the definite integral: $\int_0^1 3x^2 \dx$.
-    \item Find the general antiderivative using the power rule: $\frac{3x^3}{3} = x^3$.
-    \item Evaluate at the limits (FTC Part 2): $F(1) - F(0) = 1^3 - 0^3 = 1 - 0 = 1$.
-    \item The total probability area is exactly $1$.
-\end{itemize}
-
-\textbf{5. Graph Theory: You are using Dijkstra's algorithm to find the fastest driving route. You discover a toll road that pays you \$5 to drive on it (a negative weight of $-5$). Will Dijkstra's algorithm still guarantee the correct shortest path? What algorithm should you use instead?}
-\begin{itemize}
-    \item \textbf{No}, Dijkstra's algorithm fundamentally assumes all edge weights are non-negative. It operates on a greedy strategy, locking in the shortest distance to a node and never looking back. A negative weight would invalidate previously locked distances.
-    \item You should use the \textbf{Bellman-Ford algorithm}, which systematically relaxes all edges multiple times and correctly handles negative edge weights.
+    \item \textbf{Correct Answer: (b)}
+    \item \textbf{Why (b) is correct:} By the Cut and Cycle properties of Minimum Spanning Trees, adding any edge to a connected graph provides an alternative spanning path. If the new edge has weight 0, it creates a cycle with existing tree edges. Breaking the cycle by removing the heaviest edge on that cycle can only reduce or leave unchanged the total weight. An additional edge can never force the MST to become heavier.
+    \item \textbf{Why (a) is false:} The problem states the edge is added between two \textit{existing} vertices, so $|V|$ remains constant.
+    \item \textbf{Why (c) is false:} Kruskal and Prim handle edge weights consistently; weight 0 edges are non-negative.
+    \item \textbf{Why (d) is false:} Both algorithms always yield valid Minimum Spanning Trees with identical minimum total weight.
 \end{itemize}

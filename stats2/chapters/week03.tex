@@ -1,27 +1,31 @@
 \chapter{Expectation, Covariance, Correlation \& Probability Bounds}
 
-Summary statistics—such as the mean (center) and variance (spread)—compress complex probability distributions into single numbers. In this chapter, we master \index{Joint Expectation}\textbf{Joint Expectation}, \index{Covariance}\textbf{Covariance}, Pearson's \index{Correlation Coefficient}\textbf{Correlation Coefficient}, and distribution-free probability bounds via \index{Markov's}\textbf{Markov's} and \index{Chebyshev's Inequalities}\textbf{Chebyshev's Inequalities}.
-
+Summary statistics---such as the mean (center of mass), variance (dispersion), and covariance (joint variation)---condense high-dimensional joint distributions into tractable quantitative summaries. In this chapter, we master \index{Joint Expectation}\textbf{Joint Expectation}, \index{Linearity of Expectation}\textbf{Linearity of Expectation}, \index{Covariance}\textbf{Covariance}, Pearson's \index{Correlation Coefficient}\textbf{Correlation Coefficient}, and non-parametric distribution-free probability bounds via \index{Markov's Inequality}\textbf{Markov's} and \index{Chebyshev's Inequality}\textbf{Chebyshev's Inequalities}.
 
 \vspace{0.5cm}
 \begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
 \begin{itemize}
-    \item Expected Value and Linearity of Expectation
-    \item Covariance and Correlation
-    \item Markov and Chebyshev Inequalities
+    \item Computing expectations of arbitrary bivariate functions $\E[g(X, Y)]$.
+    \item Universal Linearity of Expectation (holding with or without independence).
+    \item Covariance and Pearson Correlation as measures of linear association.
+    \item Tail risk bounds: Markov's and Chebyshev's inequalities.
+    \item Essential exam traps: $\E[g(X)] \neq g(\E[X])$ (Jensen's inequality) and Uncorrelatedness vs. Independence.
 \end{itemize}
 \end{tcolorbox}
+
 \section{Expected Value and Linearity of Expectation}
 
-\begin{definitionbox}{Expected Value $\E[g(X, Y)]$}
-For joint discrete random variables $X$ and $Y$, the expected value of any function $g(X, Y)$ is:
-$$\E[g(X, Y)] = \sum_{x} \sum_{y} g(x, y) \cdot p_{X,Y}(x, y)$$
+\begin{definitionbox}{Expected Value of Bivariate Functions $\E[g(X, Y)]$}
+For discrete random variables $X$ and $Y$ with joint PMF $p_{X,Y}(x, y)$, the expected value of any real-valued function $g(X, Y)$ is defined by the \index{Law of the Unconscious Statistician (LOTUS)}\textbf{LOTUS}:
+$$\E[g(X, Y)] = \sum_{x \in \mathcal{R}_X} \sum_{y \in \mathcal{R}_Y} g(x, y) \cdot p_{X,Y}(x, y)$$
+provided the absolute sum $\sum_x \sum_y |g(x, y)| p_{X,Y}(x, y) < \infty$.
 \end{definitionbox}
 
 \begin{theorembox}{Linearity of Expectation}
-For any random variables $X_1, X_2, \dots, X_n$ (whether independent or dependent!) and constants $a_i, b$:
+For \textbf{any} random variables $X_1, X_2, \dots, X_n$ (defined on the same probability space, with absolutely no requirement of independence!) and real constants $a_1, \dots, a_n, b$:
 $$\E\left[ \sum_{i=1}^n a_i X_i + b \right] = \sum_{i=1}^n a_i \E[X_i] + b$$
-If $X$ and $Y$ are \index{independent}\textbf{independent}, then $\E[X Y] = \E[X] \E[Y]$.
+\textbf{Special Multiplicative Case:} If $X$ and $Y$ are \textbf{independent}, then:
+$$\E[X Y] = \E[X] \cdot \E[Y]$$
 \end{theorembox}
 
 \begin{videocard}{IITM BS Lecture: Expected Value \& Properties of Expectation}{https://www.youtube.com/watch?v=q6Zj54UZqYg}
@@ -30,41 +34,57 @@ Official lecture introducing expectation for joint distributions and proving lin
 
 \section{Covariance and Correlation}
 
-\begin{intuitionbox}{Visualizing Covariance}
-Imagine a scatterplot with the center point $(\mu_X, \mu_Y)$. This splits the plot into 4 quadrants. Points in the top-right and bottom-left quadrants have a positive $(X-\mu_X)(Y-\mu_Y)$ product, contributing positive covariance. Points in the top-left and bottom-right contribute negative covariance. The final Covariance is essentially a tug-of-war between these quadrants!
+\begin{intuitionbox}{Visualizing Covariance as a Quadrant Balance}
+Plot points $(x_i, y_i)$ with their probability masses centered at the centroid $(\mu_X, \mu_Y)$. The centroid divides the plane into four quadrants:
+\begin{itemize}
+    \item Quadrants I \& III: $(X - \mu_X)$ and $(Y - \mu_Y)$ share the same sign $\implies (X - \mu_X)(Y - \mu_Y) > 0$.
+    \item Quadrants II \& IV: $(X - \mu_X)$ and $(Y - \mu_Y)$ have opposite signs $\implies (X - \mu_X)(Y - \mu_Y) < 0$.
+\end{itemize}
+$\Cov(X, Y)$ represents the probability-weighted tug-of-war between concordant and discordant quadrants.
 \end{intuitionbox}
 
-\begin{lstlisting}[language=Python, caption=Data Science: Covariance matrix in numpy]
+\begin{lstlisting}[language=Python, caption=Data Science: Covariance and Correlation Matrices in NumPy]
 import numpy as np
 
-x = [1, 2, 3, 4, 5]
-y = [2, 4, 5, 4, 5]
+# Feature vectors: Advertising Spend (k$) and Product Sales (Units)
+spend = np.array([10, 20, 30, 40, 50])
+sales = np.array([25, 45, 50, 70, 85])
 
-# Calculate the full Covariance Matrix
-cov_matrix = np.cov(x, y, ddof=0)
+# Bivariate Covariance Matrix (ddof=0 for population parameters)
+cov_matrix = np.cov(spend, sales, ddof=0)
 print("Covariance Matrix:\n", cov_matrix)
-print("Cov(X,Y):", cov_matrix[0][1])
+cov_xy = cov_matrix[0, 1]
+
+# Pearson Correlation Coefficient Matrix
+corr_matrix = np.corrcoef(spend, sales)
+print(f"Cov(Spend, Sales): {cov_xy:.2f}")
+print(f"Pearson Correlation rho: {corr_matrix[0, 1]:.4f}")
 \end{lstlisting}
 
-To measure how two random variables co-vary together, we define \index{Covariance}\textbf{Covariance} and normalized \index{Correlation}\textbf{Correlation}.
-
 \begin{definitionbox}{Covariance $\Cov(X, Y)$}
+The \textbf{Covariance} measures the linear co-dependence between $X$ and $Y$:
 $$\Cov(X, Y) = \E[(X - \E[X])(Y - \E[Y])] = \E[XY] - \E[X]\E[Y]$$
-\begin{itemize}
-    \item If $X$ and $Y$ are independent $\implies \Cov(X, Y) = 0$. (Note: Zero covariance does \index{not}\textbf{not} guarantee independence!)
-    \item Variance of a sum: $\Var(X + Y) = \Var(X) + \Var(Y) + 2\Cov(X, Y)$.
-\end{itemize}
+Key Properties:
+\begin{enumerate}
+    \item $\Cov(X, X) = \Var(X)$.
+    \item Symmetry: $\Cov(X, Y) = \Cov(Y, X)$.
+    \item Bilinearity: $\Cov(aX + b, cY + d) = ac \Cov(X, Y)$.
+    \item Variance of a linear combination:
+    $$\Var(aX + bY) = a^2 \Var(X) + b^2 \Var(Y) + 2ab \Cov(X, Y)$$
+\end{enumerate}
 \end{definitionbox}
 
 \begin{formulabox}{Pearson Correlation Coefficient $\rho_{X,Y}$}
-$$\rho_{X,Y} = \frac{\Cov(X, Y)}{\sigma_X \sigma_Y} \quad \text{where } \sigma_X = \sqrt{\Var(X)}, \, \sigma_Y = \sqrt{\Var(Y)}$$
+The \index{Correlation Coefficient}\textbf{Pearson Correlation Coefficient} is the scale-invariant, dimensionless normalization of covariance:
+$$\rho_{X,Y} = \frac{\Cov(X, Y)}{\sigma_X \sigma_Y} \quad \text{where } \sigma_X = \sqrt{\Var(X)}, \; \sigma_Y = \sqrt{\Var(Y)}$$
+By the Cauchy-Schwarz inequality, $\rho$ is strictly bounded:
+$$-1 \le \rho_{X,Y} \le 1$$
 \begin{itemize}
-    \item Always bounded: $-1 \le \rho_{X,Y} \le 1$.
-    \item $\rho = +1$: Perfect positive linear relationship; $\rho = -1$: Perfect negative linear relationship.
+    \item $\rho = +1 \iff Y = aX + b$ with $a > 0$ (perfect deterministic positive linear line).
+    \item $\rho = -1 \iff Y = aX + b$ with $a < 0$ (perfect deterministic negative linear line).
+    \item $\rho = 0 \iff X$ and $Y$ are \textbf{uncorrelated} (no linear trend).
 \end{itemize}
 \end{formulabox}
-
-\textbf{Data Science Relevance:} Feature correlation matrices are inspected before building linear regression models to detect multicollinearity, and covariance matrices $\Sigma$ form the foundation of Principal Component Analysis (PCA)!
 
 \begin{videocard}{IITM BS Lecture: Covariance \& Correlation Coefficient}{https://www.youtube.com/watch?v=UoZc81wNK4I}
 Official lecture deriving covariance properties, variance of linear combinations, and correlation bounds.
@@ -72,26 +92,86 @@ Official lecture deriving covariance properties, variance of linear combinations
 
 \section{Markov and Chebyshev Inequalities}
 
-When the exact probability distribution is unknown, we can bound tail probabilities using only the mean and variance.
+In data science, we often work with complex black-box distributions where the true PMF/PDF is unknown, but sample estimates of the mean $\mu$ and standard deviation $\sigma$ are available. Concentration inequalities provide guaranteed, worst-case upper bounds on tail event risks.
 
 \begin{theorembox}{Markov's Inequality}
-For a non-negative random variable $X \ge 0$ with finite mean $\mu = \E[X]$:
-$$\P(X \ge a) \le \frac{\E[X]}{a} \quad \text{for any } a > 0$$
+Let $X$ be a strictly \textbf{non-negative} random variable ($X \ge 0$) with finite mean $\E[X]$. Then for any threshold $a > 0$:
+$$\P(X \ge a) \le \frac{\E[X]}{a}$$
 \end{theorembox}
 
 \begin{theorembox}{Chebyshev's Inequality}
-For any random variable $X$ with mean $\mu$ and variance $\sigma^2$:
-$$\P(|X - \mu| \ge k \sigma) \le \frac{1}{k^2} \quad \text{for any } k > 0$$
-Equivalently: $\P(|X - \mu| \ge \epsilon) \le \frac{\Var(X)}{\epsilon^2}$.
+Let $X$ be any random variable (positive, negative, or mixed) with finite mean $\mu = \E[X]$ and variance $\sigma^2 = \Var(X)$. Then for any $\epsilon > 0$:
+$$\P(|X - \mu| \ge \epsilon) \le \frac{\Var(X)}{\epsilon^2}$$
+Equivalently, setting $\epsilon = k\sigma$ (measuring deviations in units of standard deviations $k > 0$):
+$$\P(|X - \mu| \ge k\sigma) \le \frac{1}{k^2} \iff \P(|X - \mu| < k\sigma) \ge 1 - \frac{1}{k^2}$$
+For instance, for any arbitrary distribution whatsoever, at least $1 - \frac{1}{2^2} = 75\%$ of all data must lie within $2\sigma$ of the mean!
 \end{theorembox}
 
 \begin{videocard}{IITM BS Lecture: Bounds in Probabilities (Markov \& Chebyshev)}{https://www.youtube.com/watch?v=NTGLrewi_uY}
 Official lecture proving Markov's and Chebyshev's inequalities and applying them to tail probability bounds.
 \end{videocard}
 
+\section{Exam Gotchas \& Cognitive Traps}
+
+\begin{trapbox}{The Nonlinear Expectation Fallacy ($\E[g(X)] \neq g(\E[X])$)}
+\textbf{The Trap:} Claiming that $\E\left[\frac{1}{X}\right] = \frac{1}{\E[X]}$, or $\E[\sqrt{X}] = \sqrt{\E[X]}$, or $\E[X^2] = (\E[X])^2$.
+
+\textbf{The Reality:} Expectation is linear, but \textbf{never passes through nonlinear functions}. 
+By \index{Jensen's Inequality}\textbf{Jensen's Inequality}, for any strictly convex function $\phi$ (such as $\phi(x) = x^2$, $\phi(x) = 1/x$ for $x>0$, or $\phi(x) = e^x$):
+$$\E[\phi(X)] > \phi(\E[X]) \quad \text{unless } \Var(X) = 0$$
+For example, flip a fair coin where $X \in \{1, 2\}$ with $p=0.5$.
+$\E[X] = 1.5 \implies \frac{1}{\E[X]} = \frac{1}{1.5} \approx 0.667$.
+However: $\E\left[\frac{1}{X}\right] = \frac{1}{1}(0.5) + \frac{1}{2}(0.5) = 0.5 + 0.25 = 0.75 \neq 0.667$!
+\end{trapbox}
+
+\begin{trapbox}{Zero Covariance Does NOT Mean Independent}
+\textbf{The Trap:} Concluding that because $\Cov(X, Y) = 0$ (or $\rho_{X,Y} = 0$), $X$ and $Y$ are independent.
+
+\textbf{The Classic Counterexample:}
+Let $X \in \{-1, 0, 1\}$ with uniform probability $p_X(x) = \frac{1}{3}$. Let $Y = X^2$.
+\begin{itemize}
+    \item Clearly, $Y$ is completely deterministic from $X$ (perfect non-linear dependence!).
+    \item Compute expectations: $\E[X] = \frac{-1 + 0 + 1}{3} = 0$.
+    \item $\E[XY] = \E[X^3] = \frac{(-1)^3 + 0^3 + 1^3}{3} = 0$.
+    \item $\Cov(X, Y) = \E[XY] - \E[X]\E[Y] = 0 - (0)(\E[Y]) = 0$.
+\end{itemize}
+$\Cov(X, Y) = 0$ even though $Y$ is 100\% determined by $X$. Pearson correlation only measures \textbf{linear} relationships!
+\end{trapbox}
+
+\begin{trapbox}{Markov's Non-negativity Prerequisite}
+\textbf{The Trap:} Applying Markov's inequality $\P(X \ge a) \le \frac{\E[X]}{a}$ to a random variable that can take negative values (e.g. a centered variable with mean 0).
+
+\textbf{The Reality:} If $X$ can be negative, Markov's inequality is invalid and produces nonsensical bounds (such as negative probabilities). Markov's inequality \textbf{strictly requires $X \ge 0$}. To bound general variables, one must square the deviation $(X - \mu)^2 \ge 0$, which is precisely how Chebyshev's inequality is derived.
+\end{trapbox}
+
+\section{Comparative Synthesis Matrix}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{3.2cm}p{3.8cm}p{3.8cm}p{3.5cm}}
+\toprule
+\textbf{Dimension} & \textbf{Markov's Inequality} & \textbf{Chebyshev's Inequality} & \textbf{Chernoff Bound} \\
+\midrule
+\textbf{Assumptions} & $X \ge 0$ (non-negative), finite $\E[X]$ & Finite mean $\mu$ and variance $\sigma^2$ & Moment Generating Function $M_X(t)$ exists \\
+\addlinespace
+\textbf{Target Event} & Upper tail $\P(X \ge a)$ & Two-sided deviation $\P(|X - \mu| \ge \epsilon)$ & Extreme tail $\P(X \ge a)$ \\
+\addlinespace
+\textbf{Decay Rate} & Hyperbolic $O(1/a)$ & Quadratic $O(1/\epsilon^2)$ & \textbf{Exponential} $O(e^{-t a})$ \\
+\addlinespace
+\textbf{Sharpness} & Loosest bound (needs only mean) & Moderately tight (uses variance) & Sharpest tail bounds in ML theory \\
+\addlinespace
+\textbf{Data Science Use} & Bounding positive resource counts (latencies, counts) & Bounding confidence intervals without normality & PAC-learning sample complexity bounds \\
+\bottomrule
+\end{tabular}
+\caption{Comparison of Fundamental Probability Bounds and Concentration Inequalities.}
+\end{table}
+
 \newpage
 \section{Practice Exercises}
 \textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\subsection*{Part A: Analytical \& Computational Problems}
 
 \begin{enumerate}
 \item \textbf{Linearity of Expectation:} Roll 10 fair 6-sided dice. Let $X_i$ be the score on die $i$, and $S = \sum_{i=1}^{10} X_i$ be the total sum. Find $\E[S]$.
@@ -109,4 +189,26 @@ Official lecture proving Markov's and Chebyshev's inequalities and applying them
 \item \textbf{Markov's Inequality Tail Bound:} The average daily website visits for a blog is $\E[X] = 500$. Using Markov's inequality, find an upper bound for the probability that on a given day the blog receives at least 2,000 visits ($\P(X \ge 2000)$).
 
 \item \textbf{Data Science Application (Algorithmic Trading Risk Bound):} An automated trading strategy has expected daily return $\mu = \$100$ with standard deviation $\sigma = \$20$. Use Chebyshev's inequality to find a lower bound for the probability that daily return falls between $\$60$ and $\$140$.
+\end{enumerate}
+
+\subsection*{Part B: Conceptual Diagnostic Traps (Exam Gotchas)}
+
+\begin{enumerate}[resume]
+\item \textbf{Diagnostic Trap (Nonlinear Expectation \& Jensen's Inequality):}
+Let $X$ be a non-degenerate positive random variable ($\Var(X) > 0$ and $X > 0$). Which of the following relationships is mathematically guaranteed?
+\begin{enumerate}
+    \item $\E\left[\frac{1}{X}\right] = \frac{1}{\E[X]}$
+    \item $\E\left[\frac{1}{X}\right] > \frac{1}{\E[X]}$
+    \item $\E\left[\frac{1}{X}\right] < \frac{1}{\E[X]}$
+    \item $\E[\ln X] > \ln(\E[X])$
+\end{enumerate}
+
+\item \textbf{Diagnostic Trap (Uncorrelatedness and Independence):}
+Suppose two continuous features satisfy $\Cov(X, Y) = 0$. Which of the following conclusions is strictly valid?
+\begin{enumerate}
+    \item $X$ and $Y$ are statistically independent.
+    \item $p_{X,Y}(x, y) = p_X(x) p_Y(y)$ for all $(x, y)$.
+    \item $\Var(X - Y) = \Var(X) + \Var(Y)$.
+    \item $\E[X^2 Y^2] = \E[X^2] \E[Y^2]$.
+\end{enumerate}
 \end{enumerate}

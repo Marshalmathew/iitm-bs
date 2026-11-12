@@ -1,115 +1,386 @@
 \chapter{Vector Spaces, Subspaces \& Linear Independence}
+\index{Vector Spaces, Subspaces \& Linear Independence}
 
-Abstract algebra generalizes $\mathbb{R}^n$ into the formal concept of a \index{Vector Space}\textbf{Vector Space}. Understanding vector spaces and linear independence is crucial for recognizing feature redundancies and understanding high-dimensional data representations.
-
-
-\vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Definition of a Vector Space
-    \item Vector Subspaces
-    \item Linear Combinations, Span, and Linear Independence
+    \item \textbf{Axiomatic Vector Spaces:} Formalize vector spaces $(V, +, \cdot)$ over $\R$ and master the 8 fundamental closure and algebraic axioms.
+    \item \textbf{Subspace Verification:} Prove vector subspace validity using the 3-point criterion ($\mathbf{0} \in W$, additive closure, scalar multiplicative closure).
+    \item \textbf{Linear Combinations \& Spans:} Define the span of a vector set $\vspan(S)$ and establish that spans are always valid subspaces.
+    \item \textbf{Linear Independence \& Degrees of Freedom:} Test for linear independence via homogeneous systems, determinants, and matrix ranks; understand why $k > n$ vectors in $\R^n$ are always linearly dependent.
+    \item \textbf{Data Science \& ML Manifestations:} Detect feature multicollinearity, understand ill-conditioned normal equations, and eliminate redundant degrees of freedom before regression modeling.
 \end{itemize}
 \end{tcolorbox}
-\section{Definition of a Vector Space}
+
+\section{Mathematical \& Theoretical Foundations}
+
+Linear algebra abstracts geometric Euclidean vectors into algebraic entities spanning function spaces, polynomial spaces, and high-dimensional feature spaces.
+
+\subsection{Formal Definition of a Vector Space}
 
 \begin{definitionbox}{Vector Space Axioms}
-\index{Vector Space Axioms}
-A \index{Vector Space}\textbf{Vector Space} $(V, +, \cdot)$ over a field $\mathbb{R}$ is a set $V$ equipped with vector addition $+$ and scalar multiplication $\cdot$ satisfying 8 fundamental axioms:
+A \textbf{vector space} over $\R$ is a non-empty set $V$ equipped with two binary operations:
+\begin{itemize}
+    \item \textbf{Vector Addition} $+: V \times V \to V$, mapping $(\mathbf{u}, \mathbf{v}) \mapsto \mathbf{u} + \mathbf{v} \in V$
+    \item \textbf{Scalar Multiplication} $\cdot: \R \times V \to V$, mapping $(c, \mathbf{v}) \mapsto c\mathbf{v} \in V$
+\end{itemize}
+such that the following 8 axioms hold for all $\mathbf{u}, \mathbf{v}, \mathbf{w} \in V$ and all scalars $c, d \in \R$:
 \begin{enumerate}
-    \item \textbf{Associativity of Addition:} $(\mathbf{u} + \mathbf{v}) + \mathbf{w} = \mathbf{u} + (\mathbf{v} + \mathbf{w})$.
     \item \textbf{Commutativity of Addition:} $\mathbf{u} + \mathbf{v} = \mathbf{v} + \mathbf{u}$.
-    \item \textbf{Additive Identity:} There exists $\mathbf{0} \in V$ such that $\mathbf{v} + \mathbf{0} = \mathbf{v}$.
-    \item \textbf{Additive Inverse:} For every $\mathbf{v} \in V$, there exists $-\mathbf{v} \in V$ such that $\mathbf{v} + (-\mathbf{v}) = \mathbf{0}$.
-    \item \textbf{Distributivity I:} $c(\mathbf{u} + \mathbf{v}) = c\mathbf{u} + c\mathbf{v}$.
-    \item \textbf{Distributivity II:} $(c + d)\mathbf{v} = c\mathbf{v} + d\mathbf{v}$.
+    \item \textbf{Associativity of Addition:} $(\mathbf{u} + \mathbf{v}) + \mathbf{w} = \mathbf{u} + (\mathbf{v} + \mathbf{w})$.
+    \item \textbf{Additive Identity:} There exists a unique zero vector $\mathbf{0} \in V$ such that $\mathbf{v} + \mathbf{0} = \mathbf{v}$.
+    \item \textbf{Additive Inverse:} For every $\mathbf{v} \in V$, there exists a unique $-\mathbf{v} \in V$ such that $\mathbf{v} + (-\mathbf{v}) = \mathbf{0}$.
+    \item \textbf{Scalar Multiplicative Identity:} $1 \cdot \mathbf{v} = \mathbf{v}$.
     \item \textbf{Scalar Associativity:} $c(d\mathbf{v}) = (cd)\mathbf{v}$.
-    \item \textbf{Scalar Identity:} $1 \cdot \mathbf{v} = \mathbf{v}$.
+    \item \textbf{Vector Distributivity:} $c(\mathbf{u} + \mathbf{v}) = c\mathbf{u} + c\mathbf{v}$.
+    \item \textbf{Scalar Distributivity:} $(c + d)\mathbf{v} = c\mathbf{v} + d\mathbf{v}$.
 \end{enumerate}
+\textbf{Standard Examples:} Real coordinate space $\R^n$, matrix spaces $\R^{m \times n}$, polynomial spaces $\mathbb{P}_n$, and continuous function spaces $\mathcal{C}([a, b])$.
 \end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: Introduction to Vector Spaces}{https://www.youtube.com/watch?v=dAttVL9a5Go}
-Official lecture introducing vector space axioms and canonical examples ($\mathbb{R}^n$, matrix spaces $\mathbb{R}^{m \times n}$, polynomial spaces $\mathbb{P}_n$).
-\end{videocard}
+\subsection{Vector Subspaces and the Three-Point Criterion}
 
-\section{Vector Subspaces}
+A subset of a vector space is not automatically a vector space itself, as arbitrary subsets may not contain the origin or may step outside their boundaries under addition.
 
-A subset $W \subseteq V$ of a vector space $V$ is a \index{Subspace}\textbf{Subspace} if $W$ is itself a valid vector space under the same operations.
+\begin{definitionbox}{Vector Subspace}
+A subset $W \subseteq V$ of a vector space $V$ is called a \textbf{subspace} of $V$ (written $W \le V$) if $W$ is itself a vector space under the addition and scalar multiplication operations defined on $V$.
+\end{definitionbox}
 
-\begin{theorembox}{Subspace Test}
-A non-empty subset $W \subseteq V$ is a subspace of $V$ if and only if it satisfies \index{3 closure properties}\textbf{3 closure properties}:
+\begin{theorembox}{The Subspace Test (3-Point Criterion)}
+A non-empty subset $W \subseteq V$ is a subspace of $V$ if and only if it satisfies three conditions:
 \begin{enumerate}
-\item \textbf{Zero Vector:} $\mathbf{0} \in W$.
-\item \textbf{Closure under Addition:} If $\mathbf{u}, \mathbf{v} \in W$, then $\mathbf{u} + \mathbf{v} \in W$.
-\item \textbf{Closure under Scalar Multiplication:} If $\mathbf{v} \in W$ and $c \in \mathbb{R}$, then $c\mathbf{v} \in W$.
+    \item \textbf{Contains the Zero Vector:} $\mathbf{0} \in W$.
+    \item \textbf{Closed Under Vector Addition:} If $\mathbf{u}, \mathbf{v} \in W$, then $\mathbf{u} + \mathbf{v} \in W$.
+    \item \textbf{Closed Under Scalar Multiplication:} If $\mathbf{v} \in W$ and $c \in \R$, then $c\mathbf{v} \in W$.
 \end{enumerate}
+\textbf{Equivalent Single-Condition Test:} $W \subseteq V$ is a subspace if and only if $W \neq \emptyset$ and for all $\mathbf{u}, \mathbf{v} \in W$ and $c, d \in \R$, the linear combination $c\mathbf{u} + d\mathbf{v} \in W$.
 \end{theorembox}
 
-\begin{videocard}{IITM BS Lecture: Properties of Vector Spaces \& Subspaces}{https://www.youtube.com/watch?v=yUISwV4LE20}
-Official lecture proving subspace criteria and geometric examples (lines/planes through the origin in $\mathbb{R}^3$).
-\end{videocard}
+\subsection{Linear Combinations and the Span}
 
-\section{Linear Combinations, Span, and Linear Independence}
-
-\begin{definitionbox}{Linear Span and Independence}
-\index{Linear Span and Independence}
+\begin{definitionbox}{Linear Combination and Span}
+Let $S = \{\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_k\}$ be a set of vectors in a vector space $V$.
 \begin{itemize}
-    \item \textbf{Linear Combination:} $\mathbf{v} = c_1 \mathbf{v}_1 + c_2 \mathbf{v}_2 + \dots + c_k \mathbf{v}_k$.
-    \item \textbf{Span:} $\vspan(\{\mathbf{v}_1, \dots, \mathbf{v}_k\})$ is the set of all possible linear combinations of the vectors.
-    \item \textbf{Linear Independence:} A set of vectors $\{\mathbf{v}_1, \dots, \mathbf{v}_k\}$ is \index{Linearly Independent}\textbf{Linearly Independent} if the equation:
+    \item A vector $\mathbf{w} \in V$ is a \textbf{linear combination} of $S$ if there exist scalars $c_1, c_2, \dots, c_k \in \R$ such that:
+    \begin{equation}
+    \mathbf{w} = c_1 \mathbf{v}_1 + c_2 \mathbf{v}_2 + \dots + c_k \mathbf{v}_k = \sum_{i=1}^k c_i \mathbf{v}_i
+    \end{equation}
+    \item The \textbf{span} of $S$, denoted $\vspan(S)$ or $\vspan\{\mathbf{v}_1, \dots, \mathbf{v}_k\}$, is the set of all possible linear combinations of vectors in $S$:
+    \begin{equation}
+    \vspan(S) = \left\{ \sum_{i=1}^k c_i \mathbf{v}_i \ \middle|\ c_1, \dots, c_k \in \R \right\}
+    \end{equation}
 \end{itemize}
-$$c_1 \mathbf{v}_1 + c_2 \mathbf{v}_2 + \dots + c_k \mathbf{v}_k = \mathbf{0}$$
-has \index{ONLY the trivial solution}\textbf{ONLY the trivial solution} $c_1 = c_2 = \dots = c_k = 0$.
-
-If a non-trivial solution exists (at least one $c_i \neq 0$), the vectors are \index{Linearly Dependent}\textbf{Linearly Dependent}.
+\textbf{Theorem:} For any non-empty set $S \subseteq V$, $\vspan(S)$ is \textbf{always a valid subspace} of $V$. It is the minimal subspace of $V$ containing $S$.
 \end{definitionbox}
 
-\begin{intuitionbox}{Degrees of Freedom \& Redundancy}
-Think of vectors as giving you directions to move in space.
+\subsection{Linear Independence and Redundancy}
+
+Linear independence establishes whether every vector in a set provides a unique, non-redundant spatial dimension.
+
+\begin{definitionbox}{Linear Independence}
+A set of vectors $S = \{\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_k\}$ in a vector space $V$ is \textbf{linearly independent} if the vector equation:
+\begin{equation}
+c_1 \mathbf{v}_1 + c_2 \mathbf{v}_2 + \dots + c_k \mathbf{v}_k = \mathbf{0}
+\end{equation}
+admits \textbf{only the trivial solution}:
+\begin{equation}
+c_1 = c_2 = \dots = c_k = 0
+\end{equation}
+If there exists a non-trivial solution (where at least one scalar $c_i \neq 0$), the set $S$ is \textbf{linearly dependent}.
+\end{definitionbox}
+
+\begin{theorembox}{Characterization of Linear Dependence}
+A set of vectors $S = \{\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_k\}$ with $k \ge 2$ is linearly dependent if and only if \textbf{at least one vector $\mathbf{v}_j$ can be expressed as a linear combination of the remaining vectors}:
+\begin{equation}
+\mathbf{v}_j \in \vspan(S \setminus \{\mathbf{v}_j\})
+\end{equation}
+\textbf{Dimensional Bound in $\R^n$:} Any set of $k$ vectors in $\R^n$ with $k > n$ is \textbf{guaranteed to be linearly dependent}.
+\end{theorembox}
+
+\begin{theorembox}{Matrix Column Independence Test}
+Let $A = [\mathbf{v}_1 \ \mathbf{v}_2 \ \dots \ \mathbf{v}_k] \in \R^{n \times k}$ be the matrix having vectors $\mathbf{v}_i$ as its columns.
 \begin{itemize}
-    \item A \index{Linearly Independent}\textbf{Linearly Independent} vector unlocks a brand new dimension. If you have two independent vectors in 3D space, you can travel anywhere on a flat 2D plane. A third independent vector would allow you to step off that plane and explore the entire 3D space.
-    \item A \index{Linearly Dependent}\textbf{Linearly Dependent} vector is completely redundant. It's like being given a third direction that just points somewhere on the 2D plane you can already reach using the first two vectors. It provides zero new ``degrees of freedom''.
+    \item The vectors $\{\mathbf{v}_1, \dots, \mathbf{v}_k\}$ are linearly independent if and only if the homogeneous system $A\mathbf{c} = \mathbf{0}$ has only the trivial solution $\mathbf{c} = \mathbf{0}$.
+    \item Equivalently, the columns are independent if and only if $\rank(A) = k$ (every column contains a pivot in REF).
+    \item For a square set of $n$ vectors in $\R^n$ ($k = n$), the vectors are linearly independent if and only if:
+    \begin{equation}
+    \det(A) \neq 0
+    \end{equation}
 \end{itemize}
-\end{intuitionbox}
+\end{theorembox}
 
-\textbf{Data Science Relevance:} In Machine Learning, \index{multicollinearity}\textbf{multicollinearity} occurs when input feature vectors are linearly dependent (or nearly dependent). This causes severe instability in linear models and matrix inversion $(X^T X)^{-1}$.
+\section{Visual \& Geometric Intuition}
 
-\begin{lstlisting}[language=Python, caption=Data Science: Testing Linear Independence]
+Below, we visualize the distinction between a true linear subspace (passing through the origin) and an affine flat, followed by the geometric meaning of linear independence in 3D space.
+
+\begin{center}
+\begin{tikzpicture}[scale=1.1]
+    % Origin
+    \draw[->, thick, gray!60] (-0.5, 0, 0) -- (4, 0, 0) node[right, black] {$x$};
+    \draw[->, thick, gray!60] (0, -0.5, 0) -- (0, 3.5, 0) node[above, black] {$z$};
+    \draw[->, thick, gray!60] (0, 0, -0.5) -- (0, 0, 3) node[below left, black] {$y$};
+
+    % Subspace plane through origin
+    \fill[blue!15, opacity=0.7] (-1, -0.5) -- (3, 0.5) -- (2.5, 2.5) -- (-1.5, 1.5) -- cycle;
+    \draw[thick, blue!80!black] (-1, -0.5) -- (3, 0.5) -- (2.5, 2.5) -- (-1.5, 1.5) -- cycle;
+    \fill[black] (0, 0) circle (2.5pt) node[below right] {$\mathbf{0} \in W$};
+    \node[blue!80!black, font=\bfseries] at (1.5, 2.2) {Subspace: $2x - y + z = 0$};
+
+    % Affine non-subspace plane shifted
+    \begin{scope}[shift={(0, 1.6)}]
+        \fill[red!15, opacity=0.6] (-1, -0.5) -- (3, 0.5) -- (2.5, 2.5) -- (-1.5, 1.5) -- cycle;
+        \draw[thick, dashed, red!80!black] (-1, -0.5) -- (3, 0.5) -- (2.5, 2.5) -- (-1.5, 1.5) -- cycle;
+        \node[red!80!black, font=\bfseries] at (1.5, 2.2) {Not a Subspace: $2x - y + z = 4$};
+        \node[red!80!black] at (1.5, 1.6) {($\mathbf{0} \notin W$, not closed)};
+    \end{scope}
+\end{tikzpicture}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}[scale=1.0]
+    % 2D Plane span
+    \fill[green!15, opacity=0.7] (-0.5, 0) -- (3.5, 0.5) -- (2.5, 2.8) -- (-1.5, 2.3) -- cycle;
+    \draw[thick, green!60!black] (-0.5, 0) -- (3.5, 0.5) -- (2.5, 2.8) -- (-1.5, 2.3) -- cycle;
+    \node[green!60!black] at (1.0, 0.4) {$\vspan\{\mathbf{v}_1, \mathbf{v}_2\}$};
+
+    \draw[->, ultra thick, blue!80!black] (0, 1) -- (2.5, 1.2) node[right] {$\mathbf{v}_1$};
+    \draw[->, ultra thick, blue!80!black] (0, 1) -- (0.8, 2.4) node[above] {$\mathbf{v}_2$};
+
+    % Dependent vector lying in plane
+    \draw[->, ultra thick, red!80!black] (0, 1) -- (2.0, 2.2) node[above right] {$\mathbf{v}_3 = \mathbf{v}_1 + \mathbf{v}_2$ (Dependent)};
+
+    % Independent vector stepping out
+    \draw[->, ultra thick, purple] (0, 1) -- (-1.2, 3.2) node[above] {$\mathbf{v}_{\text{ind}}$ (Independent: steps off plane)};
+\end{tikzpicture}
+\end{center}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Proof: More than $n$ Vectors in $\R^n$ Are Always Linearly Dependent}
+Let $S = \{\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_k\}$ be a set of $k$ vectors in $\R^n$, where $k > n$.
+To test linear independence, consider the vector equation:
+\begin{equation}
+c_1 \mathbf{v}_1 + c_2 \mathbf{v}_2 + \dots + c_k \mathbf{v}_k = \mathbf{0}
+\end{equation}
+Writing this in matrix form:
+\begin{equation}
+A \mathbf{c} = \mathbf{0}
+\end{equation}
+where $A = [\mathbf{v}_1 \ \mathbf{v}_2 \ \dots \ \mathbf{v}_k] \in \R^{n \times k}$ is an $n \times k$ matrix, and $\mathbf{c} = [c_1, \dots, c_k]^T \in \R^k$.
+This represents a homogeneous system of $n$ linear equations in $k$ unknowns.
+Because each elementary row operation creates at most one pivot row:
+\begin{equation}
+\rank(A) \le \min(n, k) = n
+\end{equation}
+The number of free variables in the solution space is given by the Rank-Nullity Theorem:
+\begin{equation}
+\text{number of free variables} = k - \rank(A) \ge k - n
+\end{equation}
+Since $k > n$, we have:
+\begin{equation}
+k - \rank(A) \ge k - n > 0
+\end{equation}
+Thus, there exists at least one free variable, guaranteeing the existence of infinitely many non-trivial solutions $\mathbf{c} \neq \mathbf{0}$. 
+Therefore, $S$ is strictly linearly dependent $\blacksquare$.
+
+\subsection{Proof that $\vspan(S)$ is Always a Vector Subspace}
+Let $S = \{\mathbf{v}_1, \dots, \mathbf{v}_k\} \subseteq V$. We verify the three subspace conditions for $W = \vspan(S)$:
+\begin{enumerate}
+    \item \textbf{Zero Vector:} Choosing all scalar coefficients $c_1 = c_2 = \dots = c_k = 0$:
+    \begin{equation}
+    \sum_{i=1}^k 0 \cdot \mathbf{v}_i = \mathbf{0} \in W
+    \end{equation}
+    \item \textbf{Closure under Addition:} Let $\mathbf{u}, \mathbf{w} \in W$. Then $\mathbf{u} = \sum_{i=1}^k a_i \mathbf{v}_i$ and $\mathbf{w} = \sum_{i=1}^k b_i \mathbf{v}_i$ for scalars $a_i, b_i \in \R$.
+    Adding them:
+    \begin{equation}
+    \mathbf{u} + \mathbf{w} = \sum_{i=1}^k a_i \mathbf{v}_i + \sum_{i=1}^k b_i \mathbf{v}_i = \sum_{i=1}^k (a_i + b_i) \mathbf{v}_i
+    \end{equation}
+    Since $(a_i + b_i) \in \R$, $\mathbf{u} + \mathbf{w}$ is a valid linear combination of $S$, so $\mathbf{u} + \mathbf{w} \in W$.
+    \item \textbf{Closure under Scalar Multiplication:} For any $c \in \R$:
+    \begin{equation}
+    c\mathbf{u} = c \sum_{i=1}^k a_i \mathbf{v}_i = \sum_{i=1}^k (c a_i) \mathbf{v}_i
+    \end{equation}
+    Since $(c a_i) \in \R$, $c\mathbf{u} \in W$.
+\end{enumerate}
+Since all 3 criteria hold, $\vspan(S) \le V \quad \blacksquare$.
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Trap 1: The Zero Vector Omission Fallacy}
+A subset cannot be a vector subspace unless it passes through the origin.
+Consider the hyperplane $W = \{[x, y, z]^T \in \R^3 \mid x + y + z = 1\}$. 
+Testing the zero vector: $0 + 0 + 0 = 0 \neq 1$.
+Because $\mathbf{0} \notin W$, $W$ is \textbf{not a subspace}. It is an affine hyperplane.
+\end{trapbox}
+
+\begin{trapbox}{Trap 2: Sets Containing the Zero Vector Are Always Linearly Dependent}
+Any set of vectors $S = \{\mathbf{0}, \mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_k\}$ that includes the zero vector is \textbf{automatically linearly dependent}.
+We can form the non-trivial linear combination:
+\begin{equation}
+1 \cdot \mathbf{0} + 0 \cdot \mathbf{v}_1 + 0 \cdot \mathbf{v}_2 + \dots + 0 \cdot \mathbf{v}_k = \mathbf{0}
+\end{equation}
+Because the coefficient of $\mathbf{0}$ is $1 \neq 0$, a non-trivial solution exists, violating linear independence.
+\end{trapbox}
+
+\begin{trapbox}{Trap 3: Pairwise Independence Does NOT Imply Mutual Independence}
+Students often test linear independence by checking whether any single vector is a scalar multiple of another. While this works for sets of 2 vectors, it fails completely for 3 or more vectors!
+Consider:
+\begin{equation}
+\mathbf{v}_1 = \begin{bmatrix} 1 \\ 0 \end{bmatrix}, \quad \mathbf{v}_2 = \begin{bmatrix} 0 \\ 1 \end{bmatrix}, \quad \mathbf{v}_3 = \begin{bmatrix} 1 \\ 1 \end{bmatrix}
+\end{equation}
+No vector is a scalar multiple of any other ($\mathbf{v}_1 \nparallel \mathbf{v}_2, \mathbf{v}_1 \nparallel \mathbf{v}_3, \mathbf{v}_2 \nparallel \mathbf{v}_3$). Yet the set is linearly dependent because $\mathbf{v}_3 = 1\mathbf{v}_1 + 1\mathbf{v}_2$. You must test mutual linear independence across the entire set.
+\end{trapbox}
+
+\begin{trapbox}{Trap 4: Multicollinearity and Matrix Invertibility in Machine Learning}
+In multiple linear regression, if two features are linearly dependent (e.g. $x_2 = 2.5 x_1$, or $x_{\text{temp\_F}} = 1.8 x_{\text{temp\_C}} + 32$), the design matrix $X \in \R^{N \times d}$ has rank strictly less than $d$.
+Consequently, the normal equation matrix $X^T X \in \R^{d \times d}$ is \textbf{singular} ($\det(X^T X) = 0$). 
+The OLS estimator $\hat{\mathbf{w}} = (X^T X)^{-1} X^T \mathbf{y}$ cannot be computed, producing catastrophic numerical failure in libraries unless regularized (e.g. Ridge Regression $(X^T X + \lambda I)^{-1}$).
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2.6cm} p{3.2cm} p{3.6cm} p{4.4cm}}
+\toprule
+\textbf{Mathematical Concept} & \textbf{Formal Algebraic Condition} & \textbf{Geometric Structure} & \textbf{Data Science \& ML Significance} \\
+\midrule
+\textbf{Vector Space $V$} & Closed under $+$ and $\cdot$; satisfies 8 axioms & Entire coordinate space (e.g. $\R^n$) & The ambient domain of all feature representations and model parameter spaces. \\
+\addlinespace
+\textbf{Subspace $W \le V$} & $\mathbf{0} \in W$, closed under $+$ and $\cdot$ & Flat line, plane, or hyper-slice passing through origin $\mathbf{0}$ & Low-dimensional embeddings, PCA latent principal component subspaces. \\
+\addlinespace
+\textbf{Affine Flat} & $W_{\text{aff}} = \mathbf{x}_0 + W$, with $\mathbf{0} \notin W_{\text{aff}}$ & Parallel translation of a subspace away from origin & Solution sets of non-homogeneous linear systems $A\mathbf{x} = \mathbf{b}$, SVM decision boundaries. \\
+\addlinespace
+\textbf{Linear Span} & $\vspan(S) = \{\sum c_i \mathbf{v}_i\}$ & Manifold reachable by linear combinations of $S$ & Column space $\operatorname{Col}(X)$; achievable prediction space $\hat{\mathbf{y}} = X\mathbf{w} \in \operatorname{Col}(X)$. \\
+\addlinespace
+\textbf{Linear Independence} & $\sum c_i \mathbf{v}_i = \mathbf{0} \implies c_i = 0 \ \forall i$ & Vectors point in truly distinct spatial dimensions & Non-redundant features; full rank design matrix ensuring $(X^T X)^{-1}$ existence. \\
+\bottomrule
+\end{tabular}
+\caption{Taxonomy of Subspaces, Spanning Sets, and Independence Criteria in Data Science.}
+\end{table}
+
+\section{Python Scientific Computing Lab}
+
+The following laboratory illustrates testing linear independence, computing matrix ranks, and diagnosing multicollinearity in regression design matrices using NumPy and SymPy.
+
+\begin{lstlisting}[language=Python, caption=Testing Vector Independence and Subspaces in Python]
 import numpy as np
+import sympy as sp
 
-# A matrix where columns are vectors. 
-# Rank equals the number of columns if they are linearly independent.
-matrix = np.array([[1, 2, 3], 
-                   [4, 5, 6], 
-                   [7, 8, 9]])
-rank = np.linalg.matrix_rank(matrix)
-print("Rank:", rank) # Rank is 2, meaning the 3 vectors are linearly dependent!
+# 1. Testing Linear Independence via Determinant and Rank
+v1 = np.array([1.0, 2.0, 3.0])
+v2 = np.array([0.0, 1.0, 4.0])
+v3 = np.array([5.0, 6.0, 0.0])
+
+# Form matrix with vectors as columns
+A = np.column_stack([v1, v2, v3])
+det_A = np.linalg.det(A)
+rank_A = np.linalg.matrix_rank(A)
+
+print("Matrix A (columns are vectors):\n", A)
+print(f"Determinant of A: {det_A:.4f}")
+print(f"Rank of A: {rank_A}")
+if rank_A == A.shape[1]:
+    print("Vectors are Linearly Independent!")
+else:
+    print("Vectors are Linearly Dependent.")
+
+# 2. Extracting Free Variables and Nullspace Basis with SymPy
+A_sym = sp.Matrix([
+    [1, 2, 3],
+    [2, 4, 6],
+    [3, 6, 9]
+])
+print("\nRank of Dependent Matrix:", A_sym.rank()) # Rank 1
+print("Nullspace Basis (Dependency relations):\n", A_sym.nullspace())
+
+# 3. Data Science: Multicollinearity Diagnostic in Design Matrices
+# Feature 1: Square footage
+# Feature 2: Square meters (exact scalar multiple: x2 = 0.092903 * x1)
+# Feature 3: Number of bedrooms
+np.random.seed(42)
+sq_ft = np.array([1200.0, 1500.0, 1800.0, 2200.0, 2600.0])
+sq_meters = sq_ft * 0.092903 # Perfectly collinear feature!
+bedrooms = np.array([2.0, 3.0, 3.0, 4.0, 4.0])
+
+X_multicollinear = np.column_stack([np.ones(5), sq_ft, sq_meters, bedrooms])
+rank_X = np.linalg.matrix_rank(X_multicollinear)
+print(f"\nDesign Matrix Shape: {X_multicollinear.shape}")
+print(f"Design Matrix Rank: {rank_X} (Expected 4, but got {rank_X} due to collinearity!)")
+
+# Matrix inversion attempt (X^T X)^(-1)
+XT_X = X_multicollinear.T @ X_multicollinear
+cond_num = np.linalg.cond(XT_X)
+print(f"Condition Number of X^T X: {cond_num:.2e}") # > 1e15 indicates catastrophic singularity
 \end{lstlisting}
-
-\begin{videocard}{IITM BS Lecture: Linear Dependence}{https://www.youtube.com/watch?v=1Krnnc6wKyk}
-Official lecture defining linear dependence and redundant vector identification.
-\end{videocard}
-
-\begin{videocard}{IITM BS Lecture: Linear Independence (Parts 1 \& 2)}{https://www.youtube.com/watch?v=Uf5nqIJv1Fk}
-Official lectures testing linear independence using matrix rank and determinant of coefficient matrices.
-\end{videocard}
 
 \newpage
 \section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+
+\subsection*{Part A: Analytical \& Computational Problems}
 
 \begin{enumerate}
-    \item \textbf{Subspace Test:} Determine whether $W = \left\{ \begin{bmatrix} x \\ y \end{bmatrix} \in \mathbb{R}^2 \Big| 2x - 3y = 0 \right\}$ is a valid subspace of $\mathbb{R}^2$. Prove using the 3 subspace criteria.
+    \item \textbf{Subspace Test and Geometric Verification:}
+    Determine whether each of the following subsets is a valid subspace of $\R^3$. Prove your conclusions rigorously using the 3-point criterion:
+    \begin{enumerate}
+        \item $W_1 = \left\{ \begin{bmatrix} x \\ y \\ z \end{bmatrix} \in \R^3 \ \middle|\ 2x - y + 3z = 0 \right\}$
+        \item $W_2 = \left\{ \begin{bmatrix} x \\ y \\ z \end{bmatrix} \in \R^3 \ \middle|\ 2x - y + 3z = 4 \right\}$
+        \item $W_3 = \left\{ \begin{bmatrix} x \\ y \\ z \end{bmatrix} \in \R^3 \ \middle|\ x \ge 0, \ y \ge 0, \ z \ge 0 \right\}$
+    \end{enumerate}
 
-    \item \textbf{Non-Subspace Counterexample:} Consider $W = \left\{ \begin{bmatrix} x \\ y \end{bmatrix} \in \mathbb{R}^2 \Big| x + y = 1 \right\}$. Show why $W$ fails to be a vector subspace of $\mathbb{R}^2$.
+    \item \textbf{Linear Independence Testing in $\R^3$:}
+    Consider the set of vectors in $\R^3$:
+    \begin{equation}
+    S = \left\{ \mathbf{v}_1 = \begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix}, \ \mathbf{v}_2 = \begin{bmatrix} 0 \\ 1 \\ 4 \end{bmatrix}, \ \mathbf{v}_3 = \begin{bmatrix} 5 \\ 6 \\ 0 \end{bmatrix} \right\}
+    \end{equation}
+    \begin{enumerate}
+        \item Form the coefficient matrix $A = [\mathbf{v}_1 \ \mathbf{v}_2 \ \mathbf{v}_3]$.
+        \item Calculate $\det(A)$ using Laplace cofactor expansion along row 1.
+        \item Conclude whether $S$ is linearly independent or linearly dependent.
+    \end{enumerate}
 
-    \item \textbf{Testing Linear Independence ($3 \times 3$):} Test whether the set of vectors:
-    $$\left\{ \mathbf{v}_1 = \begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix}, \, \mathbf{v}_2 = \begin{bmatrix} 0 \\ 1 & 4 \end{bmatrix}, \, \mathbf{v}_3 = \begin{bmatrix} 5 \\ 6 \\ 0 \end{bmatrix} \right\}$$
-    is linearly independent in $\mathbb{R}^3$ by computing the determinant of the matrix formed by placing them as columns.
+    \item \textbf{Parameterized Linear Dependence:}
+    Find the exact scalar value $k \in \R$ such that the set of vectors:
+    \begin{equation}
+    S_k = \left\{ \begin{bmatrix} 1 \\ 2 \\ 1 \end{bmatrix}, \ \begin{bmatrix} 3 \\ k \\ 2 \end{bmatrix}, \ \begin{bmatrix} 2 \\ 0 \\ 1 \end{bmatrix} \right\}
+    \end{equation}
+    is linearly dependent in $\R^3$.
 
-    \item \textbf{Linear Dependence \& Redundancy:} Find the scalar value $k$ such that the vectors $\mathbf{u} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$ and $\mathbf{v} = \begin{bmatrix} 3 \\ k \end{bmatrix}$ are linearly dependent.
+    \item \textbf{Linear Combinations and Span Verification:}
+    Let vectors $\mathbf{u}_1 = \begin{bmatrix} 1 \\ -1 \\ 2 \end{bmatrix}$ and $\mathbf{u}_2 = \begin{bmatrix} 3 \\ 0 \\ 1 \end{bmatrix}$.
+    \begin{enumerate}
+        \item Determine whether the target vector $\mathbf{b} = \begin{bmatrix} 7 \\ -2 \\ 5 \end{bmatrix}$ belongs to $\vspan\{\mathbf{u}_1, \mathbf{u}_2\}$.
+        \item If it belongs, find the unique scalar weights $c_1, c_2$ such that $\mathbf{b} = c_1 \mathbf{u}_1 + c_2 \mathbf{u}_2$.
+    \end{enumerate}
 
-    \item \textbf{Data Science Application (Feature Multicollinearity):} A data scientist collects three features for housing price prediction:
-    $x_1 = \text{size in sq ft}$, $x_2 = \text{size in sq meters}$, $x_3 = \text{number of bedrooms}$.
-    Since $1 \text{ sq ft} = 0.092903 \text{ sq meters}$, show mathematically that $\set{x_1, x_2, x_3}$ is a linearly dependent set of feature vectors, and explain why one must be removed before regression fitting.
+    \item \textbf{Data Science Application: Multicollinearity in Regression Design Matrices:}
+    An econometrics model for home valuation incorporates three feature variables:
+    $x_1 = \text{lot size in square feet}$, $x_2 = \text{lot size in square meters}$, and $x_3 = \text{distance to city center in kilometers}$.
+    Given the exact physical conversion $x_2 = 0.092903 x_1$:
+    \begin{enumerate}
+        \item Prove that the feature set $\{x_1, x_2, x_3\}$ is linearly dependent by constructing an explicit non-trivial linear combination that equals the zero vector.
+        \item What is the maximum possible rank of the design matrix $X \in \R^{N \times 3}$?
+        \item Explain mathematically why the Ordinary Least Squares normal equation matrix $X^T X$ cannot be inverted when multicollinear features are present.
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Misconception MCQs}
+
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item A student is examining a set of 5 vectors in $\R^4$: $S = \{\mathbf{v}_1, \mathbf{v}_2, \mathbf{v}_3, \mathbf{v}_4, \mathbf{v}_5\}$. The student tests the first four vectors and finds that none of them is a scalar multiple of another. Can the set $S$ be linearly independent?
+    \begin{enumerate}
+        \item Yes, provided that all five vectors are non-zero.
+        \item No; by the fundamental dimensional theorem, any set of $k$ vectors in $\R^n$ with $k > n$ is guaranteed to be linearly dependent because the homogeneous system $A\mathbf{c} = \mathbf{0}$ has more unknowns than equations ($5 > 4$), forcing at least one free variable.
+        \item Yes, if the determinant of the 5 vectors is non-zero.
+        \item It depends on whether the vectors are orthogonal.
+    \end{enumerate}
+
+    \item Consider the subset of the coordinate plane $W = \left\{ \begin{bmatrix} x \\ y \end{bmatrix} \in \R^2 \ \middle|\ xy \ge 0 \right\}$ (the union of the first and third quadrants). Which subspace criterion does $W$ violate?
+    \begin{enumerate}
+        \item It does not contain the zero vector.
+        \item It is not closed under scalar multiplication.
+        \item It is not closed under vector addition (for example, $\mathbf{u} = \begin{bmatrix} 1 \\ 3 \end{bmatrix} \in W$ and $\mathbf{v} = \begin{bmatrix} -3 \\ -1 \end{bmatrix} \in W$, but $\mathbf{u} + \mathbf{v} = \begin{bmatrix} -2 \\ 2 \end{bmatrix} \notin W$ because $(-2)(2) = -4 < 0$).
+        \item It violates all three subspace criteria.
+    \end{enumerate}
 \end{enumerate}

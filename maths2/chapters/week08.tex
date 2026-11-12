@@ -1,109 +1,311 @@
 \chapter{Orthogonality, Gram-Schmidt Process \& Projections}
 
-Orthogonality is the mathematical formalization of perpendicularity. Orthogonal vectors provide independent, uncorrelated coordinates. In this chapter, we master \index{Orthonormal Bases}\textbf{Orthonormal Bases}, \index{Orthogonal Projections}\textbf{Orthogonal Projections}, and the \index{Gram-Schmidt Process}\textbf{Gram-Schmidt Process}.
-
+Orthogonality is the rigorous mathematical generalization of perpendicularity to arbitrary dimensions. Mutually orthogonal coordinate axes decouple multi-dimensional systems into completely independent, non-interfering 1-dimensional components. When noisy data vectors lie outside our model's representational capability, \index{Orthogonal Projections}\textbf{Orthogonal Projections} compute the mathematically optimal closest approximation. In this chapter, we master \index{Orthonormal Bases}\textbf{Orthonormal Bases}, the algorithmic \index{Gram-Schmidt Process}\textbf{Gram-Schmidt Process}, and the projection foundation of \index{Least Squares}\textbf{Ordinary Least Squares (OLS)}.
 
 \vspace{0.5cm}
-\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{What You'll Learn in this Chapter}}]
+\begin{tcolorbox}[colback=primarylight, colframe=primarydark, title={\textbf{Executive Roadmap \& Learning Objectives}}]
 \begin{itemize}
-    \item Orthogonality and Orthonormal Bases
-    \item Orthogonal Projections
-    \item The Gram-Schmidt Orthogonalization Process
+    \item \textbf{Target Competencies:} Project vectors orthogonally onto lines and multi-dimensional subspaces; execute the Gram-Schmidt orthogonalization algorithm to construct orthonormal bases; factorize matrices via QR decomposition ($A = QR$); derive the normal equations $(A^T A)\hat{\mathbf{x}} = A^T \mathbf{y}$ via error orthogonality; prove structural algebraic properties of projection matrices ($P^T = P$, $P^2 = P$).
+    \item \textbf{Prerequisites:} Inner products, norms, and Cauchy-Schwarz inequality (Week 7), basis and dimension (Week 4), systems of equations (Week 2).
+    \item \textbf{Mathematical Notation:} Orthogonality $\mathbf{u} \perp \mathbf{v}$ ($\langle \mathbf{u}, \mathbf{v} \rangle = 0$); orthogonal complement $W^\perp$; orthogonal projection $\proj_W(\mathbf{y}) = \hat{\mathbf{y}}$; projection matrix $P = A(A^T A)^{-1} A^T$; orthonormal basis $\{\mathbf{q}_1, \dots, \mathbf{q}_k\}$; orthogonal matrix $Q$ ($Q^T Q = I$).
 \end{itemize}
 \end{tcolorbox}
-\section{Orthogonality and Orthonormal Bases}
 
-\begin{intuitionbox}{Double Integrals as Volume}
-While a single integral measures the 2D area under a curve, a double integral measures the 3D volume under a surface! You are essentially chopping the floor into tiny squares  \, dy$, finding the height (x,y)$ at each square to form a thin pillar, and adding up the volumes of all pillars.
-\end{intuitionbox}
+\section{Mathematical \& Theoretical Foundations}
 
+\subsection{Orthogonality and the Generalized Pythagorean Theorem}
 
-\begin{definitionbox}{Orthogonality \& Orthonormal Basis}
+\begin{definitionbox}{Orthogonal Vectors and Orthonormal Sets}
+\index{Orthogonality} \index{Orthonormal Basis}
+Let $V$ be a real inner product space.
 \begin{itemize}
-    \item Two vectors $\mathbf{u}, \mathbf{v}$ are \index{Orthogonal}\textbf{Orthogonal} if $\langle \mathbf{u}, \mathbf{v} \rangle = 0$ (written $\mathbf{u} \perp \mathbf{v}$).
-    \item A set of vectors $\{\mathbf{q}_1, \dots, \mathbf{q}_k\}$ is an \index{Orthonormal Basis (ONB)}\textbf{Orthonormal Basis (ONB)} if:
+    \item Two vectors $\mathbf{u}, \mathbf{v} \in V$ are \textbf{orthogonal} (denoted $\mathbf{u} \perp \mathbf{v}$) if and only if:
+    \begin{equation}
+    \langle \mathbf{u}, \mathbf{v} \rangle = 0
+    \end{equation}
+    \item A set of vectors $\{\mathbf{q}_1, \mathbf{q}_2, \dots, \mathbf{q}_k\}$ is an \textbf{orthonormal set} if every vector has unit length and all distinct pairs are orthogonal:
+    \begin{equation}
+    \langle \mathbf{q}_i, \mathbf{q}_j \rangle = \delta_{ij} = \begin{cases} 1 & \text{if } i = j \\ 0 & \text{if } i \neq j \end{cases}
+    \end{equation}
 \end{itemize}
-$$\langle \mathbf{q}_i, \mathbf{q}_j \rangle = \delta_{ij} = \begin{cases} 1 & \text{if } i = j \quad (\text{Unit Norm: } \|\mathbf{q}_i\| = 1) \\ 0 & \text{if } i \neq j \quad (\text{Mutually Orthogonal}) \end{cases}$$
 \end{definitionbox}
 
-\begin{theorembox}{Coordinate Computation with ONB}
-If $\mathcal{B} = \{\mathbf{q}_1, \dots, \mathbf{q}_n\}$ is an ONB for $V$, the coordinates of any $\mathbf{v} \in V$ are obtained simply by taking inner products without solving linear systems!
-$$\mathbf{v} = \sum_{i=1}^{n} \langle \mathbf{v}, \mathbf{q}_i \rangle \mathbf{q}_i = \langle \mathbf{v}, \mathbf{q}_1 \rangle \mathbf{q}_1 + \dots + \langle \mathbf{v}, \mathbf{q}_n \rangle \mathbf{q}_n$$
+\begin{theorembox}{Generalized Pythagorean Theorem}
+Two vectors $\mathbf{u}, \mathbf{v} \in V$ are orthogonal if and only if:
+\begin{equation}
+\|\mathbf{u} + \mathbf{v}\|^2 = \|\mathbf{u}\|^2 + \|\mathbf{v}\|^2
+\end{equation}
+More generally, if $\{\mathbf{u}_1, \dots, \mathbf{u}_k\}$ is an orthogonal collection of vectors:
+\begin{equation}
+\left\| \sum_{i=1}^k \mathbf{u}_i \right\|^2 = \sum_{i=1}^k \|\mathbf{u}_i\|^2
+\end{equation}
 \end{theorembox}
 
-\begin{videocard}{IITM BS Lecture: Orthogonality \& Linear Independence}{https://www.youtube.com/watch?v=G9bYPb-qSfw}
-Official lecture proving that any set of non-zero mutually orthogonal vectors is automatically linearly independent.
-\end{videocard}
+\begin{theorembox}{Trivial Coordinate Extraction in an Orthonormal Basis}
+If $\mathcal{B} = \{\mathbf{q}_1, \mathbf{q}_2, \dots, \mathbf{q}_n\}$ is an orthonormal basis for $V$, finding the coordinate coefficients of any vector $\mathbf{v} \in V$ requires \textbf{no matrix inversions or Gaussian elimination}:
+\begin{equation}
+\mathbf{v} = \sum_{i=1}^n \langle \mathbf{v}, \mathbf{q}_i \rangle \mathbf{q}_i = \langle \mathbf{v}, \mathbf{q}_1 \rangle \mathbf{q}_1 + \langle \mathbf{v}, \mathbf{q}_2 \rangle \mathbf{q}_2 + \dots + \langle \mathbf{v}, \mathbf{q}_n \rangle \mathbf{q}_n
+\end{equation}
+\end{theorembox}
 
-\begin{videocard}{IITM BS Lecture: What is an Orthonormal Basis?}{https://www.youtube.com/watch?v=T646BdbrRm0}
-Official lecture defining ONB and showing simple coordinate extraction via inner products.
-\end{videocard}
+\subsection{Orthogonal Projections and the Best Approximation Theorem}
 
-\section{Orthogonal Projections}
+\begin{theorembox}{The Best Approximation Theorem}
+\index{Best Approximation Theorem}
+Let $W$ be a finite-dimensional subspace of an inner product space $V$, and let $\mathbf{y} \in V$. The \textbf{orthogonal projection} of $\mathbf{y}$ onto $W$, denoted $\hat{\mathbf{y}} = \proj_W(\mathbf{y})$, is the unique vector in $W$ that minimizes Euclidean distance to $\mathbf{y}$:
+\begin{equation}
+\|\mathbf{y} - \hat{\mathbf{y}}\| < \|\mathbf{y} - \mathbf{w}\| \quad \forall \mathbf{w} \in W, \; \mathbf{w} \neq \hat{\mathbf{y}}
+\end{equation}
+The approximation error vector $\mathbf{e} = \mathbf{y} - \hat{\mathbf{y}}$ is strictly orthogonal to every vector in $W$ ($\mathbf{e} \in W^\perp$).
+\end{theorembox}
 
-The \index{Orthogonal Projection}\textbf{Orthogonal Projection} of a vector $\mathbf{v}$ onto a subspace $W$ finds the unique point $\mathbf{p} = \proj_W(\mathbf{v}) \in W$ that minimizes the distance $\|\mathbf{v} - \mathbf{p}\|$.
+\subsection{The Orthogonal Projection Matrix}
 
-\begin{formulabox}{Projection onto Subspace $W$ with ONB $\{\mathbf{q}_1, \dots, \mathbf{q}_k\}$}
-$$\proj_W(\mathbf{v}) = \sum_{i=1}^{k} \langle \mathbf{v}, \mathbf{q}_i \rangle \mathbf{q}_i$$
-The error vector $\mathbf{e} = \mathbf{v} - \proj_W(\mathbf{v})$ is strictly orthogonal to $W$ ($\mathbf{e} \perp W$).
-\end{formulabox}
+\begin{definitionbox}{Projection Matrix $P$}
+\index{Projection Matrix}
+Let the columns of matrix $A \in \mathbb{R}^{m \times k}$ ($k \le m$) form a linearly independent basis for subspace $W = \operatorname{Col}(A)$. The orthogonal projection of any vector $\mathbf{y} \in \mathbb{R}^m$ onto $W$ is given by matrix multiplication:
+\begin{equation}
+\hat{\mathbf{y}} = \proj_W(\mathbf{y}) = P \mathbf{y}
+\end{equation}
+where the projection matrix $P \in \mathbb{R}^{m \times m}$ is defined by:
+\begin{equation}
+P = A (A^T A)^{-1} A^T
+\end{equation}
+If the columns of $A$ are already orthonormal (so $A = Q$ and $Q^T Q = I_k$), the formula simplifies dramatically to:
+\begin{equation}
+P = Q Q^T
+\end{equation}
+\end{definitionbox}
 
-\begin{videocard}{IITM BS Lecture: Projections Using Inner Products}{https://www.youtube.com/watch?v=Qyiw4opSG9U}
-Official lecture deriving projection formulas, best approximation theorem, and error orthogonality.
-\end{videocard}
+\section{Visual \& Geometric Intuition: Orthogonal Projections}
 
-\section{The Gram-Schmidt Orthogonalization Process}
+When a target observation vector $\mathbf{y}$ cannot be represented as an exact linear combination of feature columns ($A\mathbf{x} = \mathbf{y}$ is inconsistent), the orthogonal projection $\hat{\mathbf{y}} = A\hat{\mathbf{x}}$ drops a perpendicular line directly onto the subspace $W = \operatorname{Col}(A)$.
 
-The \index{Gram-Schmidt Process}\textbf{Gram-Schmidt Process} converts an arbitrary linearly independent basis $\{\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_k\}$ into an orthonormal basis $\{\mathbf{q}_1, \mathbf{q}_2, \dots, \mathbf{q}_k\}$.
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[>=stealth, scale=1.2]
+    % Subspace W (Plane)
+    \draw[thick, fill=blue!10, draw=blue!60] (-1,-1) -- (4,-1) -- (6,2) -- (1,2) -- cycle;
+    \node[blue!80!black, font=\bfseries] at (5.2, 1.5) {$W = \operatorname{Col}(A)$};
 
-\begin{formulabox}{Gram-Schmidt Algorithm}
-1. \textbf{First Vector:} $\mathbf{u}_1 = \mathbf{v}_1, \quad \mathbf{q}_1 = \frac{\mathbf{u}_1}{\|\mathbf{u}_1\|}$
-2. \textbf{Second Vector:} Subtract projection onto $\mathbf{q}_1$:
-   $$\mathbf{u}_2 = \mathbf{v}_2 - \langle \mathbf{v}_2, \mathbf{q}_1 \rangle \mathbf{q}_1, \quad \mathbf{q}_2 = \frac{\mathbf{u}_2}{\|\mathbf{u}_2\|}$$
-3. \textbf{$k$-th Vector:} Subtract projections onto all previous $\mathbf{q}_j$:
-   $$\mathbf{u}_k = \mathbf{v}_k - \sum_{j=1}^{k-1} \langle \mathbf{v}_k, \mathbf{q}_j \rangle \mathbf{q}_j, \quad \mathbf{q}_k = \frac{\mathbf{u}_k}{\|\mathbf{u}_k\|}$$
-\end{formulabox}
+    % Basis vectors in W
+    \draw[->, ultra thick, primarydark] (0.5,0) -- (2.5,0) node[below] {$\mathbf{a}_1$};
+    \draw[->, ultra thick, primarydark] (0.5,0) -- (1.8,1.2) node[above left] {$\mathbf{a}_2$};
+    \filldraw[primarydark] (0.5,0) circle (2pt) node[below left] {$\mathbf{0}$};
 
-\textbf{Data Science Relevance:} The Gram-Schmidt process is the foundation of \index{QR Factorization}\textbf{QR Factorization} ($A = QR$) used in stable Ordinary Least Squares regression and numerical eigenvalue algorithms!
+    % Projection point y_hat
+    \filldraw[forest] (3.5, 0.8) circle (2.5pt) node[below right] {$\hat{\mathbf{y}} = \proj_W(\mathbf{y}) = A\hat{\mathbf{x}}$};
+    \draw[->, ultra thick, forest] (0.5,0) -- (3.5,0.8);
 
-\begin{lstlisting}[language=Python, caption=Data Science: QR Factorization]
+    % Target vector y
+    \draw[->, ultra thick, red!80!black] (0.5,0) -- (3.5,3.2) node[above] {$\mathbf{y} \notin W$};
+    \filldraw[red!80!black] (3.5,3.2) circle (2pt);
+
+    % Error vector e = y - y_hat
+    \draw[ultra thick, purple, dashed, ->] (3.5, 0.8) -- (3.5, 3.2) node[midway, right] {$\mathbf{e} = \mathbf{y} - \hat{\mathbf{y}} \in W^\perp$};
+
+    % Right-angle mark
+    \draw[thick, gray!80] (3.5, 1.1) -- (3.2, 1.1) -- (3.2, 0.8);
+
+    % Annotation Box
+    \node[draw=purple, fill=purple!5, rounded corners, font=\scriptsize, align=left] at (-1.5, 2.2) {
+        \textbf{Orthogonality Principle:}\\
+        $\mathbf{e} \perp \operatorname{Col}(A)$\\
+        $A^T (\mathbf{y} - A\hat{\mathbf{x}}) = \mathbf{0}$\\
+        $\implies (A^T A)\hat{\mathbf{x}} = A^T \mathbf{y}$
+    };
+\end{tikzpicture}
+\caption{Geometric configuration of orthogonal projection $\hat{\mathbf{y}}$ onto the column space $W = \operatorname{Col}(A)$ and perpendicular residual error $\mathbf{e} \in W^\perp$.}
+\label{fig:orthogonal_projection_subspace}
+\end{figure}
+
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Derivation of the Normal Equations via Error Orthogonality}
+
+Why does the normal equation $(A^T A)\hat{\mathbf{x}} = A^T \mathbf{y}$ always produce the optimal least-squares solution?
+\begin{proof}
+Let $A \in \mathbb{R}^{m \times k}$ have linearly independent columns. We seek $\hat{\mathbf{x}} \in \mathbb{R}^k$ such that $\hat{\mathbf{y}} = A\hat{\mathbf{x}} \in \operatorname{Col}(A)$ is the orthogonal projection of $\mathbf{y} \in \mathbb{R}^m$ onto $\operatorname{Col}(A)$.
+By the Best Approximation Theorem, the residual error vector $\mathbf{e} = \mathbf{y} - A\hat{\mathbf{x}}$ must be orthogonal to every vector in the column space $\operatorname{Col}(A)$.
+Since the columns of $A$ ($\mathbf{a}_1, \dots, \mathbf{a}_k$) form a basis for $\operatorname{Col}(A)$, $\mathbf{e}$ must be orthogonal to each column $\mathbf{a}_j$:
+\begin{equation*}
+\mathbf{a}_j^T (\mathbf{y} - A\hat{\mathbf{x}}) = 0 \quad \forall j \in \{1, 2, \dots, k\}
+\end{equation*}
+Stacking these $k$ inner products into a single matrix equation:
+\begin{equation*}
+\begin{bmatrix} \mathbf{a}_1^T \\ \mathbf{a}_2^T \\ \vdots \\ \mathbf{a}_k^T \end{bmatrix} (\mathbf{y} - A\hat{\mathbf{x}}) = \mathbf{0} \iff A^T (\mathbf{y} - A\hat{\mathbf{x}}) = \mathbf{0}
+\end{equation*}
+Distributing $A^T$ across the parentheses yields the celebrated \textbf{Normal Equations}:
+\begin{equation}
+A^T \mathbf{y} - A^T A \hat{\mathbf{x}} = \mathbf{0} \implies (A^T A)\hat{\mathbf{x}} = A^T \mathbf{y}
+\end{equation}
+Since the columns of $A$ are linearly independent, the Gram matrix $A^T A \in \mathbb{R}^{k \times k}$ is strictly invertible. Multiplying by $(A^T A)^{-1}$:
+\begin{equation}
+\hat{\mathbf{x}} = (A^T A)^{-1} A^T \mathbf{y}
+\end{equation}
+Finally, multiplying by $A$ to obtain the projected vector $\hat{\mathbf{y}} = A\hat{\mathbf{x}}$ yields:
+\begin{equation}
+\hat{\mathbf{y}} = A (A^T A)^{-1} A^T \mathbf{y} = P \mathbf{y}
+\end{equation}
+\end{proof}
+
+\subsection{Algebraic Properties of Projection Matrices}
+
+\begin{theorembox}{Symmetry and Idempotence of $P$}
+The orthogonal projection matrix $P = A(A^T A)^{-1} A^T$ satisfies:
+\begin{enumerate}
+    \item \textbf{Symmetry ($P^T = P$):}
+    \begin{equation*}
+    P^T = \left( A (A^T A)^{-1} A^T \right)^T = (A^T)^T \left( (A^T A)^{-1} \right)^T A^T = A (A^T A)^{-1} A^T = P
+    \end{equation*}
+    \item \textbf{Idempotence ($P^2 = P$):} Projecting a vector that has already been projected onto $W$ causes zero further change:
+    \begin{align*}
+    P^2 &= \left( A (A^T A)^{-1} A^T \right) \left( A (A^T A)^{-1} A^T \right) \\
+    &= A (A^T A)^{-1} \underbrace{\left( A^T A (A^T A)^{-1} \right)}_{I_k} A^T = A (A^T A)^{-1} A^T = P
+    \end{align*}
+\end{enumerate}
+\end{theorembox}
+
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Trap 1: Forgetting to Normalize During the Gram-Schmidt Process}
+The standard Gram-Schmidt subtraction $\mathbf{u}_k = \mathbf{v}_k - \sum \frac{\langle \mathbf{v}_k, \mathbf{u}_j \rangle}{\|\mathbf{u}_j\|^2} \mathbf{u}_j$ generates an \textbf{orthogonal} basis, but NOT an \textbf{orthonormal} basis. To obtain an orthonormal basis, every orthogonal vector must be explicitly normalized by its Euclidean length: $\mathbf{q}_k = \frac{\mathbf{u}_k}{\|\mathbf{u}_k\|}$.
+\end{trapbox}
+
+\begin{trapbox}{Trap 2: Applying $P = A(A^T A)^{-1} A^T$ When Columns are Collinear}
+The projection formula $P = A(A^T A)^{-1} A^T$ strictly requires the columns of $A$ to be linearly independent. If two feature columns are collinear, $\det(A^T A) = 0$, rendering $(A^T A)^{-1}$ mathematically undefined. To project onto a rank-deficient subspace, one must first extract a minimal independent column basis or use the Moore-Penrose pseudoinverse $A^+$.
+\end{trapbox}
+
+\begin{trapbox}{Trap 3: Believing All Orthogonal Matrices Have $\det(Q) = 1$}
+An orthogonal matrix satisfies $Q^T Q = I$, which implies $\det(Q^T Q) = \det(Q)^2 = 1 \implies \det(Q) = \pm 1$. Matrices with $\det(Q) = +1$ are \textbf{proper rotations} (Special Orthogonal Group $\operatorname{SO}(n)$). Matrices with $\det(Q) = -1$ are \textbf{reflections} or roto-reflections (e.g., $Q = \begin{bmatrix} 1 & 0 \\ 0 & -1 \end{bmatrix}$).
+\end{trapbox}
+
+\begin{trapbox}{Trap 4: Confusing Orthogonal Projections with Oblique Projections}
+An operator $P$ is an \textbf{orthogonal} projection if and only if it is both idempotent ($P^2 = P$) AND symmetric ($P^T = P$). If $P^2 = P$ but $P^T \neq P$, the operator is an \textbf{oblique projection}: it projects onto $W$ along a direction that is not perpendicular to $W$, destroying minimum-distance optimality!
+\end{trapbox}
+
+\section{Comparative Synthesis \& Summary Table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2.8cm} p{2.2cm} p{2.5cm} p{2.8cm} p{3.2cm}}
+\toprule
+\textbf{Construct} & \textbf{Orthogonality?} & \textbf{Normed?} & \textbf{Key Invariant Property} & \textbf{Data Science \& ML Role} \\
+\midrule
+\textbf{Arbitrary Basis} & No & No & Invertible change-of-basis & Raw feature matrix coordinates \\
+\textbf{Orthogonal Basis} & Yes & No & $\langle \mathbf{u}_i, \mathbf{u}_j \rangle = 0$ ($i \neq j$) & Decoupled coordinates, unnormalized \\
+\textbf{Orthonormal Basis (ONB)} & Yes & Yes ($\|\mathbf{q}_i\| = 1$) & $Q^T Q = I$, preserves angles & PCA eigenvectors, SVD singular vectors \\
+\textbf{Projection Matrix $P$} & Yes (Onto $W$) & N/A & $P^T = P$, $P^2 = P$ & OLS predictions $\hat{\mathbf{y}} = X\mathbf{w}$, subspace filter \\
+\textbf{QR Factorization} & $Q$ is ONB & $R$ upper-triangular & $A = QR$ & Numerically stable least-squares solver \\
+\bottomrule
+\end{tabular}
+\caption{Systematic structural hierarchy of orthogonality, bases, and projection operators in data science.}
+\label{tab:orthogonality_taxonomy}
+\end{table}
+
+\section{Python / Scientific Computing Lab}
+
+The following scientific computing script demonstrates Gram-Schmidt orthogonalization from scratch, computes QR factorizations, and verifies the projection matrix properties.
+
+\begin{lstlisting}[language=Python, caption={Python Lab: Gram-Schmidt, QR Decomposition, and Orthogonal Projections}]
 import numpy as np
 
-# Create a matrix with linearly independent columns
-A = np.array([[1, 2], [3, 4], [5, 6]])
+# 1. Classical Gram-Schmidt Orthogonalization Algorithm
+def gram_schmidt(V):
+    """V: (m x k) matrix with linearly independent columns."""
+    Q = np.zeros_like(V, dtype=float)
+    for j in range(V.shape[1]):
+        q = V[:, j].astype(float)
+        for i in range(j):
+            # Subtract projection onto previous orthonormal vector
+            q -= np.dot(V[:, j], Q[:, i]) * Q[:, i]
+        norm_q = np.linalg.norm(q)
+        assert norm_q > 1e-10, "Collinear vectors detected!"
+        Q[:, j] = q / norm_q
+    return Q
 
-# QR Factorization (Gram-Schmidt)
+# Test vectors from Exercise 2
+V2 = np.array([[3.0, 1.0],
+               [4.0, 0.0]])
+Q2 = gram_schmidt(V2)
+print("Computed Orthonormal Basis Q (Gram-Schmidt):\n", Q2)
+print("Orthogonality check Q^T @ Q:\n", np.round(Q2.T @ Q2, 4))
+
+# 2. QR Decomposition via NumPy
+A = np.array([[1.0, 1.0, 0.0],
+              [1.0, 0.0, 1.0],
+              [0.0, 1.0, 1.0]])
 Q, R = np.linalg.qr(A)
-print("Orthonormal Basis Q:\n", Q)
-print("Upper Triangular R:\n", R)
+print("\nNumPy QR - Q (Orthonormal):\n", Q)
+print("NumPy QR - R (Upper Triangular):\n", np.round(R, 4))
+assert np.allclose(Q @ R, A), "Reconstruction A = QR failed!"
+
+# 3. Orthogonal Projection Matrix P = A (A^T A)^(-1) A^T
+P = A @ np.linalg.inv(A.T @ A) @ A.T
+print("\nProjection Matrix P Shape:", P.shape)
+print("Symmetry Error ||P^T - P||:", np.linalg.norm(P.T - P))
+print("Idempotence Error ||P^2 - P||:", np.linalg.norm(P @ P - P))
+assert np.allclose(P.T, P), "P is not symmetric!"
+assert np.allclose(P @ P, P), "P is not idempotent!"
+
+# 4. Ordinary Least Squares via Normal Equations vs QR
+y = np.array([4.0, 5.0, 7.0])
+# Normal Equations: (A^T A) x_hat = A^T y
+x_hat_normal = np.linalg.solve(A.T @ A, A.T @ y)
+# Stable QR Solver: R x_hat = Q^T y
+x_hat_qr = np.linalg.solve(R, Q.T @ y)
+print(f"\nOLS Solution (Normal Equations): {x_hat_normal}")
+print(f"OLS Solution (Stable QR):         {x_hat_qr}")
+assert np.allclose(x_hat_normal, x_hat_qr)
 \end{lstlisting}
-
-\begin{videocard}{IITM BS Lecture: The Gram-Schmidt Process}{https://www.youtube.com/watch?v=WEpy57pYKH4}
-Official lecture executing Gram-Schmidt step-by-step to construct orthonormal bases.
-\end{videocard}
-
-\begin{videocard}{IITM BS Lecture: Orthogonal Transformations \& Rotations}{https://www.youtube.com/watch?v=2qruaPxQUJU}
-Official lecture introducing orthogonal matrices $Q^T Q = I$ (preserves lengths and angles) and rotation matrices.
-\end{videocard}
 
 \newpage
 \section{Practice Exercises}
-\textit{Detailed step-by-step solutions are available in the Appendix.}
+\textit{Detailed step-by-step solutions and distractor rationales are available in the Appendix.}
 
+\subsection*{Part A: Computational \& Analytical Problems}
 \begin{enumerate}
-\item \textbf{Projection onto a Vector:} Compute the orthogonal projection of vector $\mathbf{v} = \begin{bmatrix} 4 \\ 3 \end{bmatrix}$ onto the line spanned by $\mathbf{u} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$.
+\item \textbf{Projection onto a Vector:} Compute the orthogonal projection of vector $\mathbf{v} = \begin{bmatrix} 4 \\ 3 \end{bmatrix}$ onto the 1D line spanned by $\mathbf{u} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$. Verify that the residual error vector $\mathbf{e} = \mathbf{v} - \proj_{\mathbf{u}}(\mathbf{v})$ is perpendicular to $\mathbf{u}$.
 
-\item \textbf{Gram-Schmidt Process ($2 \times 2$):} Use the Gram-Schmidt process to convert the basis $\mathcal{B} = \left\{ \mathbf{v}_1 = \begin{bmatrix} 3 \\ 4 \end{bmatrix}, \mathbf{v}_2 = \begin{bmatrix} 1 \\ 0 \end{bmatrix} \right\}$ into an orthonormal basis $\{\mathbf{q}_1, \mathbf{q}_2\}$.
+\item \textbf{Gram-Schmidt Process in $\mathbb{R}^2$:} Use the Gram-Schmidt process to convert the basis $\mathcal{B} = \left\{ \mathbf{v}_1 = \begin{bmatrix} 3 \\ 4 \end{bmatrix}, \mathbf{v}_2 = \begin{bmatrix} 1 \\ 0 \end{bmatrix} \right\}$ into an orthonormal basis $\{\mathbf{q}_1, \mathbf{q}_2\}$.
 
-\item \textbf{Gram-Schmidt Process ($3 \times 3$):} Apply Gram-Schmidt to orthogonalize $\mathbf{v}_1 = \begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix}, \mathbf{v}_2 = \begin{bmatrix} 1 \\ 0 \\ 1 \end{bmatrix}, \mathbf{v}_3 = \begin{bmatrix} 0 \\ 1 \\ 1 \end{bmatrix}$.
+\item \textbf{Gram-Schmidt Process in $\mathbb{R}^3$:} Apply the Gram-Schmidt process to construct an orthonormal basis from:
+\begin{equation*}
+\mathbf{v}_1 = \begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix}, \quad \mathbf{v}_2 = \begin{bmatrix} 1 \\ 0 \\ 1 \end{bmatrix}, \quad \mathbf{v}_3 = \begin{bmatrix} 0 \\ 1 \\ 1 \end{bmatrix}
+\end{equation*}
 
 \item \textbf{Orthogonal Matrix Properties:} Let $Q = \begin{bmatrix} \cos \theta & -\sin \theta \\ \sin \theta & \cos \theta \end{bmatrix}$ be a 2D rotation matrix.
-    \begin{enumerate}
-        \item Compute $Q^T Q$.
-        \item Show that $\|Q \mathbf{x}\| = \|\mathbf{x}\|$ for any $\mathbf{x} \in \mathbb{R}^2$ (preserves norm).
-    \end{enumerate}
+\begin{enumerate}
+    \item Compute $Q^T Q$ and show that $Q^{-1} = Q^T$.
+    \item Prove that $\|Q \mathbf{x}\| = \|\mathbf{x}\|$ for all $\mathbf{x} \in \mathbb{R}^2$ (isometry / length preservation).
+    \item Prove that $\langle Q\mathbf{x}, Q\mathbf{y} \rangle = \langle \mathbf{x}, \mathbf{y} \rangle$ for all $\mathbf{x}, \mathbf{y} \in \mathbb{R}^2$ (angle preservation).
+\end{enumerate}
 
-\item \textbf{Data Science Application (Least Squares via Projection):} In linear regression, the best fit prediction vector $\hat{\mathbf{y}} = X \mathbf{w}$ is the orthogonal projection of target vector $\mathbf{y}$ onto the column space of feature matrix $X$:
-    $$\hat{\mathbf{y}} = P \mathbf{y}, \quad \text{where } P = X(X^T X)^{-1} X^T$$
-    Show that the projection matrix $P$ is symmetric ($P^T = P$) and idempotent ($P^2 = P$).
+\item \textbf{Data Science Application (Least Squares Projection Properties):} In linear regression, the fitted target vector is $\hat{\mathbf{y}} = P \mathbf{y}$, where $P = X(X^T X)^{-1} X^T$.
+\begin{enumerate}
+    \item Prove that $P$ is symmetric: $P^T = P$.
+    \item Prove that $P$ is idempotent: $P^2 = P$.
+    \item If $X \in \mathbb{R}^{100 \times 5}$ has full column rank 5, what are the eigenvalues of $P$, and what is the numerical value of $\trace(P)$?
+\end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions}
+\begin{enumerate}
+\setcounter{enumi}{5}
+\item \textbf{Spectral Properties of Projection Matrices:} Let $P \in \mathbb{R}^{m \times m}$ be an orthogonal projection matrix onto a subspace $W$ of dimension $k < m$. Which of the following statements is mathematically guaranteed to be true?
+\begin{enumerate}
+    \item All eigenvalues of $P$ must be equal to 1.
+    \item The only possible eigenvalues of $P$ are $\lambda = 0$ and $\lambda = 1$, and $\trace(P) = k$.
+    \item $\det(P) = 1$ because $P$ preserves vector lengths in $W$.
+    \item $P$ is invertible and $P^{-1} = P$.
+\end{enumerate}
+
+\item \textbf{Orthogonal Decomposition and Distance Minimization:} Let $W$ be a 2-dimensional subspace of $\mathbb{R}^4$, and let $\mathbf{y} \in \mathbb{R}^4$. If $\hat{\mathbf{y}} = \proj_W(\mathbf{y})$, which of the following expressions represents the minimum Euclidean distance from $\mathbf{y}$ to the subspace $W$?
+\begin{enumerate}
+    \item $\|\hat{\mathbf{y}}\|_2$
+    \item $\|\mathbf{y}\|_2 - \|\hat{\mathbf{y}}\|_2$
+    \item $\sqrt{\|\mathbf{y}\|_2^2 - \|\hat{\mathbf{y}}\|_2^2}$
+    \item $\|\mathbf{y} + \hat{\mathbf{y}}\|_2$
+\end{enumerate}
 \end{enumerate}
