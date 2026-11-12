@@ -1,0 +1,428 @@
+\chapter{Four Fundamental Subspaces, Orthogonal Projections \& Ordinary Least Squares}
+\label{chap:week03}
+
+% ----------------------------------------------------------------------
+% PART 1: EXECUTIVE ROADMAP & LEARNING OBJECTIVES
+% ----------------------------------------------------------------------
+\section{Executive Roadmap \& Learning Objectives}
+
+The foundational geometry of machine learning resides in the algebra of vector spaces and orthogonal projections. When modeling empirical data, we routinely encounter linear systems $A\mathbf{x} = \mathbf{b}$ with far more observations than parameters ($m \gg n$). Such systems are overdetermined and almost never possess an exact solution because $\mathbf{b}$ lies outside the column space of $A$. Ordinary Least Squares (OLS) resolves this impossibility by projecting $\mathbf{b}$ orthogonally onto the closest point within the column space.
+
+\subsection{Prerequisites \& Scaffolding}
+Mastery of this chapter requires fluency in vector space axioms, linear independence, and matrix rank as outlined in Table~\ref{tab:w03_prereqs}.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lXX}
+\toprule
+\textbf{Foundational Area} & \textbf{Core Concepts Required} & \textbf{Role in Machine Learning Foundations} \\
+\midrule
+Linear Algebra & Vector subspaces, span, linear independence, rank & Defining the structural domains where feature vectors and data reside \\
+Inner Product Spaces & Dot products, orthogonality $\mathbf{u}^T \mathbf{v} = 0$, Pythagoras theorem & Decomposing arbitrary observation vectors into signal and noise \\
+Matrix Operations & Transpose, inverse, reduced row echelon form (RREF) & Solving normal equations and identifying fundamental subspace bases \\
+\bottomrule
+\end{tabularx}
+\caption{Prerequisite Scaffolding for Chapter 3.}
+\label{tab:w03_prereqs}
+\end{table}
+
+\subsection{Core Competencies}
+By the conclusion of this chapter, students will be able to:
+\begin{itemize}
+    \item Define and compute bases for the four fundamental subspaces associated with any matrix $A \in \mathbb{R}^{m \times n}$.
+    \item State and prove the Fundamental Theorem of Linear Algebra and orthogonal complement relationships.
+    \item Derive the algebraic projection matrix $P = A(A^T A)^{-1}A^T$ and verify its algebraic properties ($P^2 = P, P^T = P$).
+    \item Formulate and solve the Normal Equations $A^T A \hat{\mathbf{x}} = A^T \mathbf{b}$ through both geometric orthogonality and matrix calculus.
+    \item Diagnose multicollinearity and ill-conditioned Gram matrices $A^T A$ in real-world regression pipelines.
+\end{itemize}
+
+\subsection{Notation \& Mathematical Conventions}
+\begin{itemize}
+    \item $A \in \mathbb{R}^{m \times n}$: A design matrix with $m$ observations (rows) and $n$ features (columns), having rank $r = \rank(A) \le \min(m, n)$.
+    \item $\Col(A) \triangleq \{\mathbf{y} \in \mathbb{R}^m \mid \exists \mathbf{x} \in \mathbb{R}^n, \mathbf{y} = A\mathbf{x}\}$: Column space of $A$ (range of $A$).
+    \item $\Null(A) \triangleq \{\mathbf{x} \in \mathbb{R}^n \mid A\mathbf{x} = \mathbf{0}\}$: Nullspace (kernel) of $A$.
+    \item $\Row(A) \triangleq \Col(A^T) \subseteq \mathbb{R}^n$: Row space of $A$.
+    \item $\Null(A^T) \subseteq \mathbb{R}^m$: Left nullspace of $A$.
+    \item $V^\perp$: The orthogonal complement of subspace $V$.
+    \item $P_V$: The unique orthogonal projection matrix onto subspace $V$.
+\end{itemize}
+
+% ----------------------------------------------------------------------
+% PART 2: MATHEMATICAL & COMPUTATIONAL FOUNDATIONS
+% ----------------------------------------------------------------------
+\section{Mathematical \& Computational Foundations}
+
+\subsection{The Fundamental Theorem of Linear Algebra}
+Every linear transformation represented by $A \in \mathbb{R}^{m \times n}$ decomposes the ambient spaces $\mathbb{R}^n$ and $\mathbb{R}^m$ into two pairs of mutually orthogonal subspaces.
+
+\begin{theorem}[Fundamental Theorem of Linear Algebra]
+Let $A \in \mathbb{R}^{m \times n}$ have rank $r$. Then:
+\begin{enumerate}
+    \item $\dim(\Col(A)) = \dim(\Row(A)) = r$.
+    \item $\dim(\Null(A)) = n - r$ and $\dim(\Null(A^T)) = m - r$.
+    \item The row space and nullspace are orthogonal complements in $\mathbb{R}^n$:
+    \begin{equation}
+    \Row(A)^\perp = \Null(A) \quad \text{and} \quad \Row(A) \oplus \Null(A) = \mathbb{R}^n
+    \label{eq:orthog_rn}
+    \end{equation}
+    \item The column space and left nullspace are orthogonal complements in $\mathbb{R}^m$:
+    \begin{equation}
+    \Col(A)^\perp = \Null(A^T) \quad \text{and} \quad \Col(A) \oplus \Null(A^T) = \mathbb{R}^m
+    \label{eq:orthog_rm}
+    \end{equation}
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+We prove that $\Col(A)^\perp = \Null(A^T)$.
+Let $\mathbf{y} \in \Null(A^T)$. Then $A^T \mathbf{y} = \mathbf{0}$. For any vector $\mathbf{v} \in \Col(A)$, there exists $\mathbf{x} \in \mathbb{R}^n$ such that $\mathbf{v} = A\mathbf{x}$. The inner product is:
+\begin{equation}
+\langle \mathbf{v}, \mathbf{y} \rangle = \mathbf{v}^T \mathbf{y} = (A\mathbf{x})^T \mathbf{y} = \mathbf{x}^T (A^T \mathbf{y}) = \mathbf{x}^T \mathbf{0} = 0
+\end{equation}
+Thus, every vector in $\Null(A^T)$ is orthogonal to every vector in $\Col(A)$, showing $\Null(A^T) \subseteq \Col(A)^\perp$.
+By the Rank-Nullity Theorem, $\dim(\Col(A)^\perp) = m - \dim(\Col(A)) = m - r$. Since $\dim(\Null(A^T)) = m - r$, the dimensions match, establishing $\Col(A)^\perp = \Null(A^T)$.
+The proof for $\Row(A)^\perp = \Null(A)$ follows by identical reasoning applied to $A^T$.
+\end{proof}
+
+\subsection{Orthogonal Projections onto Subspaces}
+
+\begin{definitionbox}{Orthogonal Projection Matrix}
+A square matrix $P \in \mathbb{R}^{m \times m}$ is an \textbf{orthogonal projector} onto a subspace $V \subseteq \mathbb{R}^m$ if and only if:
+\begin{enumerate}
+    \item \textbf{Idempotence:} $P^2 = P$ (projecting an already projected vector leaves it unchanged).
+    \item \textbf{Symmetry:} $P^T = P$ (guarantees that the projection direction is orthogonal to $V$).
+\end{enumerate}
+Under these conditions, for any $\mathbf{b} \in \mathbb{R}^m$, $\hat{\mathbf{b}} = P\mathbf{b} \in V$ and the error vector $\mathbf{e} = (I - P)\mathbf{b} \in V^\perp$.
+\end{definitionbox}
+
+\begin{theorem}[Derivation of the Projection Matrix]
+Let $A \in \mathbb{R}^{m \times n}$ have full column rank ($r = n \le m$). The unique orthogonal projection matrix onto the column space $\Col(A)$ is:
+\begin{equation}
+P = A(A^T A)^{-1}A^T
+\label{eq:proj_matrix}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Let $\mathbf{b} \in \mathbb{R}^m$. The projected vector $\hat{\mathbf{b}} \in \Col(A)$ can be expressed as a linear combination of the columns of $A$: $\hat{\mathbf{b}} = A\hat{\mathbf{x}}$ for some $\hat{\mathbf{x}} \in \mathbb{R}^n$.
+The error vector is $\mathbf{e} = \mathbf{b} - \hat{\mathbf{b}} = \mathbf{b} - A\hat{\mathbf{x}}$.
+By definition of orthogonal projection, $\mathbf{e}$ must be orthogonal to every column of $A$, which means $\mathbf{e} \in \Col(A)^\perp = \Null(A^T)$:
+\begin{equation}
+A^T \mathbf{e} = \mathbf{0} \implies A^T (\mathbf{b} - A\hat{\mathbf{x}}) = \mathbf{0}
+\end{equation}
+Distributing the matrix multiplication:
+\begin{equation}
+A^T \mathbf{b} - A^T A \hat{\mathbf{x}} = \mathbf{0} \implies A^T A \hat{\mathbf{x}} = A^T \mathbf{b}
+\label{eq:normal_eq}
+\end{equation}
+Because $A$ has full column rank, the Gram matrix $A^T A \in \mathbb{R}^{n \times n}$ is invertible (Theorem~\ref{thm:gram_invertible}). Therefore:
+\begin{equation}
+\hat{\mathbf{x}} = (A^T A)^{-1}A^T \mathbf{b}
+\end{equation}
+Substituting $\hat{\mathbf{x}}$ back into $\hat{\mathbf{b}} = A\hat{\mathbf{x}}$:
+\begin{equation}
+\hat{\mathbf{b}} = A(A^T A)^{-1}A^T \mathbf{b} = P\mathbf{b}
+\end{equation}
+where $P = A(A^T A)^{-1}A^T$.
+\end{proof}
+
+\begin{theorem}[Invertibility of the Gram Matrix]
+\label{thm:gram_invertible}
+Let $A \in \mathbb{R}^{m \times n}$. The square symmetric matrix $A^T A \in \mathbb{R}^{n \times n}$ is invertible if and only if $A$ has full column rank ($\rank(A) = n$).
+\end{theorem}
+
+\begin{proof}
+It suffices to show that $\Null(A^T A) = \Null(A)$.
+\begin{itemize}
+    \item If $\mathbf{x} \in \Null(A)$, then $A\mathbf{x} = \mathbf{0} \implies A^T A \mathbf{x} = A^T \mathbf{0} = \mathbf{0}$, so $\Null(A) \subseteq \Null(A^T A)$.
+    \item Conversely, let $\mathbf{x} \in \Null(A^T A)$. Then $A^T A \mathbf{x} = \mathbf{0}$. Pre-multiplying by $\mathbf{x}^T$:
+    \begin{equation}
+    \mathbf{x}^T (A^T A \mathbf{x}) = 0 \implies (A\mathbf{x})^T (A\mathbf{x}) = 0 \implies \|A\mathbf{x}\|_2^2 = 0 \implies A\mathbf{x} = \mathbf{0}
+    \end{equation}
+    Hence, $\mathbf{x} \in \Null(A)$, proving $\Null(A^T A) \subseteq \Null(A)$.
+\end{itemize}
+Therefore, $\Null(A^T A) = \Null(A)$. The matrix $A^T A$ is invertible $\iff \Null(A^T A) = \{\mathbf{0}\} \iff \Null(A) = \{\mathbf{0}\} \iff \rank(A) = n$.
+\end{proof}
+
+% ----------------------------------------------------------------------
+% PART 3: VISUAL & GEOMETRIC INTUITION
+% ----------------------------------------------------------------------
+\section{Visual \& Geometric Intuition: The Geometry of Ordinary Least Squares}
+
+Figure~\ref{fig:ols_geometry} depicts the fundamental geometric mechanism of Ordinary Least Squares: an observation vector $\mathbf{b} \in \mathbb{R}^m$ projected onto the hyperplane $\Col(A)$, producing the best linear approximation $\hat{\mathbf{b}} = A\hat{\mathbf{x}}$ and an orthogonal error vector $\mathbf{e} \in \Null(A^T)$.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=0.95,
+    font=\sffamily\footnotesize
+]
+
+% Plane representing Col(A)
+\filldraw[fill=primarylight!50, draw=primarydark, thick] (-1, -1) -- (5, -0.5) -- (7, 3.5) -- (1, 3) -- cycle;
+\node[above right, color=primarydark] at (1, 3) {\textbf{Column Space } $\Col(A)$};
+
+% Basis vectors spanning Col(A)
+\draw[->, >=stealth, line width=1.4pt, color=primarydark] (1.5, 0.5) -- (4.0, 0.8) node[midway, below] {$\mathbf{a}_1$};
+\draw[->, >=stealth, line width=1.4pt, color=primarydark] (1.5, 0.5) -- (2.5, 2.2) node[midway, left] {$\mathbf{a}_2$};
+
+% Origin / reference point
+\coordinate (O) at (1.5, 0.5);
+
+% Target vector b lying outside Col(A)
+\coordinate (B) at (4.5, 4.0);
+\draw[->, >=stealth, line width=1.8pt, color=coralborder] (O) -- (B) node[above right] {\textbf{Observation } $\mathbf{b} \notin \Col(A)$};
+
+% Projected point b_hat = A x_hat
+\coordinate (Bhat) at (4.5, 1.5);
+\filldraw[color=tealborder] (Bhat) circle (2.5pt) node[below right] {$\hat{\mathbf{b}} = A\hat{\mathbf{x}} = P\mathbf{b}$};
+\draw[->, >=stealth, line width=1.8pt, color=tealborder] (O) -- (Bhat);
+
+% Orthogonal error vector e = b - b_hat
+\draw[->, >=stealth, line width=1.8pt, color=red] (Bhat) -- (B) node[midway, right] {\textbf{Error } $\mathbf{e} \in \Null(A^T)$};
+
+% Right angle symbol
+\draw[thick, color=black] ($(Bhat) + (0, 0.35)$) -- ($(Bhat) + (-0.35, 0.35)$) -- ($(Bhat) + (-0.35, 0)$);
+
+\end{tikzpicture}
+\caption{The Geometry of Ordinary Least Squares: The shortest distance from $\mathbf{b}$ to the subspace $\Col(A)$ is the perpendicular drop, ensuring error $\mathbf{e} \perp \Col(A)$.}
+\label{fig:ols_geometry}
+\end{figure}
+
+% ----------------------------------------------------------------------
+% PART 4: DEEP INTUITION & CONCEPTUAL DERIVATIONS
+% ----------------------------------------------------------------------
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Why the Projection Matrix Has Trace Equal to Rank}
+The algebraic properties of the projection matrix $P = A(A^T A)^{-1}A^T$ reveal profound structural insights:
+
+\begin{theorem}[Spectral Properties of Orthogonal Projectors]
+Let $P \in \mathbb{R}^{m \times m}$ be an orthogonal projection matrix onto a subspace $V$ of dimension $r$. Then:
+\begin{enumerate}
+    \item The only eigenvalues of $P$ are $\lambda \in \{0, 1\}$.
+    \item The algebraic multiplicity of $\lambda = 1$ is $r$, and the algebraic multiplicity of $\lambda = 0$ is $m - r$.
+    \item The trace of $P$ equals the rank of the subspace: $\trace(P) = r$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Let $(\lambda, \mathbf{v})$ be an eigenpair of $P$, so $P\mathbf{v} = \lambda \mathbf{v}$ with $\mathbf{v} \ne \mathbf{0}$.
+Applying $P$ to both sides and using idempotence $P^2 = P$:
+\begin{equation}
+P^2 \mathbf{v} = P(\lambda \mathbf{v}) = \lambda P\mathbf{v} = \lambda^2 \mathbf{v}
+\end{equation}
+Since $P^2 = P$, we have $P^2 \mathbf{v} = P\mathbf{v} = \lambda \mathbf{v}$. Therefore:
+\begin{equation}
+\lambda^2 \mathbf{v} = \lambda \mathbf{v} \implies (\lambda^2 - \lambda)\mathbf{v} = \mathbf{0} \implies \lambda(\lambda - 1) = 0 \implies \lambda \in \{0, 1\}
+\end{equation}
+Every vector $\mathbf{v} \in V$ satisfies $P\mathbf{v} = \mathbf{v}$ ($\lambda = 1$), spanning an eigenspace of dimension $r$. Every vector $\mathbf{u} \in V^\perp$ satisfies $P\mathbf{u} = \mathbf{0}$ ($\lambda = 0$), spanning an eigenspace of dimension $m - r$.
+Because the trace of a matrix is the sum of its eigenvalues:
+\begin{equation}
+\trace(P) = \sum_{i=1}^m \lambda_i = r \cdot (1) + (m - r) \cdot (0) = r = \rank(A)
+\end{equation}
+Alternatively, using the cyclic property of the trace $\trace(BC) = \trace(CB)$:
+\begin{equation}
+\trace(P) = \trace\left( A(A^T A)^{-1}A^T \right) = \trace\left( (A^T A)^{-1} (A^T A) \right) = \trace(I_n) = n = r
+\end{equation}
+\end{proof}
+
+\subsection{Calculus vs. Geometric Equivalence in OLS}
+In optimization, we seek $\hat{\mathbf{x}} = \argmin_{\mathbf{x}} f(\mathbf{x})$, where $f(\mathbf{x}) = \|\mathbf{b} - A\mathbf{x}\|_2^2$.
+Expanding $f(\mathbf{x})$:
+\begin{equation}
+f(\mathbf{x}) = (\mathbf{b} - A\mathbf{x})^T (\mathbf{b} - A\mathbf{x}) = \mathbf{b}^T \mathbf{b} - 2\mathbf{x}^T A^T \mathbf{b} + \mathbf{x}^T A^T A \mathbf{x}
+\end{equation}
+Applying the matrix calculus identities derived in Chapter~\ref{chap:week02}:
+\begin{equation}
+\nabla_{\mathbf{x}} f(\mathbf{x}) = -2A^T \mathbf{b} + 2A^T A \mathbf{x}
+\end{equation}
+Setting $\nabla_{\mathbf{x}} f(\mathbf{x}) = \mathbf{0}$ yields precisely the Normal Equations:
+\begin{equation}
+A^T A \mathbf{x} = A^T \mathbf{b}
+\end{equation}
+Thus, the algebraic condition of vanishing gradient ($\nabla f = \mathbf{0}$) is identical to the geometric requirement of error orthogonality ($\mathbf{e} \perp \Col(A)$).
+
+% ----------------------------------------------------------------------
+% PART 5: EXPLICIT GOTCHAS & DIAGNOSTIC MISCONCEPTIONS
+% ----------------------------------------------------------------------
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Gotcha 1: Illegally Distributing Matrix Inverses on Rectangular Matrices}
+A student attempts to simplify the projection matrix $P = A(A^T A)^{-1}A^T$ by expanding $(A^T A)^{-1} = A^{-1} (A^T)^{-1}$, writing:
+$P = A A^{-1} (A^T)^{-1} A^T = I \cdot I = I$.
+\textbf{The Trap:} The matrix $A \in \mathbb{R}^{m \times n}$ with $m > n$ is \textbf{rectangular} and has no two-sided inverse $A^{-1}$. Expanding $(A^T A)^{-1}$ as $A^{-1}(A^T)^{-1}$ is algebraically invalid. If $P = I$, every vector would lie in $\Col(A)$, which is impossible when $\Col(A)$ is an $n$-dimensional subspace in $\mathbb{R}^m$.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 2: Confusing Non-Orthogonal (Oblique) with Orthogonal Projections}
+A developer constructs a projection operator satisfying $P^2 = P$, but notices that the computed residual is not minimal: $\|\mathbf{b} - P\mathbf{b}\|_2 > \min_{\mathbf{v} \in V} \|\mathbf{b} - \mathbf{v}\|_2$.
+\textbf{The Trap:} Idempotence ($P^2 = P$) defines a general projection. To guarantee that $P\mathbf{b}$ is the closest point in Euclidean distance, the projection must be \textbf{orthogonal}, which requires symmetry $P = P^T$. If $P \ne P^T$, the projection is oblique (along an angled subspace rather than the normal), failing the least-squares optimality condition.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 3: Exact Collinearity Causing Complete Inversion Failure}
+A data scientist adds a duplicate feature column or an exact linear combination (e.g., $x_3 = 2x_1 - x_2$) into matrix $A$, then executes \texttt{np.linalg.inv(A.T @ A)}.
+\textbf{The Trap:} When feature columns are linearly dependent, $\rank(A) < n$, meaning $\Null(A) \ne \{\mathbf{0}\}$. By Theorem~\ref{thm:gram_invertible}, $A^T A$ is singular ($\det(A^T A) = 0$) and has no inverse. The solver throws a singular matrix runtime exception. Practical implementations must use Ridge regularization ($A^T A + \lambda I$) or the Moore-Penrose pseudoinverse.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 4: Numerical Instability of Forming $A^T A$ Directly}
+A programmer computes OLS coefficients by forming $A^T A$ and solving $(A^T A)\mathbf{x} = A^T \mathbf{b}$ via Gaussian elimination.
+\textbf{The Trap:} The condition number of the Gram matrix is squared: $\kappa(A^T A) = (\kappa(A))^2$. If $A$ has condition number $\kappa(A) = 10^8$, $A^T A$ has condition number $10^{16}$, consuming all 53 bits of IEEE-754 double precision and producing meaningless, noise-dominated coefficients. Numerical libraries avoid forming $A^T A$, computing OLS via QR decomposition ($A = QR$) or SVD instead.
+\end{trapbox}
+
+% ----------------------------------------------------------------------
+% PART 6: COMPARATIVE SYNTHESIS & SUMMARY TABLE
+% ----------------------------------------------------------------------
+\section{Comparative Synthesis \& Summary Table}
+
+Table~\ref{tab:subspaces_synthesis} summarizes the fundamental structural properties of the Four Fundamental Subspaces.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lXXXXX}
+\toprule
+\textbf{Subspace} & \textbf{Notation} & \textbf{Ambient Space} & \textbf{Dimension} & \textbf{Orthogonal Complement} & \textbf{Basis Determination} \\
+\midrule
+Column Space & $\Col(A)$ & $\mathbb{R}^m$ & $r = \rank(A)$ & Left Nullspace $\Null(A^T)$ & Pivot columns of original matrix $A$ \\
+\addlinespace
+Nullspace & $\Null(A)$ & $\mathbb{R}^n$ & $n - r$ & Row Space $\Row(A)$ & Special solutions from free variables in $\text{rref}(A)$ \\
+\addlinespace
+Row Space & $\Row(A)$ & $\mathbb{R}^n$ & $r = \rank(A)$ & Nullspace $\Null(A)$ & Non-zero rows of $\text{rref}(A)$ \\
+\addlinespace
+Left Nullspace & $\Null(A^T)$ & $\mathbb{R}^m$ & $m - r$ & Column Space $\Col(A)$ & Special solutions from free variables in $\text{rref}(A^T)$ \\
+\bottomrule
+\end{tabularx}
+\caption{Comparative Synthesis of the Four Fundamental Subspaces for $A \in \mathbb{R}^{m \times n}$.}
+\label{tab:subspaces_synthesis}
+\end{table}
+
+% ----------------------------------------------------------------------
+% PART 7: PYTHON / SCIENTIFIC COMPUTING LAB
+% ----------------------------------------------------------------------
+\section{Python / Scientific Computing Lab}
+
+The following production script calculates the projection matrix, verifies idempotence and symmetry, and demonstrates why QR decomposition is numerically superior to solving the normal equations directly.
+
+\begin{lstlisting}[language=Python, caption={Subspace Projections and Stable OLS via QR Decomposition in Python.}]
+import numpy as np
+
+def build_projection_matrix(A: np.ndarray) -> np.ndarray:
+    """Computes orthogonal projection matrix P = A (A^T A)^{-1} A^T."""
+    AtA = A.T @ A
+    AtA_inv = np.linalg.inv(AtA)
+    return A @ AtA_inv @ A.T
+
+def solve_ols_normal_equations(A: np.ndarray, b: np.ndarray) -> np.ndarray:
+    """Solves normal equations directly: (A^T A) x = A^T b."""
+    return np.linalg.solve(A.T @ A, A.T @ b)
+
+def solve_ols_qr(A: np.ndarray, b: np.ndarray) -> np.ndarray:
+    """Solves OLS stably using QR decomposition: A = QR => R x = Q^T b."""
+    Q, R = np.linalg.qr(A)
+    return np.linalg.solve(R, Q.T @ b)
+
+def main():
+    rng = np.random.RandomState(42)
+    m, n = 8, 3
+    A = rng.randn(m, n)
+    b = rng.randn(m)
+
+    # 1. Compute projection matrix
+    P = build_projection_matrix(A)
+
+    # 2. Verify algebraic properties
+    is_idempotent = np.allclose(P @ P, P)
+    is_symmetric = np.allclose(P, P.T)
+    trace_val = np.trace(P)
+
+    print(f"P is Idempotent (P^2 == P): {is_idempotent}")
+    print(f"P is Symmetric (P == P^T):  {is_symmetric}")
+    print(f"Trace of P: {trace_val:.4f} (Expected rank = {n})")
+
+    # 3. Verify error vector orthogonality
+    b_hat = P @ b
+    e = b - b_hat
+    orthogonality_check = np.linalg.norm(A.T @ e)
+    print(f"Orthogonality ||A^T e||: {orthogonality_check:.2e} (Expected ~ 0)")
+
+    # 4. Compare Normal Equations vs. QR on an ill-conditioned design matrix
+    # Construct collinear design matrix
+    A_ill = A.copy()
+    A_ill[:, 2] = A_ill[:, 0] + 1e-7 * A_ill[:, 1]
+    print(f"\nCondition number kappa(A):     {np.linalg.cond(A_ill):.2e}")
+    print(f"Condition number kappa(A^T A): {np.linalg.cond(A_ill.T @ A_ill):.2e}")
+
+    x_qr = solve_ols_qr(A_ill, b)
+    print(f"QR Solution Norm:             {np.linalg.norm(x_qr):.4f}")
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+% ----------------------------------------------------------------------
+% PART 8: COMPREHENSIVE PRACTICE PROBLEMS
+% ----------------------------------------------------------------------
+\section{Comprehensive Practice Problems}
+
+\subsection*{Part A: Analytical \& Mathematical Problems}
+
+\begin{enumerate}[label=\textbf{P\arabic*.}]
+    \item \textbf{Explicit Projection Matrix Computation:}
+    Let matrix $A = \begin{bmatrix} 1 & 0 \\ 1 & 1 \\ 0 & 1 \end{bmatrix}$ and vector $\mathbf{b} = \begin{bmatrix} 3 \\ 1 \\ 2 \end{bmatrix}$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Compute the Gram matrix $A^T A$ and its inverse $(A^T A)^{-1}$.
+        \item Compute the $3 \times 3$ projection matrix $P$ onto $\Col(A)$.
+        \item Find the projected point $\hat{\mathbf{b}} = P\mathbf{b}$ and the error vector $\mathbf{e} = \mathbf{b} - \hat{\mathbf{b}}$.
+        \item Confirm by direct calculation that $A^T \mathbf{e} = \mathbf{0}$.
+    \end{enumerate}
+
+    \item \textbf{Properties of Complementary Projectors:}
+    Let $P$ be an orthogonal projector onto subspace $V \subseteq \mathbb{R}^m$. Define $Q \triangleq I - P$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Prove that $Q$ is idempotent ($Q^2 = Q$) and symmetric ($Q^T = Q$).
+        \item Show that $\Col(Q) = \Null(P) = V^\perp$.
+        \item Prove the generalized Pythagorean identity: for any $\mathbf{x} \in \mathbb{R}^m$, $\|\mathbf{x}\|_2^2 = \|P\mathbf{x}\|_2^2 + \|Q\mathbf{x}\|_2^2$.
+    \end{enumerate}
+
+    \item \textbf{Rank-1 Projection Matrix:}
+    Let $\mathbf{a} \in \mathbb{R}^m$ be a non-zero column vector.
+    \begin{enumerate}[label=(\alph*)]
+        \item Derive the projection matrix $P_{\mathbf{a}}$ onto the 1-dimensional subspace spanned by $\mathbf{a}$.
+        \item Show that $\trace(P_{\mathbf{a}}) = 1$.
+        \item Show that for any vector $\mathbf{b}$, the scalar multiple $c = \frac{\mathbf{a}^T \mathbf{b}}{\mathbf{a}^T \mathbf{a}}$ minimizes $\|c\mathbf{a} - \mathbf{b}\|_2$.
+    \end{enumerate}
+
+    \item \textbf{Affine Fit with Offset:}
+    We wish to fit a line $y = mx + c$ through three points $(x_1, y_1) = (0, 1)$, $(x_2, y_2) = (1, 3)$, and $(x_3, y_3) = (2, 4)$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Set up the overdetermined linear system $A\mathbf{w} = \mathbf{y}$, identifying $A$, $\mathbf{w} = [c, m]^T$, and $\mathbf{y}$.
+        \item Formulate and solve the Normal Equations $A^T A \mathbf{w} = A^T \mathbf{y}$.
+        \item Compute the residual sum of squares $\|\mathbf{y} - A\hat{\mathbf{w}}\|_2^2$.
+    \end{enumerate}
+
+    \item \textbf{Subspace Intersection and Projection Commutativity:}
+    Let $P_1$ and $P_2$ be orthogonal projection matrices onto subspaces $V_1$ and $V_2$, respectively.
+    Prove that the composite operator $P_1 P_2$ is an orthogonal projection matrix if and only if $P_1$ and $P_2$ commute ($P_1 P_2 = P_2 P_1$), in which case it projects onto $V_1 \cap V_2$.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions}
+
+\begin{enumerate}[label=\textbf{MCQ\arabic*.}]
+    \item Let $A \in \mathbb{R}^{m \times n}$ with $\rank(A) = r < n \le m$. Which statement regarding the linear system $A^T A \mathbf{x} = A^T \mathbf{b}$ is definitively true?
+    \begin{enumerate}[label=(\alph*)]
+        \item The system is inconsistent and possesses no solution.
+        \item The system is always consistent, but has infinitely many solutions.
+        \item The matrix $A^T A$ is strictly positive definite.
+        \item The projection matrix $P = A(A^T A)^{-1}A^T$ is well-defined.
+    \end{enumerate}
+
+    \item If $P \in \mathbb{R}^{5 \times 5}$ is an orthogonal projection matrix onto a 3-dimensional subspace $V \subset \mathbb{R}^5$, what are the eigenvalues of $P$?
+    \begin{enumerate}[label=(\alph*)]
+        \item $1, 1, 1, 1, 1$
+        \item $3, 3, 3, 0, 0$
+        \item $1, 1, 1, 0, 0$
+        \item $1, 1, 1, -1, -1$
+    \end{enumerate}
+\end{enumerate}
+

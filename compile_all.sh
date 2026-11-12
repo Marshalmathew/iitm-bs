@@ -3,7 +3,7 @@
 
 set -e
 
-COURSES=("maths1" "maths2" "python" "stats1" "stats2" "financial_forensics")
+COURSES=("maths1" "maths2" "python" "stats1" "stats2" "financial_forensics" "mlf")
 
 if ! command -v pdflatex &> /dev/null; then
     echo -e "\033[33m=================================================================\033[0m"

@@ -1,0 +1,395 @@
+\chapter{Singular Value Decomposition (SVD), Low-Rank Approximations \& Positive Definite Matrices}
+\label{chap:week06}
+
+% ----------------------------------------------------------------------
+% PART 1: EXECUTIVE ROADMAP & LEARNING OBJECTIVES
+% ----------------------------------------------------------------------
+\section{Executive Roadmap \& Learning Objectives}
+
+While eigendecomposition is strictly limited to square matrices and can fail if the matrix is defective, the \textbf{Singular Value Decomposition (SVD)} represents the pinnacle of linear algebra: it exists for \emph{every} matrix $A \in \mathbb{R}^{m \times n}$, rectangular or square, full-rank or singular. SVD reveals the fundamental geometry of linear transformations, decomposing any matrix into a sequence of a rotation, a coordinate-axis scaling by non-negative singular values, and a final rotation.
+
+\subsection{Prerequisites \& Scaffolding}
+Mastery of this chapter builds directly upon orthogonal matrices, fundamental subspaces, and the Spectral Theorem as mapped in Table~\ref{tab:w06_prereqs}.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lXX}
+\toprule
+\textbf{Foundational Area} & \textbf{Core Concepts Required} & \textbf{Role in Machine Learning Foundations} \\
+\midrule
+Spectral Theorem & Orthogonal diagonalization $S = Q \Lambda Q^T$ of symmetric matrices & Foundation for decomposing Gram matrices $A^T A$ and $A A^T$ \\
+Fundamental Subspaces & $\Col(A), \Row(A), \Null(A), \Null(A^T)$, dimensions and orthogonality & Explicitly mapped to the singular vectors $U$ and $V$ \\
+Matrix Norms & Frobenius norm $\|A\|_F$, spectral operator norm $\|A\|_2$ & Quantifying error in low-rank data compression \\
+\bottomrule
+\end{tabularx}
+\caption{Prerequisite Scaffolding for Chapter 6.}
+\label{tab:w06_prereqs}
+\end{table}
+
+\subsection{Core Competencies}
+By the conclusion of this chapter, students will be able to:
+\begin{itemize}
+    \item Derive and compute the full and compact Singular Value Decomposition for arbitrary rectangular matrices.
+    \item Relate singular values and vectors to the eigendecompositions of the Gram matrices $A^T A$ and $A A^T$.
+    \item State and apply the four equivalent characterizations of Positive Definite and Semidefinite matrices.
+    \item State and prove the Eckart-Young-Mirsky Theorem for optimal low-rank matrix approximation.
+    \item Compute the Moore-Penrose pseudoinverse $A^+$ via SVD to solve ill-posed and underdetermined linear systems.
+\end{itemize}
+
+\subsection{Notation \& Mathematical Conventions}
+\begin{itemize}
+    \item $A \in \mathbb{R}^{m \times n}$: An arbitrary matrix of rank $r \le \min(m, n)$.
+    \item $\sigma_1 \ge \sigma_2 \ge \dots \ge \sigma_r > 0$: The non-zero singular values of $A$.
+    \item $U = [\mathbf{u}_1, \dots, \mathbf{u}_m] \in \mathbb{R}^{m \times m}$: Orthogonal matrix of left singular vectors.
+    \item $V = [\mathbf{v}_1, \dots, \mathbf{v}_n] \in \mathbb{R}^{n \times n}$: Orthogonal matrix of right singular vectors.
+    \item $\Sigma \in \mathbb{R}^{m \times n}$: Diagonal singular value matrix with $\Sigma_{ii} = \sigma_i$.
+    \item $A_k \triangleq \sum_{i=1}^k \sigma_i \mathbf{u}_i \mathbf{v}_i^T$: The truncated rank-$k$ approximation of $A$.
+    \item $A \succ 0$ ($A \succeq 0$): Denotes a symmetric positive definite (positive semidefinite) matrix.
+\end{itemize}
+
+% ----------------------------------------------------------------------
+% PART 2: MATHEMATICAL & COMPUTATIONAL FOUNDATIONS
+% ----------------------------------------------------------------------
+\section{Mathematical \& Computational Foundations}
+
+\subsection{The Singular Value Decomposition Theorem}
+
+\begin{theorem}[Singular Value Decomposition (SVD)]
+Let $A \in \mathbb{R}^{m \times n}$ have rank $r$. There exist an orthogonal matrix $U \in \mathbb{R}^{m \times m}$, an orthogonal matrix $V \in \mathbb{R}^{n \times n}$, and an $m \times n$ pseudo-diagonal matrix $\Sigma$ such that:
+\begin{equation}
+A = U \Sigma V^T = \sum_{i=1}^r \sigma_i \mathbf{u}_i \mathbf{v}_i^T
+\label{eq:svd_outer}
+\end{equation}
+where $\sigma_1 \ge \sigma_2 \ge \dots \ge \sigma_r > 0$, and $\Sigma_{ii} = \sigma_i$ for $i \in \{1, \dots, r\}$, with all other entries zero.
+\end{theorem}
+
+\begin{proof}
+Consider the symmetric Gram matrix $A^T A \in \mathbb{R}^{n \times n}$.
+Since $(A^T A)^T = A^T A$, $A^T A$ is symmetric. For any $\mathbf{x} \in \mathbb{R}^n$, $\mathbf{x}^T (A^T A)\mathbf{x} = \|A\mathbf{x}\|_2^2 \ge 0$.
+Thus, $A^T A$ is symmetric positive semidefinite. By the Spectral Theorem, $A^T A$ has non-negative real eigenvalues $\lambda_1 \ge \lambda_2 \ge \dots \ge \lambda_n \ge 0$ and an orthonormal set of eigenvectors $\mathbf{v}_1, \dots, \mathbf{v}_n \in \mathbb{R}^n$ such that:
+\begin{equation}
+A^T A \mathbf{v}_i = \lambda_i \mathbf{v}_i \quad \text{for } i \in \{1, \dots, n\}
+\end{equation}
+Because $\rank(A^T A) = \rank(A) = r$, exactly $r$ eigenvalues are strictly positive. Define the singular values as:
+\begin{equation}
+\sigma_i \triangleq \sqrt{\lambda_i} > 0 \quad \text{for } i \in \{1, \dots, r\}
+\end{equation}
+For $i \in \{1, \dots, r\}$, define the vectors $\mathbf{u}_i \in \mathbb{R}^m$ by:
+\begin{equation}
+\mathbf{u}_i \triangleq \frac{1}{\sigma_i} A \mathbf{v}_i
+\label{eq:left_singular_def}
+\end{equation}
+We verify that $\{\mathbf{u}_1, \dots, \mathbf{u}_r\}$ forms an orthonormal set in $\mathbb{R}^m$:
+\begin{align}
+\mathbf{u}_i^T \mathbf{u}_j &= \left( \frac{1}{\sigma_i} A \mathbf{v}_i \right)^T \left( \frac{1}{\sigma_j} A \mathbf{v}_j \right) = \frac{1}{\sigma_i \sigma_j} \mathbf{v}_i^T (A^T A \mathbf{v}_j) \nonumber \\
+&= \frac{1}{\sigma_i \sigma_j} \mathbf{v}_i^T (\lambda_j \mathbf{v}_j) = \frac{\lambda_j}{\sigma_i \sigma_j} \mathbf{v}_i^T \mathbf{v}_j
+\end{align}
+Since $\{\mathbf{v}_i\}$ is orthonormal, $\mathbf{v}_i^T \mathbf{v}_j = \delta_{ij}$. For $i = j$, $\frac{\lambda_i}{\sigma_i^2} = \frac{\sigma_i^2}{\sigma_i^2} = 1$. For $i \ne j$, the product vanishes.
+Extending $\{\mathbf{u}_1, \dots, \mathbf{u}_r\}$ to an orthonormal basis $\{\mathbf{u}_1, \dots, \mathbf{u}_m\}$ for $\mathbb{R}^m$ using Gram-Schmidt yields the full orthogonal matrix $U$.
+From~\eqref{eq:left_singular_def}, $A\mathbf{v}_i = \sigma_i \mathbf{u}_i$ for $i \le r$, and $A\mathbf{v}_i = \mathbf{0}$ for $i > r$.
+In matrix form:
+\begin{equation}
+A V = U \Sigma \implies A = U \Sigma V^T
+\end{equation}
+\end{proof}
+
+\subsection{Positive Definite Matrices}
+
+\begin{definitionbox}{Positive Definite and Semidefinite Matrices}
+A real symmetric matrix $A \in \mathbb{R}^{n \times n}$ ($A = A^T$) is:
+\begin{itemize}
+    \item \textbf{Positive Definite} ($A \succ 0$) if for all $\mathbf{x} \in \mathbb{R}^n \setminus \{\mathbf{0}\}$: $\mathbf{x}^T A \mathbf{x} > 0$.
+    \item \textbf{Positive Semidefinite} ($A \succeq 0$) if for all $\mathbf{x} \in \mathbb{R}^n$: $\mathbf{x}^T A \mathbf{x} \ge 0$.
+\end{itemize}
+\end{definitionbox}
+
+\begin{theorem}[Equivalent Tests for Positive Definiteness]
+For any real symmetric matrix $A \in \mathbb{R}^{n \times n}$, the following statements are mathematically equivalent:
+\begin{enumerate}
+    \item All eigenvalues of $A$ are strictly positive: $\lambda_i > 0$ for all $i \in \{1, \dots, n\}$.
+    \item The quadratic form energy $\mathbf{x}^T A \mathbf{x} > 0$ for every $\mathbf{x} \ne \mathbf{0}$.
+    \item All $n$ leading principal minors are strictly positive: $\det(A_{1:k, 1:k}) > 0$ for $k = 1, \dots, n$ (Sylvester's Criterion).
+    \item There exists a unique lower triangular matrix $L$ with strictly positive diagonal entries such that $A = L L^T$ (Cholesky Decomposition).
+\end{enumerate}
+\end{theorem}
+
+\subsection{The Eckart-Young-Mirsky Low-Rank Approximation Theorem}
+
+\begin{theorem}[Eckart-Young-Mirsky Theorem]
+Let $A = \sum_{i=1}^r \sigma_i \mathbf{u}_i \mathbf{v}_i^T$ be the SVD of $A \in \mathbb{R}^{m \times n}$. For any integer $k < r$, the truncated sum:
+\begin{equation}
+A_k \triangleq \sum_{i=1}^k \sigma_i \mathbf{u}_i \mathbf{v}_i^T
+\label{eq:truncated_svd}
+\end{equation}
+is the optimal rank-$k$ approximation of $A$ under both the Spectral norm and Frobenius norm:
+\begin{align}
+\min_{\rank(B) \le k} \|A - B\|_2 &= \|A - A_k\|_2 = \sigma_{k+1} \label{eq:ey_spectral} \\
+\min_{\rank(B) \le k} \|A - B\|_F &= \|A - A_k\|_F = \sqrt{\sum_{i=k+1}^r \sigma_i^2} \label{eq:ey_frobenius}
+\end{align}
+\end{theorem}
+
+% ----------------------------------------------------------------------
+% PART 3: VISUAL & GEOMETRIC INTUITION
+% ----------------------------------------------------------------------
+\section{Visual \& Geometric Intuition: The Three-Stage Action of SVD}
+
+Figure~\ref{fig:svd_geometry} diagrams the geometric breakdown of SVD. Any linear transformation $A = U \Sigma V^T$ can be decomposed into:
+\begin{enumerate}
+    \item A rigid rotation in the domain by $V^T$.
+    \item An axis-aligned stretching/compression by singular values $\sigma_i$ through $\Sigma$.
+    \item A final rigid rotation in the codomain by $U$.
+\end{enumerate}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=0.9,
+    font=\sffamily\footnotesize
+]
+
+% 1. Input Space: Unit Circle
+\draw[thick, fill=primarylight!30] (-5.0, 0) circle (1.5cm);
+\draw[->, >=stealth, color=gray] (-6.8, 0) -- (-3.2, 0) node[right] {$x_1$};
+\draw[->, >=stealth, color=gray] (-5.0, -1.8) -- (-5.0, 1.8) node[above] {$x_2$};
+\draw[->, >=stealth, line width=1.5pt, color=primarydark] (-5.0, 0) -- (-3.8, 0.9) node[above right] {$\mathbf{v}_1$};
+\draw[->, >=stealth, line width=1.5pt, color=primarydark] (-5.0, 0) -- (-5.9, 1.2) node[above left] {$\mathbf{v}_2$};
+\node[below] at (-5.0, -2.0) {\textbf{1. Domain: } Basis $V$};
+
+% First arrow
+\draw[->, >=stealth, line width=1.5pt, color=primarydark] (-3.0, 0) -- (-1.5, 0) node[midway, above] {$V^T$};
+
+% 2. Intermediate Space: Scaled Ellipse aligned with axes
+\draw[thick, fill=tealbg!30] (0.5, 0) ellipse (2.0cm and 0.9cm);
+\draw[->, >=stealth, color=gray] (-1.8, 0) -- (2.8, 0);
+\draw[->, >=stealth, color=gray] (0.5, -1.5) -- (0.5, 1.5);
+\draw[->, >=stealth, line width=1.5pt, color=tealborder] (0.5, 0) -- (2.5, 0) node[below] {$\sigma_1 \mathbf{e}_1$};
+\draw[->, >=stealth, line width=1.5pt, color=tealborder] (0.5, 0) -- (0.5, 0.9) node[left] {$\sigma_2 \mathbf{e}_2$};
+\node[below] at (0.5, -2.0) {\textbf{2. Stretched: } $\Sigma$};
+
+% Second arrow
+\draw[->, >=stealth, line width=1.5pt, color=primarydark] (3.0, 0) -- (4.5, 0) node[midway, above] {$U$};
+
+% 3. Output Space: Rotated Ellipse
+\begin{scope}[shift={(6.5, 0)}, rotate=40]
+    \draw[thick, fill=coralbg!40] (0, 0) ellipse (2.0cm and 0.9cm);
+    \draw[->, >=stealth, line width=1.5pt, color=coralborder] (0, 0) -- (2.0, 0) node[above right] {$\sigma_1 \mathbf{u}_1$};
+    \draw[->, >=stealth, line width=1.5pt, color=coralborder] (0, 0) -- (0, 0.9) node[above left] {$\sigma_2 \mathbf{u}_2$};
+\end{scope}
+\node[below] at (6.5, -2.0) {\textbf{3. Codomain: } Basis $U$};
+
+\end{tikzpicture}
+\caption{The Geometric Action of SVD: Any matrix transformation factorizes into a rotation $V^T$, axis stretching $\Sigma$, and output rotation $U$.}
+\label{fig:svd_geometry}
+\end{figure}
+
+% ----------------------------------------------------------------------
+% PART 4: DEEP INTUITION & CONCEPTUAL DERIVATIONS
+% ----------------------------------------------------------------------
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Connection Between SVD and the Four Fundamental Subspaces}
+The SVD provides an explicit, orthonormal coordinate system for all four fundamental subspaces simultaneously:
+\begin{itemize}
+    \item \textbf{Row Space } $\Row(A)$: Spanned by the first $r$ right singular vectors $\{\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_r\}$.
+    \item \textbf{Nullspace } $\Null(A)$: Spanned by the remaining $n - r$ right singular vectors $\{\mathbf{v}_{r+1}, \dots, \mathbf{v}_n\}$.
+    \item \textbf{Column Space } $\Col(A)$: Spanned by the first $r$ left singular vectors $\{\mathbf{u}_1, \mathbf{u}_2, \dots, \mathbf{u}_r\}$.
+    \item \textbf{Left Nullspace } $\Null(A^T)$: Spanned by the remaining $m - r$ left singular vectors $\{\mathbf{u}_{r+1}, \dots, \mathbf{u}_m\}$.
+\end{itemize}
+For any $\mathbf{x} \in \mathbb{R}^n$, we can expand $\mathbf{x} = \sum_{i=1}^n c_i \mathbf{v}_i$. Then:
+\begin{equation}
+A\mathbf{x} = \sum_{i=1}^r \sigma_i c_i \mathbf{u}_i + \sum_{i=r+1}^n \sigma_i c_i \mathbf{u}_i = \sum_{i=1}^r (\sigma_i c_i) \mathbf{u}_i
+\end{equation}
+The row space components are mapped directly to the column space scaled by $\sigma_i$, while the nullspace components are annihilated.
+
+\subsection{The Moore-Penrose Pseudoinverse}
+For an arbitrary matrix $A = U \Sigma V^T$, the \textbf{Moore-Penrose Pseudoinverse} $A^+ \in \mathbb{R}^{n \times m}$ is defined as:
+\begin{equation}
+A^+ \triangleq V \Sigma^+ U^T = \sum_{i=1}^r \frac{1}{\sigma_i} \mathbf{v}_i \mathbf{u}_i^T
+\label{eq:pseudoinverse}
+\end{equation}
+where $\Sigma^+$ is formed by inverting non-zero singular values ($\frac{1}{\sigma_i}$) and transposing.
+The minimum-norm least-squares solution to an arbitrary overdetermined or underdetermined system $A\mathbf{x} = \mathbf{b}$ is uniquely given by $\mathbf{x}^* = A^+ \mathbf{b}$.
+
+% ----------------------------------------------------------------------
+% PART 5: EXPLICIT GOTCHAS & DIAGNOSTIC MISCONCEPTIONS
+% ----------------------------------------------------------------------
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Gotcha 1: Conflating Singular Values with Eigenvalues}
+A student claims that because a matrix has eigenvalues $\lambda_1 = 5, \lambda_2 = -3$, its singular values must be $5$ and $-3$.
+\textbf{The Trap:} Singular values are the square roots of the eigenvalues of $A^T A$: $\sigma_i = \sqrt{\lambda_i(A^T A)}$. Because $A^T A \succeq 0$, singular values are strictly \textbf{non-negative real numbers} ($\sigma_i \ge 0$). They never take negative or complex values. For a symmetric matrix with negative eigenvalues, the singular values are the absolute values $|\lambda_i|$.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 2: Believing All-Positive Matrix Entries Imply Positive Definiteness}
+A programmer checks a covariance candidate matrix $C = \begin{bmatrix} 1 & 3 \\ 3 & 1 \end{bmatrix}$ and assumes it is positive definite because all entries are positive ($C_{ij} > 0$).
+\textbf{The Trap:} Positive matrix entries have \textbf{no relation} to positive definiteness. Evaluating the determinant: $\det(C) = 1(1) - 3(3) = -8 < 0$. The eigenvalues are $\lambda_1 = 4$ and $\lambda_2 = -2$. For $\mathbf{x} = [1, -1]^T$, the quadratic form is $\mathbf{x}^T C \mathbf{x} = 1 - 3 - 3 + 1 = -4 < 0$. The matrix is indefinite!
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 3: Assuming $U$ and $V$ are Interchangeable}
+An analyst switches $U$ and $V$, writing $A = V \Sigma U^T$.
+\textbf{The Trap:} $U \in \mathbb{R}^{m \times m}$ contains the eigenvectors of $A A^T$ (spanning $\mathbb{R}^m$), while $V \in \mathbb{R}^{n \times n}$ contains the eigenvectors of $A^T A$ (spanning $\mathbb{R}^n$). If $A$ is rectangular ($m \ne n$), swapping $U$ and $V$ yields a matrix of dimension $n \times m$, which is the transpose $A^T$, not $A$.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 4: Measuring Variance Retained by Linear Sum of Singular Values}
+In truncated SVD, an engineer claims that rank-$k$ approximation retains $\frac{\sum_{i=1}^k \sigma_i}{\sum_{i=1}^r \sigma_i}$ of the total dataset variance.
+\textbf{The Trap:} Total variance (Frobenius energy) corresponds to the sum of \textbf{squared} singular values: $\|A\|_F^2 = \sum_{i=1}^r \sigma_i^2$. The true proportion of retained energy is $\frac{\sum_{i=1}^k \sigma_i^2}{\sum_{i=1}^r \sigma_i^2}$. Using linear sums severely overestimates the information preserved in weak singular components.
+\end{trapbox}
+
+% ----------------------------------------------------------------------
+% PART 6: COMPARATIVE SYNTHESIS & SUMMARY TABLE
+% ----------------------------------------------------------------------
+\section{Comparative Synthesis \& Summary Table}
+
+Table~\ref{tab:eigen_vs_svd} provides a comprehensive comparison between Eigendecomposition and Singular Value Decomposition.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lXX}
+\toprule
+\textbf{Property} & \textbf{Eigendecomposition ($A = P D P^{-1}$)} & \textbf{Singular Value Decomposition ($A = U \Sigma V^T$)} \\
+\midrule
+Matrix Applicability & Square matrices only ($n \times n$) & Any rectangular matrix ($m \times n$) \\
+\addlinespace
+Existence Guarantee & Only if matrix is non-defective & Always exists for every matrix \\
+\addlinespace
+Basis Vectors & Columns of $P$ (generally non-orthogonal) & Columns of $U, V$ (strictly orthonormal) \\
+\addlinespace
+Diagonal Elements & Eigenvalues $\lambda_i \in \mathbb{C}$ (can be negative/complex) & Singular values $\sigma_i \in \mathbb{R}_{\ge 0}$ (sorted decreasingly) \\
+\addlinespace
+Geometric Action & Stretches along invariant eigenspaces & Rotates domain ($V^T$), scales axes ($\Sigma$), rotates codomain ($U$) \\
+\addlinespace
+Low-Rank Truncation & Generally not optimal for low-rank approximation & Provably optimal under both $L_2$ and Frobenius norms \\
+\bottomrule
+\end{tabularx}
+\caption{Comparative Synthesis: Eigendecomposition vs. Singular Value Decomposition.}
+\label{tab:eigen_vs_svd}
+\end{table}
+
+% ----------------------------------------------------------------------
+% PART 7: PYTHON / SCIENTIFIC COMPUTING LAB
+% ----------------------------------------------------------------------
+\section{Python / Scientific Computing Lab}
+
+The following production script implements truncated SVD for matrix compression, verifies the Eckart-Young-Mirsky theorem, and validates positive definiteness via Cholesky decomposition.
+
+\begin{lstlisting}[language=Python, caption={SVD Low-Rank Approximation and Positive Definiteness in Python.}]
+import numpy as np
+
+def compute_svd_approximation(A: np.ndarray, k: int):
+    """Computes truncated rank-k SVD approximation: A_k = sum_{i=1}^k sigma_i u_i v_i^T."""
+    U, s, Vt = np.linalg.svd(A, full_matrices=False)
+    # Truncate to top k components
+    U_k = U[:, :k]
+    s_k = s[:k]
+    Vt_k = Vt[:k, :]
+    A_k = U_k @ np.diag(s_k) @ Vt_k
+
+    # Compute theoretical vs empirical Frobenius error
+    emp_frob_err = np.linalg.norm(A - A_k, 'fro')
+    theory_frob_err = np.sqrt(np.sum(s[k:] ** 2))
+    return A_k, emp_frob_err, theory_frob_err
+
+def check_positive_definite(M: np.ndarray) -> bool:
+    """Checks positive definiteness using Cholesky factorization."""
+    # Symmetrize to guard against numerical float errors
+    M_sym = (M + M.T) / 2.0
+    try:
+        _ = np.linalg.cholesky(M_sym)
+        return True
+    except np.linalg.LinAlgError:
+        return False
+
+def main():
+    rng = np.random.RandomState(42)
+    m, n = 50, 20
+    # Generate low-rank matrix with noise
+    rank_true = 5
+    A_clean = rng.randn(m, rank_true) @ rng.randn(rank_true, n)
+    noise = 0.05 * rng.randn(m, n)
+    A = A_clean + noise
+
+    print("Verifying Eckart-Young-Mirsky Theorem:")
+    for k in [1, 3, 5, 10]:
+        _, emp_err, theory_err = compute_svd_approximation(A, k)
+        print(f"  Rank-{k:2d}: Empirical ||A - A_k||_F = {emp_err:.4f}, Theoretical = {theory_err:.4f}")
+
+    # Positive Definite Checks
+    M_pos = A.T @ A
+    M_indef = np.array([[1.0, 3.0], [3.0, 1.0]])
+
+    print(f"\nA^T A is Positive Definite: {check_positive_definite(M_pos)}")
+    print(f"Matrix [[1, 3], [3, 1]] is Positive Definite: {check_positive_definite(M_indef)}")
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+% ----------------------------------------------------------------------
+% PART 8: COMPREHENSIVE PRACTICE PROBLEMS
+% ----------------------------------------------------------------------
+\section{Comprehensive Practice Problems}
+
+\subsection*{Part A: Analytical \& Mathematical Problems}
+
+\begin{enumerate}[label=\textbf{P\arabic*.}]
+    \item \textbf{Explicit Full SVD Computation by Hand:}
+    Let $A = \begin{bmatrix} 3 & 0 \\ 4 & 5 \end{bmatrix}$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Compute the Gram matrix $A^T A$ and find its eigenvalues $\lambda_1, \lambda_2$.
+        \item Determine the singular values $\sigma_1, \sigma_2$.
+        \item Find the orthonormal right singular vectors $\mathbf{v}_1, \mathbf{v}_2$.
+        \item Compute left singular vectors $\mathbf{u}_i = \frac{1}{\sigma_i} A \mathbf{v}_i$ and verify $U \Sigma V^T = A$.
+    \end{enumerate}
+
+    \item \textbf{Sylvester's Criterion vs. Cholesky Factorization:}
+    Let $M = \begin{bmatrix} 2 & -1 & 0 \\ -1 & 2 & -1 \\ 0 & -1 & 2 \end{bmatrix}$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Compute all three leading principal minors: $\det(M_{1:1})$, $\det(M_{1:2, 1:2})$, and $\det(M)$.
+        \item Use Sylvester's Criterion to determine if $M$ is strictly positive definite.
+        \item Construct the lower-triangular Cholesky factor $L$ such that $M = L L^T$.
+    \end{enumerate}
+
+    \item \textbf{Frobenius Norm Representation in Terms of Singular Values:}
+    Prove that for any matrix $A \in \mathbb{R}^{m \times n}$ with singular values $\sigma_1, \dots, \sigma_r$:
+    \begin{equation}
+    \|A\|_F^2 = \trace(A^T A) = \sum_{i=1}^r \sigma_i^2
+    \end{equation}
+
+    \item \textbf{Condition Number and Sensitivity in Linear Inversion:}
+    The condition number of a matrix $A$ is defined as $\kappa(A) = \frac{\sigma_{\max}}{\sigma_{\min}}$.
+    Suppose $A\mathbf{x} = \mathbf{b}$ and $A(\mathbf{x} + \delta \mathbf{x}) = \mathbf{b} + \delta \mathbf{b}$. Prove that:
+    \begin{equation}
+    \frac{\|\delta \mathbf{x}\|_2}{\|\mathbf{x}\|_2} \le \kappa(A) \frac{\|\delta \mathbf{b}\|_2}{\|\mathbf{b}\|_2}
+    \end{equation}
+
+    \item \textbf{Pseudoinverse of Rank-Deficient Matrix:}
+    Let $A = \begin{bmatrix} 1 & 1 \\ 2 & 2 \end{bmatrix}$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Determine $\rank(A)$ and compute its compact SVD $A = \sigma_1 \mathbf{u}_1 \mathbf{v}_1^T$.
+        \item Compute the Moore-Penrose pseudoinverse $A^+ = \frac{1}{\sigma_1} \mathbf{v}_1 \mathbf{u}_1^T$.
+        \item Verify that $A A^+ A = A$ and $A^+ A A^+ = A^+$.
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions}
+
+\begin{enumerate}[label=\textbf{MCQ\arabic*.}]
+    \item Let $A \in \mathbb{R}^{20 \times 10}$ have singular values $\sigma_1 = 12, \sigma_2 = 8, \sigma_3 = 5, \sigma_4 = 2$, with all other singular values equal to zero. What is the minimum Frobenius norm error $\min_{\rank(B) \le 2} \|A - B\|_F$?
+    \begin{enumerate}[label=(\alph*)]
+        \item $\sqrt{5^2 + 2^2} = \sqrt{29}$
+        \item $5$
+        \item $5 + 2 = 7$
+        \item $\sqrt{12^2 + 8^2} = \sqrt{208}$
+    \end{enumerate}
+
+    \item Which of the following conditions is necessary and sufficient for a real symmetric matrix $A$ to be positive definite?
+    \begin{enumerate}[label=(\alph*)]
+        \item All entries $A_{ij} > 0$.
+        \item The trace $\trace(A) > 0$ and determinant $\det(A) > 0$.
+        \item All eigenvalues of $A$ are strictly positive.
+        \item The diagonal entries are strictly greater than off-diagonal entries.
+    \end{enumerate}
+\end{enumerate}
+

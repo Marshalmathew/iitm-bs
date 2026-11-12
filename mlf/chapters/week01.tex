@@ -1,0 +1,371 @@
+\chapter{Foundations of Machine Learning \& Problem Formulation}
+\label{chap:week01}
+
+% ----------------------------------------------------------------------
+% PART 1: EXECUTIVE ROADMAP & LEARNING OBJECTIVES
+% ----------------------------------------------------------------------
+\section{Executive Roadmap \& Learning Objectives}
+
+Machine learning transforms the traditional paradigm of explicit software engineering. Instead of hand-crafting deterministic rules to process input data into outputs, machine learning systems optimize parameterized functions to discover underlying operational mappings directly from empirical observations. This chapter establishes the rigorous mathematical formalism governing this paradigm shift.
+
+\subsection{Prerequisites \& Scaffolding}
+Mastery of this chapter assumes familiarity with foundational collegiate mathematics as mapped in Table~\ref{tab:w01_prereqs}.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lXX}
+\toprule
+\textbf{Foundational Area} & \textbf{Core Concepts Required} & \textbf{Role in Machine Learning Foundations} \\
+\midrule
+Linear Algebra & Vector spaces, inner products, $L_2$ norm, matrix-vector multiplication & Representation of feature vectors $\mathbf{x} \in \mathbb{R}^d$ and linear predictors \\
+Multivariable Calculus & Partial derivatives, gradient vectors $\nabla f$, convex functions & Formulation of objective surfaces and search directions \\
+Probability Theory & Joint/conditional densities, expectations, Law of Large Numbers & Definition of data generating distributions and true statistical risk \\
+\bottomrule
+\end{tabularx}
+\caption{Prerequisite Scaffolding for Chapter 1.}
+\label{tab:w01_prereqs}
+\end{table}
+
+\subsection{Core Competencies}
+By the conclusion of this chapter, students will be able to:
+\begin{itemize}
+    \item Formulate real-world data problems into formal mathematical learning tasks $(\mathcal{X}, \mathcal{Y}, \mathcal{D}, \mathcal{H}, \ell)$.
+    \item Dissect the mathematical boundary separating supervised regression, classification, dimensionality reduction, and density estimation.
+    \item Rigorously derive the Bayes Optimal Predictor for both mean squared error and zero-one classification loss.
+    \item Distinguish true risk $R(h)$ from empirical risk $R_{\text{emp}}(h)$, formalizing the generalization gap and inductive bias.
+    \item Implement vector-accelerated empirical risk surfaces and evaluate bias-variance trade-offs in Python.
+\end{itemize}
+
+\subsection{Notation \& Mathematical Conventions}
+\begin{itemize}
+    \item $\mathcal{X} \subseteq \mathbb{R}^d$: The $d$-dimensional instance (feature) space.
+    \item $\mathcal{Y}$: The label (target) space. For regression, $\mathcal{Y} \subseteq \mathbb{R}$; for binary classification, $\mathcal{Y} = \{-1, +1\}$ or $\{0, 1\}$.
+    \item $\mathcal{D}$: An unknown, fixed joint probability distribution over $\mathcal{X} \times \mathcal{Y}$.
+    \item $S = \{(\mathbf{x}_i, y_i)\}_{i=1}^N \stackrel{\text{i.i.d.}}{\sim} \mathcal{D}$: A training dataset of $N$ independent and identically distributed samples.
+    \item $\mathcal{H}$: A hypothesis space of candidate prediction functions $h: \mathcal{X} \to \mathcal{Y}$.
+    \item $\ell: \mathcal{Y} \times \mathcal{Y} \to \mathbb{R}_{\ge 0}$: A loss function measuring discrepancy between predicted value $\hat{y} = h(\mathbf{x})$ and ground-truth $y$.
+\end{itemize}
+
+% ----------------------------------------------------------------------
+% PART 2: MATHEMATICAL & COMPUTATIONAL FOUNDATIONS
+% ----------------------------------------------------------------------
+\section{Mathematical \& Computational Foundations}
+
+\begin{definitionbox}{The Machine Learning Task}
+A computer program is said to \emph{learn} from experience $E$ with respect to some class of tasks $T$ and performance measure $P$, if its performance at tasks in $T$, as measured by $P$, improves with experience $E$.
+Mathematically, given an experience sample $S = \{(\mathbf{x}_i, y_i)\}_{i=1}^N \sim \mathcal{D}^N$, the learning task consists of selecting a function $h \in \mathcal{H}$ that minimizes the expected loss under $\mathcal{D}$.
+\end{definitionbox}
+
+\subsection{Supervised vs. Unsupervised Formulations}
+Learning paradigms are formally distinguished by the topology of their target spaces:
+
+\subsubsection{1. Supervised Learning}
+The learner receives labeled pairs $(\mathbf{x}, y) \in \mathcal{X} \times \mathcal{Y}$:
+\begin{itemize}
+    \item \textbf{Regression:} $\mathcal{Y} = \mathbb{R}$. The goal is to estimate a continuous function $f: \mathbb{R}^d \to \mathbb{R}$. Canonical loss: Squared Error $\ell(h(\mathbf{x}), y) = (h(\mathbf{x}) - y)^2$.
+    \item \textbf{Classification:} $\mathcal{Y} = \{1, 2, \dots, K\}$. The goal is to partition $\mathcal{X}$ into $K$ decision regions. Canonical loss: $0-1$ Loss $\ell(h(\mathbf{x}), y) = \mathbb{I}(h(\mathbf{x}) \ne y)$.
+\end{itemize}
+
+\subsubsection{2. Unsupervised Learning}
+The learner receives only unlabeled observations $\{\mathbf{x}_i\}_{i=1}^N \sim \mathcal{D}_{\mathcal{X}}$ without supervision:
+\begin{itemize}
+    \item \textbf{Dimensionality Reduction:} Find an encoding map $\phi: \mathbb{R}^d \to \mathbb{R}^k$ (with $k \ll d$) and reconstruction map $\psi: \mathbb{R}^k \to \mathbb{R}^d$ minimizing distortion:
+    \begin{equation}
+    \min_{\phi, \psi} \frac{1}{N} \sum_{i=1}^N \|\mathbf{x}_i - \psi(\phi(\mathbf{x}_i))\|_2^2
+    \end{equation}
+    \item \textbf{Density Estimation:} Estimate the underlying probability density function $p: \mathbb{R}^d \to [0, \infty)$ such that $\int_{\mathbb{R}^d} p(\mathbf{x}) d\mathbf{x} = 1$, typically via Maximum Likelihood Estimation:
+    \begin{equation}
+    \max_{\theta} \sum_{i=1}^N \log p_\theta(\mathbf{x}_i)
+    \end{equation}
+\end{itemize}
+
+\subsection{Risk Formalism and the Generalization Gap}
+Let $(\mathbf{x}, y)$ be random variables governed by joint distribution $\mathcal{D}$.
+
+\begin{definitionbox}{True Risk (Generalization Error)}
+The \textbf{True Risk} $R(h)$ of a hypothesis $h \in \mathcal{H}$ under loss function $\ell$ is the expected loss over the entire data-generating distribution:
+\begin{equation}
+R(h) \triangleq \E_{(\mathbf{x}, y) \sim \mathcal{D}} [\ell(h(\mathbf{x}), y)] = \int_{\mathcal{X} \times \mathcal{Y}} \ell(h(\mathbf{x}), y) \, dP(\mathbf{x}, y)
+\label{eq:true_risk}
+\end{equation}
+\end{definitionbox}
+
+Because $\mathcal{D}$ is unknown, $R(h)$ cannot be computed directly. The learner computes a proxy over finite sample $S$:
+
+\begin{definitionbox}{Empirical Risk}
+The \textbf{Empirical Risk} $R_{\text{emp}}(h; S)$ is the sample average loss on the observed dataset $S = \{(\mathbf{x}_i, y_i)\}_{i=1}^N$:
+\begin{equation}
+R_{\text{emp}}(h; S) \triangleq \frac{1}{N} \sum_{i=1}^N \ell(h(\mathbf{x}_i), y_i)
+\label{eq:emp_risk}
+\end{equation}
+\end{definitionbox}
+
+\begin{theorem}[Empirical Risk Minimization (ERM) Principle]
+The ERM learning rule outputs the hypothesis $\hat{h}_S \in \mathcal{H}$ that minimizes the empirical risk:
+\begin{equation}
+\hat{h}_S = \argmin_{h \in \mathcal{H}} R_{\text{emp}}(h; S)
+\end{equation}
+The \textbf{Generalization Gap} is defined as:
+\begin{equation}
+\Delta_{\text{gen}}(\hat{h}_S) = R(\hat{h}_S) - R_{\text{emp}}(\hat{h}_S; S)
+\end{equation}
+\end{theorem}
+
+% ----------------------------------------------------------------------
+% PART 3: VISUAL & GEOMETRIC INTUITION
+% ----------------------------------------------------------------------
+\section{Visual \& Geometric Intuition: The Machine Learning Pipeline}
+
+Figure~\ref{fig:ml_pipeline} illustrates the fundamental geometry of machine learning: mapping raw observations from physical space into structured vector spaces, optimizing empirical risk over a constrained hypothesis space, and bounding the generalization error on unseen regions of the distribution.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=0.95,
+    font=\sffamily\footnotesize,
+    node distance=1.2cm and 1.4cm,
+    block/.style={rectangle, draw=primarydark, fill=primarylight, thick, rounded corners=3pt, minimum width=2.6cm, minimum height=1.1cm, align=center},
+    model/.style={rectangle, draw=tealborder, fill=tealbg, thick, rounded corners=3pt, minimum width=2.8cm, minimum height=1.1cm, align=center},
+    risk/.style={rectangle, draw=coralborder, fill=coralbg, thick, rounded corners=3pt, minimum width=2.8cm, minimum height=1.1cm, align=center},
+    arr/.style={->, >=stealth, thick, color=primarydark}
+]
+
+% Nodes
+\node[block] (data) {\textbf{Physical World}\\Data Distribution $\mathcal{D}$\\$\mathbf{x} \in \mathbb{R}^d, y \in \mathcal{Y}$};
+\node[block, right=of data] (sample) {\textbf{Training Sample}\\$S = \{(\mathbf{x}_i, y_i)\}_{i=1}^N$\\i.i.d. draws};
+\node[model, right=of sample] (erm) {\textbf{Hypothesis Class $\mathcal{H}$}\\Inductive Bias\\$\hat{h} = \argmin R_{\text{emp}}(h)$};
+\node[risk, below=1.2cm of erm] (eval) {\textbf{Empirical Risk}\\$R_{\text{emp}}(\hat{h}; S)$\\Training Loss};
+\node[risk, left=of eval] (true) {\textbf{True Risk}\\$R(\hat{h}) = \E[\ell(\hat{h}(\mathbf{x}), y)]$\\Generalization Performance};
+\node[block, left=of true] (gap) {\textbf{Generalization Gap}\\$\Delta_{\text{gen}} = R - R_{\text{emp}}$\\Overfitting Penalty};
+
+% Connectors
+\draw[arr] (data) -- node[above] {Sample} (sample);
+\draw[arr] (sample) -- node[above] {Fit} (erm);
+\draw[arr] (erm) -- (eval);
+\draw[arr] (eval) -- node[above] {Compare} (true);
+\draw[arr] (true) -- (gap);
+\draw[dashed, ->, thick, color=coralborder] (data) |- (true);
+
+\end{tikzpicture}
+\caption{The Machine Learning Pipeline: Mapping from data generation to empirical minimization and generalization risk evaluation.}
+\label{fig:ml_pipeline}
+\end{figure}
+
+% ----------------------------------------------------------------------
+% PART 4: DEEP INTUITION & CONCEPTUAL DERIVATIONS
+% ----------------------------------------------------------------------
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Derivation of the Bayes Optimal Predictor for Regression}
+What is the theoretically best prediction function possible if the true joint distribution $\mathcal{D}$ were completely known?
+
+\begin{theorem}[Bayes Optimal Regressor]
+Under squared error loss $\ell(\hat{y}, y) = (\hat{y} - y)^2$, the optimal predictor $h^* = \argmin_h R(h)$ is the conditional expectation:
+\begin{equation}
+h^*(\mathbf{x}) = \E[Y \mid \mathbf{X} = \mathbf{x}]
+\label{eq:bayes_regressor}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+By the Law of Total Expectation, we expand the true risk:
+\begin{align}
+R(h) &= \E_{(\mathbf{X}, Y)} \left[ (h(\mathbf{X}) - Y)^2 \right] \nonumber \\
+&= \E_{\mathbf{X}} \left[ \E_{Y \mid \mathbf{X}} \left[ (h(\mathbf{X}) - Y)^2 \;\middle|\; \mathbf{X} = \mathbf{x} \right] \right]
+\end{align}
+To minimize $R(h)$, it suffices to minimize the inner conditional expectation pointwise for each $\mathbf{x} \in \mathcal{X}$. Let $c = h(\mathbf{x}) \in \mathbb{R}$. Define:
+\begin{equation}
+g(c) \triangleq \E_{Y \mid \mathbf{X}} \left[ (c - Y)^2 \;\middle|\; \mathbf{X} = \mathbf{x} \right]
+\end{equation}
+Expanding the quadratic term:
+\begin{equation}
+g(c) = \E_{Y \mid \mathbf{X}} \left[ c^2 - 2cY + Y^2 \;\middle|\; \mathbf{X} = \mathbf{x} \right] = c^2 - 2c \, \E[Y \mid \mathbf{X} = \mathbf{x}] + \E[Y^2 \mid \mathbf{X} = \mathbf{x}]
+\end{equation}
+Differentiating with respect to $c$ and setting the derivative to zero:
+\begin{equation}
+\frac{dg}{dc} = 2c - 2 \, \E[Y \mid \mathbf{X} = \mathbf{x}] = 0 \implies c^* = \E[Y \mid \mathbf{X} = \mathbf{x}]
+\end{equation}
+Since $\frac{d^2 g}{dc^2} = 2 > 0$, $c^*$ is the unique global minimum. Thus, $h^*(\mathbf{x}) = \E[Y \mid \mathbf{X} = \mathbf{x}]$.
+\end{proof}
+
+\subsection{Derivation of the Bayes Optimal Classifier}
+For binary classification with $\mathcal{Y} = \{0, 1\}$ under $0-1$ loss $\ell(\hat{y}, y) = \mathbb{I}(\hat{y} \ne y)$:
+
+\begin{theorem}[Bayes Optimal Classifier]
+Let $\eta(\mathbf{x}) \triangleq P(Y = 1 \mid \mathbf{X} = \mathbf{x})$. The optimal classifier is:
+\begin{equation}
+h^*(\mathbf{x}) = \begin{cases}
+1 & \text{if } \eta(\mathbf{x}) \ge \frac{1}{2} \\
+0 & \text{if } \eta(\mathbf{x}) < \frac{1}{2}
+\end{cases}
+\label{eq:bayes_classifier}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+The pointwise expected loss for predicting $\hat{y} \in \{0, 1\}$ given $\mathbf{X} = \mathbf{x}$ is:
+\begin{align}
+\E_{Y \mid \mathbf{X}} \left[ \mathbb{I}(\hat{y} \ne Y) \;\middle|\; \mathbf{X} = \mathbf{x} \right] &= P(Y \ne \hat{y} \mid \mathbf{X} = \mathbf{x}) \nonumber \\
+&= \mathbb{I}(\hat{y} = 0) P(Y = 1 \mid \mathbf{x}) + \mathbb{I}(\hat{y} = 1) P(Y = 0 \mid \mathbf{x}) \nonumber \\
+&= \mathbb{I}(\hat{y} = 0) \eta(\mathbf{x}) + \mathbb{I}(\hat{y} = 1) (1 - \eta(\mathbf{x}))
+\end{align}
+To minimize this quantity:
+\begin{itemize}
+    \item If $\hat{y} = 1$, expected loss is $1 - \eta(\mathbf{x})$.
+    \item If $\hat{y} = 0$, expected loss is $\eta(\mathbf{x})$.
+\end{itemize}
+Predicting $\hat{y} = 1$ is optimal whenever $1 - \eta(\mathbf{x}) \le \eta(\mathbf{x}) \iff 2\eta(\mathbf{x}) \ge 1 \iff \eta(\mathbf{x}) \ge 1/2$. The minimum achievable error rate $R(h^*) = \E_{\mathbf{X}}[\min(\eta(\mathbf{X}), 1 - \eta(\mathbf{X}))]$ is the irreducible \emph{Bayes Error}.
+\end{proof}
+
+% ----------------------------------------------------------------------
+% PART 5: EXPLICIT GOTCHAS & DIAGNOSTIC MISCONCEPTIONS
+% ----------------------------------------------------------------------
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Gotcha 1: Conflating Zero Training Error with High Generalization}
+A student fits a high-degree polynomial ($d = 20$) to $N = 25$ points, achieving $R_{\text{emp}}(\hat{h}) = 0$. They assert the model has mastered the underlying physical law.
+\textbf{The Trap:} Minimizing empirical risk over an unconstrained hypothesis class $\mathcal{H}$ causes the model to memorize stochastic observation noise rather than the data manifold. A zero empirical risk often implies $\Delta_{\text{gen}} \gg 0$ (catastrophic overfitting). Learning requires inductive bias to restrict $\mathcal{H}$.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 2: Attempting Gradient Descent Directly on 0-1 Loss}
+A practitioner defines a classification neural network with the step activation function and attempts backpropagation using the $0-1$ loss $\ell(\hat{y}, y) = \mathbb{I}(\hat{y} \ne y)$.
+\textbf{The Trap:} The $0-1$ loss has a gradient of zero almost everywhere and is discontinuous at the decision boundary. Numerical optimization algorithms (such as gradient descent) fail completely because $\nabla_{\mathbf{w}} R_{\text{emp}}(\mathbf{w}) = \mathbf{0}$. Practical learning requires convex surrogate losses (such as Cross-Entropy or Hinge loss).
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 3: Data Leakage via Unsupervised Preprocessing Before Splitting}
+An analyst standardizes features using $\mathbf{x}_{\text{norm}} = \frac{\mathbf{x} - \boldsymbol{\mu}}{\boldsymbol{\sigma}}$, computing $\boldsymbol{\mu}$ and $\boldsymbol{\sigma}$ over the entire dataset before splitting into train and test sets.
+\textbf{The Trap:} Computing sample statistics over the union of train and test sets leaks test distribution information into the training pipeline. All data transformations, imputations, and scalings must be fitted strictly on the training partition and subsequently applied out-of-sample to the validation/test partitions.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 4: The Empty Space Phenomenon in High Dimensions}
+In high dimensions ($\mathbb{R}^d$ with large $d$), an analyst expects data points to cluster near the center of the unit hypercube $[-1, 1]^d$.
+\textbf{The Trap:} Consider an inscribed hypercube of half-width $1 - \epsilon$. Its volume is $(2(1-\epsilon))^d = 2^d (1-\epsilon)^d$. The ratio of its volume to the total hypercube volume $2^d$ is $(1 - \epsilon)^d \to 0$ as $d \to \infty$. In high-dimensional spaces, nearly all probability mass resides in a thin shell near the boundaries. Nearest-neighbor distances become equidistant, degrading distance-based algorithms.
+\end{trapbox}
+
+% ----------------------------------------------------------------------
+% PART 6: COMPARATIVE SYNTHESIS & SUMMARY TABLE
+% ----------------------------------------------------------------------
+\section{Comparative Synthesis \& Summary Table}
+
+Table~\ref{tab:ml_paradigms} provides a comparative taxonomy of the core machine learning paradigms studied in this course.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lXXXX}
+\toprule
+\textbf{Paradigm} & \textbf{Data Format} & \textbf{Canonical Objective} & \textbf{Primary Loss Metric} & \textbf{Core Failure Mode} \\
+\midrule
+Regression & $(\mathbf{x}_i, y_i), y_i \in \mathbb{R}$ & Estimate conditional mean $\E[Y \mid \mathbf{X}]$ & Mean Squared Error (MSE), Huber loss & High variance, sensitivity to target outliers \\
+\addlinespace
+Classification & $(\mathbf{x}_i, y_i), y_i \in \{1,\dots,K\}$ & Estimate decision boundary or class posterior & Cross-Entropy, Hinge loss, $0-1$ loss & Class imbalance, label noise, non-separability \\
+\addlinespace
+Dimensionality Reduction & $\mathbf{x}_i \in \mathbb{R}^d$ & Preserve variance / minimize projection error & Reconstruction MSE $\|\mathbf{x} - \hat{\mathbf{x}}\|^2$ & Information loss, non-linear manifold distortion \\
+\addlinespace
+Density Estimation & $\mathbf{x}_i \in \mathbb{R}^d$ & Estimate probability distribution $p(\mathbf{x})$ & Negative Log-Likelihood $-\log p(\mathbf{x})$ & Mode collapse, curse of dimensionality \\
+\bottomrule
+\end{tabularx}
+\caption{Comparative Synthesis of Machine Learning Problem Paradigms.}
+\label{tab:ml_paradigms}
+\end{table}
+
+% ----------------------------------------------------------------------
+% PART 7: PYTHON / SCIENTIFIC COMPUTING LAB
+% ----------------------------------------------------------------------
+\section{Python / Scientific Computing Lab}
+
+The following self-contained Python script simulates the Empirical Risk Minimization principle, empirically demonstrating how hypothesis complexity controls the trade-off between training error (empirical risk) and test error (true risk proxy).
+
+\begin{lstlisting}[language=Python, caption={Empirical Risk Minimization and Bias-Variance Simulation in Python.}]
+import numpy as np
+
+def generate_data(n_samples: int, noise_std: float = 0.3, seed: int = 42):
+    """Generates synthetic non-linear data from y = sin(2*pi*x) + epsilon."""
+    rng = np.random.RandomState(seed)
+    x = rng.uniform(0.0, 1.0, size=n_samples)
+    y = np.sin(2 * np.pi * x) + rng.normal(0.0, noise_std, size=n_samples)
+    return x, y
+
+def fit_polynomial_ols(x: np.ndarray, y: np.ndarray, degree: int) -> np.ndarray:
+    """Computes Ordinary Least Squares weights for polynomial feature expansion."""
+    # Construct Vandermonde design matrix Phi: shape (N, degree + 1)
+    Phi = np.vander(x, N=degree + 1, increasing=True)
+    # Normal equations: w = (Phi^T Phi)^{-1} Phi^T y
+    w = np.linalg.pinv(Phi) @ y
+    return w
+
+def compute_mse(x: np.ndarray, y: np.ndarray, w: np.ndarray) -> float:
+    """Computes mean squared error for polynomial weights w."""
+    degree = len(w) - 1
+    Phi = np.vander(x, N=degree + 1, increasing=True)
+    y_pred = Phi @ w
+    return float(np.mean((y - y_pred) ** 2))
+
+def main():
+    # 1. Generate training and out-of-sample test datasets
+    N_train, N_test = 30, 200
+    x_train, y_train = generate_data(N_train, noise_std=0.25, seed=101)
+    x_test, y_test = generate_data(N_test, noise_std=0.25, seed=202)
+
+    degrees = [1, 3, 9, 15]
+    print(f"{'Degree':<8}{'Train MSE (R_emp)':<20}{'Test MSE (True Risk Proxy)':<25}")
+    print("-" * 55)
+
+    for d in degrees:
+        w_d = fit_polynomial_ols(x_train, y_train, degree=d)
+        train_mse = compute_mse(x_train, y_train, w_d)
+        test_mse = compute_mse(x_test, y_test, w_d)
+        print(f"{d:<8}{train_mse:<20.5f}{test_mse:<25.5f}")
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+% ----------------------------------------------------------------------
+% PART 8: COMPREHENSIVE PRACTICE PROBLEMS
+% ----------------------------------------------------------------------
+\section{Comprehensive Practice Problems}
+
+\subsection*{Part A: Analytical \& Mathematical Problems}
+
+\begin{enumerate}[label=\textbf{P\arabic*.}]
+    \item \textbf{Bayes Optimal Predictor Under Absolute Loss:}
+    Suppose the target $Y \in \mathbb{R}$ is evaluated under the Mean Absolute Error (MAE) loss $\ell(\hat{y}, y) = |\hat{y} - y|$. Prove that the Bayes optimal predictor $h^*(\mathbf{x}) = \argmin_c \E[|c - Y| \mid \mathbf{X} = \mathbf{x}]$ is the conditional median $\text{Median}(Y \mid \mathbf{X} = \mathbf{x})$.
+
+    \item \textbf{Asymmetric Classification Costs:}
+    In fraud detection, predicting a fraudulent transaction ($Y=1$) as legitimate ($Y=0$) incurs penalty $C_{01} = 50$, whereas false alarms incur penalty $C_{10} = 1$. Let $\eta(\mathbf{x}) = P(Y=1 \mid \mathbf{X} = \mathbf{x})$. Derive the Bayes optimal decision threshold $\tau^*$ such that predicting $\hat{y} = 1$ when $\eta(\mathbf{x}) \ge \tau^*$ minimizes total expected cost.
+
+    \item \textbf{Empirical Risk Under Label Flipping Noise:}
+    Let $Y \in \{-1, +1\}$. Suppose each training label is independently flipped with probability $\rho \in [0, 1/2)$, producing noisy labels $\tilde{Y}$. Express the true risk under noisy labels $R_{\text{noisy}}(h) = \E[\mathbb{I}(h(\mathbf{X}) \ne \tilde{Y})]$ in terms of the clean true risk $R(h) = \E[\mathbb{I}(h(\mathbf{X}) \ne Y)]$ and noise rate $\rho$.
+
+    \item \textbf{Curse of Dimensionality \& Distance Concentration:}
+    Let $\mathbf{X}_1, \mathbf{X}_2, \dots, \mathbf{X}_n$ be independent points drawn uniformly from the unit hypercube $[0, 1]^d$. Let $D_{\min} = \min_{i \ne j} \|\mathbf{X}_i - \mathbf{X}_j\|_2$ and $D_{\max} = \max_{i \ne j} \|\mathbf{X}_i - \mathbf{X}_j\|_2$. Analyze the behavior of $\frac{D_{\max} - D_{\min}}{D_{\min}}$ as dimension $d \to \infty$, and explain why nearest neighbor search degrades.
+
+    \item \textbf{Generalization Bound for Finite Hypothesis Classes:}
+    Let $\mathcal{H}$ be a finite hypothesis space with cardinality $|\mathcal{H}| < \infty$. Using Hoeffding's inequality and the union bound, prove that with probability at least $1 - \delta$ over the random draw of training set $S$ of size $N$, for every $h \in \mathcal{H}$:
+    \begin{equation}
+    R(h) \le R_{\text{emp}}(h; S) + \sqrt{\frac{\log |\mathcal{H}| + \log(2/\delta)}{2N}}
+    \end{equation}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions}
+
+\begin{enumerate}[label=\textbf{MCQ\arabic*.}]
+    \item A machine learning engineer trains a binary classification model on a dataset where $98\%$ of instances belong to class $0$. The trained model achieves an empirical accuracy of $98\%$. Which of the following conclusions is mathematically warranted?
+    \begin{enumerate}[label=(\alph*)]
+        \item The model has achieved low generalization error on class $1$.
+        \item The model could be trivially predicting the constant function $h(\mathbf{x}) = 0$, achieving zero empirical error on class $0$ and $100\%$ empirical error on class $1$.
+        \item Minimizing $0-1$ loss guarantees that the minority class precision is maximized.
+        \item The empirical risk under cross-entropy loss must equal zero.
+    \end{enumerate}
+
+    \item Why is the empirical risk minimizer $\hat{h}_S = \argmin_{h \in \mathcal{H}} R_{\text{emp}}(h; S)$ an optimistic (downward-biased) estimator of the true risk $R(\hat{h}_S)$?
+    \begin{enumerate}[label=(\alph*)]
+        \item Because the hypothesis $\hat{h}_S$ was chosen specifically to minimize the error on the particular sample $S$, exploiting sample-specific noise fluctuations.
+        \item Because by the Law of Large Numbers, $\frac{1}{N}\sum_{i=1}^N \ell(h(\mathbf{x}_i), y_i) < \E[\ell(h(\mathbf{X}), Y)]$ for every fixed $h$.
+        \item Because the loss function is strictly concave with respect to the sample size $N$.
+        \item Because Jensen's inequality guarantees that the minimum of expectations is strictly greater than the expectation of the minimum.
+    \end{enumerate}
+\end{enumerate}
+

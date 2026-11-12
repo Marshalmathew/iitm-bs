@@ -6,7 +6,7 @@ $env:PATH = ($env:PATH -split ';' | Where-Object {
     $_ -notlike '*ojdbc*' -and 
     (Test-Path $_ -PathType Container -ErrorAction SilentlyContinue) 
 }) -join ';'
-$Courses = @("maths1", "maths2", "python", "stats1", "stats2", "financial_forensics")
+$Courses = @("maths1", "maths2", "python", "stats1", "stats2", "financial_forensics", "mlf")
 $PdfLatexExists = Get-Command pdflatex -ErrorAction SilentlyContinue
 
 if (-not $PdfLatexExists) {

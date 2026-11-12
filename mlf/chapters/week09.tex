@@ -1,0 +1,429 @@
+\chapter{Constrained Optimization, Lagrange Multipliers, Convex Sets \& Convex Functions}
+\label{chap:week09}
+
+% ----------------------------------------------------------------------
+% PART 1: EXECUTIVE ROADMAP & LEARNING OBJECTIVES
+% ----------------------------------------------------------------------
+\section{Executive Roadmap \& Learning Objectives}
+
+In real-world machine learning, optimization problems rarely exist in unconstrained Euclidean space. Parameters are routinely constrained to satisfy physical requirements, sparsity demands, budget bounds, or geometric bounds—such as enforcing non-negativity ($\mathbf{w} \ge \mathbf{0}$), probability simplex constraints ($\sum w_i = 1$), or norm balls ($\|\mathbf{w}\|_1 \le s$ in Lasso regression). This chapter establishes the mathematical theory of constrained optimization, Lagrange multipliers, and convex analysis.
+
+\subsection{Prerequisites \& Scaffolding}
+Mastery of this chapter builds upon vector calculus, gradients, and multivariable linear algebra as organized in Table~\ref{tab:w09_prereqs}.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lXX}
+\toprule
+\textbf{Foundational Area} & \textbf{Core Concepts Required} & \textbf{Role in Machine Learning Foundations} \\
+\midrule
+Vector Calculus & Gradient vectors $\nabla f$, level surfaces $f(\mathbf{x}) = c$, tangent planes & Formulating orthogonality between objective gradients and constraint boundaries \\
+Linear Algebra & Hyperplanes $\mathbf{a}^T \mathbf{x} = b$, halfspaces $\mathbf{a}^T \mathbf{x} \le b$, norms & Defining polyhedra, convex hulls, and geometric projection operators \\
+Real Analysis & Set topology, open/closed sets, supremum, continuity & Establishing existence of minimizers (Weierstrass Theorem) \\
+\bottomrule
+\end{tabularx}
+\caption{Prerequisite Scaffolding for Chapter 9.}
+\label{tab:w09_prereqs}
+\end{table}
+
+\subsection{Core Competencies}
+By the conclusion of this chapter, students will be able to:
+\begin{itemize}
+    \item Formulate constrained optimization problems with equality and inequality constraints.
+    \item Apply the Method of Lagrange Multipliers to derive analytical solutions for constrained objectives.
+    \item Define convex sets and verify whether given domains are convex using fundamental closure operations.
+    \item State and apply the Separating Hyperplane Theorem and Supporting Hyperplane Theorem.
+    \item Characterize convex functions via Jensen's inequality, first-order supporting hyperplanes, and second-order Hessian conditions.
+    \item Implement Projected Gradient Descent (PGD) with non-expansive projection operators.
+\end{itemize}
+
+\subsection{Notation \& Mathematical Conventions}
+\begin{itemize}
+    \item $C \subseteq \mathbb{R}^d$: A constraint set (feasible region).
+    \item $\Pi_C(\mathbf{x}) \triangleq \argmin_{\mathbf{z} \in C} \|\mathbf{x} - \mathbf{z}\|_2$: The Euclidean projection of $\mathbf{x}$ onto convex set $C$.
+    \item $\operatorname{epi}(f) \triangleq \{(\mathbf{x}, t) \in \mathbb{R}^{d+1} \mid f(\mathbf{x}) \le t\}$: The epigraph of function $f$.
+    \item $\mathcal{L}(\mathbf{w}, \boldsymbol{\nu}) \triangleq f(\mathbf{w}) + \sum_{j=1}^p \nu_j h_j(\mathbf{w})$: The Lagrangian functional for equality constraints.
+    \item $S^d_{++}$ ($S^d_+$): The cone of symmetric positive definite (positive semidefinite) $d \times d$ matrices.
+\end{itemize}
+
+% ----------------------------------------------------------------------
+% PART 2: MATHEMATICAL & COMPUTATIONAL FOUNDATIONS
+% ----------------------------------------------------------------------
+\section{Mathematical \& Computational Foundations}
+
+\subsection{Equality Constraints and the Method of Lagrange Multipliers}
+Consider the equality-constrained optimization problem:
+\begin{equation}
+\min_{\mathbf{w} \in \mathbb{R}^d} f(\mathbf{w}) \quad \text{subject to } h_j(\mathbf{w}) = 0 \quad (j = 1, \dots, p)
+\label{eq:eq_constrained_prob}
+\end{equation}
+
+\begin{theorem}[Geometric Condition of Optimality (Lagrange Multipliers)]
+Let $\mathbf{w}^*$ be a local minimum of $f$ on the feasible manifold $\mathcal{M} = \{\mathbf{w} \mid h_j(\mathbf{w}) = 0, \, \forall j\}$, and assume the constraint gradients $\{\nabla h_1(\mathbf{w}^*), \dots, \nabla h_p(\mathbf{w}^*)\}$ are linearly independent.
+Then the gradient of the objective function must lie in the subspace spanned by the constraint gradients:
+\begin{equation}
+\nabla f(\mathbf{w}^*) + \sum_{j=1}^p \nu_j^* \nabla h_j(\mathbf{w}^*) = \mathbf{0}
+\label{eq:lagrange_stationarity}
+\end{equation}
+for unique scalars $\nu_1^*, \dots, \nu_p^* \in \mathbb{R}$ known as \textbf{Lagrange Multipliers}.
+\end{theorem}
+
+\begin{proof}
+At a constrained minimum $\mathbf{w}^*$, any feasible infinitesimal displacement $d\mathbf{w}$ along the manifold $\mathcal{M}$ must satisfy $h_j(\mathbf{w}^* + d\mathbf{w}) = 0$. By first-order Taylor expansion:
+\begin{equation}
+\nabla h_j(\mathbf{w}^*)^T d\mathbf{w} = 0 \quad (\forall j \in \{1, \dots, p\})
+\end{equation}
+Thus, the tangent space to the feasible manifold at $\mathbf{w}^*$ is:
+\begin{equation}
+T_{\mathcal{M}}(\mathbf{w}^*) = \left\{ \mathbf{v} \in \mathbb{R}^d \;\middle|\; \nabla h_j(\mathbf{w}^*)^T \mathbf{v} = 0, \, \forall j \right\} = \left( \Span\{\nabla h_1(\mathbf{w}^*), \dots, \nabla h_p(\mathbf{w}^*)\} \right)^\perp
+\end{equation}
+If $\nabla f(\mathbf{w}^*)$ had a non-zero projection onto $T_{\mathcal{M}}(\mathbf{w}^*)$, moving in the direction of $-\proj_{T_{\mathcal{M}}}(\nabla f(\mathbf{w}^*))$ would remain feasible to first order while decreasing $f(\mathbf{w})$, contradicting the local minimality of $\mathbf{w}^*$.
+Therefore, $\nabla f(\mathbf{w}^*)$ must be orthogonal to $T_{\mathcal{M}}(\mathbf{w}^*)$, which by the Fundamental Theorem of Linear Algebra means:
+\begin{equation}
+\nabla f(\mathbf{w}^*) \in \left( T_{\mathcal{M}}(\mathbf{w}^*) \right)^\perp = \Span\{\nabla h_1(\mathbf{w}^*), \dots, \nabla h_p(\mathbf{w}^*)\}
+\end{equation}
+Expressing this linear combination yields equation~\eqref{eq:lagrange_stationarity}.
+\end{proof}
+
+\subsection{Convex Sets}
+
+\begin{definitionbox}{Convex Set}
+A subset $C \subseteq \mathbb{R}^d$ is \textbf{convex} if the line segment connecting any two points in $C$ lies entirely within $C$:
+\begin{equation}
+\forall \mathbf{x}, \mathbf{y} \in C, \; \forall \theta \in [0, 1] \implies \theta \mathbf{x} + (1 - \theta)\mathbf{y} \in C
+\label{eq:convex_set_def}
+\end{equation}
+\end{definitionbox}
+
+\begin{theorem}[Operations Preserving Set Convexity]
+The following operations preserve convexity:
+\begin{enumerate}
+    \item \textbf{Arbitrary Intersections:} If $C_\alpha$ is convex for all $\alpha \in \mathcal{A}$, then $C = \bigcap_{\alpha \in \mathcal{A}} C_\alpha$ is convex.
+    \item \textbf{Affine Transformations:} If $C \subseteq \mathbb{R}^n$ is convex, its image under $f(\mathbf{x}) = A\mathbf{x} + \mathbf{b}$ is convex.
+    \item \textbf{Cartesian Products:} If $C_1 \subseteq \mathbb{R}^n$ and $C_2 \subseteq \mathbb{R}^m$ are convex, $C_1 \times C_2$ is convex.
+\end{enumerate}
+\end{theorem}
+
+\begin{theorem}[Separating Hyperplane Theorem]
+Let $C_1, C_2 \subset \mathbb{R}^d$ be non-empty, disjoint convex sets ($C_1 \cap C_2 = \emptyset$). There exists a non-zero vector $\mathbf{a} \in \mathbb{R}^d \setminus \{\mathbf{0}\}$ and scalar $b \in \mathbb{R}$ such that:
+\begin{equation}
+\mathbf{a}^T \mathbf{x} \le b \le \mathbf{a}^T \mathbf{y} \quad \forall \mathbf{x} \in C_1, \; \forall \mathbf{y} \in C_2
+\label{eq:separating_hyperplane}
+\end{equation}
+The hyperplane $\mathcal{H} = \{\mathbf{z} \mid \mathbf{a}^T \mathbf{z} = b\}$ separates $C_1$ and $C_2$.
+\end{theorem}
+
+\subsection{Convex Functions}
+
+\begin{definitionbox}{Convex Function}
+A function $f: C \to \mathbb{R}$ defined on a convex domain $C \subseteq \mathbb{R}^d$ is \textbf{convex} if for all $\mathbf{x}, \mathbf{y} \in C$ and $\theta \in [0, 1]$:
+\begin{equation}
+f(\theta \mathbf{x} + (1 - \theta)\mathbf{y}) \le \theta f(\mathbf{x}) + (1 - \theta) f(\mathbf{y})
+\label{eq:convex_func_def}
+\end{equation}
+A function is \textbf{strictly convex} if the inequality is strict for all $\mathbf{x} \ne \mathbf{y}$ and $\theta \in (0, 1)$.
+\end{definitionbox}
+
+\begin{theorem}[First-Order Characterization of Convexity]
+Let $f: C \to \mathbb{R}$ be continuously differentiable on an open convex set $C$. Then $f$ is convex if and only if for all $\mathbf{x}, \mathbf{y} \in C$:
+\begin{equation}
+f(\mathbf{y}) \ge f(\mathbf{x}) + \nabla f(\mathbf{x})^T (\mathbf{y} - \mathbf{x})
+\label{eq:first_order_convex}
+\end{equation}
+Geometrically, the first-order affine Taylor approximation forms a global supporting hyperplane lying everywhere below the function graph.
+\end{theorem}
+
+\begin{theorem}[Second-Order Characterization of Convexity]
+Let $f: C \to \mathbb{R}$ be twice continuously differentiable on open convex domain $C$. Then:
+\begin{itemize}
+    \item $f$ is convex $\iff \nabla^2 f(\mathbf{x}) \succeq 0$ (positive semidefinite) for all $\mathbf{x} \in C$.
+    \item If $\nabla^2 f(\mathbf{x}) \succ 0$ (strictly positive definite) for all $\mathbf{x} \in C$, then $f$ is strictly convex.
+\end{itemize}
+\end{theorem}
+
+% ----------------------------------------------------------------------
+% PART 3: VISUAL & GEOMETRIC INTUITION
+% ----------------------------------------------------------------------
+\section{Visual \& Geometric Intuition: The Geometry of Tangency and Projections}
+
+Figure~\ref{fig:constrained_geometry} diagrams the geometric tangency condition of Lagrange multipliers: at the constrained minimum $\mathbf{w}^*$, the contour of the objective function $f(\mathbf{w})$ is exactly tangent to the constraint boundary $h(\mathbf{w}) = 0$, aligning the gradient vectors $\nabla f$ and $\nabla h$ co-linearly.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=0.95,
+    font=\sffamily\footnotesize
+]
+
+% Objective function contours (ellipses)
+\draw[thick, color=primarydark!40] (0, 0) ellipse (4.0cm and 2.2cm);
+\node[right, color=primarydark!50] at (4.0, 0) {$f(\mathbf{w}) = c_3$};
+
+\draw[thick, color=primarydark!70] (0, 0) ellipse (2.8cm and 1.5cm);
+\node[right, color=primarydark!70] at (2.8, 0) {$f(\mathbf{w}) = c_2$};
+
+\draw[thick, color=primarydark] (0, 0) ellipse (1.6cm and 0.9cm);
+\node[right, color=primarydark] at (1.6, 0) {$f(\mathbf{w}) = c_1$};
+
+\filldraw[color=gray] (0, 0) circle (2pt) node[below] {Unconstrained Min};
+
+% Constraint curve h(w) = 0
+\draw[line width=1.8pt, color=tealborder] (-3.5, 2.5) .. controls (-1.0, 1.8) and (1.0, 1.3) .. (3.5, 0.4);
+\node[above, color=tealborder] at (-2.5, 2.3) {\textbf{Feasible Manifold } $h(\mathbf{w}) = 0$};
+
+% Constrained optimum point of tangency
+\coordinate (Wstar) at (0.2, 1.5);
+\filldraw[color=red] (Wstar) circle (3pt) node[above right] {$\mathbf{w}^*$ (Constrained Minimum)};
+
+% Objective gradient at w* (points outward towards higher contours)
+\draw[->, >=stealth, line width=2pt, color=coralborder] (Wstar) -- ($(Wstar) + (0.2, 1.5)$) node[right] {$\nabla f(\mathbf{w}^*)$};
+
+% Constraint gradient at w* (normal to constraint curve)
+\draw[->, >=stealth, line width=2pt, color=tealborder] (Wstar) -- ($(Wstar) + (-0.15, -1.2)$) node[left] {$\nabla h(\mathbf{w}^*)$};
+
+% Collinearity note
+\node[draw=coralborder, fill=coralbg, rounded corners=2pt, align=center] at (2.8, -1.8) {
+    \textbf{Collinear Gradients:}\\$\nabla f(\mathbf{w}^*) = -\nu^* \nabla h(\mathbf{w}^*)$
+};
+
+\end{tikzpicture}
+\caption{The Geometry of Lagrange Multipliers: At the constrained minimum $\mathbf{w}^*$, the objective contour touches the constraint manifold tangentially, forcing their gradients to be anti-parallel.}
+\label{fig:constrained_geometry}
+\end{figure}
+
+% ----------------------------------------------------------------------
+% PART 4: DEEP INTUITION & CONCEPTUAL DERIVATIONS
+% ----------------------------------------------------------------------
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Projected Gradient Descent (PGD) and Non-Expansiveness}
+When optimizing over a convex set $C \subset \mathbb{R}^d$, the \textbf{Projected Gradient Descent (PGD)} algorithm computes a standard gradient step followed by an orthogonal Euclidean projection back onto $C$:
+\begin{equation}
+\mathbf{w}_{k+1} = \Pi_C\left( \mathbf{w}_k - \eta \nabla f(\mathbf{w}_k) \right)
+\label{eq:pgd_update}
+\end{equation}
+
+\begin{theorem}[Non-Expansiveness of the Convex Projection Operator]
+Let $C \subseteq \mathbb{R}^d$ be a closed convex set. The projection operator $\Pi_C: \mathbb{R}^d \to C$ is \textbf{non-expansive}:
+\begin{equation}
+\|\Pi_C(\mathbf{u}) - \Pi_C(\mathbf{v})\|_2 \le \|\mathbf{u} - \mathbf{v}\|_2 \quad \forall \mathbf{u}, \mathbf{v} \in \mathbb{R}^d
+\label{eq:non_expansive}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+By the variational characterization of convex projection, $\hat{\mathbf{u}} = \Pi_C(\mathbf{u})$ if and only if:
+\begin{equation}
+\langle \mathbf{u} - \hat{\mathbf{u}}, \mathbf{z} - \hat{\mathbf{u}} \rangle \le 0 \quad \forall \mathbf{z} \in C
+\label{eq:proj_char1}
+\end{equation}
+Similarly, for $\hat{\mathbf{v}} = \Pi_C(\mathbf{v})$:
+\begin{equation}
+\langle \mathbf{v} - \hat{\mathbf{v}}, \mathbf{z}' - \hat{\mathbf{v}} \rangle \le 0 \quad \forall \mathbf{z}' \in C
+\label{eq:proj_char2}
+\end{equation}
+Substituting $\mathbf{z} = \hat{\mathbf{v}} \in C$ into~\eqref{eq:proj_char1} and $\mathbf{z}' = \hat{\mathbf{u}} \in C$ into~\eqref{eq:proj_char2}:
+\begin{align}
+\langle \mathbf{u} - \hat{\mathbf{u}}, \hat{\mathbf{v}} - \hat{\mathbf{u}} \rangle &\le 0 \implies \langle \hat{\mathbf{u}} - \mathbf{u}, \hat{\mathbf{u}} - \hat{\mathbf{v}} \rangle \le 0 \\
+\langle \mathbf{v} - \hat{\mathbf{v}}, \hat{\mathbf{u}} - \hat{\mathbf{v}} \rangle &\le 0
+\end{align}
+Summing the two inequalities:
+\begin{equation}
+\langle (\hat{\mathbf{u}} - \hat{\mathbf{v}}) - (\mathbf{u} - \mathbf{v}), \hat{\mathbf{u}} - \hat{\mathbf{v}} \rangle \le 0 \implies \|\hat{\mathbf{u}} - \hat{\mathbf{v}}\|_2^2 \le \langle \mathbf{u} - \mathbf{v}, \hat{\mathbf{u}} - \hat{\mathbf{v}} \rangle
+\end{equation}
+Applying the Cauchy-Schwarz inequality to the right-hand side:
+\begin{equation}
+\|\hat{\mathbf{u}} - \hat{\mathbf{v}}\|_2^2 \le \|\mathbf{u} - \mathbf{v}\|_2 \|\hat{\mathbf{u}} - \hat{\mathbf{v}}\|_2
+\end{equation}
+Dividing both sides by $\|\hat{\mathbf{u}} - \hat{\mathbf{v}}\|_2$ proves $\|\Pi_C(\mathbf{u}) - \Pi_C(\mathbf{v})\|_2 \le \|\mathbf{u} - \mathbf{v}\|_2$.
+\end{proof}
+
+\subsection{Jensen's Inequality: The Core of Probabilistic Learning}
+For any convex function $f: \mathbb{R}^d \to \mathbb{R}$ and random variable $\mathbf{X}$:
+\begin{equation}
+f(\E[\mathbf{X}]) \le \E[f(\mathbf{X})]
+\label{eq:jensen}
+\end{equation}
+This fundamental inequality underpins the mathematical derivation of the Expectation-Maximization (EM) algorithm (Chapter~\ref{chap:week12}) and the Information Bottleneck principle in representation learning.
+
+% ----------------------------------------------------------------------
+% PART 5: EXPLICIT GOTCHAS & DIAGNOSTIC MISCONCEPTIONS
+% ----------------------------------------------------------------------
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Gotcha 1: Assuming the Union of Two Convex Sets is Convex}
+A programmer considers the union $S = B_1 \cup B_2$ of two disjoint convex norm balls $B_1 = \{\mathbf{x} \mid \|\mathbf{x} - \mathbf{c}_1\| \le 1\}$ and $B_2 = \{\mathbf{x} \mid \|\mathbf{x} - \mathbf{c}_2\| \le 1\}$ and assumes $S$ is convex.
+\textbf{The Trap:} While the \textbf{intersection} of arbitrary convex sets is always convex, the \textbf{union} of convex sets is almost never convex. A line connecting a point in $B_1$ to a point in $B_2$ passes through the empty space between them, violating the convexity axiom.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 2: Believing Local Minima Can Differ from Global Minima in Convex Problems}
+A student worries that gradient descent might get trapped in a suboptimal local minimum when minimizing a convex loss function over a convex set.
+\textbf{The Trap:} For a convex function defined on a convex set, \textbf{every local minimum is automatically a global minimum}. Furthermore, if the function is strictly convex, the global minimum is uniquely defined. The challenge of non-global local minima exists exclusively on non-convex surfaces.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 3: Confusing Strict Convexity with Strong Convexity}
+An analyst asserts that because $f(x) = x^4$ is strictly convex on $\mathbb{R}$, gradient descent will enjoy linear convergence.
+\textbf{The Trap:} $f(x) = x^4$ is strictly convex, but its second derivative $f''(x) = 12x^2$ vanishes at $x = 0$. It is **not** $\mu$-strongly convex ($\mu = 0$). Strong convexity requires a uniform positive lower bound on curvature: $\nabla^2 f(\mathbf{x}) \succeq \mu I$ with $\mu > 0$. Without strong convexity, convergence near flat regions drops to sublinear $\mathcal{O}(1/k)$.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 4: Forgetting Constraint Qualifications in Lagrange Systems}
+A practitioner sets up a Lagrangian for constraint $h(x, y) = x^2 + y^2 = 0$, but finds no Lagrange multipliers satisfying the stationarity equations.
+\textbf{The Trap:} The Lagrange multiplier theorem requires a **constraint qualification**: the gradient of the constraints at $\mathbf{w}^*$ must be non-zero (regular point). At the feasible point $(0, 0)$, $\nabla h(0, 0) = [2x, 2y]^T = [0, 0]^T$, violating linear independence. Always verify regularity ($\nabla h(\mathbf{w}^*) \ne \mathbf{0}$) before setting up the Lagrangian.
+\end{trapbox}
+
+% ----------------------------------------------------------------------
+% PART 6: COMPARATIVE SYNTHESIS & SUMMARY TABLE
+% ----------------------------------------------------------------------
+\section{Comparative Synthesis \& Summary Table}
+
+Table~\ref{tab:convex_synthesis} summarizes the hierarchy of convexity classes for functions.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lXXXX}
+\toprule
+\textbf{Convexity Class} & \textbf{Hessian Condition} & \textbf{First-Order Lower Bound} & \textbf{Minimizer Properties} & \textbf{Canonical Example} \\
+\midrule
+Convex & $\nabla^2 f(\mathbf{x}) \succeq 0$ & $f(\mathbf{y}) \ge f(\mathbf{x}) + \nabla f(\mathbf{x})^T(\mathbf{y} - \mathbf{x})$ & Any local minimum is a global minimum & $f(\mathbf{w}) = \|\mathbf{w}\|_1$ (Lasso loss) \\
+\addlinespace
+Strictly Convex & $\nabla^2 f(\mathbf{x}) \succ 0$ a.e. & Strict inequality for $\mathbf{y} \ne \mathbf{x}$ & Unique global minimizer (if it exists) & $f(x) = x^4$, $f(x) = e^x$ \\
+\addlinespace
+$\mu$-Strongly Convex & $\nabla^2 f(\mathbf{x}) \succeq \mu I$ ($\mu > 0$) & $f(\mathbf{y}) \ge f(\mathbf{x}) + \nabla f^T(\mathbf{y}-\mathbf{x}) + \frac{\mu}{2}\|\mathbf{y}-\mathbf{x}\|^2$ & Unique global minimizer; linear convergence & Ridge Regression: $\frac{1}{2}\|X\mathbf{w}-\mathbf{y}\|^2 + \frac{\lambda}{2}\|\mathbf{w}\|^2$ \\
+\addlinespace
+Non-Convex & Indefinite / Negative $\nabla^2 f$ & No global affine lower bound & Multiple local minima, saddle points & Neural networks, GMM negative log-likelihood \\
+\bottomrule
+\end{tabularx}
+\caption{Comparative Synthesis: Hierarchy of Function Convexity Classes.}
+\label{tab:convex_synthesis}
+\end{table}
+
+% ----------------------------------------------------------------------
+% PART 7: PYTHON / SCIENTIFIC COMPUTING LAB
+% ----------------------------------------------------------------------
+\section{Python / Scientific Computing Lab}
+
+The following production script implements Projected Gradient Descent (PGD) onto an $L_1$ ball constraint (sparse model calibration), showing how projection enforces exact sparsity.
+
+\begin{lstlisting}[language=Python, caption={Projected Gradient Descent onto an $L_1$ Ball in Python.}]
+import numpy as np
+
+def project_onto_l1_ball(v: np.ndarray, s: float) -> np.ndarray:
+    """Computes Euclidean projection of vector v onto L1 ball of radius s: ||w||_1 <= s."""
+    if np.sum(np.abs(v)) <= s:
+        return v
+    # Sort absolute values descending
+    u = np.sort(np.abs(v))[::-1]
+    cssv = np.cumsum(u)
+    # Find active threshold
+    rho = np.nonzero(u * np.arange(1, len(v) + 1) > (cssv - s))[0][-1]
+    theta = (cssv[rho] - s) / (rho + 1.0)
+    w = np.sign(v) * np.maximum(np.abs(v) - theta, 0.0)
+    return w
+
+def run_projected_gradient_descent(X: np.ndarray, y: np.ndarray, s_radius: float, lr: float, n_iters: int):
+    """Minimizes 0.5 * ||Xw - y||^2 subject to ||w||_1 <= s_radius via PGD."""
+    N, d = X.shape
+    w = np.zeros(d)
+    losses = []
+
+    for k in range(n_iters):
+        grad = X.T @ (X @ w - y)
+        w_unconstrained = w - lr * grad
+        w = project_onto_l1_ball(w_unconstrained, s_radius)
+        loss = 0.5 * np.sum((X @ w - y) ** 2)
+        losses.append(loss)
+
+    return w, losses
+
+def main():
+    rng = np.random.RandomState(42)
+    N, d = 100, 10
+    X = rng.randn(N, d)
+    # True sparse weights (only 3 active components)
+    w_true = np.zeros(d)
+    w_true[1] = 2.5
+    w_true[4] = -1.8
+    w_true[7] = 3.0
+    y = X @ w_true + 0.1 * rng.randn(N)
+
+    # Maximum Lipschitz constant L = lambda_max(X^T X)
+    L = np.linalg.eigvalsh(X.T @ X).max()
+    lr = 1.0 / L
+
+    s_radius = 5.0
+    w_pgd, losses = run_projected_gradient_descent(X, y, s_radius, lr, n_iters=200)
+
+    print(f"L1 Ball Radius Constraint: ||w||_1 <= {s_radius:.2f}")
+    print(f"Recovered Weights Norm:    ||w_pgd||_1 = {np.sum(np.abs(w_pgd)):.4f}")
+    print(f"Number of exact zeros:     {np.sum(w_pgd == 0)} / {d}")
+    print(f"Final Objective Value:     {losses[-1]:.4f}")
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+% ----------------------------------------------------------------------
+% PART 8: COMPREHENSIVE PRACTICE PROBLEMS
+% ----------------------------------------------------------------------
+\section{Comprehensive Practice Problems}
+
+\subsection*{Part A: Analytical \& Mathematical Problems}
+
+\begin{enumerate}[label=\textbf{P\arabic*.}]
+    \item \textbf{Analytical Lagrange Multipliers with Linear Constraint:}
+    Minimize the quadratic objective $f(x, y) = 2x^2 + y^2$ subject to the linear equality constraint $x + y = 3$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Formulate the Lagrangian $\mathcal{L}(x, y, \nu)$.
+        \item Solve the stationarity system $\nabla_{x, y, \nu} \mathcal{L} = \mathbf{0}$.
+        \item Compute the optimal coordinates $(x^*, y^*)$ and optimal multiplier $\nu^*$.
+        \item Verify that $\nabla f(x^*, y^*)$ is collinear with $\nabla h(x^*, y^*)$.
+    \end{enumerate}
+
+    \item \textbf{Maximum Entropy Probability Distribution:}
+    Let $\mathbf{p} = [p_1, \dots, p_K]^T$ be a discrete probability vector. Maximize the Shannon entropy $H(\mathbf{p}) = -\sum_{i=1}^K p_i \log p_i$ subject to the simplex constraint $\sum_{i=1}^K p_i = 1$.
+    Using Lagrange multipliers, prove that the uniform distribution $p_i^* = \frac{1}{K}$ for all $i$ is the unique global maximizer.
+
+    \item \textbf{Convexity Verification via Second-Order Conditions:}
+    Consider the log-sum-exp function $f(\mathbf{x}) = \log\left( \sum_{i=1}^d \exp(x_i) \right)$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Compute the gradient $\nabla f(\mathbf{x})$ and show it is a probability vector (softmax).
+        \item Compute the Hessian matrix $\nabla^2 f(\mathbf{x})$.
+        \item Prove that $\nabla^2 f(\mathbf{x}) \succeq 0$ for all $\mathbf{x} \in \mathbb{R}^d$, establishing that log-sum-exp is convex.
+    \end{enumerate}
+
+    \item \textbf{Projection onto a Halfspace:}
+    Let $\mathcal{H}_- = \{\mathbf{x} \in \mathbb{R}^d \mid \mathbf{a}^T \mathbf{x} \le b\}$ with $\|\mathbf{a}\|_2 = 1$.
+    Prove that the Euclidean projection of a point $\mathbf{x}_0 \in \mathbb{R}^d$ onto $\mathcal{H}_-$ is given by:
+    \begin{equation}
+    \Pi_{\mathcal{H}_-}(\mathbf{x}_0) = \mathbf{x}_0 - \max(0, \mathbf{a}^T \mathbf{x}_0 - b) \mathbf{a}
+    \end{equation}
+
+    \item \textbf{Jensen's Inequality Application:}
+    Using the convexity of $f(t) = -\log t$ on $(0, \infty)$, prove the Arithmetic Mean - Geometric Mean (AM-GM) inequality: for any positive real numbers $a_1, a_2, \dots, a_n > 0$,
+    \begin{equation}
+    \left( \prod_{i=1}^n a_i \right)^{1/n} \le \frac{1}{n} \sum_{i=1}^n a_i
+    \end{equation}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions}
+
+\begin{enumerate}[label=\textbf{MCQ\arabic*.}]
+    \item Which of the following sets is NOT convex?
+    \begin{enumerate}[label=(\alph*)]
+        \item The Euclidean unit ball $\{\mathbf{x} \in \mathbb{R}^d \mid \|\mathbf{x}\|_2 \le 1\}$.
+        \item The positive semidefinite cone $S^d_+ = \{A \in \mathbb{R}^{d \times d} \mid A = A^T, A \succeq 0\}$.
+        \item The hollow spherical shell $\{\mathbf{x} \in \mathbb{R}^d \mid \|\mathbf{x}\|_2 = 1\}$.
+        \item The halfspace $\{\mathbf{x} \in \mathbb{R}^d \mid \mathbf{a}^T \mathbf{x} \le b\}$.
+    \end{enumerate}
+
+    \item If $f: \mathbb{R}^d \to \mathbb{R}$ is convex and continuously differentiable, what is the geometric relationship between the graph of $f$ and the tangent hyperplane at any point $\mathbf{x}_0$?
+    \begin{enumerate}[label=(\alph*)]
+        \item The tangent hyperplane lies strictly above the graph of $f$.
+        \item The tangent hyperplane is a global under-estimator that lies everywhere below or touches the graph of $f$.
+        \item The tangent hyperplane intersects the graph at infinitely many isolated points.
+        \item The tangent hyperplane has a slope equal to the Hessian determinant.
+    \end{enumerate}
+\end{enumerate}
+

@@ -1,0 +1,411 @@
+\chapter{Complex Vector Spaces, Hermitian \& Unitary Matrices, and the Spectral Theorem}
+\label{chap:week05}
+
+% ----------------------------------------------------------------------
+% PART 1: EXECUTIVE ROADMAP & LEARNING OBJECTIVES
+% ----------------------------------------------------------------------
+\section{Executive Roadmap \& Learning Objectives}
+
+While data vectors in machine learning frequently consist of real measurements, the algebraic closure of polynomials guarantees that real matrices can possess complex eigenvalues and complex eigenvectors. Extending linear algebra to complex vector spaces $\mathbb{C}^n$ provides the complete mathematical framework needed to understand spectral theory. In this domain, the familiar concepts of matrix transpose and symmetry generalize into the \textbf{conjugate transpose} and \textbf{Hermitian matrices}.
+
+\subsection{Prerequisites \& Scaffolding}
+Mastery of this chapter builds upon vector spaces, inner products, and single-variable complex numbers ($z = a + ib$), as shown in Table~\ref{tab:w05_prereqs}.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lXX}
+\toprule
+\textbf{Foundational Area} & \textbf{Core Concepts Required} & \textbf{Role in Machine Learning Foundations} \\
+\midrule
+Complex Numbers & Complex conjugate $\bar{z}$, modulus $|z|^2 = z\bar{z}$, Euler's formula $e^{i\theta}$ & Defining norms and scalar fields over $\mathbb{C}^n$ \\
+Linear Algebra & Eigenvalue characteristic equations, orthogonality, matrix rank & Formulating unitary transformations and spectral projections \\
+Matrix Decompositions & Diagonalization $A = PDP^{-1}$, orthogonal matrices $Q^T Q = I$ & Foundation for the complex Spectral Theorem and SVD \\
+\bottomrule
+\end{tabularx}
+\caption{Prerequisite Scaffolding for Chapter 5.}
+\label{tab:w05_prereqs}
+\end{table}
+
+\subsection{Core Competencies}
+By the conclusion of this chapter, students will be able to:
+\begin{itemize}
+    \item Perform matrix algebra with the conjugate transpose (Hermitian transpose) $A^H$.
+    \item Define and characterize Hermitian, Skew-Hermitian, and Unitary matrices.
+    \item Rigorously prove that all eigenvalues of a Hermitian matrix are strictly real.
+    \item State and prove the Spectral Theorem for Hermitian matrices, expressing operators as sums of rank-1 projectors.
+    \item Formulate the Rayleigh quotient and derive the Courant-Fischer min-max characterization of eigenvalues.
+\end{itemize}
+
+\subsection{Notation \& Mathematical Conventions}
+\begin{itemize}
+    \item $\mathbb{C}^n$: The $n$-dimensional complex vector space.
+    \item $A^H \triangleq \overline{A}^T$: The conjugate transpose (Hermitian adjoint), where $[A^H]_{ij} = \overline{A_{ji}}$.
+    \item $\langle \mathbf{u}, \mathbf{v} \rangle \triangleq \mathbf{u}^H \mathbf{v} = \sum_{i=1}^n \bar{u}_i v_i$: The standard complex inner product.
+    \item $\|\mathbf{z}\|_2 \triangleq \sqrt{\mathbf{z}^H \mathbf{z}} = \sqrt{\sum_{i=1}^n |z_i|^2}$: The Euclidean norm on $\mathbb{C}^n$.
+    \item $U(n) \triangleq \{U \in \mathbb{C}^{n \times n} \mid U^H U = I\}$: The unitary group of order $n$.
+    \item $R_A(\mathbf{x}) \triangleq \frac{\mathbf{x}^H A \mathbf{x}}{\mathbf{x}^H \mathbf{x}}$: The Rayleigh quotient of matrix $A$.
+\end{itemize}
+
+% ----------------------------------------------------------------------
+% PART 2: MATHEMATICAL & COMPUTATIONAL FOUNDATIONS
+% ----------------------------------------------------------------------
+\section{Mathematical \& Computational Foundations}
+
+\subsection{Complex Inner Products and Adjoints}
+
+\begin{definitionbox}{Complex Inner Product}
+An inner product on a complex vector space $V$ is a mapping $\langle \cdot, \cdot \rangle: V \times V \to \mathbb{C}$ satisfying for all $\mathbf{u}, \mathbf{v}, \mathbf{w} \in V$ and $\alpha, \beta \in \mathbb{C}$:
+\begin{enumerate}
+    \item \textbf{Conjugate Symmetry:} $\langle \mathbf{u}, \mathbf{v} \rangle = \overline{\langle \mathbf{v}, \mathbf{u} \rangle}$.
+    \item \textbf{Linearity in Second Argument:} $\langle \mathbf{u}, \alpha \mathbf{v} + \beta \mathbf{w} \rangle = \alpha \langle \mathbf{u}, \mathbf{v} \rangle + \beta \langle \mathbf{u}, \mathbf{w} \rangle$.
+    \item \textbf{Positive Definiteness:} $\langle \mathbf{u}, \mathbf{u} \rangle \ge 0$, and $\langle \mathbf{u}, \mathbf{u} \rangle = 0 \iff \mathbf{u} = \mathbf{0}$.
+\end{enumerate}
+\end{definitionbox}
+
+\begin{definitionbox}{Hermitian and Unitary Matrices}
+Let $A \in \mathbb{C}^{n \times n}$ and $U \in \mathbb{C}^{n \times n}$:
+\begin{itemize}
+    \item $A$ is \textbf{Hermitian} (self-adjoint) if and only if $A^H = A$.
+    \item $A$ is \textbf{Skew-Hermitian} if and only if $A^H = -A$.
+    \item $U$ is \textbf{Unitary} if and only if $U^H U = U U^H = I$.
+\end{itemize}
+\end{definitionbox}
+
+\subsection{Spectral Theorems for Hermitian Matrices}
+
+\begin{theorem}[Real Eigenvalues of Hermitian Matrices]
+All eigenvalues of a Hermitian matrix $A \in \mathbb{C}^{n \times n}$ are strictly real numbers: $\lambda \in \mathbb{R}$.
+\end{theorem}
+
+\begin{proof}
+Let $(\lambda, \mathbf{v})$ be an eigenpair of $A$, with $A\mathbf{v} = \lambda \mathbf{v}$ and $\mathbf{v} \ne \mathbf{0}$.
+Pre-multiply by $\mathbf{v}^H$:
+\begin{equation}
+\mathbf{v}^H A \mathbf{v} = \mathbf{v}^H (\lambda \mathbf{v}) = \lambda (\mathbf{v}^H \mathbf{v}) = \lambda \|\mathbf{v}\|_2^2
+\label{eq:herm_proof1}
+\end{equation}
+Taking the conjugate transpose of the scalar $\mathbf{v}^H A \mathbf{v}$:
+\begin{equation}
+(\mathbf{v}^H A \mathbf{v})^H = \mathbf{v}^H A^H (\mathbf{v}^H)^H = \mathbf{v}^H A \mathbf{v}
+\end{equation}
+Thus, the complex scalar $\mathbf{v}^H A \mathbf{v}$ is equal to its own complex conjugate, meaning it is strictly real: $\mathbf{v}^H A \mathbf{v} \in \mathbb{R}$.
+From equation~\eqref{eq:herm_proof1}, we solve for $\lambda$:
+\begin{equation}
+\lambda = \frac{\mathbf{v}^H A \mathbf{v}}{\|\mathbf{v}\|_2^2}
+\end{equation}
+Since both the numerator $\mathbf{v}^H A \mathbf{v}$ and denominator $\|\mathbf{v}\|_2^2 > 0$ are real, $\lambda \in \mathbb{R}$.
+\end{proof}
+
+\begin{theorem}[Orthogonality of Eigenvectors]
+Let $A$ be Hermitian. Eigenvectors corresponding to distinct eigenvalues $\lambda_1 \ne \lambda_2$ are mutually orthogonal under the complex inner product: $\mathbf{v}_1^H \mathbf{v}_2 = 0$.
+\end{theorem}
+
+\begin{proof}
+Let $A\mathbf{v}_1 = \lambda_1 \mathbf{v}_1$ and $A\mathbf{v}_2 = \lambda_2 \mathbf{v}_2$. Consider the quantity $\mathbf{v}_1^H A \mathbf{v}_2$:
+\begin{equation}
+\mathbf{v}_1^H A \mathbf{v}_2 = \mathbf{v}_1^H (\lambda_2 \mathbf{v}_2) = \lambda_2 (\mathbf{v}_1^H \mathbf{v}_2)
+\end{equation}
+Applying the adjoint property:
+\begin{equation}
+\mathbf{v}_1^H A \mathbf{v}_2 = (A^H \mathbf{v}_1)^H \mathbf{v}_2 = (A\mathbf{v}_1)^H \mathbf{v}_2 = (\lambda_1 \mathbf{v}_1)^H \mathbf{v}_2 = \bar{\lambda}_1 (\mathbf{v}_1^H \mathbf{v}_2)
+\end{equation}
+Because $\lambda_1 \in \mathbb{R}$, $\bar{\lambda}_1 = \lambda_1$. Equating the two expressions:
+\begin{equation}
+\lambda_2 (\mathbf{v}_1^H \mathbf{v}_2) = \lambda_1 (\mathbf{v}_1^H \mathbf{v}_2) \implies (\lambda_1 - \lambda_2)(\mathbf{v}_1^H \mathbf{v}_2) = 0
+\end{equation}
+Since $\lambda_1 \ne \lambda_2$, we must have $\mathbf{v}_1^H \mathbf{v}_2 = 0$, establishing orthogonality.
+\end{proof}
+
+\begin{theorem}[The Spectral Theorem for Hermitian Matrices]
+Every Hermitian matrix $A \in \mathbb{C}^{n \times n}$ is unitarily diagonalizable:
+\begin{equation}
+A = U \Lambda U^H = \sum_{i=1}^n \lambda_i \mathbf{u}_i \mathbf{u}_i^H
+\label{eq:spectral_theorem}
+\end{equation}
+where $U = [\mathbf{u}_1, \dots, \mathbf{u}_n]$ is a unitary matrix ($U^H U = I$), $\Lambda = \diag(\lambda_1, \dots, \lambda_n)$ contains real eigenvalues, and each $P_i = \mathbf{u}_i \mathbf{u}_i^H$ is an orthogonal rank-1 projection operator.
+\end{theorem}
+
+% ----------------------------------------------------------------------
+% PART 3: VISUAL & GEOMETRIC INTUITION
+% ----------------------------------------------------------------------
+\section{Visual \& Geometric Intuition: Unitary Invariance and Spectral Decompositions}
+
+Figure~\ref{fig:spectral_geometry} visualizes the Spectral Theorem: a Hermitian operator decomposes space into a collection of mutually orthogonal 1-dimensional eigenspaces, scaling each component independently by its real eigenvalue $\lambda_i$.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=0.95,
+    font=\sffamily\footnotesize
+]
+
+% Coordinate axes
+\draw[->, >=stealth, color=gray] (-3.5, 0) -- (3.5, 0) node[right] {$\text{Re}(z_1)$};
+\draw[->, >=stealth, color=gray] (0, -3.0) -- (0, 3.0) node[above] {$\text{Re}(z_2)$};
+
+% Eigenspace lines
+\draw[dashed, color=tealborder, line width=1pt] (-3.0, -1.5) -- (3.0, 1.5) node[above right] {$E_{\lambda_1} = \Span\{\mathbf{u}_1\}$};
+\draw[dashed, color=coralborder, line width=1pt] (-1.5, 3.0) -- (1.5, -3.0) node[below right] {$E_{\lambda_2} = \Span\{\mathbf{u}_2\} \perp E_{\lambda_1}$};
+
+% Eigenvectors
+\draw[->, >=stealth, line width=1.8pt, color=tealborder] (0, 0) -- (2.0, 1.0) node[above left] {$\mathbf{u}_1$ ($\|\mathbf{u}_1\|=1$)};
+\draw[->, >=stealth, line width=1.8pt, color=coralborder] (0, 0) -- (-1.0, 2.0) node[above right] {$\mathbf{u}_2$ ($\|\mathbf{u}_2\|=1$)};
+
+% Arbitrary vector v
+\coordinate (V) at (1.0, 3.0);
+\draw[->, >=stealth, line width=1.8pt, color=primarydark] (0, 0) -- (V) node[above] {$\mathbf{v} = c_1 \mathbf{u}_1 + c_2 \mathbf{u}_2$};
+
+% Projections
+\coordinate (P1) at (1.6, 0.8);
+\coordinate (P2) at (-0.6, 1.2);
+\draw[dotted, thick, color=gray] (V) -- (P1);
+\draw[dotted, thick, color=gray] (V) -- (P2);
+
+% Transformed vector Av
+\coordinate (AV) at (2.4, -0.6);
+\draw[->, >=stealth, line width=2pt, color=red] (0, 0) -- (3.2, 1.6) node[below right] {$A\mathbf{v} = \lambda_1 c_1 \mathbf{u}_1 + \lambda_2 c_2 \mathbf{u}_2$};
+
+\end{tikzpicture}
+\caption{The Spectral Theorem Decomposition: Any vector $\mathbf{v}$ is resolved onto the orthogonal principal axes $\mathbf{u}_i$, where $A$ scales each projection independently by $\lambda_i \in \mathbb{R}$.}
+\label{fig:spectral_geometry}
+\end{figure}
+
+% ----------------------------------------------------------------------
+% PART 4: DEEP INTUITION & CONCEPTUAL DERIVATIONS
+% ----------------------------------------------------------------------
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{The Rayleigh Quotient and Optimization on the Unit Sphere}
+In machine learning (e.g., Principal Component Analysis and Fisher's Linear Discriminant), we seek directions $\mathbf{x}$ that maximize or minimize quadratic forms. The \textbf{Rayleigh Quotient} formalizes this optimization:
+
+\begin{theorem}[Rayleigh-Ritz Theorem]
+Let $A \in \mathbb{C}^{n \times n}$ be Hermitian with eigenvalues ordered as $\lambda_{\min} = \lambda_1 \le \lambda_2 \le \dots \le \lambda_n = \lambda_{\max}$. For all non-zero $\mathbf{x} \in \mathbb{C}^n$:
+\begin{equation}
+\lambda_{\min} \le R_A(\mathbf{x}) \triangleq \frac{\mathbf{x}^H A \mathbf{x}}{\mathbf{x}^H \mathbf{x}} \le \lambda_{\max}
+\label{eq:rayleigh_bounds}
+\end{equation}
+Furthermore, the maximum is attained if and only if $\mathbf{x}$ is an eigenvector associated with $\lambda_{\max}$, and the minimum is attained if and only if $\mathbf{x}$ is an eigenvector associated with $\lambda_{\min}$.
+\end{theorem}
+
+\begin{proof}
+By the Spectral Theorem, we can write $A = U \Lambda U^H$, where $U = [\mathbf{u}_1, \dots, \mathbf{u}_n]$ forms an orthonormal basis for $\mathbb{C}^n$.
+Any vector $\mathbf{x} \in \mathbb{C}^n$ can be expanded in this basis: $\mathbf{x} = \sum_{i=1}^n c_i \mathbf{u}_i = U\mathbf{c}$, where $\mathbf{c} = U^H \mathbf{x}$.
+Because $U$ is unitary, inner products are preserved:
+\begin{equation}
+\mathbf{x}^H \mathbf{x} = (U\mathbf{c})^H (U\mathbf{c}) = \mathbf{c}^H U^H U \mathbf{c} = \mathbf{c}^H \mathbf{c} = \sum_{i=1}^n |c_i|^2
+\end{equation}
+Similarly, the quadratic form evaluates to:
+\begin{equation}
+\mathbf{x}^H A \mathbf{x} = (U\mathbf{c})^H (U \Lambda U^H) (U\mathbf{c}) = \mathbf{c}^H \Lambda \mathbf{c} = \sum_{i=1}^n \lambda_i |c_i|^2
+\end{equation}
+The Rayleigh quotient becomes a weighted average of the eigenvalues:
+\begin{equation}
+R_A(\mathbf{x}) = \frac{\sum_{i=1}^n \lambda_i |c_i|^2}{\sum_{i=1}^n |c_i|^2}
+\end{equation}
+Let $w_i = \frac{|c_i|^2}{\sum_{j=1}^n |c_j|^2} \ge 0$, with $\sum_{i=1}^n w_i = 1$. Then:
+\begin{equation}
+R_A(\mathbf{x}) = \sum_{i=1}^n w_i \lambda_i
+\end{equation}
+Since $\lambda_1 \le \lambda_i \le \lambda_n$ for every $i$:
+\begin{equation}
+\lambda_1 = \sum_{i=1}^n w_i \lambda_1 \le \sum_{i=1}^n w_i \lambda_i \le \sum_{i=1}^n w_i \lambda_n = \lambda_n
+\end{equation}
+Choosing $\mathbf{x} = \mathbf{u}_n \implies w_n = 1, w_i = 0 \; (\forall i < n)$, giving $R_A(\mathbf{u}_n) = \lambda_n = \lambda_{\max}$.
+Similarly, setting $\mathbf{x} = \mathbf{u}_1$ achieves the lower bound $\lambda_1 = \lambda_{\min}$.
+\end{proof}
+
+% ----------------------------------------------------------------------
+% PART 5: EXPLICIT GOTCHAS & DIAGNOSTIC MISCONCEPTIONS
+% ----------------------------------------------------------------------
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Gotcha 1: Neglecting Conjugation in Complex Inner Products}
+A student writes the complex inner product as $\langle \mathbf{u}, \mathbf{v} \rangle = \mathbf{u}^T \mathbf{v}$.
+\textbf{The Trap:} If $\mathbf{z} = [1, i]^T$, then $\mathbf{z}^T \mathbf{z} = 1^2 + i^2 = 1 - 1 = 0$. A non-zero vector would have a ``norm'' of zero! In complex spaces, the inner product requires the conjugate transpose: $\langle \mathbf{u}, \mathbf{v} \rangle = \mathbf{u}^H \mathbf{v}$. Under this definition, $\|\mathbf{z}\|_2^2 = \mathbf{z}^H \mathbf{z} = |1|^2 + |i|^2 = 1 + 1 = 2 > 0$, preserving the positive-definiteness axiom.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 2: Assuming Real Eigenvalues Guarantee a Hermitian Matrix}
+An analyst encounters matrix $M = \begin{bmatrix} 2 & 7 \\ 0 & 5 \end{bmatrix}$ with eigenvalues $\{2, 5\} \subset \mathbb{R}$. They conclude that $M$ is Hermitian.
+\textbf{The Trap:} The implication only runs in one direction: Hermitian $\implies$ real eigenvalues. The converse is false. Triangular matrices with real diagonal entries always have real eigenvalues, but are not Hermitian unless they are diagonal. Hermitian matrices must satisfy $M = M^H$ and possess mutually orthogonal eigenvectors.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 3: Confusing Unitary Transformations with Hermitian Matrices}
+A programmer assumes that because unitary matrices preserve norms, they must be Hermitian ($U = U^H$).
+\textbf{The Trap:} Unitary matrices satisfy $U^H U = I$, meaning $U^H = U^{-1}$, NOT $U^H = U$. The eigenvalues of a unitary matrix lie on the unit circle in the complex plane ($|\lambda| = 1$), whereas the eigenvalues of a Hermitian matrix are real ($\lambda \in \mathbb{R}$). A matrix is simultaneously Hermitian and Unitary if and only if $U^2 = I$ (a reflection operator).
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 4: Conflating Quadratic Forms Over $\mathbb{R}$ vs. $\mathbb{C}$}
+A student takes a real symmetric matrix $A \in \mathbb{R}^{n \times n}$ and calculates $\mathbf{z}^T A \mathbf{z}$ for complex $\mathbf{z} \in \mathbb{C}^n$, expecting a real scalar.
+\textbf{The Trap:} For complex vectors, $\mathbf{z}^T A \mathbf{z}$ is generally a complex number. To guarantee a real result, one must evaluate the sesquilinear quadratic form $\mathbf{z}^H A \mathbf{z}$. Because $(\mathbf{z}^H A \mathbf{z})^H = \mathbf{z}^H A^H \mathbf{z} = \mathbf{z}^H A \mathbf{z}$, the quantity is guaranteed real if and only if the conjugate transpose is used.
+\end{trapbox}
+
+% ----------------------------------------------------------------------
+% PART 6: COMPARATIVE SYNTHESIS & SUMMARY TABLE
+% ----------------------------------------------------------------------
+\section{Comparative Synthesis \& Summary Table}
+
+Table~\ref{tab:real_vs_complex} presents the exact mathematical dictionary mapping real linear algebraic concepts to their complex generalizations.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lXX}
+\toprule
+\textbf{Linear Algebra Concept} & \textbf{Real Formulation ($\mathbb{R}^n$)} & \textbf{Complex Formulation ($\mathbb{C}^n$)} \\
+\midrule
+Vector Transpose & $A^T$ ($A_{ji}$) & $A^H = \overline{A}^T$ (Conjugate Transpose) \\
+\addlinespace
+Inner Product & $\langle \mathbf{u}, \mathbf{v} \rangle = \mathbf{u}^T \mathbf{v}$ & $\langle \mathbf{u}, \mathbf{v} \rangle = \mathbf{u}^H \mathbf{v}$ (Sesquilinear) \\
+\addlinespace
+Vector Norm & $\|\mathbf{x}\|_2^2 = \mathbf{x}^T \mathbf{x} = \sum x_i^2$ & $\|\mathbf{z}\|_2^2 = \mathbf{z}^H \mathbf{z} = \sum |z_i|^2$ \\
+\addlinespace
+Self-Adjoint Matrix & Symmetric: $A^T = A$ & Hermitian: $A^H = A$ \\
+\addlinespace
+Isometric Transformation & Orthogonal: $Q^T Q = I$ & Unitary: $U^H U = I$ \\
+\addlinespace
+Eigenvalue Domain & $\lambda \in \mathbb{C}$ in general; $\lambda \in \mathbb{R}$ if symmetric & $\lambda \in \mathbb{R}$ strictly if Hermitian; $|\lambda|=1$ if Unitary \\
+\addlinespace
+Spectral Decomposition & $A = Q \Lambda Q^T$ ($Q \in O(n)$) & $A = U \Lambda U^H$ ($U \in U(n)$) \\
+\bottomrule
+\end{tabularx}
+\caption{Systematic Dictionary: Real vs. Complex Linear Algebraic Structures.}
+\label{tab:real_vs_complex}
+\end{table}
+
+% ----------------------------------------------------------------------
+% PART 7: PYTHON / SCIENTIFIC COMPUTING LAB
+% ----------------------------------------------------------------------
+\section{Python / Scientific Computing Lab}
+
+The following production script generates complex Hermitian matrices, computes their unitary spectral decomposition, and numerically validates the Rayleigh quotient bounds.
+
+\begin{lstlisting}[language=Python, caption={Hermitian Matrix Decomposition and Rayleigh Quotient Verification in Python.}]
+import numpy as np
+
+def generate_random_hermitian(n: int, seed: int = 42) -> np.ndarray:
+    """Generates an n x n complex Hermitian matrix: A = (M + M^H) / 2."""
+    rng = np.random.RandomState(seed)
+    real_part = rng.randn(n, n)
+    imag_part = rng.randn(n, n)
+    M = real_part + 1j * imag_part
+    return (M + M.conj().T) / 2.0
+
+def verify_spectral_theorem(A: np.ndarray):
+    """Diagonalizes Hermitian matrix A and verifies unitary properties."""
+    # np.linalg.eigh is optimized for Hermitian / symmetric matrices
+    eigvals, U = np.linalg.eigh(A)
+
+    # 1. Check realness of eigenvalues
+    is_real = np.allclose(eigvals.imag, 0.0)
+
+    # 2. Check unitary property: U^H @ U == I
+    is_unitary = np.allclose(U.conj().T @ U, np.eye(A.shape[0]))
+
+    # 3. Reconstruct A = U @ diag(eigvals) @ U^H
+    A_reconstructed = U @ np.diag(eigvals) @ U.conj().T
+    recon_error = np.linalg.norm(A - A_reconstructed)
+
+    print(f"Eigenvalues are strictly real: {is_real}")
+    print(f"Eigenvector matrix is Unitary: {is_unitary}")
+    print(f"Spectral Reconstruction Error: {recon_error:.2e}")
+    return eigvals, U
+
+def test_rayleigh_quotient(A: np.ndarray, eigvals: np.ndarray, n_trials: int = 1000):
+    """Numerically verifies that lambda_min <= R_A(x) <= lambda_max for random complex vectors."""
+    lambda_min = eigvals.min()
+    lambda_max = eigvals.max()
+
+    rng = np.random.RandomState(101)
+    n = A.shape[0]
+
+    all_in_bounds = True
+    for _ in range(n_trials):
+        x = rng.randn(n) + 1j * rng.randn(n)
+        R_x = (x.conj().T @ A @ x) / (x.conj().T @ x)
+        val = R_x.real
+        if val < lambda_min - 1e-9 or val > lambda_max + 1e-9:
+            all_in_bounds = False
+            break
+
+    print(f"Rayleigh Bounds [{lambda_min:.4f}, {lambda_max:.4f}] respected in all trials: {all_in_bounds}")
+
+def main():
+    n = 4
+    A = generate_random_hermitian(n)
+    eigvals, U = verify_spectral_theorem(A)
+    test_rayleigh_quotient(A, eigvals)
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+% ----------------------------------------------------------------------
+% PART 8: COMPREHENSIVE PRACTICE PROBLEMS
+% ----------------------------------------------------------------------
+\section{Comprehensive Practice Problems}
+
+\subsection*{Part A: Analytical \& Mathematical Problems}
+
+\begin{enumerate}[label=\textbf{P\arabic*.}]
+    \item \textbf{Verifying Hermitian Properties:}
+    Consider the complex matrix $H = \begin{bmatrix} 2 & 1 - i \\ 1 + i & 3 \end{bmatrix}$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Compute $H^H$ and confirm that $H$ is Hermitian.
+        \item Compute the characteristic polynomial $\det(H - \lambda I) = 0$ and find its eigenvalues.
+        \item Find the normalized eigenvectors $\mathbf{u}_1, \mathbf{u}_2 \in \mathbb{C}^2$ and verify $\mathbf{u}_1^H \mathbf{u}_2 = 0$.
+        \item Verify the projection formula $H = \lambda_1 \mathbf{u}_1 \mathbf{u}_1^H + \lambda_2 \mathbf{u}_2 \mathbf{u}_2^H$.
+    \end{enumerate}
+
+    \item \textbf{Spectral Properties of Unitary Transformations:}
+    Let $U \in \mathbb{C}^{n \times n}$ be a unitary matrix ($U^H U = I$).
+    \begin{enumerate}[label=(\alph*)]
+        \item Prove that for any $\mathbf{x} \in \mathbb{C}^n$, $\|U\mathbf{x}\|_2 = \|\mathbf{x}\|_2$.
+        \item Prove that every eigenvalue $\lambda$ of $U$ satisfies $|\lambda| = 1$ (i.e., $\lambda = e^{i\theta}$ for some $\theta \in \mathbb{R}$).
+        \item Prove that if $\lambda_1 \ne \lambda_2$, their corresponding eigenvectors are orthogonal: $\mathbf{v}_1^H \mathbf{v}_2 = 0$.
+    \end{enumerate}
+
+    \item \textbf{Skew-Hermitian Matrices:}
+    A matrix $S \in \mathbb{C}^{n \times n}$ is skew-Hermitian if $S^H = -S$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Prove that the eigenvalues of $S$ are purely imaginary (of the form $\lambda = i\mu$, where $\mu \in \mathbb{R}$).
+        \item Prove that matrix exponential $U = \exp(S)$ is a unitary matrix.
+    \end{enumerate}
+
+    \item \textbf{Decomposition into Hermitian and Skew-Hermitian Components:}
+    Let $M \in \mathbb{C}^{n \times n}$ be an arbitrary square matrix.
+    \begin{enumerate}[label=(\alph*)]
+        \item Show that $M$ can be uniquely written as $M = H + S$, where $H$ is Hermitian and $S$ is skew-Hermitian.
+        \item Express $H$ and $S$ explicitly in terms of $M$ and $M^H$.
+        \item Apply this decomposition to $M = \begin{bmatrix} 1 + i & 4 \\ 2i & 3 \end{bmatrix}$.
+    \end{enumerate}
+
+    \item \textbf{Courant-Fischer Min-Max Theorem:}
+    Let $A$ be an $n \times n$ Hermitian matrix with eigenvalues $\lambda_1 \le \lambda_2 \le \dots \le \lambda_n$.
+    The Courant-Fischer theorem states that the $k$-th eigenvalue satisfies:
+    \begin{equation}
+    \lambda_k = \min_{S: \dim(S) = k} \max_{\mathbf{x} \in S, \mathbf{x} \ne \mathbf{0}} \frac{\mathbf{x}^H A \mathbf{x}}{\mathbf{x}^H \mathbf{x}}
+    \end{equation}
+    Using this variational characterization, prove that if $A$ and $B$ are Hermitian and $B \succeq 0$ (positive semidefinite), then $\lambda_k(A + B) \ge \lambda_k(A)$ for all $k \in \{1, \dots, n\}$.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions}
+
+\begin{enumerate}[label=\textbf{MCQ\arabic*.}]
+    \item Let $A \in \mathbb{C}^{n \times n}$ be a Hermitian matrix. Which of the following conditions is NOT guaranteed to hold?
+    \begin{enumerate}[label=(\alph*)]
+        \item All eigenvalues of $A$ are real numbers.
+        \item $A$ possesses an orthonormal basis of eigenvectors in $\mathbb{C}^n$.
+        \item The determinant $\det(A)$ is a real number.
+        \item All entries on the main diagonal of $A$ are strictly positive.
+    \end{enumerate}
+
+    \item What is the geometric action of a unitary operator $U \in \mathbb{C}^{n \times n}$ on the complex vector space $\mathbb{C}^n$?
+    \begin{enumerate}[label=(\alph*)]
+        \item It projects vectors orthogonally onto a lower-dimensional subspace.
+        \item It scales all vectors by an arbitrary real constant $c > 0$.
+        \item It is a rigid isometry that preserves Euclidean norms and inner products between all vectors.
+        \item It maps all eigenvalues to zero.
+    \end{enumerate}
+\end{enumerate}
+

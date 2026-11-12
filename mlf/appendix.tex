@@ -1,0 +1,1123 @@
+\chapter{Solutions to Practice Problems \& Diagnostic Rationales}
+\label{chap:appendix}
+
+This appendix provides exhaustive, step-by-step mathematical solutions to all sixty Part A analytical problems and deep diagnostic rationales for all twenty-four Part B multiple-choice questions across Chapters 1 through 12.
+
+% ======================================================================
+% CHAPTER 1 SOLUTIONS
+% ======================================================================
+\section*{Chapter 1: Foundations of Machine Learning \& Problem Formulation}
+
+\subsection*{Part A: Analytical Solutions}
+
+\paragraph{P1. Bayes Optimal Predictor Under Absolute Loss (MAE):}
+We wish to find $c^* = h^*(\mathbf{x}) = \argmin_{c \in \mathbb{R}} \E[|c - Y| \mid \mathbf{X} = \mathbf{x}]$.
+Let $f(y)$ be the conditional probability density function of $Y$ given $\mathbf{X} = \mathbf{x}$. The conditional expected loss is:
+\begin{align*}
+g(c) &= \int_{-\infty}^\infty |c - y| f(y) \, dy = \int_{-\infty}^c (c - y) f(y) \, dy + \int_c^\infty (y - c) f(y) \, dy \\
+&= c \int_{-\infty}^c f(y) \, dy - \int_{-\infty}^c y f(y) \, dy + \int_c^\infty y f(y) \, dy - c \int_c^\infty f(y) \, dy
+\end{align*}
+Applying Leibniz's rule to differentiate $g(c)$ with respect to $c$:
+\begin{align*}
+\frac{dg}{dc} &= \int_{-\infty}^c f(y) \, dy + c f(c) - c f(c) - \int_c^\infty f(y) \, dy - c(-f(c)) - c f(c) \\
+&= P(Y \le c \mid \mathbf{x}) - P(Y > c \mid \mathbf{x}) = P(Y \le c \mid \mathbf{x}) - (1 - P(Y \le c \mid \mathbf{x})) \\
+&= 2 P(Y \le c \mid \mathbf{x}) - 1
+\end{align*}
+Setting the derivative to zero:
+\begin{equation*}
+2 P(Y \le c^* \mid \mathbf{x}) - 1 = 0 \implies P(Y \le c^* \mid \mathbf{X} = \mathbf{x}) = \frac{1}{2}
+\end{equation*}
+By definition, the value $c^*$ satisfying $P(Y \le c^* \mid \mathbf{x}) = 0.5$ is the conditional median $\text{Median}(Y \mid \mathbf{X} = \mathbf{x})$.
+
+\paragraph{P2. Asymmetric Classification Costs:}
+Let $\hat{y} \in \{0, 1\}$ be the predicted label and $\eta(\mathbf{x}) = P(Y = 1 \mid \mathbf{x})$. The cost matrix specifies:
+cost $C_{01} = 50$ when true $Y = 1$ is predicted as $\hat{y} = 0$, and cost $C_{10} = 1$ when true $Y = 0$ is predicted as $\hat{y} = 1$. Correct predictions incur cost $0$.
+The expected cost for predicting $\hat{y} = 1$ is:
+\begin{equation*}
+\mathcal{C}(\hat{y} = 1 \mid \mathbf{x}) = C_{10} P(Y = 0 \mid \mathbf{x}) = C_{10} (1 - \eta(\mathbf{x})) = 1 \cdot (1 - \eta(\mathbf{x}))
+\end{equation*}
+The expected cost for predicting $\hat{y} = 0$ is:
+\begin{equation*}
+\mathcal{C}(\hat{y} = 0 \mid \mathbf{x}) = C_{01} P(Y = 1 \mid \mathbf{x}) = C_{01} \eta(\mathbf{x}) = 50 \eta(\mathbf{x})
+\end{equation*}
+Predicting $\hat{y} = 1$ is optimal if and only if:
+\begin{equation*}
+\mathcal{C}(\hat{y} = 1 \mid \mathbf{x}) \le \mathcal{C}(\hat{y} = 0 \mid \mathbf{x}) \iff 1 - \eta(\mathbf{x}) \le 50 \eta(\mathbf{x}) \iff 51 \eta(\mathbf{x}) \ge 1 \iff \eta(\mathbf{x}) \ge \frac{1}{51} \approx 0.0196
+\end{equation*}
+Thus, the optimal threshold is $\tau^* = \frac{C_{10}}{C_{10} + C_{01}} = \frac{1}{51} \approx 1.96\%$.
+
+\paragraph{P3. Empirical Risk Under Label Flipping Noise:}
+Let $\tilde{Y}$ be the noisy label with $P(\tilde{Y} = -Y) = \rho$ and $P(\tilde{Y} = Y) = 1 - \rho$.
+For any hypothesis $h(\mathbf{X}) \in \{-1, +1\}$:
+\begin{align*}
+R_{\text{noisy}}(h) &= P(h(\mathbf{X}) \ne \tilde{Y}) \\
+&= P(h(\mathbf{X}) \ne \tilde{Y} \mid \tilde{Y} = Y) P(\tilde{Y} = Y) + P(h(\mathbf{X}) \ne \tilde{Y} \mid \tilde{Y} = -Y) P(\tilde{Y} = -Y) \\
+&= P(h(\mathbf{X}) \ne Y)(1 - \rho) + P(h(\mathbf{X}) = Y)\rho
+\end{align*}
+Substitute $P(h(\mathbf{X}) \ne Y) = R(h)$ and $P(h(\mathbf{X}) = Y) = 1 - R(h)$:
+\begin{equation*}
+R_{\text{noisy}}(h) = R(h)(1 - \rho) + (1 - R(h))\rho = R(h)(1 - 2\rho) + \rho
+\end{equation*}
+Since $\rho < 1/2$, $1 - 2\rho > 0$, meaning the ranking of hypotheses is preserved: minimizing noisy risk is equivalent to minimizing clean risk.
+
+\paragraph{P4. Curse of Dimensionality \& Distance Concentration:}
+For two independent uniform points $\mathbf{X}, \mathbf{Y} \sim \mathcal{U}[0, 1]^d$, the squared Euclidean distance is $D^2 = \sum_{j=1}^d (X_j - Y_j)^2$.
+Each coordinate difference $Z_j = (X_j - Y_j)^2$ is i.i.d. with mean $\mu_Z = \int_0^1 \int_0^1 (x - y)^2 dx dy = \frac{1}{6}$ and variance $\sigma_Z^2 = \frac{7}{180}$.
+By the Central Limit Theorem:
+\begin{equation*}
+\frac{D^2}{d} = \frac{1}{d} \sum_{j=1}^d Z_j \xrightarrow{P} \frac{1}{6} \implies D \approx \sqrt{\frac{d}{6}}
+\end{equation*}
+The standard deviation of $D^2$ scales as $\mathcal{O}(\sqrt{d})$, while its mean scales as $\mathcal{O}(d)$. Consequently, the relative spread behaves as:
+\begin{equation*}
+\frac{D_{\max} - D_{\min}}{D_{\min}} \le \frac{\mathcal{O}(\sqrt{d})}{\mathcal{O}(\sqrt{d}) \cdot \sqrt{d}} = \mathcal{O}\left(\frac{1}{\sqrt{d}}\right) \xrightarrow{d \to \infty} 0
+\end{equation*}
+In high dimensions, all pairwise distances become identical, destroying the discriminative power of nearest-neighbor algorithms.
+
+\paragraph{P5. Generalization Bound for Finite Hypothesis Classes:}
+For any fixed hypothesis $h \in \mathcal{H}$, the empirical risk $R_{\text{emp}}(h) = \frac{1}{N}\sum_{i=1}^N \ell(h(\mathbf{x}_i), y_i)$ is an average of $N$ independent random variables in $[0, 1]$ with expectation $\E[R_{\text{emp}}(h)] = R(h)$.
+By Hoeffding's inequality, for any $\epsilon > 0$:
+\begin{equation*}
+P\left( R(h) - R_{\text{emp}}(h) > \epsilon \right) \le \exp\left( -2N\epsilon^2 \right)
+\end{equation*}
+Applying the Union Bound over all $|\mathcal{H}|$ hypotheses:
+\begin{equation*}
+P\left( \exists h \in \mathcal{H}: R(h) - R_{\text{emp}}(h) > \epsilon \right) \le \sum_{h \in \mathcal{H}} P\left( R(h) - R_{\text{emp}}(h) > \epsilon \right) \le |\mathcal{H}| \exp\left( -2N\epsilon^2 \right)
+\end{equation*}
+Equating the failure probability bound to $\delta$:
+\begin{equation*}
+|\mathcal{H}| \exp\left( -2N\epsilon^2 \right) = \delta \implies -2N\epsilon^2 = \log\left(\frac{\delta}{|\mathcal{H}|}\right) \implies \epsilon = \sqrt{\frac{\log|\mathcal{H}| + \log(1/\delta)}{2N}}
+\end{equation*}
+With probability at least $1 - \delta$, for every $h \in \mathcal{H}$, $R(h) \le R_{\text{emp}}(h) + \sqrt{\frac{\log|\mathcal{H}| + \log(1/\delta)}{2N}}$.
+
+\subsection*{Part B: Diagnostic Multiple-Choice Rationales}
+
+\paragraph{MCQ1: Class Imbalance Accuracy Paradox}
+\begin{itemize}
+    \item \textbf{(a) Incorrect.} High global accuracy provides no information on minority class recall; predicting the majority class exclusively achieves $98\%$ accuracy while failing completely on class $1$.
+    \item \textbf{(b) Correct.} On a dataset with $98\%$ class $0$, the trivial constant predictor $h(\mathbf{x}) = 0$ misclassifies zero samples of class $0$ and all samples of class $1$, producing an overall empirical accuracy of exactly $98\%$.
+    \item \textbf{(c) Incorrect.} Minimizing unweighted $0-1$ loss on imbalanced data directly disincentivizes predicting the minority class.
+    \item \textbf{(d) Incorrect.} The empirical risk under cross-entropy loss would only equal zero if every predicted probability matched the one-hot labels with certainty ($1.0$), which is false.
+\end{itemize}
+
+\paragraph{MCQ2: Downward Optimistic Bias of ERM}
+\begin{itemize}
+    \item \textbf{(a) Correct.} The hypothesis $\hat{h}_S$ was chosen specifically to minimize the empirical loss on sample $S$. Because $\hat{h}_S$ is conditioned on $S$, the expected training error $\E_S[R_{\text{emp}}(\hat{h}_S; S)] \le \min_h \E_S[R_{\text{emp}}(h; S)] = R(h^*) \le R(\hat{h}_S)$, making it systematically optimistic.
+    \item \textbf{(b) Incorrect.} For any \emph{fixed} hypothesis $h$, the sample average is an unbiased estimator: $\E[R_{\text{emp}}(h; S)] = R(h)$ by the Law of Large Numbers. Bias arises solely because $\hat{h}_S$ is optimized over $S$.
+    \item \textbf{(c) Incorrect.} The loss function does not depend concavely on sample size $N$.
+    \item \textbf{(d) Incorrect.} Jensen's inequality states that for convex functions $f(\E[X]) \le \E[f(X)]$; it does not govern empirical risk optimization bias.
+\end{itemize}
+
+% ======================================================================
+% CHAPTER 2 SOLUTIONS
+% ======================================================================
+\section*{Chapter 2: Univariate \& Multivariate Differential Calculus for Learning}
+
+\subsection*{Part A: Analytical Solutions}
+
+\paragraph{P1. Gradient of Regularized Ridge Objective:}
+\begin{enumerate}[label=(\alph*)]
+    \item Expanding the objective:
+    \begin{equation*}
+    \mathcal{L}(\mathbf{w}) = \frac{1}{2}(\mathbf{y} - X\mathbf{w})^T (\mathbf{y} - X\mathbf{w}) + \frac{\lambda}{2}\mathbf{w}^T \mathbf{w} = \frac{1}{2}\mathbf{y}^T \mathbf{y} - \mathbf{w}^T X^T \mathbf{y} + \frac{1}{2}\mathbf{w}^T X^T X \mathbf{w} + \frac{\lambda}{2}\mathbf{w}^T \mathbf{w}
+    \end{equation*}
+    Applying the matrix calculus identities derived in Chapter 2:
+    \begin{equation*}
+    \nabla_{\mathbf{w}} \mathcal{L}(\mathbf{w}) = -X^T \mathbf{y} + X^T X \mathbf{w} + \lambda \mathbf{w} = X^T (X\mathbf{w} - \mathbf{y}) + \lambda \mathbf{w}
+    \end{equation*}
+    \item Taking the gradient of $\nabla \mathcal{L}(\mathbf{w})$ with respect to $\mathbf{w}$:
+    \begin{equation*}
+    H(\mathbf{w}) = \nabla^2_{\mathbf{w}} \mathcal{L}(\mathbf{w}) = X^T X + \lambda I_d
+    \end{equation*}
+    \item For any non-zero $\mathbf{v} \in \mathbb{R}^d \setminus \{\mathbf{0}\}$:
+    \begin{equation*}
+    \mathbf{v}^T H \mathbf{v} = \mathbf{v}^T (X^T X + \lambda I)\mathbf{v} = (X\mathbf{v})^T (X\mathbf{v}) + \lambda \mathbf{v}^T \mathbf{v} = \|X\mathbf{v}\|_2^2 + \lambda \|\mathbf{v}\|_2^2
+    \end{equation*}
+    Since $\|X\mathbf{v}\|_2^2 \ge 0$ and $\lambda \|\mathbf{v}\|_2^2 > 0$ (for $\lambda > 0$ and $\mathbf{v} \ne \mathbf{0}$), $\mathbf{v}^T H \mathbf{v} > 0$, proving $H$ is strictly positive definite.
+\end{enumerate}
+
+\paragraph{P2. Jacobian of the Softmax Transformation:}
+Recall $\sigma_i(\mathbf{z}) = \frac{\exp(z_i)}{\sum_{k=1}^K \exp(z_k)} = \frac{e^{z_i}}{S}$, where $S = \sum_{k=1}^K e^{z_k}$.
+\begin{itemize}
+    \item Case 1: $i = j$.
+    \begin{equation*}
+    \frac{\partial \sigma_i}{\partial z_i} = \frac{e^{z_i} S - e^{z_i} \frac{\partial S}{\partial z_i}}{S^2} = \frac{e^{z_i} S - e^{z_i} e^{z_i}}{S^2} = \frac{e^{z_i}}{S} \left( 1 - \frac{e^{z_i}}{S} \right) = \sigma_i (1 - \sigma_i)
+    \end{equation*}
+    \item Case 2: $i \ne j$.
+    \begin{equation*}
+    \frac{\partial \sigma_i}{\partial z_j} = \frac{0 \cdot S - e^{z_i} \frac{\partial S}{\partial z_j}}{S^2} = -\frac{e^{z_i} e^{z_j}}{S^2} = -\sigma_i \sigma_j
+    \end{equation*}
+\end{itemize}
+Combining via the Kronecker delta $\delta_{ij}$: $\frac{\partial \sigma_i}{\partial z_j} = \sigma_i (\delta_{ij} - \sigma_j)$.
+
+\paragraph{P3. Directional Derivative Along Non-Gradient Paths:}
+$f(x_1, x_2) = 3x_1^2 + 2x_1 x_2 + x_2^2$.
+\begin{enumerate}[label=(\alph*)]
+    \item $\nabla f(x_1, x_2) = [6x_1 + 2x_2, 2x_1 + 2x_2]^T$.
+    At $(1, 2)$: $\nabla f(1, 2) = [6(1) + 2(2), 2(1) + 2(2)]^T = [10, 6]^T$.
+    \item Direction toward $(4, 6)$: displacement vector $\mathbf{d} = (4 - 1, 6 - 2) = (3, 4)$.
+    Unit direction vector: $\mathbf{u} = \frac{\mathbf{d}}{\|\mathbf{d}\|} = \frac{(3, 4)}{5} = [0.6, 0.8]^T$.
+    Rate of change: $D_{\mathbf{u}} f(1, 2) = \nabla f(1, 2)^T \mathbf{u} = 10(0.6) + 6(0.8) = 6 + 4.8 = 10.8$.
+    \item Direction of zero change: $\nabla f(1, 2)^T \mathbf{v} = 0 \implies 10 v_1 + 6 v_2 = 0 \implies v_2 = -\frac{5}{3}v_1$.
+    Normalizing $\|\mathbf{v}\|_2 = 1 \implies v_1^2 + \frac{25}{9}v_1^2 = 1 \implies \frac{34}{9}v_1^2 = 1 \implies v_1 = \frac{3}{\sqrt{34}}, v_2 = -\frac{5}{\sqrt{34}}$.
+    Thus $\mathbf{v} = \pm \frac{1}{\sqrt{34}}[3, -5]^T$.
+\end{enumerate}
+
+\paragraph{P4. Second-Order Taylor Approximation Error Bound:}
+By Taylor's theorem with integral remainder:
+\begin{equation*}
+f(\mathbf{x} + \mathbf{v}) = f(\mathbf{x}) + \nabla f(\mathbf{x})^T \mathbf{v} + \int_0^1 (1 - t) \mathbf{v}^T \nabla^2 f(\mathbf{x} + t\mathbf{v}) \mathbf{v} \, dt
+\end{equation*}
+Subtracting the second-order Taylor polynomial:
+\begin{equation*}
+f(\mathbf{x} + \mathbf{v}) - \left[ f(\mathbf{x}) + \nabla f(\mathbf{x})^T \mathbf{v} + \frac{1}{2}\mathbf{v}^T \nabla^2 f(\mathbf{x})\mathbf{v} \right] = \int_0^1 (1 - t) \mathbf{v}^T \left( \nabla^2 f(\mathbf{x} + t\mathbf{v}) - \nabla^2 f(\mathbf{x}) \right) \mathbf{v} \, dt
+\end{equation*}
+Taking absolute values and using the $M$-Lipschitz condition $\|\nabla^2 f(\mathbf{x} + t\mathbf{v}) - \nabla^2 f(\mathbf{x})\|_2 \le M t \|\mathbf{v}\|_2$:
+\begin{align*}
+|\text{Error}| &\le \int_0^1 (1 - t) \|\mathbf{v}\|_2^2 \left( M t \|\mathbf{v}\|_2 \right) dt = M \|\mathbf{v}\|_2^3 \int_0^1 (t - t^2) dt \\
+&= M \|\mathbf{v}\|_2^3 \left[ \frac{t^2}{2} - \frac{t^3}{3} \right]_0^1 = M \|\mathbf{v}\|_2^3 \left( \frac{1}{2} - \frac{1}{3} \right) = \frac{M}{6}\|\mathbf{v}\|_2^3
+\end{align*}
+
+\paragraph{P5. Saddle Point vs. Local Extrema Classification:}
+$f(x, y) = x^3 - 3x - y^2 + 4y$.
+\begin{enumerate}[label=(\alph*)]
+    \item $\nabla f(x, y) = [3x^2 - 3, -2y + 4]^T = [0, 0]^T \implies 3(x^2 - 1) = 0 \implies x = \pm 1$, and $-2y + 4 = 0 \implies y = 2$.
+    The two critical points are $P_1 = (1, 2)$ and $P_2 = (-1, 2)$.
+    \item Hessian matrix: $H(x, y) = \begin{bmatrix} 6x & 0 \\ 0 & -2 \end{bmatrix}$.
+    \item At $P_1 = (1, 2)$: $H(1, 2) = \begin{bmatrix} 6 & 0 \\ 0 & -2 \end{bmatrix}$. Eigenvalues are $\lambda_1 = 6 > 0$ and $\lambda_2 = -2 < 0$. Since eigenvalues have opposite signs, $P_1$ is a **Saddle Point**.
+    At $P_2 = (-1, 2)$: $H(-1, 2) = \begin{bmatrix} -6 & 0 \\ 0 & -2 \end{bmatrix}$. Eigenvalues are $\lambda_1 = -6 < 0$ and $\lambda_2 = -2 < 0$. Since both eigenvalues are strictly negative, $H$ is negative definite, meaning $P_2$ is a strict **Local Maximum**.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Rationales}
+
+\paragraph{MCQ1: Gradient of Non-Symmetric Quadratic Form}
+\begin{itemize}
+    \item \textbf{(a) Incorrect.} $2A\mathbf{x} + \mathbf{b}$ is valid only if $A$ is symmetric ($A = A^T$).
+    \item \textbf{(b) Correct.} From first-principles double summation, $\nabla_{\mathbf{x}} (\mathbf{x}^T A \mathbf{x}) = (A + A^T)\mathbf{x}$. Adding the linear term $\mathbf{b}^T \mathbf{x}$ gives $(A + A^T)\mathbf{x} + \mathbf{b}$.
+    \item \textbf{(c) Incorrect.} Omits the $A\mathbf{x}$ component from the derivative.
+    \item \textbf{(d) Incorrect.} Replaces $(A + A^T)$ with $2A^T$, valid only under symmetry.
+\end{itemize}
+
+\paragraph{MCQ2: Hessian Eigenvalues and Critical Point Classification}
+\begin{itemize}
+    \item \textbf{(a) Incorrect.} A positive trace does not guarantee a local minimum; a single negative eigenvalue permits a descent direction.
+    \item \textbf{(b) Incorrect.} A local maximum requires all eigenvalues to be strictly negative.
+    \item \textbf{(c) Correct.} Because the Hessian has both strictly positive eigenvalues ($\lambda_1 = 4.2, \lambda_2 = 1.8$) and a strictly negative eigenvalue ($\lambda_3 = -0.5$), the matrix is indefinite, making $\mathbf{x}^*$ a saddle point.
+    \item \textbf{(d) Incorrect.} The negative eigenvalue direction will repel gradient descent trajectories away from $\mathbf{x}^*$.
+\end{itemize}
+
+% ======================================================================
+% CHAPTER 3 SOLUTIONS
+% ======================================================================
+\section*{Chapter 3: Four Fundamental Subspaces, Orthogonal Projections \& OLS}
+
+\subsection*{Part A: Analytical Solutions}
+
+\paragraph{P1. Explicit Projection Matrix Computation:}
+$A = \begin{bmatrix} 1 & 0 \\ 1 & 1 \\ 0 & 1 \end{bmatrix}, \mathbf{b} = \begin{bmatrix} 3 \\ 1 \\ 2 \end{bmatrix}$.
+\begin{enumerate}[label=(\alph*)]
+    \item $A^T A = \begin{bmatrix} 1 & 1 & 0 \\ 0 & 1 & 1 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 1 & 1 \\ 0 & 1 \end{bmatrix} = \begin{bmatrix} 2 & 1 \\ 1 & 2 \end{bmatrix}$.
+    Determinant $\det(A^T A) = 4 - 1 = 3$. Inverse: $(A^T A)^{-1} = \frac{1}{3} \begin{bmatrix} 2 & -1 \\ -1 & 2 \end{bmatrix}$.
+    \item $P = A (A^T A)^{-1} A^T = \frac{1}{3} \begin{bmatrix} 1 & 0 \\ 1 & 1 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} 2 & -1 \\ -1 & 2 \end{bmatrix} \begin{bmatrix} 1 & 1 & 0 \\ 0 & 1 & 1 \end{bmatrix} = \frac{1}{3} \begin{bmatrix} 2 & 1 & -1 \\ 1 & 2 & 1 \\ -1 & 1 & 2 \end{bmatrix}$.
+    \item $\hat{\mathbf{b}} = P\mathbf{b} = \frac{1}{3} \begin{bmatrix} 2(3) + 1(1) - 1(2) \\ 1(3) + 2(1) + 1(2) \\ -1(3) + 1(1) + 2(2) \end{bmatrix} = \frac{1}{3} \begin{bmatrix} 5 \\ 7 \\ 2 \end{bmatrix} = \begin{bmatrix} 5/3 \\ 7/3 \\ 2/3 \end{bmatrix}$.
+    Error vector: $\mathbf{e} = \mathbf{b} - \hat{\mathbf{b}} = \begin{bmatrix} 3 - 5/3 \\ 1 - 7/3 \\ 2 - 2/3 \end{bmatrix} = \begin{bmatrix} 4/3 \\ -4/3 \\ 4/3 \end{bmatrix} = \frac{4}{3} \begin{bmatrix} 1 \\ -1 \\ 1 \end{bmatrix}$.
+    \item $A^T \mathbf{e} = \begin{bmatrix} 1 & 1 & 0 \\ 0 & 1 & 1 \end{bmatrix} \left( \frac{4}{3} \begin{bmatrix} 1 \\ -1 \\ 1 \end{bmatrix} \right) = \frac{4}{3} \begin{bmatrix} 1 - 1 + 0 \\ 0 - 1 + 1 \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \end{bmatrix}$. Confirmed.
+\end{enumerate}
+
+\paragraph{P2. Properties of Complementary Projectors:}
+\begin{enumerate}[label=(\alph*)]
+    \item Idempotence: $Q^2 = (I - P)(I - P) = I - 2P + P^2$. Since $P^2 = P$, $Q^2 = I - 2P + P = I - P = Q$.
+    Symmetry: $Q^T = (I - P)^T = I^T - P^T = I - P = Q$.
+    \item For any $\mathbf{x} \in \mathbb{R}^m$, $P(Q\mathbf{x}) = P(I - P)\mathbf{x} = (P - P^2)\mathbf{x} = \mathbf{0}$, so $\Col(Q) \subseteq \Null(P)$.
+    Conversely, if $\mathbf{v} \in \Null(P)$, then $P\mathbf{v} = \mathbf{0} \implies Q\mathbf{v} = (I - P)\mathbf{v} = \mathbf{v}$, so $\mathbf{v} \in \Col(Q)$.
+    Thus $\Col(Q) = \Null(P) = V^\perp$.
+    \item Using $I = P + Q$ where $P^T Q = P(I - P) = P - P^2 = 0$:
+    \begin{equation*}
+    \|\mathbf{x}\|_2^2 = \|P\mathbf{x} + Q\mathbf{x}\|_2^2 = \|P\mathbf{x}\|_2^2 + \|Q\mathbf{x}\|_2^2 + 2(P\mathbf{x})^T (Q\mathbf{x}) = \|P\mathbf{x}\|_2^2 + \|Q\mathbf{x}\|_2^2
+    \end{equation*}
+\end{enumerate}
+
+\paragraph{P3. Rank-1 Projection Matrix:}
+\begin{enumerate}[label=(\alph*)]
+    \item Let $A = \mathbf{a} \in \mathbb{R}^{m \times 1}$. $A^T A = \mathbf{a}^T \mathbf{a} = \|\mathbf{a}\|_2^2$.
+    The projection matrix is $P_{\mathbf{a}} = A(A^T A)^{-1}A^T = \frac{\mathbf{a}\mathbf{a}^T}{\mathbf{a}^T \mathbf{a}}$.
+    \item $\trace(P_{\mathbf{a}}) = \trace\left(\frac{\mathbf{a}\mathbf{a}^T}{\mathbf{a}^T \mathbf{a}}\right) = \frac{1}{\mathbf{a}^T \mathbf{a}}\trace(\mathbf{a}\mathbf{a}^T) = \frac{\mathbf{a}^T \mathbf{a}}{\mathbf{a}^T \mathbf{a}} = 1$.
+    \item Projected point is $\hat{\mathbf{b}} = P_{\mathbf{a}}\mathbf{b} = \frac{\mathbf{a}\mathbf{a}^T \mathbf{b}}{\mathbf{a}^T \mathbf{a}} = \left( \frac{\mathbf{a}^T \mathbf{b}}{\mathbf{a}^T \mathbf{a}} \right) \mathbf{a}$. Setting $c = \frac{\mathbf{a}^T \mathbf{b}}{\mathbf{a}^T \mathbf{a}}$ gives the exact projection, which minimizes Euclidean distance.
+\end{enumerate}
+
+\paragraph{P4. Affine Fit with Offset:}
+Points: $(0, 1), (1, 3), (2, 4)$ fitted to $y = c + m x$.
+\begin{enumerate}[label=(\alph*)]
+    \item Design matrix and target: $A = \begin{bmatrix} 1 & 0 \\ 1 & 1 \\ 1 & 2 \end{bmatrix}, \mathbf{w} = \begin{bmatrix} c \\ m \end{bmatrix}, \mathbf{y} = \begin{bmatrix} 1 \\ 3 \\ 4 \end{bmatrix}$.
+    \item $A^T A = \begin{bmatrix} 1 & 1 & 1 \\ 0 & 1 & 2 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 1 & 1 \\ 1 & 2 \end{bmatrix} = \begin{bmatrix} 3 & 3 \\ 3 & 5 \end{bmatrix}$.
+    $A^T \mathbf{y} = \begin{bmatrix} 1+3+4 \\ 0+3+8 \end{bmatrix} = \begin{bmatrix} 8 \\ 11 \end{bmatrix}$.
+    Solving: $\det(A^T A) = 15 - 9 = 6$.
+    \begin{equation*}
+    \begin{bmatrix} c \\ m \end{bmatrix} = \frac{1}{6} \begin{bmatrix} 5 & -3 \\ -3 & 3 \end{bmatrix} \begin{bmatrix} 8 \\ 11 \end{bmatrix} = \frac{1}{6} \begin{bmatrix} 40 - 33 \\ -24 + 33 \end{bmatrix} = \frac{1}{6} \begin{bmatrix} 7 \\ 9 \end{bmatrix} = \begin{bmatrix} 7/6 \\ 3/2 \end{bmatrix}
+    \end{equation*}
+    Fitted line is $y = \frac{7}{6} + \frac{3}{2}x$.
+    \item Predictions: $\hat{\mathbf{y}} = A\hat{\mathbf{w}} = [7/6, 16/6, 25/6]^T = [7/6, 8/3, 25/6]^T$.
+    Residuals: $\mathbf{y} - \hat{\mathbf{y}} = [1 - 7/6, 3 - 16/6, 4 - 25/6]^T = [-1/6, 2/6, -1/6]^T$.
+    Residual sum of squares: $(-1/6)^2 + (2/6)^2 + (-1/6)^2 = \frac{1 + 4 + 1}{36} = \frac{6}{36} = \frac{1}{6} \approx 0.1667$.
+\end{enumerate}
+
+\paragraph{P5. Subspace Intersection and Projection Commutativity:}
+$(\implies)$ If $P = P_1 P_2$ is an orthogonal projector, it must be symmetric: $P^T = P \implies (P_1 P_2)^T = P_1 P_2 \implies P_2^T P_1^T = P_1 P_2 \implies P_2 P_1 = P_1 P_2$. Hence they commute.
+$(\impliedby)$ If $P_1 P_2 = P_2 P_1$:
+Symmetry: $(P_1 P_2)^T = P_2^T P_1^T = P_2 P_1 = P_1 P_2$.
+Idempotence: $(P_1 P_2)^2 = (P_1 P_2)(P_1 P_2) = P_1 (P_2 P_1) P_2 = P_1 (P_1 P_2) P_2 = P_1^2 P_2^2 = P_1 P_2$.
+Since $P_1 P_2$ is symmetric and idempotent, it is an orthogonal projector. Its range is $\Col(P_1 P_2) = V_1 \cap V_2$.
+
+\subsection*{Part B: Diagnostic Multiple-Choice Rationales}
+
+\paragraph{MCQ1: Normal Equations with Rank-Deficient Matrix}
+\begin{itemize}
+    \item \textbf{(a) Incorrect.} The Normal Equations $A^T A \mathbf{x} = A^T \mathbf{b}$ are \emph{always} consistent because $A^T \mathbf{b} \in \Col(A^T) = \Col(A^T A)$.
+    \item \textbf{(b) Correct.} When $\rank(A) = r < n$, $\Null(A^T A) = \Null(A)$ has dimension $n - r > 0$. The system is consistent with an $(n-r)$-dimensional affine subspace of solutions.
+    \item \textbf{(c) Incorrect.} $A^T A$ is singular with non-trivial nullspace, hence positive semidefinite, not strictly positive definite.
+    \item \textbf{(d) Incorrect.} $(A^T A)^{-1}$ does not exist when $\rank(A) < n$.
+\end{itemize}
+
+\paragraph{MCQ2: Eigenvalues of Orthogonal Projection Matrix}
+\begin{itemize}
+    \item \textbf{(a) Incorrect.} A full set of 1s would make $P = I_5$, projecting onto all of $\mathbb{R}^5$.
+    \item \textbf{(b) Incorrect.} Projection eigenvalues are strictly binary $\lambda \in \{0, 1\}$.
+    \item \textbf{(c) Correct.} By the Spectral Theorem for projectors, an orthogonal projector onto an $r$-dimensional subspace in $\mathbb{R}^m$ has eigenvalue $1$ with multiplicity $r$ and eigenvalue $0$ with multiplicity $m - r$. Here $m=5, r=3 \implies 1, 1, 1, 0, 0$.
+    \item \textbf{(d) Incorrect.} Negative eigenvalues appear in reflection operators ($R = 2P - I$), not projection operators.
+\end{itemize}
+
+% ======================================================================
+% CHAPTER 4 SOLUTIONS
+% ======================================================================
+\section*{Chapter 4: Polynomial Regression, Eigenvalues \& Diagonalization}
+
+\subsection*{Part A: Analytical Solutions}
+
+\paragraph{P1. Eigendecomposition of a $2 \times 2$ Matrix:}
+$A = \begin{bmatrix} 4 & 2 \\ 1 & 3 \end{bmatrix}$.
+\begin{enumerate}[label=(\alph*)]
+    \item Characteristic equation: $\det(A - \lambda I) = (4 - \lambda)(3 - \lambda) - 2 = \lambda^2 - 7\lambda + 10 = (\lambda - 5)(\lambda - 2) = 0$.
+    Eigenvalues are $\lambda_1 = 5$ and $\lambda_2 = 2$.
+    \item For $\lambda_1 = 5$: $(A - 5I)\mathbf{v}_1 = \begin{bmatrix} -1 & 2 \\ 1 & -2 \end{bmatrix} \begin{bmatrix} v_{11} \\ v_{12} \end{bmatrix} = \mathbf{0} \implies -v_{11} + 2v_{12} = 0 \implies \mathbf{v}_1 = \begin{bmatrix} 2 \\ 1 \end{bmatrix}$.
+    For $\lambda_2 = 2$: $(A - 2I)\mathbf{v}_2 = \begin{bmatrix} 2 & 2 \\ 1 & 1 \end{bmatrix} \begin{bmatrix} v_{21} \\ v_{22} \end{bmatrix} = \mathbf{0} \implies v_{21} + v_{22} = 0 \implies \mathbf{v}_2 = \begin{bmatrix} 1 \\ -1 \end{bmatrix}$.
+    \item $P = \begin{bmatrix} 2 & 1 \\ 1 & -1 \end{bmatrix}, D = \begin{bmatrix} 5 & 0 \\ 0 & 2 \end{bmatrix}$. $\det(P) = -2 - 1 = -3$. Inverse: $P^{-1} = -\frac{1}{3}\begin{bmatrix} -1 & -1 \\ -1 & 2 \end{bmatrix} = \frac{1}{3}\begin{bmatrix} 1 & 1 \\ 1 & -2 \end{bmatrix}$.
+    \item $A^5 = P D^5 P^{-1} = \begin{bmatrix} 2 & 1 \\ 1 & -1 \end{bmatrix} \begin{bmatrix} 3125 & 0 \\ 0 & 32 \end{bmatrix} \left( \frac{1}{3} \begin{bmatrix} 1 & 1 \\ 1 & -2 \end{bmatrix} \right) = \frac{1}{3} \begin{bmatrix} 6250 & 32 \\ 3125 & -32 \end{bmatrix} \begin{bmatrix} 1 & 1 \\ 1 & -2 \end{bmatrix} = \begin{bmatrix} 2094 & 2062 \\ 1031 & 1063 \end{bmatrix}$.
+\end{enumerate}
+
+\paragraph{P2. Defective Matrix and Multiplicities:}
+$B = \begin{bmatrix} 2 & 1 & 0 \\ 0 & 2 & 0 \\ 0 & 0 & 5 \end{bmatrix}$.
+\begin{enumerate}[label=(\alph*)]
+    \item $B$ is upper triangular. Characteristic polynomial: $(2 - \lambda)^2 (5 - \lambda) = 0$.
+    Eigenvalue $\lambda_1 = 2$ with $am(2) = 2$; eigenvalue $\lambda_2 = 5$ with $am(5) = 1$.
+    \item For $\lambda = 2$: $B - 2I = \begin{bmatrix} 0 & 1 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 3 \end{bmatrix}$. RREF has pivot variables in columns 2 and 3; column 1 is free.
+    $E_2 = \Null(B - 2I) = \Span\left\{ [1, 0, 0]^T \right\}$.
+    For $\lambda = 5$: $B - 5I = \begin{bmatrix} -3 & 1 & 0 \\ 0 & -3 & 0 \\ 0 & 0 & 0 \end{bmatrix} \implies E_5 = \Span\left\{ [0, 0, 1]^T \right\}$.
+    \item Geometric multiplicities: $gm(2) = \dim(E_2) = 1$; $gm(5) = \dim(E_5) = 1$.
+    \item Because $gm(2) = 1 < am(2) = 2$, matrix $B$ does not have a complete basis of 3 eigenvectors. Therefore, $B$ is **defective (not diagonalizable)**.
+\end{enumerate}
+
+\paragraph{P3. Spectral Theorem for Symmetric Matrices:}
+\begin{enumerate}[label=(\alph*)]
+    \item Let $S\mathbf{v} = \lambda \mathbf{v}$ with $\mathbf{v} \in \mathbb{C}^n \setminus \{\mathbf{0}\}$.
+    Pre-multiply by $\mathbf{v}^H$: $\mathbf{v}^H S \mathbf{v} = \lambda \mathbf{v}^H \mathbf{v} = \lambda \|\mathbf{v}\|_2^2$.
+    Taking conjugate transpose: $(\mathbf{v}^H S \mathbf{v})^H = \mathbf{v}^H S^T \mathbf{v} = \mathbf{v}^H S \mathbf{v}$.
+    Thus $\mathbf{v}^H S \mathbf{v}$ is real. Since $\lambda = \frac{\mathbf{v}^H S \mathbf{v}}{\|\mathbf{v}\|_2^2}$ is the ratio of two real numbers, $\lambda \in \mathbb{R}$.
+    \item Let $S\mathbf{v}_1 = \lambda_1 \mathbf{v}_1$ and $S\mathbf{v}_2 = \lambda_2 \mathbf{v}_2$ with $\lambda_1 \ne \lambda_2$.
+    Consider $\mathbf{v}_1^T S \mathbf{v}_2 = \lambda_2 (\mathbf{v}_1^T \mathbf{v}_2)$.
+    Also $\mathbf{v}_1^T S \mathbf{v}_2 = (S\mathbf{v}_1)^T \mathbf{v}_2 = \lambda_1 (\mathbf{v}_1^T \mathbf{v}_2)$.
+    Subtracting: $(\lambda_1 - \lambda_2)(\mathbf{v}_1^T \mathbf{v}_2) = 0 \implies \mathbf{v}_1^T \mathbf{v}_2 = 0$.
+\end{enumerate}
+
+\paragraph{P4. Cayley-Hamilton Application:}
+$A = \begin{bmatrix} 2 & 1 \\ 3 & 4 \end{bmatrix}$.
+\begin{enumerate}[label=(\alph*)]
+    \item $\trace(A) = 6$, $\det(A) = 8 - 3 = 5$. Characteristic polynomial: $p_A(\lambda) = \lambda^2 - 6\lambda + 5 = 0$.
+    \item $A^2 = \begin{bmatrix} 2 & 1 \\ 3 & 4 \end{bmatrix} \begin{bmatrix} 2 & 1 \\ 3 & 4 \end{bmatrix} = \begin{bmatrix} 7 & 6 \\ 18 & 19 \end{bmatrix}$.
+    $A^2 - 6A + 5I = \begin{bmatrix} 7 & 6 \\ 18 & 19 \end{bmatrix} - \begin{bmatrix} 12 & 6 \\ 18 & 24 \end{bmatrix} + \begin{bmatrix} 5 & 0 \\ 0 & 5 \end{bmatrix} = \begin{bmatrix} 0 & 0 \\ 0 & 0 \end{bmatrix}$. Confirmed.
+    \item From $A^2 - 6A + 5I = 0 \implies 5I = 6A - A^2 \implies I = \frac{1}{5}(6A - A^2)$.
+    Multiply by $A^{-1}$: $A^{-1} = \frac{6}{5}I - \frac{1}{5}A = \frac{1}{5}(6I - A) = \frac{1}{5}\begin{bmatrix} 4 & -1 \\ -3 & 2 \end{bmatrix}$.
+\end{enumerate}
+
+\paragraph{P5. Markov Transition Matrix Dynamics:}
+$T = \begin{bmatrix} 0.8 & 0.3 \\ 0.2 & 0.7 \end{bmatrix}$.
+\begin{enumerate}[label=(\alph*)]
+    \item For any column-stochastic matrix, $\mathbf{1}^T T = \mathbf{1}^T \implies T^T \mathbf{1} = \mathbf{1}$. Thus $T^T$ has eigenvalue $\lambda = 1$ with eigenvector $\mathbf{1}$. Since $T$ and $T^T$ share eigenvalues, $\lambda_1 = 1$.
+    \item $\trace(T) = 0.8 + 0.7 = 1.5 = \lambda_1 + \lambda_2 \implies 1 + \lambda_2 = 1.5 \implies \lambda_2 = 0.5$.
+    \item Eigenvector for $\lambda_1 = 1$: $(T - I)\boldsymbol{\pi} = \begin{bmatrix} -0.2 & 0.3 \\ 0.2 & -0.3 \end{bmatrix}\boldsymbol{\pi} = \mathbf{0} \implies 2\pi_1 = 3\pi_2$.
+    Normalizing $\pi_1 + \pi_2 = 1 \implies \boldsymbol{\pi} = [3/5, 2/5]^T = [0.6, 0.4]^T$.
+    Since $|\lambda_2| = 0.5 < 1$, $\lim_{k \to \infty} \lambda_2^k = 0$, so $\lim_{k \to \infty} T^k \mathbf{p}_0 = \boldsymbol{\pi}$ for all initial probability vectors $\mathbf{p}_0$.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Rationales}
+
+\paragraph{MCQ1: Trace and Determinant Invariants}
+\begin{itemize}
+    \item \textbf{(a) Correct.} $\trace(A) = \lambda_1 + \lambda_2 + \lambda_3 = 2 + 4 + \lambda_3 = 6 \implies \lambda_3 = 0$. $\det(A) = \lambda_1 \lambda_2 \lambda_3 = 2 \cdot 4 \cdot 0 = 0$. Since $\det(A) = 0$, $A$ is singular.
+    \item \textbf{(b) Incorrect.} If $\lambda_3 = 1$, trace would be $7$ and determinant would be $8$, contradicting $\trace(A) = 6$.
+    \item \textbf{(c) Incorrect.} If $\lambda_3 = 0$, the determinant is zero, meaning $A$ is singular, not invertible.
+    \item \textbf{(d) Incorrect.} Contradicts trace and determinant values.
+\end{itemize}
+
+\paragraph{MCQ2: High-Degree Polynomial Overfitting}
+\begin{itemize}
+    \item \textbf{(a) Incorrect.} A Vandermonde matrix with $N \ge p+1$ distinct points has full rank.
+    \item \textbf{(b) Incorrect.} High-degree polynomials have exceptionally low bias (zero training error).
+    \item \textbf{(c) Correct.} Fitting a degree-$15$ polynomial to $16$ points causes extreme variance and Runge's phenomenon, oscillating wildly between interpolation nodes and destroying out-of-sample test accuracy.
+    \item \textbf{(d) Incorrect.} Polynomial regression does not mandate a Gaussian target assumption to compute OLS estimates.
+\end{itemize}
+
+% ======================================================================
+% CHAPTER 5 SOLUTIONS
+% ======================================================================
+\section*{Chapter 5: Complex Spaces, Hermitian Matrices \& Spectral Theorem}
+
+\subsection*{Part A: Analytical Solutions}
+
+\paragraph{P1. Verifying Hermitian Properties:}
+$H = \begin{bmatrix} 2 & 1 - i \\ 1 + i & 3 \end{bmatrix}$.
+\begin{enumerate}[label=(\alph*)]
+    \item $H^H = \overline{H}^T = \begin{bmatrix} \overline{2} & \overline{1+i} \\ \overline{1-i} & \overline{3} \end{bmatrix}^T = \begin{bmatrix} 2 & 1-i \\ 1+i & 3 \end{bmatrix} = H$. $H$ is Hermitian.
+    \item $\det(H - \lambda I) = (2 - \lambda)(3 - \lambda) - (1 - i)(1 + i) = \lambda^2 - 5\lambda + 6 - (1 - i^2) = \lambda^2 - 5\lambda + 6 - 2 = \lambda^2 - 5\lambda + 4 = (\lambda - 4)(\lambda - 1) = 0$.
+    Eigenvalues are $\lambda_1 = 4$ and $\lambda_2 = 1$ (both real!).
+    \item For $\lambda_1 = 4$: $(H - 4I)\mathbf{u}_1 = \begin{bmatrix} -2 & 1-i \\ 1+i & -1 \end{bmatrix}\mathbf{u}_1 = \mathbf{0} \implies -2u_{11} + (1-i)u_{12} = 0 \implies \mathbf{u}_1 \propto [1-i, 2]^T$.
+    Norm: $\|\mathbf{u}_1\|_2^2 = |1-i|^2 + |2|^2 = 2 + 4 = 6 \implies \mathbf{u}_1 = \frac{1}{\sqrt{6}}\begin{bmatrix} 1-i \\ 2 \end{bmatrix}$.
+    For $\lambda_2 = 1$: $(H - I)\mathbf{u}_2 = \begin{bmatrix} 1 & 1-i \\ 1+i & 2 \end{bmatrix}\mathbf{u}_2 = \mathbf{0} \implies \mathbf{u}_2 \propto [1-i, -1]^T$.
+    Norm: $\|\mathbf{u}_2\|_2^2 = 2 + 1 = 3 \implies \mathbf{u}_2 = \frac{1}{\sqrt{3}}\begin{bmatrix} 1-i \\ -1 \end{bmatrix}$.
+    Inner product: $\mathbf{u}_1^H \mathbf{u}_2 = \frac{1}{\sqrt{18}} \left( (1+i)(1-i) + 2(-1) \right) = \frac{1}{\sqrt{18}}(2 - 2) = 0$.
+    \item $\lambda_1 \mathbf{u}_1 \mathbf{u}_1^H + \lambda_2 \mathbf{u}_2 \mathbf{u}_2^H = \frac{4}{6}\begin{bmatrix} 2 & 2-2i \\ 2+2i & 4 \end{bmatrix} + \frac{1}{3}\begin{bmatrix} 2 & -(1-i) \\ -(1+i) & 1 \end{bmatrix} = \begin{bmatrix} 4/3 + 2/3 & (4-4i)/3 - (1-i)/3 \\ (4+4i)/3 - (1+i)/3 & 8/3 + 1/3 \end{bmatrix} = \begin{bmatrix} 2 & 1-i \\ 1+i & 3 \end{bmatrix} = H$.
+\end{enumerate}
+
+\paragraph{P2. Spectral Properties of Unitary Transformations:}
+\begin{enumerate}[label=(\alph*)]
+    \item $\|U\mathbf{x}\|_2^2 = (U\mathbf{x})^H (U\mathbf{x}) = \mathbf{x}^H U^H U \mathbf{x} = \mathbf{x}^H I \mathbf{x} = \|\mathbf{x}\|_2^2 \implies \|U\mathbf{x}\|_2 = \|\mathbf{x}\|_2$.
+    \item Let $U\mathbf{v} = \lambda \mathbf{v}$ with $\|\mathbf{v}\| \ne 0$. $\|U\mathbf{v}\|_2 = \|\lambda \mathbf{v}\|_2 = |\lambda| \|\mathbf{v}\|_2$. By length preservation, $\|U\mathbf{v}\|_2 = \|\mathbf{v}\|_2 \implies |\lambda| = 1$.
+    \item Let $U\mathbf{v}_1 = \lambda_1 \mathbf{v}_1, U\mathbf{v}_2 = \lambda_2 \mathbf{v}_2$.
+    $\mathbf{v}_1^H \mathbf{v}_2 = (U\mathbf{v}_1)^H (U\mathbf{v}_2) = (\lambda_1 \mathbf{v}_1)^H (\lambda_2 \mathbf{v}_2) = \bar{\lambda}_1 \lambda_2 (\mathbf{v}_1^H \mathbf{v}_2)$.
+    Since $|\lambda_1| = 1 \implies \bar{\lambda}_1 = \frac{1}{\lambda_1}$, we have $\mathbf{v}_1^H \mathbf{v}_2 = \frac{\lambda_2}{\lambda_1}(\mathbf{v}_1^H \mathbf{v}_2) \implies \left(1 - \frac{\lambda_2}{\lambda_1}\right)(\mathbf{v}_1^H \mathbf{v}_2) = 0$. Since $\lambda_1 \ne \lambda_2$, $\mathbf{v}_1^H \mathbf{v}_2 = 0$.
+\end{enumerate}
+
+\paragraph{P3. Skew-Hermitian Matrices:}
+\begin{enumerate}[label=(\alph*)]
+    \item Let $S\mathbf{v} = \lambda \mathbf{v}$ with $\|\mathbf{v}\|_2 = 1$. $\lambda = \mathbf{v}^H S \mathbf{v}$.
+    Taking conjugate transpose: $\bar{\lambda} = (\mathbf{v}^H S \mathbf{v})^H = \mathbf{v}^H S^H \mathbf{v} = \mathbf{v}^H (-S)\mathbf{v} = -\lambda$.
+    Thus $\bar{\lambda} + \lambda = 2\text{Re}(\lambda) = 0 \implies \text{Re}(\lambda) = 0$. Hence $\lambda = i\mu$ with $\mu \in \mathbb{R}$.
+    \item $U = \exp(S)$. $U^H = (\exp(S))^H = \exp(S^H) = \exp(-S)$.
+    Since $S$ and $-S$ commute, $U^H U = \exp(-S)\exp(S) = \exp(-S + S) = \exp(0) = I$. Thus $U$ is unitary.
+\end{enumerate}
+
+\paragraph{P4. Decomposition into Hermitian and Skew-Hermitian Components:}
+\begin{enumerate}[label=(\alph*)]
+    \item Any square matrix can be written as $M = \frac{M + M^H}{2} + \frac{M - M^H}{2} = H + S$.
+    $H^H = \left(\frac{M + M^H}{2}\right)^H = \frac{M^H + M}{2} = H$ (Hermitian).
+    $S^H = \left(\frac{M - M^H}{2}\right)^H = \frac{M^H - M}{2} = -S$ (Skew-Hermitian).
+    \item $H = \frac{1}{2}(M + M^H)$ and $S = \frac{1}{2}(M - M^H)$.
+    \item $M = \begin{bmatrix} 1+i & 4 \\ 2i & 3 \end{bmatrix} \implies M^H = \begin{bmatrix} 1-i & -2i \\ 4 & 3 \end{bmatrix}$.
+    $H = \frac{1}{2} \begin{bmatrix} 2 & 4-2i \\ 4+2i & 6 \end{bmatrix} = \begin{bmatrix} 1 & 2-i \\ 2+i & 3 \end{bmatrix}$.
+    $S = \frac{1}{2} \begin{bmatrix} 2i & 4+2i \\ 2i-4 & 0 \end{bmatrix} = \begin{bmatrix} i & 2+i \\ -2+i & 0 \end{bmatrix}$.
+\end{enumerate}
+
+\paragraph{P5. Courant-Fischer Min-Max Theorem:}
+By Courant-Fischer: $\lambda_k(A + B) = \min_{S: \dim(S)=k} \max_{\mathbf{x} \in S, \|\mathbf{x}\|=1} \left( \mathbf{x}^H A \mathbf{x} + \mathbf{x}^H B \mathbf{x} \right)$.
+Since $B \succeq 0$, $\mathbf{x}^H B \mathbf{x} \ge 0$ for all $\mathbf{x}$.
+Therefore, for any fixed $\mathbf{x}$: $\mathbf{x}^H (A + B) \mathbf{x} = \mathbf{x}^H A \mathbf{x} + \mathbf{x}^H B \mathbf{x} \ge \mathbf{x}^H A \mathbf{x}$.
+Taking the max over $\mathbf{x} \in S$ preserves the inequality: $\max_{\mathbf{x} \in S, \|\mathbf{x}\|=1} \mathbf{x}^H (A+B)\mathbf{x} \ge \max_{\mathbf{x} \in S, \|\mathbf{x}\|=1} \mathbf{x}^H A \mathbf{x}$.
+Taking the min over all $k$-dimensional subspaces $S$ preserves the inequality, proving $\lambda_k(A + B) \ge \lambda_k(A)$.
+
+\subsection*{Part B: Diagnostic Multiple-Choice Rationales}
+
+\paragraph{MCQ1: Hermitian Matrix Properties}
+\begin{itemize}
+    \item \textbf{(a) Guaranteed.} The Spectral Theorem guarantees that all eigenvalues of a Hermitian matrix are strictly real.
+    \item \textbf{(b) Guaranteed.} Every Hermitian matrix is unitarily diagonalizable, yielding an orthonormal basis of eigenvectors.
+    \item \textbf{(c) Guaranteed.} The determinant is the product of the real eigenvalues, hence real.
+    \item \textbf{(d) NOT Guaranteed.} Main diagonal entries of a Hermitian matrix must be real ($A_{ii} = \overline{A_{ii}}$), but can be negative (e.g. $A = \begin{bmatrix} -3 & 0 \\ 0 & -1 \end{bmatrix}$ is Hermitian).
+\end{itemize}
+
+\paragraph{MCQ2: Unitary Operator Geometry}
+\begin{itemize}
+    \item \textbf{(a) Incorrect.} Projections are idempotent ($P^2 = P$) and not invertible; unitary transformations are isometries ($U^H U = I$).
+    \item \textbf{(b) Incorrect.} Unitary transformations preserve lengths ($c = 1$).
+    \item \textbf{(c) Correct.} Unitary operators preserve complex inner products ($\langle U\mathbf{u}, U\mathbf{v} \rangle = \langle \mathbf{u}, \mathbf{v} \rangle$) and Euclidean norms, functioning as rigid complex rotations/reflections.
+    \item \textbf{(d) Incorrect.} Eigenvalues of unitary matrices have modulus 1 ($|\lambda| = 1$), never zero.
+\end{itemize}
+
+% ======================================================================
+% CHAPTER 6 SOLUTIONS
+% ======================================================================
+\section*{Chapter 6: SVD, Low-Rank Approximations \& Positive Definite Matrices}
+
+\subsection*{Part A: Analytical Solutions}
+
+\paragraph{P1. Explicit Full SVD Computation by Hand:}
+$A = \begin{bmatrix} 3 & 0 \\ 4 & 5 \end{bmatrix}$.
+\begin{enumerate}[label=(\alph*)]
+    \item $A^T A = \begin{bmatrix} 3 & 4 \\ 0 & 5 \end{bmatrix} \begin{bmatrix} 3 & 0 \\ 4 & 5 \end{bmatrix} = \begin{bmatrix} 25 & 20 \\ 20 & 25 \end{bmatrix}$.
+    Characteristic equation: $\det(A^T A - \lambda I) = (25 - \lambda)^2 - 400 = \lambda^2 - 50\lambda + 625 - 400 = \lambda^2 - 50\lambda + 225 = (\lambda - 45)(\lambda - 5) = 0$.
+    Eigenvalues: $\lambda_1 = 45, \lambda_2 = 5$.
+    \item Singular values: $\sigma_1 = \sqrt{45} = 3\sqrt{5} \approx 6.708$, $\sigma_2 = \sqrt{5} \approx 2.236$.
+    \item Right singular vectors:
+    For $\lambda_1 = 45$: $\begin{bmatrix} -20 & 20 \\ 20 & -20 \end{bmatrix}\mathbf{v}_1 = \mathbf{0} \implies \mathbf{v}_1 = \frac{1}{\sqrt{2}}\begin{bmatrix} 1 \\ 1 \end{bmatrix}$.
+    For $\lambda_2 = 5$: $\begin{bmatrix} 20 & 20 \\ 20 & 20 \end{bmatrix}\mathbf{v}_2 = \mathbf{0} \implies \mathbf{v}_2 = \frac{1}{\sqrt{2}}\begin{bmatrix} -1 \\ 1 \end{bmatrix}$.
+    \item Left singular vectors:
+    $\mathbf{u}_1 = \frac{1}{\sigma_1} A \mathbf{v}_1 = \frac{1}{3\sqrt{5}} \begin{bmatrix} 3 & 0 \\ 4 & 5 \end{bmatrix} \left( \frac{1}{\sqrt{2}}\begin{bmatrix} 1 \\ 1 \end{bmatrix} \right) = \frac{1}{3\sqrt{10}} \begin{bmatrix} 3 \\ 9 \end{bmatrix} = \frac{1}{\sqrt{10}} \begin{bmatrix} 1 \\ 3 \end{bmatrix}$.
+    $\mathbf{u}_2 = \frac{1}{\sigma_2} A \mathbf{v}_2 = \frac{1}{\sqrt{5}} \begin{bmatrix} 3 & 0 \\ 4 & 5 \end{bmatrix} \left( \frac{1}{\sqrt{2}}\begin{bmatrix} -1 \\ 1 \end{bmatrix} \right) = \frac{1}{\sqrt{10}} \begin{bmatrix} -3 \\ 1 \end{bmatrix}$.
+    Verify: $U \Sigma V^T = \begin{bmatrix} 1/\sqrt{10} & -3/\sqrt{10} \\ 3/\sqrt{10} & 1/\sqrt{10} \end{bmatrix} \begin{bmatrix} 3\sqrt{5} & 0 \\ 0 & \sqrt{5} \end{bmatrix} \begin{bmatrix} 1/\sqrt{2} & 1/\sqrt{2} \\ -1/\sqrt{2} & 1/\sqrt{2} \end{bmatrix} = \begin{bmatrix} 3 & 0 \\ 4 & 5 \end{bmatrix} = A$.
+\end{enumerate}
+
+\paragraph{P2. Sylvester's Criterion vs. Cholesky Factorization:}
+$M = \begin{bmatrix} 2 & -1 & 0 \\ -1 & 2 & -1 \\ 0 & -1 & 2 \end{bmatrix}$.
+\begin{enumerate}[label=(\alph*)]
+    \item $\Delta_1 = \det[2] = 2 > 0$.
+    $\Delta_2 = \det\begin{bmatrix} 2 & -1 \\ -1 & 2 \end{bmatrix} = 4 - 1 = 3 > 0$.
+    $\Delta_3 = \det(M) = 2(4 - 1) - (-1)(-2 - 0) + 0 = 6 - 2 = 4 > 0$.
+    \item Since all three leading principal minors are strictly positive ($\Delta_1=2, \Delta_2=3, \Delta_3=4 > 0$), Sylvester's Criterion proves $M$ is **strictly positive definite**.
+    \item Cholesky factor $L = \begin{bmatrix} l_{11} & 0 & 0 \\ l_{21} & l_{22} & 0 \\ l_{31} & l_{32} & l_{33} \end{bmatrix}$ such that $L L^T = M$:
+    $l_{11}^2 = 2 \implies l_{11} = \sqrt{2}$.
+    $l_{21} l_{11} = -1 \implies l_{21} = -\frac{1}{\sqrt{2}}$.
+    $l_{21}^2 + l_{22}^2 = 2 \implies 1/2 + l_{22}^2 = 2 \implies l_{22} = \sqrt{3/2}$.
+    $l_{31} l_{11} = 0 \implies l_{31} = 0$.
+    $l_{31} l_{21} + l_{32} l_{22} = -1 \implies 0 + l_{32}\sqrt{3/2} = -1 \implies l_{32} = -\sqrt{2/3}$.
+    $l_{31}^2 + l_{32}^2 + l_{33}^2 = 2 \implies 2/3 + l_{33}^2 = 2 \implies l_{33} = \sqrt{4/3} = \frac{2}{\sqrt{3}}$.
+    Thus $L = \begin{bmatrix} \sqrt{2} & 0 & 0 \\ -1/\sqrt{2} & \sqrt{3/2} & 0 \\ 0 & -\sqrt{2/3} & 2/\sqrt{3} \end{bmatrix}$.
+\end{enumerate}
+
+\paragraph{P3. Frobenius Norm Representation in Terms of Singular Values:}
+By definition of Frobenius norm: $\|A\|_F^2 = \sum_{i=1}^m \sum_{j=1}^n A_{ij}^2 = \trace(A^T A)$.
+Substitute the SVD $A = U \Sigma V^T$:
+\begin{align*}
+\trace(A^T A) &= \trace\left( (U \Sigma V^T)^T (U \Sigma V^T) \right) = \trace\left( V \Sigma^T U^T U \Sigma V^T \right) \\
+&= \trace\left( V \Sigma^T \Sigma V^T \right)
+\end{align*}
+Using the cyclic trace property $\trace(BC) = \trace(CB)$:
+\begin{equation*}
+\trace\left( V (\Sigma^T \Sigma) V^T \right) = \trace\left( (\Sigma^T \Sigma) V^T V \right) = \trace(\Sigma^T \Sigma) = \sum_{i=1}^r \sigma_i^2
+\end{equation*}
+
+\paragraph{P4. Condition Number and Error Sensitivity:}
+From $A\mathbf{x} = \mathbf{b}$, taking norms gives $\|\mathbf{b}\|_2 = \|A\mathbf{x}\|_2 \le \|A\|_2 \|\mathbf{x}\|_2 \implies \frac{1}{\|\mathbf{x}\|_2} \le \frac{\|A\|_2}{\|\mathbf{b}\|_2}$.
+From $A \delta \mathbf{x} = \delta \mathbf{b}$, we have $\delta \mathbf{x} = A^{-1} \delta \mathbf{b} \implies \|\delta \mathbf{x}\|_2 \le \|A^{-1}\|_2 \|\delta \mathbf{b}\|_2$.
+Multiplying the two inequalities:
+\begin{equation*}
+\frac{\|\delta \mathbf{x}\|_2}{\|\mathbf{x}\|_2} \le \|A\|_2 \|A^{-1}\|_2 \frac{\|\delta \mathbf{b}\|_2}{\|\mathbf{b}\|_2} = \kappa(A) \frac{\|\delta \mathbf{b}\|_2}{\|\mathbf{b}\|_2}
+\end{equation*}
+where $\kappa(A) = \|A\|_2 \|A^{-1}\|_2 = \sigma_{\max} / \sigma_{\min}$.
+
+\paragraph{P5. Pseudoinverse of Rank-Deficient Matrix:}
+$A = \begin{bmatrix} 1 & 1 \\ 2 & 2 \end{bmatrix}$.
+\begin{enumerate}[label=(\alph*)]
+    \item Columns are linearly dependent; row 2 is $2 \times$ row 1. Thus $\rank(A) = 1$.
+    $A^T A = \begin{bmatrix} 5 & 5 \\ 5 & 5 \end{bmatrix} \implies \lambda_1 = 10, \lambda_2 = 0 \implies \sigma_1 = \sqrt{10}$.
+    $\mathbf{v}_1 = \frac{1}{\sqrt{2}}\begin{bmatrix} 1 \\ 1 \end{bmatrix}$.
+    $\mathbf{u}_1 = \frac{1}{\sigma_1}A\mathbf{v}_1 = \frac{1}{\sqrt{10}}\begin{bmatrix} 1 & 1 \\ 2 & 2 \end{bmatrix}\left(\frac{1}{\sqrt{2}}\begin{bmatrix} 1 \\ 1 \end{bmatrix}\right) = \frac{1}{\sqrt{20}}\begin{bmatrix} 2 \\ 4 \end{bmatrix} = \frac{1}{\sqrt{5}}\begin{bmatrix} 1 \\ 2 \end{bmatrix}$.
+    Compact SVD: $A = \sqrt{10} \left( \frac{1}{\sqrt{5}}\begin{bmatrix} 1 \\ 2 \end{bmatrix} \right) \left( \frac{1}{\sqrt{2}}\begin{bmatrix} 1 & 1 \end{bmatrix} \right)$.
+    \item $A^+ = \frac{1}{\sigma_1} \mathbf{v}_1 \mathbf{u}_1^T = \frac{1}{\sqrt{10}} \left(\frac{1}{\sqrt{2}}\begin{bmatrix} 1 \\ 1 \end{bmatrix}\right) \left(\frac{1}{\sqrt{5}}\begin{bmatrix} 1 & 2 \end{bmatrix}\right) = \frac{1}{10}\begin{bmatrix} 1 & 2 \\ 1 & 2 \end{bmatrix}$.
+    \item $A A^+ = \begin{bmatrix} 1 & 1 \\ 2 & 2 \end{bmatrix} \left(\frac{1}{10}\begin{bmatrix} 1 & 2 \\ 1 & 2 \end{bmatrix}\right) = \frac{1}{10}\begin{bmatrix} 2 & 4 \\ 4 & 8 \end{bmatrix} = \begin{bmatrix} 0.2 & 0.4 \\ 0.4 & 0.8 \end{bmatrix}$.
+    $A A^+ A = \begin{bmatrix} 0.2 & 0.4 \\ 0.4 & 0.8 \end{bmatrix} \begin{bmatrix} 1 & 1 \\ 2 & 2 \end{bmatrix} = \begin{bmatrix} 1 & 1 \\ 2 & 2 \end{bmatrix} = A$.
+    $A^+ A A^+ = A^+ (A A^+) = \frac{1}{10}\begin{bmatrix} 1 & 2 \\ 1 & 2 \end{bmatrix} \begin{bmatrix} 0.2 & 0.4 \\ 0.4 & 0.8 \end{bmatrix} = \frac{1}{10}\begin{bmatrix} 1 & 2 \\ 1 & 2 \end{bmatrix} = A^+$.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Rationales}
+
+\paragraph{MCQ1: Eckart-Young-Mirsky Low-Rank Approximation Error}
+\begin{itemize}
+    \item \textbf{(a) Correct.} By the Eckart-Young-Mirsky Theorem under the Frobenius norm, the approximation error for rank $k = 2$ is the root sum of squares of the discarded singular values: $\|A - A_2\|_F = \sqrt{\sum_{i=3}^r \sigma_i^2} = \sqrt{\sigma_3^2 + \sigma_4^2} = \sqrt{5^2 + 2^2} = \sqrt{29}$.
+    \item \textbf{(b) Incorrect.} 5 is the Spectral norm error $\|A - A_2\|_2 = \sigma_{k+1} = \sigma_3 = 5$, not the Frobenius norm error.
+    \item \textbf{(c) Incorrect.} Linear sum of singular values does not represent Frobenius energy.
+    \item \textbf{(d) Incorrect.} Represents the energy of the preserved components $\sigma_1, \sigma_2$.
+\end{itemize}
+
+\paragraph{MCQ2: Necessary and Sufficient Positive Definiteness}
+\begin{itemize}
+    \item \textbf{(a) Incorrect.} Positive entries can yield indefinite matrices (e.g. $\begin{bmatrix} 1 & 3 \\ 3 & 1 \end{bmatrix}$).
+    \item \textbf{(b) Incorrect.} In dimensions $d \ge 3$, positive trace and determinant do not prevent pairs of negative eigenvalues.
+    \item \textbf{(c) Correct.} By the Spectral Theorem, $A = Q \Lambda Q^T$. The quadratic form $\mathbf{x}^T A \mathbf{x} = \sum \lambda_i y_i^2 > 0$ for all $\mathbf{x} \ne \mathbf{0} \iff \lambda_i > 0$ for all $i$.
+    \item \textbf{(d) Incorrect.} Strictly diagonally dominant symmetric matrices with positive diagonals are positive definite, but diagonal dominance is sufficient, not necessary.
+\end{itemize}
+
+% ======================================================================
+% CHAPTER 7 SOLUTIONS
+% ======================================================================
+\section*{Chapter 7: Principal Component Analysis (PCA)}
+
+\subsection*{Part A: Analytical Solutions}
+
+\paragraph{P1. Analytical PCA on a Small $2 \times 2$ Covariance Matrix:}
+$S = \begin{bmatrix} 5 & 2 \\ 2 & 2 \end{bmatrix}$.
+\begin{enumerate}[label=(\alph*)]
+    \item $\det(S - \lambda I) = (5 - \lambda)(2 - \lambda) - 4 = \lambda^2 - 7\lambda + 10 - 4 = \lambda^2 - 7\lambda + 6 = (\lambda - 6)(\lambda - 1) = 0$.
+    Eigenvalues are $\lambda_1 = 6$ and $\lambda_2 = 1$.
+    \item For $\lambda_1 = 6$: $(S - 6I)\mathbf{w}_1 = \begin{bmatrix} -1 & 2 \\ 2 & -4 \end{bmatrix}\mathbf{w}_1 = \mathbf{0} \implies -w_{11} + 2w_{12} = 0 \implies \mathbf{w}_1 = \frac{1}{\sqrt{5}}\begin{bmatrix} 2 \\ 1 \end{bmatrix}$.
+    For $\lambda_2 = 1$: $(S - I)\mathbf{w}_2 = \begin{bmatrix} 4 & 2 \\ 2 & 1 \end{bmatrix}\mathbf{w}_2 = \mathbf{0} \implies 2w_{21} + w_{22} = 0 \implies \mathbf{w}_2 = \frac{1}{\sqrt{5}}\begin{bmatrix} -1 \\ 2 \end{bmatrix}$.
+    \item Total variance is $\trace(S) = \lambda_1 + \lambda_2 = 6 + 1 = 7$.
+    Proportion explained by PC1: $\frac{\lambda_1}{\lambda_1 + \lambda_2} = \frac{6}{7} \approx 85.71\%$.
+    \item Centered point $\tilde{\mathbf{x}} = [2, 1]^T$:
+    Scalar score: $z_1 = \mathbf{w}_1^T \tilde{\mathbf{x}} = \frac{1}{\sqrt{5}} (2 \cdot 2 + 1 \cdot 1) = \frac{5}{\sqrt{5}} = \sqrt{5} \approx 2.236$.
+    Reconstructed vector: $\hat{\mathbf{x}} = z_1 \mathbf{w}_1 = \sqrt{5} \left( \frac{1}{\sqrt{5}}\begin{bmatrix} 2 \\ 1 \end{bmatrix} \right) = \begin{bmatrix} 2 \\ 1 \end{bmatrix} = \tilde{\mathbf{x}}$ (perfect reconstruction because $\tilde{\mathbf{x}}$ lies directly along $\mathbf{w}_1$).
+\end{enumerate}
+
+\paragraph{P2. Scale Invariance Counterexample:}
+$S = \begin{bmatrix} 10 & 0 \\ 0 & 1 \end{bmatrix}$.
+\begin{enumerate}[label=(\alph*)]
+    \item The transformation scales feature 2 by $c = 10$, so $x_2' = 10x_2$.
+    The new covariance matrix is $S' = \begin{bmatrix} 1 & 0 \\ 0 & 10 \end{bmatrix} \begin{bmatrix} 10 & 0 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & 10 \end{bmatrix} = \begin{bmatrix} 10 & 0 \\ 0 & 100 \end{bmatrix}$.
+    \item For $S$: $\lambda_1 = 10, \lambda_2 = 1 \implies \mathbf{w}_1 = [1, 0]^T$ (aligned entirely with feature 1).
+    For $S'$: $\lambda_1' = 100, \lambda_2' = 10 \implies \mathbf{w}_1' = [0, 1]^T$ (aligned entirely with feature 2).
+    \item Scaling a single feature rotated the first principal component by 90 degrees. This demonstrates that PCA is **not scale invariant**: features with large numerical variance dominate the principal components regardless of informational importance, mandating standardizing features to unit variance before PCA.
+\end{enumerate}
+
+\paragraph{P3. Orthogonality of Principal Component Scores:}
+$Z = \tilde{X} W \in \mathbb{R}^{N \times k}$, where $W = [\mathbf{w}_1, \dots, \mathbf{w}_k]$ contains the orthonormal eigenvectors of $S = \frac{1}{N}\tilde{X}^T \tilde{X}$, satisfying $S W = W \Lambda_k$ and $W^T W = I_k$.
+The sample covariance of the scores is:
+\begin{equation*}
+S_Z = \frac{1}{N} Z^T Z = \frac{1}{N} (W^T \tilde{X}^T) (\tilde{X} W) = W^T \left( \frac{1}{N}\tilde{X}^T \tilde{X} \right) W = W^T S W
+\end{equation*}
+Substitute $S W = W \Lambda_k$:
+\begin{equation*}
+S_Z = W^T (W \Lambda_k) = (W^T W) \Lambda_k = I_k \Lambda_k = \diag(\lambda_1, \lambda_2, \dots, \lambda_k)
+\end{equation*}
+Because $S_Z$ is strictly diagonal, the sample covariance between distinct scores $z_i$ and $z_j$ ($i \ne j$) is zero: $\Cov(z_i, z_j) = 0$. Principal component scores are mutually **uncorrelated**.
+
+\paragraph{P4. Reconstruction Error Bounds:}
+Let $W_k = [\mathbf{w}_1, \dots, \mathbf{w}_k]$ and complete orthonormal basis $W_d = [W_k, W_\perp]$.
+Any centered sample $\tilde{\mathbf{x}}_i$ can be expanded as $\tilde{\mathbf{x}}_i = W_k W_k^T \tilde{\mathbf{x}}_i + W_\perp W_\perp^T \tilde{\mathbf{x}}_i$.
+The reconstruction error vector is $\tilde{\mathbf{x}}_i - W_k W_k^T \tilde{\mathbf{x}}_i = W_\perp W_\perp^T \tilde{\mathbf{x}}_i$.
+Using the cyclic trace property:
+\begin{align*}
+\frac{1}{N} \sum_{i=1}^N \|\tilde{\mathbf{x}}_i - W_k W_k^T \tilde{\mathbf{x}}_i\|_2^2 &= \frac{1}{N} \sum_{i=1}^N \trace\left( W_\perp W_\perp^T \tilde{\mathbf{x}}_i \tilde{\mathbf{x}}_i^T W_\perp W_\perp^T \right) \\
+&= \trace\left( W_\perp^T \left( \frac{1}{N} \sum_{i=1}^N \tilde{\mathbf{x}}_i \tilde{\mathbf{x}}_i^T \right) W_\perp \right) = \trace(W_\perp^T S W_\perp)
+\end{align*}
+Since the columns of $W_\perp$ are the remaining $d - k$ eigenvectors $\mathbf{w}_{k+1}, \dots, \mathbf{w}_d$:
+\begin{equation*}
+\trace(W_\perp^T S W_\perp) = \trace(\diag(\lambda_{k+1}, \dots, \lambda_d)) = \sum_{j=k+1}^d \lambda_j
+\end{equation*}
+
+\paragraph{P5. High-Dimensional Dual PCA Rank Bound:}
+Let $\tilde{X} \in \mathbb{R}^{N \times d}$. By construction, the rows of $\tilde{X}$ are centered to have zero mean: $\sum_{i=1}^N \tilde{\mathbf{x}}_i = \mathbf{0} \implies \mathbf{1}_N^T \tilde{X} = \mathbf{0}^T$.
+Thus the all-ones vector $\mathbf{1}_N$ lies in the left nullspace of $\tilde{X}$, meaning $\rank(\tilde{X}) \le N - 1$.
+Because $\rank(S) = \rank\left(\frac{1}{N}\tilde{X}^T \tilde{X}\right) = \rank(\tilde{X}) \le \min(N - 1, d) = N - 1$.
+Since $S$ is a $d \times d$ matrix with rank at most $N - 1$, by the Rank-Nullity Theorem:
+\begin{equation*}
+\dim(\Null(S)) = d - \rank(S) \ge d - (N - 1) = d - N + 1
+\end{equation*}
+Thus at least $d - N + 1$ eigenvalues must be identically zero.
+
+\subsection*{Part B: Diagnostic Multiple-Choice Rationales}
+
+\paragraph{MCQ1: Proportion of Variance Explained}
+\begin{itemize}
+    \item \textbf{(a) Correct.} Total variance is $\sum_{j=1}^4 \lambda_j = 12 + 5 + 2 + 1 = 20$. Retaining top 2 components captures $\lambda_1 + \lambda_2 = 12 + 5 = 17$. The proportion is $\frac{17}{20} = 85\%$.
+    \item \textbf{(b) Incorrect.} Uses squared eigenvalues (which would correspond to squared covariance eigenvalues, mathematically erroneous for PCA variance ratio).
+    \item \textbf{(c) Incorrect.} Only accounts for the first principal component ($12/20 = 60\%$).
+    \item \textbf{(d) Incorrect.} Square roots of eigenvalues represent singular values, not variance proportions.
+\end{itemize}
+
+\paragraph{MCQ2: When PCA Harms Classification}
+\begin{itemize}
+    \item \textbf{(a) Incorrect.} If features are uncorrelated, PCA simply orders them by variance.
+    \item \textbf{(b) Correct.} PCA is unsupervised and maximizes feature variance. If the class-separating signal lies along a low-variance direction, PCA will project it out as noise, destroying class separability.
+    \item \textbf{(c) Incorrect.} $N > d$ is standard overdetermined data where PCA performs stably.
+    \item \textbf{(d) Incorrect.} Centering data is required for PCA and does not destroy classification manifolds.
+\end{itemize}
+
+% ======================================================================
+% CHAPTER 8 SOLUTIONS
+% ======================================================================
+\section*{Chapter 8: Unconstrained Optimization \& Gradient Descent}
+
+\subsection*{Part A: Analytical Solutions}
+
+\paragraph{P1. Analytical Step-Size Bound on a 2D Quadratic:}
+$f(x_1, x_2) = 10 x_1^2 + x_2^2 - 4x_1 - 2x_2$.
+\begin{enumerate}[label=(\alph*)]
+    \item $\nabla f(\mathbf{x}) = [20x_1 - 4, 2x_2 - 2]^T$.
+    $\nabla^2 f(\mathbf{x}) = \begin{bmatrix} 20 & 0 \\ 0 & 2 \end{bmatrix}$.
+    \item Setting $\nabla f = \mathbf{0} \implies 20x_1 = 4 \implies x_1^* = 0.2$, and $2x_2 = 2 \implies x_2^* = 1.0$.
+    Global minimum is $\mathbf{x}^* = [0.2, 1.0]^T$.
+    \item Eigenvalues of the Hessian: $\lambda_1 = 20, \lambda_2 = 2$.
+    Lipschitz constant $L = \lambda_{\max} = 20$.
+    Strong convexity parameter $\mu = \lambda_{\min} = 2$.
+    \item Maximum stable step size: $\eta_{\max} = \frac{2}{L} = \frac{2}{20} = 0.1$.
+    Optimal step size: $\eta^* = \frac{2}{L + \mu} = \frac{2}{20 + 2} = \frac{2}{22} = \frac{1}{11} \approx 0.0909$.
+\end{enumerate}
+
+\paragraph{P2. Convergence Rate for Convex $L$-Smooth Functions:}
+By the Descent Lemma with $\eta = 1/L$:
+\begin{equation*}
+f(\mathbf{w}_{k+1}) \le f(\mathbf{w}_k) - \frac{1}{2L}\|\nabla f(\mathbf{w}_k)\|_2^2
+\end{equation*}
+By convexity: $f(\mathbf{w}_k) - f^* \le \nabla f(\mathbf{w}_k)^T (\mathbf{w}_k - \mathbf{w}^*) \le \|\nabla f(\mathbf{w}_k)\|_2 \|\mathbf{w}_k - \mathbf{w}^*\|_2$.
+Squaring: $\|\nabla f(\mathbf{w}_k)\|_2^2 \ge \frac{(f(\mathbf{w}_k) - f^*)^2}{\|\mathbf{w}_k - \mathbf{w}^*\|_2^2} \ge \frac{(f(\mathbf{w}_k) - f^*)^2}{R^2}$, where $R = \|\mathbf{w}_0 - \mathbf{w}^*\|_2$ (since distance to optimum is non-increasing).
+Let $\Delta_k = f(\mathbf{w}_k) - f^*$. Then:
+\begin{equation*}
+\Delta_{k+1} \le \Delta_k - \frac{1}{2L R^2} \Delta_k^2
+\end{equation*}
+Inverting both sides:
+\begin{equation*}
+\frac{1}{\Delta_{k+1}} - \frac{1}{\Delta_k} = \frac{\Delta_k - \Delta_{k+1}}{\Delta_k \Delta_{k+1}} \ge \frac{\Delta_k - \Delta_{k+1}}{\Delta_k^2} \ge \frac{1}{2L R^2}
+\end{equation*}
+Summing from $k = 0$ to $T - 1$:
+\begin{equation*}
+\frac{1}{\Delta_T} - \frac{1}{\Delta_0} \ge \frac{T}{2L R^2} \implies \frac{1}{\Delta_T} \ge \frac{T}{2L R^2} \implies \Delta_T \le \frac{2L R^2}{T} = \mathcal{O}\left(\frac{1}{T}\right)
+\end{equation*}
+
+\paragraph{P3. Exact Newton Step on Non-Quadratic Function:}
+$f(x) = x^4 + 2x^2 + 4x$.
+\begin{enumerate}[label=(\alph*)]
+    \item $f'(x) = 4x^3 + 4x + 4$.
+    $f''(x) = 12x^2 + 4$.
+    \item Starting from $x_0 = 1$:
+    $f'(1) = 4(1) + 4(1) + 4 = 12$.
+    $f''(1) = 12(1) + 4 = 16$.
+    $x_1 = x_0 - \frac{f'(x_0)}{f''(x_0)} = 1 - \frac{12}{16} = 1 - 0.75 = 0.25$.
+    At $x_1 = 0.25$:
+    $f'(0.25) = 4(1/64) + 4(1/4) + 4 = 1/16 + 1 + 4 = 5.0625$.
+    $f''(0.25) = 12(1/16) + 4 = 3/4 + 4 = 4.75$.
+    $x_2 = 0.25 - \frac{5.0625}{4.75} \approx 0.25 - 1.0658 = -0.8158$.
+    \item Newton's method adjusts step size adaptively via curvature $f''(x)$, leaping directly across steep and flat zones, whereas gradient descent with fixed $\eta = 0.05$ crawls sluggishly ($x_1 = 1 - 0.05(12) = 0.40$).
+\end{enumerate}
+
+\paragraph{P4. Momentum Acceleration Dynamics:}
+For $f(w) = \frac{1}{2} a w^2$, $f'(w) = aw$.
+\begin{align*}
+w_{k+1} &= w_k - \alpha a w_k + \beta(w_k - w_{k-1}) = (1 - \alpha a + \beta)w_k - \beta w_{k-1}
+\end{align*}
+Define state vector $\mathbf{u}_k = \begin{bmatrix} w_k \\ w_{k-1} \end{bmatrix}$. In matrix form:
+\begin{equation*}
+\mathbf{u}_{k+1} = \begin{bmatrix} 1 - \alpha a + \beta & -\beta \\ 1 & 0 \end{bmatrix} \mathbf{u}_k = T \mathbf{u}_k
+\end{equation*}
+Characteristic equation of transition matrix $T$:
+\begin{equation*}
+\det\begin{bmatrix} 1 - \alpha a + \beta - \lambda & -\beta \\ 1 & -\lambda \end{bmatrix} = \lambda^2 - (1 - \alpha a + \beta)\lambda + \beta = 0
+\end{equation*}
+For complex conjugate eigenvalues, $|\lambda|^2 = \det(T) = \beta$. Stability requires spectral radius $\rho(T) < 1 \implies 0 \le \beta < 1$.
+
+\paragraph{P5. Strongly Convex Linear Convergence Rate:}
+For quadratic objective with $A \succ 0$: $\mathbf{w}_k - \mathbf{w}^* = (I - \eta A)^k (\mathbf{w}_0 - \mathbf{w}^*)$.
+Taking Euclidean norms: $\|\mathbf{w}_k - \mathbf{w}^*\|_2 \le \|(I - \eta A)^k\|_2 \|\mathbf{w}_0 - \mathbf{w}^*\|_2 = [\rho(I - \eta A)]^k \|\mathbf{w}_0 - \mathbf{w}^*\|_2$.
+Eigenvalues of $I - \eta A$ are $1 - \eta \lambda_i$.
+With $\eta^* = \frac{2}{L + \mu}$:
+\begin{align*}
+1 - \eta^* \mu &= 1 - \frac{2\mu}{L + \mu} = \frac{L - \mu}{L + \mu} = \frac{\kappa - 1}{\kappa + 1} \\
+1 - \eta^* L &= 1 - \frac{2L}{L + \mu} = \frac{\mu - L}{L + \mu} = -\left( \frac{\kappa - 1}{\kappa + 1} \right)
+\end{align*}
+The spectral radius is $\rho^* = \max_i |1 - \eta^* \lambda_i| = \frac{\kappa - 1}{\kappa + 1}$.
+Therefore: $\|\mathbf{w}_k - \mathbf{w}^*\|_2 \le \left( \frac{\kappa - 1}{\kappa + 1} \right)^k \|\mathbf{w}_0 - \mathbf{w}^*\|_2$.
+
+\subsection*{Part B: Diagnostic Multiple-Choice Rationales}
+
+\paragraph{MCQ1: Gradient Descent Stability Bound}
+\begin{itemize}
+    \item \textbf{(a) Incorrect.} $\eta = 0.1$ is a valid stable step size ($\eta \le 1/L$), but not the largest non-divergent step size.
+    \item \textbf{(b) Correct.} The exact theoretical divergence boundary is $\eta_{\max} = \frac{2}{L}$. For $L = 10$, $\eta_{\max} = \frac{2}{10} = 0.2$. Any step size $\eta \ge 0.2$ creates contraction factor $|1 - \eta L| \ge 1$, causing oscillations to amplify.
+    \item \textbf{(c) Incorrect.} $\eta = 0.05$ is overly conservative.
+    \item \textbf{(d) Incorrect.} $\eta = 1.0 > 0.2$ will immediately cause exponential divergence.
+\end{itemize}
+
+\paragraph{MCQ2: High Condition Number Zig-Zagging}
+\begin{itemize}
+    \item \textbf{(a) Correct.} The gradient is dominated by the eigenvector corresponding to $\lambda_{\max} = L$. To avoid divergence along this narrow canyon, the step size must be bounded by $\eta < 2/L$. At this tiny step size, progress along the low-curvature direction ($\lambda_{\min} = \mu$) is throttled to rate $\eta \mu = 2/\kappa \ll 1$, forcing thousands of cross-ravine oscillations.
+    \item \textbf{(b) Incorrect.} The problem is strictly convex with positive eigenvalues.
+    \item \textbf{(c) Incorrect.} The gradient is non-zero along the walls of the ravine.
+    \item \textbf{(d) Incorrect.} $A \succ 0$ is strictly positive definite and invertible.
+\end{itemize}
+
+% ======================================================================
+% CHAPTER 9 SOLUTIONS
+% ======================================================================
+\section*{Chapter 9: Constrained Optimization \& Convex Sets}
+
+\subsection*{Part A: Analytical Solutions}
+
+\paragraph{P1. Analytical Lagrange Multipliers with Linear Constraint:}
+$\min f(x, y) = 2x^2 + y^2$ subject to $x + y = 3$.
+\begin{enumerate}[label=(\alph*)]
+    \item $\mathcal{L}(x, y, \nu) = 2x^2 + y^2 + \nu(x + y - 3)$.
+    \item $\frac{\partial \mathcal{L}}{\partial x} = 4x + \nu = 0 \implies x = -\frac{\nu}{4}$.
+    $\frac{\partial \mathcal{L}}{\partial y} = 2y + \nu = 0 \implies y = -\frac{\nu}{2}$.
+    $\frac{\partial \mathcal{L}}{\partial \nu} = x + y - 3 = 0$.
+    \item Substitute into constraint: $-\frac{\nu}{4} - \frac{\nu}{2} = 3 \implies -\frac{3\nu}{4} = 3 \implies \nu^* = -4$.
+    Coordinates: $x^* = -\frac{-4}{4} = 1$, $y^* = -\frac{-4}{2} = 2$.
+    \item Objective gradient at $(1, 2)$: $\nabla f(1, 2) = [4(1), 2(2)]^T = [4, 4]^T$.
+    Constraint gradient: $\nabla h(1, 2) = [1, 1]^T$.
+    $\nabla f(1, 2) = 4 [1, 1]^T = -\nu^* \nabla h = -(-4)[1, 1]^T = [4, 4]^T$. Gradients are strictly collinear.
+\end{enumerate}
+
+\paragraph{P2. Maximum Entropy Probability Distribution:}
+Maximize $H(\mathbf{p}) = -\sum_{i=1}^K p_i \log p_i$ subject to $\sum_{i=1}^K p_i = 1$.
+Equivalently, minimize $\sum_{i=1}^K p_i \log p_i$ subject to $\sum p_i = 1$.
+Lagrangian: $\mathcal{L}(\mathbf{p}, \nu) = \sum_{i=1}^K p_i \log p_i + \nu\left(\sum_{i=1}^K p_i - 1\right)$.
+Stationarity condition:
+\begin{equation*}
+\frac{\partial \mathcal{L}}{\partial p_i} = \log p_i + p_i \frac{1}{p_i} + \nu = \log p_i + 1 + \nu = 0 \implies \log p_i = -(1 + \nu) \implies p_i = e^{-(1 + \nu)}
+\end{equation*}
+Notice that $p_i$ is identical for all $i \in \{1, \dots, K\}$.
+Enforcing normalization: $\sum_{i=1}^K p_i = K e^{-(1 + \nu)} = 1 \implies e^{-(1 + \nu)} = \frac{1}{K}$.
+Thus $p_i^* = \frac{1}{K}$ for all $i \in \{1, \dots, K\}$. The uniform distribution maximizes entropy.
+
+\paragraph{P3. Convexity of Log-Sum-Exp:}
+$f(\mathbf{x}) = \log\left(\sum_{i=1}^d e^{x_i}\right)$. Let $S = \sum_{i=1}^d e^{x_i}$.
+\begin{enumerate}[label=(\alph*)]
+    \item $\frac{\partial f}{\partial x_k} = \frac{1}{S} \frac{\partial S}{\partial x_k} = \frac{e^{x_k}}{S} = \sigma_k(\mathbf{x})$.
+    Since $\sigma_k > 0$ and $\sum_{k=1}^d \sigma_k = \frac{\sum e^{x_k}}{S} = 1$, the gradient $\nabla f(\mathbf{x}) = \boldsymbol{\sigma}(\mathbf{x})$ is a probability vector.
+    \item Second partial derivative:
+    $\frac{\partial^2 f}{\partial x_k \partial x_j} = \frac{\partial \sigma_k}{\partial x_j} = \sigma_k (\delta_{kj} - \sigma_j)$.
+    In matrix form: $\nabla^2 f(\mathbf{x}) = \diag(\boldsymbol{\sigma}) - \boldsymbol{\sigma}\boldsymbol{\sigma}^T$.
+    \item For any $\mathbf{v} \in \mathbb{R}^d$:
+    \begin{equation*}
+    \mathbf{v}^T \nabla^2 f(\mathbf{x})\mathbf{v} = \mathbf{v}^T \diag(\boldsymbol{\sigma})\mathbf{v} - (\mathbf{v}^T \boldsymbol{\sigma})^2 = \sum_{i=1}^d \sigma_i v_i^2 - \left( \sum_{i=1}^d \sigma_i v_i \right)^2
+    \end{equation*}
+    Recognizing $\sum \sigma_i v_i^2 = \E[V^2]$ and $\sum \sigma_i v_i = \E[V]$ under the probability distribution $\boldsymbol{\sigma}$:
+    \begin{equation*}
+    \mathbf{v}^T \nabla^2 f(\mathbf{x})\mathbf{v} = \E[V^2] - (\E[V])^2 = \Var(V) \ge 0
+    \end{equation*}
+    Because variance is always non-negative, $\nabla^2 f(\mathbf{x}) \succeq 0$ for all $\mathbf{x}$, proving log-sum-exp is convex.
+\end{enumerate}
+
+\paragraph{P4. Projection onto a Halfspace:}
+$\mathcal{H}_- = \{\mathbf{x} \in \mathbb{R}^d \mid \mathbf{a}^T \mathbf{x} \le b\}$ with $\|\mathbf{a}\|_2 = 1$.
+\begin{itemize}
+    \item If $\mathbf{a}^T \mathbf{x}_0 \le b$, then $\mathbf{x}_0 \in \mathcal{H}_-$, so $\Pi(\mathbf{x}_0) = \mathbf{x}_0$.
+    \item If $\mathbf{a}^T \mathbf{x}_0 > b$, $\mathbf{x}_0$ violates the halfspace constraint. The closest point lies on the bounding hyperplane $\mathbf{a}^T \mathbf{x} = b$. The displacement from $\mathbf{x}_0$ orthogonal to the hyperplane is in direction $-\mathbf{a}$.
+    Distance to hyperplane: $d = \frac{\mathbf{a}^T \mathbf{x}_0 - b}{\|\mathbf{a}\|_2} = \mathbf{a}^T \mathbf{x}_0 - b$.
+    Projected point: $\mathbf{x}^* = \mathbf{x}_0 - (\mathbf{a}^T \mathbf{x}_0 - b)\mathbf{a}$.
+\end{itemize}
+Combining both cases: $\Pi_{\mathcal{H}_-}(\mathbf{x}_0) = \mathbf{x}_0 - \max(0, \mathbf{a}^T \mathbf{x}_0 - b)\mathbf{a}$.
+
+\paragraph{P5. Jensen's Inequality and AM-GM Proof:}
+Consider $f(t) = -\log t$. Since $f''(t) = \frac{1}{t^2} > 0$ for $t > 0$, $f$ is strictly convex on $(0, \infty)$.
+Let random variable $X$ take values $a_1, a_2, \dots, a_n > 0$ with equal probabilities $p_i = \frac{1}{n}$.
+By Jensen's inequality:
+\begin{equation*}
+f(\E[X]) \le \E[f(X)] \implies -\log\left( \frac{1}{n}\sum_{i=1}^n a_i \right) \le \frac{1}{n}\sum_{i=1}^n (-\log a_i)
+\end{equation*}
+Multiplying by $-1$ reverses the inequality:
+\begin{equation*}
+\log\left( \frac{1}{n}\sum_{i=1}^n a_i \right) \ge \frac{1}{n}\sum_{i=1}^n \log a_i = \log\left( \left(\prod_{i=1}^n a_i\right)^{1/n} \right)
+\end{equation*}
+Exponentiating both sides:
+\begin{equation*}
+\frac{1}{n}\sum_{i=1}^n a_i \ge \left( \prod_{i=1}^n a_i \right)^{1/n} \quad (\text{AM} \ge \text{GM})
+\end{equation*}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Rationales}
+
+\paragraph{MCQ1: Identification of Non-Convex Sets}
+\begin{itemize}
+    \item \textbf{(a) Convex.} Any Euclidean norm ball $B = \{\mathbf{x} \mid \|\mathbf{x}\| \le 1\}$ is convex by the triangle inequality.
+    \item \textbf{(b) Convex.} The positive semidefinite cone $S^d_+$ is convex: if $A, B \succeq 0$, then $\theta A + (1-\theta)B \succeq 0$.
+    \item \textbf{(c) NOT Convex.} The hollow shell $S = \{\mathbf{x} \mid \|\mathbf{x}\| = 1\}$ contains $\mathbf{x} = [1, 0]^T$ and $\mathbf{y} = [-1, 0]^T$. The midpoint $\frac{1}{2}\mathbf{x} + \frac{1}{2}\mathbf{y} = [0, 0]^T$ has norm $0 \ne 1$, lying outside the set.
+    \item \textbf{(d) Convex.} Any halfspace $\mathbf{a}^T \mathbf{x} \le b$ is a closed convex set.
+\end{itemize}
+
+\paragraph{MCQ2: First-Order Convexity Tangent Hyperplane}
+\begin{itemize}
+    \item \textbf{(a) Incorrect.} A tangent hyperplane lying above the graph occurs for concave functions, not convex functions.
+    \item \textbf{(b) Correct.} By the first-order characterization $f(\mathbf{y}) \ge f(\mathbf{x}) + \nabla f(\mathbf{x})^T (\mathbf{y} - \mathbf{x})$, the affine approximation forms a global supporting hyperplane that lies everywhere below or touches the graph of $f$.
+    \item \textbf{(c) Incorrect.} For strictly convex functions, the tangent touches the graph at exactly one unique point.
+    \item \textbf{(d) Incorrect.} The slope is determined by the gradient vector $\nabla f$, not the Hessian determinant.
+\end{itemize}
+
+% ======================================================================
+% CHAPTER 10 SOLUTIONS
+% ======================================================================
+\section*{Chapter 10: Convex Duality, KKT Conditions \& SVMs}
+
+\subsection*{Part A: Analytical Solutions}
+
+\paragraph{P1. Analytical KKT System on Quadratic Inequality:}
+$\min x^2 + y^2$ subject to $4 - x - y \le 0$.
+\begin{enumerate}[label=(\alph*)]
+    \item Lagrangian: $\mathcal{L}(x, y, \lambda) = x^2 + y^2 + \lambda(4 - x - y)$ with $\lambda \ge 0$.
+    \item KKT conditions:
+    1. Primal: $4 - x - y \le 0$.
+    2. Dual: $\lambda \ge 0$.
+    3. Slackness: $\lambda(4 - x - y) = 0$.
+    4. Stationarity: $\frac{\partial \mathcal{L}}{\partial x} = 2x - \lambda = 0 \implies x = \lambda/2$; $\frac{\partial \mathcal{L}}{\partial y} = 2y - \lambda = 0 \implies y = \lambda/2$.
+    \item Case 1: $\lambda = 0 \implies x = 0, y = 0$. Primal check: $4 - 0 - 0 = 4 \le 0$ (FALSE). Violates primal feasibility.
+    \item Case 2: $\lambda > 0 \implies 4 - x - y = 0 \implies 4 - \frac{\lambda}{2} - \frac{\lambda}{2} = 0 \implies \lambda^* = 4$.
+    Then $x^* = 2, y^* = 2$.
+    Check: $\lambda^* = 4 \ge 0$ (pass), $4 - 2 - 2 = 0 \le 0$ (pass), $\lambda(0) = 0$ (pass), $\nabla \mathcal{L} = \mathbf{0}$ (pass).
+    Optimal solution is $(x^*, y^*) = (2, 2)$ with $\lambda^* = 4$.
+\end{enumerate}
+
+\paragraph{P2. Dual of a Linear Program (LP):}
+Primal: $\min_{\mathbf{x} \in \mathbb{R}^n} \mathbf{c}^T \mathbf{x}$ s.t. $A\mathbf{x} = \mathbf{b}$ and $\mathbf{x} \ge \mathbf{0}$ ($-\mathbf{x} \le \mathbf{0}$).
+\begin{enumerate}[label=(\alph*)]
+    \item Lagrangian: $\mathcal{L}(\mathbf{x}, \boldsymbol{\lambda}, \boldsymbol{\nu}) = \mathbf{c}^T \mathbf{x} + \boldsymbol{\nu}^T (\mathbf{b} - A\mathbf{x}) - \boldsymbol{\lambda}^T \mathbf{x} = \boldsymbol{\nu}^T \mathbf{b} + (\mathbf{c} - A^T \boldsymbol{\nu} - \boldsymbol{\lambda})^T \mathbf{x}$, with $\boldsymbol{\lambda} \ge \mathbf{0}$.
+    \item Dual function $g(\boldsymbol{\lambda}, \boldsymbol{\nu}) = \inf_{\mathbf{x}} \mathcal{L}$:
+    An affine function of $\mathbf{x}$ is bounded below if and only if the linear coefficient is identically zero:
+    \begin{equation*}
+    g(\boldsymbol{\lambda}, \boldsymbol{\nu}) = \begin{cases} \mathbf{b}^T \boldsymbol{\nu} & \text{if } \mathbf{c} - A^T \boldsymbol{\nu} - \boldsymbol{\lambda} = \mathbf{0} \\ -\infty & \text{otherwise} \end{cases}
+    \end{equation*}
+    \item Dual LP: Maximize $\mathbf{b}^T \boldsymbol{\nu}$ subject to $\mathbf{c} - A^T \boldsymbol{\nu} = \boldsymbol{\lambda} \ge \mathbf{0} \implies A^T \boldsymbol{\nu} \le \mathbf{c}$.
+\end{enumerate}
+
+\paragraph{P3. Analytical 3-Point Hard-Margin SVM:}
+Points: $\mathbf{x}_1 = [1, 1]^T, y_1 = +1$; $\mathbf{x}_2 = [2, 0]^T, y_2 = +1$; $\mathbf{x}_3 = [0, 0]^T, y_3 = -1$.
+\begin{enumerate}[label=(\alph*)]
+    \item Constraint: $\sum \lambda_i y_i = \lambda_1 + \lambda_2 - \lambda_3 = 0 \implies \lambda_3 = \lambda_1 + \lambda_2$.
+    Kernel products: $\mathbf{x}_1^T \mathbf{x}_1 = 2$, $\mathbf{x}_2^T \mathbf{x}_2 = 4$, $\mathbf{x}_3^T \mathbf{x}_3 = 0$, $\mathbf{x}_1^T \mathbf{x}_2 = 2$, $\mathbf{x}_1^T \mathbf{x}_3 = 0$, $\mathbf{x}_2^T \mathbf{x}_3 = 0$.
+    Dual objective:
+    \begin{align*}
+    D(\lambda_1, \lambda_2) &= (\lambda_1 + \lambda_2 + \lambda_3) - \frac{1}{2}\left[ \lambda_1^2 (2) + \lambda_2^2 (4) + \lambda_3^2 (0) + 2\lambda_1 \lambda_2 (2) - 0 - 0 \right] \\
+    &= 2(\lambda_1 + \lambda_2) - \lambda_1^2 - 2\lambda_2^2 - 2\lambda_1 \lambda_2
+    \end{align*}
+    \item Stationarity: $\frac{\partial D}{\partial \lambda_1} = 2 - 2\lambda_1 - 2\lambda_2 = 0 \implies \lambda_1 + \lambda_2 = 1$.
+    $\frac{\partial D}{\partial \lambda_2} = 2 - 4\lambda_2 - 2\lambda_1 = 0 \implies \lambda_1 + 2\lambda_2 = 1$.
+    Subtracting: $\lambda_2^* = 0 \implies \lambda_1^* = 1 \implies \lambda_3^* = 1$.
+    \item Support vectors are $\mathbf{x}_1$ ($\lambda_1^* = 1 > 0$) and $\mathbf{x}_3$ ($\lambda_3^* = 1 > 0$). Point $\mathbf{x}_2$ is non-support ($\lambda_2^* = 0$).
+    Weights: $\mathbf{w}^* = \lambda_1 y_1 \mathbf{x}_1 + \lambda_3 y_3 \mathbf{x}_3 = 1(1)[1, 1]^T + 1(-1)[0, 0]^T = [1, 1]^T$.
+    Bias: $y_1(\mathbf{w}^T \mathbf{x}_1 + b) = 1 \implies 1(1(1) + 1(1) + b) = 1 \implies 2 + b = 1 \implies b^* = -1$.
+    Hyperplane is $x_1 + x_2 - 1 = 0$.
+\end{enumerate}
+
+\paragraph{P4. Soft-Margin SVM KKT Slack Derivation:}
+$\mathcal{L} = \frac{1}{2}\|\mathbf{w}\|^2 + C\sum \xi_i - \sum \lambda_i [y_i(\mathbf{w}^T \mathbf{x}_i + b) - 1 + \xi_i] - \sum \mu_i \xi_i$, with $\lambda_i \ge 0, \mu_i \ge 0$.
+Stationarity with respect to slack $\xi_i$:
+\begin{equation*}
+\frac{\partial \mathcal{L}}{\partial \xi_i} = C - \lambda_i - \mu_i = 0 \implies \lambda_i + \mu_i = C \implies \lambda_i = C - \mu_i
+\end{equation*}
+Since $\mu_i \ge 0$, $\lambda_i \le C$. Combined with dual feasibility $\lambda_i \ge 0$:
+\begin{equation*}
+0 \le \lambda_i \le C
+\end{equation*}
+Geometric classifications:
+\begin{itemize}
+    \item $\lambda_i = 0 \implies \mu_i = C > 0 \implies \xi_i = 0$. Sample is strictly correct and outside margin ($y_i(\mathbf{w}^T \mathbf{x}_i + b) > 1$).
+    \item $0 < \lambda_i < C \implies \mu_i > 0 \implies \xi_i = 0$. Sample lies **strictly on margin boundary** ($y_i(\mathbf{w}^T \mathbf{x}_i + b) = 1$).
+    \item $\lambda_i = C \implies \mu_i = 0 \implies \xi_i \ge 0$. Sample violates margin (in margin or misclassified).
+\end{itemize}
+
+\paragraph{P5. Kernel Ridge Regression via Duality:}
+Primal: $\min_{\mathbf{w}, \mathbf{r}} \frac{1}{2}\|\mathbf{r}\|_2^2 + \frac{\lambda}{2}\|\mathbf{w}\|_2^2$ s.t. $\mathbf{r} = X\mathbf{w} - \mathbf{y}$.
+Lagrangian with multiplier $\boldsymbol{\alpha}$: $\mathcal{L}(\mathbf{w}, \mathbf{r}, \boldsymbol{\alpha}) = \frac{1}{2}\|\mathbf{r}\|^2 + \frac{\lambda}{2}\|\mathbf{w}\|^2 + \boldsymbol{\alpha}^T (\mathbf{y} - X\mathbf{w} + \mathbf{r})$.
+Stationarity:
+$\nabla_{\mathbf{w}} \mathcal{L} = \lambda \mathbf{w} - X^T \boldsymbol{\alpha} = \mathbf{0} \implies \mathbf{w} = \frac{1}{\lambda} X^T \boldsymbol{\alpha}$.
+$\nabla_{\mathbf{r}} \mathcal{L} = \mathbf{r} + \boldsymbol{\alpha} = \mathbf{0} \implies \mathbf{r} = -\boldsymbol{\alpha}$.
+Substituting back into constraint $\mathbf{r} = X\mathbf{w} - \mathbf{y}$:
+$-\boldsymbol{\alpha} = X\left(\frac{1}{\lambda}X^T \boldsymbol{\alpha}\right) - \mathbf{y} \implies \left( \frac{1}{\lambda}X X^T + I \right)\boldsymbol{\alpha} = \mathbf{y} \implies (K + \lambda I)\boldsymbol{\alpha} = \lambda \mathbf{y}$.
+Thus $\boldsymbol{\alpha} = \lambda(K + \lambda I)^{-1}\mathbf{y}$.
+Prediction on new $\mathbf{x}_{\text{test}}$:
+\begin{equation*}
+\hat{y} = \mathbf{w}^T \mathbf{x}_{\text{test}} = \left(\frac{1}{\lambda} X^T \boldsymbol{\alpha}\right)^T \mathbf{x}_{\text{test}} = \frac{1}{\lambda} \boldsymbol{\alpha}^T (X \mathbf{x}_{\text{test}}) = \mathbf{k}(\mathbf{x}_{\text{test}})^T (K + \lambda I)^{-1}\mathbf{y}
+\end{equation*}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Rationales}
+
+\paragraph{MCQ1: Multiplier Interpretation in Soft-Margin SVM}
+\begin{itemize}
+    \item \textbf{(a) Incorrect.} Points strictly on the margin boundary have $0 < \lambda_i^* < C$.
+    \item \textbf{(b) Correct.} By complementary slackness, $\lambda_i^* [y_i(\mathbf{w}^T \mathbf{x}_i + b) - (1 - \xi_i)] = 0$ and $\mu_i^* \xi_i = 0$. When $\lambda_i^* = 0$, $\mu_i^* = C - \lambda_i^* = C > 0$, forcing slack $\xi_i = 0$. The sample lies strictly on the correct side of the margin: $y_i(\mathbf{w}^T \mathbf{x}_i + b) > 1$.
+    \item \textbf{(c) Incorrect.} Margin violators have $\lambda_i^* = C$.
+    \item \textbf{(d) Incorrect.} The separating hyperplane corresponds to $y_i(\mathbf{w}^T \mathbf{x}_i + b) = 0$, which has slack $\xi_i = 1$ and multiplier $\lambda_i^* = C$.
+\end{itemize}
+
+\paragraph{MCQ2: Universal Concavity of Dual Function}
+\begin{itemize}
+    \item \textbf{(a) Incorrect.} The infimum of numbers can be positive or negative.
+    \item \textbf{(b) Correct.} For every fixed $\mathbf{w}$, the Lagrangian $\mathcal{L}(\mathbf{w}, \boldsymbol{\lambda}, \boldsymbol{\nu}) = f_0(\mathbf{w}) + \sum \lambda_i f_i(\mathbf{w}) + \sum \nu_j h_j(\mathbf{w})$ is strictly affine (linear) in $(\boldsymbol{\lambda}, \boldsymbol{\nu})$. The dual function $g(\boldsymbol{\lambda}, \boldsymbol{\nu}) = \inf_{\mathbf{w}} \mathcal{L}(\mathbf{w}, \boldsymbol{\lambda}, \boldsymbol{\nu})$ is the pointwise infimum of affine functions, which is universally concave.
+    \item \textbf{(c) Incorrect.} Slater's condition guarantees zero duality gap, not concavity.
+    \item \textbf{(d) Incorrect.} Positivity of $\boldsymbol{\lambda}$ defines the dual domain, not the functional concavity.
+\end{itemize}
+
+% ======================================================================
+% CHAPTER 11 SOLUTIONS
+% ======================================================================
+\section*{Chapter 11: Probability Foundations \& the Exponential Family}
+
+\subsection*{Part A: Analytical Solutions}
+
+\paragraph{P1. Analytical Linear Transformation of a 2D Gaussian:}
+$\mathbf{X} \sim \mathcal{N}(\mathbf{0}, I_2)$, $\mathbf{Y} = A\mathbf{X}$ with $A = \begin{bmatrix} 2 & 1 \\ 0 & 3 \end{bmatrix}$.
+\begin{enumerate}[label=(\alph*)]
+    \item $\det(A) = 2(3) - 0 = 6$.
+    Inverse: $A^{-1} = \frac{1}{6}\begin{bmatrix} 3 & -1 \\ 0 & 2 \end{bmatrix} = \begin{bmatrix} 1/2 & -1/6 \\ 0 & 1/3 \end{bmatrix}$.
+    \item $f_{\mathbf{X}}(\mathbf{x}) = \frac{1}{2\pi} e^{-\frac{1}{2}(x_1^2 + x_2^2)}$. By the Jacobian rule~\eqref{eq:jacobian_transform}:
+    \begin{equation*}
+    f_{\mathbf{Y}}(\mathbf{y}) = f_{\mathbf{X}}(A^{-1}\mathbf{y})\frac{1}{|\det(A)|} = \frac{1}{2\pi \cdot 6} \exp\left( -\frac{1}{2} (A^{-1}\mathbf{y})^T (A^{-1}\mathbf{y}) \right)
+    \end{equation*}
+    $A^{-1}\mathbf{y} = [y_1/2 - y_2/6, y_2/3]^T$.
+    $\|A^{-1}\mathbf{y}\|_2^2 = (y_1/2 - y_2/6)^2 + (y_2/3)^2 = \frac{y_1^2}{4} - \frac{y_1 y_2}{6} + \frac{y_2^2}{36} + \frac{y_2^2}{9} = \frac{y_1^2}{4} - \frac{y_1 y_2}{6} + \frac{5y_2^2}{36}$.
+    Thus $f_{\mathbf{Y}}(\mathbf{y}) = \frac{1}{12\pi} \exp\left( -\frac{1}{2} \left[ \frac{y_1^2}{4} - \frac{y_1 y_2}{6} + \frac{5y_2^2}{36} \right] \right)$.
+    \item Covariance: $\Sigma_{\mathbf{Y}} = A A^T = \begin{bmatrix} 2 & 1 \\ 0 & 3 \end{bmatrix}\begin{bmatrix} 2 & 0 \\ 1 & 3 \end{bmatrix} = \begin{bmatrix} 5 & 3 \\ 3 & 9 \end{bmatrix}$.
+    $|\Sigma_{\mathbf{Y}}| = 45 - 9 = 36 = (\det A)^2$.
+    $\Sigma_{\mathbf{Y}}^{-1} = \frac{1}{36}\begin{bmatrix} 9 & -3 \\ -3 & 5 \end{bmatrix} = \begin{bmatrix} 1/4 & -1/12 \\ -1/12 & 5/36 \end{bmatrix}$.
+    $\mathbf{y}^T \Sigma_{\mathbf{Y}}^{-1}\mathbf{y} = \frac{y_1^2}{4} - \frac{y_1 y_2}{6} + \frac{5y_2^2}{36}$, matching the exponent exactly.
+\end{enumerate}
+
+\paragraph{P2. Non-Monotonic Transformation (Chi-Square Distribution):}
+$X \sim \mathcal{N}(0, 1)$, $Y = X^2$.
+\begin{enumerate}[label=(\alph*)]
+    \item For $y > 0$, $x^2 = y \implies x_1(y) = \sqrt{y}$ and $x_2(y) = -\sqrt{y}$.
+    \item $\frac{dx_1}{dy} = \frac{1}{2\sqrt{y}}$, $\frac{dx_2}{dy} = -\frac{1}{2\sqrt{y}}$.
+    Absolute values: $\left|\frac{dx_1}{dy}\right| = \left|\frac{dx_2}{dy}\right| = \frac{1}{2\sqrt{y}}$.
+    \item Summing branches:
+    \begin{align*}
+    f_Y(y) &= f_X(\sqrt{y})\left|\frac{dx_1}{dy}\right| + f_X(-\sqrt{y})\left|\frac{dx_2}{dy}\right| = \frac{1}{\sqrt{2\pi}}e^{-y/2} \left(\frac{1}{2\sqrt{y}}\right) + \frac{1}{\sqrt{2\pi}}e^{-y/2} \left(\frac{1}{2\sqrt{y}}\right) \\
+    &= \frac{1}{\sqrt{2\pi}} y^{-1/2} e^{-y/2} \quad \text{for } y > 0
+    \end{align*}
+    This is the Chi-Square distribution with 1 degree of freedom: $\chi^2(1)$.
+\end{enumerate}
+
+\paragraph{P3. Exponential Distribution in Canonical Form:}
+$f(x; \lambda) = \lambda e^{-\lambda x}$ for $x \ge 0$.
+\begin{enumerate}[label=(\alph*)]
+    \item Rewriting: $f(x; \lambda) = \exp(-\lambda x + \log\lambda) = 1 \cdot \exp((-\lambda) x - (-\log\lambda))$.
+    Matching with $h(x)\exp(\eta T(x) - A(\eta))$:
+    $h(x) = \mathbb{I}(x \ge 0)$, $T(x) = x$, $\eta = -\lambda$, $A(\eta) = -\log(-\eta)$.
+    \item First derivative: $A'(\eta) = -\frac{1}{-\eta}(-1) = -\frac{1}{\eta} = -\frac{1}{-\lambda} = \frac{1}{\lambda} = \E[X]$.
+    \item Second derivative: $A''(\eta) = \frac{d}{d\eta}\left(-\frac{1}{\eta}\right) = \frac{1}{\eta^2} = \frac{1}{(-\lambda)^2} = \frac{1}{\lambda^2} = \Var(X)$.
+\end{enumerate}
+
+\paragraph{P4. Uncorrelated but Strongly Dependent Variables:}
+$X \sim \mathcal{U}[-1, 1], Y = X^2$.
+\begin{enumerate}[label=(\alph*)]
+    \item $\E[X] = \int_{-1}^1 \frac{x}{2}dx = 0$.
+    $\E[Y] = \E[X^2] = \int_{-1}^1 \frac{x^2}{2}dx = \left[\frac{x^3}{6}\right]_{-1}^1 = \frac{1}{3}$.
+    $\E[XY] = \E[X^3] = \int_{-1}^1 \frac{x^3}{2}dx = 0$ (odd integrand).
+    \item $\Cov(X, Y) = \E[XY] - \E[X]\E[Y] = 0 - 0(1/3) = 0$.
+    \item $P(Y \le 0.25) = P(X^2 \le 0.25) = P(-0.5 \le X \le 0.5) = \frac{0.5 - (-0.5)}{2} = 0.5$.
+    Given $X \ge 0.8$, $Y = X^2 \ge 0.64 > 0.25$, so $P(Y \le 0.25 \mid X \ge 0.8) = 0$.
+    Since $0 \ne 0.5$, $X$ and $Y$ are statistically dependent.
+\end{enumerate}
+
+\paragraph{P5. Softmax Link from Categorical Distribution:}
+$P(X = k) = p_k$ with $\sum_{k=1}^K p_k = 1 \implies p_K = 1 - \sum_{k=1}^{K-1} p_k$.
+\begin{align*}
+p(x; \mathbf{p}) &= \prod_{k=1}^K p_k^{\mathbb{I}(x = k)} = \exp\left( \sum_{k=1}^{K-1} \mathbb{I}(x=k)\log p_k + \left(1 - \sum_{k=1}^{K-1}\mathbb{I}(x=k)\right)\log p_K \right) \\
+&= \exp\left( \sum_{k=1}^{K-1} \mathbb{I}(x=k)\log\left(\frac{p_k}{p_K}\right) + \log p_K \right)
+\end{align*}
+Natural parameters: $\eta_k = \log(p_k / p_K) \implies p_k = p_K e^{\eta_k}$ for $k < K$.
+Normalizing: $\sum_{k=1}^K p_k = p_K \left(1 + \sum_{k=1}^{K-1} e^{\eta_k}\right) = 1 \implies p_K = \frac{1}{1 + \sum_{j=1}^{K-1} e^{\eta_j}}$.
+For $k \in \{1, \dots, K-1\}$:
+\begin{equation*}
+p_k = \frac{e^{\eta_k}}{1 + \sum_{j=1}^{K-1} e^{\eta_j}}
+\end{equation*}
+Setting $\eta_K = 0$ yields the symmetric Softmax function: $p_k = \frac{e^{\eta_k}}{\sum_{j=1}^K e^{\eta_j}}$.
+
+\subsection*{Part B: Diagnostic Multiple-Choice Rationales}
+
+\paragraph{MCQ1: Linear Transformation Density Rule}
+\begin{itemize}
+    \item \textbf{(a) Incorrect.} The determinant factor must appear in the denominator or with inverse power.
+    \item \textbf{(b) Correct.} From $\mathbf{x} = A^{-1}(\mathbf{y} - \mathbf{b})$, the Jacobian is $J = A^{-1}$. The volume scaling factor is $|\det(A^{-1})| = \frac{1}{|\det(A)|}$, yielding $f_{\mathbf{Y}}(\mathbf{y}) = f_{\mathbf{X}}(A^{-1}(\mathbf{y} - \mathbf{b})) \frac{1}{|\det(A)|}$.
+    \item \textbf{(c) Incorrect.} Uses forward mapping $A\mathbf{y} + \mathbf{b}$ rather than the pre-image $A^{-1}(\mathbf{y} - \mathbf{b})$.
+    \item \textbf{(d) Incorrect.} Neglects the Jacobian volume distortion factor.
+\end{itemize}
+
+\paragraph{MCQ2: Hessian of the Log-Partition Function}
+\begin{itemize}
+    \item \textbf{(a) Incorrect.} Covariance matrices are positive semidefinite, not negative definite.
+    \item \textbf{(b) Correct.} By differentiating under the integral sign, $\nabla^2 A(\boldsymbol{\eta}) = \E[\mathbf{T}\mathbf{T}^T] - \E[\mathbf{T}]\E[\mathbf{T}]^T = \Cov(\mathbf{T}(X))$. Since any covariance matrix satisfies $\mathbf{v}^T \Cov(\mathbf{T})\mathbf{v} = \Var(\mathbf{v}^T \mathbf{T}) \ge 0$, the Hessian is positive semidefinite, proving $A(\boldsymbol{\eta})$ is strictly convex.
+    \item \textbf{(c) Incorrect.} The Hessian is non-zero for any non-degenerate distribution.
+    \item \textbf{(d) Incorrect.} The Hessian is equal to the Fisher information matrix multiplied by $+1$, not $-1$.
+\end{itemize}
+
+% ======================================================================
+% CHAPTER 12 SOLUTIONS
+% ======================================================================
+\section*{Chapter 12: Multivariate Gaussians, GMMs, EM \& Concentration}
+
+\subsection*{Part A: Analytical Solutions}
+
+\paragraph{P1. Analytical 2D Mahalanobis Distance:}
+$\boldsymbol{\mu} = [1, 2]^T, \Sigma = \begin{bmatrix} 4 & 2 \\ 2 & 2 \end{bmatrix}$.
+\begin{enumerate}[label=(\alph*)]
+    \item $|\Sigma| = 4(2) - 2(2) = 8 - 4 = 4$.
+    Inverse: $\Sigma^{-1} = \frac{1}{4}\begin{bmatrix} 2 & -2 \\ -2 & 4 \end{bmatrix} = \begin{bmatrix} 1/2 & -1/2 \\ -1/2 & 1 \end{bmatrix}$.
+    \item Difference vector for $\mathbf{x} = [3, 4]^T$: $\mathbf{x} - \boldsymbol{\mu} = [3 - 1, 4 - 2]^T = [2, 2]^T$.
+    Mahalanobis distance:
+    \begin{equation*}
+    D_M^2 = [2, 2] \begin{bmatrix} 1/2 & -1/2 \\ -1/2 & 1 \end{bmatrix} \begin{bmatrix} 2 \\ 2 \end{bmatrix} = [2, 2] \begin{bmatrix} 1 - 1 \\ -1 + 2 \end{bmatrix} = [2, 2] \begin{bmatrix} 0 \\ 1 \end{bmatrix} = 2
+    \end{equation*}
+    $D_M(\mathbf{x}, \boldsymbol{\mu}) = \sqrt{2} \approx 1.414$.
+    \item Characteristic equation of $\Sigma$: $(4 - \lambda)(2 - \lambda) - 4 = \lambda^2 - 6\lambda + 4 = 0$.
+    Eigenvalues: $\lambda = \frac{6 \pm \sqrt{36 - 16}}{2} = 3 \pm \sqrt{5}$.
+    $\lambda_1 = 3 + \sqrt{5} \approx 5.236$ (semi-major axis length $\sqrt{\lambda_1} \approx 2.288$).
+    $\lambda_2 = 3 - \sqrt{5} \approx 0.764$ (semi-minor axis length $\sqrt{\lambda_2} \approx 0.874$).
+    Eigenvector for $\lambda_1$: $(4 - (3+\sqrt{5}))v_1 + 2v_2 = 0 \implies (1 - \sqrt{5})v_1 + 2v_2 = 0 \implies \mathbf{q}_1 \propto [\sqrt{5}-1, 2]^T$.
+\end{enumerate}
+
+\paragraph{P2. Unbiasedness and Degrees of Freedom of Sample Covariance:}
+$\hat{\Sigma} = \frac{1}{N}\sum_{i=1}^N (\mathbf{X}_i - \bar{\mathbf{X}})(\mathbf{X}_i - \bar{\mathbf{X}})^T$.
+Expanding $\mathbf{X}_i - \bar{\mathbf{X}} = (\mathbf{X}_i - \boldsymbol{\mu}) - (\bar{\mathbf{X}} - \boldsymbol{\mu})$:
+\begin{align*}
+\sum_{i=1}^N (\mathbf{X}_i - \bar{\mathbf{X}})(\mathbf{X}_i - \bar{\mathbf{X}})^T &= \sum_{i=1}^N (\mathbf{X}_i - \boldsymbol{\mu})(\mathbf{X}_i - \boldsymbol{\mu})^T - N(\bar{\mathbf{X}} - \boldsymbol{\mu})(\bar{\mathbf{X}} - \boldsymbol{\mu})^T
+\end{align*}
+Taking expectations on both sides:
+\begin{equation*}
+\E\left[ \sum_{i=1}^N (\mathbf{X}_i - \boldsymbol{\mu})(\mathbf{X}_i - \boldsymbol{\mu})^T \right] = \sum_{i=1}^N \Sigma = N \Sigma
+\end{equation*}
+For the sample mean, since $\mathbf{X}_i$ are independent:
+\begin{equation*}
+\E\left[ (\bar{\mathbf{X}} - \boldsymbol{\mu})(\bar{\mathbf{X}} - \boldsymbol{\mu})^T \right] = \Var(\bar{\mathbf{X}}) = \frac{1}{N}\Sigma
+\end{equation*}
+Substituting:
+\begin{equation*}
+\E\left[ \sum_{i=1}^N (\mathbf{X}_i - \bar{\mathbf{X}})(\mathbf{X}_i - \bar{\mathbf{X}})^T \right] = N\Sigma - N\left(\frac{1}{N}\Sigma\right) = (N - 1)\Sigma
+\end{equation*}
+Dividing by $N$: $\E[\hat{\Sigma}_{\text{MLE}}] = \frac{N - 1}{N}\Sigma$.
+
+\paragraph{P3. Analytical E-step Calculation for a 1D GMM:}
+$K = 2$, $\pi_1 = 0.6, \mu_1 = 0, \sigma_1^2 = 1$; $\pi_2 = 0.4, \mu_2 = 3, \sigma_2^2 = 1$.
+Observation $x = 1.5$.
+\begin{enumerate}[label=(\alph*)]
+    \item $\mathcal{N}(1.5; 0, 1) = \frac{1}{\sqrt{2\pi}}e^{-(1.5-0)^2/2} = \frac{1}{\sqrt{2\pi}}e^{-2.25/2} = \frac{1}{\sqrt{2\pi}}e^{-1.125} \approx 0.3989 \times 0.3247 = 0.1295$.
+    $\mathcal{N}(1.5; 3, 1) = \frac{1}{\sqrt{2\pi}}e^{-(1.5-3)^2/2} = \frac{1}{\sqrt{2\pi}}e^{-(-1.5)^2/2} = \frac{1}{\sqrt{2\pi}}e^{-1.125} \approx 0.1295$.
+    Both Gaussian densities evaluate to the identical value $d = 0.1295$ because $|1.5 - 0| = |1.5 - 3| = 1.5$.
+    \item Responsibilities:
+    Numerator 1: $\pi_1 \mathcal{N}_1 = 0.6 \times d$.
+    Numerator 2: $\pi_2 \mathcal{N}_2 = 0.4 \times d$.
+    Denominator: $0.6d + 0.4d = 1.0d$.
+    $\gamma_1 = \frac{0.6d}{1.0d} = 0.60$.
+    $\gamma_2 = \frac{0.4d}{1.0d} = 0.40$.
+    \item Observation $x = 1.5$ is more likely to belong to Cluster 1 ($\gamma_1 = 60\%$ vs $\gamma_2 = 40\%$). Even though $x$ is equidistant from both cluster centers, Cluster 1 has a higher prior mixture weight ($\pi_1 = 0.6 > \pi_2 = 0.4$).
+\end{enumerate}
+
+\paragraph{P4. Sample Complexity via Hoeffding's Inequality:}
+Let $X_i \in [0, 1]$ indicate policy support. $\epsilon = 0.02, \delta = 0.05$.
+By Hoeffding's inequality for bounded variables in $[0, 1]$:
+\begin{equation*}
+P(|\bar{X}_N - p| \ge \epsilon) \le 2\exp(-2N\epsilon^2) \le \delta
+\end{equation*}
+Taking the natural logarithm:
+\begin{align*}
+-2N\epsilon^2 &\le \log\left(\frac{\delta}{2}\right) \implies 2N\epsilon^2 \ge \log\left(\frac{2}{\delta}\right) \implies N \ge \frac{\log(2/\delta)}{2\epsilon^2}
+\end{align*}
+Substitute $\delta = 0.05 \implies 2/\delta = 40$, and $\epsilon = 0.02 \implies \epsilon^2 = 0.0004$:
+\begin{equation*}
+N \ge \frac{\log(40)}{2(0.0004)} = \frac{3.688879}{0.0008} \approx 4611.1
+\end{equation*}
+The pollster must survey at least $N = 4{,}612$ independent voters.
+
+\paragraph{P5. Chebyshev vs. Markov Bound Comparison:}
+$X \sim \text{Binomial}(100, 0.5)$.
+\begin{enumerate}[label=(\alph*)]
+    \item Mean $\mu = N p = 100(0.5) = 50$.
+    Variance $\sigma^2 = N p(1 - p) = 100(0.5)(0.5) = 25$. Standard deviation $\sigma = 5$.
+    \item By Markov's inequality ($X \ge 0$):
+    \begin{equation*}
+    P(X \ge 75) \le \frac{\E[X]}{75} = \frac{50}{75} = \frac{2}{3} \approx 0.6667
+    \end{equation*}
+    \item By Chebyshev's inequality:
+    $P(X \ge 75) \le P(|X - 50| \ge 25) \le \frac{\sigma^2}{25^2} = \frac{25}{625} = \frac{1}{25} = 0.04$.
+    \item Markov yields a trivial bound ($\le 66.7\%$), while Chebyshev yields a sharp bound ($\le 4.0\%$). Chebyshev is dramatically tighter because it exploits second-order variance information ($\sigma^2 = 25$) to penalize distance from the mean quadratically ($\frac{1}{\epsilon^2}$), whereas Markov utilizes only the first moment.
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Rationales}
+
+\paragraph{MCQ1: Monotonicity of Log-Likelihood in EM}
+\begin{itemize}
+    \item \textbf{(a) Incorrect.} The EM algorithm maximizes likelihood; it does not decrease toward zero.
+    \item \textbf{(b) Correct.} At each EM iteration, the E-step equates the ELBO to the marginal log-likelihood by eliminating the KL divergence, and the M-step maximizes the ELBO. Consequently, $\ell(\boldsymbol{\theta}^{(t+1)}) \ge \text{ELBO}(q^{(t+1)}, \boldsymbol{\theta}^{(t+1)}) \ge \text{ELBO}(q^{(t+1)}, \boldsymbol{\theta}^{(t)}) = \ell(\boldsymbol{\theta}^{(t)})$, guaranteeing monotonic ascent.
+    \item \textbf{(c) Incorrect.} Due to non-convexity, EM is only guaranteed to converge to a stationary point or local maximum.
+    \item \textbf{(d) Incorrect.} Log-likelihood values are independent of linear separability.
+\end{itemize}
+
+\paragraph{MCQ2: Exponential Concentration Bound}
+\begin{itemize}
+    \item \textbf{(a) Incorrect.} Markov's inequality gives a loose reciprocal bound ($\mathcal{O}(1/\epsilon)$) using only the mean.
+    \item \textbf{(b) Incorrect.} Chebyshev's inequality gives a polynomial bound ($\mathcal{O}(1/(N\epsilon^2))$) using the variance.
+    \item \textbf{(c) Correct.} Hoeffding's inequality provides an **exponentially decaying bound** in sample size $N$: $P(|\bar{X} - \mu| \ge \epsilon) \le 2\exp(-2N\epsilon^2)$, foundational to statistical learning theory.
+    \item \textbf{(d) Incorrect.} The Cauchy-Schwarz inequality is an algebraic vector inner product bound, not a probability concentration inequality.
+\end{itemize}
+

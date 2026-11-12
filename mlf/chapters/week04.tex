@@ -1,0 +1,432 @@
+\chapter{Polynomial Regression, Eigenvalues, Eigenspaces \& Diagonalization}
+\label{chap:week04}
+
+% ----------------------------------------------------------------------
+% PART 1: EXECUTIVE ROADMAP & LEARNING OBJECTIVES
+% ----------------------------------------------------------------------
+\section{Executive Roadmap \& Learning Objectives}
+
+Linear models appear restricted to linear decision boundaries and planar surfaces. However, by transforming the input data into higher-dimensional feature spaces via non-linear basis expansions (such as polynomials), linear algorithms can fit complex curves. Understanding how these linear operators behave under iterated transformations requires the spectral theory of eigenvalues and eigenvectors. Eigendecomposition dissects a linear operator into independent scaling actions along canonical coordinate axes.
+
+\subsection{Prerequisites \& Scaffolding}
+Mastery of this chapter builds upon vector spaces, determinant calculations, and ordinary least squares, as shown in Table~\ref{tab:w04_prereqs}.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lXX}
+\toprule
+\textbf{Foundational Area} & \textbf{Core Concepts Required} & \textbf{Role in Machine Learning Foundations} \\
+\midrule
+Linear Algebra & Determinants $\det(A)$, matrix invertibility, linear independence & Solving characteristic polynomial $\det(A - \lambda I) = 0$ \\
+Subspace Theory & Nullspace $\Null(A - \lambda I)$, rank-nullity theorem & Computing geometric eigenspaces and diagnosing deficiency \\
+Least Squares & Design matrix $X$, normal equations $(X^T X)\mathbf{w} = X^T \mathbf{y}$ & Fitting polynomial curves via Vandermonde expansions \\
+\bottomrule
+\end{tabularx}
+\caption{Prerequisite Scaffolding for Chapter 4.}
+\label{tab:w04_prereqs}
+\end{table}
+
+\subsection{Core Competencies}
+By the conclusion of this chapter, students will be able to:
+\begin{itemize}
+    \item Formulate polynomial regression problems via the non-linear feature map $\phi(x)$ and Vandermonde design matrices.
+    \item Compute eigenvalues, eigenvectors, and eigenspaces $E_\lambda$ for arbitrary square matrices.
+    \item Distinguish between algebraic multiplicity $am(\lambda)$ and geometric multiplicity $gm(\lambda)$ to identify defective matrices.
+    \item Diagonalize square matrices into $A = PDP^{-1}$ and compute iterated matrix powers $A^k = P D^k P^{-1}$.
+    \item Model discrete linear dynamical systems and derive closed-form solutions (such as the Fibonacci sequence via Binet's formula).
+\end{itemize}
+
+\subsection{Notation \& Mathematical Conventions}
+\begin{itemize}
+    \item $\lambda \in \mathbb{C}$: An eigenvalue of square matrix $A \in \mathbb{R}^{n \times n}$.
+    \item $\mathbf{v} \in \mathbb{C}^n \setminus \{\mathbf{0}\}$: An eigenvector associated with $\lambda$, satisfying $A\mathbf{v} = \lambda \mathbf{v}$.
+    \item $E_\lambda \triangleq \Null(A - \lambda I)$: The eigenspace corresponding to eigenvalue $\lambda$.
+    \item $p_A(\lambda) \triangleq \det(A - \lambda I)$: The degree-$n$ characteristic polynomial of $A$.
+    \item $am(\lambda)$: The algebraic multiplicity (multiplicity of $\lambda$ as a root of $p_A(\lambda)$).
+    \item $gm(\lambda) \triangleq \dim(E_\lambda) = n - \rank(A - \lambda I)$: The geometric multiplicity.
+    \item $P = [\mathbf{v}_1, \dots, \mathbf{v}_n] \in \mathbb{R}^{n \times n}$: The modal matrix of eigenvectors.
+    \item $D = \diag(\lambda_1, \dots, \lambda_n)$: The diagonal spectral matrix.
+\end{itemize}
+
+% ----------------------------------------------------------------------
+% PART 2: MATHEMATICAL & COMPUTATIONAL FOUNDATIONS
+% ----------------------------------------------------------------------
+\section{Mathematical \& Computational Foundations}
+
+\subsection{Polynomial Regression as Linear Regression in Feature Space}
+Consider fitting a non-linear relationship between scalar feature $x \in \mathbb{R}$ and response $y \in \mathbb{R}$:
+\begin{equation}
+y \approx w_0 + w_1 x + w_2 x^2 + \dots + w_p x^p
+\end{equation}
+Although non-linear in the input $x$, this model is strictly \textbf{linear in the parameters} $\mathbf{w} = [w_0, w_1, \dots, w_p]^T$. We define the non-linear polynomial basis expansion $\phi: \mathbb{R} \to \mathbb{R}^{p+1}$:
+\begin{equation}
+\boldsymbol{\phi}(x) \triangleq \begin{bmatrix} 1 & x & x^2 & \dots & x^p \end{bmatrix}^T
+\end{equation}
+For $N$ training points $\{x_i, y_i\}_{i=1}^N$, the design matrix becomes the \textbf{Vandermonde Matrix}:
+\begin{equation}
+\Phi = \begin{bmatrix}
+\boldsymbol{\phi}(x_1)^T \\
+\boldsymbol{\phi}(x_2)^T \\
+\vdots \\
+\boldsymbol{\phi}(x_N)^T
+\end{bmatrix} = \begin{bmatrix}
+1 & x_1 & x_1^2 & \dots & x_1^p \\
+1 & x_2 & x_2^2 & \dots & x_2^p \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & x_N & x_N^2 & \dots & x_N^p
+\end{bmatrix} \in \mathbb{R}^{N \times (p+1)}
+\label{eq:vandermonde}
+\end{equation}
+The optimal weight vector $\hat{\mathbf{w}}$ is determined by the standard normal equations:
+\begin{equation}
+\Phi^T \Phi \hat{\mathbf{w}} = \Phi^T \mathbf{y} \implies \hat{\mathbf{w}} = (\Phi^T \Phi)^{-1} \Phi^T \mathbf{y}
+\end{equation}
+
+\subsection{Eigenvalues, Eigenvectors, and Eigenspaces}
+
+\begin{definitionbox}{Eigenvalue and Eigenvector}
+Let $A \in \mathbb{R}^{n \times n}$. A scalar $\lambda \in \mathbb{C}$ is an \textbf{eigenvalue} of $A$, and a non-zero vector $\mathbf{v} \in \mathbb{C}^n$ is an \textbf{eigenvector} associated with $\lambda$, if and only if:
+\begin{equation}
+A\mathbf{v} = \lambda \mathbf{v} \iff (A - \lambda I)\mathbf{v} = \mathbf{0} \quad (\mathbf{v} \ne \mathbf{0})
+\label{eq:eigen_def}
+\end{equation}
+\end{definitionbox}
+
+\begin{theorem}[Characteristic Equation]
+A scalar $\lambda$ is an eigenvalue of $A$ if and only if:
+\begin{equation}
+\det(A - \lambda I) = 0
+\label{eq:char_poly}
+\end{equation}
+The determinant $p_A(\lambda) \triangleq \det(A - \lambda I)$ is a polynomial of degree $n$ in $\lambda$.
+\end{theorem}
+
+\begin{theorem}[Linear Independence of Eigenvectors]
+Let $\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_k$ be eigenvectors of $A$ corresponding to mutually distinct eigenvalues $\lambda_1, \lambda_2, \dots, \lambda_k$ (where $\lambda_i \ne \lambda_j$ for $i \ne j$). Then the set $\{\mathbf{v}_1, \dots, \mathbf{v}_k\}$ is linearly independent.
+\end{theorem}
+
+\begin{proof}
+By induction on $k$. For $k = 1$, $\mathbf{v}_1 \ne \mathbf{0}$ by definition of an eigenvector, so $\{\mathbf{v}_1\}$ is independent.
+Assume the theorem holds for $k - 1$ eigenvectors. Consider the linear combination:
+\begin{equation}
+c_1 \mathbf{v}_1 + c_2 \mathbf{v}_2 + \dots + c_k \mathbf{v}_k = \mathbf{0}
+\label{eq:indep_comb}
+\end{equation}
+Multiply both sides by matrix $A$:
+\begin{equation}
+c_1 A\mathbf{v}_1 + c_2 A\mathbf{v}_2 + \dots + c_k A\mathbf{v}_k = c_1 \lambda_1 \mathbf{v}_1 + c_2 \lambda_2 \mathbf{v}_2 + \dots + c_k \lambda_k \mathbf{v}_k = \mathbf{0}
+\label{eq:indep_A}
+\end{equation}
+Multiply equation~\eqref{eq:indep_comb} by scalar $\lambda_k$ and subtract from equation~\eqref{eq:indep_A}:
+\begin{equation}
+c_1 (\lambda_1 - \lambda_k)\mathbf{v}_1 + c_2 (\lambda_2 - \lambda_k)\mathbf{v}_2 + \dots + c_{k-1} (\lambda_{k-1} - \lambda_k)\mathbf{v}_{k-1} = \mathbf{0}
+\end{equation}
+By the inductive hypothesis, $\{\mathbf{v}_1, \dots, \mathbf{v}_{k-1}\}$ is linearly independent. Therefore, every coefficient must vanish:
+\begin{equation}
+c_i (\lambda_i - \lambda_k) = 0 \quad \text{for each } i \in \{1, \dots, k-1\}
+\end{equation}
+Since all eigenvalues are distinct, $\lambda_i - \lambda_k \ne 0$, forcing $c_i = 0$ for all $i < k$. Substituting back into~\eqref{eq:indep_comb} gives $c_k \mathbf{v}_k = \mathbf{0} \implies c_k = 0$. Hence, all $c_i = 0$, establishing linear independence.
+\end{proof}
+
+\subsection{Matrix Diagonalization and Iterated Powers}
+
+\begin{theorem}[Diagonalization Theorem]
+An $n \times n$ matrix $A$ is diagonalizable if and only if it possesses $n$ linearly independent eigenvectors. In that case:
+\begin{equation}
+A = P D P^{-1}
+\label{eq:diagonalization}
+\end{equation}
+where $P = [\mathbf{v}_1, \dots, \mathbf{v}_n]$ has the eigenvectors as columns, and $D = \diag(\lambda_1, \dots, \lambda_n)$.
+\end{theorem}
+
+\begin{proof}
+Let $P = [\mathbf{v}_1, \dots, \mathbf{v}_n]$. Matrix multiplication column-by-column gives:
+\begin{equation}
+AP = A [\mathbf{v}_1, \dots, \mathbf{v}_n] = [A\mathbf{v}_1, \dots, A\mathbf{v}_n] = [\lambda_1 \mathbf{v}_1, \dots, \lambda_n \mathbf{v}_n]
+\end{equation}
+On the other hand:
+\begin{equation}
+PD = [\mathbf{v}_1, \dots, \mathbf{v}_n] \begin{bmatrix} \lambda_1 & & \\ & \ddots & \\ & & \lambda_n \end{bmatrix} = [\lambda_1 \mathbf{v}_1, \dots, \lambda_n \mathbf{v}_n]
+\end{equation}
+Thus, $AP = PD$. If the eigenvectors $\mathbf{v}_i$ are linearly independent, matrix $P$ is invertible, allowing post-multiplication by $P^{-1}$: $A = P D P^{-1}$.
+\end{proof}
+
+\begin{corollary}[Iterated Matrix Powers]
+If $A = P D P^{-1}$, then for any integer $k \ge 1$:
+\begin{equation}
+A^k = P D^k P^{-1} = P \begin{bmatrix} \lambda_1^k & & \\ & \ddots & \\ & & \lambda_n^k \end{bmatrix} P^{-1}
+\label{eq:matrix_power}
+\end{equation}
+\end{corollary}
+
+% ----------------------------------------------------------------------
+% PART 3: VISUAL & GEOMETRIC INTUITION
+% ----------------------------------------------------------------------
+\section{Visual \& Geometric Intuition: The Geometry of Eigendecomposition}
+
+Figure~\ref{fig:eigen_geometry} illustrates the action of a diagonalizable linear operator $A$. Rather than rotating and shearing in an entangled manner, $A$ acts as pure independent scalings along the coordinate system formed by its eigenvectors.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=0.9,
+    font=\sffamily\footnotesize
+]
+
+% Left: Original Unit Circle
+\draw[thick, fill=primarylight!30] (-4.5, 0) circle (1.8cm);
+\draw[->, >=stealth, color=gray] (-6.8, 0) -- (-2.2, 0) node[right] {$x_1$};
+\draw[->, >=stealth, color=gray] (-4.5, -2.3) -- (-4.5, 2.3) node[above] {$x_2$};
+
+% Eigenvectors on unit circle
+\draw[->, >=stealth, line width=1.6pt, color=tealborder] (-4.5, 0) -- (-3.0, 0.9) node[above right] {$\mathbf{v}_1$};
+\draw[->, >=stealth, line width=1.6pt, color=coralborder] (-4.5, 0) -- (-5.4, 1.5) node[above left] {$\mathbf{v}_2$};
+\node[below] at (-4.5, -2.4) {\textbf{Input Space: } Unit Sphere $\|\mathbf{x}\| = 1$};
+
+% Transformation arrow
+\draw[->, >=stealth, line width=2pt, color=primarydark] (-1.8, 0) -- (0.8, 0) node[midway, above] {$\mathbf{x} \mapsto A\mathbf{x}$};
+
+% Right: Transformed Ellipse
+\begin{scope}[shift={(4.0, 0)}, rotate=30]
+    \draw[thick, fill=tealbg!40] (0, 0) ellipse (3.2cm and 1.2cm);
+    % Stretched eigenvectors
+    \draw[->, >=stealth, line width=1.8pt, color=tealborder] (0, 0) -- (3.2, 0) node[above right] {$A\mathbf{v}_1 = \lambda_1 \mathbf{v}_1$};
+    \draw[->, >=stealth, line width=1.8pt, color=coralborder] (0, 0) -- (0, 1.2) node[above left] {$A\mathbf{v}_2 = \lambda_2 \mathbf{v}_2$};
+\end{scope}
+\node[below] at (4.0, -2.4) {\textbf{Output Space: } Ellipsoid with axes $\lambda_i \mathbf{v}_i$};
+
+\end{tikzpicture}
+\caption{The Geometry of Eigendecomposition: The linear transformation $A$ deforms the unit circle into an ellipse whose principal axes align with the eigenvectors $\mathbf{v}_i$ scaled by eigenvalues $\lambda_i$.}
+\label{fig:eigen_geometry}
+\end{figure}
+
+% ----------------------------------------------------------------------
+% PART 4: DEEP INTUITION & CONCEPTUAL DERIVATIONS
+% ----------------------------------------------------------------------
+\section{Deep Intuition \& Conceptual Derivations}
+
+\subsection{Solving Discrete Dynamical Systems: Derivation of Binet's Fibonacci Formula}
+The Fibonacci recurrence is defined as $F_{k+2} = F_{k+1} + F_k$ with $F_0 = 0, F_1 = 1$.
+We can express this second-order recurrence as a first-order two-dimensional linear dynamical system:
+\begin{equation}
+\mathbf{u}_{k+1} \triangleq \begin{bmatrix} F_{k+1} \\ F_k \end{bmatrix} = \begin{bmatrix} 1 & 1 \\ 1 & 0 \end{bmatrix} \begin{bmatrix} F_k \\ F_{k-1} \end{bmatrix} = A \mathbf{u}_k
+\label{eq:fib_dyn}
+\end{equation}
+Iterating $k$ times from initial state $\mathbf{u}_0 = \begin{bmatrix} 1 \\ 0 \end{bmatrix}$:
+\begin{equation}
+\mathbf{u}_k = A^k \mathbf{u}_0 = A^k \begin{bmatrix} 1 \\ 0 \end{bmatrix}
+\end{equation}
+To compute $A^k$, we diagonalize $A = \begin{bmatrix} 1 & 1 \\ 1 & 0 \end{bmatrix}$:
+\begin{equation}
+\det(A - \lambda I) = \det\begin{bmatrix} 1 - \lambda & 1 \\ 1 & -\lambda \end{bmatrix} = \lambda^2 - \lambda - 1 = 0
+\end{equation}
+The eigenvalues are the Golden Ratio $\phi$ and its conjugate:
+\begin{equation}
+\lambda_1 = \frac{1 + \sqrt{5}}{2} = \phi, \quad \lambda_2 = \frac{1 - \sqrt{5}}{2} = 1 - \phi = -\frac{1}{\phi}
+\end{equation}
+Finding eigenvectors: $(A - \lambda_i I)\mathbf{v}_i = \mathbf{0} \implies \mathbf{v}_i = \begin{bmatrix} \lambda_i \\ 1 \end{bmatrix}$.
+Thus:
+\begin{equation}
+P = \begin{bmatrix} \lambda_1 & \lambda_2 \\ 1 & 1 \end{bmatrix}, \quad P^{-1} = \frac{1}{\lambda_1 - \lambda_2} \begin{bmatrix} 1 & -\lambda_2 \\ -1 & \lambda_1 \end{bmatrix} = \frac{1}{\sqrt{5}} \begin{bmatrix} 1 & -\lambda_2 \\ -1 & \lambda_1 \end{bmatrix}
+\end{equation}
+Now, expanding $\mathbf{u}_k = P D^k P^{-1} \mathbf{u}_0$:
+\begin{align}
+\begin{bmatrix} F_{k+1} \\ F_k \end{bmatrix} &= \frac{1}{\sqrt{5}} \begin{bmatrix} \lambda_1 & \lambda_2 \\ 1 & 1 \end{bmatrix} \begin{bmatrix} \lambda_1^k & 0 \\ 0 & \lambda_2^k \end{bmatrix} \begin{bmatrix} 1 & -\lambda_2 \\ -1 & \lambda_1 \end{bmatrix} \begin{bmatrix} 1 \\ 0 \end{bmatrix} \nonumber \\
+&= \frac{1}{\sqrt{5}} \begin{bmatrix} \lambda_1 & \lambda_2 \\ 1 & 1 \end{bmatrix} \begin{bmatrix} \lambda_1^k \\ -\lambda_2^k \end{bmatrix} = \frac{1}{\sqrt{5}} \begin{bmatrix} \lambda_1^{k+1} - \lambda_2^{k+1} \\ \lambda_1^k - \lambda_2^k \end{bmatrix}
+\end{align}
+Reading the second component yields Binet's celebrated formula:
+\begin{equation}
+F_k = \frac{1}{\sqrt{5}} \left( \left(\frac{1 + \sqrt{5}}{2}\right)^k - \left(\frac{1 - \sqrt{5}}{2}\right)^k \right)
+\label{eq:binet}
+\end{equation}
+
+\subsection{Trace and Determinant Invariants}
+For any $A \in \mathbb{R}^{n \times n}$ with eigenvalues $\lambda_1, \dots, \lambda_n$:
+\begin{equation}
+\trace(A) = \sum_{i=1}^n \lambda_i \quad \text{and} \quad \det(A) = \prod_{i=1}^n \lambda_i
+\label{eq:trace_det_invariants}
+\end{equation}
+These spectral invariants remain identical under any similarity transformation $B = M A M^{-1}$.
+
+% ----------------------------------------------------------------------
+% PART 5: EXPLICIT GOTCHAS & DIAGNOSTIC MISCONCEPTIONS
+% ----------------------------------------------------------------------
+\section{Explicit Gotchas \& Diagnostic Misconceptions}
+
+\begin{trapbox}{Gotcha 1: Assuming Every Square Matrix is Diagonalizable}
+A practitioner encounters matrix $J = \begin{bmatrix} 3 & 1 \\ 0 & 3 \end{bmatrix}$ and attempts to compute $J^{100} = P D^{100} P^{-1}$.
+\textbf{The Trap:} The characteristic polynomial is $(\lambda - 3)^2 = 0$, giving eigenvalue $\lambda = 3$ with algebraic multiplicity $am(3) = 2$. However, the eigenspace is $\Null(J - 3I) = \Null\begin{bmatrix} 0 & 1 \\ 0 & 0 \end{bmatrix} = \Span\left\{\begin{bmatrix} 1 \\ 0 \end{bmatrix}\right\}$, which has dimension $gm(3) = 1$. Because $gm(3) < am(3)$, the matrix is \textbf{defective} (non-diagonalizable) and lacks a complete basis of eigenvectors.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 2: High-Degree Polynomial Regression and Runge's Phenomenon}
+To achieve high training accuracy on $N = 15$ data points, a student fits a degree-$14$ polynomial, observing wild oscillations near the boundary edges of the interval.
+\textbf{The Trap:} This is \textbf{Runge's phenomenon}. In equispaced polynomial interpolation, the condition number of the Vandermonde matrix grows exponentially: $\kappa(\Phi) \sim \mathcal{O}(e^p)$. The resulting high-degree polynomial exhibits catastrophic out-of-sample error. Regularization (Ridge/Lasso) or low-degree spline models must be used instead.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 3: Believing Real Matrices Always Have Real Eigenvalues}
+A programmer computes the eigenvalues of a $2 \times 2$ 90-degree rotation matrix $R = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}$ and expects real scale factors.
+\textbf{The Trap:} The characteristic equation is $\lambda^2 + 1 = 0 \implies \lambda = \pm i$. A pure rotation leaves no 1-dimensional real line invariant. Eigenvalues of real matrices are generally \textbf{complex numbers}. Real eigenvalues are guaranteed if and only if the matrix is symmetric ($A = A^T$), as established by the Spectral Theorem.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 4: Illegally Adding Eigenvalues for Matrix Sums}
+An engineer knows the eigenvalues of $A$ are $\{2, 5\}$ and the eigenvalues of $B$ are $\{1, 3\}$. They conclude the eigenvalues of $A + B$ are $\{3, 8\}$.
+\textbf{The Trap:} In general, $\lambda_i(A + B) \ne \lambda_i(A) + \lambda_i(B)$. The eigenvalues of a sum equal the sum of eigenvalues if and only if $A$ and $B$ share a simultaneous basis of eigenvectors (which occurs $\iff AB = BA$, meaning they commute). For non-commuting matrices, the eigenvectors mix non-linearly.
+\end{trapbox}
+
+% ----------------------------------------------------------------------
+% PART 6: COMPARATIVE SYNTHESIS & SUMMARY TABLE
+% ----------------------------------------------------------------------
+\section{Comparative Synthesis \& Summary Table}
+
+Table~\ref{tab:matrix_classes} compares the spectral properties across canonical matrix classes.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lXXXX}
+\toprule
+\textbf{Matrix Class} & \textbf{Symmetry Condition} & \textbf{Eigenvalue Field} & \textbf{Eigenvectors} & \textbf{Diagonalizability} \\
+\midrule
+General Square & $A \in \mathbb{R}^{n \times n}$ & $\lambda \in \mathbb{C}$ & Linearly independent if distinct & Diagonalizable $\iff gm(\lambda) = am(\lambda)$ \\
+\addlinespace
+Symmetric & $A = A^T$ & $\lambda \in \mathbb{R}$ strictly & Mutually orthogonal ($Q^T Q = I$) & Always orthogonally diagonalizable ($Q \Lambda Q^T$) \\
+\addlinespace
+Orthogonal & $Q^T Q = I$ & $|\lambda| = 1$ ($\lambda = e^{i\theta}$) & Mutually orthogonal in $\mathbb{C}^n$ & Always diagonalizable over $\mathbb{C}$ \\
+\addlinespace
+Projection & $P^2 = P = P^T$ & $\lambda \in \{0, 1\}$ strictly & Orthogonal bases for $V$ and $V^\perp$ & Always diagonalizable; $\rank(P) = \trace(P)$ \\
+\addlinespace
+Defective & $gm(\lambda) < am(\lambda)$ & $\lambda \in \mathbb{C}$ & Incomplete spanning set ($< n$) & Not diagonalizable; requires Jordan Normal Form \\
+\bottomrule
+\end{tabularx}
+\caption{Comparative Synthesis of Spectral Properties Across Matrix Classes.}
+\label{tab:matrix_classes}
+\end{table}
+
+% ----------------------------------------------------------------------
+% PART 7: PYTHON / SCIENTIFIC COMPUTING LAB
+% ----------------------------------------------------------------------
+\section{Python / Scientific Computing Lab}
+
+The following production script implements polynomial regression, evaluates the condition number of Vandermonde matrices, and verifies Binet's Fibonacci formula via matrix diagonalization.
+
+\begin{lstlisting}[language=Python, caption={Polynomial Regression and Spectral Diagonalization in Python.}]
+import numpy as np
+
+def fit_polynomial(x: np.ndarray, y: np.ndarray, degree: int):
+    """Fits polynomial regression via Vandermonde expansion and evaluates condition number."""
+    Phi = np.vander(x, N=degree + 1, increasing=True)
+    cond_num = np.linalg.cond(Phi)
+    # Solve via QR for numerical stability
+    Q, R = np.linalg.qr(Phi)
+    w = np.linalg.solve(R, Q.T @ y)
+    return w, cond_num
+
+def fibonacci_via_diagonalization(k: int) -> int:
+    """Computes k-th Fibonacci number via spectral eigendecomposition of transition matrix."""
+    A = np.array([[1.0, 1.0], [1.0, 0.0]])
+    eigvals, P = np.linalg.eig(A)
+
+    # Sort eigenvalues so lambda_1 is the Golden Ratio
+    idx = np.argsort(eigvals)[::-1]
+    eigvals = eigvals[idx]
+    P = P[:, idx]
+
+    # Compute A^k = P @ diag(lambda^k) @ P^{-1}
+    D_k = np.diag(eigvals ** k)
+    P_inv = np.linalg.inv(P)
+    A_k = P @ D_k @ P_inv
+
+    u0 = np.array([1.0, 0.0])
+    u_k = A_k @ u0
+    return int(np.round(u_k[1]))
+
+def main():
+    # 1. Vandermonde condition number explosion
+    x_sample = np.linspace(-1.0, 1.0, 20)
+    print("Vandermonde Matrix Condition Number vs. Degree:")
+    for deg in [2, 5, 10, 15]:
+        Phi = np.vander(x_sample, N=deg + 1, increasing=True)
+        print(f"  Degree {deg:2d}: kappa(Phi) = {np.linalg.cond(Phi):.2e}")
+
+    # 2. Fibonacci closed-form verification
+    print("\nFibonacci Sequence via Matrix Powers:")
+    for k in range(1, 11):
+        f_k = fibonacci_via_diagonalization(k)
+        print(f"  F_{k:02d} = {f_k}")
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+% ----------------------------------------------------------------------
+% PART 8: COMPREHENSIVE PRACTICE PROBLEMS
+% ----------------------------------------------------------------------
+\section{Comprehensive Practice Problems}
+
+\subsection*{Part A: Analytical \& Mathematical Problems}
+
+\begin{enumerate}[label=\textbf{P\arabic*.}]
+    \item \textbf{Eigendecomposition of a $2 \times 2$ Matrix:}
+    Let $A = \begin{bmatrix} 4 & 2 \\ 1 & 3 \end{bmatrix}$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Compute the characteristic equation $p_A(\lambda) = \det(A - \lambda I) = 0$ and find all eigenvalues.
+        \item For each eigenvalue, find a corresponding eigenvector.
+        \item Construct the modal matrix $P$ and diagonal matrix $D$ such that $A = PDP^{-1}$.
+        \item Use this diagonalization to compute the exact matrix $A^5$.
+    \end{enumerate}
+
+    \item \textbf{Defective Matrix and Algebraic vs. Geometric Multiplicity:}
+    Let $B = \begin{bmatrix} 2 & 1 & 0 \\ 0 & 2 & 0 \\ 0 & 0 & 5 \end{bmatrix}$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Find the eigenvalues of $B$ and their algebraic multiplicities.
+        \item Compute the eigenspace $E_\lambda = \Null(B - \lambda I)$ for each eigenvalue.
+        \item Determine the geometric multiplicity of each eigenvalue.
+        \item State whether $B$ is diagonalizable, justifying your answer rigorously.
+    \end{enumerate}
+
+    \item \textbf{Spectral Theorem for Symmetric Matrices:}
+    Let $S \in \mathbb{R}^{n \times n}$ be a real symmetric matrix ($S = S^T$).
+    \begin{enumerate}[label=(\alph*)]
+        \item Prove that all eigenvalues of $S$ are real ($\lambda \in \mathbb{R}$).
+        \item Prove that eigenvectors corresponding to distinct eigenvalues are mutually orthogonal: if $\lambda_1 \ne \lambda_2$, then $\mathbf{v}_1^T \mathbf{v}_2 = 0$.
+    \end{enumerate}
+
+    \item \textbf{Cayley-Hamilton Theorem Application:}
+    The Cayley-Hamilton Theorem states that every square matrix satisfies its own characteristic equation: $p_A(A) = 0$.
+    For matrix $A = \begin{bmatrix} 2 & 1 \\ 3 & 4 \end{bmatrix}$:
+    \begin{enumerate}[label=(\alph*)]
+        \item Find the characteristic polynomial $p_A(\lambda)$.
+        \item Verify directly that $A^2 - \trace(A)A + \det(A)I = 0$.
+        \item Use the Cayley-Hamilton equation to express $A^{-1}$ as a linear combination of $A$ and $I$.
+    \end{enumerate}
+
+    \item \textbf{Markov Transition Matrix Dynamics:}
+    Consider a 2-state Markov transition matrix $T = \begin{bmatrix} 0.8 & 0.3 \\ 0.2 & 0.7 \end{bmatrix}$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Prove that $\lambda_1 = 1$ is always an eigenvalue for any column-stochastic matrix.
+        \item Find the second eigenvalue $\lambda_2$.
+        \item Diagonalize $T = P D P^{-1}$ and compute the steady-state distribution $\boldsymbol{\pi} = \lim_{k \to \infty} T^k \mathbf{p}_0$ for an arbitrary initial probability vector $\mathbf{p}_0$.
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Part B: Diagnostic Multiple-Choice Questions}
+
+\begin{enumerate}[label=\textbf{MCQ\arabic*.}]
+    \item A matrix $A \in \mathbb{R}^{3 \times 3}$ has trace $\trace(A) = 6$ and determinant $\det(A) = 8$. Two of its eigenvalues are $\lambda_1 = 2$ and $\lambda_2 = 4$. What is the third eigenvalue $\lambda_3$, and is $A$ invertible?
+    \begin{enumerate}[label=(\alph*)]
+        \item $\lambda_3 = 0$; $A$ is singular.
+        \item $\lambda_3 = 1$; $A$ is invertible.
+        \item $\lambda_3 = 0$; $A$ is invertible.
+        \item $\lambda_3 = -2$; $A$ is invertible.
+    \end{enumerate}
+
+    \item Why does fitting a degree-$p$ polynomial with $p = 15$ to $N = 16$ data points via Ordinary Least Squares typically perform poorly on new test data, even when training error is zero?
+    \begin{enumerate}[label=(\alph*)]
+        \item Because the Vandermonde matrix is non-invertible for $p < N$.
+        \item Because high-degree polynomials have high bias and cannot fit the training points accurately.
+        \item Because the model has excessive variance and overfits to training noise, exhibiting Runge's phenomenon at interval boundaries.
+        \item Because polynomial regression requires the response variable $y$ to follow a Gaussian distribution.
+    \end{enumerate}
+\end{enumerate}
+

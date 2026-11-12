@@ -1,0 +1,64 @@
+\chapter*{Machine Learning Foundations --- Quick Reference Cheat Sheet}
+\addcontentsline{toc}{chapter}{Machine Learning Foundations --- Quick Reference Cheat Sheet}
+
+\begin{tcolorbox}[colback=primarylight!40,colframe=primarydark,title=\textbf{1. Linear Algebra \& Fundamental Subspaces}]
+Let $A \in \mathbb{R}^{m \times n}$ with $\rank(A) = r$:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Rank-Nullity Theorem:} $\dim(\Col(A)) = \dim(\Row(A)) = r$, $\dim(\Null(A)) = n - r$, $\dim(\Null(A^T)) = m - r$.
+    \item \textbf{Orthogonal Complements:} $\Row(A) \perp \Null(A)$ in $\mathbb{R}^n$, and $\Col(A) \perp \Null(A^T)$ in $\mathbb{R}^m$.
+    \item \textbf{Projection Matrix onto $\Col(A)$:} If $A$ has full column rank ($r = n$), $P = A(A^T A)^{-1}A^T$.
+    \item \textbf{Normal Equations (OLS):} $A^T A \mathbf{w} = A^T \mathbf{y} \implies \mathbf{w}^* = (A^T A)^{-1}A^T \mathbf{y}$.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=tealbg!40,colframe=tealborder,title=\textbf{2. Matrix Decompositions \& Eigendecomposition}]
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Spectral Theorem (Symmetric $A = A^T$):} $A = Q \Lambda Q^T = \sum_{i=1}^n \lambda_i \mathbf{q}_i \mathbf{q}_i^T$ with orthonormal eigenvectors $\mathbf{q}_i$.
+    \item \textbf{Singular Value Decomposition (SVD):} Any $A \in \mathbb{R}^{m \times n}$ decomposes as $A = U \Sigma V^T = \sum_{i=1}^r \sigma_i \mathbf{u}_i \mathbf{v}_i^T$, where $\sigma_1 \ge \sigma_2 \ge \dots \ge \sigma_r > 0$.
+    \item \textbf{PCA Projection:} Given zero-mean data matrix $X \in \mathbb{R}^{N \times d}$, sample covariance is $S = \frac{1}{N} X^T X$. The principal components are the eigenvectors of $S$: $S \mathbf{v}_i = \lambda_i \mathbf{v}_i$, sorted by decreasing $\lambda_i$.
+    \item \textbf{Moore-Penrose Pseudoinverse:} $A^+ = V \Sigma^+ U^T$.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=coralbg!40,colframe=coralborder,title=\textbf{3. Multivariate Calculus \& Numerical Optimization}]
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Gradient \& Hessian:} $\nabla f(\mathbf{x}) \in \mathbb{R}^d$, $H(\mathbf{x}) = \nabla^2 f(\mathbf{x}) \in \mathbb{R}^{d \times d}$.
+    \item \textbf{Second-Order Taylor Expansion:} $f(\mathbf{x} + \mathbf{v}) \approx f(\mathbf{x}) + \nabla f(\mathbf{x})^T \mathbf{v} + \frac{1}{2} \mathbf{v}^T \nabla^2 f(\mathbf{x}) \mathbf{v}$.
+    \item \textbf{Convexity:} $f(\theta \mathbf{x} + (1-\theta)\mathbf{y}) \le \theta f(\mathbf{x}) + (1-\theta) f(\mathbf{y})$ for $\theta \in [0, 1]$. For twice-differentiable $f$, $f$ is convex $\iff \nabla^2 f(\mathbf{x}) \succeq 0$ ($\forall \mathbf{x}$).
+    \item \textbf{Gradient Descent Update:} $\mathbf{x}_{k+1} = \mathbf{x}_k - \eta \nabla f(\mathbf{x}_k)$. Converges for $L$-smooth convex $f$ when $\eta \in (0, 2/L)$.
+    \item \textbf{Newton-Raphson Update:} $\mathbf{x}_{k+1} = \mathbf{x}_k - [H(\mathbf{x}_k)]^{-1} \nabla f(\mathbf{x}_k)$.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=purplebg!40,colframe=purpleborder,title=\textbf{4. Constrained Optimization \& KKT Conditions}]
+Minimize $f_0(\mathbf{x})$ subject to $f_i(\mathbf{x}) \le 0$ ($i = 1, \dots, m$) and $h_j(\mathbf{x}) = 0$ ($j = 1, \dots, p$):
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Lagrangian:} $\mathcal{L}(\mathbf{x}, \boldsymbol{\lambda}, \boldsymbol{\nu}) = f_0(\mathbf{x}) + \sum_{i=1}^m \lambda_i f_i(\mathbf{x}) + \sum_{j=1}^p \nu_j h_j(\mathbf{x})$.
+    \item \textbf{Karush-Kuhn-Tucker (KKT) Conditions:}
+    \begin{align*}
+        \text{Primal Feasibility:} \quad & f_i(\mathbf{x}^*) \le 0, \quad h_j(\mathbf{x}^*) = 0 \\
+        \text{Dual Feasibility:} \quad & \lambda_i^* \ge 0 \\
+        \text{Complementary Slackness:} \quad & \lambda_i^* f_i(\mathbf{x}^*) = 0 \quad (\forall i) \\
+        \text{Stationarity:} \quad & \nabla_{\mathbf{x}} \mathcal{L}(\mathbf{x}^*, \boldsymbol{\lambda}^*, \boldsymbol{\nu}^*) = \mathbf{0}
+    \end{align*}
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=tealbg!40,colframe=tealborder,title=\textbf{5. Probability, MLE, \& Expectation-Maximization}]
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Multivariate Gaussian:} $\mathcal{N}(\mathbf{x}; \boldsymbol{\mu}, \Sigma) = \frac{1}{(2\pi)^{d/2} |\Sigma|^{1/2}} \exp\left(-\frac{1}{2}(\mathbf{x} - \boldsymbol{\mu})^T \Sigma^{-1} (\mathbf{x} - \boldsymbol{\mu})\right)$.
+    \item \textbf{Maximum Likelihood Estimation:} $\hat{\boldsymbol{\theta}}_{\text{MLE}} = \argmax_{\boldsymbol{\theta}} \sum_{i=1}^N \log p(\mathbf{x}_i; \boldsymbol{\theta})$.
+    \item \textbf{EM Algorithm (Latent Variables $\mathbf{z}$):}
+    \begin{itemize}
+        \item \textbf{E-step:} Compute posterior responsibilities $\gamma_{ik} = p(z_i = k \mid \mathbf{x}_i, \boldsymbol{\theta}^{(t)})$.
+        \item \textbf{M-step:} Update $\boldsymbol{\theta}^{(t+1)} = \argmax_{\boldsymbol{\theta}} \sum_{i=1}^N \sum_{k} \gamma_{ik} \log p(\mathbf{x}_i, z_i = k; \boldsymbol{\theta})$.
+    \end{itemize}
+    \item \textbf{Concentration Inequalities:}
+    \begin{itemize}
+        \item Markov: $P(X \ge a) \le \frac{\E[X]}{a}$ for $X \ge 0$.
+        \item Chebyshev: $P(|X - \mu| \ge \epsilon) \le \frac{\sigma^2}{\epsilon^2}$.
+        \item Hoeffding: $P(|\bar{X} - \mu| \ge \epsilon) \le 2 \exp\left(-\frac{2N\epsilon^2}{(b-a)^2}\right)$ for $X_i \in [a, b]$.
+    \end{itemize}
+\end{itemize}
+\end{tcolorbox}
+

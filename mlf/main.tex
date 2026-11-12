@@ -1,0 +1,82 @@
+\documentclass[11pt,a4paper,oneside]{book}
+
+% Load all styling and custom packages
+\input{preamble.tex}
+
+\title{
+    \Huge \bfseries \sffamily \color{primarydark} Machine Learning Foundations \\
+    \large \vspace{0.3cm} \color{tealdef} Mathematical Principles, Algorithmic Geometry \& Rigorous Foundations \\
+    \vspace{0.2cm} \normalsize \color{primarydark} Course ID: BSCS2004
+}
+\author{
+    \textbf{IIT Madras BS in Data Science and Applications} \\
+    \small Based on Lectures by Dr.~Harish Guruprasad Ramaswamy, Dr.~Arun Rajkumar, and Dr.~Prashanth L.A. \\
+    \small Prepared for Mathematical Mastery, Algorithmic Rigor, and Applied Machine Learning
+}
+\date{November 2026}
+
+\makeindex
+
+\begin{document}
+
+\maketitle
+
+\frontmatter
+\tableofcontents
+\newpage
+
+\chapter*{Introduction to Machine Learning Foundations}
+\addcontentsline{toc}{chapter}{Introduction to Machine Learning Foundations}
+
+Welcome to the \textbf{Machine Learning Foundations (BSCS2004)} Comprehensive Textbook for the IIT Madras BS Degree Programme. Machine Learning Foundations sits at the vital juncture where the foundational mathematics of linear algebra, multivariable calculus, numerical optimization, and probability theory transform into the operative machinery of artificial intelligence.
+
+Rather than treating modern machine learning algorithms as opaque heuristic routines, this textbook demystifies every model from first principles. By formalizing data spaces as vector spaces, objectives as convex energy landscapes, and learning as optimization or probabilistic inference, students develop the mathematical maturity required to diagnose failures, establish convergence rates, and innovate novel algorithmic architectures.
+
+\section*{Course Organization \& Structural Flow}
+The course is structured across \textbf{12 Weeks} systematically divided into four core pedagogical pillars:
+\begin{itemize}
+    \item \textbf{Weeks 1--4 (Linear Algebraic Foundations \& Linear Models):} Problem formulation, empirical risk minimization, univariate and multivariate calculus review, the four fundamental matrix subspaces, orthogonal projections, normal equations, Ordinary Least Squares (OLS), and matrix diagonalization.
+    \item \textbf{Weeks 5--7 (Spectral Geometry, SVD \& Dimensionality Reduction):} Complex and Hermitian matrices, the Spectral Theorem, Singular Value Decomposition (SVD), low-rank matrix approximations (Eckart-Young-Mirsky Theorem), positive definite matrices, and Principal Component Analysis (PCA).
+    \item \textbf{Weeks 8--10 (Convex Analysis \& Optimization in Machine Learning):} Unconstrained optimization, gradient descent dynamics and step-size bounds, multivariate Taylor expansions, constrained optimization, method of Lagrange multipliers, convex sets, convex functions, duality, and Karush-Kuhn-Tucker (KKT) optimality conditions.
+    \item \textbf{Weeks 11--12 (Probability Foundations, Latent Models \& Concentration):} Joint, marginal, and conditional continuous distributions, expectation, exponential family, parameter estimation (MLE/MAP), Gaussian Mixture Models (GMMs), the Expectation-Maximization (EM) algorithm, and concentration inequalities (Markov, Chebyshev, Hoeffding, and Central Limit Theorem).
+\end{itemize}
+
+\section*{Pedagogical Anatomy \& Mastery Standard}
+Every chapter in this textbook adheres strictly to an authoritative, self-contained nine-part pedagogical architecture:
+\begin{itemize}
+    \item \textcolor{primarydark}{\textbf{Part 1: Executive Roadmap \& Learning Objectives:}} Prerequisites, core competencies, and formal mathematical notation guide.
+    \item \textcolor{tealdef}{\textbf{Part 2: Mathematical \& Computational Foundations:}} Rigorous definitions, governing theorems, lemmas, and mathematical proofs.
+    \item \textcolor{primarydark}{\textbf{Part 3: Visual \& Geometric Intuition:}} Native TikZ architecture schematics, geometric subspace projections, and optimization contours.
+    \item \textcolor{purpleex}{\textbf{Part 4: Deep Intuition \& Conceptual Derivations:}} First-principles mathematical derivations, mental models, and empirical reasoning.
+    \item \textcolor{amberwarning}{\textbf{Part 5: Explicit Gotchas \& Diagnostic Misconceptions:}} Curated \texttt{trapbox} warnings exposing algebraic errors, geometric fallacies, and numerical pitfalls.
+    \item \textcolor{tealdef}{\textbf{Part 6: Comparative Synthesis \& Summary Table:}} Multi-dimensional comparison matrices evaluating competing models, decomposition techniques, and optimization methods.
+    \item \textcolor{primarydark}{\textbf{Part 7: Python / Scientific Computing Lab:}} Production-ready, runnable scientific Python implementations using \texttt{numpy}, \texttt{scipy}, and \texttt{matplotlib}.
+    \item \textcolor{purpleex}{\textbf{Part 8: Comprehensive Practice Problems:}} Part A multi-part computational scenarios alongside Part B diagnostic multiple-choice questions.
+    \item \textcolor{coralformula}{\textbf{Part 9: Detailed Solutions \& Distractor Rationales:}} Exhaustive mathematical derivations and thorough four-option distractor analyses in the Appendix.
+\end{itemize}
+
+\include{cheatsheet}
+
+\mainmatter
+
+% Include all 12 weekly chapters
+\include{chapters/week01}
+\include{chapters/week02}
+\include{chapters/week03}
+\include{chapters/week04}
+\include{chapters/week05}
+\include{chapters/week06}
+\include{chapters/week07}
+\include{chapters/week08}
+\include{chapters/week09}
+\include{chapters/week10}
+\include{chapters/week11}
+\include{chapters/week12}
+
+\backmatter
+\include{appendix}
+
+\printindex
+
+\end{document}
+
