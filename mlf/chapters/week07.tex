@@ -1,4 +1,4 @@
-\chapter{Principal Component Analysis (PCA) \& High-Dimensional Dimensionality Reduction}
+\chapter[Principal Component Analysis]{Principal Component Analysis (PCA) and Dimensionality Reduction}
 \label{chap:week07}
 
 % ----------------------------------------------------------------------
@@ -187,7 +187,7 @@ Because $V$ is orthogonal and $\Sigma^2$ is diagonal, this is precisely the spec
     \end{equation}
 \end{itemize}
 
-\subsection{The Dual Gram Matrix Shortcut When $d \gg N$}
+\subsection{The Dual Gram Matrix Shortcut When \texorpdfstring{$d \gg N$}{d >> N}}
 In genetics and high-resolution imaging, the number of features often dwarfs the number of samples ($d \gg N$, e.g., $N = 100, d = 50{,}000$). Forming $S \in \mathbb{R}^{d \times d}$ requires storing $2.5 \times 10^9$ entries ($10$ GB RAM) and $\mathcal{O}(d^3)$ compute time.
 
 \begin{theorem}[Dual PCA Formulation]

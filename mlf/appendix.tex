@@ -216,7 +216,8 @@ $f(x, y) = x^3 - 3x - y^2 + 4y$.
 $A = \begin{bmatrix} 1 & 0 \\ 1 & 1 \\ 0 & 1 \end{bmatrix}, \mathbf{b} = \begin{bmatrix} 3 \\ 1 \\ 2 \end{bmatrix}$.
 \begin{enumerate}[label=(\alph*)]
     \item $A^T A = \begin{bmatrix} 1 & 1 & 0 \\ 0 & 1 & 1 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 1 & 1 \\ 0 & 1 \end{bmatrix} = \begin{bmatrix} 2 & 1 \\ 1 & 2 \end{bmatrix}$.
-    Determinant $\det(A^T A) = 4 - 1 = 3$. Inverse: $(A^T A)^{-1} = \frac{1}{3} \begin{bmatrix} 2 & -1 \\ -1 & 2 \end{bmatrix}$.
+    Determinant: $\det(A^T A) = 4 - 1 = 3$. \\
+    Inverse: $(A^T A)^{-1} = \frac{1}{3} \begin{bmatrix} 2 & -1 \\ -1 & 2 \end{bmatrix}$.
     \item $P = A (A^T A)^{-1} A^T = \frac{1}{3} \begin{bmatrix} 1 & 0 \\ 1 & 1 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} 2 & -1 \\ -1 & 2 \end{bmatrix} \begin{bmatrix} 1 & 1 & 0 \\ 0 & 1 & 1 \end{bmatrix} = \frac{1}{3} \begin{bmatrix} 2 & 1 & -1 \\ 1 & 2 & 1 \\ -1 & 1 & 2 \end{bmatrix}$.
     \item $\hat{\mathbf{b}} = P\mathbf{b} = \frac{1}{3} \begin{bmatrix} 2(3) + 1(1) - 1(2) \\ 1(3) + 2(1) + 1(2) \\ -1(3) + 1(1) + 2(2) \end{bmatrix} = \frac{1}{3} \begin{bmatrix} 5 \\ 7 \\ 2 \end{bmatrix} = \begin{bmatrix} 5/3 \\ 7/3 \\ 2/3 \end{bmatrix}$.
     Error vector: $\mathbf{e} = \mathbf{b} - \hat{\mathbf{b}} = \begin{bmatrix} 3 - 5/3 \\ 1 - 7/3 \\ 2 - 2/3 \end{bmatrix} = \begin{bmatrix} 4/3 \\ -4/3 \\ 4/3 \end{bmatrix} = \frac{4}{3} \begin{bmatrix} 1 \\ -1 \\ 1 \end{bmatrix}$.
@@ -299,8 +300,13 @@ $A = \begin{bmatrix} 4 & 2 \\ 1 & 3 \end{bmatrix}$.
     Eigenvalues are $\lambda_1 = 5$ and $\lambda_2 = 2$.
     \item For $\lambda_1 = 5$: $(A - 5I)\mathbf{v}_1 = \begin{bmatrix} -1 & 2 \\ 1 & -2 \end{bmatrix} \begin{bmatrix} v_{11} \\ v_{12} \end{bmatrix} = \mathbf{0} \implies -v_{11} + 2v_{12} = 0 \implies \mathbf{v}_1 = \begin{bmatrix} 2 \\ 1 \end{bmatrix}$.
     For $\lambda_2 = 2$: $(A - 2I)\mathbf{v}_2 = \begin{bmatrix} 2 & 2 \\ 1 & 1 \end{bmatrix} \begin{bmatrix} v_{21} \\ v_{22} \end{bmatrix} = \mathbf{0} \implies v_{21} + v_{22} = 0 \implies \mathbf{v}_2 = \begin{bmatrix} 1 \\ -1 \end{bmatrix}$.
-    \item $P = \begin{bmatrix} 2 & 1 \\ 1 & -1 \end{bmatrix}, D = \begin{bmatrix} 5 & 0 \\ 0 & 2 \end{bmatrix}$. $\det(P) = -2 - 1 = -3$. Inverse: $P^{-1} = -\frac{1}{3}\begin{bmatrix} -1 & -1 \\ -1 & 2 \end{bmatrix} = \frac{1}{3}\begin{bmatrix} 1 & 1 \\ 1 & -2 \end{bmatrix}$.
-    \item $A^5 = P D^5 P^{-1} = \begin{bmatrix} 2 & 1 \\ 1 & -1 \end{bmatrix} \begin{bmatrix} 3125 & 0 \\ 0 & 32 \end{bmatrix} \left( \frac{1}{3} \begin{bmatrix} 1 & 1 \\ 1 & -2 \end{bmatrix} \right) = \frac{1}{3} \begin{bmatrix} 6250 & 32 \\ 3125 & -32 \end{bmatrix} \begin{bmatrix} 1 & 1 \\ 1 & -2 \end{bmatrix} = \begin{bmatrix} 2094 & 2062 \\ 1031 & 1063 \end{bmatrix}$.
+    \item Inversion and matrix powers:
+    \[
+    P = \begin{bmatrix} 2 & 1 \\ 1 & -1 \end{bmatrix}, \quad D = \begin{bmatrix} 5 & 0 \\ 0 & 2 \end{bmatrix}, \quad P^{-1} = \frac{1}{3}\begin{bmatrix} 1 & 1 \\ 1 & -2 \end{bmatrix}
+    \]
+    \[
+    A^5 = P D^5 P^{-1} = \begin{bmatrix} 2 & 1 \\ 1 & -1 \end{bmatrix} \begin{bmatrix} 3125 & 0 \\ 0 & 32 \end{bmatrix} \left( \frac{1}{3} \begin{bmatrix} 1 & 1 \\ 1 & -2 \end{bmatrix} \right) = \begin{bmatrix} 2094 & 2062 \\ 1031 & 1063 \end{bmatrix}
+    \]
 \end{enumerate}
 
 \paragraph{P2. Defective Matrix and Multiplicities:}
@@ -383,7 +389,11 @@ $H = \begin{bmatrix} 2 & 1 - i \\ 1 + i & 3 \end{bmatrix}$.
     For $\lambda_2 = 1$: $(H - I)\mathbf{u}_2 = \begin{bmatrix} 1 & 1-i \\ 1+i & 2 \end{bmatrix}\mathbf{u}_2 = \mathbf{0} \implies \mathbf{u}_2 \propto [1-i, -1]^T$.
     Norm: $\|\mathbf{u}_2\|_2^2 = 2 + 1 = 3 \implies \mathbf{u}_2 = \frac{1}{\sqrt{3}}\begin{bmatrix} 1-i \\ -1 \end{bmatrix}$.
     Inner product: $\mathbf{u}_1^H \mathbf{u}_2 = \frac{1}{\sqrt{18}} \left( (1+i)(1-i) + 2(-1) \right) = \frac{1}{\sqrt{18}}(2 - 2) = 0$.
-    \item $\lambda_1 \mathbf{u}_1 \mathbf{u}_1^H + \lambda_2 \mathbf{u}_2 \mathbf{u}_2^H = \frac{4}{6}\begin{bmatrix} 2 & 2-2i \\ 2+2i & 4 \end{bmatrix} + \frac{1}{3}\begin{bmatrix} 2 & -(1-i) \\ -(1+i) & 1 \end{bmatrix} = \begin{bmatrix} 4/3 + 2/3 & (4-4i)/3 - (1-i)/3 \\ (4+4i)/3 - (1+i)/3 & 8/3 + 1/3 \end{bmatrix} = \begin{bmatrix} 2 & 1-i \\ 1+i & 3 \end{bmatrix} = H$.
+    \item Spectral expansion:
+    \begin{align*}
+    \lambda_1 \mathbf{u}_1 \mathbf{u}_1^H + \lambda_2 \mathbf{u}_2 \mathbf{u}_2^H &= \frac{4}{6}\begin{bmatrix} 2 & 2-2i \\ 2+2i & 4 \end{bmatrix} + \frac{1}{3}\begin{bmatrix} 2 & -(1-i) \\ -(1+i) & 1 \end{bmatrix} \\
+    &= \begin{bmatrix} 2 & 1-i \\ 1+i & 3 \end{bmatrix} = H
+    \end{align*}
 \end{enumerate}
 
 \paragraph{P2. Spectral Properties of Unitary Transformations:}
@@ -416,7 +426,10 @@ $H = \begin{bmatrix} 2 & 1 - i \\ 1 + i & 3 \end{bmatrix}$.
 \end{enumerate}
 
 \paragraph{P5. Courant-Fischer Min-Max Theorem:}
-By Courant-Fischer: $\lambda_k(A + B) = \min_{S: \dim(S)=k} \max_{\mathbf{x} \in S, \|\mathbf{x}\|=1} \left( \mathbf{x}^H A \mathbf{x} + \mathbf{x}^H B \mathbf{x} \right)$.
+By the Courant-Fischer characterization:
+\[
+\lambda_k(A + B) = \min_{S: \dim(S)=k} \max_{\mathbf{x} \in S, \|\mathbf{x}\|=1} \left( \mathbf{x}^H A \mathbf{x} + \mathbf{x}^H B \mathbf{x} \right)
+\]
 Since $B \succeq 0$, $\mathbf{x}^H B \mathbf{x} \ge 0$ for all $\mathbf{x}$.
 Therefore, for any fixed $\mathbf{x}$: $\mathbf{x}^H (A + B) \mathbf{x} = \mathbf{x}^H A \mathbf{x} + \mathbf{x}^H B \mathbf{x} \ge \mathbf{x}^H A \mathbf{x}$.
 Taking the max over $\mathbf{x} \in S$ preserves the inequality: $\max_{\mathbf{x} \in S, \|\mathbf{x}\|=1} \mathbf{x}^H (A+B)\mathbf{x} \ge \max_{\mathbf{x} \in S, \|\mathbf{x}\|=1} \mathbf{x}^H A \mathbf{x}$.
@@ -458,9 +471,16 @@ $A = \begin{bmatrix} 3 & 0 \\ 4 & 5 \end{bmatrix}$.
     For $\lambda_1 = 45$: $\begin{bmatrix} -20 & 20 \\ 20 & -20 \end{bmatrix}\mathbf{v}_1 = \mathbf{0} \implies \mathbf{v}_1 = \frac{1}{\sqrt{2}}\begin{bmatrix} 1 \\ 1 \end{bmatrix}$.
     For $\lambda_2 = 5$: $\begin{bmatrix} 20 & 20 \\ 20 & 20 \end{bmatrix}\mathbf{v}_2 = \mathbf{0} \implies \mathbf{v}_2 = \frac{1}{\sqrt{2}}\begin{bmatrix} -1 \\ 1 \end{bmatrix}$.
     \item Left singular vectors:
-    $\mathbf{u}_1 = \frac{1}{\sigma_1} A \mathbf{v}_1 = \frac{1}{3\sqrt{5}} \begin{bmatrix} 3 & 0 \\ 4 & 5 \end{bmatrix} \left( \frac{1}{\sqrt{2}}\begin{bmatrix} 1 \\ 1 \end{bmatrix} \right) = \frac{1}{3\sqrt{10}} \begin{bmatrix} 3 \\ 9 \end{bmatrix} = \frac{1}{\sqrt{10}} \begin{bmatrix} 1 \\ 3 \end{bmatrix}$.
-    $\mathbf{u}_2 = \frac{1}{\sigma_2} A \mathbf{v}_2 = \frac{1}{\sqrt{5}} \begin{bmatrix} 3 & 0 \\ 4 & 5 \end{bmatrix} \left( \frac{1}{\sqrt{2}}\begin{bmatrix} -1 \\ 1 \end{bmatrix} \right) = \frac{1}{\sqrt{10}} \begin{bmatrix} -3 \\ 1 \end{bmatrix}$.
-    Verify: $U \Sigma V^T = \begin{bmatrix} 1/\sqrt{10} & -3/\sqrt{10} \\ 3/\sqrt{10} & 1/\sqrt{10} \end{bmatrix} \begin{bmatrix} 3\sqrt{5} & 0 \\ 0 & \sqrt{5} \end{bmatrix} \begin{bmatrix} 1/\sqrt{2} & 1/\sqrt{2} \\ -1/\sqrt{2} & 1/\sqrt{2} \end{bmatrix} = \begin{bmatrix} 3 & 0 \\ 4 & 5 \end{bmatrix} = A$.
+    \[
+    \mathbf{u}_1 = \frac{1}{\sigma_1} A \mathbf{v}_1 = \frac{1}{3\sqrt{5}} \begin{bmatrix} 3 & 0 \\ 4 & 5 \end{bmatrix} \left( \frac{1}{\sqrt{2}}\begin{bmatrix} 1 \\ 1 \end{bmatrix} \right) = \frac{1}{\sqrt{10}} \begin{bmatrix} 1 \\ 3 \end{bmatrix}
+    \]
+    \[
+    \mathbf{u}_2 = \frac{1}{\sigma_2} A \mathbf{v}_2 = \frac{1}{\sqrt{5}} \begin{bmatrix} 3 & 0 \\ 4 & 5 \end{bmatrix} \left( \frac{1}{\sqrt{2}}\begin{bmatrix} -1 \\ 1 \end{bmatrix} \right) = \frac{1}{\sqrt{10}} \begin{bmatrix} -3 \\ 1 \end{bmatrix}
+    \]
+    Verification of SVD reconstruction $U \Sigma V^T = A$:
+    \[
+    \begin{bmatrix} \frac{1}{\sqrt{10}} & -\frac{3}{\sqrt{10}} \\ \frac{3}{\sqrt{10}} & \frac{1}{\sqrt{10}} \end{bmatrix} \begin{bmatrix} 3\sqrt{5} & 0 \\ 0 & \sqrt{5} \end{bmatrix} \begin{bmatrix} \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}} \\ -\frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}} \end{bmatrix} = \begin{bmatrix} 3 & 0 \\ 4 & 5 \end{bmatrix} = A
+    \]
 \end{enumerate}
 
 \paragraph{P2. Sylvester's Criterion vs. Cholesky Factorization:}
@@ -961,9 +981,14 @@ $X \sim \mathcal{N}(0, 1)$, $Y = X^2$.
 \paragraph{P3. Exponential Distribution in Canonical Form:}
 $f(x; \lambda) = \lambda e^{-\lambda x}$ for $x \ge 0$.
 \begin{enumerate}[label=(\alph*)]
-    \item Rewriting: $f(x; \lambda) = \exp(-\lambda x + \log\lambda) = 1 \cdot \exp((-\lambda) x - (-\log\lambda))$.
+    \item Rewriting in canonical exponential family form:
+    \begin{align*}
+    f(x; \lambda) &= \exp(-\lambda x + \log\lambda) = 1 \cdot \exp\big((-\lambda) x - (-\log\lambda)\big)
+    \end{align*}
     Matching with $h(x)\exp(\eta T(x) - A(\eta))$:
-    $h(x) = \mathbb{I}(x \ge 0)$, $T(x) = x$, $\eta = -\lambda$, $A(\eta) = -\log(-\eta)$.
+    \[
+    h(x) = \mathbb{I}(x \ge 0), \quad T(x) = x, \quad \eta = -\lambda, \quad A(\eta) = -\log(-\eta).
+    \]
     \item First derivative: $A'(\eta) = -\frac{1}{-\eta}(-1) = -\frac{1}{\eta} = -\frac{1}{-\lambda} = \frac{1}{\lambda} = \E[X]$.
     \item Second derivative: $A''(\eta) = \frac{d}{d\eta}\left(-\frac{1}{\eta}\right) = \frac{1}{\eta^2} = \frac{1}{(-\lambda)^2} = \frac{1}{\lambda^2} = \Var(X)$.
 \end{enumerate}

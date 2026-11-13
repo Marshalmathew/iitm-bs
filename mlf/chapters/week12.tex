@@ -1,4 +1,4 @@
-\chapter{Multivariate Gaussian Distributions, Maximum Likelihood, GMMs, EM Algorithm \& Concentration Inequalities}
+\chapter[Multivariate Gaussians, GMMs, EM \& Concentration]{Multivariate Gaussian Distributions, Maximum Likelihood, GMMs, EM Algorithm \& Concentration Inequalities}
 \label{chap:week12}
 
 % ----------------------------------------------------------------------
@@ -95,7 +95,12 @@ p(\mathbf{x}; \boldsymbol{\theta}) = \sum_{k=1}^K \pi_k \mathcal{N}(\mathbf{x}; 
 \label{eq:gmm_density}
 \end{equation}
 where $\boldsymbol{\theta} = \{\pi_k, \boldsymbol{\mu}_k, \Sigma_k\}_{k=1}^K$.
-Direct maximization of the marginal log-likelihood $\ell(\boldsymbol{\theta}) = \sum_{i=1}^N \log\left( \sum_{k=1}^K \pi_k \mathcal{N}(\mathbf{x}_i; \boldsymbol{\mu}_k, \Sigma_k) \right)$ is analytically intractable because the summation lies inside the logarithm.
+Direct maximization of the marginal log-likelihood:
+\begin{equation}
+\ell(\boldsymbol{\theta}) = \sum_{i=1}^N \log\left( \sum_{k=1}^K \pi_k \mathcal{N}(\mathbf{x}_i; \boldsymbol{\mu}_k, \Sigma_k) \right)
+\label{eq:gmm_marginal_loglik}
+\end{equation}
+is analytically intractable because the summation lies inside the logarithm.
 
 \begin{theorem}[The Expectation-Maximization (EM) Algorithm for GMMs]
 The EM algorithm alternates between two steps until convergence:
@@ -246,7 +251,7 @@ This decomposition reveals the exact mechanics of the EM algorithm:
     \end{equation}
 \end{itemize}
 
-\subsection{Connection Between GMM and $K$-Means Clustering}
+\subsection{Connection Between GMM and \texorpdfstring{$K$}{K}-Means Clustering}
 $K$-Means clustering is mathematically equivalent to a special degenerate limit of a Gaussian Mixture Model:
 \begin{enumerate}
     \item Assume all $K$ covariance matrices are isotropic and identical: $\Sigma_k = \sigma^2 I_d$.
@@ -315,7 +320,7 @@ KDE & Non-parametric & Kernel balls centered on every data point & Integrated sq
 % ----------------------------------------------------------------------
 \section{Python / Scientific Computing Lab}
 
-The following production script implements a complete Gaussian Mixture Model with the Expectation-Maximization algorithm from scratch, verifying the monotonic ascent of the marginal log-likelihood.
+The following script implements a complete Gaussian Mixture Model using the EM algorithm from scratch, verifying monotonic ascent of the marginal log-likelihood.
 
 \begin{lstlisting}[language=Python, caption={Gaussian Mixture Model EM Algorithm Implementation in Python.}]
 import numpy as np

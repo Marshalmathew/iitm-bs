@@ -1,4 +1,4 @@
-\chapter{Singular Value Decomposition (SVD), Low-Rank Approximations \& Positive Definite Matrices}
+\chapter[SVD \& Positive Definite Matrices]{Singular Value Decomposition (SVD), Low-Rank Approximations \& Positive Definite Matrices}
 \label{chap:week06}
 
 % ----------------------------------------------------------------------
@@ -191,10 +191,10 @@ Figure~\ref{fig:svd_geometry} diagrams the geometric breakdown of SVD. Any linea
 \subsection{Connection Between SVD and the Four Fundamental Subspaces}
 The SVD provides an explicit, orthonormal coordinate system for all four fundamental subspaces simultaneously:
 \begin{itemize}
-    \item \textbf{Row Space } $\Row(A)$: Spanned by the first $r$ right singular vectors $\{\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_r\}$.
-    \item \textbf{Nullspace } $\Null(A)$: Spanned by the remaining $n - r$ right singular vectors $\{\mathbf{v}_{r+1}, \dots, \mathbf{v}_n\}$.
-    \item \textbf{Column Space } $\Col(A)$: Spanned by the first $r$ left singular vectors $\{\mathbf{u}_1, \mathbf{u}_2, \dots, \mathbf{u}_r\}$.
-    \item \textbf{Left Nullspace } $\Null(A^T)$: Spanned by the remaining $m - r$ left singular vectors $\{\mathbf{u}_{r+1}, \dots, \mathbf{u}_m\}$.
+    \item \textbf{Row Space } $\Row(A)$: Basis $\{\mathbf{v}_1, \dots, \mathbf{v}_r\}$ (dimension $r$).
+    \item \textbf{Nullspace } $\Null(A)$: Basis $\{\mathbf{v}_{r+1}, \dots, \mathbf{v}_n\}$ (dimension $n - r$).
+    \item \textbf{Column Space } $\Col(A)$: Basis $\{\mathbf{u}_1, \dots, \mathbf{u}_r\}$ (dimension $r$).
+    \item \textbf{Left Nullspace } $\Null(A^T)$: Basis $\{\mathbf{u}_{r+1}, \dots, \mathbf{u}_m\}$ (dimension $m - r$).
 \end{itemize}
 For any $\mathbf{x} \in \mathbb{R}^n$, we can expand $\mathbf{x} = \sum_{i=1}^n c_i \mathbf{v}_i$. Then:
 \begin{equation}

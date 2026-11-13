@@ -1,4 +1,4 @@
-\chapter{Probability Foundations for Learning, Joint Distributions \& the Exponential Family}
+\chapter[Probability Foundations \& Exponential Family]{Probability Foundations for Learning and the Exponential Family}
 \label{chap:week11}
 
 % ----------------------------------------------------------------------
@@ -175,7 +175,7 @@ Figure~\ref{fig:jacobian_geometry} illustrates the geometric intuition behind th
 % ----------------------------------------------------------------------
 \section{Deep Intuition \& Conceptual Derivations}
 
-\subsection{Derivation of the Moment Properties of the Log-Partition Function $A(\eta)$}
+\subsection{Derivation of the Moment Properties of the Log-Partition Function \texorpdfstring{$A(\eta)$}{A(eta)}}
 By definition of a normalized probability density, the integral of $p(x; \boldsymbol{\eta})$ must equal 1:
 \begin{equation}
 \int_{\mathcal{X}} h(x) \exp\left( \boldsymbol{\eta}^T \mathbf{T}(x) - A(\boldsymbol{\eta}) \right) dx = 1 \implies \exp(A(\boldsymbol{\eta})) = \int_{\mathcal{X}} h(x) \exp\left( \boldsymbol{\eta}^T \mathbf{T}(x) \right) dx
@@ -249,8 +249,9 @@ Table~\ref{tab:exp_family_summary} summarizes the Exponential Family representat
 
 \begin{table}[htbp]
 \centering
-\small
-\begin{tabularx}{\textwidth}{lXXXXX}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{lcXX>{\raggedright\arraybackslash}Xp{2.8cm}}
 \toprule
 \textbf{Distribution} & \textbf{Support $\mathcal{X}$} & \textbf{Sufficient Stat $\mathbf{T}(x)$} & \textbf{Natural Param $\boldsymbol{\eta}$} & \textbf{Log-Partition $A(\boldsymbol{\eta})$} & \textbf{ML Model Link} \\
 \midrule
