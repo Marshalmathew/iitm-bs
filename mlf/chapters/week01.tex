@@ -6,89 +6,102 @@
 % ----------------------------------------------------------------------
 \section{Executive Roadmap \& Learning Objectives}
 
-\subsection{The Big Picture: Why Can't We Just Write the Rules?}
-Every journey into machine learning begins with a simple, provocative question: \emph{Why do we need a new computational paradigm at all?} For more than half a century, traditional computer science solved the world's most demanding computational problems—from calculating spacecraft trajectories to managing global banking ledgers—using a single, elegant philosophical principle known as **deductive programming**:
+\subsection{The Grand Paradox: Why Can't We Just Write the Rules?}
+Every journey into the mathematical foundations of machine learning must begin with an honest, common-sense question: \emph{Why do we need a new computational paradigm at all?}
+
+For more than half a century, traditional computer science solved the world's most demanding engineering problems using a single, elegant philosophical principle known as **deductive programming**:
 \begin{equation}
-\boxed{\text{Human Expert Writes Rules (Logic)} + \text{Computer Receives Input Data} \xrightarrow{\text{Deductive Execution}} \text{Answers (Output)}}
-\label{eq:deductive_paradigm}
+\boxed{\text{Human Writes Rules (Logic)} + \text{Computer Receives Input Data} \xrightarrow{\text{Deductive Execution}} \text{Deterministic Output (Answers)}}
+\label{eq:deductive_flow}
 \end{equation}
-In this classical paradigm, a human software engineer analyzes the problem, formalizes the complete set of operational rules, and writes deterministic code (using loops, conditionals, and mathematical formulas). If you want to compute income tax, you look up the tax brackets codified by law, translate them into a sequence of \texttt{if-else} statements, and run the program. The computer executes your rules faithfully, deterministically, and with microsecond precision.
+In this classical paradigm, a human software engineer studies a real-world system, formalizes a complete set of deterministic logical rules, and implements them as source code. 
+\begin{itemize}
+    \item If you need to calculate corporate tax liabilities, you read the tax code, write a sequence of \texttt{if-else} branches corresponding to each income bracket, and run the program.
+    \item If you need to guide an Apollo spacecraft to the Moon, you implement Newton's laws of universal gravitation and numerical differential equations.
+\end{itemize}
+In these domains, traditional logic triumphs because human beings can explicitly articulate the complete chain of axiomatic rules.
 
-\subsubsection{Where Traditional Logic Breaks Down: The Perception Paradox}
-Now consider a deceptively modest task: write a computer program to determine whether a small $28 \times 28$ grayscale photograph contains the handwritten digit \textbf{3}.
+\subsubsection{The Perception Paradox}
+Now consider a task that a four-year-old child performs effortlessly in a fraction of a second: glance at a small, grainy $28 \times 28$ grayscale photograph and determine whether it contains the handwritten digit \textbf{3}.
 
-A human child performs this recognition in a fraction of a second, effortlessly identifying the digit whether it is scribbled with a pencil, painted with a brush, slanted backward, or partially faded. But what does the computer actually see? The computer does not see a digit; it sees a grid of $28 \times 28 = 784$ numbers, where each number represents the brightness of a single pixel between $0$ (black) and $1$ (white). In mathematical terms, the input is a vector living in a 784-dimensional space:
+What does a computer actually see when an image is loaded into memory? It does not see a digit, a curve, or a symbol; it sees a grid of $28 \times 28 = 784$ numbers, where each number represents the brightness of a single pixel between $0.0$ (pitch black) and $1.0$ (pure white). In the language of geometry, the input is a single point living in a 784-dimensional space:
 \begin{equation}
 \mathbf{x} = \begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_{784} \end{bmatrix} \in [0, 1]^{784}
 \end{equation}
 How would you write classical code to recognize a ``3''?
 \begin{itemize}
-    \item You might try checking if certain pixels are dark: \emph{``If pixel 200 is dark and pixel 350 is dark, it might be a 3.''} But if the writer slants their handwriting slightly to the left, those exact pixels are now completely white!
-    \item You might try writing geometric rules: \emph{``A 3 consists of two semi-circular loops open on the left, connected in the center.''} But how do you mathematically define a ``rough, hand-drawn semi-circular loop'' across a discrete pixel grid subject to ink splatters, varying stroke thickness, and broken strokes?
-    \item Even if each pixel were strictly binary (black or white), the number of possible $28 \times 28$ images is:
+    \item \textbf{Attempt 1 (Pixel Matching):} You might check if certain pixels are dark: \emph{``If pixel 210 is dark and pixel 380 is dark, it might be a 3.''} But if the writer slants their handwriting two degrees to the left, those exact pixels are now completely blank!
+    \item \textbf{Attempt 2 (Geometric Rules):} You might try to write rules describing geometry: \emph{``A 3 consists of two rounded loops open to the left, joined at a central cusp.''} But how do you mathematically define a ``rounded loop'' on a discrete pixel grid with broken ink strokes, paper wrinkles, varying pen pressure, and sensor noise?
+    \item \textbf{The Combinatorial Explosion:} Even if every pixel were strictly black or white (only 2 states per pixel), the number of possible $28 \times 28$ binary images is:
     \begin{equation}
     2^{784} \approx 10^{236}
     \end{equation}
-    To put this incomprehensible number in perspective, physicists estimate that the entire observable universe contains roughly $10^{80}$ subatomic particles. The configuration space of handwritten digits is larger than the physical universe by a factor of $10^{156}$!
+    Astrophysicists estimate that the entire observable universe contains roughly $10^{80}$ subatomic particles. The space of handwritten digits is larger than the physical universe by a factor of $10^{156}$!
 \end{itemize}
-No team of human engineers, given a century of effort, could write enough \texttt{if-else} statements to handle the combinatorial diversity of human handwriting. Deductive programming collapses whenever the rules governing the problem are too subtle, too complex, or too subconscious for human programmers to explicitly articulate.
+No team of software engineers, given centuries of effort, could write enough \texttt{if-else} statements to handle this combinatorial diversity. Deductive programming collapses whenever the rules governing reality are subconscious, fluid, or submerged in high-dimensional noise.
 
-\subsubsection{The Inductive Leap: Inverting the Computation}
-**Machine Learning** inverts the computational pipeline into an **inductive paradigm**:
+\subsubsection{The Inductive Inversion}
+**Machine Learning** inverts this computational flow into an **inductive paradigm**:
 \begin{equation}
 \boxed{\text{Input Observations} + \text{Desired Outputs (Targets)} \xrightarrow{\text{Inductive Learning}} \text{Discovered Rules (Hypothesis } h\text{)}}
-\label{eq:inductive_paradigm}
+\label{eq:inductive_flow}
 \end{equation}
-Instead of hand-coding the rules, we show the computer 60,000 examples of handwritten digits along with their correct labels. We define an optimization landscape (a mathematical surface measuring how far the computer's guesses are from the truth), and an algorithm systematically adjusts the parameters of a flexible mathematical function until the function automatically produces the correct labels.
+Instead of hand-coding the logic, we collect 60,000 examples of handwritten images alongside their verified labels. We define a flexible mathematical function with adjustable numerical knobs (parameters) and a loss surface that quantifies mistakes. An optimization algorithm systematically turns those knobs until the function automatically maps raw pixels to correct labels.
 
-In 1959, artificial intelligence pioneer Arthur Samuel captured this essence in words that remain the definitive layman's definition:
+In 1959, artificial intelligence pioneer Arthur Samuel captured this philosophy:
 \begin{quote}
 \emph{``Machine learning is the field of study that gives computers the ability to learn without being explicitly programmed.''}
 \end{quote}
-Four decades later, Tom Mitchell (1997) refined this into the standard engineering formulation that guides modern data science:
+Tom Mitchell (1997) later established the operational engineering standard:
 \begin{quote}
 \emph{``A computer program is said to learn from experience $E$ with respect to some class of tasks $T$ and performance measure $P$, if its performance at tasks in $T$, as measured by $P$, improves with experience $E$.''}
 \end{quote}
-In our digit recognition problem:
-\begin{itemize}
-    \item \textbf{Task $T$:} Classify unseen $28 \times 28$ pixel images into categories $0$ through $9$.
-    \item \textbf{Experience $E$:} A historical database of labeled handwritten images $S = \{(\mathbf{x}_i, y_i)\}_{i=1}^N$.
-    \item \textbf{Performance Measure $P$:} The classification accuracy (percentage of correct predictions) evaluated on fresh, unseen images that the computer has never encountered before.
-\end{itemize}
 
-\subsection{Prerequisites \& Scaffolding}
-To master this course, students do not need encyclopedic recall of obscure mathematics, but they do need intuitive fluency across three core collegiate subjects, mapped in Table~\ref{tab:w01_prereqs}.
+\subsection{The Road Ahead: Why Linear Algebra \& Calculus are the Twin Engines}
+This course is called \textbf{Machine Learning Foundations} (BSCS2004). You may wonder: \emph{If machine learning is about artificial intelligence, why will we spend Weeks 2–7 studying vector subspaces, orthogonal projections, eigenvalues, and SVD, and Weeks 8–10 studying multivariable gradients, Hessians, and convex duality?}
+
+The answer is profound: **Linear Algebra is the geometry of data, and Multivariable Calculus is the engine of learning.**
+
+\begin{enumerate}
+    \item \textbf{Data as Geometry (Linear Algebra):}
+    A dataset containing $N$ patient records with $d$ medical measurements is not a spreadsheet; it is an $N \times d$ matrix $X \in \mathbb{R}^{N \times d}$. 
+    \begin{itemize}
+        \item In the \textbf{Row Picture}, your dataset is a cloud of $N$ points scattered in a $d$-dimensional measurement room $\mathbb{R}^d$.
+        \item In the \textbf{Column Picture}, each feature is a vector in an $N$-dimensional sample room $\mathbb{R}^N$. Fitting a linear model to a target vector $\mathbf{y} \in \mathbb{R}^N$ is mathematically identical to dropping an **orthogonal perpendicular** from $\mathbf{y}$ onto the subspace spanned by the columns of $X$ (Week 3).
+        \item Finding the most informative features in high-dimensional data is identical to finding the **principal axes of elongation** of the data ellipsoid: the eigenvectors of the covariance matrix $X^T X$ (Weeks 4–7).
+    \end{itemize}
+
+    \item \textbf{Learning as Physical Gravity (Multivariable Calculus \& Optimization):}
+    When we train an algorithm, we define a mathematical function measuring how wrong our model is—the loss function. This function forms an energy landscape in multi-dimensional space. Training a model is physically identical to releasing a ball on that landscape and watching it roll downhill under gravity to the lowest point. 
+    \begin{itemize}
+        \item The **gradient** $\nabla f$ tells the ball which direction is steepest downhill (Weeks 2 and 8).
+        \item The **Hessian matrix** $\nabla^2 f$ measures the curvature of the bowl (Weeks 2 and 8).
+        \item **Convexity** guarantees that the bowl has only a single bottom, ensuring our ball never gets trapped in a false sub-optimal hollow (Weeks 9 and 10).
+    \end{itemize}
+\end{enumerate}
 
 \begin{table}[htbp]
 \centering
 \small
 \begin{tabularx}{\textwidth}{lXX}
 \toprule
-\textbf{Subject} & \textbf{Key Mental Model Required} & \textbf{How Machine Learning Uses It} \\
+\textbf{Foundational Pillar} & \textbf{Core Mathematical Concepts} & \textbf{Operational Role in Machine Learning Foundations} \\
 \midrule
-\textbf{Linear Algebra} & Vectors as points in space; dot products as directional similarity; matrices as space-transforming operators. & Every dataset is a matrix $X$; every observation is a vector $\mathbf{x} \in \mathbb{R}^d$; linear models draw flat hyperplanes through feature space. \\
+\textbf{Linear Algebra} (Weeks 3--7) & Vector spaces, inner products, orthogonal projections, rank, eigenvalues, SVD & Geometric representation of data matrices $X \in \mathbb{R}^{N \times d}$, low-rank matrix compression, and PCA. \\
 \addlinespace
-\textbf{Multivariable Calculus} & Derivatives as slopes; gradients $\nabla f$ as directions of steepest ascent; curvature captured by Hessians. & Training a model is an iterative mountain hike: gradients tell algorithms which way is ``downhill'' on the loss surface to find the optimal weights. \\
+\textbf{Multivariable Calculus} (Weeks 2, 8) & Partial derivatives, gradient vectors $\nabla f$, Taylor approximations, Hessians $\nabla^2 f$ & Local probing of loss surfaces; establishing convergence rates of gradient descent algorithms. \\
 \addlinespace
-\textbf{Probability \& Statistics} & Random variables as uncertain measurements; expectations $\E[X]$ as centers of mass; distributions capturing noise. & Real data is never clean; probability models the intrinsic noise of Nature and allows us to reason about unseen future data. \\
+\textbf{Convex Optimization} (Weeks 9--10) & Convex sets, epigraphs, Lagrange multipliers, KKT conditions, duality & Finding global optima under physical constraints; mathematical derivation of Support Vector Machines. \\
+\addlinespace
+\textbf{Probability \& Statistics} (Weeks 1, 11--12) & Joint distributions $\mathcal{D}$, conditional expectation $\E[Y \mid \mathbf{X}]$, Exponential Family, GMM, EM & Formalizing data generation under uncertainty, true statistical risk, maximum likelihood, and latent variable models. \\
 \bottomrule
 \end{tabularx}
-\caption{Prerequisite Scaffolding: Connecting Foundational Mathematics to Machine Learning Concepts.}
-\label{tab:w01_prereqs}
+\caption{The Mathematical Curriculum Architecture of Machine Learning Foundations.}
+\label{tab:w01_curriculum_map}
 \end{table}
 
-\subsection{Core Competencies}
-By the conclusion of this chapter, you will be able to:
-\begin{enumerate}
-    \item \textbf{Speak the Language of Statistical Learning:} Translate ambiguous business and scientific questions into the formal five-tuple $(\mathcal{X}, \mathcal{Y}, \mathcal{D}, \mathcal{H}, \ell)$.
-    \item \textbf{Derive Nature's Theoretical Ceiling:} Prove why the conditional expectation $\E[Y \mid \mathbf{X}]$ is the mathematically best possible regressor under squared loss, and why majority voting is optimal for classification.
-    \item \textbf{Dismantle the Overfitting Illusion:} Explain why an algorithm that achieves $100\%$ training accuracy can perform worse than random guessing on new data, and compute the exact Generalization Gap.
-    \item \textbf{Diagnose Model Failures via Error Decomposition:} Partition predictive error into Approximation Error (model inflexibility / bias) and Estimation Error (finite data noise / variance).
-    \item \textbf{Navigate High-Dimensional Geometry:} Mathematically demonstrate why Euclidean intuition fails in high dimensions, proving the Empty Hypercube theorem and the Distance Concentration phenomenon.
-\end{enumerate}
-
-\subsection{Notation \& Mathematical Conventions}
-Throughout this textbook, we adhere to the standard mathematical notation detailed in Table~\ref{tab:w01_notation}.
+\subsection{Prerequisites \& Notation Conventions}
+Mastery of this chapter assumes familiarity with foundational concepts outlined in Table~\ref{tab:w01_notation}.
 
 \begin{table}[htbp]
 \centering
@@ -98,18 +111,18 @@ Throughout this textbook, we adhere to the standard mathematical notation detail
 \textbf{Symbol} & \textbf{Formal Name} & \textbf{Intuitive Plain-English Meaning} \\
 \midrule
 $\mathbf{x} \in \mathcal{X} \subseteq \mathbb{R}^d$ & Feature Vector & A list of $d$ numerical measurements describing an object (e.g., patient age, blood pressure, cholesterol). \\
-$y \in \mathcal{Y}$ & Ground-Truth Label & The outcome we want to predict (e.g., house price in $\mathbb{R}$, or whether a transaction is fraudulent in $\{0, 1\}$). \\
-$\mathcal{D}$ & Data Distribution & Nature's secret probability distribution that generates real-world data pairs $(\mathbf{x}, y)$. \\
-$S = \{(\mathbf{x}_i, y_i)\}_{i=1}^N$ & Training Sample & The limited collection of $N$ examples our algorithm is allowed to study. \\
-$\mathcal{H}$ & Hypothesis Class & The ``menu'' of mathematical functions our algorithm is permitted to choose from (e.g., all straight lines). \\
-$h(\mathbf{x}) \in \mathcal{H}$ & Candidate Hypothesis & A specific prediction rule chosen from the menu that maps features to predicted targets $\hat{y} = h(\mathbf{x})$. \\
-$\ell(\hat{y}, y)$ & Loss Function & The price we pay for making a mistake when we predict $\hat{y}$ but the true answer was $y$. \\
-$R(h)$ & True Risk & The average loss the model would suffer on all possible future data generated by Nature (the unseen final exam score). \\
-$R_{\text{emp}}(h; S)$ & Empirical Risk & The average loss the model suffered on the observed training sample $S$ (the practice homework score). \\
+$y \in \mathcal{Y}$ & Ground-Truth Label & The outcome we want to predict: $\mathbb{R}$ for regression; $\{0, 1\}$ or $\{-1, +1\}$ for binary classification. \\
+$\mathcal{D}$ & Data Distribution & Nature's secret probability distribution that generates real-world observation pairs $(\mathbf{x}, y)$. \\
+$S = \{(\mathbf{x}_i, y_i)\}_{i=1}^N$ & Training Sample & The limited collection of $N$ historical examples our algorithm is allowed to inspect. \\
+$\mathcal{H}$ & Hypothesis Class & The ``menu'' of mathematical functions our algorithm is permitted to evaluate (e.g., all straight lines). \\
+$h(\mathbf{x}) \in \mathcal{H}$ & Candidate Hypothesis & A specific prediction rule chosen from the menu: $\hat{y} = h(\mathbf{x})$. \\
+$\ell(\hat{y}, y)$ & Loss Function & The penalty we pay when the model guesses $\hat{y}$ but the true answer was $y$. \\
+$R(h)$ & True Risk & The average loss the model would suffer across all possible future data generated by Nature (the unseen final exam). \\
+$R_{\text{emp}}(h; S)$ & Empirical Risk & The average loss the model suffered on the observed training sample $S$ (the practice homework). \\
 $h^*$ & Bayes Optimal Rule & The theoretically best predictor possible if we possessed infinite data and knew Nature's distribution perfectly. \\
 \bottomrule
 \end{tabularx}
-\caption{Mathematical Conventions and Learning Framework Notation.}
+\caption{Formal Notation and Conceptual Taxonomy for Statistical Learning.}
 \label{tab:w01_notation}
 \end{table}
 
@@ -118,90 +131,97 @@ $h^*$ & Bayes Optimal Rule & The theoretically best predictor possible if we pos
 % ----------------------------------------------------------------------
 \section{Mathematical \& Computational Foundations}
 
-\subsection{How to Translate the World into Mathematics: The 5-Tuple}
-To study machine learning mathematically, we must formalize how an algorithm interacts with reality. Every machine learning problem on Earth can be codified as a **five-tuple**:
+\subsection{The Mathematical Contract: The 5-Tuple}
+To feed the real world into an algorithm, mathematicians agreed on a clean five-part mathematical contract:
 \begin{equation}
 \Big( \mathcal{X}, \; \mathcal{Y}, \; \mathcal{D}, \; \mathcal{H}, \; \ell \Big)
 \end{equation}
 
 \subsubsection{1. The Instance Space $\mathcal{X}$}
-The instance space represents everything our sensors can measure about the world. An observation is converted into a vector of $d$ real numbers, $\mathbf{x} = [x_1, x_2, \dots, x_d]^T \in \mathbb{R}^d$.
-\begin{itemize}
-    \item If we are diagnosing diabetes, $\mathbf{x}$ might be a 5-dimensional vector: $[\text{Age}, \text{BMI}, \text{Glucose}, \text{Insulin}, \text{BloodPressure}]^T \in \mathbb{R}^5$.
-    \item If we are classifying images, $\mathbf{x}$ is a vector of $784$ pixel intensities in $[0, 1]^{784}$.
-\end{itemize}
+The instance space represents the coordinate room of our measurements. An object is converted into a vector of $d$ real numbers:
+\begin{equation}
+\mathbf{x} = \begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_d \end{bmatrix} \in \mathcal{X} \subseteq \mathbb{R}^d
+\end{equation}
+Each coordinate $x_j$ is a \textbf{feature} (e.g., square footage, engine horsepower, or pixel brightness).
 
 \subsubsection{2. The Target Space $\mathcal{Y}$}
-The target space is the set of all possible correct answers:
+The target space represents what we want to predict:
 \begin{itemize}
-    \item **Regression ($\mathcal{Y} \subseteq \mathbb{R}$):** The target is a continuous real number. Examples: predicting house price, vehicle fuel efficiency, or patient blood glucose level.
-    \item **Binary Classification ($\mathcal{Y} \in \{0, 1\}$ or $\{-1, +1\}$):** The target is a binary decision. Examples: predicting whether an email is spam ($1$) or inbox ($0$), or whether a tumor is malignant ($+1$) or benign ($-1$).
-    \item **Multiclass Classification ($\mathcal{Y} \in \{1, 2, \dots, K\}$):** The target is one of $K$ mutually exclusive categories. Examples: recognizing handwritten digits ($K = 10$) or identifying dog breeds ($K = 120$).
+    \item \textbf{Continuous Regression ($\mathcal{Y} \subseteq \mathbb{R}$):} The target is a real number on a continuous scale (e.g., tomorrow's temperature, stock price, patient recovery time).
+    \item \textbf{Discrete Binary Classification ($\mathcal{Y} \in \{0, 1\}$ or $\{-1, +1\}$):} The target is a qualitative decision (e.g., transaction is fraudulent vs. legitimate, email is spam vs. inbox).
+    \item \textbf{Multiclass Classification ($\mathcal{Y} \in \{1, 2, \dots, K\}$):} The target belongs to one of $K$ distinct categories (e.g., classifying an image as cat, dog, bird, or horse).
 \end{itemize}
 
 \subsubsection{3. Nature's Secret Law: The Data Distribution $\mathcal{D}$}
-A common misconception among beginners is that there exists a clean mathematical function $y = f(\mathbf{x})$ that perfectly dictates the output from the inputs. In reality, the world is noisy, ambiguous, and filled with unobserved variables:
-\begin{itemize}
-    \item Two houses in the same neighborhood with identical square footage and bedrooms might sell for \$320,000 and \$360,000 because one has an updated kitchen that our feature vector did not record.
-    \item Two patients with identical age, BMI, and glucose readings might have different diabetes outcomes due to genetic factors our medical test did not measure.
-\end{itemize}
-Therefore, we model the relationship between $\mathbf{x}$ and $y$ **probabilistically**. Nature possesses a joint probability distribution $\mathcal{D}$ over the product space $\mathcal{X} \times \mathcal{Y}$. When a data point is generated, Nature draws a pair $(\mathbf{x}, y) \sim \mathcal{D}$.
+A common misconception among beginners is that there exists a clean, deterministic mathematical formula $y = f(\mathbf{x})$ waiting to be found. 
+
+In reality, the physical world is filled with unobserved variables and environmental noise. Two houses on the same street with identical square footage and bedrooms might sell for \$300,000 and \$350,000 because one has an updated roof that our feature vector did not record.
+
+Therefore, we formalize Nature as a **joint probability distribution** $\mathcal{D}$ over feature-target pairs $(\mathbf{x}, y)$:
 \begin{equation}
-P(\mathbf{x}, y) = \underbrace{P(\mathbf{x})}_{\text{Marginal Feature Distribution}} \times \underbrace{P(y \mid \mathbf{x})}_{\text{Conditional Target Distribution}}
+P(\mathbf{x}, y) = \underbrace{P(\mathbf{x})}_{\text{Marginal Feature Density}} \times \underbrace{P(y \mid \mathbf{x})}_{\text{Conditional Target Density}}
 \end{equation}
-The learner **never sees $\mathcal{D}$ directly**. Nature keeps $\mathcal{D}$ locked in a black box. The learner only sees a finite collection of random draws: the training sample $S = \{(\mathbf{x}_i, y_i)\}_{i=1}^N \stackrel{\text{i.i.d.}}{\sim} \mathcal{D}$.
+When a data point is created, Nature draws a pair $(\mathbf{x}, y) \sim \mathcal{D}$.
+\begin{quote}
+\textbf{The Golden Rule of Machine Learning:} The learner \textbf{never sees $\mathcal{D}$}. Nature keeps $\mathcal{D}$ locked in a black box. The learner only sees a finite collection of random draws: the training sample $S = \{(\mathbf{x}_i, y_i)\}_{i=1}^N \stackrel{\text{i.i.d.}}{\sim} \mathcal{D}$.
+\end{quote}
 
 \subsubsection{4. The Hypothesis Class $\mathcal{H}$ and Inductive Bias}
-Why can't an algorithm simply consider \emph{every possible function} mapping $\mathcal{X} \to \mathcal{Y}$?
+Why can't an algorithm simply consider \emph{every possible mathematical function} in the universe?
 
-Consider Hume's classic philosophical riddle: \emph{If you see five black ravens in a row, what color is the sixth raven?} If you make zero assumptions about how the universe works, seeing five black ravens tells you strictly zero about the next raven. It could be white, purple, or an armchair. To conclude that the sixth raven is likely black, your brain must make an unprovable prior assumption: that Nature possesses continuity, smoothness, and patterns that generalize across instances.
+Consider Hume's classic philosophical riddle: \emph{If you see five black ravens in a row, what color is the sixth raven?} If you make zero assumptions about how the universe works, seeing five black ravens tells you strictly zero about the next raven. It could be white, purple, or an elephant. To conclude that the sixth raven is likely black, your brain must make an unprovable prior assumption: that Nature possesses continuity, smoothness, and patterns that generalize across instances.
 
-In machine learning, this prior assumption is called **Inductive Bias**. An algorithm that considers every arbitrary mathematical function cannot learn; given $N$ points, it could fit a function that equals the correct answers on those $N$ points, but outputs completely random numbers everywhere else!
+In machine learning, this prior assumption is called **Inductive Bias**. An algorithm with no bias—one that considers every arbitrary, jagged mathematical function equally likely—cannot learn! Given $N$ training points, it could easily pick a function that equals the correct answers at those exact $N$ points, but outputs completely random noise everywhere else.
 
 To make learning possible, we restrict our search to a specific family of functions $\mathcal{H}$, called the **Hypothesis Class**:
 \begin{itemize}
-    \item \textbf{Linear Models:} $\mathcal{H}_{\text{linear}} = \{ h(\mathbf{x}) = \mathbf{w}^T \mathbf{x} + b \mid \mathbf{w} \in \mathbb{R}^d, b \in \mathbb{R} \}$. The inductive bias is: \emph{``The relationship between features and target is planar.''}
+    \item \textbf{Linear Models:} $\mathcal{H}_{\text{linear}} = \{ h(\mathbf{x}) = \mathbf{w}^T \mathbf{x} + b \}$. The inductive bias is: \emph{``The relationship between features and target is a flat hyperplane.''}
     \item \textbf{Polynomial Models:} $\mathcal{H}_{\text{poly}, p} = \{ h(x) = \sum_{j=0}^p w_j x^j \}$. The inductive bias is: \emph{``The relationship is a smooth curve of degree at most $p$.''}
 \end{itemize}
 
 \subsubsection{5. The Loss Function $\ell(\hat{y}, y)$}
-The loss function is the referee. It takes our model's guess $\hat{y} = h(\mathbf{x})$ and the true ground-truth $y$, and outputs a non-negative penalty score $\ell(\hat{y}, y) \ge 0$:
+The loss function is the scorekeeper. It takes our model's guess $\hat{y} = h(\mathbf{x})$ and the true ground-truth $y$, and outputs a non-negative penalty $\ell(\hat{y}, y) \ge 0$:
 \begin{itemize}
-    \item \textbf{Squared Error Loss (L2 Loss):}
+    \item \textbf{Squared Error Loss ($L_2$ Loss):}
     \begin{equation}
     \ell_{\text{sq}}(\hat{y}, y) \triangleq (\hat{y} - y)^2
-    \label{eq:l2_loss_def}
+    \label{eq:l2_loss_def_ped}
     \end{equation}
     Penalizes large mistakes quadratically. If you miss by 2 units, your penalty is 4; if you miss by 10 units, your penalty is 100! This makes squared loss heavily focused on avoiding large outliers.
-    \item \textbf{Absolute Error Loss (L1 Loss):}
+    \item \textbf{Absolute Error Loss ($L_1$ Loss):}
     \begin{equation}
     \ell_{\text{abs}}(\hat{y}, y) \triangleq |\hat{y} - y|
-    \label{eq:l1_loss_def}
+    \label{eq:l1_loss_def_ped}
     \end{equation}
     Penalizes mistakes linearly. Missing by 10 is penalized exactly 10 times as much as missing by 1. This makes absolute loss robust to outliers.
     \item \textbf{Zero-One Loss (Classification Loss):}
     \begin{equation}
     \ell_{0-1}(\hat{y}, y) \triangleq \mathbb{I}(\hat{y} \ne y) = \begin{cases} 0 & \text{if } \hat{y} = y \\ 1 & \text{if } \hat{y} \ne y \end{cases}
-    \label{eq:zero_one_loss_def}
+    \label{eq:zero_one_loss_def_ped}
     \end{equation}
     Gives zero penalty for correct predictions and 1 penalty for errors, regardless of confidence.
 \end{itemize}
 
-\subsection{The Central Goal: Minimizing True Risk}
-Now that we have our 5-tuple, we can state the ultimate goal of machine learning with mathematical precision:
+\begin{ponderbox}{The Database Lookup Fallacy}
+Why don't we solve machine learning by simply storing all $N$ training examples in an SQL database, and when a new query $\mathbf{x}_{\text{new}}$ arrives, looking up the answer?
+\tcblower
+\textbf{Reflection:} In high-dimensional continuous spaces ($\mathbb{R}^d$), the probability of seeing the \emph{exact same real-valued vector twice} is essentially zero! A database lookup table can only regurgitate what it has already seen; it has zero ability to interpolate between observed points or extrapolate into unseen territory. Learning is about \textbf{generalization to novel inputs}, not storage and retrieval.
+\end{ponderbox}
+
+\subsection{True Risk vs. Empirical Risk: The Final Exam vs. The Homework}
 
 \begin{definitionbox}{True Risk (Generalization Error)}
 The \textbf{True Risk} $R(h)$ of a hypothesis $h \in \mathcal{H}$ under loss function $\ell$ is the expected loss over the entire, infinite data-generating distribution $\mathcal{D}$:
 \begin{equation}
 R(h) \triangleq \E_{(\mathbf{X}, Y) \sim \mathcal{D}} [\ell(h(\mathbf{X}), Y)] = \int_{\mathcal{X} \times \mathcal{Y}} \ell(h(\mathbf{x}), y) \, dP(\mathbf{x}, y)
-\label{eq:true_risk_formal}
+\label{eq:true_risk_formal_ped}
 \end{equation}
 \end{definitionbox}
 
 Think of True Risk as a student's grade on the **unseen final examination**. It measures how well the hypothesis will perform on future data drawn from the identical environment.
 
-\subsubsection{The Fundamental Dilemma of Machine Learning}
-Look carefully at Equation~\eqref{eq:true_risk_formal}. To compute the integral, you need $dP(\mathbf{x}, y)$—Nature's secret joint probability distribution! But we do not know Nature's distribution! If we knew $\mathcal{D}$, we wouldn't need machine learning in the first place; we could just do probability calculations.
+\subsubsection{The Fundamental Dilemma}
+Look carefully at Equation~\eqref{eq:true_risk_formal_ped}. To compute the integral, you need $dP(\mathbf{x}, y)$—Nature's secret joint probability distribution! But we do not know Nature's distribution! If we knew $\mathcal{D}$, we wouldn't need machine learning in the first place; we could just do probability calculations.
 
 Because we cannot compute the true risk, we do the next best thing: we compute the average error on the historical homework assignments we actually have in our hands.
 
@@ -209,7 +229,7 @@ Because we cannot compute the true risk, we do the next best thing: we compute t
 The \textbf{Empirical Risk} $R_{\text{emp}}(h; S)$ is the sample average loss realized by hypothesis $h$ on the concrete training sample $S = \{(\mathbf{x}_i, y_i)\}_{i=1}^N$:
 \begin{equation}
 R_{\text{emp}}(h; S) \triangleq \frac{1}{N} \sum_{i=1}^N \ell(h(\mathbf{x}_i), y_i)
-\label{eq:emp_risk_formal}
+\label{eq:emp_risk_formal_ped}
 \end{equation}
 \end{definitionbox}
 
@@ -219,7 +239,7 @@ This leads directly to the core operating rule of modern artificial intelligence
 Because true risk $R(h)$ is unobservable, the learner searches through hypothesis class $\mathcal{H}$ and selects the hypothesis $\hat{h}_S$ that achieves the smallest possible empirical risk on the training set:
 \begin{equation}
 \hat{h}_S \triangleq \argmin_{h \in \mathcal{H}} R_{\text{emp}}(h; S) = \argmin_{h \in \mathcal{H}} \frac{1}{N} \sum_{i=1}^N \ell(h(\mathbf{x}_i), y_i)
-\label{eq:erm_formal}
+\label{eq:erm_formal_ped}
 \end{equation}
 \end{theorembox}
 
@@ -244,7 +264,7 @@ The model's score on its training homework is almost always better than its scor
 The difference between how a model performs in the real world versus how it performed on its training set is called the \textbf{Generalization Gap}:
 \begin{equation}
 \Delta_{\text{gen}}(\hat{h}_S) \triangleq R(\hat{h}_S) - R_{\text{emp}}(\hat{h}_S; S)
-\label{eq:generalization_gap_def}
+\label{eq:generalization_gap_def_ped}
 \end{equation}
 \end{definitionbox}
 When $\Delta_{\text{gen}}$ is large, the model has fallen victim to **overfitting**: it has memorized the training sample rather than learning the general physical law.
@@ -522,10 +542,10 @@ h^*(\mathbf{x}) = \E[Y \mid \mathbf{X} = \mathbf{x}]
 Now let us prove this rigorously.
 
 \begin{theorem}[Bayes Optimal Regressor Under Squared Loss]
-Under squared error loss $\ell(\hat{y}, y) = (\hat{y} - y)^2$, the predictor achieving the absolute minimum true risk across all measurable functions is:
+Under squared error loss $\ell(\hat{y}, y) = (\hat{y} - y)^2$, the predictor achieving the absolute minimum true risk across any conceivable prediction function is:
 \begin{equation}
 h^*(\mathbf{x}) = \E[Y \mid \mathbf{X} = \mathbf{x}]
-\label{eq:bayes_regressor_proof_target}
+\label{eq:bayes_regressor_proof_target_ped}
 \end{equation}
 \end{theorem}
 
@@ -533,7 +553,8 @@ h^*(\mathbf{x}) = \E[Y \mid \mathbf{X} = \mathbf{x}]
 By the Law of Total Expectation, we expand the True Risk:
 \begin{align}
 R(h) &= \E_{(\mathbf{X}, Y)} \left[ (h(\mathbf{X}) - Y)^2 \right] \nonumber \\
-&= \E_{\mathbf{X}} \left[ \E_{Y \mid \mathbf{X}} \left[ (h(\mathbf{X}) - Y)^2 \;\middle|\; \mathbf{X} = \mathbf{x} \right] \right]
+&= \E_{\mathbf{X}} \left[ \E_{Y \mid \mathbf{X}} \left[ (h(\mathbf{X}) - Y)^2 \;\middle|\; \mathbf{X} = \mathbf{x} \right] \right] \nonumber \\
+&= \int_{\mathcal{X}} \left( \int_{\mathcal{Y}} (h(\mathbf{x}) - y)^2 p(y \mid \mathbf{x}) \, dy \right) p(\mathbf{x}) \, d\mathbf{x}
 \end{align}
 Because the outer expectation averages over $p(\mathbf{x}) \ge 0$, we can minimize the entire integral by minimizing the inner conditional expectation pointwise for each individual $\mathbf{x} \in \mathcal{X}$ separately.
 
@@ -554,7 +575,7 @@ Confirming the minimum via the second derivative:
 \begin{equation}
 \frac{d^2 g}{dc^2} = 2 > 0
 \end{equation}
-Since the second derivative is positive, $c^* = \E[Y \mid \mathbf{X} = \mathbf{x}]$ is the unique global minimizer.
+Since the second derivative is strictly positive, $c^* = \E[Y \mid \mathbf{X} = \mathbf{x}]$ is the unique global minimizer.
 \end{proof}
 
 \subsubsection{What is Nature's Irreducible Noise?}
@@ -562,7 +583,7 @@ If we plug Nature's optimal prediction $h^*(\mathbf{x}) = \E[Y \mid \mathbf{X} =
 \begin{align}
 R(h^*) &= \E_{\mathbf{X}} \left[ \E_{Y \mid \mathbf{X}} \left[ (Y - \E[Y \mid \mathbf{X}])^2 \;\middle|\; \mathbf{X} \right] \right] \nonumber \\
 &= \E_{\mathbf{X}} \left[ \Var(Y \mid \mathbf{X}) \right]
-\label{eq:irreducible_variance}
+\label{eq:irreducible_variance_ped}
 \end{align}
 By definition, $\E_{Y \mid \mathbf{X}} [ (Y - \E[Y \mid \mathbf{X}])^2 ]$ is the **conditional variance** of $Y$ given $\mathbf{X}$. 
 
@@ -595,7 +616,7 @@ h^*(\mathbf{x}) = \begin{cases}
 1 & \text{if } \eta(\mathbf{x}) \ge \frac{1}{2} \\
 0 & \text{if } \eta(\mathbf{x}) < \frac{1}{2}
 \end{cases}
-\label{eq:bayes_classifier_rule_pedagogical}
+\label{eq:bayes_classifier_rule_ped}
 \end{equation}
 \end{theorem}
 
@@ -677,7 +698,7 @@ This yields the exact formula for the probability that a chip is defective:
 \end{equation*}
 
 \textbf{Step 3: Finding the Bayes Optimal Threshold $x^*$}
-By Theorem~\ref{eq:bayes_classifier_rule_pedagogical}, the decision boundary occurs when the probability of defect reaches exactly $50\%$ ($\eta(x^*) = 0.50$):
+By Theorem~\ref{eq:bayes_classifier_rule_ped}, the decision boundary occurs when the probability of defect reaches exactly $50\%$ ($\eta(x^*) = 0.50$):
 \begin{align*}
 \frac{1}{1 + \frac{7}{3} e^{2(1 - x^*)}} = \frac{1}{2} &\iff 1 + \frac{7}{3} e^{2(1 - x^*)} = 2 \\
 &\iff \frac{7}{3} e^{2(1 - x^*)} = 1 \\
@@ -765,11 +786,11 @@ To understand why choosing the right model family $\mathcal{H}$ is the most crit
 In mathematical learning theory, we decompose the total excess risk $R(\hat{h}_S) - R(h^*)$ into these two exact components:
 \begin{equation}
 R(\hat{h}_S) - R(h^*) = \underbrace{\big( R(h^*_{\mathcal{H}}) - R(h^*) \big)}_{\text{Approximation Error (Bias)}} + \underbrace{\big( R(\hat{h}_S) - R(h^*_{\mathcal{H}}) \big)}_{\text{Estimation Error (Variance)}}
-\label{eq:approx_estimation_decomp}
+\label{eq:approx_estimation_decomp_ped}
 \end{equation}
 where:
 \begin{itemize}
-    \item $h^*$ is Nature's unconstrained Bayes optimal predictor (Equation~\eqref{eq:bayes_regressor_proof_target}).
+    \item $h^*$ is Nature's unconstrained Bayes optimal predictor (Equation~\eqref{eq:bayes_regressor_proof_target_ped}).
     \item $h^*_{\mathcal{H}} \triangleq \argmin_{h \in \mathcal{H}} R(h)$ is the best possible hypothesis inside our chosen class $\mathcal{H}$.
     \item $\hat{h}_S \triangleq \argmin_{h \in \mathcal{H}} R_{\text{emp}}(h; S)$ is the empirical hypothesis our algorithm actually picked from training data $S$.
 \end{itemize}
@@ -782,11 +803,11 @@ where:
 ]
 % Space of all functions
 \draw[thick, fill=gray!8, draw=gray!40] (-1, -1) rectangle (9, 4.5);
-\node[color=gray!70, font=\bfseries\sffamily] at (7.2, 4.0) {All Measurable Functions};
+\node[color=gray!70, font=\bfseries\sffamily] at (7.0, 4.0) {Space of All Conceivable Functions};
 
 % Hypothesis Space H
 \draw[thick, fill=tealbg, draw=tealborder] (1.5, 0.5) ellipse (2.2cm and 1.4cm);
-\node[color=tealdef, font=\bfseries\sffamily] at (1.5, 1.6) {Hypothesis Space $\mathcal{H}$};
+\node[color=tealdef, font=\bfseries\sffamily] at (1.5, 1.6) {Chosen Model Class $\mathcal{H}$};
 
 % Points
 \coordinate (bayes) at (7.0, 1.5);
@@ -794,9 +815,9 @@ where:
 \coordinate (erm_h) at (0.5, 0.8);
 
 % Draw points
-\filldraw[coralformula] (bayes) circle (2.5pt) node[right=3pt] {\textbf{Bayes Optimal } $h^*$};
+\filldraw[coralformula] (bayes) circle (2.5pt) node[right=3pt] {\textbf{Nature's Truth } $h^*$};
 \filldraw[primarydark] (best_h) circle (2.5pt) node[below right=2pt] {\textbf{Best in Class } $h^*_{\mathcal{H}}$};
-\filldraw[tealdef] (erm_h) circle (2.5pt) node[left=3pt] {\textbf{ERM Solution } $\hat{h}_S$};
+\filldraw[tealdef] (erm_h) circle (2.5pt) node[left=3pt] {\textbf{Trained Model } $\hat{h}_S$};
 
 % Distance vectors
 \draw[<->, >=stealth, very thick, color=coralformula] (bayes) -- node[above=2pt, font=\footnotesize\bfseries\sffamily] {Approximation Error $\epsilon_{\text{app}}$} (best_h);
@@ -804,7 +825,7 @@ where:
 
 \end{tikzpicture}
 \caption{Geometric Decomposition of Generalization Error: The gap between Nature's truth $h^*$ and the best model in our class $h^*_{\mathcal{H}}$ is Approximation Error. The gap between the best model in class and the sample-trained model $\hat{h}_S$ is Estimation Error.}
-\label{fig:approx_est_geometry}
+\label{fig:approx_est_geometry_ped}
 \end{figure}
 
 \begin{enumerate}

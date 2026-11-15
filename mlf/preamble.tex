@@ -55,3 +55,25 @@
     right=3mm
 }
 
+% Socratic Pause & Ponder Box (Deep pedagogical engagement)
+\definecolor{ponderborder}{HTML}{0284c7}
+\definecolor{ponderbg}{HTML}{f0f9ff}
+\definecolor{ponderdark}{HTML}{0369a1}
+\newtcolorbox{ponderbox}[1]{
+    colback=ponderbg,
+    colframe=ponderborder,
+    coltitle=white,
+    fonttitle=\bfseries\sffamily,
+    title={Pause \& Ponder: #1},
+    enhanced,
+    breakable,
+    attach boxed title to top left={yshift=-2mm, xshift=4mm},
+    boxed title style={colback=ponderdark, colframe=ponderborder, arc=1mm},
+    arc=2mm,
+    boxrule=0.8mm,
+    top=4mm,
+    bottom=3mm,
+    left=3mm,
+    right=3mm
+}
+
