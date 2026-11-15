@@ -1,134 +1,532 @@
-\chapter[Differential Calculus for Learning]{Univariate \& Multivariate Differential Calculus for Learning}
+\chapter[Differential Calculus for Learning]{Multivariate Differential Calculus \& Optimization Geometry}
 \label{chap:week02}
 
 % ----------------------------------------------------------------------
-% PART 1: EXECUTIVE ROADMAP & LEARNING OBJECTIVES
+% PART 1: WHY CALCULUS IN ML? THE BLINDFOLDED HIKER
 % ----------------------------------------------------------------------
-\section{Executive Roadmap \& Learning Objectives}
+\section{Why Calculus in Machine Learning? The Paradigm, The Promise, and The Mountain}
 
-Continuous optimization serves as the computational engine powering modern machine learning. Whether calibrating weights in a linear regressor, maximizing the margin of a support vector machine, or training a deep neural network, the objective is formulated as minimizing a scalar loss functional over a multi-dimensional parameter space. Calculus provides the mathematical language to probe these multi-dimensional loss landscapes locally.
+\subsection{The Blindfolded Hiker and the Optimization Paradox}
+In high school and introductory calculus, finding the minimum of a function is presented as a clean, three-step algebraic exercise:
+\begin{equation}
+y = f(x) \xrightarrow{\quad\text{Step 1: Differentiate}\quad} f'(x) \xrightarrow{\quad\text{Step 2: Set to Zero}\quad} f'(x) = 0 \xrightarrow{\quad\text{Step 3: Solve for } x\quad} x^*
+\end{equation}
+This neat procedure creates a seductive fantasy: \emph{to minimize an objective, simply set its derivative to zero and solve the equation.}
 
-\subsection{Prerequisites \& Scaffolding}
-Mastery of this chapter builds upon fundamental linear algebra and elementary single-variable calculus, as organized in Table~\ref{tab:w02_prereqs}.
+In machine learning, this fantasy collapses completely:
+\begin{enumerate}
+    \item \textbf{The Dimensionality Explosion:} A modern machine learning model does not have one variable $x$; it has millions of adjustable parameters $\mathbf{w} = [w_1, w_2, \dots, w_d]^T \in \mathbb{R}^d$. Setting the vector derivative to zero produces a system of $d$ simultaneous equations:
+    \begin{equation}
+    \nabla f(\mathbf{w}) = \begin{bmatrix} \frac{\partial f}{\partial w_1} \\ \frac{\partial f}{\partial w_2} \\ \vdots \\ \frac{\partial f}{\partial w_d} \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \\ \vdots \\ 0 \end{bmatrix}
+    \end{equation}
+    Even for linear regression, solving $\nabla f(\mathbf{w}) = \mathbf{0}$ requires solving the normal equations $(X^T X)\mathbf{w} = X^T \mathbf{y}$. Inverting a $d \times d$ matrix takes $\mathcal{O}(d^3)$ operations. If $d = 50{,}000$, direct matrix inversion would require over $10^{14}$ floating-point operations!
+    \item \textbf{Non-Linear Transcendental Equations:} In logistic regression, neural networks, or Gaussian mixture models, the equations $\nabla f(\mathbf{w}) = \mathbf{0}$ are transcendental and non-linear. No closed-form algebraic solution exists, even if you possessed infinite computing time.
+\end{enumerate}
+
+\subsubsection{Learning as Physical Navigation}
+Because we cannot jump directly to the bottom of the valley, we are forced to \textbf{walk there iteratively}. 
+
+Imagine you are a blindfolded hiker standing on a foggy, unfamiliar mountain range at dusk. You cannot see the landscape. You cannot see the lowest valley. What do you do?
+\begin{itemize}
+    \item You reach down and feel the slope of the earth beneath your boots.
+    \item You locate the direction where the ground slopes down most steeply.
+    \item You take a step in that direction.
+    \item You stop, feel the slope again, and take another step.
+\end{itemize}
+This physical process is \textbf{Gradient Descent}. Multivariate calculus is the mathematical language that gives our blindfolded hiker an infallible local compass.
+\begin{itemize}
+    \item The \textbf{Gradient Vector} $\nabla f(\mathbf{x})$ tells the hiker the direction of steepest uphill ascent. Stepping along $-\nabla f(\mathbf{x})$ guarantees local downhill progress.
+    \item The \textbf{Hessian Matrix} $\nabla^2 f(\mathbf{x})$ measures the curvature of the ground, revealing whether the hiker is standing inside a wide, stable bowl, balanced on a knife-edge ridge, or traversing a treacherous saddle point.
+    \item The \textbf{Taylor Series} provides the mathematical bridge that approximates any arbitrary, curving loss surface locally by a simple flat plane (first order) or a parabolic bowl (second order).
+\end{itemize}
+
+\subsection{The High-Dimensional Saddle Point Curse}
+In single-variable calculus, when the derivative vanishes ($f'(x) = 0$), the point is almost always a local minimum or a local maximum (inflection points like $x^3$ are rare exceptions).
+
+In high-dimensional machine learning, this intuition is completely false:
+\begin{ponderbox}{The High-Dimensional Saddle Dilemma}
+Suppose you are optimizing a loss function over a 100-dimensional parameter space ($d = 100$). Your optimizer halts at a stationary point where $\|\nabla f(\mathbf{w})\|_2 = 0$.
+Assuming the local curvature along each of the 100 orthogonal coordinate axes is independently positive (bending upward) or negative (bending downward) with equal probability ($50\%$ each), what is the probability that this stationary point is a true local minimum?
+\tcblower
+\textbf{Reflection:} For a point to be a local minimum, the curvature along \textbf{all 100 independent directions simultaneously} must bend upward!
+\begin{equation}
+P(\text{Local Minimum}) \approx \left(\frac{1}{2}\right)^{100} = \frac{1}{1{,}267{,}650{,}600{,}228{,}229{,}401{,}496{,}703{,}205{,}376} \approx 7.89 \times 10^{-31}
+\end{equation}
+The probability is virtually zero! If even a single eigenvalue of the Hessian matrix is negative, there exists an escape direction along which the loss continues to decrease. In high-dimensional spaces, almost all stationary points are \textbf{saddle points}, not local minima. Understanding second-order calculus (the Hessian) is essential to navigating around these geometric traps.
+\end{ponderbox}
+
+\subsection{Prerequisites \& Notation Conventions}
+Mastery of this chapter builds upon foundational concepts outlined in Table~\ref{tab:w02_prereqs} and Table~\ref{tab:w02_notation}.
 
 \begin{table}[htbp]
 \centering
 \small
 \begin{tabularx}{\textwidth}{lXX}
 \toprule
-\textbf{Foundational Area} & \textbf{Core Concepts Required} & \textbf{Role in Machine Learning Foundations} \\
+\textbf{Foundational Area} & \textbf{Core Concepts Required} & \textbf{Operational Role in Differential Calculus} \\
 \midrule
-Single-Variable Calculus & Limits, continuity, power/chain rules, Taylor expansions & First-principles foundation for rate of change along arbitrary paths \\
-Linear Algebra & Inner products $\langle \mathbf{u}, \mathbf{v} \rangle$, matrix-vector multiplication, symmetry & Representation of gradients, bilinear forms, and quadratic approximations \\
-Vector Geometry & Lines $\mathbf{x}(t) = \mathbf{x}_0 + t\mathbf{v}$, planes $\mathbf{w}^T \mathbf{x} + b = 0$, norms & Geometric framing of linear decision boundaries and level sets \\
+Single-Variable Calculus & Limits, power/chain rules, univariate Taylor polynomials & Baseline rates of change along 1D parameterized paths $\mathbf{x}(t)$. \\
+\addlinespace
+Vector Geometry & Dot products $\langle \mathbf{u}, \mathbf{v} \rangle = \mathbf{u}^T \mathbf{v}$, norms $\|\mathbf{v}\|_2$, unit directions & Projecting rates of change; defining directional derivatives and hyperplanes. \\
+\addlinespace
+Matrix Algebra & Matrix-vector products $A\mathbf{x}$, transpose $A^T$, symmetry $A = A^T$ & Representing Jacobians of vector transformations and quadratic forms $\mathbf{x}^T A \mathbf{x}$. \\
 \bottomrule
 \end{tabularx}
 \caption{Prerequisite Scaffolding for Chapter 2.}
 \label{tab:w02_prereqs}
 \end{table}
 
-\subsection{Core Competencies}
-By the conclusion of this chapter, students will be able to:
-\begin{itemize}
-    \item Compute gradient vectors $\nabla f(\mathbf{x})$, Jacobian matrices $J_{\mathbf{f}}(\mathbf{x})$, and Hessian matrices $\nabla^2 f(\mathbf{x})$ for complex vector functions.
-    \item Prove using Cauchy-Schwarz why the negative gradient $-\nabla f(\mathbf{x})$ defines the direction of steepest descent.
-    \item Derive the exact matrix calculus gradients of linear forms $\mathbf{a}^T \mathbf{x}$ and quadratic forms $\mathbf{x}^T A \mathbf{x}$.
-    \item Formulate multi-dimensional affine approximations (tangent hyperplanes) and second-order quadratic approximations.
-    \item Classify critical points into local minima, local maxima, and saddle points using the spectral properties of the Hessian.
-\end{itemize}
-
-\subsection{Notation \& Mathematical Conventions}
-\begin{itemize}
-    \item $f: \mathbb{R}^d \to \mathbb{R}$: A scalar-valued loss or objective function.
-    \item $\mathbf{f}: \mathbb{R}^n \to \mathbb{R}^m$: A vector-valued transformation or layer mapping.
-    \item $\nabla f(\mathbf{x}) \in \mathbb{R}^d$: The gradient column vector, where $[\nabla f(\mathbf{x})]_i = \frac{\partial f}{\partial x_i}$.
-    \item $D_{\mathbf{u}} f(\mathbf{x}) \in \mathbb{R}$: The directional derivative of $f$ along unit direction $\mathbf{u}$.
-    \item $J_{\mathbf{f}}(\mathbf{x}) \in \mathbb{R}^{m \times n}$: The Jacobian matrix, $[J_{\mathbf{f}}(\mathbf{x})]_{ij} = \frac{\partial f_i}{\partial x_j}$.
-    \item $H(\mathbf{x}) = \nabla^2 f(\mathbf{x}) \in \mathbb{R}^{d \times d}$: The symmetric Hessian matrix of second-order partial derivatives.
-\end{itemize}
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Symbol} & \textbf{Formal Name} & \textbf{Intuitive Plain-English Meaning} \\
+\midrule
+$f: \mathbb{R}^d \to \mathbb{R}$ & Scalar Field / Loss Function & A real-valued landscape mapping $d$ model parameters to a single loss penalty. \\
+$\mathbf{f}: \mathbb{R}^n \to \mathbb{R}^m$ & Vector Field / Layer Map & A multi-output transformation mapping an $n$-dimensional input to an $m$-dimensional output. \\
+$\nabla f(\mathbf{x}) \in \mathbb{R}^d$ & Gradient Vector & Column vector of all first partial derivatives; points in the direction of steepest uphill ascent. \\
+$D_{\mathbf{u}} f(\mathbf{x}) \in \mathbb{R}$ & Directional Derivative & Scalar rate of change of $f$ when taking an infinitesimal step along unit vector $\mathbf{u}$. \\
+$J_{\mathbf{f}}(\mathbf{x}) \in \mathbb{R}^{m \times n}$ & Jacobian Matrix & Matrix of all first-order partials; best local linear approximation of vector map $\mathbf{f}$. \\
+$\nabla^2 f(\mathbf{x}) \in \mathbb{R}^{d \times d}$ & Hessian Matrix $H(\mathbf{x})$ & Symmetric matrix of second partial derivatives; quantifies local curvature in every direction. \\
+$\mathbf{x}^T A \mathbf{x}$ & Quadratic Form & Energy/loss term scaling quadratically with vector $\mathbf{x}$; governed by matrix $A$. \\
+\bottomrule
+\end{tabularx}
+\caption{Formal Mathematical Notation for Differential Calculus in Machine Learning.}
+\label{tab:w02_notation}
+\end{table}
 
 % ----------------------------------------------------------------------
 % PART 2: MATHEMATICAL & COMPUTATIONAL FOUNDATIONS
 % ----------------------------------------------------------------------
 \section{Mathematical \& Computational Foundations}
 
-\subsection{Differentiability and the Gradient Vector}
+\subsection{Multivariate Differentiability: Beyond Partial Derivatives}
+In single-variable calculus, differentiability simply means the limit of the difference quotient exists. In multivariable space ($\mathbb{R}^d$), functions can be approached from infinitely many directions.
 
-\begin{definitionbox}{Multivariate Differentiability}
-A scalar function $f: \mathbb{R}^d \to \mathbb{R}$ is \textbf{differentiable} at $\mathbf{x} \in \mathbb{R}^d$ if there exists a vector $\mathbf{g} \in \mathbb{R}^d$ such that:
+\begin{definitionbox}{Multivariate Differentiability (Fréchet Form)}
+A scalar function $f: \mathbb{R}^d \to \mathbb{R}$ is \textbf{differentiable} at a point $\mathbf{x} \in \mathbb{R}^d$ if there exists a vector $\mathbf{g} \in \mathbb{R}^d$ such that for any perturbation vector $\mathbf{v} \in \mathbb{R}^d$:
 \begin{equation}
-\lim_{\mathbf{v} \to \mathbf{0}} \frac{|f(\mathbf{x} + \mathbf{v}) - f(\mathbf{x}) - \mathbf{g}^T \mathbf{v}|}{\|\mathbf{v}\|_2} = 0
+\lim_{\mathbf{v} \to \mathbf{0}} \frac{\big| f(\mathbf{x} + \mathbf{v}) - f(\mathbf{x}) - \mathbf{g}^T \mathbf{v} \big|}{\|\mathbf{v}\|_2} = 0
 \label{eq:frechet_diff}
 \end{equation}
-When such a vector exists, it is unique and called the \textbf{gradient} of $f$ at $\mathbf{x}$, denoted $\nabla f(\mathbf{x}) = \mathbf{g}$.
+When such a vector $\mathbf{g}$ exists, it is unique and defined as the \textbf{gradient} of $f$ at $\mathbf{x}$, denoted:
+\begin{equation}
+\nabla f(\mathbf{x}) \triangleq \mathbf{g} = \begin{bmatrix} \frac{\partial f}{\partial x_1} \\ \frac{\partial f}{\partial x_2} \\ \vdots \\ \frac{\partial f}{\partial x_d} \end{bmatrix} \in \mathbb{R}^d
+\end{equation}
 \end{definitionbox}
 
+Equation~\eqref{eq:frechet_diff} carries an essential geometric meaning: it states that near $\mathbf{x}$, the function $f(\mathbf{x} + \mathbf{v})$ is extraordinarily well-approximated by the \textbf{affine tangent hyperplane}:
+\begin{equation}
+T_1(\mathbf{x} + \mathbf{v}) = f(\mathbf{x}) + \nabla f(\mathbf{x})^T \mathbf{v}
+\end{equation}
+The approximation error vanishes faster than the step size $\|\mathbf{v}\|_2$ itself:
+\begin{equation}
+f(\mathbf{x} + \mathbf{v}) = f(\mathbf{x}) + \nabla f(\mathbf{x})^T \mathbf{v} + o(\|\mathbf{v}\|_2)
+\end{equation}
+
+\begin{ponderbox}{The Multi-Path Trap: Do Partial Derivatives Guarantee Differentiability?}
+Suppose an objective function $f(x, y)$ has well-defined, finite partial derivatives $\frac{\partial f}{\partial x}(0, 0)$ and $\frac{\partial f}{\partial y}(0, 0)$ along both coordinate axes. Does this guarantee that $f$ is continuous or differentiable at the origin?
+\tcblower
+\textbf{Reflection:} \textbf{No!} Consider the classic pathological function:
+\begin{equation*}
+f(x, y) = \begin{cases} \frac{xy}{x^2 + y^2} & \text{if } (x, y) \ne (0, 0) \\ 0 & \text{if } (x, y) = (0, 0) \end{cases}
+\end{equation*}
+Along the $x$-axis ($y = 0$), $f(x, 0) = 0 \implies \frac{\partial f}{\partial x}(0, 0) = 0$. Along the $y$-axis ($x = 0$), $f(0, y) = 0 \implies \frac{\partial f}{\partial y}(0, 0) = 0$. Both coordinate partial derivatives exist and equal zero!
+Yet, if you walk toward the origin along the diagonal line $y = x$, the function value is constant at $f(x, x) = \frac{x^2}{2x^2} = \frac{1}{2}$. The limit along the diagonal is $1/2$, while the limit along the axes is $0$. The function is not even continuous, let alone differentiable!
+
+\textbf{Takeaway for ML:} For a function to be differentiable, its partial derivatives must not merely exist; they must be \textbf{continuous} in an open neighborhood around $\mathbf{x}$ ($f \in C^1$).
+\end{ponderbox}
+
+\subsection{Directional Derivatives and the Cauchy-Schwarz Steepest Descent Proof}
+What is the rate of change of a loss function if we move along an arbitrary direction $\mathbf{u}$ that does not align with the coordinate axes?
+
 \begin{definitionbox}{Directional Derivative}
-Let $\mathbf{u} \in \mathbb{R}^d$ be a unit direction vector ($\|\mathbf{u}\|_2 = 1$). The \textbf{directional derivative} of $f$ at $\mathbf{x}$ along $\mathbf{u}$ is defined as:
+Let $\mathbf{u} \in \mathbb{R}^d$ be a unit direction vector ($\|\mathbf{u}\|_2 = 1$). The \textbf{directional derivative} of $f$ at point $\mathbf{x}$ along direction $\mathbf{u}$ is defined as the 1D limit:
 \begin{equation}
 D_{\mathbf{u}} f(\mathbf{x}) \triangleq \lim_{t \to 0} \frac{f(\mathbf{x} + t\mathbf{u}) - f(\mathbf{x})}{t}
-\label{eq:dir_deriv}
+\label{eq:dir_deriv_def}
 \end{equation}
 For any differentiable function $f$, the directional derivative evaluates directly to the inner product:
 \begin{equation}
-D_{\mathbf{u}} f(\mathbf{x}) = \nabla f(\mathbf{x})^T \mathbf{u} = \langle \nabla f(\mathbf{x}), \mathbf{u} \rangle
+D_{\mathbf{u}} f(\mathbf{x}) = \nabla f(\mathbf{x})^T \mathbf{u} = \langle \nabla f(\mathbf{x}), \mathbf{u} \rangle = \|\nabla f(\mathbf{x})\|_2 \cos(\theta)
+\label{eq:dir_deriv_inner_prod}
 \end{equation}
+where $\theta$ is the angle between the gradient vector $\nabla f(\mathbf{x})$ and the search direction $\mathbf{u}$.
 \end{definitionbox}
 
-\begin{theorem}[Steepest Descent Property]
-Let $f: \mathbb{R}^d \to \mathbb{R}$ be differentiable at $\mathbf{x}$ with $\nabla f(\mathbf{x}) \ne \mathbf{0}$. The unit direction $\mathbf{u}^*$ that minimizes the directional derivative $D_{\mathbf{u}} f(\mathbf{x})$ is uniquely given by the negative normalized gradient:
-\begin{equation}
-\mathbf{u}^* = -\frac{\nabla f(\mathbf{x})}{\|\nabla f(\mathbf{x})\|_2}
-\end{equation}
-\end{theorem}
+Equation~\eqref{eq:dir_deriv_inner_prod} immediately unlocks the mathematical justification for Gradient Descent:
+
+\begin{theorembox}{The Steepest Descent Property}
+Let $f: \mathbb{R}^d \to \mathbb{R}$ be differentiable at $\mathbf{x}$ with non-zero gradient ($\nabla f(\mathbf{x}) \ne \mathbf{0}$). Among all possible unit directions $\mathbf{u} \in \mathbb{R}^d$ ($\|\mathbf{u}\|_2 = 1$):
+\begin{enumerate}
+    \item The direction of \textbf{maximal rate of increase} (steepest ascent) is the normalized gradient:
+    \begin{equation}
+    \mathbf{u}^*_{\text{ascent}} = +\frac{\nabla f(\mathbf{x})}{\|\nabla f(\mathbf{x})\|_2}, \quad \text{achieving } D_{\mathbf{u}^*} f(\mathbf{x}) = +\|\nabla f(\mathbf{x})\|_2
+    \end{equation}
+    \item The direction of \textbf{maximal rate of decrease} (steepest descent) is the negative normalized gradient:
+    \begin{equation}
+    \mathbf{u}^*_{\text{descent}} = -\frac{\nabla f(\mathbf{x})}{\|\nabla f(\mathbf{x})\|_2}, \quad \text{achieving } D_{\mathbf{u}^*} f(\mathbf{x}) = -\|\nabla f(\mathbf{x})\|_2
+    \end{equation}
+    \item Any direction $\mathbf{u}_{\text{tangent}}$ orthogonal to $\nabla f(\mathbf{x})$ ($\langle \nabla f(\mathbf{x}), \mathbf{u} \rangle = 0$) has \textbf{zero instantaneous rate of change}.
+\end{enumerate}
+\end{theorembox}
 
 \begin{proof}
-By the inner product formulation and the Cauchy-Schwarz inequality:
+By Equation~\eqref{eq:dir_deriv_inner_prod} and the Cauchy-Schwarz inequality ($|\langle \mathbf{a}, \mathbf{b} \rangle| \le \|\mathbf{a}\|_2 \|\mathbf{b}\|_2$):
 \begin{equation}
-D_{\mathbf{u}} f(\mathbf{x}) = \langle \nabla f(\mathbf{x}), \mathbf{u} \rangle \ge -\|\nabla f(\mathbf{x})\|_2 \|\mathbf{u}\|_2 = -\|\nabla f(\mathbf{x})\|_2
+-\|\nabla f(\mathbf{x})\|_2 \|\mathbf{u}\|_2 \le \langle \nabla f(\mathbf{x}), \mathbf{u} \rangle \le \|\nabla f(\mathbf{x})\|_2 \|\mathbf{u}\|_2
 \end{equation}
-Equality holds if and only if $\mathbf{u}$ is anti-parallel to $\nabla f(\mathbf{x})$. Since $\|\mathbf{u}\|_2 = 1$, the unique minimizing direction is $\mathbf{u}^* = -\frac{\nabla f(\mathbf{x})}{\|\nabla f(\mathbf{x})\|_2}$, achieving the minimum rate of change $-\|\nabla f(\mathbf{x})\|_2$.
+Since $\mathbf{u}$ is a unit vector ($\|\mathbf{u}\|_2 = 1$):
+\begin{equation}
+-\|\nabla f(\mathbf{x})\|_2 \le D_{\mathbf{u}} f(\mathbf{x}) \le +\|\nabla f(\mathbf{x})\|_2
+\end{equation}
+Equality on the right-hand side holds if and only if $\mathbf{u}$ is positively collinear with $\nabla f(\mathbf{x})$ ($\theta = 0^\circ \implies \cos(0) = 1$). Since $\|\mathbf{u}\|_2 = 1$, $\mathbf{u}^*_{\text{ascent}} = \frac{\nabla f(\mathbf{x})}{\|\nabla f(\mathbf{x})\|_2}$.
+
+Equality on the left-hand side holds if and only if $\mathbf{u}$ is anti-parallel to $\nabla f(\mathbf{x})$ ($\theta = 180^\circ \implies \cos(\pi) = -1$). Hence, $\mathbf{u}^*_{\text{descent}} = -\frac{\nabla f(\mathbf{x})}{\|\nabla f(\mathbf{x})\|_2}$.
 \end{proof}
 
-\subsection{The Jacobian and the Multivariate Chain Rule}
-For vector-valued functions $\mathbf{f}: \mathbb{R}^n \to \mathbb{R}^m$, the first-order differential is captured by the Jacobian matrix:
+\begin{ponderbox}{Why is the Gradient Always Perpendicular to Level Sets (Contours)?}
+A level curve of a loss function is defined by $f(\mathbf{x}) = c$ (a curve of constant elevation). Why must the gradient vector $\nabla f(\mathbf{x})$ point strictly perpendicular (normal) to this level curve, rather than at an angle?
+\tcblower
+\textbf{Reflection:} Imagine a path $\mathbf{x}(t)$ that travels strictly along a contour line of constant elevation $c$, so that $f(\mathbf{x}(t)) = c$ for all $t$. The velocity vector $\mathbf{x}'(t)$ represents the tangent direction of the contour.
+Differentiating both sides with respect to $t$ using the multivariate chain rule:
+\begin{equation*}
+\frac{d}{dt} \big[ f(\mathbf{x}(t)) \big] = \frac{d}{dt}[c] \implies \nabla f(\mathbf{x}(t))^T \mathbf{x}'(t) = 0
+\end{equation*}
+Because their inner product is identically zero, the gradient vector $\nabla f(\mathbf{x})$ is mathematically \textbf{orthogonal} to the contour tangent $\mathbf{x}'(t)$. To change your elevation as rapidly as possible, you must step directly perpendicular to the lines of equal altitude!
+\end{ponderbox}
+
+\subsection{The Jacobian Matrix and the Multivariate Chain Rule}
+When we move from scalar objective functions to multi-output transformations (such as layers in a neural network, or coordinate changes), we evaluate vector-valued functions $\mathbf{f}: \mathbb{R}^n \to \mathbb{R}^m$:
 \begin{equation}
-J_{\mathbf{f}}(\mathbf{x}) = \begin{bmatrix}
+\mathbf{f}(\mathbf{x}) = \begin{bmatrix} f_1(x_1, \dots, x_n) \\ f_2(x_1, \dots, x_n) \\ \vdots \\ f_m(x_1, \dots, x_n) \end{bmatrix}
+\end{equation}
+
+\begin{definitionbox}{The Jacobian Matrix}
+The \textbf{Jacobian Matrix} $J_{\mathbf{f}}(\mathbf{x}) \in \mathbb{R}^{m \times n}$ collects all $m \times n$ first-order partial derivatives of vector mapping $\mathbf{f}$:
+\begin{equation}
+J_{\mathbf{f}}(\mathbf{x}) \triangleq \begin{bmatrix}
 \frac{\partial f_1}{\partial x_1} & \frac{\partial f_1}{\partial x_2} & \dots & \frac{\partial f_1}{\partial x_n} \\
 \frac{\partial f_2}{\partial x_1} & \frac{\partial f_2}{\partial x_2} & \dots & \frac{\partial f_2}{\partial x_n} \\
 \vdots & \vdots & \ddots & \vdots \\
 \frac{\partial f_m}{\partial x_1} & \frac{\partial f_m}{\partial x_2} & \dots & \frac{\partial f_m}{\partial x_n}
-\end{bmatrix} \in \mathbb{R}^{m \times n}
-\label{eq:jacobian}
+\end{bmatrix} = \begin{bmatrix}
+\nabla f_1(\mathbf{x})^T \\
+\nabla f_2(\mathbf{x})^T \\
+\vdots \\
+\nabla f_m(\mathbf{x})^T
+\end{bmatrix}
+\label{eq:jacobian_def}
 \end{equation}
+Each \textbf{row} of the Jacobian is the transposed gradient of one output coordinate. Each \textbf{column} represents the sensitivity of the entire output vector to one input coordinate.
+\end{definitionbox}
 
-\begin{theorem}[Multivariate Chain Rule]
-Let $\mathbf{g}: \mathbb{R}^k \to \mathbb{R}^n$ and $\mathbf{f}: \mathbb{R}^n \to \mathbb{R}^m$ be differentiable mappings. The composite function $\mathbf{h} = \mathbf{f} \circ \mathbf{g}: \mathbb{R}^k \to \mathbb{R}^m$ is differentiable, and its Jacobian is the matrix product:
+\begin{theorembox}{The Multivariate Chain Rule}
+Let $\mathbf{g}: \mathbb{R}^k \to \mathbb{R}^n$ and $\mathbf{f}: \mathbb{R}^n \to \mathbb{R}^m$ be differentiable mappings. For the composite function $\mathbf{h} = \mathbf{f} \circ \mathbf{g}: \mathbb{R}^k \to \mathbb{R}^m$ defined by $\mathbf{h}(\mathbf{x}) = \mathbf{f}(\mathbf{g}(\mathbf{x}))$, the Jacobian is the clean matrix product:
 \begin{equation}
-J_{\mathbf{h}}(\mathbf{x}) = J_{\mathbf{f}}(\mathbf{g}(\mathbf{x})) \, J_{\mathbf{g}}(\mathbf{x})
-\label{eq:chain_rule}
+J_{\mathbf{h}}(\mathbf{x}) = J_{\mathbf{f}}(\mathbf{g}(\mathbf{x})) \cdot J_{\mathbf{g}}(\mathbf{x})
+\label{eq:chain_rule_matrix_prod}
 \end{equation}
-\end{theorem}
+\end{theorembox}
 
-\subsection{The Hessian and Second-Order Approximations}
-When $f \in C^2(\mathbb{R}^d)$ (twice continuously differentiable), its local curvature is quantified by the Hessian matrix:
+Equation~\eqref{eq:chain_rule_matrix_prod} is the mathematical engine behind \textbf{Backpropagation} in deep neural networks. In a deep network with $L$ layers:
 \begin{equation}
-H(\mathbf{x}) = \nabla^2 f(\mathbf{x}) = \begin{bmatrix}
+\mathbf{x} \xrightarrow{\quad\mathbf{f}_1\quad} \mathbf{h}_1 \xrightarrow{\quad\mathbf{f}_2\quad} \mathbf{h}_2 \dots \xrightarrow{\quad\mathbf{f}_L\quad} \hat{\mathbf{y}} \xrightarrow{\quad\ell\quad} \text{Loss}
+\end{equation}
+The total derivative of the scalar loss with respect to the input weights is simply a cascade of matrix-matrix multiplications of individual layer Jacobians!
+
+\subsection{The Hessian Matrix and Second-Order Taylor Approximations}
+First derivatives tell us the slope; second derivatives tell us the \textbf{curvature}.
+
+\begin{definitionbox}{The Hessian Matrix}
+For a scalar function $f: \mathbb{R}^d \to \mathbb{R}$ that is twice differentiable ($f \in C^2$), the \textbf{Hessian Matrix} $H(\mathbf{x}) = \nabla^2 f(\mathbf{x}) \in \mathbb{R}^{d \times d}$ collects all second-order partial derivatives:
+\begin{equation}
+H(\mathbf{x}) \triangleq \begin{bmatrix}
 \frac{\partial^2 f}{\partial x_1^2} & \frac{\partial^2 f}{\partial x_1 \partial x_2} & \dots & \frac{\partial^2 f}{\partial x_1 \partial x_d} \\
 \frac{\partial^2 f}{\partial x_2 \partial x_1} & \frac{\partial^2 f}{\partial x_2^2} & \dots & \frac{\partial^2 f}{\partial x_2 \partial x_d} \\
 \vdots & \vdots & \ddots & \vdots \\
 \frac{\partial^2 f}{\partial x_d \partial x_1} & \frac{\partial^2 f}{\partial x_d \partial x_2} & \dots & \frac{\partial^2 f}{\partial x_d^2}
 \end{bmatrix} \in \mathbb{R}^{d \times d}
-\label{eq:hessian}
+\label{eq:hessian_def}
 \end{equation}
-By Schwarz's Theorem (Clairaut's Theorem), if all second partial derivatives are continuous, mixed partial derivatives commute ($\frac{\partial^2 f}{\partial x_i \partial x_j} = \frac{\partial^2 f}{\partial x_j \partial x_i}$), ensuring that the Hessian is symmetric: $H(\mathbf{x}) = H(\mathbf{x})^T$.
+\end{definitionbox}
+
+\begin{theorembox}{Symmetry of the Hessian (Clairaut's / Schwarz's Theorem)}
+If all second-order partial derivatives of $f: \mathbb{R}^d \to \mathbb{R}$ are continuous in an open neighborhood around $\mathbf{x}$, the order of differentiation does not matter:
+\begin{equation}
+\frac{\partial^2 f}{\partial x_i \partial x_j} = \frac{\partial^2 f}{\partial x_j \partial x_i} \quad \text{for all } i, j
+\end{equation}
+Consequently, the Hessian matrix is strictly \textbf{symmetric}: $H(\mathbf{x}) = H(\mathbf{x})^T$.
+\end{theorembox}
+
+\subsubsection{Multivariate Taylor Polynomials}
+Using the gradient and Hessian, we construct the local polynomial approximations of a loss function $f$ around a base point $\mathbf{x}_0$:
+\begin{enumerate}
+    \item \textbf{0th-Order Approximation (Constant):} $T_0(\mathbf{x}_0 + \mathbf{v}) = f(\mathbf{x}_0)$.
+    \item \textbf{1st-Order Approximation (Tangent Hyperplane):}
+    \begin{equation}
+    T_1(\mathbf{x}_0 + \mathbf{v}) = f(\mathbf{x}_0) + \nabla f(\mathbf{x}_0)^T \mathbf{v}
+    \end{equation}
+    \item \textbf{2nd-Order Approximation (Quadratic Bowl):}
+    \begin{equation}
+    T_2(\mathbf{x}_0 + \mathbf{v}) = f(\mathbf{x}_0) + \nabla f(\mathbf{x}_0)^T \mathbf{v} + \frac{1}{2} \mathbf{v}^T \nabla^2 f(\mathbf{x}_0) \mathbf{v}
+    \label{eq:second_order_taylor}
+    \end{equation}
+\end{enumerate}
+
+\subsection{Classification of Critical Points via Hessian Eigenvalues}
+At a \textbf{stationary point} (or critical point) $\mathbf{x}^*$, the first-order slope vanishes: $\nabla f(\mathbf{x}^*) = \mathbf{0}$. 
+
+Plugging $\nabla f(\mathbf{x}^*) = \mathbf{0}$ into the Taylor expansion~\eqref{eq:second_order_taylor}, the change in loss for a small displacement $\mathbf{v}$ is governed entirely by the quadratic form:
+\begin{equation}
+f(\mathbf{x}^* + \mathbf{v}) - f(\mathbf{x}^*) \approx \frac{1}{2} \mathbf{v}^T H(\mathbf{x}^*) \mathbf{v}
+\end{equation}
+Because $H(\mathbf{x}^*)$ is real and symmetric, the Spectral Theorem (which we prove in Week 6) guarantees that $H$ possesses $d$ real eigenvalues $\lambda_1, \lambda_2, \dots, \lambda_d$ with an orthonormal basis of eigenvectors $\mathbf{q}_1, \dots, \mathbf{q}_d$.
+
+\begin{theorembox}{The Second-Order Critical Point Classification}
+Let $\mathbf{x}^*$ be a stationary point ($\nabla f(\mathbf{x}^*) = \mathbf{0}$) of a $C^2$ function $f$, and let $\lambda_1, \dots, \lambda_d$ be the eigenvalues of its Hessian $H(\mathbf{x}^*)$:
+\begin{enumerate}
+    \item \textbf{Strict Local Minimum:} $H(\mathbf{x}^*) \succ 0$ (Strictly Positive Definite). All eigenvalues are strictly positive:
+    \begin{equation}
+    \lambda_i > 0 \quad \text{for all } i \in \{1, \dots, d\}
+    \end{equation}
+    Every non-zero perturbation increases the loss: $\mathbf{v}^T H \mathbf{v} > 0 \implies f(\mathbf{x}^* + \mathbf{v}) > f(\mathbf{x}^*)$.
+    
+    \item \textbf{Strict Local Maximum:} $H(\mathbf{x}^*) \prec 0$ (Strictly Negative Definite). All eigenvalues are strictly negative:
+    \begin{equation}
+    \lambda_i < 0 \quad \text{for all } i \in \{1, \dots, d\}
+    \end{equation}
+    Every non-zero perturbation decreases the loss: $\mathbf{v}^T H \mathbf{v} < 0 \implies f(\mathbf{x}^* + \mathbf{v}) < f(\mathbf{x}^*)$.
+
+    \item \textbf{Saddle Point:} $H(\mathbf{x}^*)$ is \textbf{indefinite}. The Hessian has at least one strictly positive eigenvalue and at least one strictly negative eigenvalue:
+    \begin{equation}
+    \exists i, j \quad \text{such that } \lambda_i > 0 \quad \text{and} \quad \lambda_j < 0
+    \end{equation}
+    Perturbing along eigenvector $\mathbf{q}_i$ increases the loss, while perturbing along eigenvector $\mathbf{q}_j$ decreases it.
+
+    \item \textbf{Inconclusive / Valley Floor:} At least one eigenvalue is zero ($\lambda_k = 0$), and all other eigenvalues have identical signs ($H \succeq 0$ or $H \preceq 0$). The second-order test is inconclusive; third- or fourth-order terms dictate stability.
+\end{enumerate}
+\end{theorembox}
 
 % ----------------------------------------------------------------------
-% PART 3: VISUAL & GEOMETRIC INTUITION
+% PART 3: IN-CHAPTER STEP-BY-STEP WORKED EXAMPLES
 % ----------------------------------------------------------------------
-\section{Visual \& Geometric Intuition: The Geometry of Contours and Tangents}
+\section{In-Chapter Step-by-Step Pedagogical Examples}
 
-Figure~\ref{fig:contour_geometry} illustrates the fundamental geometric relationship between level sets (contours) of an objective function, the gradient vector, and the local linearizing tangent hyperplane.
+\begin{examplebox}{Worked Example 2.1: Directional Derivative \& Angular Sweep}
+\label{ex:w02_directional_derivative}
+\textbf{The Scenario:}
+Consider a two-dimensional loss function representing the cost surface of an industrial heating system:
+\begin{equation*}
+f(x_1, x_2) = 3x_1^2 + 2x_1 x_2 + x_2^2
+\end{equation*}
+An engineer is standing at the parameter point $\mathbf{x}_0 = (1, 2)$.
+
+\textbf{Questions to Solve:}
+\begin{enumerate}
+    \item Calculate the exact gradient vector $\nabla f(1, 2)$.
+    \item Let $\mathbf{u}(\theta) = [\cos\theta, \sin\theta]^T$ be a unit direction vector parameterized by angle $\theta \in [0, 2\pi)$. Express the directional derivative $D_{\mathbf{u}(\theta)} f(1, 2)$ as a scalar function of $\theta$.
+    \item At what exact angle $\theta^*$ does the function increase most rapidly? What is this maximal rate?
+    \item At what angle is the rate of change exactly zero? Confirm that this direction is tangent to the contour curve passing through $(1, 2)$.
+\end{enumerate}
+
+\tcblower
+\textbf{Step-by-Step Analytical Solution:}
+
+\textbf{Step 1: Computing the Gradient Vector}
+Compute the partial derivatives:
+\begin{align*}
+\frac{\partial f}{\partial x_1} &= \frac{\partial}{\partial x_1}(3x_1^2 + 2x_1 x_2 + x_2^2) = 6x_1 + 2x_2 \\
+\frac{\partial f}{\partial x_2} &= \frac{\partial}{\partial x_2}(3x_1^2 + 2x_1 x_2 + x_2^2) = 2x_1 + 2x_2
+\end{align*}
+Evaluate at $\mathbf{x}_0 = (1, 2)$:
+\begin{equation*}
+\nabla f(1, 2) = \begin{bmatrix} 6(1) + 2(2) \\ 2(1) + 2(2) \end{bmatrix} = \begin{bmatrix} 6 + 4 \\ 2 + 4 \end{bmatrix} = \begin{bmatrix} 10 \\ 6 \end{bmatrix}
+\end{equation*}
+
+\textbf{Step 2: Directional Derivative as a Function of $\theta$}
+Using the inner product formula $D_{\mathbf{u}} f(\mathbf{x}) = \nabla f(\mathbf{x})^T \mathbf{u}$:
+\begin{equation*}
+D_{\mathbf{u}(\theta)} f(1, 2) = \begin{bmatrix} 10 & 6 \end{bmatrix} \begin{bmatrix} \cos\theta \\ \sin\theta \end{bmatrix} = 10\cos\theta + 6\sin\theta
+\end{equation*}
+
+\textbf{Step 3: Finding the Direction of Maximal Ascent}
+To maximize $g(\theta) = 10\cos\theta + 6\sin\theta$, differentiate with respect to $\theta$ and set to zero:
+\begin{equation*}
+\frac{dg}{d\theta} = -10\sin\theta + 6\cos\theta = 0 \implies 10\sin\theta = 6\cos\theta \implies \tan\theta = \frac{6}{10} = 0.60
+\end{equation*}
+Solving for $\theta^*$:
+\begin{equation*}
+\theta^* = \arctan(0.60) \approx 0.5404 \text{ radians} \approx \mathbf{30.96^\circ}
+\end{equation*}
+Notice that $\theta^* = 30.96^\circ$ is precisely the geometric angle of the gradient vector $\nabla f = [10, 6]^T$ itself!
+The maximal rate of increase achieved is:
+\begin{equation*}
+D_{\max} = \|\nabla f(1, 2)\|_2 = \sqrt{10^2 + 6^2} = \sqrt{100 + 36} = \sqrt{136} \approx \mathbf{11.6619}
+\end{equation*}
+
+\textbf{Step 4: Finding the Zero-Change Direction (Contour Tangent)}
+The directional derivative is zero when:
+\begin{equation*}
+10\cos\theta + 6\sin\theta = 0 \implies \tan\theta = -\frac{10}{6} = -\frac{5}{3} \approx -1.6667
+\end{equation*}
+Solving for $\theta$:
+\begin{equation*}
+\theta_{\text{zero}} = \arctan(-5/3) \approx -59.04^\circ \quad (\text{or } 120.96^\circ)
+\end{equation*}
+Notice the profound geometric relationship:
+\begin{equation*}
+\theta^* - \theta_{\text{zero}} = 30.96^\circ - (-59.04^\circ) = \mathbf{90.00^\circ}
+\end{equation*}
+The zero-change direction is \textbf{perpendicular} to the gradient, precisely tangent to the contour ellipse $f(x_1, x_2) = f(1, 2) = 3(1)^2 + 2(1)(2) + 2^2 = 11$.
+\end{examplebox}
+
+\begin{examplebox}{Worked Example 2.2: Matrix Calculus of Linear Regression (OLS)}
+\label{ex:w02_ols_matrix_calculus}
+\textbf{The Scenario:}
+In Ordinary Least Squares (OLS) regression, we are given a design matrix $X \in \mathbb{R}^{N \times d}$ and a target vector $\mathbf{y} \in \mathbb{R}^N$. We wish to find weights $\mathbf{w} \in \mathbb{R}^d$ minimizing the Mean Squared Error (MSE) loss:
+\begin{equation*}
+\mathcal{L}(\mathbf{w}) = \frac{1}{2N} \|\mathbf{y} - X\mathbf{w}\|_2^2
+\end{equation*}
+
+\textbf{Questions to Solve:}
+\begin{enumerate}
+    \item Expand the squared Euclidean norm using vector transpose identities.
+    \item Derive the exact gradient $\nabla_{\mathbf{w}} \mathcal{L}(\mathbf{w})$ step-by-step. Verify that the dimensions match.
+    \item Derive the exact Hessian matrix $H(\mathbf{w}) = \nabla^2_{\mathbf{w}} \mathcal{L}(\mathbf{w})$.
+    \item Prove that the loss function is convex everywhere in $\mathbb{R}^d$.
+\end{enumerate}
+
+\tcblower
+\textbf{Step-by-Step Analytical Solution:}
+
+\textbf{Step 1: Expanding the Norm}
+Recall that for any vector $\mathbf{v}$, $\|\mathbf{v}\|_2^2 = \mathbf{v}^T \mathbf{v}$. Let $\mathbf{e} = \mathbf{y} - X\mathbf{w}$:
+\begin{align*}
+\mathcal{L}(\mathbf{w}) &= \frac{1}{2N} (\mathbf{y} - X\mathbf{w})^T (\mathbf{y} - X\mathbf{w}) \\
+&= \frac{1}{2N} \left( \mathbf{y}^T - \mathbf{w}^T X^T \right) (\mathbf{y} - X\mathbf{w}) \\
+&= \frac{1}{2N} \left[ \mathbf{y}^T \mathbf{y} - \mathbf{y}^T X\mathbf{w} - \mathbf{w}^T X^T \mathbf{y} + \mathbf{w}^T X^T X \mathbf{w} \right]
+\end{align*}
+Notice that $\mathbf{y}^T X\mathbf{w}$ is a scalar ($1 \times 1$). The transpose of a scalar is itself:
+\begin{equation*}
+(\mathbf{y}^T X\mathbf{w})^T = \mathbf{w}^T X^T \mathbf{y}
+\end{equation*}
+Thus, the two middle cross-terms combine:
+\begin{equation*}
+\mathcal{L}(\mathbf{w}) = \frac{1}{2N} \mathbf{y}^T \mathbf{y} - \frac{1}{N} \mathbf{w}^T X^T \mathbf{y} + \frac{1}{2N} \mathbf{w}^T (X^T X) \mathbf{w}
+\end{equation*}
+
+\textbf{Step 2: Differentiating Term by Term}
+We differentiate with respect to vector $\mathbf{w}$ using matrix calculus rules:
+\begin{itemize}
+    \item Term 1 ($\frac{1}{2N}\mathbf{y}^T \mathbf{y}$): Independent of $\mathbf{w} \implies \nabla_{\mathbf{w}} = \mathbf{0}$.
+    \item Term 2 ($-\frac{1}{N}\mathbf{w}^T (X^T \mathbf{y})$): Linear form $\mathbf{w}^T \mathbf{a}$ where $\mathbf{a} = X^T \mathbf{y} \implies \nabla_{\mathbf{w}} = -\frac{1}{N} X^T \mathbf{y}$.
+    \item Term 3 ($\frac{1}{2N}\mathbf{w}^T (X^T X)\mathbf{w}$): Quadratic form $\mathbf{w}^T A \mathbf{w}$ where $A = X^T X$. Since $A^T = (X^T X)^T = X^T X = A$, the matrix is symmetric:
+    \begin{equation*}
+    \nabla_{\mathbf{w}} \left( \frac{1}{2N} \mathbf{w}^T (X^T X)\mathbf{w} \right) = \frac{1}{2N} (2 X^T X \mathbf{w}) = \frac{1}{N} X^T X \mathbf{w}
+    \end{equation*}
+\end{itemize}
+Combining terms gives the famous OLS gradient:
+\begin{equation*}
+\nabla_{\mathbf{w}} \mathcal{L}(\mathbf{w}) = \frac{1}{N} X^T X \mathbf{w} - \frac{1}{N} X^T \mathbf{y} = \mathbf{\frac{1}{N} X^T (X\mathbf{w} - \mathbf{y})}
+\end{equation*}
+\textbf{Dimension Check:} $X \in \mathbb{R}^{N \times d}$, so $X^T \in \mathbb{R}^{d \times N}$. The residual $(X\mathbf{w} - \mathbf{y}) \in \mathbb{R}^N$.
+Multiplying: $(d \times N) \times (N \times 1) = d \times 1$. The gradient is indeed a $d \times 1$ vector matching $\mathbf{w}$!
+
+\textbf{Step 3: Deriving the Hessian Matrix}
+Differentiating the gradient $\nabla_{\mathbf{w}} \mathcal{L}(\mathbf{w}) = \frac{1}{N}X^T X\mathbf{w} - \frac{1}{N}X^T \mathbf{y}$ with respect to $\mathbf{w}$:
+\begin{equation*}
+H(\mathbf{w}) = \nabla^2_{\mathbf{w}} \mathcal{L}(\mathbf{w}) = \mathbf{\frac{1}{N} X^T X}
+\end{equation*}
+Notice that the Hessian is \textbf{constant} everywhere—it does not depend on $\mathbf{w}$!
+
+\textbf{Step 4: Proving Convexity}
+For any non-zero vector $\mathbf{v} \in \mathbb{R}^d \setminus \{\mathbf{0}\}$:
+\begin{equation*}
+\mathbf{v}^T H \mathbf{v} = \mathbf{v}^T \left( \frac{1}{N} X^T X \right) \mathbf{v} = \frac{1}{N} (X\mathbf{v})^T (X\mathbf{v}) = \frac{1}{N} \|X\mathbf{v}\|_2^2 \ge 0
+\end{equation*}
+Because the squared Euclidean norm $\|X\mathbf{v}\|_2^2$ is always non-negative, $\mathbf{v}^T H \mathbf{v} \ge 0$ for all $\mathbf{v}$.
+Hence, the Hessian is \textbf{positive semi-definite} ($H \succeq 0$) globally. The MSE loss surface is a convex bowl with no local traps; any stationary point $\nabla \mathcal{L}(\mathbf{w}^*) = \mathbf{0}$ is guaranteed to be a global minimum!
+\end{examplebox}
+
+\begin{examplebox}{Worked Example 2.3: Critical Point Classification on a Non-Convex Landscape}
+\label{ex:w02_critical_point_classification}
+\textbf{The Scenario:}
+A machine learning researcher evaluates a toy non-convex loss function with two features $(x, y)$:
+\begin{equation*}
+f(x, y) = x^4 - 2x^2 + y^2
+\end{equation*}
+
+\textbf{Questions to Solve:}
+\begin{enumerate}
+    \item Find all stationary points of $f(x, y)$ in $\mathbb{R}^2$ where $\nabla f(x, y) = \mathbf{0}$.
+    \item Compute the general Hessian matrix $H(x, y) = \nabla^2 f(x, y)$.
+    \item Evaluate the eigenvalues of $H$ at each stationary point and classify each point as a local minimum, local maximum, or saddle point.
+\end{enumerate}
+
+\tcblower
+\textbf{Step-by-Step Analytical Solution:}
+
+\textbf{Step 1: Finding Stationary Points}
+Compute the gradient vector:
+\begin{equation*}
+\nabla f(x, y) = \begin{bmatrix} \frac{\partial f}{\partial x} \\ \frac{\partial f}{\partial y} \end{bmatrix} = \begin{bmatrix} 4x^3 - 4x \\ 2y \end{bmatrix}
+\end{equation*}
+Set the gradient equal to the zero vector:
+\begin{align*}
+4x^3 - 4x = 0 &\implies 4x(x^2 - 1) = 0 \implies x \in \{0, +1, -1\} \\
+2y = 0 &\implies y = 0
+\end{align*}
+Pairing the roots yields exactly \textbf{three stationary points}:
+\begin{equation*}
+P_1 = (0, 0), \quad P_2 = (1, 0), \quad P_3 = (-1, 0)
+\end{equation*}
+
+\textbf{Step 2: Computing the Hessian Matrix}
+Compute the second partial derivatives:
+\begin{equation*}
+\frac{\partial^2 f}{\partial x^2} = 12x^2 - 4, \quad \frac{\partial^2 f}{\partial y^2} = 2, \quad \frac{\partial^2 f}{\partial x \partial y} = \frac{\partial^2 f}{\partial y \partial x} = 0
+\end{equation*}
+The Hessian matrix is:
+\begin{equation*}
+H(x, y) = \begin{bmatrix} 12x^2 - 4 & 0 \\ 0 & 2 \end{bmatrix}
+\end{equation*}
+Because the off-diagonal entries are zero, the diagonal entries are the eigenvalues!
+
+\textbf{Step 3: Classifying Each Critical Point}
+\begin{itemize}
+    \item \textbf{Point $P_1 = (0, 0)$:}
+    \begin{equation*}
+    H(0, 0) = \begin{bmatrix} -4 & 0 \\ 0 & 2 \end{bmatrix} \implies \lambda_1 = -4, \; \lambda_2 = +2
+    \end{equation*}
+    Since $\lambda_1 < 0$ and $\lambda_2 > 0$, the Hessian is \textbf{indefinite}.
+    \textbf{Classification:} $P_1 = (0, 0)$ is a \textbf{Saddle Point}. Moving along the $x$-axis decreases the loss, while moving along the $y$-axis increases it.
+    
+    \item \textbf{Point $P_2 = (1, 0)$:}
+    \begin{equation*}
+    H(1, 0) = \begin{bmatrix} 12(1)^2 - 4 & 0 \\ 0 & 2 \end{bmatrix} = \begin{bmatrix} 8 & 0 \\ 0 & 2 \end{bmatrix} \implies \lambda_1 = 8, \; \lambda_2 = 2
+    \end{equation*}
+    Both eigenvalues are strictly positive ($\lambda_1, \lambda_2 > 0$). $H(1, 0) \succ 0$ is strictly positive definite.
+    \textbf{Classification:} $P_2 = (1, 0)$ is a strict \textbf{Local Minimum} with value $f(1, 0) = 1 - 2 + 0 = -1$.
+
+    \item \textbf{Point $P_3 = (-1, 0)$:}
+    \begin{equation*}
+    H(-1, 0) = \begin{bmatrix} 12(-1)^2 - 4 & 0 \\ 0 & 2 \end{bmatrix} = \begin{bmatrix} 8 & 0 \\ 0 & 2 \end{bmatrix} \implies \lambda_1 = 8, \; \lambda_2 = 2
+    \end{equation*}
+    Identically, both eigenvalues are positive ($\lambda_1, \lambda_2 > 0$). $H(-1, 0) \succ 0$ is strictly positive definite.
+    \textbf{Classification:} $P_3 = (-1, 0)$ is a strict \textbf{Local Minimum} with value $f(-1, 0) = 1 - 2 + 0 = -1$.
+\end{itemize}
+This example perfectly demonstrates the double-well potential: two symmetrical valleys separated by a central mountain saddle pass at the origin.
+\end{examplebox}
+
+% ----------------------------------------------------------------------
+% PART 4: VISUAL & GEOMETRIC INTUITION
+% ----------------------------------------------------------------------
+\section{Visual \& Geometric Intuition: Contours, Normals, and Saddles}
+
+\subsection{The Geometry of Contours and Tangents}
+Figure~\ref{fig:contour_geometry} visualizes the fundamental geometric relationship between level sets (contours), the gradient vector, and the tangent hyperplane.
 
 \begin{figure}[htbp]
 \centering
@@ -138,99 +536,79 @@ Figure~\ref{fig:contour_geometry} illustrates the fundamental geometric relation
 ]
 
 % Elliptical contour curves (level sets of quadratic function)
-\draw[thick, color=gray!60] (0, 0) ellipse (4.5cm and 2.5cm);
-\node[right, color=gray] at (4.5, 0) {$f(\mathbf{x}) = c_3$};
+\draw[thick, color=gray!50] (0, 0) ellipse (4.8cm and 2.6cm);
+\node[right, color=gray!80!black] at (4.8, 0) {$f(\mathbf{x}) = c_3$};
 
-\draw[thick, color=primarydark!70] (0, 0) ellipse (3.2cm and 1.8cm);
-\node[right, color=primarydark] at (3.2, 0) {$f(\mathbf{x}) = c_2$};
+\draw[thick, color=primarydark!60] (0, 0) ellipse (3.4cm and 1.8cm);
+\node[right, color=primarydark!80!black] at (3.4, 0) {$f(\mathbf{x}) = c_2$};
 
 \draw[thick, color=primarydark] (0, 0) ellipse (1.8cm and 1.0cm);
 \node[right, color=primarydark] at (1.8, 0) {$f(\mathbf{x}) = c_1 < c_2 < c_3$};
 
 % Optimum center
-\filldraw[color=tealborder] (0, 0) circle (2pt) node[below] {$\mathbf{x}^*$ (Global Min)};
+\filldraw[color=tealdef] (0, 0) circle (2.5pt) node[below=3pt] {$\mathbf{x}^*$ (Global Minimum)};
 
 % Evaluation point on contour c2
-\coordinate (P) at (2.26, 1.27);
-\filldraw[color=red] (P) circle (2.5pt) node[above right] {$\mathbf{x}_0$};
+\coordinate (P) at (2.40, 1.27);
+\filldraw[color=traprad] (P) circle (2.5pt) node[above right=2pt] {$\mathbf{x}_0$};
 
 % Tangent line at P
-\draw[dashed, line width=1.2pt, color=tealborder] ($(P) + (-2.0, 1.4)$) -- ($(P) + (2.0, -1.4)$);
-\node[above, color=tealborder] at ($(P) + (1.5, -1.4)$) {Tangent Plane: $\nabla f(\mathbf{x}_0)^T(\mathbf{x} - \mathbf{x}_0) = 0$};
+\draw[dashed, line width=1.2pt, color=tealdef] ($(P) + (-2.2, 1.5)$) -- ($(P) + (2.2, -1.5)$);
+\node[above, color=tealdef] at ($(P) + (1.6, -1.5)$) {Tangent Plane: $\nabla f(\mathbf{x}_0)^T(\mathbf{x} - \mathbf{x}_0) = 0$};
 
 % Gradient vector (orthogonal to tangent)
-\draw[->, >=stealth, line width=1.8pt, color=red] (P) -- ($(P) + (1.2, 1.7)$) node[right] {$\nabla f(\mathbf{x}_0)$ (Steepest Ascent)};
+\draw[->, >=stealth, line width=2.0pt, color=traprad] (P) -- ($(P) + (1.2, 1.7)$) node[right=2pt] {$\nabla f(\mathbf{x}_0)$ (Steepest Ascent)};
 
 % Negative gradient vector (towards minimum)
-\draw[->, >=stealth, line width=1.8pt, color=primarydark] (P) -- ($(P) + (-1.2, -1.7)$) node[below left] {$-\nabla f(\mathbf{x}_0)$ (Steepest Descent)};
+\draw[->, >=stealth, line width=2.0pt, color=primarydark] (P) -- ($(P) + (-1.2, -1.7)$) node[below left=2pt] {$-\nabla f(\mathbf{x}_0)$ (Steepest Descent)};
 
 \end{tikzpicture}
-\caption{The Geometry of Contours: The gradient vector $\nabla f(\mathbf{x}_0)$ is orthogonal to the level curve tangent, pointing in the direction of maximal rate of increase.}
+\caption{The Geometry of Contours: The gradient vector $\nabla f(\mathbf{x}_0)$ is strictly perpendicular (orthogonal) to the contour tangent line, pointing in the direction of maximal rate of increase. The negative gradient points directly downhill toward lower level sets.}
 \label{fig:contour_geometry}
 \end{figure}
 
-% ----------------------------------------------------------------------
-% PART 4: DEEP INTUITION & CONCEPTUAL DERIVATIONS
-% ----------------------------------------------------------------------
-\section{Deep Intuition \& Conceptual Derivations}
+\subsection{Saddle Point Geometry vs. Local Minima}
+Figure~\ref{fig:saddle_vs_minimum} contrasts the geometry of a local minimum (where all directions curve upward) with a saddle point (where curvature changes sign depending on the direction of travel).
 
-\subsection{Matrix Calculus Identities for Linear and Quadratic Forms}
-In machine learning, loss functions frequently contain linear forms $\mathbf{a}^T \mathbf{x}$ and quadratic forms $\mathbf{x}^T A \mathbf{x}$. We derive their exact gradients from first principles.
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=0.92,
+    font=\sffamily\footnotesize
+]
 
-\begin{theorem}[Gradient of a Linear Form]
-Let $\mathbf{a} \in \mathbb{R}^d$ be a constant vector. For $f(\mathbf{x}) = \mathbf{a}^T \mathbf{x}$:
-\begin{equation}
-\nabla_{\mathbf{x}} (\mathbf{a}^T \mathbf{x}) = \mathbf{a}
-\end{equation}
-\end{theorem}
+% Left: Local Minimum (Paraboloid bowl)
+\begin{scope}[xshift=-4.5cm]
+    \draw[thick, fill=tealbg, draw=tealborder] (0, 0) ellipse (2.8cm and 1.2cm);
+    \draw[thick, fill=tealdef!15, draw=tealborder] (0, 0.8) ellipse (2.0cm and 0.8cm);
+    \draw[thick, fill=tealdef!30, draw=tealborder] (0, 1.5) ellipse (1.1cm and 0.4cm);
+    \filldraw[tealdef] (0, 0) circle (2.5pt) node[below=2pt] {$\mathbf{x}^*$ (Bowl Bottom)};
+    
+    % Curvature arrows pointing up
+    \draw[->, >=stealth, thick, color=tealdef] (0, 0) -- (1.5, 0.7) node[above right] {$\lambda_1 > 0$};
+    \draw[->, >=stealth, thick, color=tealdef] (0, 0) -- (-1.2, 0.6) node[above left] {$\lambda_2 > 0$};
+    
+    \node[align=center, font=\bfseries\sffamily, color=primarydark] at (0, -1.8) {Local Minimum\\$H \succ 0$ (Positive Definite)};
+\end{scope}
 
-\begin{proof}
-Writing in scalar coordinate notation, $f(\mathbf{x}) = \sum_{j=1}^d a_j x_j$. Taking the partial derivative with respect to coordinate $x_k$:
-\begin{equation}
-\frac{\partial f}{\partial x_k} = \frac{\partial}{\partial x_k} \left( \sum_{j=1}^d a_j x_j \right) = a_k
-\end{equation}
-Stacking these partial derivatives into the gradient vector yields $\nabla f(\mathbf{x}) = [a_1, a_2, \dots, a_d]^T = \mathbf{a}$.
-\end{proof}
+% Right: Saddle Point (Hyperbolic Paraboloid)
+\begin{scope}[xshift=4.5cm]
+    % Saddle curve
+    \draw[domain=-2.2:2.2, smooth, variable=\x, thick, color=primarydark] plot ({\x}, {0.35*\x*\x - 0.5});
+    \node[color=primarydark, right] at (2.2, 1.2) {Uphill Axis ($\lambda_1 > 0$)};
+    
+    \draw[domain=-1.8:1.8, smooth, variable=\y, very thick, dashed, color=traprad] plot ({\y}, {-0.4*\y*\y + 0.5});
+    \node[color=traprad, below] at (1.8, -0.9) {Downhill Axis ($\lambda_2 < 0$)};
+    
+    \filldraw[traprad] (0, 0) circle (2.5pt) node[above=4pt] {$\mathbf{x}^*$ (Saddle Point)};
+    
+    \node[align=center, font=\bfseries\sffamily, color=traprad] at (0, -1.8) {Saddle Point\\$H$ Indefinite ($\lambda_1 > 0, \lambda_2 < 0$)};
+\end{scope}
 
-\begin{theorem}[Gradient of a Quadratic Form]
-Let $A \in \mathbb{R}^{d \times d}$ be an arbitrary square matrix. For $f(\mathbf{x}) = \mathbf{x}^T A \mathbf{x}$:
-\begin{equation}
-\nabla_{\mathbf{x}} (\mathbf{x}^T A \mathbf{x}) = (A + A^T)\mathbf{x}
-\end{equation}
-If $A$ is symmetric ($A = A^T$), this simplifies to $\nabla_{\mathbf{x}} (\mathbf{x}^T A \mathbf{x}) = 2A\mathbf{x}$.
-\end{theorem}
-
-\begin{proof}
-Express the quadratic form in double-sum index notation:
-\begin{equation}
-f(\mathbf{x}) = \sum_{i=1}^d \sum_{j=1}^d x_i A_{ij} x_j
-\end{equation}
-To compute $\frac{\partial f}{\partial x_k}$, isolate terms containing $x_k$:
-\begin{equation}
-f(\mathbf{x}) = x_k A_{kk} x_k + x_k \sum_{j \ne k} A_{kj} x_j + x_k \sum_{i \ne k} A_{ik} x_i + \sum_{i \ne k} \sum_{j \ne k} x_i A_{ij} x_j
-\end{equation}
-Differentiating with respect to $x_k$:
-\begin{equation}
-\frac{\partial f}{\partial x_k} = 2 A_{kk} x_k + \sum_{j \ne k} A_{kj} x_j + \sum_{i \ne k} A_{ik} x_i = \sum_{j=1}^d A_{kj} x_j + \sum_{i=1}^d A_{ik} x_i
-\end{equation}
-The first sum corresponds to the $k$-th row of $A\mathbf{x}$, and the second sum corresponds to the $k$-th row of $A^T \mathbf{x}$. In vector form:
-\begin{equation}
-\nabla_{\mathbf{x}} (\mathbf{x}^T A \mathbf{x}) = A\mathbf{x} + A^T \mathbf{x} = (A + A^T)\mathbf{x}
-\end{equation}
-\end{proof}
-
-\subsection{Multivariate Taylor Expansion and Critical Point Classification}
-Let $f: \mathbb{R}^d \to \mathbb{R}$ be twice continuously differentiable. Around a point $\mathbf{x}_0$, the second-order Taylor expansion is:
-\begin{equation}
-f(\mathbf{x}_0 + \mathbf{v}) \approx f(\mathbf{x}_0) + \nabla f(\mathbf{x}_0)^T \mathbf{v} + \frac{1}{2} \mathbf{v}^T \nabla^2 f(\mathbf{x}_0) \mathbf{v}
-\label{eq:taylor2}
-\end{equation}
-At a \textbf{stationary point} $\mathbf{x}^*$, the first-order variation vanishes: $\nabla f(\mathbf{x}^*) = \mathbf{0}$. The local behavior is governed entirely by the quadratic term $\mathbf{v}^T H(\mathbf{x}^*) \mathbf{v}$:
-\begin{itemize}
-    \item \textbf{Local Minimum:} $H(\mathbf{x}^*) \succ 0$ (positive definite; all eigenvalues $\lambda_i > 0$). Any perturbation $\mathbf{v} \ne \mathbf{0}$ yields $\mathbf{v}^T H \mathbf{v} > 0 \implies f(\mathbf{x}^* + \mathbf{v}) > f(\mathbf{x}^*)$.
-    \item \textbf{Local Maximum:} $H(\mathbf{x}^*) \prec 0$ (negative definite; all eigenvalues $\lambda_i < 0$). Any perturbation yields $\mathbf{v}^T H \mathbf{v} < 0 \implies f(\mathbf{x}^* + \mathbf{v}) < f(\mathbf{x}^*)$.
-    \item \textbf{Saddle Point:} $H(\mathbf{x}^*)$ has both strictly positive and strictly negative eigenvalues ($\exists i, j: \lambda_i > 0, \lambda_j < 0$). Moving along the eigenvector of $\lambda_i$ increases the function, while moving along the eigenvector of $\lambda_j$ decreases it.
-\end{itemize}
+\end{tikzpicture}
+\caption{Geometric Anatomy of Critical Points: At a local minimum (left), all eigenvalues of the Hessian are positive ($\lambda_i > 0$), creating a stable bowl. At a saddle point (right), the surface curves upward along one axis ($\lambda_1 > 0$) but plunges downward along another ($\lambda_2 < 0$).}
+\label{fig:saddle_vs_minimum}
+\end{figure}
 
 % ----------------------------------------------------------------------
 % PART 5: EXPLICIT GOTCHAS & DIAGNOSTIC MISCONCEPTIONS
@@ -238,23 +616,23 @@ At a \textbf{stationary point} $\mathbf{x}^*$, the first-order variation vanishe
 \section{Explicit Gotchas \& Diagnostic Misconceptions}
 
 \begin{trapbox}{Gotcha 1: Confusing Contour Tangents with Gradient Directions}
-A novice asserts that because the gradient points in the direction of the function, it must run tangent to the level curves.
+\textbf{The Scenario:} A student examining a loss landscape plot asserts that because the gradient points in the direction of the function's flow, it must run tangent to the level curves. \\
 \textbf{The Trap:} Along a level curve, the function value is constant: $f(\mathbf{x}(t)) = c$. Differentiating with respect to curve parameter $t$ yields $\frac{d}{dt}f(\mathbf{x}(t)) = \nabla f(\mathbf{x})^T \mathbf{x}'(t) = 0$. Because the velocity vector $\mathbf{x}'(t)$ is tangent to the contour curve, the gradient $\nabla f(\mathbf{x})$ is strictly \textbf{orthogonal} (perpendicular) to the level sets, never tangent.
 \end{trapbox}
 
 \begin{trapbox}{Gotcha 2: Assuming Hessian Symmetry for Non-$C^2$ Functions}
-A programmer assumes that for any twice-differentiable loss function, $\frac{\partial^2 f}{\partial x \partial y} = \frac{\partial^2 f}{\partial y \partial x}$.
-\textbf{The Trap:} Mixed partial derivatives commute only if the second partial derivatives are continuous at the point of interest (Schwarz's Theorem). On non-smooth loss functions (e.g., those involving piecewise ReLUs or discontinuous thresholds), mixed partials can disagree, producing an asymmetric Hessian that breaks Newton-Raphson solvers.
+\textbf{The Scenario:} A programmer assumes that for any twice-differentiable loss function, $\frac{\partial^2 f}{\partial x \partial y} = \frac{\partial^2 f}{\partial y \partial x}$ always holds. \\
+\textbf{The Trap:} Mixed partial derivatives commute only if the second partial derivatives are continuous in a neighborhood of the point (Schwarz's Theorem). On non-smooth loss functions (e.g., those involving piecewise linear ReLUs, hinge losses, or discontinuous thresholds), mixed partials can disagree, producing an asymmetric Hessian that crashes Newton-Raphson solvers.
 \end{trapbox}
 
 \begin{trapbox}{Gotcha 3: Conflating Stationary Points with Local Minima in High Dimensions}
-In training an 80-parameter non-convex model, an optimization algorithm halts because $\|\nabla f(\mathbf{w})\|_2 < 10^{-6}$. The engineer concludes a local minimum has been reached.
-\textbf{The Trap:} In high-dimensional optimization surfaces, stationary points ($\nabla f = \mathbf{0}$) are predominantly \textbf{saddle points}, not local minima. If the Hessian has 79 positive eigenvalues and just 1 negative eigenvalue, the point is a saddle. The probability of encountering a true local minimum decays exponentially with dimension $d$ in random Gaussian landscapes.
+\textbf{The Scenario:} In training a 100-parameter deep network, an optimization algorithm terminates because $\|\nabla f(\mathbf{w})\|_2 < 10^{-7}$. The engineer reports that the global or local minimum has been successfully found. \\
+\textbf{The Trap:} In high-dimensional optimization surfaces, stationary points ($\nabla f = \mathbf{0}$) are overwhelmingly \textbf{saddle points}, not local minima. If the Hessian has 99 positive eigenvalues and just 1 negative eigenvalue, the point is a saddle. The optimizer has not minimized the loss; it is merely stalled on a high-dimensional plateau.
 \end{trapbox}
 
 \begin{trapbox}{Gotcha 4: Erroneous Matrix Transposition in Gradient Identities}
-A student computes the gradient of $f(\mathbf{w}) = \|\mathbf{y} - X\mathbf{w}\|_2^2$ and writes $\nabla_{\mathbf{w}} f(\mathbf{w}) = -2X(\mathbf{y} - X\mathbf{w})$.
-\textbf{The Trap:} Check matrix dimensions! If $X \in \mathbb{R}^{N \times d}$ and $\mathbf{w} \in \mathbb{R}^d$, then $\mathbf{y} - X\mathbf{w} \in \mathbb{R}^N$. Multiplying $X$ ($N \times d$) by an $N \times 1$ vector is algebraically undefined. The correct gradient is $-2X^T (\mathbf{y} - X\mathbf{w}) \in \mathbb{R}^d$. Always verify that the gradient has the identical shape as the parameter vector.
+\textbf{The Scenario:} A student computes the gradient of the MSE loss $f(\mathbf{w}) = \|\mathbf{y} - X\mathbf{w}\|_2^2$ and writes $\nabla_{\mathbf{w}} f(\mathbf{w}) = -2X(\mathbf{y} - X\mathbf{w})$. \\
+\textbf{The Trap:} Check matrix dimensions! If $X \in \mathbb{R}^{N \times d}$ and $\mathbf{w} \in \mathbb{R}^d$, then the residual $(\mathbf{y} - X\mathbf{w})$ is an $N \times 1$ vector. Multiplying $X$ ($N \times d$) by an $N \times 1$ vector is algebraically undefined! The correct gradient is $-2X^T (\mathbf{y} - X\mathbf{w}) \in \mathbb{R}^d$. Always verify that the gradient has the identical shape as the parameter vector.
 \end{trapbox}
 
 % ----------------------------------------------------------------------
@@ -262,25 +640,27 @@ A student computes the gradient of $f(\mathbf{w}) = \|\mathbf{y} - X\mathbf{w}\|
 % ----------------------------------------------------------------------
 \section{Comparative Synthesis \& Summary Table}
 
-Table~\ref{tab:calculus_operators} synthesizes the principal differential operators employed throughout machine learning.
+Table~\ref{tab:calculus_operators} synthesizes the principal differential operators employed throughout machine learning foundations.
 
 \begin{table}[htbp]
 \centering
 \small
-\begin{tabularx}{\textwidth}{lXXXX}
+\begin{tabularx}{\textwidth}{lp{2.8cm}p{3.2cm}p{3.2cm}p{3.6cm}}
 \toprule
 \textbf{Operator} & \textbf{Input / Output} & \textbf{Mathematical Definition} & \textbf{Geometric Meaning} & \textbf{Primary Use in ML} \\
 \midrule
-Derivative & $f: \mathbb{R} \to \mathbb{R}$ & $f'(x) = \lim_{h\to 0}\frac{f(x+h)-f(x)}{h}$ & Slope of tangent line & Univariate step-size tuning \\
+\textbf{Derivative} & $f: \mathbb{R} \to \mathbb{R}$ & $f'(x) = \lim_{h\to 0}\frac{f(x+h)-f(x)}{h}$ & Tangent slope of 1D curve & Univariate line search; learning rate schedules. \\
 \addlinespace
-Gradient & $f: \mathbb{R}^d \to \mathbb{R}$ & $\nabla f(\mathbf{x}) \in \mathbb{R}^d, [\nabla f]_i = \frac{\partial f}{\partial x_i}$ & Normal to level surface; steepest ascent & First-order optimization (SGD, Adam) \\
+\textbf{Directional Deriv.} & $f: \mathbb{R}^d \to \mathbb{R}, \mathbf{u} \in \mathbb{R}^d$ & $D_{\mathbf{u}} f(\mathbf{x}) = \nabla f(\mathbf{x})^T \mathbf{u}$ & Slope along an arbitrary 3D/nD line of travel & Testing descent directions; line search along momentum. \\
 \addlinespace
-Jacobian & $\mathbf{f}: \mathbb{R}^n \to \mathbb{R}^m$ & $J \in \mathbb{R}^{m \times n}, J_{ij} = \frac{\partial f_i}{\partial x_j}$ & Best local linear approximation map & Backpropagation, neural layer composition \\
+\textbf{Gradient Vector} & $f: \mathbb{R}^d \to \mathbb{R} \implies \mathbb{R}^d$ & $[\nabla f]_i = \frac{\partial f}{\partial x_i}$ & Orthogonal to contours; steepest ascent direction & First-order optimizers (SGD, Adam, RMSprop). \\
 \addlinespace
-Hessian & $f: \mathbb{R}^d \to \mathbb{R}$ & $H \in \mathbb{R}^{d \times d}, H_{ij} = \frac{\partial^2 f}{\partial x_i \partial x_j}$ & Second-order local curvature matrix & Newton's method, saddle detection, Laplace approx. \\
+\textbf{Jacobian Matrix} & $\mathbf{f}: \mathbb{R}^n \to \mathbb{R}^m \implies \mathbb{R}^{m \times n}$ & $J_{ij} = \frac{\partial f_i}{\partial x_j}$ & Best local linear mapping $d\mathbf{y} = J d\mathbf{x}$ & Layer-to-layer chain rule; Backpropagation in deep networks. \\
+\addlinespace
+\textbf{Hessian Matrix} & $f: \mathbb{R}^d \to \mathbb{R} \implies \mathbb{R}^{d \times d}$ & $H_{ij} = \frac{\partial^2 f}{\partial x_i \partial x_j}$ & Local curvature tensor; ellipsoid axes of bowl & Second-order optimizers (Newton-Raphson, BFGS, Laplace approximation). \\
 \bottomrule
 \end{tabularx}
-\caption{Comparative Synthesis of Differential Operators in Machine Learning.}
+\caption{Comparative Synthesis of Foundational Differential Operators in Machine Learning.}
 \label{tab:calculus_operators}
 \end{table}
 
@@ -289,24 +669,28 @@ Hessian & $f: \mathbb{R}^d \to \mathbb{R}$ & $H \in \mathbb{R}^{d \times d}, H_{
 % ----------------------------------------------------------------------
 \section{Python / Scientific Computing Lab}
 
-The following production script implements numerical verification of analytical gradients and evaluates the spectral properties of the Hessian to classify critical points.
+The following production script implements two core numerical verification procedures:
+\begin{enumerate}
+    \item \textbf{Numerical Gradient Checking:} Compares the analytical gradient $\frac{1}{N}X^T(X\mathbf{w} - \mathbf{y})$ against central finite differences to guarantee implementation accuracy.
+    \item \textbf{Hessian Curvature Evaluation:} Analyzes the eigenvalues of the Hessian to classify critical points and detect saddle point geometries.
+\end{enumerate}
 
 \begin{lstlisting}[language=Python, caption={Numerical Gradient Checking and Hessian Curvature Analysis in Python.}]
 import numpy as np
 
 def loss_func(w: np.ndarray, X: np.ndarray, y: np.ndarray) -> float:
-    """Computes mean squared error loss: f(w) = (1 / (2*N)) * ||Xw - y||^2."""
+    # Computes Mean Squared Error loss: f(w) = (1 / (2*N)) * ||Xw - y||^2
     N = X.shape[0]
     residuals = X @ w - y
     return float((1.0 / (2.0 * N)) * np.sum(residuals ** 2))
 
 def analytical_gradient(w: np.ndarray, X: np.ndarray, y: np.ndarray) -> np.ndarray:
-    """Computes analytical gradient: grad = (1 / N) * X^T (Xw - y)."""
+    # Computes exact analytical gradient: grad = (1 / N) * X^T (Xw - y)
     N = X.shape[0]
     return (1.0 / N) * (X.T @ (X @ w - y))
 
-def numerical_gradient(func, w: np.ndarray, eps: float = 1e-6, *args) -> np.ndarray:
-    """Computes central finite difference numerical gradient."""
+def numerical_gradient_central(func, w: np.ndarray, eps: float = 1e-6, *args) -> np.ndarray:
+    # Computes central difference numerical gradient: O(eps^2) truncation error
     grad = np.zeros_like(w)
     for i in range(len(w)):
         w_plus = w.copy()
@@ -317,7 +701,7 @@ def numerical_gradient(func, w: np.ndarray, eps: float = 1e-6, *args) -> np.ndar
     return grad
 
 def classify_critical_point(H: np.ndarray) -> str:
-    """Classifies a stationary point using the eigenvalues of its Hessian."""
+    # Classifies a stationary point using the eigenvalues of its Hessian
     eigvals = np.linalg.eigvalsh(H)
     tol = 1e-7
     if np.all(eigvals > tol):
@@ -327,9 +711,12 @@ def classify_critical_point(H: np.ndarray) -> str:
     elif np.any(eigvals > tol) and np.any(eigvals < -tol):
         return f"Saddle Point (Indefinite, eig range: [{eigvals.min():.4f}, {eigvals.max():.4f}])"
     else:
-        return f"Degenerate / Inconclusive (Near-zero eigenvalues detected)"
+        return f"Degenerate / Inconclusive (Zero eigenvalue detected)"
 
-def main():
+def run_gradient_check_lab():
+    print("=" * 70)
+    print("EXPERIMENT 1: ANALYTICAL VS NUMERICAL GRADIENT VERIFICATION")
+    print("=" * 70)
     rng = np.random.RandomState(42)
     N, d = 100, 5
     X = rng.randn(N, d)
@@ -338,18 +725,18 @@ def main():
 
     w_test = rng.randn(d)
     grad_analytic = analytical_gradient(w_test, X, y)
-    grad_numeric = numerical_gradient(loss_func, w_test, 1e-6, X, y)
+    grad_numeric = numerical_gradient_central(loss_func, w_test, 1e-6, X, y)
 
     rel_error = np.linalg.norm(grad_analytic - grad_numeric) / (np.linalg.norm(grad_analytic) + 1e-12)
-    print(f"Gradient Check Relative Error: {rel_error:.2e} (Pass if < 1e-5)")
+    print(f"Analytical Gradient: {grad_analytic.round(4)}")
+    print(f"Numerical Gradient:  {grad_numeric.round(4)}")
+    print(f"Relative Error:      {rel_error:.2e} (Pass threshold: < 1e-5)")
 
-    # Compute exact Hessian of MSE: H = (1/N) * X^T X
     H = (1.0 / N) * (X.T @ X)
-    status = classify_critical_point(H)
-    print(f"Hessian Curvature Evaluation: {status}")
+    print(f"\nHessian Eigenvalue Classification: {classify_critical_point(H)}")
 
 if __name__ == "__main__":
-    main()
+    run_gradient_check_lab()
 \end{lstlisting}
 
 % ----------------------------------------------------------------------
@@ -393,7 +780,7 @@ if __name__ == "__main__":
     \item \textbf{Saddle Point vs. Local Extrema Classification:}
     Consider the non-convex scalar function $f(x, y) = x^3 - 3x - y^2 + 4y$.
     \begin{enumerate}[label=(\alph*)]
-        \item Find all four critical points of $f(x, y)$ in $\mathbb{R}^2$.
+        \item Find all critical points of $f(x, y)$ in $\mathbb{R}^2$ where $\nabla f(x, y) = \mathbf{0}$.
         \item Compute the Hessian matrix $H(x, y)$.
         \item Classify each critical point as a local minimum, local maximum, or saddle point via eigenvalue evaluation.
     \end{enumerate}
@@ -418,4 +805,3 @@ if __name__ == "__main__":
         \item Gradient descent with a small enough learning rate will always converge to $\mathbf{x}^*$.
     \end{enumerate}
 \end{enumerate}
-

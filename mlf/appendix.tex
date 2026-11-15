@@ -183,8 +183,8 @@ $f(x, y) = x^3 - 3x - y^2 + 4y$.
     \item $\nabla f(x, y) = [3x^2 - 3, -2y + 4]^T = [0, 0]^T \implies 3(x^2 - 1) = 0 \implies x = \pm 1$, and $-2y + 4 = 0 \implies y = 2$.
     The two critical points are $P_1 = (1, 2)$ and $P_2 = (-1, 2)$.
     \item Hessian matrix: $H(x, y) = \begin{bmatrix} 6x & 0 \\ 0 & -2 \end{bmatrix}$.
-    \item At $P_1 = (1, 2)$: $H(1, 2) = \begin{bmatrix} 6 & 0 \\ 0 & -2 \end{bmatrix}$. Eigenvalues are $\lambda_1 = 6 > 0$ and $\lambda_2 = -2 < 0$. Since eigenvalues have opposite signs, $P_1$ is a **Saddle Point**.
-    At $P_2 = (-1, 2)$: $H(-1, 2) = \begin{bmatrix} -6 & 0 \\ 0 & -2 \end{bmatrix}$. Eigenvalues are $\lambda_1 = -6 < 0$ and $\lambda_2 = -2 < 0$. Since both eigenvalues are strictly negative, $H$ is negative definite, meaning $P_2$ is a strict **Local Maximum**.
+    \item At $P_1 = (1, 2)$: $H(1, 2) = \begin{bmatrix} 6 & 0 \\ 0 & -2 \end{bmatrix}$. Eigenvalues are $\lambda_1 = 6 > 0$ and $\lambda_2 = -2 < 0$. Since eigenvalues have opposite signs, $P_1$ is a \textbf{Saddle Point}.
+    At $P_2 = (-1, 2)$: $H(-1, 2) = \begin{bmatrix} -6 & 0 \\ 0 & -2 \end{bmatrix}$. Eigenvalues are $\lambda_1 = -6 < 0$ and $\lambda_2 = -2 < 0$. Since both eigenvalues are strictly negative, $H$ is negative definite, meaning $P_2$ is a strict \textbf{Local Maximum}.
 \end{enumerate}
 
 \subsection*{Part B: Diagnostic Multiple-Choice Rationales}
@@ -318,7 +318,7 @@ $B = \begin{bmatrix} 2 & 1 & 0 \\ 0 & 2 & 0 \\ 0 & 0 & 5 \end{bmatrix}$.
     $E_2 = \Null(B - 2I) = \Span\left\{ [1, 0, 0]^T \right\}$.
     For $\lambda = 5$: $B - 5I = \begin{bmatrix} -3 & 1 & 0 \\ 0 & -3 & 0 \\ 0 & 0 & 0 \end{bmatrix} \implies E_5 = \Span\left\{ [0, 0, 1]^T \right\}$.
     \item Geometric multiplicities: $gm(2) = \dim(E_2) = 1$; $gm(5) = \dim(E_5) = 1$.
-    \item Because $gm(2) = 1 < am(2) = 2$, matrix $B$ does not have a complete basis of 3 eigenvectors. Therefore, $B$ is **defective (not diagonalizable)**.
+    \item Because $gm(2) = 1 < am(2) = 2$, matrix $B$ does not have a complete basis of 3 eigenvectors. Therefore, $B$ is \textbf{defective (not diagonalizable)}.
 \end{enumerate}
 
 \paragraph{P3. Spectral Theorem for Symmetric Matrices:}
@@ -489,7 +489,7 @@ $M = \begin{bmatrix} 2 & -1 & 0 \\ -1 & 2 & -1 \\ 0 & -1 & 2 \end{bmatrix}$.
     \item $\Delta_1 = \det[2] = 2 > 0$.
     $\Delta_2 = \det\begin{bmatrix} 2 & -1 \\ -1 & 2 \end{bmatrix} = 4 - 1 = 3 > 0$.
     $\Delta_3 = \det(M) = 2(4 - 1) - (-1)(-2 - 0) + 0 = 6 - 2 = 4 > 0$.
-    \item Since all three leading principal minors are strictly positive ($\Delta_1=2, \Delta_2=3, \Delta_3=4 > 0$), Sylvester's Criterion proves $M$ is **strictly positive definite**.
+    \item Since all three leading principal minors are strictly positive ($\Delta_1=2, \Delta_2=3, \Delta_3=4 > 0$), Sylvester's Criterion proves $M$ is \textbf{strictly positive definite}.
     \item Cholesky factor $L = \begin{bmatrix} l_{11} & 0 & 0 \\ l_{21} & l_{22} & 0 \\ l_{31} & l_{32} & l_{33} \end{bmatrix}$ such that $L L^T = M$:
     $l_{11}^2 = 2 \implies l_{11} = \sqrt{2}$.
     $l_{21} l_{11} = -1 \implies l_{21} = -\frac{1}{\sqrt{2}}$.
@@ -581,7 +581,7 @@ $S = \begin{bmatrix} 10 & 0 \\ 0 & 1 \end{bmatrix}$.
     The new covariance matrix is $S' = \begin{bmatrix} 1 & 0 \\ 0 & 10 \end{bmatrix} \begin{bmatrix} 10 & 0 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & 10 \end{bmatrix} = \begin{bmatrix} 10 & 0 \\ 0 & 100 \end{bmatrix}$.
     \item For $S$: $\lambda_1 = 10, \lambda_2 = 1 \implies \mathbf{w}_1 = [1, 0]^T$ (aligned entirely with feature 1).
     For $S'$: $\lambda_1' = 100, \lambda_2' = 10 \implies \mathbf{w}_1' = [0, 1]^T$ (aligned entirely with feature 2).
-    \item Scaling a single feature rotated the first principal component by 90 degrees. This demonstrates that PCA is **not scale invariant**: features with large numerical variance dominate the principal components regardless of informational importance, mandating standardizing features to unit variance before PCA.
+    \item Scaling a single feature rotated the first principal component by 90 degrees. This demonstrates that PCA is \textbf{not scale invariant}: features with large numerical variance dominate the principal components regardless of informational importance, mandating standardizing features to unit variance before PCA.
 \end{enumerate}
 
 \paragraph{P3. Orthogonality of Principal Component Scores:}
@@ -594,7 +594,7 @@ Substitute $S W = W \Lambda_k$:
 \begin{equation*}
 S_Z = W^T (W \Lambda_k) = (W^T W) \Lambda_k = I_k \Lambda_k = \diag(\lambda_1, \lambda_2, \dots, \lambda_k)
 \end{equation*}
-Because $S_Z$ is strictly diagonal, the sample covariance between distinct scores $z_i$ and $z_j$ ($i \ne j$) is zero: $\Cov(z_i, z_j) = 0$. Principal component scores are mutually **uncorrelated**.
+Because $S_Z$ is strictly diagonal, the sample covariance between distinct scores $z_i$ and $z_j$ ($i \ne j$) is zero: $\Cov(z_i, z_j) = 0$. Principal component scores are mutually \textbf{uncorrelated}.
 
 \paragraph{P4. Reconstruction Error Bounds:}
 Let $W_k = [\mathbf{w}_1, \dots, \mathbf{w}_k]$ and complete orthonormal basis $W_d = [W_k, W_\perp]$.
@@ -903,7 +903,7 @@ Since $\mu_i \ge 0$, $\lambda_i \le C$. Combined with dual feasibility $\lambda_
 Geometric classifications:
 \begin{itemize}
     \item $\lambda_i = 0 \implies \mu_i = C > 0 \implies \xi_i = 0$. Sample is strictly correct and outside margin ($y_i(\mathbf{w}^T \mathbf{x}_i + b) > 1$).
-    \item $0 < \lambda_i < C \implies \mu_i > 0 \implies \xi_i = 0$. Sample lies **strictly on margin boundary** ($y_i(\mathbf{w}^T \mathbf{x}_i + b) = 1$).
+    \item $0 < \lambda_i < C \implies \mu_i > 0 \implies \xi_i = 0$. Sample lies \textbf{strictly on margin boundary} ($y_i(\mathbf{w}^T \mathbf{x}_i + b) = 1$).
     \item $\lambda_i = C \implies \mu_i = 0 \implies \xi_i \ge 0$. Sample violates margin (in margin or misclassified).
 \end{itemize}
 
@@ -1142,7 +1142,7 @@ $X \sim \text{Binomial}(100, 0.5)$.
 \begin{itemize}
     \item \textbf{(a) Incorrect.} Markov's inequality gives a loose reciprocal bound ($\mathcal{O}(1/\epsilon)$) using only the mean.
     \item \textbf{(b) Incorrect.} Chebyshev's inequality gives a polynomial bound ($\mathcal{O}(1/(N\epsilon^2))$) using the variance.
-    \item \textbf{(c) Correct.} Hoeffding's inequality provides an **exponentially decaying bound** in sample size $N$: $P(|\bar{X} - \mu| \ge \epsilon) \le 2\exp(-2N\epsilon^2)$, foundational to statistical learning theory.
+    \item \textbf{(c) Correct.} Hoeffding's inequality provides an \textbf{exponentially decaying bound} in sample size $N$: $P(|\bar{X} - \mu| \ge \epsilon) \le 2\exp(-2N\epsilon^2)$, foundational to statistical learning theory.
     \item \textbf{(d) Incorrect.} The Cauchy-Schwarz inequality is an algebraic vector inner product bound, not a probability concentration inequality.
 \end{itemize}
 
