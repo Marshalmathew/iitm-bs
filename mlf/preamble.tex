@@ -36,3 +36,22 @@
 \newtheorem{corollary}[theorem]{Corollary}
 \newtheorem{proposition}[theorem]{Proposition}
 
+% Breakable Example Box for in-depth worked pedagogical examples
+\renewtcolorbox{examplebox}[1]{
+    colback=purplebg,
+    colframe=purpleborder,
+    coltitle=white,
+    fonttitle=\bfseries\sffamily,
+    title={Example: #1},
+    enhanced,
+    breakable,
+    attach boxed title to top left={yshift=-2mm, xshift=4mm},
+    boxed title style={colback=purpleex, colframe=purpleborder, arc=1mm},
+    arc=2mm,
+    boxrule=0.8mm,
+    top=4mm,
+    bottom=3mm,
+    left=3mm,
+    right=3mm
+}
+
