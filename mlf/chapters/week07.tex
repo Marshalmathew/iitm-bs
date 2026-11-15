@@ -8,6 +8,10 @@
 
 Modern data science routinely handles observations embedded in very high-dimensional feature spaces ($d \sim 10^3$ to $10^6$), such as genomic profiles, facial images, and word embedding vectors. In these regimes, models suffer from the curse of dimensionality, computational bottlenecks, and multicollinearity. \textbf{Principal Component Analysis (PCA)} is the foundational unsupervised statistical technique designed to discover low-dimensional linear manifolds embedded within high-dimensional data.
 
+PCA achieves this by projecting data onto an orthogonal set of axes that capture the maximum possible empirical variance, which is mathematically identical to finding the linear subspace that minimizes the squared Euclidean reconstruction error. By rotating the coordinate system to align with the data's principal axes of dispersion, PCA decorrelates the features and compresses the information into a minimal number of dominant coordinates.
+
+This chapter unifies the statistical view of covariance matrices with the geometric view of orthogonal projections and Singular Value Decomposition, providing students with both mathematical rigor and algorithmic intuition for large-scale data science pipelines.
+
 \subsection{Prerequisites \& Scaffolding}
 Mastery of this chapter synthesizes multivariate statistics, the Spectral Theorem, and Singular Value Decomposition as mapped in Table~\ref{tab:w07_prereqs}.
 
@@ -30,11 +34,11 @@ Matrix Factorizations & SVD $X = U \Sigma V^T$, Eckart-Young-Mirsky Theorem & De
 \subsection{Core Competencies}
 By the conclusion of this chapter, students will be able to:
 \begin{itemize}
-    \item Formulate PCA under two dual perspectives: Maximum Variance and Minimum Reconstruction Error.
-    \item Rigorously prove using Lagrange multipliers that the principal components are the eigenvectors of the sample covariance matrix.
+    \item Formulate PCA under two dual perspectives: Maximum Variance and Minimum Reconstruction Error, and prove their mathematical equivalence.
+    \item Rigorously derive using Lagrange multipliers why principal component loading vectors are the eigenvectors of the sample covariance matrix.
     \item Establish the exact mathematical connection between SVD on centered data and eigendecomposition of the covariance matrix.
-    \item Implement the dual ($N \times N$) Gram matrix shortcut for high-dimensional settings ($d \gg N$).
-    \item Select the optimal subspace dimension $k$ via scree plots and cumulative variance thresholds.
+    \item Implement the dual ($N \times N$) Gram matrix shortcut to compute exact PCA in high-dimensional settings where $d \gg N$.
+    \item Diagnose scale sensitivity, select the optimal subspace dimension $k$ via scree plots and cumulative variance thresholds, and avoid data leakage in validation pipelines.
 \end{itemize}
 
 \subsection{Notation \& Mathematical Conventions}
@@ -43,20 +47,50 @@ By the conclusion of this chapter, students will be able to:
     \item $\boldsymbol{\mu} \triangleq \frac{1}{N} \sum_{i=1}^N \mathbf{x}_i \in \mathbb{R}^d$: The empirical sample mean vector.
     \item $\tilde{X} \triangleq X - \mathbf{1}_N \boldsymbol{\mu}^T \in \mathbb{R}^{N \times d}$: The mean-centered data matrix.
     \item $S \triangleq \frac{1}{N} \tilde{X}^T \tilde{X} \in \mathbb{R}^{d \times d}$: The empirical sample covariance matrix ($S \succeq 0$).
-    \item $\mathbf{w}_1, \dots, \mathbf{w}_k \in \mathbb{R}^d$: Orthonormal principal component loading vectors.
+    \item $\mathbf{w}_1, \dots, \mathbf{w}_k \in \mathbb{R}^d$: Orthonormal principal component loading vectors (eigenvectors of $S$).
     \item $\mathbf{z}_i \triangleq W_k^T \tilde{\mathbf{x}}_i \in \mathbb{R}^k$: The low-dimensional representation (scores) of sample $\mathbf{x}_i$.
     \item $W_k = [\mathbf{w}_1, \dots, \mathbf{w}_k] \in \mathbb{R}^{d \times k}$: The orthogonal projection matrix.
+    \item $\hat{\mathbf{x}}_i \triangleq \boldsymbol{\mu} + W_k \mathbf{z}_i$: The reconstructed approximation of sample $\mathbf{x}_i$ in the original $d$-dimensional space.
 \end{itemize}
 
 % ----------------------------------------------------------------------
-% PART 2: MATHEMATICAL & COMPUTATIONAL FOUNDATIONS
+% PART 2: THE GRAND PARADOX & INTUITIVE MOTIVATION
 % ----------------------------------------------------------------------
-\section{Mathematical \& Computational Foundations}
+\section{The Grand Paradox: The Shadow That Tells the Whole Story}
+
+\subsection{The Information Compression Paradox}
+Imagine holding a 3D sculpture in front of a flat screen. If you illuminate it with a light bulb, the sculpture casts a 2D shadow. Almost every angle of illumination throws an incomprehensible, overlapping silhouette. But if you slowly rotate the sculpture until you find its widest spread, suddenly the entire structure is revealed: every curve, feature, and landmark becomes instantly identifiable from the flat 2D shadow alone!
+
+\begin{quote}
+\textit{\textbf{The Paradox:}} In projecting from $d$ dimensions down to $k \ll d$ dimensions, we throw away $(d - k)$ dimensions of information. How can a model discard $99\%$ of its dimensions while preserving almost $100\%$ of its meaningful structure?
+\end{quote}
+
+The answer lies in the geometry of \textbf{covariance}: real-world data does not fill high-dimensional space uniformly. Due to physical laws, anatomical constraints, or financial correlations, high-dimensional data points cluster tightly around a low-dimensional linear subspace (or manifold).
+
+Furthermore, PCA reveals a profound conservation law:
+\begin{equation}
+\text{Total Variance} = \text{Captured Variance} + \text{Lost Reconstruction Error}
+\end{equation}
+Because the total variance of the dataset is fixed by the data, \textbf{maximizing the spread of the shadow} is mathematically identical to \textbf{minimizing the perpendicular drop distance} from the data points to the shadow!
+
+\begin{ponderbox}[The Shadow Geometry]
+Suppose you have a cloud of points in 3D that looks like a long, thin, tilted pancake.
+\begin{enumerate}
+    \item If you project the points onto a 1D line, what direction should the line point to maximize the spread of the projected points?
+    \item What direction should the line point to minimize the squared distance from each point to the line?
+    \item Why does the Pythagorean theorem guarantee that these two optimal directions are exactly the same line?
+\end{enumerate}
+\end{ponderbox}
+
+% ----------------------------------------------------------------------
+% PART 3: MATHEMATICAL FORMULATIONS OF PCA
+% ----------------------------------------------------------------------
+\section{Mathematical Formulations of PCA}
 
 \subsection{Formulation 1: Maximizing Projected Variance}
-Let $\tilde{\mathbf{x}} \in \mathbb{R}^d$ be a zero-mean random vector with covariance $S = \E[\tilde{\mathbf{x}} \tilde{\mathbf{x}}^T]$. We seek a unit direction $\mathbf{w} \in \mathbb{R}^d$ ($\|\mathbf{w}\|_2 = 1$) such that projecting data onto $\mathbf{w}$ maximizes empirical variance:
+Let $\tilde{\mathbf{x}} \in \mathbb{R}^d$ be a zero-mean random vector with covariance matrix $S = \E[\tilde{\mathbf{x}} \tilde{\mathbf{x}}^T] = \frac{1}{N}\tilde{X}^T \tilde{X}$. We seek a unit direction $\mathbf{w} \in \mathbb{R}^d$ ($\|\mathbf{w}\|_2 = 1$) such that projecting data onto $\mathbf{w}$ maximizes empirical variance:
 \begin{equation}
-\Var(\mathbf{w}^T \tilde{\mathbf{x}}) = \E[(\mathbf{w}^T \tilde{\mathbf{x}})^2] = \E[\mathbf{w}^T \tilde{\mathbf{x}} \tilde{\mathbf{x}}^T \mathbf{w}] = \mathbf{w}^T \E[\tilde{\mathbf{x}} \tilde{\mathbf{x}}^T] \mathbf{w} = \mathbf{w}^T S \mathbf{w}
+\Var(\mathbf{w}^T \tilde{\mathbf{x}}) = \frac{1}{N} \sum_{i=1}^N (\mathbf{w}^T \tilde{\mathbf{x}}_i)^2 = \mathbf{w}^T \left( \frac{1}{N}\sum_{i=1}^N \tilde{\mathbf{x}}_i \tilde{\mathbf{x}}_i^T \right) \mathbf{w} = \mathbf{w}^T S \mathbf{w}
 \end{equation}
 
 \begin{theorem}[First Principal Component Optimization]
@@ -83,11 +117,12 @@ Thus, any stationary point must be an eigenvector of $S$ with eigenvalue $\lambd
 \mathbf{w}^T S \mathbf{w} = \lambda \mathbf{w}^T \mathbf{w} = \lambda (1) = \lambda
 \end{equation}
 To maximize the objective $\mathbf{w}^T S \mathbf{w}$, we must choose the eigenvector associated with the largest eigenvalue $\lambda_1 = \lambda_{\max}(S)$.
-Subsequent orthogonal components $\mathbf{w}_k$ maximize $\mathbf{w}^T S \mathbf{w}$ subject to $\mathbf{w}^T \mathbf{w} = 1$ and $\mathbf{w}^T \mathbf{w}_j = 0$ ($\forall j < k$), which recursively yields the remaining eigenvectors of $S$ sorted in descending order of eigenvalue.
+
+Subsequent orthogonal components $\mathbf{w}_k$ maximize $\mathbf{w}^T S \mathbf{w}$ subject to $\mathbf{w}^T \mathbf{w} = 1$ and orthogonality to previous components $\mathbf{w}^T \mathbf{w}_j = 0$ ($\forall j < k$). By induction, this yields the remaining eigenvectors of $S$ sorted in descending order of eigenvalue: $\lambda_1 \ge \lambda_2 \ge \dots \ge \lambda_d \ge 0$.
 \end{proof}
 
 \subsection{Formulation 2: Minimizing Reconstruction Error}
-Equivalently, PCA seeks a $k$-dimensional orthogonal subspace spanned by orthonormal columns $W = [\mathbf{w}_1, \dots, \mathbf{w}_k] \in \mathbb{R}^{d \times k}$ that minimizes the average squared Euclidean reconstruction error:
+Equivalently, PCA seeks a $k$-dimensional orthogonal subspace spanned by orthonormal columns $W = [\mathbf{w}_1, \dots, \mathbf{w}_k] \in \mathbb{R}^{d \times k}$ ($W^T W = I_k$) that minimizes the average squared Euclidean reconstruction error:
 \begin{equation}
 \min_{W \in \mathbb{R}^{d \times k}, W^T W = I_k} \frac{1}{N} \sum_{i=1}^N \|\tilde{\mathbf{x}}_i - W W^T \tilde{\mathbf{x}}_i\|_2^2
 \label{eq:pca_recon_opt}
@@ -98,7 +133,7 @@ Maximizing the projected variance onto a $k$-dimensional subspace is mathematica
 \end{theorem}
 
 \begin{proof}
-Let $P = W W^T \in \mathbb{R}^{d \times d}$ be the orthogonal projector onto $\Span(W)$. The orthogonal complement projector is $I - P$. By the Pythagorean theorem:
+Let $P = W W^T \in \mathbb{R}^{d \times d}$ be the orthogonal projector onto $\Col(W)$. The orthogonal complement projector is $I - P$. By the Pythagorean theorem:
 \begin{equation}
 \|\tilde{\mathbf{x}}_i\|_2^2 = \|P\tilde{\mathbf{x}}_i\|_2^2 + \|(I - P)\tilde{\mathbf{x}}_i\|_2^2
 \end{equation}
@@ -108,17 +143,10 @@ Summing over all $N$ samples and dividing by $N$:
 \end{equation}
 The left-hand side is the total sample variance $\trace(S)$, which is a fixed constant independent of $W$:
 \begin{equation}
-\text{Total Variance} = \text{Captured Variance}(W) + \text{Reconstruction Error}(W)
+\trace(S) = \text{Captured Projected Variance}(W) + \text{Reconstruction Error}(W)
 \end{equation}
-Because the sum is constant, minimizing the reconstruction error is mathematically identical to maximizing the captured projected variance.
+Because their sum is constant, minimizing the reconstruction error is mathematically equivalent to maximizing the captured projected variance.
 \end{proof}
-
-% ----------------------------------------------------------------------
-% PART 3: VISUAL & GEOMETRIC INTUITION
-% ----------------------------------------------------------------------
-\section{Visual \& Geometric Intuition: The Geometry of Variance and Projections}
-
-Figure~\ref{fig:pca_geometry} illustrates the geometric intuition of PCA on a two-dimensional correlated dataset. The first principal component $\mathbf{w}_1$ aligns with the major axis of data dispersion, while the second component $\mathbf{w}_2$ captures the orthogonal residual variation.
 
 \begin{figure}[htbp]
 \centering
@@ -140,7 +168,7 @@ Figure~\ref{fig:pca_geometry} illustrates the geometric intuition of PCA on a tw
 }
 
 % Origin / Mean
-\filldraw[color=red] (0, 0) circle (3pt) node[below left] {$\boldsymbol{\mu} = \mathbf{0}$};
+\filldraw[color=traprad] (0, 0) circle (3pt) node[below left] {$\boldsymbol{\mu} = \mathbf{0}$};
 
 % First Principal Component (PC1)
 \draw[->, >=stealth, line width=2pt, color=tealborder] (0, 0) -- (3.28, 2.29) node[above right] {\textbf{PC1 } $\mathbf{w}_1$ ($\lambda_1 = \sigma_{\max}^2$)};
@@ -153,9 +181,9 @@ Figure~\ref{fig:pca_geometry} illustrates the geometric intuition of PCA on a tw
 % Sample projection annotation
 \coordinate (X) at (1.2, 0.6);
 \coordinate (Proj) at (1.45, 1.01);
-\draw[dotted, line width=1.2pt, color=red] (X) -- (Proj);
+\draw[dotted, line width=1.2pt, color=traprad] (X) -- (Proj);
 \filldraw[color=tealborder] (Proj) circle (2.5pt);
-\node[right, color=red] at (1.3, 0.8) {Reconstruction Residual};
+\node[right, color=traprad] at (1.3, 0.8) {Reconstruction Residual};
 
 \end{tikzpicture}
 \caption{The Geometry of PCA: Orthogonal principal components $\mathbf{w}_1$ and $\mathbf{w}_2$ capture the directions of maximum variance and minimum orthogonal reconstruction residual.}
@@ -163,12 +191,14 @@ Figure~\ref{fig:pca_geometry} illustrates the geometric intuition of PCA on a tw
 \end{figure}
 
 % ----------------------------------------------------------------------
-% PART 4: DEEP INTUITION & CONCEPTUAL DERIVATIONS
+% PART 4: PCA COMPUTATION VIA SVD & DUAL SHORTCUT
 % ----------------------------------------------------------------------
-\section{Deep Intuition \& Conceptual Derivations}
+\section{Algorithmic Computation: SVD \& The Dual Shortcut}
 
-\subsection{Computing PCA via SVD Without Forming the Covariance Matrix}
-Forming the sample covariance matrix $S = \frac{1}{N}\tilde{X}^T \tilde{X}$ directly requires $\mathcal{O}(N d^2)$ operations and squares the condition number. In modern scientific computing, PCA is computed directly via the thin SVD of the scaled, centered data matrix:
+\subsection{Computing PCA via Direct SVD}
+In production scientific computing, forming the covariance matrix $S = \frac{1}{N}\tilde{X}^T \tilde{X}$ explicitly is avoided because matrix multiplication squares the condition number: $\kappa(S) = \kappa(\tilde{X})^2$.
+
+Instead, PCA is computed directly via the thin SVD of the scaled, centered data matrix:
 \begin{equation}
 \frac{1}{\sqrt{N}}\tilde{X} = U \Sigma V^T
 \label{eq:pca_svd_direct}
@@ -179,7 +209,7 @@ S = \left(\frac{1}{\sqrt{N}}\tilde{X}\right)^T \left(\frac{1}{\sqrt{N}}\tilde{X}
 \end{equation}
 Because $V$ is orthogonal and $\Sigma^2$ is diagonal, this is precisely the spectral eigendecomposition of $S$:
 \begin{itemize}
-    \item The right singular vectors $V = [\mathbf{v}_1, \dots, \mathbf{v}_d]$ are the **principal component directions** $\mathbf{w}_i$.
+    \item The right singular vectors $V = [\mathbf{v}_1, \dots, \mathbf{v}_d]$ are the \textbf{principal component directions} $\mathbf{w}_i$.
     \item The eigenvalues of $S$ are related to the singular values by: $\lambda_i = \sigma_i^2$.
     \item The projected low-dimensional scores are obtained directly by:
     \begin{equation}
@@ -188,14 +218,19 @@ Because $V$ is orthogonal and $\Sigma^2$ is diagonal, this is precisely the spec
 \end{itemize}
 
 \subsection{The Dual Gram Matrix Shortcut When \texorpdfstring{$d \gg N$}{d >> N}}
-In genetics and high-resolution imaging, the number of features often dwarfs the number of samples ($d \gg N$, e.g., $N = 100, d = 50{,}000$). Forming $S \in \mathbb{R}^{d \times d}$ requires storing $2.5 \times 10^9$ entries ($10$ GB RAM) and $\mathcal{O}(d^3)$ compute time.
+In genomics, microarrays, and deep feature embeddings, the number of features often vastly exceeds the number of observations ($d \gg N$, e.g., $N = 100, d = 50{,}000$). Forming $S \in \mathbb{R}^{d \times d}$ requires storing $2.5 \times 10^9$ floats ($10$ GB RAM) and $\mathcal{O}(d^3)$ compute time.
 
 \begin{theorem}[Dual PCA Formulation]
 Let $\tilde{X} \in \mathbb{R}^{N \times d}$ with $d \gg N$. The non-zero eigenvalues of the $d \times d$ covariance matrix $S = \frac{1}{N}\tilde{X}^T \tilde{X}$ are identical to the non-zero eigenvalues of the $N \times N$ Gram matrix:
 \begin{equation}
 K \triangleq \frac{1}{N}\tilde{X}\tilde{X}^T \in \mathbb{R}^{N \times N}
 \end{equation}
-If $(\lambda, \mathbf{u})$ is an eigenpair of $K$ ($K\mathbf{u} = \lambda \mathbf{u}$), then $\mathbf{v} = \frac{1}{\sqrt{N\lambda}} \tilde{X}^T \mathbf{u}$ is a normalized eigenvector of $S$.
+If $(\lambda, \mathbf{u})$ is an eigenpair of $K$ ($K\mathbf{u} = \lambda \mathbf{u}$ with $\lambda > 0$ and $\|\mathbf{u}\|_2 = 1$), then:
+\begin{equation}
+\mathbf{v} = \frac{1}{\sqrt{N\lambda}} \tilde{X}^T \mathbf{u}
+\label{eq:dual_v_recon}
+\end{equation}
+is a normalized unit eigenvector of the full $d \times d$ covariance matrix $S$.
 \end{theorem}
 
 \begin{proof}
@@ -203,7 +238,7 @@ Let $K\mathbf{u} = \lambda \mathbf{u}$ with $\lambda > 0$. Expanding $K$:
 \begin{equation}
 \left( \frac{1}{N}\tilde{X}\tilde{X}^T \right) \mathbf{u} = \lambda \mathbf{u}
 \end{equation}
-Multiply both sides from the left by $\tilde{X}^T$:
+Pre-multiplying both sides by $\tilde{X}^T$:
 \begin{equation}
 \tilde{X}^T \left( \frac{1}{N}\tilde{X}\tilde{X}^T \mathbf{u} \right) = \lambda (\tilde{X}^T \mathbf{u}) \implies \left( \frac{1}{N}\tilde{X}^T \tilde{X} \right) (\tilde{X}^T \mathbf{u}) = \lambda (\tilde{X}^T \mathbf{u})
 \end{equation}
@@ -211,17 +246,89 @@ Recognizing $S = \frac{1}{N}\tilde{X}^T \tilde{X}$, this reads:
 \begin{equation}
 S (\tilde{X}^T \mathbf{u}) = \lambda (\tilde{X}^T \mathbf{u})
 \end{equation}
-Thus, $\mathbf{v} \propto \tilde{X}^T \mathbf{u}$ is an eigenvector of $S$ with eigenvalue $\lambda$. To normalize $\|\mathbf{v}\|_2 = 1$:
+Thus, $\tilde{X}^T \mathbf{u}$ is an eigenvector of $S$ with eigenvalue $\lambda$. 
+We compute its squared Euclidean norm:
 \begin{equation}
 \|\tilde{X}^T \mathbf{u}\|_2^2 = \mathbf{u}^T \tilde{X}\tilde{X}^T \mathbf{u} = \mathbf{u}^T (N K \mathbf{u}) = N \lambda \mathbf{u}^T \mathbf{u} = N \lambda
 \end{equation}
-Therefore, setting $\mathbf{v} = \frac{1}{\sqrt{N\lambda}} \tilde{X}^T \mathbf{u}$ yields a unit eigenvector of $S$. Solving this $N \times N$ problem takes $\mathcal{O}(N^3)$ operations, reducing compute time by factors of millions.
+Therefore, dividing by $\sqrt{N\lambda}$ produces the unit eigenvector: $\mathbf{v} = \frac{1}{\sqrt{N\lambda}} \tilde{X}^T \mathbf{u}$.
 \end{proof}
 
+\begin{ponderbox}[The Dual Gram Matrix Shortcut]
+Suppose you have $N = 50$ cancer patient tissue samples, each sequenced with $d = 100{,}000$ gene expression markers.
+\begin{enumerate}
+    \item What is the size of the standard covariance matrix $S = \frac{1}{N}\tilde{X}^T \tilde{X}$? How much memory would it consume?
+    \item What is the size of the dual Gram matrix $K = \frac{1}{N}\tilde{X}\tilde{X}^T$?
+    \item How does the computational complexity of eigendecomposition compare between the two approaches?
+\end{enumerate}
+\end{ponderbox}
+
 % ----------------------------------------------------------------------
-% PART 5: EXPLICIT GOTCHAS & DIAGNOSTIC MISCONCEPTIONS
+% PART 5: WORKED NUMERICAL EXAMPLES
 % ----------------------------------------------------------------------
-\section{Explicit Gotchas \& Diagnostic Misconceptions}
+\section{In-Depth Worked Numerical Examples}
+
+\begin{examplebox}{Manual PCA on a 2D Dataset from Scratch}
+Consider a dataset with $N = 4$ observations in $d = 2$ dimensions:
+\begin{equation}
+\mathbf{x}_1 = \begin{bmatrix} 1 \\ 1 \end{bmatrix}, \quad \mathbf{x}_2 = \begin{bmatrix} 2 \\ 3 \end{bmatrix}, \quad \mathbf{x}_3 = \begin{bmatrix} 3 \\ 2 \end{bmatrix}, \quad \mathbf{x}_4 = \begin{bmatrix} 4 \\ 4 \end{bmatrix}
+\end{equation}
+\begin{enumerate}
+    \item Compute the empirical sample mean $\boldsymbol{\mu}$ and centered data matrix $\tilde{X}$.
+    \item Compute the sample covariance matrix $S = \frac{1}{N}\tilde{X}^T \tilde{X}$.
+    \item Compute the eigenvalues and orthonormal eigenvectors of $S$.
+    \item Find the percentage of variance explained by the first principal component.
+    \item Project sample $\mathbf{x}_4$ onto the first principal component and compute its reconstruction.
+\end{enumerate}
+
+\textbf{Step 1: Compute Sample Mean and Centering.}
+\begin{equation}
+\boldsymbol{\mu} = \frac{1}{4} \left( \begin{bmatrix} 1 \\ 1 \end{bmatrix} + \begin{bmatrix} 2 \\ 3 \end{bmatrix} + \begin{bmatrix} 3 \\ 2 \end{bmatrix} + \begin{bmatrix} 4 \\ 4 \end{bmatrix} \right) = \frac{1}{4} \begin{bmatrix} 10 \\ 10 \end{bmatrix} = \begin{bmatrix} 2.5 \\ 2.5 \end{bmatrix}
+\end{equation}
+Centering each observation $\tilde{\mathbf{x}}_i = \mathbf{x}_i - \boldsymbol{\mu}$:
+\begin{equation}
+\tilde{X} = \begin{bmatrix} 1 - 2.5 & 1 - 2.5 \\ 2 - 2.5 & 3 - 2.5 \\ 3 - 2.5 & 2 - 2.5 \\ 4 - 2.5 & 4 - 2.5 \end{bmatrix} = \begin{bmatrix} -1.5 & -1.5 \\ -0.5 & 0.5 \\ 0.5 & -0.5 \\ 1.5 & 1.5 \end{bmatrix}
+\end{equation}
+
+\textbf{Step 2: Compute Sample Covariance Matrix $S$.}
+\begin{align}
+S &= \frac{1}{4} \tilde{X}^T \tilde{X} = \frac{1}{4} \begin{bmatrix} -1.5 & -0.5 & 0.5 & 1.5 \\ -1.5 & 0.5 & -0.5 & 1.5 \end{bmatrix} \begin{bmatrix} -1.5 & -1.5 \\ -0.5 & 0.5 \\ 0.5 & -0.5 \\ 1.5 & 1.5 \end{bmatrix} \\
+&= \frac{1}{4} \begin{bmatrix} 2.25 + 0.25 + 0.25 + 2.25 & 2.25 - 0.25 - 0.25 + 2.25 \\ 2.25 - 0.25 - 0.25 + 2.25 & 2.25 + 0.25 + 0.25 + 2.25 \end{bmatrix} = \frac{1}{4} \begin{bmatrix} 5.0 & 4.0 \\ 4.0 & 5.0 \end{bmatrix} = \begin{bmatrix} 1.25 & 1.00 \\ 1.00 & 1.25 \end{bmatrix}
+\end{align}
+
+\textbf{Step 3: Compute Eigenvalues and Eigenvectors.}
+\begin{equation}
+\det(S - \lambda I) = (1.25 - \lambda)^2 - 1.00^2 = \lambda^2 - 2.5\lambda + 1.5625 - 1.0 = \lambda^2 - 2.5\lambda + 0.5625 = 0
+\end{equation}
+Factoring: $(\lambda - 2.25)(\lambda - 0.25) = 0 \implies \lambda_1 = 2.25, \; \lambda_2 = 0.25$.
+\begin{itemize}
+    \item For $\lambda_1 = 2.25$: $(S - 2.25I)\mathbf{w}_1 = \begin{bmatrix} -1 & 1 \\ 1 & -1 \end{bmatrix}\mathbf{w}_1 = \mathbf{0} \implies \mathbf{w}_1 = \frac{1}{\sqrt{2}}\begin{bmatrix} 1 \\ 1 \end{bmatrix}$.
+    \item For $\lambda_2 = 0.25$: $(S - 0.25I)\mathbf{w}_2 = \begin{bmatrix} 1 & 1 \\ 1 & 1 \end{bmatrix}\mathbf{w}_2 = \mathbf{0} \implies \mathbf{w}_2 = \frac{1}{\sqrt{2}}\begin{bmatrix} -1 \\ 1 \end{bmatrix}$.
+\end{itemize}
+
+\textbf{Step 4: Proportion of Explained Variance.}
+Total variance is $\trace(S) = 1.25 + 1.25 = 2.50 = \lambda_1 + \lambda_2$.
+\begin{equation}
+\frac{\lambda_1}{\lambda_1 + \lambda_2} = \frac{2.25}{2.50} = 0.90 \implies 90\% \text{ of variance is captured by PC1 alone!}
+\end{equation}
+
+\textbf{Step 5: Projection and Reconstruction of $\mathbf{x}_4$.}
+Centered point is $\tilde{\mathbf{x}}_4 = [1.5, 1.5]^T$.
+The 1D scalar score is:
+\begin{equation}
+z_1 = \mathbf{w}_1^T \tilde{\mathbf{x}}_4 = \frac{1}{\sqrt{2}} (1.5 + 1.5) = \frac{3.0}{\sqrt{2}} = 1.5\sqrt{2} \approx 2.121
+\end{equation}
+The reconstructed point in original coordinates is:
+\begin{equation}
+\hat{\mathbf{x}}_4 = \boldsymbol{\mu} + z_1 \mathbf{w}_1 = \begin{bmatrix} 2.5 \\ 2.5 \end{bmatrix} + \left( \frac{3.0}{\sqrt{2}} \right) \left( \frac{1}{\sqrt{2}}\begin{bmatrix} 1 \\ 1 \end{bmatrix} \right) = \begin{bmatrix} 2.5 \\ 2.5 \end{bmatrix} + \begin{bmatrix} 1.5 \\ 1.5 \end{bmatrix} = \begin{bmatrix} 4.0 \\ 4.0 \end{bmatrix} = \mathbf{x}_4
+\end{equation}
+Reconstruction error is exactly zero because $\tilde{\mathbf{x}}_4$ lies directly on the line of PC1.
+\end{examplebox}
+
+% ----------------------------------------------------------------------
+% PART 6: EXAM TRAPS & DIAGNOSTIC MISCONCEPTIONS
+% ----------------------------------------------------------------------
+\section{Exam Traps \& Diagnostic Misconceptions}
 
 \begin{trapbox}{Gotcha 1: Omitting Data Centering Before SVD/Covariance}
 An analyst feeds raw uncentered data $X$ directly into SVD or computes $\frac{1}{N}X^T X$.
@@ -235,18 +342,18 @@ A data scientist runs PCA on a dataset containing age (range $20$--$80$) and ann
 
 \begin{trapbox}{Gotcha 3: Assuming PCA is Optimal for Supervised Classification}
 A practitioner uses PCA to reduce 100 features to 2 dimensions before training a classifier, but discovers that classification accuracy collapses.
-\textbf{The Trap:} PCA is strictly **unsupervised**. It identifies directions of maximum variance within $\mathcal{X}$, with zero knowledge of target labels $\mathcal{Y}$. If the class separation lies along a low-variance direction (e.g., two parallel dense ribbons), PCA will discard the discriminative direction as ``noise.'' In supervised settings, Linear Discriminant Analysis (LDA) should be used.
+\textbf{The Trap:} PCA is strictly \textbf{unsupervised}. It identifies directions of maximum variance within $\mathcal{X}$, with zero knowledge of target labels $\mathcal{Y}$. If the class separation lies along a low-variance direction (e.g., two parallel dense ribbons), PCA will discard the discriminative direction as "noise." In supervised settings, Linear Discriminant Analysis (LDA) should be used.
 \end{trapbox}
 
 \begin{trapbox}{Gotcha 4: Data Leakage by Fitting PCA on the Full Dataset}
-A programmer applies PCA to the full combined dataset of $10{,}000$ points before performing a $80/20$ train-test split.
+A programmer applies PCA to the full combined dataset of $10{,}000$ points before performing an $80/20$ train-test split.
 \textbf{The Trap:} The principal directions $W$ and sample mean $\boldsymbol{\mu}$ encode information about the global test distribution. Fitting PCA globally induces data leakage, producing over-optimistic validation metrics. PCA must be fitted strictly on the training set: $\boldsymbol{\mu}_{\text{train}}$ and $W_{\text{train}}$ are then used to project the test partition out-of-sample: $Z_{\text{test}} = (X_{\text{test}} - \mathbf{1}\boldsymbol{\mu}_{\text{train}}^T) W_{\text{train}}$.
 \end{trapbox}
 
 % ----------------------------------------------------------------------
-% PART 6: COMPARATIVE SYNTHESIS & SUMMARY TABLE
+% PART 7: COMPARATIVE SYNTHESIS TABLE
 % ----------------------------------------------------------------------
-\section{Comparative Synthesis \& Summary Table}
+\section{Comparative Synthesis Table}
 
 Table~\ref{tab:dim_reduction_comp} compares principal dimensionality reduction paradigms across machine learning.
 
@@ -273,11 +380,11 @@ UMAP & Unsupervised & Non-linear & Preserve local fuzzy simplicial set geometry 
 \end{table}
 
 % ----------------------------------------------------------------------
-% PART 7: PYTHON / SCIENTIFIC COMPUTING LAB
+% PART 8: PYTHON / SCIENTIFIC COMPUTING LAB
 % ----------------------------------------------------------------------
 \section{Python / Scientific Computing Lab}
 
-The following production script implements PCA from scratch via covariance eigendecomposition, direct SVD, and the dual Gram matrix shortcut for $d \gg N$.
+The production script below implements PCA from scratch via covariance eigendecomposition, direct SVD, and the dual Gram matrix shortcut for $d \gg N$.
 
 \begin{lstlisting}[language=Python, caption={PCA Implementations and Dual High-Dimensional Shortcut in Python.}]
 import numpy as np
@@ -349,7 +456,7 @@ if __name__ == "__main__":
 \end{lstlisting}
 
 % ----------------------------------------------------------------------
-% PART 8: COMPREHENSIVE PRACTICE PROBLEMS
+% PART 9: COMPREHENSIVE PRACTICE PROBLEMS
 % ----------------------------------------------------------------------
 \section{Comprehensive Practice Problems}
 
@@ -412,4 +519,3 @@ if __name__ == "__main__":
         \item When the data is centered to have zero mean.
     \end{enumerate}
 \end{enumerate}
-
