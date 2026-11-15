@@ -2,24 +2,24 @@
 \label{chap:week01}
 
 % ----------------------------------------------------------------------
-% PART 1: EXECUTIVE ROADMAP & LEARNING OBJECTIVES
+% PART 1: WHY MACHINE LEARNING? THE PARADIGM & MATHEMATICAL BRIDGE
 % ----------------------------------------------------------------------
-\section{Executive Roadmap \& Learning Objectives}
+\section{Why Machine Learning? The Paradigm, The Promise, and The Mathematical Bridge}
 
 \subsection{The Grand Paradox: Why Can't We Just Write the Rules?}
-Every journey into the mathematical foundations of machine learning must begin with an honest, common-sense question: \emph{Why do we need a new computational paradigm at all?}
+Every serious journey into the mathematical foundations of machine learning must begin with an honest, common-sense question: \emph{Why do we need a new computational paradigm at all?}
 
-For more than half a century, traditional computer science solved the world's most demanding engineering problems using a single, elegant philosophical principle known as **deductive programming**:
+For more than half a century, traditional computer science solved the world's most demanding engineering problems using a single, elegant philosophical principle known as \textbf{deductive programming}:
 \begin{equation}
 \boxed{\text{Human Writes Rules (Logic)} + \text{Computer Receives Input Data} \xrightarrow{\text{Deductive Execution}} \text{Deterministic Output (Answers)}}
 \label{eq:deductive_flow}
 \end{equation}
-In this classical paradigm, a human software engineer studies a real-world system, formalizes a complete set of deterministic logical rules, and implements them as source code. 
+In this classical paradigm, a human software engineer studies a real-world system, formalizes a complete set of deterministic logical rules, and implements them as source code:
 \begin{itemize}
     \item If you need to calculate corporate tax liabilities, you read the tax code, write a sequence of \texttt{if-else} branches corresponding to each income bracket, and run the program.
     \item If you need to guide an Apollo spacecraft to the Moon, you implement Newton's laws of universal gravitation and numerical differential equations.
 \end{itemize}
-In these domains, traditional logic triumphs because human beings can explicitly articulate the complete chain of axiomatic rules.
+In these domains, classical logic triumphs because human beings can explicitly articulate the complete chain of axiomatic rules.
 
 \subsubsection{The Perception Paradox}
 Now consider a task that a four-year-old child performs effortlessly in a fraction of a second: glance at a small, grainy $28 \times 28$ grayscale photograph and determine whether it contains the handwritten digit \textbf{3}.
@@ -41,7 +41,7 @@ How would you write classical code to recognize a ``3''?
 No team of software engineers, given centuries of effort, could write enough \texttt{if-else} statements to handle this combinatorial diversity. Deductive programming collapses whenever the rules governing reality are subconscious, fluid, or submerged in high-dimensional noise.
 
 \subsubsection{The Inductive Inversion}
-**Machine Learning** inverts this computational flow into an **inductive paradigm**:
+\textbf{Machine Learning} inverts this computational flow into an \textbf{inductive paradigm}:
 \begin{equation}
 \boxed{\text{Input Observations} + \text{Desired Outputs (Targets)} \xrightarrow{\text{Inductive Learning}} \text{Discovered Rules (Hypothesis } h\text{)}}
 \label{eq:inductive_flow}
@@ -58,25 +58,32 @@ Tom Mitchell (1997) later established the operational engineering standard:
 \end{quote}
 
 \subsection{The Road Ahead: Why Linear Algebra \& Calculus are the Twin Engines}
-This course is called \textbf{Machine Learning Foundations} (BSCS2004). You may wonder: \emph{If machine learning is about artificial intelligence, why will we spend Weeks 2–7 studying vector subspaces, orthogonal projections, eigenvalues, and SVD, and Weeks 8–10 studying multivariable gradients, Hessians, and convex duality?}
-
-The answer is profound: **Linear Algebra is the geometry of data, and Multivariable Calculus is the engine of learning.**
+This course is titled \textbf{Machine Learning Foundations} (\texttt{BSCS2004}). A student opening this syllabus often asks a reasonable question:
+\begin{quote}
+\emph{``If machine learning is about artificial intelligence and prediction, why will we spend Weeks 2--7 studying vector spaces, orthogonal projections, eigenvalues, and SVD, and Weeks 8--10 studying multivariable gradients, Hessians, and convex optimization?''}
+\end{quote}
+The answer is profound: \textbf{Linear Algebra is the geometry of data, and Multivariable Calculus is the engine of learning.}
 
 \begin{enumerate}
     \item \textbf{Data as Geometry (Linear Algebra):}
-    A dataset containing $N$ patient records with $d$ medical measurements is not a spreadsheet; it is an $N \times d$ matrix $X \in \mathbb{R}^{N \times d}$. 
+    Imagine walking into a large room. To pinpoint where a single dust mote is floating, you need three coordinates: $(x, y, z)$. That dust mote is a 3-dimensional vector.
+    
+    Now imagine a physician evaluating a patient: age, heart rate, systolic blood pressure, cholesterol level, and fasting glucose. That patient is represented by five numbers: a point floating in a 5-dimensional ``patient room''. If a hospital has 1,000 patients, our dataset is simply a cloud of 1,000 points scattered throughout this 5-dimensional room. Formally, we store this cloud in an $N \times d$ data matrix $X \in \mathbb{R}^{N \times d}$.
+    
+    Linear algebra is the universal language for understanding high-dimensional point clouds:
     \begin{itemize}
-        \item In the \textbf{Row Picture}, your dataset is a cloud of $N$ points scattered in a $d$-dimensional measurement room $\mathbb{R}^d$.
-        \item In the \textbf{Column Picture}, each feature is a vector in an $N$-dimensional sample room $\mathbb{R}^N$. Fitting a linear model to a target vector $\mathbf{y} \in \mathbb{R}^N$ is mathematically identical to dropping an **orthogonal perpendicular** from $\mathbf{y}$ onto the subspace spanned by the columns of $X$ (Week 3).
-        \item Finding the most informative features in high-dimensional data is identical to finding the **principal axes of elongation** of the data ellipsoid: the eigenvectors of the covariance matrix $X^T X$ (Weeks 4–7).
+        \item \textbf{Subspace Projections (Week 3):} How do you find the best-fit straight line or plane passing through a scattered cloud of points? As we will prove in Week 3, fitting a linear regression model is mathematically identical to shining a flashlight directly downward and calculating the \textbf{orthogonal shadow} (projection) cast by the target onto the floor spanned by your features.
+        \item \textbf{Principal Ellipsoid Axes (Weeks 4--7):} In high-dimensional space, real-world data clouds naturally stretch into elongated shapes resembling high-dimensional footballs (ellipsoids). Finding the longest axes of this football—the directions where the data spreads out the most—is identical to finding the \textbf{eigenvectors} of the data covariance matrix $X^T X$. This allows us to compress 1,000 messy features into 3 clean, highly informative coordinates via Singular Value Decomposition (SVD).
     \end{itemize}
 
     \item \textbf{Learning as Physical Gravity (Multivariable Calculus \& Optimization):}
-    When we train an algorithm, we define a mathematical function measuring how wrong our model is—the loss function. This function forms an energy landscape in multi-dimensional space. Training a model is physically identical to releasing a ball on that landscape and watching it roll downhill under gravity to the lowest point. 
+    Once we choose a mathematical model, we must measure how wrong its predictions are. We construct a loss function—a mathematical penalty score that depends on the model's adjustable parameters.
+    
+    This loss function defines a high-dimensional energy landscape—a rolling mountain range of errors. Training a machine learning model is physically identical to releasing a heavy marble on that mountain range and letting gravity pull it downhill toward the lowest valley:
     \begin{itemize}
-        \item The **gradient** $\nabla f$ tells the ball which direction is steepest downhill (Weeks 2 and 8).
-        \item The **Hessian matrix** $\nabla^2 f$ measures the curvature of the bowl (Weeks 2 and 8).
-        \item **Convexity** guarantees that the bowl has only a single bottom, ensuring our ball never gets trapped in a false sub-optimal hollow (Weeks 9 and 10).
+        \item \textbf{The Gradient Vector $\nabla f$ (Weeks 2 and 8):} Imagine you are a blindfolded hiker trapped on a foggy mountain at dusk. How do you find the valley floor? You feel the slope beneath your boots. The gradient $\nabla f$ points directly in the direction of steepest ascent; by stepping in the opposite direction ($-\nabla f$), you are guaranteed to walk downhill.
+        \item \textbf{The Hessian Matrix $\nabla^2 f$ (Weeks 2 and 8):} The second derivative measures the curvature of the terrain. It tells our hiker whether they are walking inside a gentle, wide bowl or sliding along a treacherous, narrow canyon with steep walls.
+        \item \textbf{Convexity (Weeks 9 and 10):} Convexity provides the ultimate mathematical peace of mind: a rigorous guarantee that the mountain range contains only a single valley. In a convex landscape, our blindfolded hiker cannot get permanently trapped in a deceptive foothill hollow.
     \end{itemize}
 \end{enumerate}
 
@@ -132,10 +139,12 @@ $h^*$ & Bayes Optimal Rule & The theoretically best predictor possible if we pos
 \section{Mathematical \& Computational Foundations}
 
 \subsection{The Mathematical Contract: The 5-Tuple}
-To feed the real world into an algorithm, mathematicians agreed on a clean five-part mathematical contract:
+To feed the messy, unpredictable physical world into an algorithm, mathematicians agreed on a clean five-part mathematical contract:
 \begin{equation}
 \Big( \mathcal{X}, \; \mathcal{Y}, \; \mathcal{D}, \; \mathcal{H}, \; \ell \Big)
+\label{eq:five_tuple_contract}
 \end{equation}
+Every machine learning problem—whether self-driving cars, cancer detection, or credit scoring—is formally specified by instantiating these five objects.
 
 \subsubsection{1. The Instance Space $\mathcal{X}$}
 The instance space represents the coordinate room of our measurements. An object is converted into a vector of $d$ real numbers:
@@ -153,11 +162,11 @@ The target space represents what we want to predict:
 \end{itemize}
 
 \subsubsection{3. Nature's Secret Law: The Data Distribution $\mathcal{D}$}
-A common misconception among beginners is that there exists a clean, deterministic mathematical formula $y = f(\mathbf{x})$ waiting to be found. 
+A common misconception among beginners is that there exists a clean, deterministic mathematical formula $y = f(\mathbf{x})$ waiting to be discovered.
 
 In reality, the physical world is filled with unobserved variables and environmental noise. Two houses on the same street with identical square footage and bedrooms might sell for \$300,000 and \$350,000 because one has an updated roof that our feature vector did not record.
 
-Therefore, we formalize Nature as a **joint probability distribution** $\mathcal{D}$ over feature-target pairs $(\mathbf{x}, y)$:
+Therefore, we formalize Nature as a \textbf{joint probability distribution} $\mathcal{D}$ over feature-target pairs $(\mathbf{x}, y)$:
 \begin{equation}
 P(\mathbf{x}, y) = \underbrace{P(\mathbf{x})}_{\text{Marginal Feature Density}} \times \underbrace{P(y \mid \mathbf{x})}_{\text{Conditional Target Density}}
 \end{equation}
@@ -166,14 +175,20 @@ When a data point is created, Nature draws a pair $(\mathbf{x}, y) \sim \mathcal
 \textbf{The Golden Rule of Machine Learning:} The learner \textbf{never sees $\mathcal{D}$}. Nature keeps $\mathcal{D}$ locked in a black box. The learner only sees a finite collection of random draws: the training sample $S = \{(\mathbf{x}_i, y_i)\}_{i=1}^N \stackrel{\text{i.i.d.}}{\sim} \mathcal{D}$.
 \end{quote}
 
+\begin{ponderbox}{Why Can't Nature Just Hand Us the Formula?}
+Why do we formalize learning via probability distributions $\mathcal{D}$ rather than deterministic mathematical equations like $y = f(\mathbf{x})$?
+\tcblower
+\textbf{Reflection:} In real-world problems (disease diagnosis, financial markets, customer behaviour), we almost never measure every relevant variable in the universe. Two patients with identical age, blood pressure, and cholesterol may experience different outcomes due to unmeasured genetics, stress, or lifestyle. Because these unobserved factors act as random perturbations, Nature's true relationship is fundamentally stochastic: for a fixed input $\mathbf{x}$, the output $Y$ is a random variable governed by the conditional distribution $P(Y \mid \mathbf{X} = \mathbf{x})$.
+\end{ponderbox}
+
 \subsubsection{4. The Hypothesis Class $\mathcal{H}$ and Inductive Bias}
 Why can't an algorithm simply consider \emph{every possible mathematical function} in the universe?
 
 Consider Hume's classic philosophical riddle: \emph{If you see five black ravens in a row, what color is the sixth raven?} If you make zero assumptions about how the universe works, seeing five black ravens tells you strictly zero about the next raven. It could be white, purple, or an elephant. To conclude that the sixth raven is likely black, your brain must make an unprovable prior assumption: that Nature possesses continuity, smoothness, and patterns that generalize across instances.
 
-In machine learning, this prior assumption is called **Inductive Bias**. An algorithm with no bias—one that considers every arbitrary, jagged mathematical function equally likely—cannot learn! Given $N$ training points, it could easily pick a function that equals the correct answers at those exact $N$ points, but outputs completely random noise everywhere else.
+In machine learning, this prior assumption is called \textbf{Inductive Bias}. By the mathematical principle known informally as the \emph{No Free Lunch Theorem}, an algorithm with no inductive bias—one that considers every arbitrary, jagged function equally likely—cannot generalize! Given $N$ training points, it could easily pick a function that equals the correct answers at those exact $N$ points, but outputs completely random noise everywhere else.
 
-To make learning possible, we restrict our search to a specific family of functions $\mathcal{H}$, called the **Hypothesis Class**:
+To make generalization possible, we restrict our search to a specific family of functions $\mathcal{H}$, called the \textbf{Hypothesis Class}:
 \begin{itemize}
     \item \textbf{Linear Models:} $\mathcal{H}_{\text{linear}} = \{ h(\mathbf{x}) = \mathbf{w}^T \mathbf{x} + b \}$. The inductive bias is: \emph{``The relationship between features and target is a flat hyperplane.''}
     \item \textbf{Polynomial Models:} $\mathcal{H}_{\text{poly}, p} = \{ h(x) = \sum_{j=0}^p w_j x^j \}$. The inductive bias is: \emph{``The relationship is a smooth curve of degree at most $p$.''}
@@ -218,7 +233,7 @@ R(h) \triangleq \E_{(\mathbf{X}, Y) \sim \mathcal{D}} [\ell(h(\mathbf{X}), Y)] =
 \end{equation}
 \end{definitionbox}
 
-Think of True Risk as a student's grade on the **unseen final examination**. It measures how well the hypothesis will perform on future data drawn from the identical environment.
+Think of True Risk as a student's grade on the \textbf{unseen final examination}. It measures how well the hypothesis will perform on future data drawn from the identical environment.
 
 \subsubsection{The Fundamental Dilemma}
 Look carefully at Equation~\eqref{eq:true_risk_formal_ped}. To compute the integral, you need $dP(\mathbf{x}, y)$—Nature's secret joint probability distribution! But we do not know Nature's distribution! If we knew $\mathcal{D}$, we wouldn't need machine learning in the first place; we could just do probability calculations.
@@ -243,70 +258,39 @@ Because true risk $R(h)$ is unobservable, the learner searches through hypothesi
 \end{equation}
 \end{theorembox}
 
-\subsubsection{Why ERM is Dangerous: The Downward Optimistic Bias}
-Here lies the most critical conceptual trap in all of machine learning.
-
-If you pick a \emph{fixed} function $h$ out of a hat before seeing any data, its empirical risk $R_{\text{emp}}(h; S)$ is an unbiased estimate of its true risk:
-\begin{equation}
-\E_{S \sim \mathcal{D}^N} [R_{\text{emp}}(h; S)] = R(h)
-\end{equation}
-By the Law of Large Numbers, as your sample size grows ($N \to \infty$), the homework score converges to the true exam score.
-
-**However**, the hypothesis $\hat{h}_S$ output by the learning algorithm was **not chosen before seeing the data**! It was chosen specifically to minimize the error on that particular sample $S$. The algorithm examined every quirk, every outlier, and every random coincidence in $S$, and tailored $\hat{h}_S$ to fit them.
-
-Consequently, the empirical risk of the chosen minimizer is **strictly downward-biased** (systematically optimistic):
-\begin{equation}
-\E_S [R_{\text{emp}}(\hat{h}_S; S)] \le \min_{h \in \mathcal{H}} R(h) \le R(\hat{h}_S)
-\end{equation}
-The model's score on its training homework is almost always better than its score on the unseen final exam.
-
-\begin{definitionbox}{The Generalization Gap}
-The difference between how a model performs in the real world versus how it performed on its training set is called the \textbf{Generalization Gap}:
-\begin{equation}
-\Delta_{\text{gen}}(\hat{h}_S) \triangleq R(\hat{h}_S) - R_{\text{emp}}(\hat{h}_S; S)
-\label{eq:generalization_gap_def_ped}
-\end{equation}
-\end{definitionbox}
-When $\Delta_{\text{gen}}$ is large, the model has fallen victim to **overfitting**: it has memorized the training sample rather than learning the general physical law.
-
-% ----------------------------------------------------------------------
-% IN-CHAPTER WORKED EXAMPLES
-% ----------------------------------------------------------------------
-\subsection{In-Chapter Step-by-Step Pedagogical Examples}
-
-Let us step away from abstract algebra and walk through concrete numbers that reveal these dynamics clearly.
+To see the ERM principle in action—and to witness the dramatic trap waiting for the unwary—let us compute every single number in a transparent toy universe.
 
 \begin{examplebox}{Worked Example 1.1: A Toy Universe with 4 States}
+\label{ex:w01_toy_universe}
 \textbf{The Scenario:}
 Imagine a tiny, transparent universe where the input feature $X$ can only take two values: $\{1, 2\}$, and the target label $Y$ can only take two values: $\{0, 1\}$.
-Because this universe is simple, we can write down Nature's complete joint distribution $\mathcal{D}$ in a $2 \times 2$ table:
-\begin{equation*}
-\begin{array}{c|cc|c}
-P(X = x, Y = y) & Y = 0 & Y = 1 & P(X = x) \\
-\hline
-X = 1 & 0.40 & 0.10 & 0.50 \\
-X = 2 & 0.10 & 0.40 & 0.50 \\
-\hline
-P(Y = y) & 0.50 & 0.50 & 1.00
-\end{array}
-\end{equation*}
 
-\textbf{Physical Meaning of Nature's Table:}
+\textbf{The 5-Tuple Mathematical Contract for this Universe:}
 \begin{itemize}
-    \item When $X = 1$, Nature produces label $Y = 0$ with $80\%$ probability ($0.40 / 0.50 = 0.80$) and label $Y = 1$ with $20\%$ probability ($0.10 / 0.50 = 0.20$). There is intrinsic noise!
-    \item When $X = 2$, Nature produces label $Y = 1$ with $80\%$ probability ($0.40 / 0.50 = 0.80$) and label $Y = 0$ with $20\%$ probability.
+    \item \textbf{Instance Space:} $\mathcal{X} = \{1, 2\}$.
+    \item \textbf{Target Space:} $\mathcal{Y} = \{0, 1\}$.
+    \item \textbf{Data Distribution $\mathcal{D}$:} Nature's complete joint distribution is specified in a $2 \times 2$ table:
+    \begin{equation*}
+    \begin{array}{c|cc|c}
+    P(X = x, Y = y) & Y = 0 & Y = 1 & P(X = x) \\
+    \hline
+    X = 1 & 0.40 & 0.10 & 0.50 \\
+    X = 2 & 0.10 & 0.40 & 0.50 \\
+    \hline
+    P(Y = y) & 0.50 & 0.50 & 1.00
+    \end{array}
+    \end{equation*}
+    \item \textbf{Hypothesis Class $\mathcal{H}$:} Since an input can only be $1$ or $2$, and an output can only be $0$ or $1$, there are only $2^2 = 4$ possible deterministic prediction rules in the entire universe: $\mathcal{H} = \{h_1, h_2, h_3, h_4\}$:
+    \begin{equation*}
+    \begin{aligned}
+    h_1(x) &= [h(1)=0, \; h(2)=0] \quad \text{(Always guess 0)} \\
+    h_2(x) &= [h(1)=0, \; h(2)=1] \quad \text{(Guess 0 for 1, Guess 1 for 2)} \\
+    h_3(x) &= [h(1)=1, \; h(2)=0] \quad \text{(Guess 1 for 1, Guess 0 for 2)} \\
+    h_4(x) &= [h(1)=1, \; h(2)=1] \quad \text{(Always guess 1)}
+    \end{aligned}
+    \end{equation*}
+    \item \textbf{Loss Function:} Symmetric $0-1$ loss $\ell(\hat{y}, y) = \mathbb{I}(\hat{y} \ne y)$.
 \end{itemize}
-
-Since an input can only be $1$ or $2$, and an output can only be $0$ or $1$, there are only $2^2 = 4$ possible deterministic prediction rules in the entire universe! Our hypothesis class $\mathcal{H} = \{h_1, h_2, h_3, h_4\}$ is:
-\begin{equation*}
-\begin{aligned}
-h_1(x) &= [h(1)=0, \; h(2)=0] \quad \text{(Always guess 0)} \\
-h_2(x) &= [h(1)=0, \; h(2)=1] \quad \text{(Guess 0 for 1, Guess 1 for 2)} \\
-h_3(x) &= [h(1)=1, \; h(2)=0] \quad \text{(Guess 1 for 1, Guess 0 for 2)} \\
-h_4(x) &= [h(1)=1, \; h(2)=1] \quad \text{(Always guess 1)}
-\end{aligned}
-\end{equation*}
-We evaluate predictions using $0-1$ loss $\ell(\hat{y}, y) = \mathbb{I}(\hat{y} \ne y)$.
 
 \textbf{Questions to Solve:}
 \begin{enumerate}
@@ -346,7 +330,7 @@ Let us compute this for each rule:
     R(h_4) = P(X=1, Y=0) + P(X=2, Y=0) = 0.40 + 0.10 = \mathbf{0.50} \quad (50\% \text{ error})
     \end{equation*}
 \end{itemize}
-\textbf{Conclusion 1:} Rule $h_2$ is Nature's true favorite, achieving $R(h_2) = 0.20$. Notice that even the best rule has a $20\%$ error rate! Why? Because Nature has intrinsic label noise: at $X=1$, $Y=1$ occurs $20\%$ of the time. This $0.20$ is the irreducible **Bayes Error**.
+\textbf{Conclusion 1:} Rule $h_2$ is Nature's true favorite, achieving $R(h_2) = 0.20$. Notice that even the best rule has a $20\%$ error rate! Why? Because Nature has intrinsic label noise: at $X=1$, $Y=1$ occurs $20\%$ of the time. This $0.20$ is the irreducible \textbf{Bayes Error}.
 
 \textbf{Step 2: Calculating Empirical Risk on the Sample $S$}
 The student's sample contains 4 points: $(1, 0), (1, 1), (2, 0), (2, 0)$. Notice what happened: by pure chance, the student drew two $(2, 0)$ samples, even though $P(Y=0 \mid X=2)$ is only $20\%$ in the real world!
@@ -362,7 +346,7 @@ The ERM algorithm inspects the empirical risks and seeks the minimum. The minimu
 The algorithm picks $\hat{h}_S = h_1 = [0, 0]$.
 Notice the catastrophe:
 \begin{itemize}
-    \item The algorithm **completely rejected the true optimal rule $h_2$** because on this sample, $h_2$ had a terrible score of $75\%$!
+    \item The algorithm \textbf{completely rejected the true optimal rule $h_2$} because on this sample, $h_2$ had a terrible score of $75\%$!
     \item The algorithm selected $h_1$, bragging that its training error is only $25\%$.
     \item But when we deploy $h_1$ into the real world, its true risk is $R(h_1) = 0.50$ ($50\%$ error!).
 \end{itemize}
@@ -372,6 +356,38 @@ The Generalization Gap is:
 \end{equation*}
 The algorithm was fooled by the random sampling fluctuations of finite data.
 \end{examplebox}
+
+\subsection{Why ERM is Dangerous: The Downward Optimistic Bias}
+Look closely at what just happened in Worked Example~\ref{ex:w01_toy_universe}. This concrete failure illustrates the most critical conceptual trap in all of machine learning.
+
+If you pick a \emph{fixed} function $h$ out of a hat before inspecting any data, its empirical risk $R_{\text{emp}}(h; S)$ is an unbiased estimate of its true risk:
+\begin{equation}
+\E_{S \sim \mathcal{D}^N} [R_{\text{emp}}(h; S)] = R(h)
+\end{equation}
+By the Law of Large Numbers, as your sample size grows ($N \to \infty$), the homework score converges to the true exam score.
+
+\textbf{However}, the hypothesis $\hat{h}_S$ output by the learning algorithm was \textbf{not chosen before seeing the data}! It was chosen specifically to minimize the error on that particular sample $S$. The algorithm examined every quirk, every outlier, and every random coincidence in $S$, and tailored $\hat{h}_S$ to fit them.
+
+Consequently, the empirical risk of the chosen minimizer is \textbf{strictly downward-biased} (systematically optimistic):
+\begin{equation}
+\E_S [R_{\text{emp}}(\hat{h}_S; S)] \le \min_{h \in \mathcal{H}} R(h) \le R(\hat{h}_S)
+\end{equation}
+The model's score on its training homework is almost always better than its score on the unseen final exam.
+
+\begin{definitionbox}{The Generalization Gap}
+The difference between how a model performs in the real world versus how it performed on its training set is called the \textbf{Generalization Gap}:
+\begin{equation}
+\Delta_{\text{gen}}(\hat{h}_S) \triangleq R(\hat{h}_S) - R_{\text{emp}}(\hat{h}_S; S)
+\label{eq:generalization_gap_def_ped}
+\end{equation}
+\end{definitionbox}
+When $\Delta_{\text{gen}}$ is large, the model has fallen victim to \textbf{overfitting}: it has memorized the training sample rather than learning the general physical law.
+
+\begin{ponderbox}{The Self-Grading Student Dilemma}
+If a student is allowed to choose which exam questions they answer, and scores $100\%$ on those questions, would you trust them to design a passenger jet?
+\tcblower
+\textbf{Reflection:} This is precisely what ERM does. The algorithm inspects the training sample $S$ and selects the hypothesis $\hat{h}_S$ that scores highest on those specific questions. The training error $R_{\text{emp}}(\hat{h}_S; S)$ is fundamentally self-graded and optimistic. The only honest evaluation is a \textbf{held-out test set} drawn independently from Nature, which the algorithm never saw during training.
+\end{ponderbox}
 
 % ----------------------------------------------------------------------
 % PART 3: VISUAL & GEOMETRIC INTUITION
@@ -417,7 +433,7 @@ Figure~\ref{fig:ml_pipeline_geometry} visualizes how information flows from Natu
 \end{figure}
 
 \subsection{Why Nature Cannot Be Beaten: Overlapping Distributions}
-Why is zero generalization error fundamentally impossible in real-world problems? Consider Figure~\ref{fig:bayes_boundary_geometry}, which plots the probability densities of two competing classes along a single measurement axis $x$.
+Why is zero generalization error fundamentally impossible in real-world problems? Consider Figure~\ref{fig:bayes_boundary_geometry}, which visualizes the exact setup of Worked Example~\ref{ex:w01_overlapping_gaussians}.
 
 \begin{figure}[htbp]
 \centering
@@ -425,45 +441,52 @@ Why is zero generalization error fundamentally impossible in real-world problems
 \begin{axis}[
     width=0.88\textwidth,
     height=6.2cm,
-    samples=120,
-    domain=-3.5:6.5,
-    xlabel={Observed Feature Value $x$},
-    ylabel={Probability Density $p(x \mid y)$},
-    ymin=0, ymax=0.45,
+    samples=150,
+    domain=-3.0:5.5,
+    xlabel={Observed Sensor Measurement $x$},
+    ylabel={Joint Probability Density $p(x, Y=y)$},
+    ymin=0, ymax=0.32,
     legend pos=north east,
     axis lines=left,
     legend style={font=\footnotesize\sffamily, fill=white, draw=gray!30}
 ]
 
-% Class 0: N(0, 1)
-\addplot[thick, color=primarydark, fill=primarylight, fill opacity=0.3] {exp(-0.5*x^2)/sqrt(2*pi)};
-\addlegendentry{$p(x \mid Y=0) \sim \mathcal{N}(0, 1)$ (Healthy)}
+% Class 0: Functional (0.70 * N(0, 1))
+\addplot[thick, color=primarydark, fill=primarylight, fill opacity=0.35] {0.70 * exp(-0.5*x^2)/sqrt(2*pi)};
+\addlegendentry{$p(x, Y=0) = 0.70 \cdot \mathcal{N}(0, 1)$ (Functional)}
 
-% Class 1: N(2.5, 1)
-\addplot[thick, color=tealdef, fill=tealbg, fill opacity=0.3] {exp(-0.5*(x-2.5)^2)/sqrt(2*pi)};
-\addlegendentry{$p(x \mid Y=1) \sim \mathcal{N}(2.5, 1)$ (Diseased)}
+% Class 1: Defective (0.30 * N(2, 1))
+\addplot[thick, color=tealdef, fill=tealbg, fill opacity=0.35] {0.30 * exp(-0.5*(x-2)^2)/sqrt(2*pi)};
+\addlegendentry{$p(x, Y=1) = 0.30 \cdot \mathcal{N}(2, 1)$ (Defective)}
 
-% Shaded Bayes Error Region
-\addplot[domain=1.25:4.5, draw=none, fill=coralborder, fill opacity=0.4] {exp(-0.5*x^2)/sqrt(2*pi)} \closedcycle;
-\addplot[domain=-2.0:1.25, draw=none, fill=coralborder, fill opacity=0.4] {exp(-0.5*(x-2.5)^2)/sqrt(2*pi)} \closedcycle;
+% Shaded Bayes Error Region:
+% For x < 1.4236, predicting Y=0 makes an error when Y=1
+\addplot[domain=-2.8:1.4236, draw=none, fill=coralborder, fill opacity=0.45] {0.30 * exp(-0.5*(x-2)^2)/sqrt(2*pi)} \closedcycle;
 
-% Optimal Boundary Line
-\draw[dashed, thick, color=coralformula] (axis cs:1.25, 0) -- (axis cs:1.25, 0.42)
-    node[above, font=\footnotesize\bfseries\sffamily] {Optimal Boundary $x^* = 1.25$};
+% For x >= 1.4236, predicting Y=1 makes an error when Y=0
+\addplot[domain=1.4236:5.0, draw=none, fill=coralborder, fill opacity=0.45] {0.70 * exp(-0.5*x^2)/sqrt(2*pi)} \closedcycle;
 
-\node[font=\footnotesize\sffamily, color=coralformula] at (axis cs:1.25, 0.08) {\textbf{Bayes Error Region}};
-\node[font=\footnotesize\sffamily, color=primarydark] at (axis cs:-1.0, 0.28) {Predict $\hat{y} = 0$};
-\node[font=\footnotesize\sffamily, color=tealdef] at (axis cs:3.8, 0.28) {Predict $\hat{y} = 1$};
+% Optimal Boundary Line at x* = 1.4236
+\draw[dashed, thick, color=coralformula] (axis cs:1.4236, 0) -- (axis cs:1.4236, 0.28)
+    node[above, font=\footnotesize\bfseries\sffamily] {Bayes Boundary $x^* = 1.4236$};
+
+% Naive Midpoint marker at x = 1.0
+\draw[dotted, thick, color=gray] (axis cs:1.0, 0) -- (axis cs:1.0, 0.22)
+    node[above, font=\scriptsize\sffamily, color=gray!80!black] {Naive Midpoint $x=1.0$};
+
+\node[font=\footnotesize\sffamily, color=coralformula] at (axis cs:1.4236, 0.05) {\textbf{Bayes Error}};
+\node[font=\footnotesize\sffamily, color=primarydark] at (axis cs:-0.8, 0.20) {Predict $\hat{y} = 0$};
+\node[font=\footnotesize\sffamily, color=tealdef] at (axis cs:3.2, 0.14) {Predict $\hat{y} = 1$};
 
 \end{axis}
 \end{tikzpicture}
-\caption{The Geometry of Bayes Error: In regions where class densities overlap, no deterministic rule can achieve $100\%$ accuracy. The shaded area represents the irreducible ambiguity of the physical measurement.}
+\caption{The Geometry of Bayes Error (Visualizing Worked Example~\ref{ex:w01_overlapping_gaussians}): In regions where class distributions overlap, no deterministic rule can achieve $100\%$ accuracy. Because Functional chips dominate ($70\%$ vs. $30\%$), the Bayes optimal decision boundary shifts right from the naive geometric midpoint ($x=1.0$) to $x^* = 1.4236$. The shaded red area represents the irreducible Bayes Error $\E[\min(\eta(X), 1-\eta(X))]$.}
 \label{fig:bayes_boundary_geometry}
 \end{figure}
 
-Notice what happens at $x = 1.25$. Both curves have positive height! If an observation arrives at $x = 1.5$, Class 1 is more likely than Class 0, so any rational model should guess $\hat{y} = 1$. But Nature \emph{still} produces Class 0 at $x = 1.5$ some fraction of the time. Every time that happens, our model is wrong! 
+Notice what happens at $x = 1.4236$. Both joint density curves have equal height ($p(x, Y=0) = p(x, Y=1) \approx 0.1014$). If an observation arrives at $x = 1.6$, Defective is more likely than Functional, so any rational model must guess $\hat{y} = 1$. But Nature \emph{still} produces Functional chips at $x = 1.6$ a certain fraction of the time. Every time that occurs, our model is wrong! 
 
-This shaded area is the **Bayes Error**. It represents Nature's irreducible ambiguity. No artificial intelligence, no deep neural network with a trillion parameters, and no supercomputer can ever achieve a lower error rate than this shaded area.
+This shaded area is the \textbf{Bayes Error}. It represents Nature's irreducible ambiguity. No artificial intelligence, no deep neural network with a trillion parameters, and no supercomputer can ever achieve a lower error rate than this shaded area.
 
 \subsection{The U-Shaped Generalization Curve}
 Figure~\ref{fig:bias_variance_geometry} illustrates what happens as we make our hypothesis class $\mathcal{H}$ more flexible (e.g., increasing the degree of a polynomial from 1 to 20).
@@ -507,7 +530,7 @@ Figure~\ref{fig:bias_variance_geometry} illustrates what happens as we make our 
 
 \end{axis}
 \end{tikzpicture}
-\caption{The Fundamental Dilemma of Machine Learning: Training error drops monotonically as models become more complex, but true test error forms a U-shape. The goal of machine learning is to find the sweet spot at the bottom of the U.}
+\caption{The Fundamental Dilemma of Machine Learning: Training error drops monotonically as models become more complex, but true test error forms a U-shape. The goal of machine learning is to find the sweet spot at the bottom of the U. (Note: The horizontal axis is schematic; the exact operational measure of capacity depends on the model class, such as polynomial degree or parameter count).}
 \label{fig:bias_variance_geometry}
 \end{figure}
 
@@ -533,9 +556,9 @@ all occurring with equal probability ($1/3$ each). You are penalized by the sum 
     (20 - 10)^2 + (20 - 20)^2 + (20 - 30)^2 = 100 + 0 + 100 = \mathbf{200}
     \end{equation*}
 \end{itemize}
-Under a quadratic penalty, the **average** always minimizes the total loss. In physics, the average is the **center of mass**. If you support a physical rod loaded with weights at $10, 20, 30$, it balances perfectly at $20$.
+Under a quadratic penalty, the \textbf{average} always minimizes the total loss. In physics, the average is the \textbf{center of mass}. If you support a physical rod loaded with weights at $10, 20, 30$, it balances perfectly at $20$.
 
-When we extend this from three numbers to a continuous probability distribution, the ``average of $Y$ given that $\mathbf{X} = \mathbf{x}$'' is simply the **conditional expectation**:
+When we extend this from three numbers to a continuous probability distribution, the ``average of $Y$ given that $\mathbf{X} = \mathbf{x}$'' is simply the \textbf{conditional expectation}:
 \begin{equation}
 h^*(\mathbf{x}) = \E[Y \mid \mathbf{X} = \mathbf{x}]
 \end{equation}
@@ -575,7 +598,7 @@ Confirming the minimum via the second derivative:
 \begin{equation}
 \frac{d^2 g}{dc^2} = 2 > 0
 \end{equation}
-Since the second derivative is strictly positive, $c^* = \E[Y \mid \mathbf{X} = \mathbf{x}]$ is the unique global minimizer.
+Since the second derivative is strictly positive, $c^* = \E[Y \mid \mathbf{X} = \mathbf{x}] = h^*(\mathbf{x})$ is the unique global minimizer.
 \end{proof}
 
 \subsubsection{What is Nature's Irreducible Noise?}
@@ -585,9 +608,9 @@ R(h^*) &= \E_{\mathbf{X}} \left[ \E_{Y \mid \mathbf{X}} \left[ (Y - \E[Y \mid \m
 &= \E_{\mathbf{X}} \left[ \Var(Y \mid \mathbf{X}) \right]
 \label{eq:irreducible_variance_ped}
 \end{align}
-By definition, $\E_{Y \mid \mathbf{X}} [ (Y - \E[Y \mid \mathbf{X}])^2 ]$ is the **conditional variance** of $Y$ given $\mathbf{X}$. 
+By definition, $\E_{Y \mid \mathbf{X}} [ (Y - \E[Y \mid \mathbf{X}])^2 ]$ is the \textbf{conditional variance} of $Y$ given $\mathbf{X}$. 
 
-This equation carries profound philosophical significance: **even if you have infinite data, infinite computing power, and the perfect model, your prediction error cannot drop below $\E[\Var(Y \mid \mathbf{X})]$.** This is the variance of Nature itself—the unobserved quantum fluctuations, sensor thermal noise, and hidden variables that no algorithm can anticipate.
+This equation carries profound philosophical significance: \textbf{even if you have infinite data, infinite computing power, and the perfect model, your prediction error cannot drop below $\E[\Var(Y \mid \mathbf{X})]$.} This is the variance of Nature itself—the unobserved environmental factors, sensor thermal noise, and hidden variables that no algorithm can anticipate.
 
 \subsection{Derivation of the Bayes Optimal Classifier: Majority Voting}
 Now let us switch from continuous regression to discrete classification. Suppose $\mathcal{Y} \in \{0, 1\}$, and our penalty is $0-1$ loss: $\ell(\hat{y}, y) = \mathbb{I}(\hat{y} \ne y)$. What is the best possible decision rule?
@@ -600,10 +623,10 @@ Suppose a patient has a specific symptom vector $\mathbf{x}$. You look up the me
 \end{itemize}
 You must make a single call: guess $1$ or guess $0$.
 \begin{itemize}
-    \item If you guess $\hat{y} = 1$: You are wrong only when the patient is in the $15\%$ minority. Your expected error is **$0.15$**.
-    \item If you guess $\hat{y} = 0$: You are wrong whenever the patient is in the $85\%$ majority. Your expected error is **$0.85$**.
+    \item If you guess $\hat{y} = 1$: You are wrong only when the patient is in the $15\%$ minority. Your expected error is \textbf{$0.15$}.
+    \item If you guess $\hat{y} = 0$: You are wrong whenever the patient is in the $85\%$ majority. Your expected error is \textbf{$0.85$}.
 \end{itemize}
-To minimize mistakes, you must predict the label that has more than a $50\%$ probability of being true! This is simply the principle of **majority voting**.
+To minimize mistakes, you must predict the label that has more than a $50\%$ probability of being true! This is simply the principle of \textbf{majority voting}.
 
 \begin{theorem}[Bayes Optimal Binary Classifier]
 Define the posterior probability of class 1 as:
@@ -636,20 +659,29 @@ Predicting $\hat{y} = 1$ is superior whenever:
 \begin{equation}
 1 - \eta(\mathbf{x}) \le \eta(\mathbf{x}) \iff 1 \le 2\eta(\mathbf{x}) \iff \eta(\mathbf{x}) \ge \frac{1}{2}
 \end{equation}
-The minimal error rate achieved at this point is $\min\big(\eta(\mathbf{x}), 1 - \eta(\mathbf{x})\big)$. Averaging this over all possible inputs gives the irreducible **Bayes Error**:
+The minimal error rate achieved at this point is $\min\big(\eta(\mathbf{x}), 1 - \eta(\mathbf{x})\big)$. Averaging this over all possible inputs gives the irreducible \textbf{Bayes Error}:
 \begin{equation}
 R(h^*) = \E_{\mathbf{X}} \left[ \min\big(\eta(\mathbf{X}), 1 - \eta(\mathbf{X})\big) \right]
 \end{equation}
 \end{proof}
 
 \begin{examplebox}{Worked Example 1.2: Two Overlapping Gaussians with Unequal Priors}
+\label{ex:w01_overlapping_gaussians}
 \textbf{The Scenario:}
 A machine learning engineer at a semiconductor fabrication plant is designing an automated inspection system to classify computer chips as \textbf{Defective ($Y = 1$)} or \textbf{Functional ($Y = 0$)} based on a single sensor measurement $X \in \mathbb{R}$.
-Extensive historical data establishes that:
+
+\textbf{The 5-Tuple Formulation:}
 \begin{itemize}
-    \item Functional chips produce sensor readings distributed as $\mathcal{N}(\mu_0 = 0, \sigma^2 = 1)$.
-    \item Defective chips produce sensor readings distributed as $\mathcal{N}(\mu_1 = 2, \sigma^2 = 1)$.
-    \item Overall, $70\%$ of manufactured chips are Functional ($P(Y=0) = 0.70$) and $30\%$ are Defective ($P(Y=1) = 0.30$).
+    \item \textbf{Instance Space:} $\mathcal{X} = \mathbb{R}$.
+    \item \textbf{Target Space:} $\mathcal{Y} = \{0, 1\}$.
+    \item \textbf{Data Distribution $\mathcal{D}$:} Historical records establish that:
+    \begin{itemize}
+        \item Functional chips produce sensor readings: $p(x \mid Y=0) \sim \mathcal{N}(\mu_0 = 0, \sigma^2 = 1)$.
+        \item Defective chips produce sensor readings: $p(x \mid Y=1) \sim \mathcal{N}(\mu_1 = 2, \sigma^2 = 1)$.
+        \item Overall manufacturing priors: $P(Y=0) = 0.70$ and $P(Y=1) = 0.30$.
+    \end{itemize}
+    \item \textbf{Hypothesis Class $\mathcal{H}$:} Threshold decision rules $h_\tau(x) = \mathbb{I}(x \ge \tau)$.
+    \item \textbf{Loss Function:} Symmetric $0-1$ loss $\ell_{0-1}$.
 \end{itemize}
 
 \textbf{Questions to Solve:}
@@ -718,11 +750,12 @@ x^* = 1 + \frac{1}{2}(0.8473) = 1 + 0.4236 = \mathbf{1.4236}
 \end{equation*}
 
 \textbf{Pedagogical Intuition: Why Did the Boundary Shift Right?}
-Because $70\%$ of all chips are functional, Nature has a strong prior bias toward functional chips. If you observe a sensor value of $x = 1.1$, even though it is slightly closer to the defective mean ($\mu_1 = 2$) than the functional mean ($\mu_0 = 0$), the chip is **still more likely to be functional** because functional chips are so much more common!
+Because $70\%$ of all chips are functional, Nature has a strong prior bias toward functional chips. If you observe a sensor value of $x = 1.1$, even though it is slightly closer to the defective mean ($\mu_1 = 2$) than the functional mean ($\mu_0 = 0$), the chip is \textbf{still more likely to be functional} because functional chips are so much more common!
 To justify calling a chip defective, the sensor reading must move far enough to the right ($x \ge 1.4236$) to overcome the strong baseline prior of the manufacturing line.
 \end{examplebox}
 
 \begin{examplebox}{Worked Example 1.3: Asymmetric Costs in Cancer Screening}
+\label{ex:w01_cancer_screening}
 \textbf{The Dilemma:}
 In medical diagnostics, treating all errors as equal ($\text{loss} = 1$) is a recipe for medical malpractice:
 \begin{itemize}
@@ -730,6 +763,23 @@ In medical diagnostics, treating all errors as equal ($\text{loss} = 1$) is a re
     \item \textbf{False Negative ($\hat{y} = 0, y = 1$):} A patient with an early-stage malignant tumor is told they are completely healthy. The tumor metastasizes over 6 months, causing irreparable harm. Cost: $C_{01} = \mathbf{100}$ units of harm.
     \item Correct decisions incur $0$ cost.
 \end{itemize}
+
+\textbf{The 5-Tuple Formulation:}
+\begin{itemize}
+    \item \textbf{Instance Space:} $\mathcal{X} \subseteq \mathbb{R}^d$ (biomarkers, gene expression, and imaging features).
+    \item \textbf{Target Space:} $\mathcal{Y} = \{0, 1\}$ ($0 = \text{healthy}, 1 = \text{malignant}$).
+    \item \textbf{Data Distribution $\mathcal{D}$:} Population joint distribution of biomarker features and disease incidence.
+    \item \textbf{Hypothesis Class $\mathcal{H}$:} Decision rules predicting biopsy ($1$) vs. discharge ($0$).
+    \item \textbf{Loss Function $\ell$:} Asymmetric cost matrix with penalties $C_{01} = 100$ and $C_{10} = 1$.
+\end{itemize}
+
+\begin{ponderbox}{Socratic Intuition: Where Would You Set the Threshold?}
+Before performing any algebra: if failing to diagnose cancer is 100 times more damaging than performing a false-alarm ultrasound, what estimated probability of malignancy $\eta(\mathbf{x})$ should trigger a biopsy? Should you wait until the model is $50\%$ sure? $10\%$ sure?
+\tcblower
+\textbf{Reflection:} Common sense screams that when the downside of missing a disease is catastrophic, even a tiny whiff of suspicion warrants further testing. As the mathematical derivation proves below, the optimal threshold plummets to under $1\%$ ($\tau^* \approx 0.99\%$).
+\end{ponderbox}
+
+\textbf{Questions to Solve:}
 What should the model's posterior probability threshold $\tau^*$ be to trigger a biopsy? Should we wait until the model is $50\%$ sure?
 
 \tcblower
@@ -763,16 +813,17 @@ Dividing both sides by $(C_{10} + C_{01})$:
 \eta(\mathbf{x}) \ge \frac{C_{10}}{C_{10} + C_{01}}
 \end{equation*}
 The Bayes optimal decision threshold is:
-\begin{equation*}
+\begin{equation}
 \tau^* = \frac{C_{10}}{C_{10} + C_{01}}
-\end{equation*}
+\label{eq:asymmetric_bayes_threshold}
+\end{equation}
 Plugging in our clinical costs ($C_{10} = 1$ and $C_{01} = 100$):
 \begin{equation*}
 \tau^* = \frac{1}{1 + 100} = \frac{1}{101} \approx \mathbf{0.0099} \quad (\mathbf{0.99\%})
 \end{equation*}
 
 \textbf{The Life-Saving Lesson:}
-The doctor must order a biopsy whenever the probability of malignancy exceeds **$1\%$**! 
+The doctor must order a biopsy whenever the probability of malignancy exceeds \textbf{$1\%$}! 
 If an engineer naively deployed a standard machine learning classifier with a default $50\%$ decision threshold ($\tau = 0.50$), the system would ignore patients with an $8\%, 20\%,$ or $45\%$ risk of cancer, killing hundreds of patients. The threshold of a classifier is not a mathematical constant; it is an economic and ethical choice dictated by the loss matrix.
 \end{examplebox}
 
@@ -837,14 +888,21 @@ where:
 Human beings evolved in a three-dimensional world. When we hear the word ``sphere'', we think of a basketball. When we hear ``cube'', we think of a cardboard box. In high-dimensional data science, these physical intuitions are catastrophic traps.
 
 \subsubsection{The Orange Peel Paradox}
-Imagine peeling an orange. In our everyday 3D world, the peel is a thin skin representing perhaps $10\%$ of the orange's total volume, while the juicy fruit in the center represents $90\%$.
+Imagine peeling an orange. In our everyday 3D world, the peel is a thin skin representing perhaps $10\%$ to $14\%$ of the orange's total volume, while the juicy fruit in the center represents nearly $90\%$.
 
 What happens to an orange in 100-dimensional space?
+
+\begin{ponderbox}{The High-Dimensional Orange: Take a Guess}
+Imagine an orange with a thin peel of only $5\%$ thickness ($\epsilon = 0.05$). In everyday 3D space, the peel occupies about $14.3\%$ of the total volume. In a 100-dimensional space, what percentage of the orange's volume lives in that identical $5\%$ thin outer skin?
+\tcblower
+\textbf{Reflection:} Intuition strongly suggests that the peel should still be a modest fraction—perhaps $20\%$ or $30\%$. But as the derivation below reveals, in 100 dimensions, over $99.4\%$ of the entire orange lives in the outer $5\%$ crust!
+\end{ponderbox}
+
 Consider a $d$-dimensional hypercube of side length $2$: $\mathcal{C}_d = [-1, 1]^d$. Its volume is:
 \begin{equation}
 V(\mathcal{C}_d) = 2^d
 \end{equation}
-Now consider the interior core of the fruit, shaved down by a tiny boundary skin of thickness $\epsilon = 0.05$ (a $5\%$ skin thickness): $\mathcal{C}_{\text{core}} = [-(1 - \epsilon), 1 - \epsilon]^d$. Its volume is:
+Now consider the interior core of the fruit, shaved down by a boundary skin of thickness $\epsilon = 0.05$ (a $5\%$ skin thickness): $\mathcal{C}_{\text{core}} = [-(1 - \epsilon), 1 - \epsilon]^d$. Its volume is:
 \begin{equation}
 V(\mathcal{C}_{\text{core}}) = \big(2(1 - \epsilon)\big)^d = 2^d (1 - \epsilon)^d
 \end{equation}
@@ -860,32 +918,45 @@ Now, let us evaluate this simple formula as the dimension $d$ grows:
     \item In $d = 100$: $1 - (0.95)^{100} = 1 - 0.0059 = \mathbf{0.994} \quad (\mathbf{99.4\%} \text{ in the peel!})$.
     \item In $d = 500$: $1 - (0.95)^{500} = 1 - 7.2 \times 10^{-12} \approx \mathbf{0.99999999999} \quad (\mathbf{100\%})$.
 \end{itemize}
-\textbf{The Stunning Reality:} In 100 dimensions, a hypercube is entirely empty! There is no fruit in the center of the orange; **$99.4\%$ of all the volume resides in the outer $5\%$ crust.** If you draw random data points uniformly from a high-dimensional box, you will never find a point near the center; virtually every single data point lives on the extreme outer boundaries.
+\textbf{The Stunning Reality:} In 100 dimensions, a hypercube is entirely empty! There is no fruit in the center of the orange; \textbf{$99.4\%$ of all the volume resides in the outer $5\%$ crust.} If you draw random data points uniformly from a high-dimensional box, you will never find a point near the center; virtually every single data point lives on the extreme outer boundaries.
 
 \subsubsection{The Distance Concentration Phenomenon}
-Suppose you generate 100 random points in high-dimensional space and try to find the ``nearest neighbor'' to a query point.
+Suppose you generate a collection of random data points in high-dimensional space and try to find the ``nearest neighbor'' to a query point.
 
-Let $\mathbf{X}, \mathbf{Y}$ be two independent points drawn uniformly from $[0, 1]^d$. The squared Euclidean distance between them is:
+Let $\mathbf{X}, \mathbf{Y}$ be two independent random vectors drawn uniformly from $[0, 1]^d$. The squared Euclidean distance between them is:
 \begin{equation}
-D^2 = \sum_{j=1}^d (X_j - Y_j)^2
+D^2 = \sum_{j=1}^d (X_j - Y_j)^2 = \sum_{j=1}^d Z_j
 \end{equation}
-Each coordinate difference $Z_j = (X_j - Y_j)^2$ is an independent random variable. By calculus integration:
+where each coordinate difference $Z_j \triangleq (X_j - Y_j)^2$ is an independent and identically distributed random variable on $[0, 1]$. By calculus integration:
 \begin{align}
 \E[Z_j] &= \int_0^1 \int_0^1 (x - y)^2 \, dx \, dy = \frac{1}{6} \\
-\Var(Z_j) &= \frac{7}{180}
+\E[Z_j^2] &= \int_0^1 \int_0^1 (x - y)^4 \, dx \, dy = \frac{1}{15} \\
+\Var(Z_j) &= \E[Z_j^2] - (\E[Z_j])^2 = \frac{1}{15} - \frac{1}{36} = \frac{7}{180}
 \end{align}
-By the Central Limit Theorem, the total squared distance is the sum of $d$ independent random variables. Its expected value scales linearly with dimension:
+Because $D^2$ is the sum of $d$ independent random variables, linearity of expectation gives:
 \begin{equation}
 \E[D^2] = \sum_{j=1}^d \E[Z_j] = \frac{d}{6} \implies D \approx \sqrt{\frac{d}{6}}
 \end{equation}
-The standard deviation of the distance, however, grows much slower, scaling only as $\mathcal{O}(\sqrt{d})$.
-What happens to the relative contrast between the nearest neighbor $D_{\min}$ and the furthest neighbor $D_{\max}$?
+The variance of the sum is the sum of the variances:
 \begin{equation}
-\frac{D_{\max} - D_{\min}}{D_{\min}} \le \frac{\text{Spread}}{\text{Mean Distance}} \approx \frac{\mathcal{O}(\sqrt{d})}{\mathcal{O}(d)} = \mathcal{O}\left( \frac{1}{\sqrt{d}} \right) \xrightarrow{d \to \infty} \mathbf{0}
+\Var(D^2) = \sum_{j=1}^d \Var(Z_j) = \frac{7d}{180} \implies \sigma(D^2) = \sqrt{\frac{7d}{180}}
+\end{equation}
+Now examine the relative standard deviation of the distance squared as dimension $d$ grows:
+\begin{equation}
+\frac{\sigma(D^2)}{\E[D^2]} = \frac{\sqrt{7d / 180}}{d / 6} = \frac{\sqrt{7/180} \cdot \sqrt{d}}{(1/6) \cdot d} = \sqrt{\frac{7}{5d}} = \mathcal{O}\left( \frac{1}{\sqrt{d}} \right) \xrightarrow{d \to \infty} \mathbf{0}
+\end{equation}
+By Chebyshev's inequality, the random variable $D^2 / \E[D^2]$ converges in probability to 1:
+\begin{equation}
+\frac{D^2}{\E[D^2]} \xrightarrow{P} 1 \quad \text{as } d \to \infty
+\end{equation}
+Consequently, for any query point and any finite sample of candidate points, the distance to the nearest neighbor $D_{\min}$ and the distance to the furthest neighbor $D_{\max}$ converge to the exact same value:
+\begin{equation}
+\frac{D_{\max} - D_{\min}}{D_{\min}} \xrightarrow{P} \mathbf{0} \quad \text{as } d \to \infty
+\label{eq:distance_concentration_ped}
 \end{equation}
 \textbf{The Consequence for Machine Learning:} As dimension $d$ grows, the difference between your ``closest neighbor'' and your ``furthest neighbor'' shrinks to zero. In 1,000-dimensional space, every point is almost exactly the same distance away from you! 
 
-Algorithms based on Euclidean distance (such as $k$-Nearest Neighbors or clustering) become completely useless in raw high-dimensional space unless we first apply **dimensionality reduction** (such as PCA or SVD, studied in Chapters 6 and 7).
+Algorithms based on Euclidean distance (such as $k$-Nearest Neighbors or $k$-means clustering) lose their discriminative power in raw high-dimensional space unless we first apply \textbf{dimensionality reduction} (such as PCA or SVD, studied in Chapters 6 and 7).
 
 % ----------------------------------------------------------------------
 % PART 5: EXPLICIT GOTCHAS & DIAGNOSTIC MISCONCEPTIONS
@@ -906,13 +977,13 @@ It never caught a single fraudulent transaction. Its accuracy is $99.9\%$, but i
 \textbf{The Scenario:} A student defines a classification neural network with a step threshold function $\hat{y} = \mathbb{I}(\mathbf{w}^T \mathbf{x} \ge 0)$ and tries to train the weights $\mathbf{w}$ using gradient descent on the $0-1$ loss $\ell = \mathbb{I}(\hat{y} \ne y)$. \\
 \textbf{The Catastrophe:} Gradient descent fails completely. The computer reports that the gradient is $0.0000$ at every iteration! \\
 \textbf{Why it Happened:} The $0-1$ loss is a piecewise-constant step function. If you nudge the weights $\mathbf{w}$ by $0.0001$, the prediction does not change at all, so the derivative $\frac{\partial \ell}{\partial \mathbf{w}}$ is identically zero. The model is standing on a flat plateau; gradient descent has no slope to tell it which way is downhill. \\
-\textbf{The Remedy:} We replace the step function with smooth, convex surrogate losses: Logistic Regression uses **Cross-Entropy Loss**, and Support Vector Machines use **Hinge Loss** (Chapter 10).
+\textbf{The Remedy:} We replace the step function with smooth, convex surrogate losses: Logistic Regression uses \textbf{Cross-Entropy Loss}, and Support Vector Machines use \textbf{Hinge Loss} (Chapter 10).
 \end{trapbox}
 
 \begin{trapbox}{Gotcha 3: The Contaminated Test Set (Data Leakage)}
 \textbf{The Scenario:} An analyst wants to normalize features so they have mean 0 and variance 1. They compute the mean $\mu$ and standard deviation $\sigma$ across all 50,000 rows in their database, normalize the entire dataset, and \emph{then} split the data into $80\%$ training and $20\%$ test sets. \\
 \textbf{The Catastrophe:} Information from the test set leaked into the training set through $\mu$ and $\sigma$! The test set is no longer an independent, pristine evaluation of the real world. The test accuracy will be artificially high, but the model will degrade when deployed to real users. \\
-\textbf{The Golden Rule:} Split your data into Train and Test **first**. Compute $\mu$ and $\sigma$ strictly on the training set. Then use those exact frozen training values to scale the test set.
+\textbf{The Golden Rule:} Split your data into Train and Test \textbf{first}. Compute $\mu$ and $\sigma$ strictly on the training set. Then use those exact frozen training values to scale the test set.
 \end{trapbox}
 
 \begin{trapbox}{Gotcha 4: Conflating Correlation with Causation in Feature Spaces}
@@ -943,12 +1014,13 @@ Table~\ref{tab:ml_paradigms_synthesis} summarizes the primary problem formulatio
 \addlinespace
 \textbf{Density Estimation} & Unlabeled observations $\mathbf{x}_i \in \mathbb{R}^d$ & Reconstruct full continuous probability density $p(\mathbf{x})$ & Negative Log-Likelihood $-\sum \log p_\theta(\mathbf{x}_i)$ & The curse of dimensionality: in high dimensions, empty space dominates. \\
 \addlinespace
-\textbf{Reinforcement Learning} & Actions, environment states, delayed rewards & Learn policy maximizing long-term discounted rewards & Bellman Error $(r + \gamma V(s') - V(s))^2$ & Credit assignment problem: reward arrives hundreds of steps after action. \\
+\textbf{Reinforcement Learning}$^*$ & Actions, environment states, delayed rewards & Learn policy maximizing long-term discounted rewards & Bellman Error $(r + \gamma V(s') - V(s))^2$ & Credit assignment problem: reward arrives hundreds of steps after action. \\
 \bottomrule
 \end{tabularx}
 \caption{Comparative Synthesis of Foundational Machine Learning Problem Paradigms.}
 \label{tab:ml_paradigms_synthesis}
 \end{table}
+\noindent\footnotesize\textit{$^*$Note: Reinforcement Learning is included in Table~\ref{tab:ml_paradigms_synthesis} to provide a complete taxonomy of the field. The curriculum of this textbook focuses systematically on Supervised Learning (Regression and Classification, Weeks 2--3, 8--10) and Unsupervised Foundations (Dimensionality Reduction and Density Estimation, Weeks 4--7, 11--12).}
 
 % ----------------------------------------------------------------------
 % PART 7: PYTHON / SCIENTIFIC COMPUTING LAB
@@ -965,26 +1037,26 @@ The following runnable Python script empirically demonstrates the two core theor
 import numpy as np
 
 def generate_noisy_sine(n_samples: int, noise_std: float = 0.25, seed: int = 42):
-    """Generates synthetic data from true law: y = sin(2*pi*x) + Gaussian noise."""
+    # Generates synthetic data from true law: y = sin(2*pi*x) + Gaussian noise
     rng = np.random.RandomState(seed)
     x = rng.uniform(0.0, 1.0, size=n_samples)
     y = np.sin(2 * np.pi * x) + rng.normal(0.0, noise_std, size=n_samples)
     return x, y
 
 def fit_polynomial(x: np.ndarray, y: np.ndarray, degree: int) -> np.ndarray:
-    """Fits polynomial weights w = (Phi^T Phi)^(-1) Phi^T y via Moore-Penrose pseudo-inverse."""
+    # Fits polynomial weights w = (Phi^T Phi)^(-1) Phi^T y via pseudo-inverse
     Phi = np.vander(x, N=degree + 1, increasing=True)
     w = np.linalg.pinv(Phi) @ y
     return w
 
 def compute_mse(x: np.ndarray, y: np.ndarray, w: np.ndarray) -> float:
-    """Computes Mean Squared Error for fitted polynomial weights w."""
+    # Computes Mean Squared Error for fitted polynomial weights w
     Phi = np.vander(x, N=len(w), increasing=True)
     y_pred = Phi @ w
     return float(np.mean((y - y_pred) ** 2))
 
 def run_bias_variance_lab():
-    """Demonstrates how increasing polynomial degree causes training MSE to collapse while test MSE explodes."""
+    # Demonstrates training MSE collapse vs test MSE explosion
     print("=" * 70)
     print("EXPERIMENT 1: EMPIRICAL RISK MINIMIZATION (BIAS-VARIANCE TRADEOFF)")
     print("=" * 70)
@@ -1014,7 +1086,7 @@ def run_bias_variance_lab():
         print(f"{deg:<8}{train_mse:<22.5f}{test_mse:<24.5f}{diagnosis:<15}")
 
 def run_curse_of_dimensionality_lab():
-    """Demonstrates that in high dimensions, (D_max - D_min) / D_min collapses to 0."""
+    # Demonstrates that in high dimensions, (D_max - D_min) / D_min collapses to 0
     print("\n" + "=" * 70)
     print("EXPERIMENT 2: THE CURSE OF DIMENSIONALITY (DISTANCE CONCENTRATION)")
     print("=" * 70)
@@ -1074,13 +1146,15 @@ if __name__ == "__main__":
     Let $\mathbf{X}, \mathbf{Y}$ be two independent random vectors drawn uniformly from the unit hypercube $[0, 1]^d$.
     \begin{enumerate}[label=(\alph*)]
         \item Compute the exact mean $\E[(X_j - Y_j)^2]$ and variance $\Var((X_j - Y_j)^2)$ for coordinate difference $j$.
-        \item Using Chebyshev's inequality and the Central Limit Theorem, prove that as dimension $d \to \infty$, the relative distance spread satisfies:
+        \item Using Chebyshev's inequality, prove that as dimension $d \to \infty$, the relative standard deviation of the squared distance satisfies $\frac{\sigma(D^2)}{\E[D^2]} \to 0$, and show why:
         \begin{equation*}
         \frac{D_{\max} - D_{\min}}{D_{\min}} \xrightarrow{P} 0
         \end{equation*}
     \end{enumerate}
 
-    \item \textbf{Uniform Generalization Bound for Finite Hypothesis Classes:}
+    \item \textbf{[Challenge / Theoretical Extension] Uniform Generalization Bound for Finite Hypothesis Classes:}
+    \textit{(Note: This problem introduces the core machinery of Statistical Learning Theory, proving why restricting the size of the hypothesis class $|\mathcal{H}|$ mathematically prevents overfitting as sample size $N$ grows.)}
+    
     Let $\mathcal{H}$ be a finite hypothesis space containing $|\mathcal{H}| < \infty$ candidate models. Using Hoeffding's inequality for bounded loss functions $\ell \in [0, 1]$ and applying the union bound across all hypotheses, prove that with probability at least $1 - \delta$ over the random draw of training sample $S$ of size $N$, every hypothesis $h \in \mathcal{H}$ simultaneously satisfies:
     \begin{equation*}
     R(h) \le R_{\text{emp}}(h; S) + \sqrt{\frac{\log |\mathcal{H}| + \log(1/\delta)}{2N}}
