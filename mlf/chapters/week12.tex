@@ -2,11 +2,42 @@
 \label{chap:week12}
 
 % ----------------------------------------------------------------------
-% PART 1: EXECUTIVE ROADMAP & LEARNING OBJECTIVES
+% PART 1: EXECUTIVE ROADMAP & THE INCOMPLETE INFORMATION PARADOX
 % ----------------------------------------------------------------------
 \section{Executive Roadmap \& Learning Objectives}
 
-The multivariate normal (Gaussian) distribution is the cornerstone of statistical machine learning. By virtue of the Central Limit Theorem, aggregated noise fluctuations across physical systems converge toward Gaussianity. However, real-world data often exhibits multimodality and latent cluster structure that a single unimodal Gaussian cannot capture. \textbf{Gaussian Mixture Models (GMMs)} resolve this by modeling data as a convex combination of Gaussians, estimated iteratively via the **Expectation-Maximization (EM) algorithm**. Finally, **Concentration Inequalities** provide non-asymptotic probabilistic bounds governing sample sizes and generalization error.
+The multivariate normal (Gaussian) distribution is the cornerstone of statistical machine learning. By virtue of the Central Limit Theorem, aggregated noise fluctuations across complex physical and computational systems converge toward Gaussianity. However, real-world data overwhelmingly exhibits multimodality, asymmetry, and latent cluster structure that a single unimodal Gaussian cannot capture. \textbf{Gaussian Mixture Models (GMMs)} resolve this by modeling complex distributions as a convex combination of Gaussians, estimated iteratively via the celebrated \textbf{Expectation-Maximization (EM) algorithm}. Finally, \textbf{Concentration Inequalities} provide non-asymptotic probabilistic bounds governing sample sizes and generalization error, bridging mathematical foundations with statistical learning theory.
+
+\begin{figure}[htbp]
+\centering
+\begin{tcolorbox}[
+    colback=coralbg,
+    colframe=coralborder,
+    title={\large \textbf{The Incomplete Information Paradox: The Circular Riddle of Latent Mixtures}},
+    fonttitle=\bfseries\sffamily,
+    arc=3mm,
+    boxrule=1pt,
+    width=\textwidth
+]
+\textbf{The Classical Maximum Likelihood Approach:} To fit a probabilistic model $p(\mathbf{x}; \boldsymbol{\theta})$ to training data, calculus dictates that we write down the marginal log-likelihood $\ell(\boldsymbol{\theta}) = \sum_{i=1}^N \log p(\mathbf{x}_i; \boldsymbol{\theta})$, compute the gradient $\nabla_{\boldsymbol{\theta}} \ell = \mathbf{0}$, and solve for the optimal parameters $\boldsymbol{\theta}^*$.
+
+\textbf{The Sum-Inside-the-Log Wall:} For a Gaussian Mixture Model with $K$ components, the marginal density is a mixture sum: $p(\mathbf{x}) = \sum_{k=1}^K \pi_k \mathcal{N}(\mathbf{x}; \boldsymbol{\mu}_k, \Sigma_k)$.
+The log-likelihood becomes:
+\begin{equation*}
+\ell(\boldsymbol{\theta}) = \sum_{i=1}^N \log\left( \sum_{k=1}^K \pi_k \mathcal{N}(\mathbf{x}_i; \boldsymbol{\mu}_k, \Sigma_k) \right)
+\end{equation*}
+Because the summation sits \textbf{inside the logarithm}, the log cannot distribute across the individual Gaussians. Setting $\nabla \ell = \mathbf{0}$ yields an intractable system of coupled, non-linear equations with no closed-form solution.
+
+\textbf{The Chicken-and-Egg Dilemma:}
+\begin{itemize}
+    \item \emph{If we knew the true latent cluster labels $z_i \in \{1, \dots, K\}$ for every data point}, the problem would decompose into $K$ separate single Gaussians, solvable in one line via standard sample means and covariances!
+    \item \emph{If we knew the true parameters $\{\boldsymbol{\mu}_k, \Sigma_k, \pi_k\}$ of each Gaussian}, inferring the cluster assignments would be trivial Bayes' rule!
+\end{itemize}
+We know neither. The \textbf{Expectation-Maximization (EM) Algorithm} resolves this fundamental circularity by constructing a tight variational lower bound (the \textbf{Evidence Lower Bound}, ELBO) via Jensen's inequality, decoupling the parameters and guaranteeing monotonic ascent of the true marginal likelihood.
+\end{tcolorbox}
+\caption{The Incomplete Information Paradox: The foundational riddle of unsupervised latent variable learning.}
+\label{fig:em_paradox}
+\end{figure}
 
 \subsection{Prerequisites \& Scaffolding}
 Mastery of this chapter synthesizes positive definite matrices, Jensen's inequality, and probability theory as organized in Table~\ref{tab:w12_prereqs}.
@@ -35,6 +66,7 @@ By the conclusion of this chapter, students will be able to:
     \item Formulate Gaussian Mixture Models with latent categorical cluster assignments.
     \item Derive the complete Expectation-Maximization (EM) algorithm from first principles via the Evidence Lower Bound (ELBO).
     \item State and apply Markov's, Chebyshev's, and Hoeffding's concentration inequalities to establish rigorous sample complexity bounds.
+    \item Prove why Bessel's correction factor $\frac{N}{N-1}$ is required for unbiased sample covariance estimation.
 \end{itemize}
 
 \subsection{Notation \& Mathematical Conventions}
@@ -43,7 +75,7 @@ By the conclusion of this chapter, students will be able to:
     \item $D_M(\mathbf{x}, \boldsymbol{\mu}) \triangleq \sqrt{(\mathbf{x} - \boldsymbol{\mu})^T \Sigma^{-1} (\mathbf{x} - \boldsymbol{\mu})}$: The Mahalanobis distance.
     \item $K$: The number of latent mixture components.
     \item $\pi_k \triangleq P(z = k)$: Mixture weight for component $k$ ($\sum_{k=1}^K \pi_k = 1, \pi_k \ge 0$).
-    \item $\gamma_{ik} \triangleq P(z_i = k \mid \mathbf{x}_i)$: The posterior responsibility of component $k$ for sample $i$.
+    \item $\gamma_{ik} \triangleq P(z_i = k \mid \mathbf{x}_i, \boldsymbol{\theta})$: The posterior responsibility of component $k$ for sample $i$.
     \item $\text{ELBO}(q, \boldsymbol{\theta})$: The Evidence Lower Bound on the marginal log-likelihood.
     \item $\bar{X}_N \triangleq \frac{1}{N}\sum_{i=1}^N X_i$: The empirical sample mean.
 \end{itemize}
@@ -69,11 +101,11 @@ The level sets (contours of equal probability density) of a multivariate Gaussia
 (\mathbf{x} - \boldsymbol{\mu})^T \Sigma^{-1} (\mathbf{x} - \boldsymbol{\mu}) = c^2
 \label{eq:mahalanobis_ellipsoid}
 \end{equation}
-By the Spectral Theorem, $\Sigma = Q \Lambda Q^T$. The principal axes of the ellipsoid align with the orthogonal eigenvectors $\mathbf{q}_i$, with semi-axis lengths proportional to $\sqrt{\lambda_i}$.
+By the Spectral Theorem (Chapter~\ref{chap:week05}), $\Sigma = Q \Lambda Q^T$. The principal axes of the ellipsoid align with the orthogonal eigenvectors $\mathbf{q}_i$, with semi-axis lengths proportional to $\sqrt{\lambda_i}$.
 \end{theorem}
 
 \subsection{Maximum Likelihood Estimation for Gaussian Parameters}
-Given i.i.d. observations $S = \{\mathbf{x}_1, \dots, \mathbf{x}_N\} \subset \mathbb{R}^d$, the log-likelihood function is:
+Given i.i.d.\ observations $S = \{\mathbf{x}_1, \dots, \mathbf{x}_N\} \subset \mathbb{R}^d$, the log-likelihood function is:
 \begin{equation}
 \ell(\boldsymbol{\mu}, \Sigma) = -\frac{N d}{2}\log(2\pi) - \frac{N}{2}\log|\Sigma| - \frac{1}{2}\sum_{i=1}^N (\mathbf{x}_i - \boldsymbol{\mu})^T \Sigma^{-1} (\mathbf{x}_i - \boldsymbol{\mu})
 \label{eq:mle_loglik}
@@ -85,8 +117,17 @@ The Maximum Likelihood Estimators for $\boldsymbol{\mu}$ and $\Sigma$ are:
 \hat{\boldsymbol{\mu}}_{\text{MLE}} &= \frac{1}{N} \sum_{i=1}^N \mathbf{x}_i \label{eq:mle_mu} \\
 \hat{\Sigma}_{\text{MLE}} &= \frac{1}{N} \sum_{i=1}^N (\mathbf{x}_i - \hat{\boldsymbol{\mu}}_{\text{MLE}})(\mathbf{x}_i - \hat{\boldsymbol{\mu}}_{\text{MLE}})^T \label{eq:mle_sigma}
 \end{align}
-While $\hat{\boldsymbol{\mu}}_{\text{MLE}}$ is unbiased ($\E[\hat{\boldsymbol{\mu}}] = \boldsymbol{\mu}$), $\hat{\Sigma}_{\text{MLE}}$ is biased: $\E[\hat{\Sigma}_{\text{MLE}}] = \frac{N-1}{N}\Sigma$. The unbiased sample covariance incorporates Bessel's correction factor $\frac{N}{N-1}$.
+While $\hat{\boldsymbol{\mu}}_{\text{MLE}}$ is unbiased ($\E[\hat{\boldsymbol{\mu}}] = \boldsymbol{\mu}$), $\hat{\Sigma}_{\text{MLE}}$ is biased: $\E[\hat{\Sigma}_{\text{MLE}}] = \frac{N-1}{N}\Sigma$. The unbiased sample covariance incorporates Bessel's correction factor $\frac{N}{N-1}$:
+\begin{equation}
+S = \frac{1}{N-1} \sum_{i=1}^N (\mathbf{x}_i - \bar{\mathbf{x}})(\mathbf{x}_i - \bar{\mathbf{x}})^T
+\end{equation}
 \end{theorem}
+
+\begin{ponderbox}[Where Does the Lost Degree of Freedom Go?]
+Why is the sample covariance $\hat{\Sigma}_{\text{MLE}}$ systematically smaller than the true covariance $\Sigma$ by exactly $\frac{N-1}{N}$?
+
+\textbf{Reflection:} The deviations $(\mathbf{x}_i - \bar{\mathbf{x}})$ are measured from the \emph{empirical sample mean} $\bar{\mathbf{x}}$, not the true population mean $\boldsymbol{\mu}$. Because $\bar{\mathbf{x}} = \frac{1}{N}\sum \mathbf{x}_i$ is the exact geometric center of the sample cloud, it minimizes the sum of squared distances $\sum \|\mathbf{x}_i - \mathbf{c}\|^2$ over all possible choices of center $\mathbf{c}$. Measuring deviations around $\bar{\mathbf{x}}$ rather than $\boldsymbol{\mu}$ artificially deflates the observed spread. Exactly one degree of freedom is consumed estimating the mean vector, leaving $N-1$ independent directions of variation.
+\end{ponderbox}
 
 \subsection{Gaussian Mixture Models (GMM) and the EM Algorithm}
 A Gaussian Mixture Model models complex multimodal densities as a convex combination of $K$ distinct Gaussian components:
@@ -95,12 +136,6 @@ p(\mathbf{x}; \boldsymbol{\theta}) = \sum_{k=1}^K \pi_k \mathcal{N}(\mathbf{x}; 
 \label{eq:gmm_density}
 \end{equation}
 where $\boldsymbol{\theta} = \{\pi_k, \boldsymbol{\mu}_k, \Sigma_k\}_{k=1}^K$.
-Direct maximization of the marginal log-likelihood:
-\begin{equation}
-\ell(\boldsymbol{\theta}) = \sum_{i=1}^N \log\left( \sum_{k=1}^K \pi_k \mathcal{N}(\mathbf{x}_i; \boldsymbol{\mu}_k, \Sigma_k) \right)
-\label{eq:gmm_marginal_loglik}
-\end{equation}
-is analytically intractable because the summation lies inside the logarithm.
 
 \begin{theorem}[The Expectation-Maximization (EM) Algorithm for GMMs]
 The EM algorithm alternates between two steps until convergence:
@@ -151,23 +186,34 @@ P(|X - \mu| \ge \epsilon) \le \frac{\sigma^2}{\epsilon^2}
 \end{theorem}
 
 \begin{proof}
-Apply Markov's inequality to the non-negative random variable $Y = (X - \mu)^2$ with $a = \epsilon^2$:
+Apply Markov's inequality to the non-negative random variable $Y = (X - \mu)^2$ with threshold $a = \epsilon^2$:
 \begin{equation}
 P(|X - \mu| \ge \epsilon) = P((X - \mu)^2 \ge \epsilon^2) \le \frac{\E[(X - \mu)^2]}{\epsilon^2} = \frac{\sigma^2}{\epsilon^2}
 \end{equation}
 \end{proof}
 
 \begin{theorem}[Hoeffding's Inequality]
-Let $X_1, X_2, \dots, X_N$ be independent bounded random variables such that $X_i \in [a_i, b_i]$ with probability 1. Let $\bar{X} = \frac{1}{N}\sum_{i=1}^N X_i$ and $\mu = \E[\bar{X}]$. For any $\epsilon > 0$:
+Let $X_1, X_2, \dots, X_N$ be independent bounded random variables such that $X_i \in [a_i, b_i]$ with probability 1. Let $\bar{X}_N = \frac{1}{N}\sum_{i=1}^N X_i$ and $\mu = \E[\bar{X}_N]$. For any $\epsilon > 0$:
 \begin{equation}
-P(|\bar{X} - \mu| \ge \epsilon) \le 2 \exp\left( -\frac{2N^2 \epsilon^2}{\sum_{i=1}^N (b_i - a_i)^2} \right)
+P(|\bar{X}_N - \mu| \ge \epsilon) \le 2 \exp\left( -\frac{2N^2 \epsilon^2}{\sum_{i=1}^N (b_i - a_i)^2} \right)
 \label{eq:hoeffding_ineq}
 \end{equation}
-If all $X_i \in [0, 1]$, this simplifies to:
+In particular, if all $X_i \in [0, 1]$, this simplifies to:
 \begin{equation}
-P(|\bar{X} - \mu| \ge \epsilon) \le 2 \exp\left( -2N\epsilon^2 \right)
+P(|\bar{X}_N - \mu| \ge \epsilon) \le 2 \exp\left( -2N\epsilon^2 \right)
 \end{equation}
 \end{theorem}
+
+\begin{ponderbox}[The Hierarchy of Concentration Bounds]
+Why do we need three different concentration inequalities? How do their requirements and bound decay rates compare?
+
+\textbf{Reflection:}
+\begin{itemize}
+    \item \textbf{Markov's Inequality:} Requires only the \emph{mean} ($\E[X]$) and non-negativity. Decays only reciprocally: $\mathcal{O}(1/\epsilon)$.
+    \item \textbf{Chebyshev's Inequality:} Requires the \emph{variance} ($\Var(X)$). Decays quadratically: $\mathcal{O}(1/\epsilon^2)$ or $\mathcal{O}(1/(N\epsilon^2))$ for sample averages.
+    \item \textbf{Hoeffding's Inequality:} Requires \emph{independence} and \emph{bounded support} ($X_i \in [a, b]$). Decays \textbf{exponentially} in sample size: $\mathcal{O}(\exp(-2N\epsilon^2))$. This exponential tail makes Hoeffding the bedrock of PAC (Probably Approximately Correct) learning theory.
+\end{itemize}
+\end{ponderbox}
 
 % ----------------------------------------------------------------------
 % PART 3: VISUAL & GEOMETRIC INTUITION
@@ -264,32 +310,181 @@ $K$-Means clustering is mathematically equivalent to a special degenerate limit 
 Soft responsibilities collapse into hard binary cluster assignments, and the M-step mean update becomes the exact cluster centroid calculation of $K$-Means.
 
 % ----------------------------------------------------------------------
-% PART 5: EXPLICIT GOTCHAS & DIAGNOSTIC MISCONCEPTIONS
+% PART 5: MULTI-PAGE WORKED EXAMPLES
+% ----------------------------------------------------------------------
+\section{Multi-Page Breakable Numerical Worked Examples}
+
+\begin{examplebox}[breakable]{Analytical 2D Mahalanobis Distance and Ellipsoidal Contours}
+\textbf{Problem Statement:}
+Let $\mathbf{X} \sim \mathcal{N}(\boldsymbol{\mu}, \Sigma)$ be a bivariate Gaussian distribution with parameters:
+\begin{equation}
+\boldsymbol{\mu} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}, \quad \Sigma = \begin{bmatrix} 4 & 2 \\ 2 & 2 \end{bmatrix}
+\end{equation}
+
+\textbf{Task Requirements:}
+\begin{enumerate}
+    \item Compute the determinant $|\Sigma|$ and the exact inverse covariance matrix $\Sigma^{-1}$.
+    \item Compute the squared Mahalanobis distance $D_M^2(\mathbf{x}, \boldsymbol{\mu})$ and Mahalanobis distance $D_M(\mathbf{x}, \boldsymbol{\mu})$ for test point $\mathbf{x} = [3, 4]^T$.
+    \item Solve the characteristic polynomial to compute the eigenvalues $\lambda_1, \lambda_2$ and eigenvectors of $\Sigma$.
+    \item Describe the principal orientation and axis lengths of the $1$-standard-deviation contour ellipsoid.
+\end{enumerate}
+
+\tcblower
+
+\textbf{Step 1: Determinant and Matrix Inversion}
+The determinant of $\Sigma$ is:
+\begin{equation}
+|\Sigma| = (4)(2) - (2)(2) = 8 - 4 = 4
+\end{equation}
+Since $|\Sigma| = 4 > 0$ and the leading minor $\Sigma_{11} = 4 > 0$, $\Sigma \succ 0$ is strictly positive definite.
+The inverse covariance (precision) matrix is:
+\begin{equation}
+\Sigma^{-1} = \frac{1}{4} \begin{bmatrix} 2 & -2 \\ -2 & 4 \end{bmatrix} = \begin{bmatrix} \frac{1}{2} & -\frac{1}{2} \\ -\frac{1}{2} & 1 \end{bmatrix}
+\end{equation}
+
+\textbf{Step 2: Mahalanobis Distance Computation for $\mathbf{x} = [3, 4]^T$}
+Compute the centered deviation vector:
+\begin{equation}
+\Delta \mathbf{x} = \mathbf{x} - \boldsymbol{\mu} = \begin{bmatrix} 3 - 1 \\ 4 - 2 \end{bmatrix} = \begin{bmatrix} 2 \\ 2 \end{bmatrix}
+\end{equation}
+The squared Mahalanobis distance is the quadratic form:
+\begin{align}
+D_M^2(\mathbf{x}, \boldsymbol{\mu}) &= (\mathbf{x} - \boldsymbol{\mu})^T \Sigma^{-1} (\mathbf{x} - \boldsymbol{\mu}) \nonumber \\
+&= \begin{bmatrix} 2 & 2 \end{bmatrix} \begin{bmatrix} \frac{1}{2} & -\frac{1}{2} \\ -\frac{1}{2} & 1 \end{bmatrix} \begin{bmatrix} 2 \\ 2 \end{bmatrix} \nonumber \\
+&= \begin{bmatrix} 2 & 2 \end{bmatrix} \begin{bmatrix} \frac{1}{2}(2) - \frac{1}{2}(2) \\ -\frac{1}{2}(2) + 1(2) \end{bmatrix} = \begin{bmatrix} 2 & 2 \end{bmatrix} \begin{bmatrix} 0 \\ 1 \end{bmatrix} = 2(0) + 2(1) = 2.0
+\end{align}
+The Mahalanobis distance is:
+\begin{equation}
+D_M(\mathbf{x}, \boldsymbol{\mu}) = \sqrt{2} \approx 1.4142
+\end{equation}
+Notice that the standard Euclidean distance is $D_E = \sqrt{2^2 + 2^2} = \sqrt{8} \approx 2.828$. The Mahalanobis metric contracts this distance by a factor of $2\times$ because the deviation lies along a direction of high variance!
+
+\textbf{Step 3: Eigenvalues and Principal Axes of the Covariance Ellipsoid}
+The characteristic equation of $\Sigma$ is:
+\begin{equation}
+\det(\Sigma - \lambda I) = \det\begin{bmatrix} 4 - \lambda & 2 \\ 2 & 2 - \lambda \end{bmatrix} = (4 - \lambda)(2 - \lambda) - 4 = \lambda^2 - 6\lambda + 4 = 0
+\end{equation}
+Solving via the quadratic formula:
+\begin{equation}
+\lambda = \frac{6 \pm \sqrt{36 - 16}}{2} = \frac{6 \pm \sqrt{20}}{2} = 3 \pm \sqrt{5}
+\end{equation}
+The two eigenvalues are:
+\begin{align}
+\lambda_1 &= 3 + \sqrt{5} \approx 3 + 2.236 = 5.236 \\
+\lambda_2 &= 3 - \sqrt{5} \approx 3 - 2.236 = 0.764
+\end{align}
+Verify trace and determinant:
+\begin{align}
+\lambda_1 + \lambda_2 &= (3 + \sqrt{5}) + (3 - \sqrt{5}) = 6 = \operatorname{tr}(\Sigma) \\
+\lambda_1 \lambda_2 &= (3 + \sqrt{5})(3 - \sqrt{5}) = 9 - 5 = 4 = \det(\Sigma)
+\end{align}
+
+\textbf{Step 4: Eigenvector Orientation and Geometry}
+For $\lambda_1 = 3 + \sqrt{5}$:
+\begin{equation}
+(4 - (3 + \sqrt{5}))v_1 + 2v_2 = 0 \implies (1 - \sqrt{5})v_1 + 2v_2 = 0 \implies \mathbf{q}_1 \propto \begin{bmatrix} 2 \\ \sqrt{5} - 1 \end{bmatrix} \approx \begin{bmatrix} 2 \\ 1.236 \end{bmatrix}
+\end{equation}
+The angle of the major principal axis is:
+\begin{equation}
+\theta = \arctan\left(\frac{\sqrt{5}-1}{2}\right) \approx \arctan(0.618) \approx 31.7^\circ
+\end{equation}
+The $1$-standard-deviation contour ellipsoid is defined by $D_M^2 = 1$:
+\begin{itemize}
+    \item Semi-major axis length: $\sqrt{\lambda_1} = \sqrt{3 + \sqrt{5}} \approx \sqrt{5.236} \approx 2.288$.
+    \item Semi-minor axis length: $\sqrt{\lambda_2} = \sqrt{3 - \sqrt{5}} \approx \sqrt{0.764} \approx 0.874$.
+\end{itemize}
+The distribution is elongated along the line $y - 2 = 0.618(x - 1)$ with an eccentricity ratio of $\frac{2.288}{0.874} \approx 2.62$.
+\end{examplebox}
+
+\begin{examplebox}[breakable]{Analytical E-Step Calculation for a 1D Gaussian Mixture Model}
+\textbf{Problem Statement:}
+Consider a two-component 1D Gaussian Mixture Model with parameters:
+\begin{itemize}
+    \item Component 1: Prior weight $\pi_1 = 0.6$, mean $\mu_1 = 0.0$, variance $\sigma_1^2 = 1.0$.
+    \item Component 2: Prior weight $\pi_2 = 0.4$, mean $\mu_2 = 3.0$, variance $\sigma_2^2 = 1.0$.
+\end{itemize}
+Suppose we observe a new data point at $x = 1.5$.
+
+\textbf{Task Requirements:}
+\begin{enumerate}
+    \item Evaluate the Gaussian density values $\mathcal{N}(1.5; \mu_1, \sigma_1^2)$ and $\mathcal{N}(1.5; \mu_2, \sigma_2^2)$.
+    \item Compute the weighted densities $\pi_1 \mathcal{N}_1$ and $\pi_2 \mathcal{N}_2$.
+    \item Compute the total marginal density $p(x = 1.5)$.
+    \item Calculate the exact posterior responsibilities $\gamma_1$ and $\gamma_2$.
+    \item State which cluster the point is assigned to, and explain why despite being geometrically equidistant from both cluster centers ($|1.5 - 0| = |1.5 - 3| = 1.5$).
+\end{enumerate}
+
+\tcblower
+
+\textbf{Step 1: Evaluation of the Individual Component Densities}
+The standard Gaussian density formula is:
+\begin{equation}
+\mathcal{N}(x; \mu, \sigma^2) = \frac{1}{\sqrt{2\pi \sigma^2}} \exp\left( -\frac{(x - \mu)^2}{2\sigma^2} \right)
+\end{equation}
+For Component 1 ($\mu_1 = 0, \sigma_1 = 1$):
+\begin{align}
+\mathcal{N}(1.5; 0, 1) &= \frac{1}{\sqrt{2\pi}} \exp\left( -\frac{(1.5 - 0)^2}{2(1)} \right) = \frac{1}{\sqrt{2\pi}} \exp\left( -\frac{2.25}{2} \right) \nonumber \\
+&= \frac{1}{\sqrt{2\pi}} e^{-1.125} \approx 0.398942 \times 0.324652 \approx 0.129518
+\end{align}
+For Component 2 ($\mu_2 = 3, \sigma_2 = 1$):
+\begin{align}
+\mathcal{N}(1.5; 3, 1) &= \frac{1}{\sqrt{2\pi}} \exp\left( -\frac{(1.5 - 3)^2}{2(1)} \right) = \frac{1}{\sqrt{2\pi}} \exp\left( -\frac{(-1.5)^2}{2(1)} \right) \nonumber \\
+&= \frac{1}{\sqrt{2\pi}} e^{-1.125} \approx 0.129518
+\end{align}
+Notice that because $|1.5 - 0| = |1.5 - 3| = 1.5$ and both variances are identical ($\sigma_1^2 = \sigma_2^2 = 1$), the Gaussian densities are identically equal: $\mathcal{N}_1 = \mathcal{N}_2 = d \approx 0.129518$.
+
+\textbf{Step 2: Weighted Probabilities}
+\begin{align}
+\pi_1 \mathcal{N}(1.5; 0, 1) &= 0.6 \times 0.129518 = 0.077711 \\
+\pi_2 \mathcal{N}(1.5; 3, 1) &= 0.4 \times 0.129518 = 0.051807
+\end{align}
+
+\textbf{Step 3: Total Marginal Probability Density}
+Summing the weighted components:
+\begin{equation}
+p(x = 1.5) = \pi_1 \mathcal{N}_1 + \pi_2 \mathcal{N}_2 = 0.077711 + 0.051807 = 0.129518
+\end{equation}
+
+\textbf{Step 4: Posterior Responsibilities (E-step)}
+By Bayes' rule:
+\begin{align}
+\gamma_1 &= \frac{\pi_1 \mathcal{N}_1}{p(x = 1.5)} = \frac{0.6 \times d}{1.0 \times d} = \mathbf{0.60} \quad (60\%) \\
+\gamma_2 &= \frac{\pi_2 \mathcal{N}_2}{p(x = 1.5)} = \frac{0.4 \times d}{1.0 \times d} = \mathbf{0.40} \quad (40\%)
+\end{align}
+Check normalization: $\gamma_1 + \gamma_2 = 0.60 + 0.40 = 1.00$.
+
+\textbf{Step 5: Interpretation of Cluster Assignment}
+Observation $x = 1.5$ is more likely to belong to Cluster 1 ($\gamma_1 = 60\%$ vs $\gamma_2 = 40\%$).
+Even though the observation is geometrically equidistant from both cluster centers, Cluster 1 possesses a larger prior mixture weight ($\pi_1 = 0.6 > \pi_2 = 0.4$). In GMM clustering, prior probabilities act as a Bayesian regularizer, tilting soft assignments toward clusters with higher prevalence.
+\end{examplebox}
+
+% ----------------------------------------------------------------------
+% PART 6: EXPLICIT GOTCHAS & DIAGNOSTIC MISCONCEPTIONS
 % ----------------------------------------------------------------------
 \section{Explicit Gotchas \& Diagnostic Misconceptions}
 
 \begin{trapbox}{Gotcha 1: Covariance Collapse / Likelihood Singularity in GMMs}
 During EM training, a Gaussian component's mean $\boldsymbol{\mu}_k$ lands exactly on an isolated sample $\mathbf{x}_i$. The solver attempts to update $\Sigma_k$, causing $\det(\Sigma_k) \to 0$ and likelihood to explode to $+\infty$.
-\textbf{The Trap:} The maximum likelihood formulation for GMMs has **unbounded singularities** on the boundary of parameter space. If a component collapses onto a single point, $\sigma^2 \to 0 \implies \frac{1}{\sigma^d} \to \infty$. Practical implementations must regularize the covariance matrices by adding a small positive ridge diagonal: $\Sigma_k \leftarrow \Sigma_k + \epsilon I_d$ (where $\epsilon \approx 10^{-6}$).
+\textbf{The Trap:} The maximum likelihood formulation for GMMs has \textbf{unbounded singularities} on the boundary of parameter space. If a component collapses onto a single point, $\sigma^2 \to 0 \implies \frac{1}{\sigma^d} \to \infty$. Practical implementations must regularize the covariance matrices by adding a small positive ridge diagonal: $\Sigma_k \leftarrow \Sigma_k + \epsilon I_d$ (where $\epsilon \approx 10^{-6}$).
 \end{trapbox}
 
 \begin{trapbox}{Gotcha 2: Believing the EM Algorithm Finds the Global Maximum}
 An analyst runs EM once on a complex dataset and assumes the parameters represent the global maximum of the marginal log-likelihood.
-\textbf{The Trap:} The EM algorithm is a **local hill-climbing procedure**. The mixture log-likelihood surface is non-convex and filled with numerous suboptimal local maxima and saddle points. GMM implementations must be run multiple times with different random restarts (often initialized using $K$-Means centroids) to select the solution with the highest converged log-likelihood.
+\textbf{The Trap:} The EM algorithm is a \textbf{local hill-climbing procedure}. The mixture log-likelihood surface is non-convex and filled with numerous suboptimal local maxima and saddle points. GMM implementations must be run multiple times with different random restarts (often initialized using $K$-Means centroids) to select the solution with the highest converged log-likelihood.
 \end{trapbox}
 
 \begin{trapbox}{Gotcha 3: Applying Markov's Inequality to Variables with Negative Support}
 A student applies Markov's inequality to standard normal variable $Z \sim \mathcal{N}(0, 1)$ to bound $P(Z \ge 2) \le \frac{\E[Z]}{2} = 0$.
-\textbf{The Trap:} Markov's inequality requires the random variable to be strictly **non-negative** ($X \ge 0$). Applying it to variables that take negative values produces nonsensical probabilities (such as upper-bounding a non-zero probability by zero or a negative number).
+\textbf{The Trap:} Markov's inequality requires the random variable to be strictly \textbf{non-negative} ($X \ge 0$). Applying it to variables that take negative values produces nonsensical probabilities (such as upper-bounding a non-zero probability by zero or a negative number).
 \end{trapbox}
 
 \begin{trapbox}{Gotcha 4: Conflating Sample Variance with Variance of the Sample Mean}
 A practitioner samples $N = 100$ points from a distribution with variance $\sigma^2 = 16$. They assert that the sample mean $\bar{X}$ has standard deviation $4$.
-\textbf{The Trap:} The individual samples have variance $\sigma^2 = 16$ (standard deviation $4$). However, by independence, the **sample mean** has variance $\Var(\bar{X}) = \frac{\sigma^2}{N} = \frac{16}{100} = 0.16$, yielding a standard error of $\frac{\sigma}{\sqrt{N}} = \frac{4}{10} = 0.4$. The sample mean concentrates around $\mu$ at rate $\mathcal{O}(1/\sqrt{N})$.
+\textbf{The Trap:} The individual samples have variance $\sigma^2 = 16$ (standard deviation $4$). However, by independence, the \textbf{sample mean} has variance $\Var(\bar{X}) = \frac{\sigma^2}{N} = \frac{16}{100} = 0.16$, yielding a standard error of $\frac{\sigma}{\sqrt{N}} = \frac{4}{10} = 0.4$. The sample mean concentrates around $\mu$ at rate $\mathcal{O}(1/\sqrt{N})$.
 \end{trapbox}
 
 % ----------------------------------------------------------------------
-% PART 6: COMPARATIVE SYNTHESIS & SUMMARY TABLE
+% PART 7: COMPARATIVE SYNTHESIS & SUMMARY TABLE
 % ----------------------------------------------------------------------
 \section{Comparative Synthesis \& Summary Table}
 
@@ -316,7 +511,7 @@ KDE & Non-parametric & Kernel balls centered on every data point & Integrated sq
 \end{table}
 
 % ----------------------------------------------------------------------
-% PART 7: PYTHON / SCIENTIFIC COMPUTING LAB
+% PART 8: PYTHON / SCIENTIFIC COMPUTING LAB
 % ----------------------------------------------------------------------
 \section{Python / Scientific Computing Lab}
 
@@ -367,7 +562,7 @@ class GaussianMixtureEM:
             # Total log-likelihood
             max_log = np.max(log_weighted_probs, axis=1, keepdims=True)
             log_sum_exp = max_log + np.log(np.sum(np.exp(log_weighted_probs - max_log), axis=1, keepdims=True))
-            current_log_lik = np.sum(log_sum_exp)
+            current_log_lik = float(np.sum(log_sum_exp))
             self.log_likelihood_history_.append(current_log_lik)
 
             # Normalized responsibilities: gamma_ik = exp(log_weighted - log_sum_exp)
@@ -417,7 +612,7 @@ if __name__ == "__main__":
 \end{lstlisting}
 
 % ----------------------------------------------------------------------
-% PART 8: COMPREHENSIVE PRACTICE PROBLEMS
+% PART 9: COMPREHENSIVE PRACTICE PROBLEMS
 % ----------------------------------------------------------------------
 \section{Comprehensive Practice Problems}
 
@@ -481,4 +676,3 @@ if __name__ == "__main__":
         \item Cauchy-Schwarz Inequality
     \end{enumerate}
 \end{enumerate}
-
