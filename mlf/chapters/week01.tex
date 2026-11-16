@@ -564,13 +564,13 @@ h^*(\mathbf{x}) = \E[Y \mid \mathbf{X} = \mathbf{x}]
 \end{equation}
 Now let us prove this rigorously.
 
-\begin{theorem}[Bayes Optimal Regressor Under Squared Loss]
+\begin{theorembox}{Bayes Optimal Regressor Under Squared Loss}
 Under squared error loss $\ell(\hat{y}, y) = (\hat{y} - y)^2$, the predictor achieving the absolute minimum true risk across any conceivable prediction function is:
 \begin{equation}
 h^*(\mathbf{x}) = \E[Y \mid \mathbf{X} = \mathbf{x}]
 \label{eq:bayes_regressor_proof_target_ped}
 \end{equation}
-\end{theorem}
+\end{theorembox}
 
 \begin{proof}
 By the Law of Total Expectation, we expand the True Risk:
@@ -628,7 +628,7 @@ You must make a single call: guess $1$ or guess $0$.
 \end{itemize}
 To minimize mistakes, you must predict the label that has more than a $50\%$ probability of being true! This is simply the principle of \textbf{majority voting}.
 
-\begin{theorem}[Bayes Optimal Binary Classifier]
+\begin{theorembox}{Bayes Optimal Binary Classifier}
 Define the posterior probability of class 1 as:
 \begin{equation}
 \eta(\mathbf{x}) \triangleq P(Y = 1 \mid \mathbf{X} = \mathbf{x})
@@ -641,7 +641,7 @@ h^*(\mathbf{x}) = \begin{cases}
 \end{cases}
 \label{eq:bayes_classifier_rule_ped}
 \end{equation}
-\end{theorem}
+\end{theorembox}
 
 \begin{proof}
 Condition on $\mathbf{X} = \mathbf{x}$. The pointwise expected $0-1$ loss for predicting label $\hat{y} \in \{0, 1\}$ is:
