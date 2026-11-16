@@ -2,57 +2,77 @@
 \label{chap:week02}
 
 % ----------------------------------------------------------------------
-% PART 1: WHY CALCULUS IN ML? THE BLINDFOLDED HIKER
+% PART 1: WHY CALCULUS IN ML? THE BRIDGE & THE BLINDFOLDED HIKER
 % ----------------------------------------------------------------------
 \section{Why Calculus in Machine Learning? The Paradigm, The Promise, and The Mountain}
 
-\subsection{The Blindfolded Hiker and the Optimization Paradox}
-In high school and introductory calculus, finding the minimum of a function is presented as a clean, three-step algebraic exercise:
+\subsection{The Architectural Bridge: From Empirical Risk to Vector Calculus}
+In Chapter~\ref{chap:week01}, we established the mathematical contract of machine learning through the formal 5-tuple:
 \begin{equation}
-y = f(x) \xrightarrow{\quad\text{Step 1: Differentiate}\quad} f'(x) \xrightarrow{\quad\text{Step 2: Set to Zero}\quad} f'(x) = 0 \xrightarrow{\quad\text{Step 3: Solve for } x\quad} x^*
+(\mathcal{X}, \mathcal{Y}, \mathcal{D}, \mathcal{H}, \ell)
 \end{equation}
-This neat procedure creates a seductive fantasy: \emph{to minimize an objective, simply set its derivative to zero and solve the equation.}
+We proved that Nature governs an unknown data-generating distribution $\mathcal{D}$, from which we observe a finite training sample $S = \{(\mathbf{x}_i, y_i)\}_{i=1}^N \sim \mathcal{D}^N$. Under the Empirical Risk Minimization (ERM) inductive principle, the learner selects an optimal hypothesis $h(\cdot; \mathbf{w}) \in \mathcal{H}$ parameterized by a weight vector $\mathbf{w} \in \mathbb{R}^d$ by minimizing the empirical risk functional:
+\begin{equation}
+\min_{\mathbf{w} \in \mathbb{R}^d} R_S(\mathbf{w}) \triangleq \frac{1}{N}\sum_{i=1}^N \ell\big(h(\mathbf{x}_i; \mathbf{w}), y_i\big)
+\label{eq:w02_erm_bridge}
+\end{equation}
+Chapter~\ref{chap:week01} posed the foundational question: \emph{How does an algorithm actually find the parameter vector $\mathbf{w}^*$ that achieves this minimum?}
 
-In machine learning, this fantasy collapses completely:
+This is where Differential Calculus enters as the engine of learning. The loss functional $R_S(\mathbf{w})$ defines an elevation surface over the $d$-dimensional parameter space $\mathbb{R}^d$. Finding the best machine learning model is geometrically equivalent to navigating this high-dimensional terrain to locate its lowest valley floor.
+
+\subsection{The Seductive Fantasy of High School Calculus}
+In introductory single-variable calculus, finding the minimum of a function is presented as a clean, three-step algebraic exercise:
+\begin{equation}
+y = f(w) \xrightarrow{\quad\text{Step 1: Differentiate}\quad} f'(w) \xrightarrow{\quad\text{Step 2: Set to Zero}\quad} f'(w) = 0 \xrightarrow{\quad\text{Step 3: Solve for } w\quad} w^*
+\end{equation}
+This tidy schoolroom routine creates a seductive fantasy: \emph{to minimize any machine learning objective, simply set its vector derivative to zero and solve the resulting algebraic equation.}
+
+In modern machine learning, this fantasy shatters against two insurmountable computational barriers:
 \begin{enumerate}
-    \item \textbf{The Dimensionality Explosion:} A modern machine learning model does not have one variable $x$; it has millions of adjustable parameters $\mathbf{w} = [w_1, w_2, \dots, w_d]^T \in \mathbb{R}^d$. Setting the vector derivative to zero produces a system of $d$ simultaneous equations:
+    \item \textbf{The Dimensionality Explosion:} A modern machine learning model does not have one scalar variable $w$; it possesses millions, or even hundreds of billions, of adjustable parameters $\mathbf{w} = [w_1, w_2, \dots, w_d]^T \in \mathbb{R}^d$. Setting the vector derivative to zero produces a system of $d$ simultaneous coupled equations:
     \begin{equation}
-    \nabla f(\mathbf{w}) = \begin{bmatrix} \frac{\partial f}{\partial w_1} \\ \frac{\partial f}{\partial w_2} \\ \vdots \\ \frac{\partial f}{\partial w_d} \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \\ \vdots \\ 0 \end{bmatrix}
+    \nabla R_S(\mathbf{w}) = \begin{bmatrix} \frac{\partial R_S}{\partial w_1} \\ \frac{\partial R_S}{\partial w_2} \\ \vdots \\ \frac{\partial R_S}{\partial w_d} \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \\ \vdots \\ 0 \end{bmatrix}
     \end{equation}
-    Even for linear regression, solving $\nabla f(\mathbf{w}) = \mathbf{0}$ requires solving the normal equations $(X^T X)\mathbf{w} = X^T \mathbf{y}$. Inverting a $d \times d$ matrix takes $\mathcal{O}(d^3)$ operations. If $d = 50{,}000$, direct matrix inversion would require over $10^{14}$ floating-point operations!
-    \item \textbf{Non-Linear Transcendental Equations:} In logistic regression, neural networks, or Gaussian mixture models, the equations $\nabla f(\mathbf{w}) = \mathbf{0}$ are transcendental and non-linear. No closed-form algebraic solution exists, even if you possessed infinite computing time.
+    Even for the simplest case of linear regression with Mean Squared Error, solving $\nabla R_S(\mathbf{w}) = \mathbf{0}$ yields the classic normal equations $(X^T X)\mathbf{w} = X^T \mathbf{y}$. Solving this linear system directly via Gaussian elimination or matrix inversion requires $\mathcal{O}(d^3)$ floating-point operations. If $d = 100{,}000$, direct matrix inversion would require roughly $10^{15}$ operations—demanding days of supercomputer time for a single model!
+    
+    \item \textbf{Transcendental and Non-Convex Equations:} In logistic regression, support vector machines with soft margins, and deep neural networks, the equations $\nabla R_S(\mathbf{w}) = \mathbf{0}$ involve transcendental functions (exponentials, logarithms, sigmoids) and nested non-linear compositions. No closed-form algebraic solution exists, even in principle.
 \end{enumerate}
 
-\subsubsection{Learning as Physical Navigation}
-Because we cannot jump directly to the bottom of the valley, we are forced to \textbf{walk there iteratively}. 
+\subsection{Learning as Physical Navigation: The Blindfolded Hiker}
+Because we cannot jump directly to the bottom of the valley algebraically, we are forced to \textbf{walk there iteratively}. 
 
-Imagine you are a blindfolded hiker standing on a foggy, unfamiliar mountain range at dusk. You cannot see the landscape. You cannot see the lowest valley. What do you do?
+Imagine you are a blindfolded hiker dropped onto an unfamiliar, fog-shrouded mountain range at twilight. You cannot see the landscape. You cannot see where the lowest valley lies. How do you find the bottom?
 \begin{itemize}
-    \item You reach down and feel the slope of the earth beneath your boots.
-    \item You locate the direction where the ground slopes down most steeply.
-    \item You take a step in that direction.
-    \item You stop, feel the slope again, and take another step.
+    \item You reach down with your boots and feel the local slope of the ground beneath your feet.
+    \item You find the direction where the earth slopes down most steeply.
+    \item You take a careful, measured step in that downward direction.
+    \item You stop, feel the slope anew at your new position, and take another step.
+    \item You repeat this cycle until the ground beneath your boots feels completely flat in all directions.
 \end{itemize}
-This physical process is \textbf{Gradient Descent}. Multivariate calculus is the mathematical language that gives our blindfolded hiker an infallible local compass.
+This physical procedure is the essence of \textbf{Gradient Descent}. Multivariate differential calculus is the mathematical language that gives our blindfolded hiker an infallible local compass:
 \begin{itemize}
-    \item The \textbf{Gradient Vector} $\nabla f(\mathbf{x})$ tells the hiker the direction of steepest uphill ascent. Stepping along $-\nabla f(\mathbf{x})$ guarantees local downhill progress.
-    \item The \textbf{Hessian Matrix} $\nabla^2 f(\mathbf{x})$ measures the curvature of the ground, revealing whether the hiker is standing inside a wide, stable bowl, balanced on a knife-edge ridge, or traversing a treacherous saddle point.
-    \item The \textbf{Taylor Series} provides the mathematical bridge that approximates any arbitrary, curving loss surface locally by a simple flat plane (first order) or a parabolic bowl (second order).
+    \item The \textbf{Gradient Vector} $\nabla f(\mathbf{w})$ computes the direction of steepest uphill ascent. Stepping in the opposite direction, $-\nabla f(\mathbf{w})$, guarantees local downhill progress.
+    \item The \textbf{Hessian Matrix} $\nabla^2 f(\mathbf{w})$ quantifies the curvature of the terrain in every direction, revealing whether the hiker is standing inside a stable bowl, traversing an elongated ravine, perched on a knife-edge ridge, or stalled at a treacherous saddle point.
+    \item The \textbf{Taylor Series} constructs a mathematical telescope that approximates any curving, complex loss landscape locally by a flat plane (first order) or a parabolic bowl (second order).
 \end{itemize}
 
-\subsection{The High-Dimensional Saddle Point Curse}
-In single-variable calculus, when the derivative vanishes ($f'(x) = 0$), the point is almost always a local minimum or a local maximum (inflection points like $x^3$ are rare exceptions).
+\subsection{The High-Dimensional Saddle Dilemma}
+In single-variable calculus, when the first derivative vanishes ($f'(w) = 0$), the stationary point is almost always a local minimum or a local maximum (inflection points like $f(w) = w^3$ are rare exceptions).
 
 In high-dimensional machine learning, this intuition is completely false:
-\begin{ponderbox}{The High-Dimensional Saddle Dilemma}
-Suppose you are optimizing a loss function over a 100-dimensional parameter space ($d = 100$). Your optimizer halts at a stationary point where $\|\nabla f(\mathbf{w})\|_2 = 0$.
-Assuming the local curvature along each of the 100 orthogonal coordinate axes is independently positive (bending upward) or negative (bending downward) with equal probability ($50\%$ each), what is the probability that this stationary point is a true local minimum?
+
+\begin{ponderbox}{The High-Dimensional Saddle Dilemma: Why Minima are Vanishingly Rare}
+Suppose you are training a machine learning model over a 100-dimensional parameter space ($d = 100$). An optimization algorithm reaches a stationary point $\mathbf{w}^*$ where the slope along every axis is zero: $\|\nabla R_S(\mathbf{w}^*)\|_2 = 0$.
+
+Suppose that along each of the 100 independent coordinate directions, the ground has an equal $50\%$ chance of curving upward (like a valley) or curving downward (like a ridge). What is the probability that this stationary point is a true local minimum?
 \tcblower
-\textbf{Reflection:} For a point to be a local minimum, the curvature along \textbf{all 100 independent directions simultaneously} must bend upward!
+\textbf{Reflection:} For $\mathbf{w}^*$ to be a true local minimum, the terrain must curve upward along \textbf{every single one of the 100 independent directions simultaneously}!
 \begin{equation}
-P(\text{Local Minimum}) \approx \left(\frac{1}{2}\right)^{100} = \frac{1}{1{,}267{,}650{,}600{,}228{,}229{,}401{,}496{,}703{,}205{,}376} \approx 7.89 \times 10^{-31}
+P(\text{Local Minimum}) = \left(\frac{1}{2}\right)^{100} = \frac{1}{1{,}267{,}650{,}600{,}228{,}229{,}401{,}496{,}703{,}205{,}376} \approx 7.89 \times 10^{-31}
 \end{equation}
-The probability is virtually zero! If even a single eigenvalue of the Hessian matrix is negative, there exists an escape direction along which the loss continues to decrease. In high-dimensional spaces, almost all stationary points are \textbf{saddle points}, not local minima. Understanding second-order calculus (the Hessian) is essential to navigating around these geometric traps.
+The probability is virtually zero! If even a single independent direction curves downward, the hiker is perched on a \textbf{saddle point}: stepping along that downward direction allows the loss to keep decreasing. 
+
+In high-dimensional spaces, almost all stationary points encountered by algorithms are saddle points, not local minima. Navigating high-dimensional terrain requires understanding the mathematics of multi-directional curvature.
 \end{ponderbox}
 
 \subsection{Prerequisites \& Notation Conventions}
@@ -83,7 +103,7 @@ Matrix Algebra & Matrix-vector products $A\mathbf{x}$, transpose $A^T$, symmetry
 \toprule
 \textbf{Symbol} & \textbf{Formal Name} & \textbf{Intuitive Plain-English Meaning} \\
 \midrule
-$f: \mathbb{R}^d \to \mathbb{R}$ & Scalar Field / Loss Function & A real-valued landscape mapping $d$ model parameters to a single loss penalty. \\
+$f: \mathbb{R}^d \to \mathbb{R}$ & Scalar Field / Loss Function & A real-valued landscape mapping $d$ model parameters to a single scalar loss penalty. \\
 $\mathbf{f}: \mathbb{R}^n \to \mathbb{R}^m$ & Vector Field / Layer Map & A multi-output transformation mapping an $n$-dimensional input to an $m$-dimensional output. \\
 $\nabla f(\mathbf{x}) \in \mathbb{R}^d$ & Gradient Vector & Column vector of all first partial derivatives; points in the direction of steepest uphill ascent. \\
 $D_{\mathbf{u}} f(\mathbf{x}) \in \mathbb{R}$ & Directional Derivative & Scalar rate of change of $f$ when taking an infinitesimal step along unit vector $\mathbf{u}$. \\
@@ -102,7 +122,7 @@ $\mathbf{x}^T A \mathbf{x}$ & Quadratic Form & Energy/loss term scaling quadrati
 \section{Mathematical \& Computational Foundations}
 
 \subsection{Multivariate Differentiability: Beyond Partial Derivatives}
-In single-variable calculus, differentiability simply means the limit of the difference quotient exists. In multivariable space ($\mathbb{R}^d$), functions can be approached from infinitely many directions.
+In single-variable calculus, differentiability simply means that the limit of the difference quotient exists. In multivariable space ($\mathbb{R}^d$), a function can be approached from infinitely many paths and directions.
 
 \begin{definitionbox}{Multivariate Differentiability (Fréchet Form)}
 A scalar function $f: \mathbb{R}^d \to \mathbb{R}$ is \textbf{differentiable} at a point $\mathbf{x} \in \mathbb{R}^d$ if there exists a vector $\mathbf{g} \in \mathbb{R}^d$ such that for any perturbation vector $\mathbf{v} \in \mathbb{R}^d$:
@@ -116,11 +136,11 @@ When such a vector $\mathbf{g}$ exists, it is unique and defined as the \textbf{
 \end{equation}
 \end{definitionbox}
 
-Equation~\eqref{eq:frechet_diff} carries an essential geometric meaning: it states that near $\mathbf{x}$, the function $f(\mathbf{x} + \mathbf{v})$ is extraordinarily well-approximated by the \textbf{affine tangent hyperplane}:
+Equation~\eqref{eq:frechet_diff} carries an essential geometric meaning: it states that near $\mathbf{x}$, the curving function $f(\mathbf{x} + \mathbf{v})$ is extraordinarily well-approximated by the \textbf{affine tangent hyperplane}:
 \begin{equation}
 T_1(\mathbf{x} + \mathbf{v}) = f(\mathbf{x}) + \nabla f(\mathbf{x})^T \mathbf{v}
 \end{equation}
-The approximation error vanishes faster than the step size $\|\mathbf{v}\|_2$ itself:
+The approximation error vanishes strictly faster than the step size $\|\mathbf{v}\|_2$ itself:
 \begin{equation}
 f(\mathbf{x} + \mathbf{v}) = f(\mathbf{x}) + \nabla f(\mathbf{x})^T \mathbf{v} + o(\|\mathbf{v}\|_2)
 \end{equation}
@@ -133,9 +153,10 @@ Suppose an objective function $f(x, y)$ has well-defined, finite partial derivat
 f(x, y) = \begin{cases} \frac{xy}{x^2 + y^2} & \text{if } (x, y) \ne (0, 0) \\ 0 & \text{if } (x, y) = (0, 0) \end{cases}
 \end{equation*}
 Along the $x$-axis ($y = 0$), $f(x, 0) = 0 \implies \frac{\partial f}{\partial x}(0, 0) = 0$. Along the $y$-axis ($x = 0$), $f(0, y) = 0 \implies \frac{\partial f}{\partial y}(0, 0) = 0$. Both coordinate partial derivatives exist and equal zero!
-Yet, if you walk toward the origin along the diagonal line $y = x$, the function value is constant at $f(x, x) = \frac{x^2}{2x^2} = \frac{1}{2}$. The limit along the diagonal is $1/2$, while the limit along the axes is $0$. The function is not even continuous, let alone differentiable!
 
-\textbf{Takeaway for ML:} For a function to be differentiable, its partial derivatives must not merely exist; they must be \textbf{continuous} in an open neighborhood around $\mathbf{x}$ ($f \in C^1$).
+Yet, if you walk toward the origin along the diagonal line $y = x$, the function value is constant at $f(x, x) = \frac{x^2}{2x^2} = \frac{1}{2}$. The limit along the diagonal is $1/2$, while the limit along the coordinate axes is $0$. The function is not even continuous, let alone differentiable!
+
+\textbf{Takeaway for ML:} For a loss function to be differentiable, its partial derivatives must not merely exist; they must be \textbf{continuous} in an open neighborhood around $\mathbf{x}$ ($f \in C^1$).
 \end{ponderbox}
 
 \subsection{Directional Derivatives and the Cauchy-Schwarz Steepest Descent Proof}
@@ -197,8 +218,108 @@ Differentiating both sides with respect to $t$ using the multivariate chain rule
 Because their inner product is identically zero, the gradient vector $\nabla f(\mathbf{x})$ is mathematically \textbf{orthogonal} to the contour tangent $\mathbf{x}'(t)$. To change your elevation as rapidly as possible, you must step directly perpendicular to the lines of equal altitude!
 \end{ponderbox}
 
+\begin{ponderbox}{The Step-Size Dilemma: If $-\nabla f$ is Steepest Descent, Why Can't We Step Infinitely Far?}
+If the negative gradient $-\nabla f(\mathbf{x})$ is proven to be the direction of maximal decrease, why can't we simply set our learning rate $\eta = 1{,}000$ and reach the global minimum in a single giant leap?
+\tcblower
+\textbf{Reflection:} The steepest descent property is an \textbf{infinitesimal local guarantee}. It holds in the limit as step size $t \to 0$.
+
+When we take a finite, discrete step $\mathbf{v} = -\eta \nabla f(\mathbf{x})$, the second-order Taylor expansion reveals the true change in loss:
+\begin{equation*}
+f(\mathbf{x} - \eta \nabla f(\mathbf{x})) \approx f(\mathbf{x}) - \eta \|\nabla f(\mathbf{x})\|_2^2 + \frac{\eta^2}{2} \nabla f(\mathbf{x})^T \nabla^2 f(\mathbf{x}) \nabla f(\mathbf{x})
+\end{equation*}
+Notice the competition between the two terms:
+\begin{itemize}
+    \item The first-order linear term $-\eta \|\nabla f(\mathbf{x})\|_2^2$ is negative and pulls the loss \textbf{downward}.
+    \item The second-order curvature term $+\frac{\eta^2}{2} \nabla f^T H \nabla f$ scales with $\eta^2$. If the ground curves upward ($H \succ 0$), this term pushes the loss \textbf{upward}!
+\end{itemize}
+If $\eta$ is chosen too large, the quadratic penalty $\mathcal{O}(\eta^2)$ overpowers the linear descent $\mathcal{O}(\eta)$. The hiker overshoots the valley floor completely and lands higher up the opposite cliff, causing explosive divergence! The curvature of the terrain dictates how far we dare step.
+\end{ponderbox}
+
+\subsection{The Matrix Calculus Reference Toolkit \& Layout Conventions}
+In machine learning research and engineering, we rarely compute partial derivatives with respect to scalar coordinates $w_1, w_2, \dots, w_d$. Instead, we differentiate directly with respect to parameter vectors $\mathbf{w} \in \mathbb{R}^d$ and weight matrices $W \in \mathbb{R}^{m \times n}$.
+
+\subsubsection{Layout Conventions: Numerator vs. Denominator}
+In multivariable literature, two conventions exist for organizing derivatives:
+\begin{itemize}
+    \item \textbf{Numerator Layout (Jacobian formulation):} The derivative of a scalar with respect to a column vector $\mathbf{x} \in \mathbb{R}^d$ is formatted as a \textbf{row vector} of size $1 \times d$.
+    \item \textbf{Denominator Layout (Machine Learning formulation):} The derivative of a scalar with respect to a column vector $\mathbf{x} \in \mathbb{R}^d$ is formatted as a \textbf{column vector} of size $d \times 1$.
+\end{itemize}
+\textbf{Standard Adoption:} In this textbook and across modern machine learning (including PyTorch, JAX, and optimization theory), we strictly adopt the \textbf{Denominator Layout}:
+\begin{equation}
+\nabla_{\mathbf{x}} f(\mathbf{x}) \triangleq \begin{bmatrix} \frac{\partial f}{\partial x_1} \\ \frac{\partial f}{\partial x_2} \\ \vdots \\ \frac{\partial f}{\partial x_d} \end{bmatrix} \in \mathbb{R}^{d \times 1} \quad \text{for } \mathbf{x} \in \mathbb{R}^{d \times 1}
+\end{equation}
+This ensures that the gradient $\nabla_{\mathbf{x}} f$ has the exact same shape as the parameter vector $\mathbf{x}$, allowing direct parameter update arithmetic: $\mathbf{x}_{t+1} = \mathbf{x}_t - \eta \nabla f(\mathbf{x}_t)$.
+
+\subsubsection{Master Vector \& Matrix Derivative Identities}
+Table~\ref{tab:matrix_calculus_toolkit} provides the indispensable matrix calculus identities required for all machine learning models.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Objective Expression} & \textbf{Gradient $\nabla_{\mathbf{x}} f(\mathbf{x})$} & \textbf{Mathematical Conditions / Derivation Note} \\
+\midrule
+$f(\mathbf{x}) = \mathbf{a}^T \mathbf{x} = \mathbf{x}^T \mathbf{a}$ & $\mathbf{a}$ & Linear form; constant slope along vector $\mathbf{a}$. \\
+\addlinespace
+$f(\mathbf{x}) = \mathbf{x}^T \mathbf{x} = \|\mathbf{x}\|_2^2$ & $2\mathbf{x}$ & Squared Euclidean norm ($L_2$ regularization penalty). \\
+\addlinespace
+$f(\mathbf{x}) = \mathbf{x}^T A \mathbf{x}$ & $(A + A^T)\mathbf{x}$ & General quadratic form; $A \in \mathbb{R}^{d \times d}$ arbitrary square matrix. \\
+\addlinespace
+$f(\mathbf{x}) = \mathbf{x}^T A \mathbf{x}$ & $2A\mathbf{x}$ & Symmetric quadratic form; holds if and only if $A = A^T$. \\
+\addlinespace
+$f(\mathbf{x}) = \|A\mathbf{x} - \mathbf{b}\|_2^2$ & $2A^T(A\mathbf{x} - \mathbf{b})$ & Ordinary least squares residual; chain rule on Euclidean norm. \\
+\addlinespace
+$f(\mathbf{x}) = \mathbf{a}^T g(\mathbf{x})$ & $J_g(\mathbf{x})^T \mathbf{a}$ & Linear combination of vector mapping $g: \mathbb{R}^d \to \mathbb{R}^m$. \\
+\addlinespace
+$f(X) = \operatorname{tr}(A X)$ & $A^T$ & Matrix trace derivative with respect to matrix $X \in \mathbb{R}^{m \times n}$. \\
+\bottomrule
+\end{tabularx}
+\caption{The Master Matrix Calculus Toolkit for Machine Learning.}
+\label{tab:matrix_calculus_toolkit}
+\end{table}
+
+\begin{theorembox}{Derivation of the Quadratic Form Gradient}
+Let $A \in \mathbb{R}^{d \times d}$ be an arbitrary real square matrix (not necessarily symmetric). For the scalar quadratic form $f(\mathbf{x}) = \mathbf{x}^T A \mathbf{x}$, the gradient is:
+\begin{equation}
+\nabla_{\mathbf{x}} (\mathbf{x}^T A \mathbf{x}) = (A + A^T)\mathbf{x}
+\label{eq:quad_form_deriv}
+\end{equation}
+\end{theorembox}
+
+\begin{proof}
+Expand the matrix multiplication into explicit scalar summation indices:
+\begin{equation}
+f(\mathbf{x}) = \mathbf{x}^T (A\mathbf{x}) = \sum_{i=1}^d x_i \left( \sum_{j=1}^d A_{ij} x_j \right) = \sum_{i=1}^d \sum_{j=1}^d A_{ij} x_i x_j
+\end{equation}
+To compute the $k$-th coordinate of the gradient, differentiate $f(\mathbf{x})$ with respect to a single variable $x_k$:
+\begin{equation}
+\frac{\partial f}{\partial x_k} = \frac{\partial}{\partial x_k} \left[ \sum_{i=1}^d \sum_{j=1}^d A_{ij} x_i x_j \right]
+\end{equation}
+The variable $x_k$ appears in this double sum in three distinct cases:
+\begin{enumerate}
+    \item When $i = k$ and $j \ne k$: terms of the form $A_{kj} x_k x_j$. Differentiating yields $\sum_{j \ne k} A_{kj} x_j$.
+    \item When $j = k$ and $i \ne k$: terms of the form $A_{ik} x_i x_k$. Differentiating yields $\sum_{i \ne k} A_{ik} x_i$.
+    \item When $i = k$ and $j = k$: the single diagonal term $A_{kk} x_k^2$. Differentiating yields $2A_{kk} x_k$.
+\end{enumerate}
+Combining all three cases:
+\begin{equation}
+\frac{\partial f}{\partial x_k} = \sum_{j=1}^d A_{kj} x_j + \sum_{i=1}^d A_{ik} x_i
+\end{equation}
+Notice the vector structure:
+\begin{itemize}
+    \item $\sum_{j=1}^d A_{kj} x_j$ is the $k$-th element of the matrix-vector product $A\mathbf{x}$.
+    \item $\sum_{i=1}^d A_{ik} x_i$ is the $k$-th element of the matrix-vector product $A^T \mathbf{x}$.
+\end{itemize}
+Stacking these coordinate partial derivatives into a column vector:
+\begin{equation}
+\nabla_{\mathbf{x}} f(\mathbf{x}) = \begin{bmatrix} \frac{\partial f}{\partial x_1} \\ \vdots \\ \frac{\partial f}{\partial x_d} \end{bmatrix} = A\mathbf{x} + A^T \mathbf{x} = (A + A^T)\mathbf{x}
+\end{equation}
+If $A$ is symmetric ($A = A^T$), then $(A + A^T)\mathbf{x} = 2A\mathbf{x}$.
+\end{proof}
+
 \subsection{The Jacobian Matrix and the Multivariate Chain Rule}
-When we move from scalar objective functions to multi-output transformations (such as layers in a neural network, or coordinate changes), we evaluate vector-valued functions $\mathbf{f}: \mathbb{R}^n \to \mathbb{R}^m$:
+When we move from scalar objective functions to multi-output transformations (such as hidden layers in a neural network, or coordinate changes), we evaluate vector-valued functions $\mathbf{f}: \mathbb{R}^n \to \mathbb{R}^m$:
 \begin{equation}
 \mathbf{f}(\mathbf{x}) = \begin{bmatrix} f_1(x_1, \dots, x_n) \\ f_2(x_1, \dots, x_n) \\ \vdots \\ f_m(x_1, \dots, x_n) \end{bmatrix}
 \end{equation}
@@ -209,7 +330,7 @@ The \textbf{Jacobian Matrix} $J_{\mathbf{f}}(\mathbf{x}) \in \mathbb{R}^{m \time
 J_{\mathbf{f}}(\mathbf{x}) \triangleq \begin{bmatrix}
 \frac{\partial f_1}{\partial x_1} & \frac{\partial f_1}{\partial x_2} & \dots & \frac{\partial f_1}{\partial x_n} \\
 \frac{\partial f_2}{\partial x_1} & \frac{\partial f_2}{\partial x_2} & \dots & \frac{\partial f_2}{\partial x_n} \\
-\vdots & \vdots & \ddots & \vdots \\
+\vdots \\
 \frac{\partial f_m}{\partial x_1} & \frac{\partial f_m}{\partial x_2} & \dots & \frac{\partial f_m}{\partial x_n}
 \end{bmatrix} = \begin{bmatrix}
 \nabla f_1(\mathbf{x})^T \\
@@ -245,7 +366,7 @@ For a scalar function $f: \mathbb{R}^d \to \mathbb{R}$ that is twice differentia
 H(\mathbf{x}) \triangleq \begin{bmatrix}
 \frac{\partial^2 f}{\partial x_1^2} & \frac{\partial^2 f}{\partial x_1 \partial x_2} & \dots & \frac{\partial^2 f}{\partial x_1 \partial x_d} \\
 \frac{\partial^2 f}{\partial x_2 \partial x_1} & \frac{\partial^2 f}{\partial x_2^2} & \dots & \frac{\partial^2 f}{\partial x_2 \partial x_d} \\
-\vdots & \vdots & \ddots & \vdots \\
+\vdots \\
 \frac{\partial^2 f}{\partial x_d \partial x_1} & \frac{\partial^2 f}{\partial x_d \partial x_2} & \dots & \frac{\partial^2 f}{\partial x_d^2}
 \end{bmatrix} \in \mathbb{R}^{d \times d}
 \label{eq:hessian_def}
@@ -379,13 +500,13 @@ Notice the profound geometric relationship:
 \begin{equation*}
 \theta^* - \theta_{\text{zero}} = 30.96^\circ - (-59.04^\circ) = \mathbf{90.00^\circ}
 \end{equation*}
-The zero-change direction is \textbf{perpendicular} to the gradient, precisely tangent to the contour ellipse $f(x_1, x_2) = f(1, 2) = 3(1)^2 + 2(1)(2) + 2^2 = 11$.
+The zero-change direction is \textbf{strictly perpendicular} to the gradient, precisely tangent to the contour ellipse $f(x_1, x_2) = f(1, 2) = 3(1)^2 + 2(1)(2) + 2^2 = 11$.
 \end{examplebox}
 
 \begin{examplebox}{Worked Example 2.2: Matrix Calculus of Linear Regression (OLS)}
 \label{ex:w02_ols_matrix_calculus}
 \textbf{The Scenario:}
-In Ordinary Least Squares (OLS) regression, we are given a design matrix $X \in \mathbb{R}^{N \times d}$ and a target vector $\mathbf{y} \in \mathbb{R}^N$. We wish to find weights $\mathbf{w} \in \mathbb{R}^d$ minimizing the Mean Squared Error (MSE) loss:
+In Ordinary Least Squares (OLS) regression, we are given a design matrix $X \in \mathbb{R}^{N \times d}$ and a target vector $\mathbf{y} \in \mathbb{R}^N$. We wish to find weights $\mathbf{w} \in \mathbb{R}^d$ minimizing the Mean Squared Error (MSE) empirical risk:
 \begin{equation*}
 \mathcal{L}(\mathbf{w}) = \frac{1}{2N} \|\mathbf{y} - X\mathbf{w}\|_2^2
 \end{equation*}
@@ -393,7 +514,7 @@ In Ordinary Least Squares (OLS) regression, we are given a design matrix $X \in 
 \textbf{Questions to Solve:}
 \begin{enumerate}
     \item Expand the squared Euclidean norm using vector transpose identities.
-    \item Derive the exact gradient $\nabla_{\mathbf{w}} \mathcal{L}(\mathbf{w})$ step-by-step. Verify that the dimensions match.
+    \item Derive the exact gradient $\nabla_{\mathbf{w}} \mathcal{L}(\mathbf{w})$ step-by-step using matrix calculus identities. Verify dimensions.
     \item Derive the exact Hessian matrix $H(\mathbf{w}) = \nabla^2_{\mathbf{w}} \mathcal{L}(\mathbf{w})$.
     \item Prove that the loss function is convex everywhere in $\mathbb{R}^d$.
 \end{enumerate}
@@ -418,7 +539,7 @@ Thus, the two middle cross-terms combine:
 \end{equation*}
 
 \textbf{Step 2: Differentiating Term by Term}
-We differentiate with respect to vector $\mathbf{w}$ using matrix calculus rules:
+We differentiate with respect to vector $\mathbf{w}$ using our Matrix Calculus Toolkit (Table~\ref{tab:matrix_calculus_toolkit}):
 \begin{itemize}
     \item Term 1 ($\frac{1}{2N}\mathbf{y}^T \mathbf{y}$): Independent of $\mathbf{w} \implies \nabla_{\mathbf{w}} = \mathbf{0}$.
     \item Term 2 ($-\frac{1}{N}\mathbf{w}^T (X^T \mathbf{y})$): Linear form $\mathbf{w}^T \mathbf{a}$ where $\mathbf{a} = X^T \mathbf{y} \implies \nabla_{\mathbf{w}} = -\frac{1}{N} X^T \mathbf{y}$.
@@ -441,16 +562,93 @@ H(\mathbf{w}) = \nabla^2_{\mathbf{w}} \mathcal{L}(\mathbf{w}) = \mathbf{\frac{1}
 \end{equation*}
 Notice that the Hessian is \textbf{constant} everywhere—it does not depend on $\mathbf{w}$!
 
-\textbf{Step 4: Proving Convexity}
+\textbf{Step 4: Proving Global Convexity}
 For any non-zero vector $\mathbf{v} \in \mathbb{R}^d \setminus \{\mathbf{0}\}$:
 \begin{equation*}
 \mathbf{v}^T H \mathbf{v} = \mathbf{v}^T \left( \frac{1}{N} X^T X \right) \mathbf{v} = \frac{1}{N} (X\mathbf{v})^T (X\mathbf{v}) = \frac{1}{N} \|X\mathbf{v}\|_2^2 \ge 0
 \end{equation*}
-Because the squared Euclidean norm $\|X\mathbf{v}\|_2^2$ is always non-negative, $\mathbf{v}^T H \mathbf{v} \ge 0$ for all $\mathbf{v}$.
-Hence, the Hessian is \textbf{positive semi-definite} ($H \succeq 0$) globally. The MSE loss surface is a convex bowl with no local traps; any stationary point $\nabla \mathcal{L}(\mathbf{w}^*) = \mathbf{0}$ is guaranteed to be a global minimum!
+Because the squared Euclidean norm $\|X\mathbf{v}\|_2^2$ is non-negative for any vector, $\mathbf{v}^T H \mathbf{v} \ge 0$ for all $\mathbf{v}$.
+Hence, the Hessian is \textbf{positive semi-definite} ($H \succeq 0$) globally. The MSE loss surface is a convex bowl with no local traps; setting the gradient to zero yields the global minimum $(X^T X)\mathbf{w}^* = X^T \mathbf{y}$!
 \end{examplebox}
 
-\begin{examplebox}{Worked Example 2.3: Critical Point Classification on a Non-Convex Landscape}
+\begin{examplebox}{Worked Example 2.3: Concrete Numerical OLS Step \& Inversion on Toy Data}
+\label{ex:w02_numerical_ols_step}
+\textbf{The Scenario:}
+To demystify vector calculus and observe the numbers in action, consider a concrete toy dataset of $N = 3$ samples with a single input feature $x$, augmented with a bias column ($d = 2$ parameters $\mathbf{w} = [w_0, w_1]^T$ where $\hat{y} = w_0 + w_1 x$):
+\begin{equation*}
+S = \big\{ (1, 2), \; (2, 3), \; (3, 5) \big\}
+\end{equation*}
+The design matrix $X \in \mathbb{R}^{3 \times 2}$ and target vector $\mathbf{y} \in \mathbb{R}^3$ are:
+\begin{equation*}
+X = \begin{bmatrix} 1 & 1 \\ 1 & 2 \\ 1 & 3 \end{bmatrix}, \quad \mathbf{y} = \begin{bmatrix} 2 \\ 3 \\ 5 \end{bmatrix}
+\end{equation*}
+
+\textbf{Questions to Solve:}
+\begin{enumerate}
+    \item Compute the matrix product $X^T X$ and vector $X^T \mathbf{y}$ by hand.
+    \item Invert $X^T X$ and compute the exact closed-form analytical OLS solution $\mathbf{w}^* = (X^T X)^{-1} X^T \mathbf{y}$.
+    \item Initialize the weights at the origin: $\mathbf{w}_0 = [0, 0]^T$. Compute the initial loss $\mathcal{L}(\mathbf{w}_0) = \frac{1}{2N}\|\mathbf{y} - X\mathbf{w}_0\|_2^2$.
+    \item Compute the exact numerical gradient $\mathbf{g}_0 = \nabla \mathcal{L}(\mathbf{w}_0)$.
+    \item Take one manual Gradient Descent step with learning rate $\eta = 0.1$ to produce $\mathbf{w}_1 = \mathbf{w}_0 - \eta \mathbf{g}_0$.
+    \item Compute the new loss $\mathcal{L}(\mathbf{w}_1)$ and verify that $\mathbf{w}_1$ has progressed directly toward $\mathbf{w}^*$.
+\end{enumerate}
+
+\tcblower
+\textbf{Step-by-Step Analytical Solution:}
+
+\textbf{Step 1: Computing $X^T X$ and $X^T \mathbf{y}$}
+\begin{align*}
+X^T X &= \begin{bmatrix} 1 & 1 & 1 \\ 1 & 2 & 3 \end{bmatrix} \begin{bmatrix} 1 & 1 \\ 1 & 2 \\ 1 & 3 \end{bmatrix} = \begin{bmatrix} 1+1+1 & 1+2+3 \\ 1+2+3 & 1+4+9 \end{bmatrix} = \begin{bmatrix} 3 & 6 \\ 6 & 14 \end{bmatrix} \\
+X^T \mathbf{y} &= \begin{bmatrix} 1 & 1 & 1 \\ 1 & 2 & 3 \end{bmatrix} \begin{bmatrix} 2 \\ 3 \\ 5 \end{bmatrix} = \begin{bmatrix} 2 + 3 + 5 \\ 2(1) + 3(2) + 5(3) \end{bmatrix} = \begin{bmatrix} 10 \\ 2 + 6 + 15 \end{bmatrix} = \begin{bmatrix} 10 \\ 23 \end{bmatrix}
+\end{align*}
+
+\textbf{Step 2: Inverting $X^T X$ to Find $\mathbf{w}^*$}
+The determinant of $X^T X$ is:
+\begin{equation*}
+\det(X^T X) = (3)(14) - (6)(6) = 42 - 36 = 6
+\end{equation*}
+Using the standard $2 \times 2$ matrix inversion formula:
+\begin{equation*}
+(X^T X)^{-1} = \frac{1}{6} \begin{bmatrix} 14 & -6 \\ -6 & 3 \end{bmatrix} = \begin{bmatrix} 7/3 & -1 \\ -1 & 1/2 \end{bmatrix}
+\end{equation*}
+Multiplying by $X^T \mathbf{y}$ gives the exact optimal OLS weights:
+\begin{equation*}
+\mathbf{w}^* = \begin{bmatrix} 7/3 & -1 \\ -1 & 1/2 \end{bmatrix} \begin{bmatrix} 10 \\ 23 \end{bmatrix} = \begin{bmatrix} \frac{70}{3} - 23 \\ -10 + \frac{23}{2} \end{bmatrix} = \begin{bmatrix} \frac{70 - 69}{3} \\ \frac{-20 + 23}{2} \end{bmatrix} = \begin{bmatrix} 1/3 \\ 3/2 \end{bmatrix} = \mathbf{\begin{bmatrix} 0.3333 \\ 1.5000 \end{bmatrix}}
+\end{equation*}
+The optimal fitted line is $\hat{y} = \frac{1}{3} + 1.5 x$.
+
+\textbf{Step 3: Initial Loss at $\mathbf{w}_0 = [0, 0]^T$}
+When $\mathbf{w}_0 = \mathbf{0}$, the prediction is $\hat{\mathbf{y}}_0 = X\mathbf{w}_0 = [0, 0, 0]^T$. The initial residual vector is $\mathbf{e}_0 = X\mathbf{w}_0 - \mathbf{y} = -\mathbf{y} = [-2, -3, -5]^T$.
+\begin{equation*}
+\mathcal{L}(\mathbf{w}_0) = \frac{1}{2(3)} \left( (-2)^2 + (-3)^2 + (-5)^2 \right) = \frac{1}{6} (4 + 9 + 25) = \frac{38}{6} \approx \mathbf{6.3333}
+\end{equation*}
+
+\textbf{Step 4: Computing the Initial Gradient $\mathbf{g}_0$}
+Using the derived OLS gradient identity $\nabla \mathcal{L}(\mathbf{w}) = \frac{1}{N} X^T (X\mathbf{w} - \mathbf{y})$:
+\begin{equation*}
+\mathbf{g}_0 = \frac{1}{3} X^T \mathbf{e}_0 = \frac{1}{3} \begin{bmatrix} 1 & 1 & 1 \\ 1 & 2 & 3 \end{bmatrix} \begin{bmatrix} -2 \\ -3 \\ -5 \end{bmatrix} = \frac{1}{3} \begin{bmatrix} -10 \\ -23 \end{bmatrix} = \mathbf{\begin{bmatrix} -3.3333 \\ -7.6667 \end{bmatrix}}
+\end{equation*}
+
+\textbf{Step 5: Taking One Gradient Descent Step}
+With learning rate $\eta = 0.1$:
+\begin{equation*}
+\mathbf{w}_1 = \mathbf{w}_0 - \eta \mathbf{g}_0 = \begin{bmatrix} 0 \\ 0 \end{bmatrix} - 0.1 \begin{bmatrix} -3.3333 \\ -7.6667 \end{bmatrix} = \mathbf{\begin{bmatrix} 0.3333 \\ 0.7667 \end{bmatrix}}
+\end{equation*}
+
+\textbf{Step 6: Loss Verification and Convergence Analysis}
+At $\mathbf{w}_1 = [0.3333, 0.7667]^T$, the new model predictions are:
+\begin{equation*}
+\hat{\mathbf{y}}_1 = X\mathbf{w}_1 = \begin{bmatrix} 1 & 1 \\ 1 & 2 \\ 1 & 3 \end{bmatrix} \begin{bmatrix} 0.3333 \\ 0.7667 \end{bmatrix} = \begin{bmatrix} 1.1000 \\ 1.8667 \\ 2.6333 \end{bmatrix}
+\end{equation*}
+The new residuals $\mathbf{e}_1 = \hat{\mathbf{y}}_1 - \mathbf{y}$ are $[-0.9000, -1.1333, -2.3667]^T$.
+The updated loss evaluates to:
+\begin{equation*}
+\mathcal{L}(\mathbf{w}_1) = \frac{1}{6} \left( (-0.9000)^2 + (-1.1333)^2 + (-2.3667)^2 \right) = \frac{1}{6}(0.8100 + 1.2844 + 5.6013) = \frac{7.6957}{6} \approx \mathbf{1.2826}
+\end{equation*}
+\textbf{The Verdict:} In a single step of gradient descent, the loss plummeted from $\mathbf{6.3333}$ to $\mathbf{1.2826}$ (a \textbf{79.7\% reduction} in error)! Furthermore, the weights moved from $[0, 0]^T$ to $[0.3333, 0.7667]^T$, progressing directly along the trajectory toward the analytical minimum $\mathbf{w}^* = [0.3333, 1.5000]^T$.
+\end{examplebox}
+
+\begin{examplebox}{Worked Example 2.4: Critical Point Classification on a Non-Convex Landscape}
 \label{ex:w02_critical_point_classification}
 \textbf{The Scenario:}
 A machine learning researcher evaluates a toy non-convex loss function with two features $(x, y)$:
@@ -523,7 +721,7 @@ This example perfectly demonstrates the double-well potential: two symmetrical v
 % ----------------------------------------------------------------------
 % PART 4: VISUAL & GEOMETRIC INTUITION
 % ----------------------------------------------------------------------
-\section{Visual \& Geometric Intuition: Contours, Normals, and Saddles}
+\section{Visual \& Geometric Intuition: Contours, Trajectories, and Saddles}
 
 \subsection{The Geometry of Contours and Tangents}
 Figure~\ref{fig:contour_geometry} visualizes the fundamental geometric relationship between level sets (contours), the gradient vector, and the tangent hyperplane.
@@ -565,6 +763,56 @@ Figure~\ref{fig:contour_geometry} visualizes the fundamental geometric relations
 \end{tikzpicture}
 \caption{The Geometry of Contours: The gradient vector $\nabla f(\mathbf{x}_0)$ is strictly perpendicular (orthogonal) to the contour tangent line, pointing in the direction of maximal rate of increase. The negative gradient points directly downhill toward lower level sets.}
 \label{fig:contour_geometry}
+\end{figure}
+
+\subsection{Optimization Dynamics: Trajectories in Anisotropic Ravines}
+Figure~\ref{fig:gd_trajectories} illustrates the dynamic stepping behavior of Gradient Descent across elliptical loss contours. In high-dimensional machine learning, different parameters often have vastly different curvatures (governed by the eigenvalues $\lambda_{\max}$ and $\lambda_{\min}$ of the Hessian).
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=0.92,
+    font=\sffamily\footnotesize
+]
+
+% Elliptical contour curves (elongated valley)
+\draw[thick, color=gray!40] (0, 0) ellipse (5.5cm and 1.8cm);
+\draw[thick, color=primarydark!50] (0, 0) ellipse (4.0cm and 1.2cm);
+\draw[thick, color=primarydark!80] (0, 0) ellipse (2.5cm and 0.7cm);
+\draw[thick, color=primarydark] (0, 0) ellipse (1.0cm and 0.3cm);
+
+\filldraw[color=tealdef] (0, 0) circle (2.5pt) node[below=4pt] {$\mathbf{w}^*$ (Optimum)};
+
+% Trajectory points showing zig-zagging in ill-conditioned valley
+\coordinate (W0) at (4.8, 1.4);
+\coordinate (W1) at (3.5, -0.9);
+\coordinate (W2) at (2.4, 0.6);
+\coordinate (W3) at (1.4, -0.4);
+\coordinate (W4) at (0.6, 0.2);
+
+\filldraw[color=traprad] (W0) circle (2.2pt) node[above right] {$\mathbf{w}_0$};
+\filldraw[color=primarydark] (W1) circle (2.2pt) node[below right] {$\mathbf{w}_1$};
+\filldraw[color=primarydark] (W2) circle (2.2pt) node[above] {$\mathbf{w}_2$};
+\filldraw[color=primarydark] (W3) circle (2.2pt) node[below] {$\mathbf{w}_3$};
+\filldraw[color=primarydark] (W4) circle (2.2pt) node[above] {$\mathbf{w}_4$};
+
+% Arrows connecting trajectory
+\draw[->, >=stealth, line width=1.5pt, color=traprad] (W0) -- (W1);
+\draw[->, >=stealth, line width=1.5pt, color=traprad] (W1) -- (W2);
+\draw[->, >=stealth, line width=1.5pt, color=traprad] (W2) -- (W3);
+\draw[->, >=stealth, line width=1.5pt, color=traprad] (W3) -- (W4);
+\draw[->, >=stealth, line width=1.5pt, dashed, color=tealdef] (W4) -- (0, 0);
+
+\node[align=left, fill=white, draw=gray!40, rounded corners=3pt, inner sep=4pt] at (3.2, 2.2) {
+\textbf{The Ravine Zig-Zag:}\\
+Because $\nabla f$ is orthogonal to contours,\\
+descent steps bounce violently across the steep walls\\
+while creeping painfully slowly along the gentle valley floor.
+};
+
+\end{tikzpicture}
+\caption{The Trajectory of Gradient Descent in an Anisotropic Ravine: When the Hessian has high condition number ($\kappa = \lambda_{\max}/\lambda_{\min} \gg 1$), the negative gradient points almost perpendicular to the long axis of the valley, causing severe oscillatory zig-zagging.}
+\label{fig:gd_trajectories}
 \end{figure}
 
 \subsection{Saddle Point Geometry vs. Local Minima}
@@ -615,9 +863,9 @@ Figure~\ref{fig:saddle_vs_minimum} contrasts the geometry of a local minimum (wh
 % ----------------------------------------------------------------------
 \section{Explicit Gotchas \& Diagnostic Misconceptions}
 
-\begin{trapbox}{Gotcha 1: Confusing Contour Tangents with Gradient Directions}
-\textbf{The Scenario:} A student examining a loss landscape plot asserts that because the gradient points in the direction of the function's flow, it must run tangent to the level curves. \\
-\textbf{The Trap:} Along a level curve, the function value is constant: $f(\mathbf{x}(t)) = c$. Differentiating with respect to curve parameter $t$ yields $\frac{d}{dt}f(\mathbf{x}(t)) = \nabla f(\mathbf{x})^T \mathbf{x}'(t) = 0$. Because the velocity vector $\mathbf{x}'(t)$ is tangent to the contour curve, the gradient $\nabla f(\mathbf{x})$ is strictly \textbf{orthogonal} (perpendicular) to the level sets, never tangent.
+\begin{trapbox}{Gotcha 1: The Vanishing Gradient Trap: Conflating Zero Gradient with Convergence}
+\textbf{The Scenario:} A practitioner trains a deep neural network. After 10 epochs, the gradient norm drops to $\|\nabla \mathcal{L}(\mathbf{w})\|_2 = 10^{-6}$. The engineer halts training, declaring that the algorithm has found the optimal minimum. \\
+\textbf{The Trap:} A vanishing gradient does \textbf{not} imply that the model has reached a low loss! In high-dimensional non-convex landscapes, vanishing gradients occur on vast barren plateaus, near saddle points, or in saturated activation regimes (e.g., sigmoids saturated at $0$ or $1$, or dead ReLUs). The loss may be catastrophically high while the gradient is zero. Always monitor the empirical risk $R_S(\mathbf{w})$ alongside the gradient norm.
 \end{trapbox}
 
 \begin{trapbox}{Gotcha 2: Assuming Hessian Symmetry for Non-$C^2$ Functions}
@@ -630,9 +878,14 @@ Figure~\ref{fig:saddle_vs_minimum} contrasts the geometry of a local minimum (wh
 \textbf{The Trap:} In high-dimensional optimization surfaces, stationary points ($\nabla f = \mathbf{0}$) are overwhelmingly \textbf{saddle points}, not local minima. If the Hessian has 99 positive eigenvalues and just 1 negative eigenvalue, the point is a saddle. The optimizer has not minimized the loss; it is merely stalled on a high-dimensional plateau.
 \end{trapbox}
 
-\begin{trapbox}{Gotcha 4: Erroneous Matrix Transposition in Gradient Identities}
+\begin{trapbox}{Gotcha 4: Erroneous Matrix Transposition in Gradient Identities (Dimension Check)}
 \textbf{The Scenario:} A student computes the gradient of the MSE loss $f(\mathbf{w}) = \|\mathbf{y} - X\mathbf{w}\|_2^2$ and writes $\nabla_{\mathbf{w}} f(\mathbf{w}) = -2X(\mathbf{y} - X\mathbf{w})$. \\
 \textbf{The Trap:} Check matrix dimensions! If $X \in \mathbb{R}^{N \times d}$ and $\mathbf{w} \in \mathbb{R}^d$, then the residual $(\mathbf{y} - X\mathbf{w})$ is an $N \times 1$ vector. Multiplying $X$ ($N \times d$) by an $N \times 1$ vector is algebraically undefined! The correct gradient is $-2X^T (\mathbf{y} - X\mathbf{w}) \in \mathbb{R}^d$. Always verify that the gradient has the identical shape as the parameter vector.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 5: The Exploding Step-Size Trap ($\eta > 2/\lambda_{\max}$)}
+\textbf{The Scenario:} An engineer observes that gradient descent is converging slowly and decides to increase the learning rate from $\eta = 0.01$ to $\eta = 1.0$. Immediately, the loss explodes to \texttt{NaN}. \\
+\textbf{The Trap:} On a quadratic surface with Hessian $H$, gradient descent converges if and only if the step size satisfies $\eta < \frac{2}{\lambda_{\max}(H)}$, where $\lambda_{\max}$ is the largest eigenvalue (maximum curvature). If $\eta > \frac{2}{\lambda_{\max}}$, each step overshoots the valley floor so violently that the distance to the minimum increases exponentially at every iteration!
 \end{trapbox}
 
 % ----------------------------------------------------------------------
