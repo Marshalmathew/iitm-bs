@@ -2,35 +2,30 @@
 \label{chap:week08}
 
 % ----------------------------------------------------------------------
-% PART 1: EXECUTIVE ROADMAP & THE NARROW RAVINE PARADOX
+% PART 1: EXECUTIVE ROADMAP & ARCHITECTURAL FOUNDATIONS
 % ----------------------------------------------------------------------
 \section{Executive Roadmap \& Learning Objectives}
 
-The formulation of a machine learning problem as empirical risk minimization culminates in a mathematical optimization problem: finding the parameter vector $\mathbf{w}^* \in \mathbb{R}^d$ that minimizes an unconstrained objective functional $f(\mathbf{w})$. While closed-form solutions exist for Ordinary Least Squares (Chapter~\ref{chap:week03}), modern machine learning models---including logistic regression, support vector machines, and deep neural networks---lack closed-form stationary points. They necessitate iterative numerical optimization. This chapter develops the foundational mathematical theory governing gradient-based and curvature-based algorithms.
+\subsection{Opening Hook: The Fog-Bound Hiker and the Echoing Canyon}
+Imagine standing at dusk on the jagged, rocky face of a vast glacial canyon blanketed in thick mountain fog. Visibility is zero; you cannot see more than a foot beyond your hiking boots. Your sole mission is to reach the campsite resting at the absolute floor of the valley. 
 
-\begin{figure}[htbp]
-\centering
-\begin{tcolorbox}[
-    colback=coralbg,
-    colframe=coralborder,
-    title={\large \textbf{The Narrow Ravine Paradox: Why Steepest Descent Fails to Head for the Minimum}},
-    fonttitle=\bfseries\sffamily,
-    arc=3mm,
-    boxrule=1pt,
-    width=\textwidth
-]
-\textbf{The Intuitive Belief:} Gradient descent follows the direction of \emph{steepest descent} ($-\nabla f(\mathbf{w})$). Intuitively, if you take steps in the direction where the loss drops most steeply, each step must point directly toward the bottom of the bowl (the global minimizer $\mathbf{w}^*$).
+Lacking a topological map or global vantage point, you rely on a natural physical heuristic: you sweep your boot across the gravel to detect the direction that slopes most steeply downward, and take a stride in that direction. This is the intuitive soul of \textbf{steepest descent}.
 
-\textbf{The Mathematical Reality:} The gradient $\nabla f(\mathbf{w})$ is defined strictly by \emph{infinitesimal local geometry}: it is mathematically orthogonal to the tangent plane of the level set (contour line) passing through $\mathbf{w}$. Unless the loss surface has perfectly spherical contours (equal curvature in all directions), the negative gradient \textbf{almost never points toward the minimum}!
+Yet in a narrow, steep-walled canyon, this heuristic conceals a devastating mathematical trap. The canyon walls rise almost vertically at an $80^\circ$ incline, while the valley floor slopes downstream at a gentle $1^\circ$ gradient toward the campsite. As you stand on the steep wall, the direction of steepest descent does \emph{not} point downstream along the riverbed toward camp; it pitches you directly across the chasm, straight into the opposing canyon wall! 
 
-\textbf{The Catastrophe in a Narrow Ravine:} Consider an elongated canyon or ravine where the walls are steep ($L = 100$) but the valley floor slopes gently toward the minimum ($\mu = 1$). If an algorithm is positioned on the canyon wall, the steepest direction does not point along the canyon floor toward the exit; it points directly across the ravine into the opposite wall. As a result, standard gradient descent spends $99.9\%$ of its energy violently ping-ponging back and forth between the cliffs, creeping along the valley floor at a glacial pace of $\mathcal{O}(\kappa)$ steps, where $\kappa = L/\mu$ is the condition number.
-\end{tcolorbox}
-\caption{The Narrow Ravine Paradox: The fundamental pathology of first-order optimization.}
-\label{fig:ravine_paradox}
-\end{figure}
+If you take a confident stride, you plunge violently across the chasm, overshoot the riverbed, and land halfway up the opposite cliff. Pivoting to find the steepest downward direction once more, you find it points straight back across the gorge. Instead of flowing smoothly toward the campsite, you spend hours violently ping-ponging back and forth between jagged rock faces, making virtually zero forward progress downstream.
+
+In continuous mathematical optimization, this pathology is known as the \textbf{Narrow Ravine Paradox}. The gradient $\nabla f(\mathbf{w})$ is a strictly local, infinitesimal operator that is mathematically perpendicular to the tangent plane of the level set. Unless the loss surface forms a perfectly symmetrical circular bowl, the steepest descent direction almost never points toward the minimizer. This chapter establishes the rigorous vector calculus and spectral linear algebra required to analyze, tame, and accelerate first-order and second-order optimization algorithms on such landscapes.
+
+\subsection{Architectural Bridge from Previous Chapters}
+In Chapter~\ref{chap:week07}, we developed Principal Component Analysis and Linear Discriminant Analysis, solving dimensionality reduction by finding the stationary points of Rayleigh quotients. Because those optimization problems were constrained to linear subspaces and quadratic forms, Rayleigh's quotient theorem and Lagrangian multipliers yielded closed-form, global spectral solutions via eigendecomposition and Singular Value Decomposition (Chapter~\ref{chap:week06}).
+
+However, general machine learning models---ranging from regularized logistic regression and soft-margin Support Vector Machines to multi-layer perceptrons---feature nonlinear, transcendental objective functions. For these loss functionals, closed-form stationary points do not exist. We are compelled to navigate the parameter space iteratively. 
+
+Optimization transforms linear algebra from a static coordinate transformation tool into a dynamic, discrete-time feedback system. The spectrum of the Hessian matrix $\nabla^2 f(\mathbf{w})$ directly dictates the contraction factors, stability limits, and oscillatory frequencies of our algorithms.
 
 \subsection{Prerequisites \& Scaffolding}
-Mastery of this chapter builds upon vector calculus, matrix norms, and quadratic form curvature as mapped in Table~\ref{tab:w08_prereqs}.
+mastery of this chapter builds upon vector calculus, matrix norms, and quadratic form curvature as mapped in Table~\ref{tab:w08_prereqs}.
 
 \begin{table}[htbp]
 \centering
@@ -39,9 +34,11 @@ Mastery of this chapter builds upon vector calculus, matrix norms, and quadratic
 \toprule
 \textbf{Foundational Area} & \textbf{Core Concepts Required} & \textbf{Role in Machine Learning Foundations} \\
 \midrule
-Vector Calculus & Gradient vectors $\nabla f(\mathbf{w})$, Hessian matrices $\nabla^2 f(\mathbf{w})$, Taylor series & Determining local descent directions and second-order curvature \\
-Linear Algebra & Spectral radius $\rho(A)$, matrix powers $A^k$, condition number $\kappa$ & Analyzing convergence rates and stability bounds of update operators \\
-Mathematical Analysis & Lipschitz continuity, Cauchy sequences, contraction mappings & Establishing formal convergence guarantees for iterative algorithms \\
+Vector Calculus & Gradient vectors $\nabla f(\mathbf{w})$, Hessian matrices $\nabla^2 f(\mathbf{w})$, multivariable Taylor series & Formulating local descent directions, directional curvature, and parabolic approximations \\
+\addlinespace
+Linear Algebra & Spectral radius $\rho(A)$, matrix powers $A^k$, condition number $\kappa = \lambda_{\max}/\lambda_{\min}$ & Analyzing the contraction mappings and stability envelopes of iterative update operators \\
+\addlinespace
+Mathematical Analysis & $L$-Lipschitz continuity, Cauchy sequences, contraction mappings & Establishing formal convergence guarantees, descent lemmas, and sublinear/linear rates \\
 \bottomrule
 \end{tabularx}
 \caption{Prerequisite Scaffolding for Chapter 8.}
@@ -51,19 +48,20 @@ Mathematical Analysis & Lipschitz continuity, Cauchy sequences, contraction mapp
 \subsection{Core Competencies}
 By the conclusion of this chapter, students will be able to:
 \begin{itemize}
-    \item Rigorously state and verify First- and Second-Order Necessary and Sufficient Optimality Conditions.
-    \item Formulate $L$-Lipschitz smoothness and prove the fundamental Descent Lemma via integral calculus.
-    \item Prove the sublinear $\mathcal{O}(1/k)$ convergence rate of Gradient Descent for convex $L$-smooth functions.
+    \item Rigorously state and verify First- and Second-Order Necessary and Sufficient Optimality Conditions for multivariable objectives.
+    \item Formulate $L$-Lipschitz smoothness and prove the fundamental Descent Lemma via integral vector calculus.
+    \item Derive the sufficient decrease guarantee and establish the stability upper bound $\eta < 2/L$ for Gradient Descent.
+    \item Prove the sublinear $\mathcal{O}(1/k)$ convergence rate for convex $L$-smooth functions.
     \item Prove the linear $\mathcal{O}\left(\left(\frac{\kappa - 1}{\kappa + 1}\right)^k\right)$ convergence rate for $\mu$-strongly convex quadratics and determine the optimal step size.
-    \item Formulate Newton-Raphson optimization, prove its affine invariance, and analyze the $\mathcal{O}(d^3)$ computational barrier.
-    \item Analyze momentum acceleration (Polyak heavy-ball) via discrete dynamical systems.
+    \item Formulate the Newton-Raphson method, prove its affine invariance, and analyze the $\mathcal{O}(d^3)$ computational barrier.
+    \item Formulate Polyak Heavy-Ball momentum as a discrete second-order dynamical system, proving its accelerated $\mathcal{O}(\sqrt{\kappa})$ convergence rate.
 \end{itemize}
 
 \subsection{Notation \& Dimension Contracts}
 Throughout this chapter, we adhere to the standard dimension contracts:
 \begin{itemize}
-    \item Parameter vector: $\mathbf{w} \in \mathbb{R}^d$ (column vector).
-    \item Objective function: $f: \mathbb{R}^d \to \mathbb{R}$.
+    \item Parameter vector: $\mathbf{w} \in \mathbb{R}^d$ (column vector, $d \times 1$).
+    \item Objective functional: $f: \mathbb{R}^d \to \mathbb{R}$.
     \item Gradient vector: $\nabla f(\mathbf{w}) = \left[ \frac{\partial f}{\partial w_1}, \dots, \frac{\partial f}{\partial w_d} \right]^T \in \mathbb{R}^{d \times 1}$.
     \item Hessian matrix: $\nabla^2 f(\mathbf{w}) \in \mathbb{R}^{d \times d}$ where $[\nabla^2 f(\mathbf{w})]_{ij} = \frac{\partial^2 f}{\partial w_i \partial w_j}$.
     \item Learning rate (step size): $\eta > 0$.
@@ -79,85 +77,110 @@ Throughout this chapter, we adhere to the standard dimension contracts:
 
 \subsection{Multivariable Taylor Approximations}
 
-Let $f: \mathbb{R}^d \to \mathbb{R}$ be twice continuously differentiable ($\mathcal{C}^2$). For any displacement vector $\mathbf{v} \in \mathbb{R}^d$, the scalar function $g(t) = f(\mathbf{w} + t\mathbf{v})$ for $t \in [0, 1]$ allows us to transfer one-dimensional Taylor calculus to $\mathbb{R}^d$:
+Let $f: \mathbb{R}^d \to \mathbb{R}$ be twice continuously differentiable ($\mathcal{C}^2$). For any base point $\mathbf{w} \in \mathbb{R}^d$ and displacement vector $\mathbf{v} \in \mathbb{R}^d$, we define the scalar restriction function $g: [0, 1] \to \mathbb{R}$ by $g(t) = f(\mathbf{w} + t\mathbf{v})$. Applying the multivariable chain rule:
 \begin{align}
 g'(t) &= \nabla f(\mathbf{w} + t\mathbf{v})^T \mathbf{v} \\
 g''(t) &= \mathbf{v}^T \nabla^2 f(\mathbf{w} + t\mathbf{v}) \mathbf{v}
 \end{align}
-By Taylor's Theorem with Lagrange remainder on $g(t)$:
+By Taylor's Theorem with the Lagrange form of the remainder on $g(t)$:
+\begin{equation}
+g(1) = g(0) + g'(0)(1) + \frac{1}{2}g''(\xi)(1)^2 \quad \text{for some } \xi \in (0, 1)
+\end{equation}
+Translating back to the multivariable functional $f$:
 \begin{equation}
 f(\mathbf{w} + \mathbf{v}) = f(\mathbf{w}) + \nabla f(\mathbf{w})^T \mathbf{v} + \frac{1}{2}\mathbf{v}^T \nabla^2 f(\mathbf{w} + \xi \mathbf{v}) \mathbf{v} \quad \text{for some } \xi \in (0, 1)
 \label{eq:taylor_expansion}
 \end{equation}
-The linear approximation models the function as a hyper-plane, while the quadratic approximation captures local parabolic curvature.
+The linear approximation $f(\mathbf{w}) + \nabla f(\mathbf{w})^T \mathbf{v}$ models the objective as a tangent hyperplane, while the quadratic approximation captures the local parabolic curvature governed by the Hessian matrix $\nabla^2 f(\mathbf{w})$.
 
 \subsection{Optimality Conditions for Unconstrained Optimization}
 
-\begin{theorem}[First-Order Necessary Condition (FONC)]
-Let $f: \mathbb{R}^d \to \mathbb{R}$ be continuously differentiable. If $\mathbf{w}^*$ is a local minimum of $f$, then:
+\begin{theorembox}{First-Order Necessary Condition (FONC)}
+Let $f: \mathbb{R}^d \to \mathbb{R}$ be continuously differentiable on an open set $\Omega \subseteq \mathbb{R}^d$. If $\mathbf{w}^* \in \Omega$ is a local minimizer of $f$, then the gradient vanishes identically:
 \begin{equation}
 \nabla f(\mathbf{w}^*) = \mathbf{0}
 \label{eq:fonc}
 \end{equation}
-A point satisfying $\nabla f(\mathbf{w}) = \mathbf{0}$ is called a \textbf{stationary (critical) point}.
-\end{theorem}
+A point satisfying $\nabla f(\mathbf{w}) = \mathbf{0}$ is called a \textbf{stationary point} or \textbf{critical point}.
+\end{theorembox}
 
 \begin{proof}
-Suppose $\nabla f(\mathbf{w}^*) \ne \mathbf{0}$. Choose direction $\mathbf{v} = -\nabla f(\mathbf{w}^*)$. By Taylor expansion:
+Suppose for contradiction that $\nabla f(\mathbf{w}^*) \ne \mathbf{0}$. Define the candidate descent direction $\mathbf{v} = -\nabla f(\mathbf{w}^*)$. Expanding $f(\mathbf{w}^* + t\mathbf{v})$ via Taylor's theorem for small scalar $t > 0$:
+\begin{align}
+f(\mathbf{w}^* + t\mathbf{v}) &= f(\mathbf{w}^*) + t \nabla f(\mathbf{w}^*)^T \mathbf{v} + o(t) \nonumber \\
+&= f(\mathbf{w}^*) - t \|\nabla f(\mathbf{w}^*)\|_2^2 + o(t)
+\end{align}
+Dividing by $t$:
 \begin{equation}
-f(\mathbf{w}^* + t\mathbf{v}) = f(\mathbf{w}^*) + t \nabla f(\mathbf{w}^*)^T (-\nabla f(\mathbf{w}^*)) + o(t) = f(\mathbf{w}^*) - t \|\nabla f(\mathbf{w}^*)\|_2^2 + o(t)
+\lim_{t \to 0^+} \frac{f(\mathbf{w}^* + t\mathbf{v}) - f(\mathbf{w}^*)}{t} = -\|\nabla f(\mathbf{w}^*)\|_2^2 < 0
 \end{equation}
-For sufficiently small $t > 0$, $-t \|\nabla f(\mathbf{w}^*)\|_2^2 + o(t) < 0$, which implies $f(\mathbf{w}^* + t\mathbf{v}) < f(\mathbf{w}^*)$, directly contradicting that $\mathbf{w}^*$ is a local minimum. Hence $\nabla f(\mathbf{w}^*) = \mathbf{0}$.
+Hence, there exists some small $\epsilon > 0$ such that for all $t \in (0, \epsilon)$, $f(\mathbf{w}^* + t\mathbf{v}) < f(\mathbf{w}^*)$. This contradicts the premise that $\mathbf{w}^*$ is a local minimizer. Thus, $\nabla f(\mathbf{w}^*) = \mathbf{0}$.
 \end{proof}
 
-\begin{theorem}[Second-Order Optimality Conditions]
-Let $f: \mathbb{R}^d \to \mathbb{R}$ be twice continuously differentiable:
+\begin{theorembox}{Second-Order Optimality Conditions}
+Let $f: \mathbb{R}^d \to \mathbb{R}$ be twice continuously differentiable on an open set $\Omega \subseteq \mathbb{R}^d$:
 \begin{enumerate}
-    \item \textbf{Second-Order Necessary Condition (SONC):} If $\mathbf{w}^*$ is a local minimum, then $\nabla f(\mathbf{w}^*) = \mathbf{0}$ and the Hessian is positive semidefinite:
+    \item \textbf{Second-Order Necessary Condition (SONC):} If $\mathbf{w}^* \in \Omega$ is a local minimizer of $f$, then $\nabla f(\mathbf{w}^*) = \mathbf{0}$ and the Hessian matrix is positive semidefinite:
     \begin{equation}
     \nabla^2 f(\mathbf{w}^*) \succeq 0 \quad (\forall \mathbf{v} \in \mathbb{R}^d, \; \mathbf{v}^T \nabla^2 f(\mathbf{w}^*) \mathbf{v} \ge 0)
     \end{equation}
-    \item \textbf{Second-Order Sufficient Condition (SOSC):} If $\nabla f(\mathbf{w}^*) = \mathbf{0}$ and the Hessian is strictly positive definite:
+    \item \textbf{Second-Order Sufficient Condition (SOSC):} If $\mathbf{w}^* \in \Omega$ satisfies $\nabla f(\mathbf{w}^*) = \mathbf{0}$ and the Hessian matrix is strictly positive definite:
     \begin{equation}
     \nabla^2 f(\mathbf{w}^*) \succ 0 \quad (\forall \mathbf{v} \ne \mathbf{0}, \; \mathbf{v}^T \nabla^2 f(\mathbf{w}^*) \mathbf{v} > 0)
     \end{equation}
-    then $\mathbf{w}^*$ is a strict (isolated) local minimum.
+    then $\mathbf{w}^*$ is a strict (isolated) local minimizer of $f$.
 \end{enumerate}
-\end{theorem}
+\end{theorembox}
 
-\begin{ponderbox}[Stationary Points vs.\ Local Minima]
-If $\nabla f(\mathbf{w}^*) = \mathbf{0}$ and $\nabla^2 f(\mathbf{w}^*) \succeq 0$, does this guarantee that $\mathbf{w}^*$ is a local minimum?
+\begin{proof}
+For SONC, take any $\mathbf{v} \in \mathbb{R}^d$. Since $\nabla f(\mathbf{w}^*) = \mathbf{0}$, the second-order Taylor expansion gives:
+\begin{equation}
+f(\mathbf{w}^* + t\mathbf{v}) - f(\mathbf{w}^*) = \frac{t^2}{2} \mathbf{v}^T \nabla^2 f(\mathbf{w}^*) \mathbf{v} + o(t^2)
+\end{equation}
+If $\mathbf{v}^T \nabla^2 f(\mathbf{w}^*) \mathbf{v} < 0$, then for sufficiently small $t > 0$, $f(\mathbf{w}^* + t\mathbf{v}) < f(\mathbf{w}^*)$, contradicting local minimality. Hence $\mathbf{v}^T \nabla^2 f(\mathbf{w}^*) \mathbf{v} \ge 0$ for all $\mathbf{v}$, establishing $\nabla^2 f(\mathbf{w}^*) \succeq 0$.
 
-\textbf{Reflection:} No! Consider the scalar function $f(w) = w^3$. At $w^* = 0$, $f'(0) = 0$ and $f''(0) = 0 \ge 0$. The necessary conditions are fully satisfied. Yet $w^* = 0$ is an inflection point (saddle point), neither a minimum nor a maximum ($f(\epsilon) = \epsilon^3 > 0$ and $f(-\epsilon) = -\epsilon^3 < 0$). Strict positive definiteness ($\nabla^2 f \succ 0$) is required for sufficiency.
+For SOSC, let $\lambda_{\min} > 0$ be the smallest eigenvalue of $\nabla^2 f(\mathbf{w}^*)$. By Rayleigh's inequality, $\mathbf{v}^T \nabla^2 f(\mathbf{w}^*) \mathbf{v} \ge \lambda_{\min} \|\mathbf{v}\|_2^2$. By continuity of $\nabla^2 f$, there exists a ball $B(\mathbf{w}^*, \delta)$ such that for all $\mathbf{w} \in B(\mathbf{w}^*, \delta)$, $\mathbf{v}^T \nabla^2 f(\mathbf{w}) \mathbf{v} \ge \frac{\lambda_{\min}}{2} \|\mathbf{v}\|_2^2$. Taylor expansion with mean-value remainder yields:
+\begin{equation}
+f(\mathbf{w}^* + \mathbf{v}) - f(\mathbf{w}^*) = \frac{1}{2}\mathbf{v}^T \nabla^2 f(\mathbf{w}^* + \xi \mathbf{v}) \mathbf{v} \ge \frac{\lambda_{\min}}{4} \|\mathbf{v}\|_2^2 > 0 \quad \forall \mathbf{v} \ne \mathbf{0}
+\end{equation}
+proving that $\mathbf{w}^*$ is a strict isolated local minimum.
+\end{proof}
+
+\begin{ponderbox}{Stationary Points vs.\ Local Minima}
+If a point $\mathbf{w}^*$ satisfies $\nabla f(\mathbf{w}^*) = \mathbf{0}$ and $\nabla^2 f(\mathbf{w}^*) \succeq 0$, does this guarantee that $\mathbf{w}^*$ is a local minimizer?
+\tcblower
+\textbf{The Socratic Resolution:} No! While intuitive, this is a dangerous mathematical fallacy. Consider the scalar cubic function $f(w) = w^3$. At $w^* = 0$, $f'(0) = 0$ and $f''(0) = 0 \ge 0$. The necessary conditions are completely satisfied. Yet $w^* = 0$ is an inflection point, neither a minimum nor a maximum ($f(\epsilon) = \epsilon^3 > 0$ and $f(-\epsilon) = -\epsilon^3 < 0$). 
+
+Similarly, in multivariable calculus, consider the monkey saddle $f(x, y) = x^3 - 3xy^2$ or the function $f(x, y) = x^2 - y^4$ at the origin; testing along lines can be misleading. Strict positive definiteness ($\nabla^2 f(\mathbf{w}^*) \succ 0$) is mandatory to establish local minimality without evaluating higher-order tensors.
 \end{ponderbox}
 
 \subsection{Lipschitz Smoothness and the Descent Lemma}
 
 \begin{definitionbox}{$L$-Lipschitz Smoothness}
-A continuously differentiable function $f: \mathbb{R}^d \to \mathbb{R}$ is \textbf{$L$-smooth} (its gradient is $L$-Lipschitz continuous) if there exists a constant $L > 0$ such that for all $\mathbf{u}, \mathbf{v} \in \mathbb{R}^d$:
+A continuously differentiable functional $f: \mathbb{R}^d \to \mathbb{R}$ is \textbf{$L$-smooth} (meaning its gradient is $L$-Lipschitz continuous) if there exists a constant $L > 0$ such that for all $\mathbf{u}, \mathbf{v} \in \mathbb{R}^d$:
 \begin{equation}
 \|\nabla f(\mathbf{u}) - \nabla f(\mathbf{v})\|_2 \le L \|\mathbf{u} - \mathbf{v}\|_2
 \label{eq:lipschitz_grad}
 \end{equation}
-For twice-differentiable functions, this condition is mathematically equivalent to bounding the spectral norm of the Hessian everywhere:
+For twice-differentiable functionals, this condition is mathematically equivalent to bounding the spectral norm (maximum singular value) of the Hessian everywhere:
 \begin{equation}
 \|\nabla^2 f(\mathbf{w})\|_2 = \sigma_{\max}(\nabla^2 f(\mathbf{w})) \le L \quad \forall \mathbf{w} \in \mathbb{R}^d
 \end{equation}
-Geometrically, $L$-smoothness means the curvature of the loss surface cannot exceed $L$ in any direction.
+Geometrically, $L$-smoothness means the curvature of the loss surface cannot exceed $L$ in any direction. The surface can never curve upward faster than a parabola with quadratic coefficient $L/2$.
 \end{definitionbox}
 
-\begin{theorem}[The Descent Lemma / Quadratic Upper Bound]
-If $f$ is $L$-smooth, then for all $\mathbf{u}, \mathbf{v} \in \mathbb{R}^d$:
+\begin{theorembox}{The Descent Lemma / Quadratic Upper Bound}
+Let $f: \mathbb{R}^d \to \mathbb{R}$ be continuously differentiable and $L$-smooth. Then for all $\mathbf{u}, \mathbf{v} \in \mathbb{R}^d$:
 \begin{equation}
 f(\mathbf{v}) \le f(\mathbf{u}) + \nabla f(\mathbf{u})^T (\mathbf{v} - \mathbf{u}) + \frac{L}{2} \|\mathbf{v} - \mathbf{u}\|_2^2
 \label{eq:descent_lemma}
 \end{equation}
-\end{theorem}
+\end{theorembox}
 
 \begin{proof}
-By the Fundamental Theorem of Calculus along the segment $\mathbf{w}(t) = \mathbf{u} + t(\mathbf{v} - \mathbf{u})$:
+Let $\mathbf{w}(t) = \mathbf{u} + t(\mathbf{v} - \mathbf{u})$ parameterize the line segment connecting $\mathbf{u}$ to $\mathbf{v}$ for $t \in [0, 1]$. By the Fundamental Theorem of Calculus:
 \begin{equation}
-f(\mathbf{v}) - f(\mathbf{u}) = \int_0^1 \nabla f(\mathbf{u} + t(\mathbf{v} - \mathbf{u}))^T (\mathbf{v} - \mathbf{u}) \, dt
+f(\mathbf{v}) - f(\mathbf{u}) = \int_0^1 \frac{d}{dt} f(\mathbf{w}(t)) \, dt = \int_0^1 \nabla f(\mathbf{u} + t(\mathbf{v} - \mathbf{u}))^T (\mathbf{v} - \mathbf{u}) \, dt
 \end{equation}
 Add and subtract $\nabla f(\mathbf{u})^T (\mathbf{v} - \mathbf{u})$ inside the integral:
 \begin{equation}
@@ -167,13 +190,14 @@ Applying the Cauchy-Schwarz inequality and the $L$-Lipschitz gradient property:
 \begin{align}
 \left| \int_0^1 \left( \nabla f(\mathbf{u} + t(\mathbf{v} - \mathbf{u})) - \nabla f(\mathbf{u}) \right)^T (\mathbf{v} - \mathbf{u}) \, dt \right|
 &\le \int_0^1 \|\nabla f(\mathbf{u} + t(\mathbf{v} - \mathbf{u})) - \nabla f(\mathbf{u})\|_2 \|\mathbf{v} - \mathbf{u}\|_2 \, dt \nonumber \\
-&\le \int_0^1 L t \|\mathbf{v} - \mathbf{u}\|_2^2 \, dt = \frac{L}{2} \|\mathbf{v} - \mathbf{u}\|_2^2
+&\le \int_0^1 L t \|\mathbf{v} - \mathbf{u}\|_2^2 \, dt \nonumber \\
+&= L \|\mathbf{v} - \mathbf{u}\|_2^2 \int_0^1 t \, dt = \frac{L}{2} \|\mathbf{v} - \mathbf{u}\|_2^2
 \end{align}
-Substituting this back establishes the global quadratic upper bound~\eqref{eq:descent_lemma}.
+Since the integral deviation is upper bounded by $\frac{L}{2} \|\mathbf{v} - \mathbf{u}\|_2^2$, substituting this back establishes the global quadratic upper bound~\eqref{eq:descent_lemma}.
 \end{proof}
 
-\begin{theorem}[Sufficient Decrease per Iteration]
-Let $f$ be $L$-smooth. Under the Gradient Descent update $\mathbf{w}_{k+1} = \mathbf{w}_k - \eta \nabla f(\mathbf{w}_k)$ with constant step size $\eta \in \left(0, \frac{2}{L}\right)$:
+\begin{theorembox}{Sufficient Decrease per Iteration}
+Let $f: \mathbb{R}^d \to \mathbb{R}$ be $L$-smooth. Under the Gradient Descent update $\mathbf{w}_{k+1} = \mathbf{w}_k - \eta \nabla f(\mathbf{w}_k)$ with constant step size $\eta \in \left(0, \frac{2}{L}\right)$:
 \begin{equation}
 f(\mathbf{w}_{k+1}) \le f(\mathbf{w}_k) - \eta \left( 1 - \frac{L\eta}{2} \right) \|\nabla f(\mathbf{w}_k)\|_2^2
 \label{eq:sufficient_decrease}
@@ -183,64 +207,147 @@ In particular, for the canonical step size $\eta = \frac{1}{L}$:
 f(\mathbf{w}_{k+1}) \le f(\mathbf{w}_k) - \frac{1}{2L} \|\nabla f(\mathbf{w}_k)\|_2^2
 \label{eq:canonical_decrease}
 \end{equation}
-\end{theorem}
+\end{theorembox}
 
 \begin{proof}
-Substitute $\mathbf{u} = \mathbf{w}_k$ and $\mathbf{v} = \mathbf{w}_{k+1} = \mathbf{w}_k - \eta \nabla f(\mathbf{w}_k)$ into the Descent Lemma:
+Substitute $\mathbf{u} = \mathbf{w}_k$ and $\mathbf{v} = \mathbf{w}_{k+1} = \mathbf{w}_k - \eta \nabla f(\mathbf{w}_k)$ into the Descent Lemma~\eqref{eq:descent_lemma}:
 \begin{align}
 f(\mathbf{w}_{k+1}) &\le f(\mathbf{w}_k) + \nabla f(\mathbf{w}_k)^T (-\eta \nabla f(\mathbf{w}_k)) + \frac{L}{2} \|-\eta \nabla f(\mathbf{w}_k)\|_2^2 \nonumber \\
 &= f(\mathbf{w}_k) - \eta \|\nabla f(\mathbf{w}_k)\|_2^2 + \frac{L\eta^2}{2} \|\nabla f(\mathbf{w}_k)\|_2^2 \nonumber \\
 &= f(\mathbf{w}_k) - \eta \left( 1 - \frac{L\eta}{2} \right) \|\nabla f(\mathbf{w}_k)\|_2^2
 \end{align}
-The coefficient $\eta\left(1 - \frac{L\eta}{2}\right) > 0$ if and only if $0 < \eta < \frac{2}{L}$. Setting the derivative with respect to $\eta$ to zero:
+The coefficient $\eta\left(1 - \frac{L\eta}{2}\right) > 0$ strictly whenever $0 < \eta < \frac{2}{L}$. 
+
+To find the step size maximizing guaranteed single-step decrease, differentiate the scalar factor $h(\eta) = \eta - \frac{L\eta^2}{2}$:
 \begin{equation}
-\frac{d}{d\eta} \left( \eta - \frac{L\eta^2}{2} \right) = 1 - L\eta = 0 \implies \eta^*_{\text{descent}} = \frac{1}{L}
+h'(\eta) = 1 - L\eta = 0 \implies \eta^*_{\text{descent}} = \frac{1}{L}
 \end{equation}
-Thus, $\eta = \frac{1}{L}$ maximizes the guaranteed one-step decrease: $\Delta f \ge \frac{1}{2L}\|\nabla f(\mathbf{w}_k)\|_2^2$.
+Evaluating $h\left(\frac{1}{L}\right) = \frac{1}{L} - \frac{L(1/L^2)}{2} = \frac{1}{2L}$. Thus, $\eta = \frac{1}{L}$ guarantees a loss reduction of at least $\frac{1}{2L}\|\nabla f(\mathbf{w}_k)\|_2^2$ on every step, regardless of convexity!
 \end{proof}
 
-\begin{ponderbox}[The Two Step Sizes: $1/L$ vs.\ $2/(L+\mu)$]
-Why do textbooks emphasize two different "optimal" step sizes for Gradient Descent? When should you use $\eta = 1/L$, and when should you use $\eta = \frac{2}{L+\mu}$?
-
-\textbf{Reflection:}
+\begin{ponderbox}{The Two Step Sizes: $1/L$ vs.\ $2/(L+\mu)$}
+Why do optimization texts emphasize two fundamentally different "optimal" step sizes for Gradient Descent? When should one implement $\eta = 1/L$, and when should one implement $\eta = \frac{2}{L+\mu}$?
+\tcblower
+\textbf{The Socratic Resolution:}
 \begin{itemize}
-    \item $\eta = 1/L$ is the \textbf{conservative descent step size}. It guarantees that the objective function strictly decreases on \emph{every single step} ($f(\mathbf{w}_{k+1}) \le f(\mathbf{w}_k)$) for \emph{any} $L$-smooth function (even non-convex ones!).
-    \item $\eta = \frac{2}{L+\mu}$ is the \textbf{asymptotic contraction step size}. It is designed specifically for \emph{strongly convex quadratics} to minimize the spectral radius of the error transition operator. It yields the fastest possible asymptotic convergence rate $\frac{\kappa-1}{\kappa+1}$, but early steps along the high-curvature axis can overshoot the valley floor (though the overall error in parameter space contractively shrinks).
+    \item $\eta = 1/L$ is the \textbf{conservative descent step size}. It guarantees that the objective functional monotonically decreases on \emph{every single iteration} ($f(\mathbf{w}_{k+1}) \le f(\mathbf{w}_k)$) for \emph{any} $L$-smooth function, including non-convex loss surfaces. It minimizes the one-step quadratic upper bound.
+    \item $\eta = \frac{2}{L+\mu}$ is the \textbf{asymptotic contraction step size}. It is derived specifically for \emph{strongly convex quadratics} by minimizing the spectral radius $\rho(I - \eta A)$ of the error transition operator. It yields the fastest possible asymptotic convergence rate $\frac{\kappa-1}{\kappa+1}$. However, because $\frac{2}{L+\mu} > \frac{1}{L}$ whenever $\mu < L$, individual steps along the high-curvature axis can overshoot the valley floor and momentarily increase loss along that sub-dimension, even as the global parameter error vector $\|\mathbf{w}_k - \mathbf{w}^*\|_2$ contracts.
 \end{itemize}
 \end{ponderbox}
 
 \subsection{Convergence Rates: Convex vs.\ Strongly Convex}
 
-\begin{theorem}[$\mathcal{O}(1/k)$ Sublinear Convergence for Convex $L$-Smooth Functions]
-Let $f: \mathbb{R}^d \to \mathbb{R}$ be convex and $L$-smooth. With constant step size $\eta = \frac{1}{L}$, after $T$ iterations of Gradient Descent:
+\begin{theorembox}{Sublinear Convergence for Convex $L$-Smooth Functions}
+Let $f: \mathbb{R}^d \to \mathbb{R}$ be convex and $L$-smooth with a global minimizer $\mathbf{w}^*$. Under Gradient Descent with constant step size $\eta = \frac{1}{L}$, after $T$ iterations:
 \begin{equation}
 f(\mathbf{w}_T) - f^* \le \frac{2L \|\mathbf{w}_0 - \mathbf{w}^*\|_2^2}{T} = \mathcal{O}\left(\frac{1}{T}\right)
 \label{eq:convex_rate}
 \end{equation}
-To achieve an $\epsilon$-accurate solution ($f(\mathbf{w}_T) - f^* \le \epsilon$), Gradient Descent requires $\mathcal{O}(1/\epsilon)$ iterations.
-\end{theorem}
+Consequently, to guarantee an $\epsilon$-accurate objective value ($f(\mathbf{w}_T) - f^* \le \epsilon$), Gradient Descent requires $\mathcal{O}(1/\epsilon)$ iterations.
+\end{theorembox}
+
+\begin{proof}
+By the Descent Lemma with $\eta = 1/L$, $f(\mathbf{w}_{k+1}) \le f(\mathbf{w}_k) - \frac{1}{2L}\|\nabla f(\mathbf{w}_k)\|_2^2$.
+By convexity, $f(\mathbf{w}_k) - f^* \le \nabla f(\mathbf{w}_k)^T (\mathbf{w}_k - \mathbf{w}^*) \le \|\nabla f(\mathbf{w}_k)\|_2 \|\mathbf{w}_k - \mathbf{w}^*\|_2$.
+Squaring this relation:
+\begin{equation}
+\|\nabla f(\mathbf{w}_k)\|_2^2 \ge \frac{(f(\mathbf{w}_k) - f^*)^2}{\|\mathbf{w}_k - \mathbf{w}^*\|_2^2} \ge \frac{(f(\mathbf{w}_k) - f^*)^2}{R^2}
+\end{equation}
+where $R = \|\mathbf{w}_0 - \mathbf{w}^*\|_2$, since the distance to the optimum is monotonically non-increasing under $\eta = 1/L$.
+Denoting $\Delta_k = f(\mathbf{w}_k) - f^*$:
+\begin{equation}
+\Delta_{k+1} \le \Delta_k - \frac{1}{2L R^2} \Delta_k^2
+\end{equation}
+Dividing both sides by $\Delta_k \Delta_{k+1}$ and using $\Delta_{k+1} \le \Delta_k$:
+\begin{equation}
+\frac{1}{\Delta_{k+1}} - \frac{1}{\Delta_k} = \frac{\Delta_k - \Delta_{k+1}}{\Delta_k \Delta_{k+1}} \ge \frac{\Delta_k - \Delta_{k+1}}{\Delta_k^2} \ge \frac{1}{2L R^2}
+\end{equation}
+Telescoping the sum from $k = 0$ to $T - 1$:
+\begin{equation}
+\frac{1}{\Delta_T} - \frac{1}{\Delta_0} \ge \frac{T}{2L R^2} \implies \frac{1}{\Delta_T} \ge \frac{T}{2L R^2} \implies \Delta_T \le \frac{2L R^2}{T} = \mathcal{O}\left(\frac{1}{T}\right)
+\end{equation}
+establishing the sublinear rate.
+\end{proof}
 
 \begin{definitionbox}{Strong Convexity}
-A continuously differentiable function $f: \mathbb{R}^d \to \mathbb{R}$ is \textbf{$\mu$-strongly convex} ($\mu > 0$) if for all $\mathbf{u}, \mathbf{v} \in \mathbb{R}^d$:
+A continuously differentiable functional $f: \mathbb{R}^d \to \mathbb{R}$ is \textbf{$\mu$-strongly convex} ($\mu > 0$) if for all $\mathbf{u}, \mathbf{v} \in \mathbb{R}^d$:
 \begin{equation}
 f(\mathbf{v}) \ge f(\mathbf{u}) + \nabla f(\mathbf{u})^T (\mathbf{v} - \mathbf{u}) + \frac{\mu}{2} \|\mathbf{v} - \mathbf{u}\|_2^2
 \label{eq:strong_convexity}
 \end{equation}
-For twice-differentiable functions, this is equivalent to $\nabla^2 f(\mathbf{w}) \succeq \mu I$ for all $\mathbf{w}$. Strong convexity provides a quadratic \emph{lower} bound, guaranteeing that the objective grows quadratically away from the minimum $\mathbf{w}^*$.
+For twice-differentiable functionals, this is mathematically equivalent to bounding the Hessian from below: $\nabla^2 f(\mathbf{w}) \succeq \mu I$ for all $\mathbf{w} \in \mathbb{R}^d$. Strong convexity provides a global quadratic \emph{lower} bound, guaranteeing that the objective grows at least quadratically away from the minimizer $\mathbf{w}^*$.
 \end{definitionbox}
 
-Combining $L$-smoothness (quadratic upper bound) and $\mu$-strong convexity (quadratic lower bound), we obtain the sandwich inequality for all $\mathbf{w}$:
+Combining $L$-smoothness (quadratic upper bound) and $\mu$-strong convexity (quadratic lower bound), we obtain the fundamental \textbf{Sandwich Inequality} for all $\mathbf{w} \in \mathbb{R}^d$:
 \begin{equation}
 \frac{\mu}{2} \|\mathbf{w} - \mathbf{w}^*\|_2^2 \le f(\mathbf{w}) - f^* \le \frac{L}{2} \|\mathbf{w} - \mathbf{w}^*\|_2^2
 \label{eq:sandwich_bound}
 \end{equation}
 
-% ----------------------------------------------------------------------
-% PART 3: VISUAL & GEOMETRIC INTUITION
-% ----------------------------------------------------------------------
-\section{Visual \& Geometric Intuition: The Geometry of Gradient Descent Trajectories}
+\begin{ponderbox}{The Spectral Gap \& Condition Number Curse}
+Why does a large condition number $\kappa = L / \mu \gg 1$ cripple Gradient Descent, and why does simple linear feature scaling dramatically alter optimization dynamics?
+\tcblower
+\textbf{The Socratic Resolution:} The condition number $\kappa = \lambda_{\max} / \lambda_{\min}$ defines the dynamic timescale separation between the fastest and slowest modes of the system. 
+\begin{itemize}
+    \item Along the maximum-curvature eigenvector $\mathbf{q}_{\max}$ ($\lambda = L$), the gradient is massive, forcing the step size to remain microscopic ($\eta < 2/L$) to prevent explosive numerical instability.
+    \item Along the minimum-curvature eigenvector $\mathbf{q}_{\min}$ ($\lambda = \mu$), this microscopic step size throttles progress: each iteration shrinks the error by a meager factor of $(1 - \eta \mu) = (1 - 2/\kappa)$.
+\end{itemize}
+Because Gradient Descent is \emph{not} affine invariant, multiplying an unnormalized input feature by $1{,}000$ scales the corresponding Hessian entry by $10^6$, artificially blowing up $\kappa$ by a factor of one million. Standardizing features to zero mean and unit variance centers the Hessian spectrum, collapsing $\kappa$ toward $1$ and curing the ravine pathology.
+\end{ponderbox}
 
-Figure~\ref{fig:gd_trajectories} contrasts the convergence trajectory of Gradient Descent on well-conditioned isotropic surfaces against ill-conditioned anisotropic surfaces.
+% ----------------------------------------------------------------------
+% PART 3: VISUAL & GEOMETRIC ANCHORING
+% ----------------------------------------------------------------------
+\section{Visual \& Geometric Anchoring}
+
+Optimization is fundamentally a geometric discipline. In this section, we anchor the theoretical bounds in three native geometric visualizations.
+
+\subsection{The Sandwich Inequality and Quadratic Bounds}
+Figure~\ref{fig:sandwich_bounds} illustrates the geometric meaning of $L$-smoothness and $\mu$-strong convexity in one dimension, showing how the true loss functional is globally sandwiched between two parabolas at an expansion point $u$.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=1.1, font=\sffamily\footnotesize]
+    % Axes
+    \draw[->, thick, color=primarydark!70] (-3.5, 0) -- (3.5, 0) node[right] {$w$};
+    \draw[->, thick, color=primarydark!70] (0, -0.5) -- (0, 5.2) node[above] {$f(w)$};
+
+    % Contact point u = 0
+    \filldraw[color=primarydark] (0, 1.2) circle (2.5pt) node[above left=2pt] {$(u, f(u))$};
+
+    % Tangent line: T(w) = 1.2 + 0.7 * w
+    \draw[thick, dashed, color=primarydark!60, domain=-3.0:3.0] plot (\x, {1.2 + 0.7*\x}) 
+        node[right] {\scriptsize Tangent: $f(u) + \nabla f(u)^T(w-u)$};
+
+    % Lower bound: L(w) = 1.2 + 0.7*w + 0.25*w^2 (mu = 0.5)
+    \draw[very thick, color=forest!85!black, domain=-3.2:3.0] plot (\x, {1.2 + 0.7*\x + 0.25*\x*\x})
+        node[right] {\textbf{Lower Bound} ($\mu$-strong convexity)};
+
+    % Actual function f(w)
+    \draw[line width=1.8pt, color=primarydark, domain=-3.0:2.8] plot (\x, {1.2 + 0.7*\x + 0.55*\x*\x + 0.08*sin(deg(3*\x))})
+        node[above right] {\textbf{True Objective} $f(w)$};
+
+    % Upper bound: U(w) = 1.2 + 0.7*w + 1.1*w^2 (L = 2.2)
+    \draw[very thick, color=traprad!85!black, domain=-2.3:1.8] plot (\x, {1.2 + 0.7*\x + 1.1*\x*\x})
+        node[above] {\textbf{Upper Bound} ($L$-smoothness)};
+
+    % Minimum of upper bound (Descent step: w = u - (1/L) grad f)
+    % U'(w) = 0.7 + 2.2*w = 0 => w* = -0.7 / 2.2 = -0.318
+    \coordinate (Wstep) at (-0.318, {1.2 + 0.7*(-0.318) + 1.1*(-0.318)*(-0.318)});
+    \filldraw[color=traprad] (Wstep) circle (2.5pt);
+    \draw[dashed, color=traprad] (-0.318, 0) -- (Wstep);
+    \node[below, color=traprad!90!black] at (-0.318, -0.1) {\scriptsize $u - \frac{1}{L}\nabla f(u)$};
+
+    % Guaranteed decrease annotation
+    \draw[<->, >=stealth, thick, color=traprad] (0.3, 1.2) -- (0.3, {1.2 + 0.7*(-0.318) + 1.1*(-0.318)*(-0.318)});
+    \node[right, color=traprad, align=left] at (0.35, 1.1) {\scriptsize Guaranteed decrease \\ \scriptsize $\Delta f \ge \frac{1}{2L}\|\nabla f(u)\|_2^2$};
+\end{tikzpicture}
+\caption{The Sandwich Inequality: Geometric mechanics of continuous optimization. At any point $u$, an $L$-smooth functional is upper-bounded by a tight parabola with curvature $L$. The minimizer of this upper parabola defines the gradient descent step $u - \frac{1}{L}\nabla f(u)$, guaranteeing sufficient decrease. Concurrently, $\mu$-strong convexity establishes a quadratic lower bound with curvature $\mu$, guaranteeing that the function grows strictly away from the global minimizer.}
+\label{fig:sandwich_bounds}
+\end{figure}
+
+\subsection{The Narrow Ravine \& Orthogonality of Gradients}
+Figure~\ref{fig:gd_trajectories} contrasts the convergence trajectory of Gradient Descent on well-conditioned isotropic surfaces ($\kappa = 1$) against ill-conditioned anisotropic surfaces ($\kappa \gg 1$).
 
 \begin{figure}[htbp]
 \centering
@@ -248,7 +355,6 @@ Figure~\ref{fig:gd_trajectories} contrasts the convergence trajectory of Gradien
     scale=0.9,
     font=\sffamily\footnotesize
 ]
-
 % Left: Well-conditioned (circular contours)
 \draw[thick, color=primarydark!40] (-4.5, 0) circle (2.2cm);
 \draw[thick, color=primarydark!65] (-4.5, 0) circle (1.4cm);
@@ -267,6 +373,10 @@ Figure~\ref{fig:gd_trajectories} contrasts the convergence trajectory of Gradien
     \draw[thick, color=primarydark!90] (0, 0) ellipse (1.2cm and 0.3cm);
     \filldraw[color=tealborder] (0, 0) circle (2.5pt) node[below] {$\mathbf{w}^*$};
 
+    % Tangent plane at w0
+    \draw[dashed, color=primarydark!50, line width=1pt] (-4.4, 1.8) -- (-2.0, 1.0);
+    \node[above, color=primarydark!70] at (-2.3, 1.3) {\scriptsize Tangent $\mathcal{T}_{\mathbf{w}_0}$};
+
     % Zig-zagging trajectory
     \coordinate (W0) at (-3.2, 1.4);
     \coordinate (W1) at (-2.2, -0.7);
@@ -274,22 +384,72 @@ Figure~\ref{fig:gd_trajectories} contrasts the convergence trajectory of Gradien
     \coordinate (W3) at (-0.6, -0.3);
     \coordinate (W4) at (-0.2, 0.1);
 
-    \draw[->, >=stealth, line width=1.4pt, color=traprad] (W0) -- (W1);
+    \draw[->, >=stealth, line width=1.4pt, color=traprad] (W0) -- (W1) node[midway, right] {\scriptsize $-\nabla f$};
     \draw[->, >=stealth, line width=1.4pt, color=traprad] (W1) -- (W2);
     \draw[->, >=stealth, line width=1.4pt, color=traprad] (W2) -- (W3);
     \draw[->, >=stealth, line width=1.4pt, color=traprad] (W3) -- (W4);
     \draw[->, >=stealth, line width=1.4pt, color=traprad] (W4) -- (0, 0);
 
     % Newton single step arrow
-    \draw[->, >=stealth, line width=1.6pt, dashed, color=tealborder] (W0) to[bend left=15] node[above, sloped] {Newton Step (1 iteration)} (0, 0);
+    \draw[->, >=stealth, line width=1.6pt, dashed, color=tealborder] (W0) to[bend left=15] node[above, sloped] {\scriptsize Newton Step (1 iter)} (0, 0);
 
     \filldraw[color=coralborder] (W0) circle (2.5pt) node[above] {$\mathbf{w}_0$};
     \node[below, align=center] at (0, -2.5) {\textbf{Ill-Conditioned Surface: } $\kappa \gg 1$ \\ Severe cross-ravine zig-zagging};
 \end{scope}
-
 \end{tikzpicture}
-\caption{The Geometry of Optimization Trajectories: On isotropic surfaces ($\kappa = 1$), gradient arrows point straight to the minimizer $\mathbf{w}^*$. On ill-conditioned surfaces ($\kappa \gg 1$), gradients point nearly perpendicular to the valley axis, causing severe oscillation. In contrast, Newton's method (dashed line) jumps directly to $\mathbf{w}^*$ in a single iteration.}
+\caption{The Geometry of Optimization Trajectories: On isotropic surfaces ($\kappa = 1$), gradient arrows point directly at the global minimizer $\mathbf{w}^*$. On ill-conditioned surfaces ($\kappa \gg 1$), the negative gradient $-\nabla f(\mathbf{w}_0)$ is strictly orthogonal to the tangent plane of the elliptical level curve, pointing across the canyon wall rather than down the ravine floor. This triggers severe high-frequency zig-zagging. In contrast, Newton's method (dashed line) jumps directly to $\mathbf{w}^*$ in a single iteration by pre-multiplying by the inverse Hessian.}
 \label{fig:gd_trajectories}
+\end{figure}
+
+\subsection{Momentum (Heavy-Ball) Dynamics in the Narrow Ravine}
+Figure~\ref{fig:momentum_dynamics} reveals how adding an inertial momentum term transforms the zig-zagging trajectory into a smooth, accelerated flow toward the minimum.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.95, font=\sffamily\footnotesize]
+    % Ravine Ellipses
+    \draw[thick, color=primarydark!35] (0, 0) ellipse (4.8cm and 1.5cm);
+    \draw[thick, color=primarydark!55] (0, 0) ellipse (3.6cm and 1.0cm);
+    \draw[thick, color=primarydark!75] (0, 0) ellipse (2.2cm and 0.55cm);
+    \draw[thick, color=primarydark!95] (0, 0) ellipse (1.0cm and 0.22cm);
+    \filldraw[color=tealborder] (0, 0) circle (3pt) node[below=2pt] {$\mathbf{w}^*$};
+
+    % Starting point
+    \coordinate (P0) at (-4.2, 1.3);
+    \filldraw[color=primarydark] (P0) circle (2.5pt) node[above left] {$\mathbf{w}_0$};
+
+    % Standard GD (Red Zig-zag)
+    \coordinate (G1) at (-3.4, -0.85);
+    \coordinate (G2) at (-2.7, 0.65);
+    \coordinate (G3) at (-2.1, -0.5);
+    \coordinate (G4) at (-1.6, 0.4);
+    \coordinate (G5) at (-1.2, -0.3);
+    \coordinate (G6) at (-0.9, 0.2);
+
+    \draw[->, >=stealth, line width=1.2pt, color=traprad] (P0) -- (G1);
+    \draw[->, >=stealth, line width=1.2pt, color=traprad] (G1) -- (G2);
+    \draw[->, >=stealth, line width=1.2pt, color=traprad] (G2) -- (G3);
+    \draw[->, >=stealth, line width=1.2pt, color=traprad] (G3) -- (G4);
+    \draw[->, >=stealth, line width=1.2pt, color=traprad] (G4) -- (G5);
+    \draw[->, >=stealth, line width=1.2pt, color=traprad] (G5) -- (G6);
+    \node[above, color=traprad] at (-2.6, 0.8) {\textbf{Standard GD} ($\mathcal{O}(\kappa)$ steps)};
+
+    % Heavy Ball Momentum (Green smooth curve)
+    \coordinate (M1) at (-3.3, -0.6);
+    \coordinate (M2) at (-2.3, -0.1);
+    \coordinate (M3) at (-1.3, 0.05);
+    \coordinate (M4) at (-0.4, 0.0);
+
+    \draw[->, >=stealth, line width=1.8pt, color=forest!85!black] 
+        (P0) to[out=-60, in=195] (M1)
+             to[out=15, in=190] (M2)
+             to[out=10, in=185] (M3)
+             to[out=5, in=180] (M4)
+             to[out=0, in=180] (0, 0);
+    \node[below, color=forest!85!black] at (-1.8, -0.3) {\textbf{Polyak Momentum} ($\mathcal{O}(\sqrt{\kappa})$ steps)};
+\end{tikzpicture}
+\caption{Momentum Acceleration: Physical intuition of the Heavy-Ball method. On ill-conditioned quadratics, Standard Gradient Descent (red trajectory) suffers from alternating sign oscillations across the steep walls, severely delaying forward progress. Polyak Momentum (green trajectory) maintains an inertial velocity vector: successive perpendicular gradient components cancel out algebraically ($-\nabla f_y^{(k)} - \nabla f_y^{(k-1)} \approx 0$), while parallel components along the valley floor reinforce one another, accelerating convergence by a factor of $\sqrt{\kappa}$.}
+\label{fig:momentum_dynamics}
 \end{figure}
 
 % ----------------------------------------------------------------------
@@ -298,12 +458,12 @@ Figure~\ref{fig:gd_trajectories} contrasts the convergence trajectory of Gradien
 \section{Deep Intuition \& Conceptual Derivations}
 
 \subsection{Exact Dynamics on Strictly Convex Quadratics}
-Consider minimizing the quadratic objective:
+Consider minimizing the canonical quadratic objective functional:
 \begin{equation}
 f(\mathbf{w}) = \frac{1}{2}\mathbf{w}^T A \mathbf{w} - \mathbf{b}^T \mathbf{w}
 \label{eq:quadratic_obj}
 \end{equation}
-where $A \in \mathbb{R}^{d \times d}$ is symmetric positive definite ($A \succ 0$) with eigenvalues:
+where $A \in \mathbb{R}^{d \times d}$ is symmetric positive definite ($A \succ 0$) with ordered eigenvalues:
 \begin{equation}
 0 < \mu = \lambda_{\min}(A) = \lambda_1 \le \lambda_2 \le \dots \le \lambda_d = \lambda_{\max}(A) = L
 \end{equation}
@@ -313,51 +473,58 @@ The Gradient Descent recurrence with step size $\eta$ is:
 \begin{equation}
 \mathbf{w}_{k+1} = \mathbf{w}_k - \eta (A\mathbf{w}_k - \mathbf{b})
 \end{equation}
-Subtracting $\mathbf{w}^* = A^{-1}\mathbf{b}$ from both sides:
+Subtracting the minimizer $\mathbf{w}^* = A^{-1}\mathbf{b}$ from both sides:
 \begin{align}
 \mathbf{w}_{k+1} - \mathbf{w}^* &= \mathbf{w}_k - \mathbf{w}^* - \eta (A\mathbf{w}_k - A\mathbf{w}^*) \nonumber \\
 &= (I - \eta A)(\mathbf{w}_k - \mathbf{w}^*)
 \end{align}
-Iterating this recurrence $k$ times:
+Iterating this linear discrete-time recurrence across $k$ steps:
 \begin{equation}
 \mathbf{w}_k - \mathbf{w}^* = (I - \eta A)^k (\mathbf{w}_0 - \mathbf{w}^*)
 \label{eq:gd_matrix_power}
 \end{equation}
 
 \subsubsection{Eigen-Decomposition of the Error Vector}
-Because $A$ is symmetric, it admits an orthonormal spectral decomposition $A = Q \Lambda Q^T = \sum_{i=1}^d \lambda_i \mathbf{q}_i \mathbf{q}_i^T$.
-Expressing the initial error in the eigenbasis of $A$:
+Because $A$ is real symmetric, the Spectral Theorem (Chapter~\ref{chap:week05}) guarantees an orthonormal eigenbasis $Q = [\mathbf{q}_1, \dots, \mathbf{q}_d]$ such that $A = Q \Lambda Q^T = \sum_{i=1}^d \lambda_i \mathbf{q}_i \mathbf{q}_i^T$.
+Expressing the initial parameter error in this eigenbasis:
 \begin{equation}
 \mathbf{w}_0 - \mathbf{w}^* = \sum_{i=1}^d \alpha_i \mathbf{q}_i, \quad \text{where } \alpha_i = \mathbf{q}_i^T (\mathbf{w}_0 - \mathbf{w}^*)
 \end{equation}
-Since $(I - \eta A) \mathbf{q}_i = (1 - \eta \lambda_i) \mathbf{q}_i$, the error after $k$ steps uncouples into $d$ independent scalar progressions:
+Since $(I - \eta A) \mathbf{q}_i = (1 - \eta \lambda_i) \mathbf{q}_i$, the matrix power $(I - \eta A)^k$ acts diagonally on each modal coordinate. The error after $k$ steps uncouples into $d$ independent scalar geometric progressions:
 \begin{equation}
 \mathbf{w}_k - \mathbf{w}^* = \sum_{i=1}^d (1 - \eta \lambda_i)^k \alpha_i \mathbf{q}_i
 \label{eq:decoupled_error}
 \end{equation}
 
 \subsubsection{Stability Condition}
-Convergence requires that every modal error shrinks to zero:
+For the algorithm to converge from an arbitrary initialization $\mathbf{w}_0$, every modal coordinate error must decay to zero:
 \begin{equation}
 \lim_{k \to \infty} (1 - \eta \lambda_i)^k = 0 \iff |1 - \eta \lambda_i| < 1 \quad \forall i \in \{1, \dots, d\}
 \end{equation}
-This holds if and only if $-1 < 1 - \eta \lambda_i < 1$, which yields:
+This inequality demands:
+\begin{equation}
+-1 < 1 - \eta \lambda_i < 1 \implies 0 < \eta \lambda_i < 2 \implies 0 < \eta < \frac{2}{\lambda_i}
+\end{equation}
+Because this condition must hold for all eigenvalues simultaneously, the stability envelope is dictated strictly by the maximum eigenvalue $\lambda_{\max} = L$:
 \begin{equation}
 0 < \eta < \frac{2}{\lambda_{\max}} = \frac{2}{L}
 \label{eq:stability_threshold}
 \end{equation}
-If $\eta \ge \frac{2}{L}$, the error along the eigenvector $\mathbf{q}_d$ of maximum eigenvalue $\lambda_{\max} = L$ oscillates with factor $|1 - \eta L| \ge 1$ and fails to converge (exploding if $\eta > 2/L$).
+If $\eta \ge \frac{2}{L}$, the error along the eigenvector $\mathbf{q}_d$ fails to contract, oscillating with factor $|1 - \eta L| \ge 1$ and triggering explosive numerical divergence.
 
 \subsubsection{Optimal Learning Rate and Convergence Factor}
-The asymptotic convergence rate is governed by the spectral radius $\rho(I - \eta A) = \max_i |1 - \eta \lambda_i| = \max(|1 - \eta \mu|, |1 - \eta L|)$.
-To minimize this worst-case contraction factor:
+The asymptotic convergence rate is dictated by the spectral radius of the transition matrix:
 \begin{equation}
-1 - \eta^* \mu = -(1 - \eta^* L) \implies \eta^* = \frac{2}{L + \mu}
+\rho(I - \eta A) = \max_{i} |1 - \eta \lambda_i| = \max \left( |1 - \eta \mu|, |1 - \eta L| \right)
+\end{equation}
+As $\eta$ increases from $0$, the slow-mode contraction factor $|1 - \eta \mu| = 1 - \eta \mu$ decreases linearly, while the fast-mode contraction factor $|1 - \eta L| = \eta L - 1$ increases linearly. The minimax optimum occurs precisely at the point of intersection:
+\begin{equation}
+1 - \eta^* \mu = -(1 - \eta^* L) \implies 1 - \eta^* \mu = \eta^* L - 1 \implies \eta^*(L + \mu) = 2 \implies \eta^* = \frac{2}{L + \mu}
 \label{eq:optimal_eta}
 \end{equation}
-Substituting $\eta^*$ back into the contraction factor:
+Substituting this optimal step size back into the contraction factor:
 \begin{equation}
-\rho^* = 1 - \eta^* \mu = 1 - \frac{2\mu}{L + \mu} = \frac{L - \mu}{L + \mu} = \frac{\frac{L}{\mu} - 1}{\frac{L}{\mu} + 1} = \frac{\kappa - 1}{\kappa + 1}
+\rho^* = 1 - \frac{2\mu}{L + \mu} = \frac{L - \mu}{L + \mu} = \frac{\frac{L}{\mu} - 1}{\frac{L}{\mu} + 1} = \frac{\kappa - 1}{\kappa + 1}
 \label{eq:condition_contraction}
 \end{equation}
 Taking the Euclidean norm of~\eqref{eq:decoupled_error}:
@@ -365,102 +532,109 @@ Taking the Euclidean norm of~\eqref{eq:decoupled_error}:
 \|\mathbf{w}_k - \mathbf{w}^*\|_2 \le \left( \frac{\kappa - 1}{\kappa + 1} \right)^k \|\mathbf{w}_0 - \mathbf{w}^*\|_2
 \label{eq:linear_conv_rate}
 \end{equation}
-This is \textbf{linear convergence} (geometric decay in error). When the condition number is large ($\kappa \gg 1$), a first-order Taylor expansion reveals:
+This establishes \textbf{linear convergence} (which corresponds to an exponential decay of error over time). For ill-conditioned problems where $\kappa \gg 1$, a series expansion yields:
 \begin{equation}
-\frac{\kappa - 1}{\kappa + 1} = \frac{1 - 1/\kappa}{1 + 1/\kappa} \approx \left(1 - \frac{1}{\kappa}\right)\left(1 - \frac{1}{\kappa}\right) \approx 1 - \frac{2}{\kappa}
+\frac{\kappa - 1}{\kappa + 1} = \frac{1 - 1/\kappa}{1 + 1/\kappa} \approx 1 - \frac{2}{\kappa}
 \end{equation}
-To reduce the initial error by a factor of $\epsilon$, the number of iterations required is:
+To reduce the initial parameter error by a relative threshold $\epsilon$, the required number of iterations satisfies:
 \begin{equation}
-\left( 1 - \frac{2}{\kappa} \right)^k \le \epsilon \implies k \approx \frac{\kappa}{2} \ln\left(\frac{1}{\epsilon}\right) = \mathcal{O}(\kappa \ln(1/\epsilon))
+\left( 1 - \frac{2}{\kappa} \right)^k \le \epsilon \implies k \ln\left(1 - \frac{2}{\kappa}\right) \le \ln(\epsilon) \implies k \approx \frac{\kappa}{2} \ln\left(\frac{1}{\epsilon}\right) = \mathcal{O}\left(\kappa \ln(1/\epsilon)\right)
 \end{equation}
-If $\kappa = 10{,}000$, gradient descent requires over $50{,}000$ iterations to achieve moderate precision!
+The iteration complexity scales linearly with the condition number $\kappa$. If $\kappa = 10{,}000$, achieving four digits of precision ($\epsilon = 10^{-4}$) requires approximately $46{,}000$ iterations!
 
 \subsection{Newton-Raphson Method: Curvature Inversion}
-Newton's method addresses the condition number curse by modeling the loss surface with its full second-order Taylor expansion around $\mathbf{w}_k$:
+Newton's method resolves the condition number curse by replacing the isotropic spherical quadratic upper bound of Gradient Descent with the exact local second-order Taylor expansion:
 \begin{equation}
 q(\mathbf{w}) = f(\mathbf{w}_k) + \nabla f(\mathbf{w}_k)^T (\mathbf{w} - \mathbf{w}_k) + \frac{1}{2}(\mathbf{w} - \mathbf{w}_k)^T \nabla^2 f(\mathbf{w}_k) (\mathbf{w} - \mathbf{w}_k)
 \end{equation}
-Minimizing this quadratic model with respect to $\mathbf{w}$ yields:
+Setting the gradient of this quadratic model to zero:
 \begin{equation}
 \nabla q(\mathbf{w}) = \nabla f(\mathbf{w}_k) + \nabla^2 f(\mathbf{w}_k)(\mathbf{w} - \mathbf{w}_k) = \mathbf{0}
 \end{equation}
-Assuming $\nabla^2 f(\mathbf{w}_k) \succ 0$, the exact minimizer of the local quadratic model defines the Newton update:
+Assuming strict positive definiteness $\nabla^2 f(\mathbf{w}_k) \succ 0$, the exact minimizer of the local model defines the pure Newton update:
 \begin{equation}
 \mathbf{w}_{k+1} = \mathbf{w}_k - [\nabla^2 f(\mathbf{w}_k)]^{-1} \nabla f(\mathbf{w}_k)
 \label{eq:newton_update}
 \end{equation}
 
 \subsubsection{One-Step Convergence on Quadratics}
-For any quadratic $f(\mathbf{w}) = \frac{1}{2}\mathbf{w}^T A \mathbf{w} - \mathbf{b}^T \mathbf{w}$ with $A \succ 0$:
-The gradient is $\nabla f(\mathbf{w}) = A\mathbf{w} - \mathbf{b}$ and the Hessian is $\nabla^2 f(\mathbf{w}) = A$.
-Applying Newton's update from \emph{any} initial point $\mathbf{w}_0$:
+For any strictly convex quadratic functional $f(\mathbf{w}) = \frac{1}{2}\mathbf{w}^T A \mathbf{w} - \mathbf{b}^T \mathbf{w}$ with $A \succ 0$:
+The gradient is $\nabla f(\mathbf{w}) = A\mathbf{w} - \mathbf{b}$ and the Hessian is constant: $\nabla^2 f(\mathbf{w}) = A$.
+Applying Newton's update from \emph{any} arbitrary initialization $\mathbf{w}_0$:
 \begin{equation}
 \mathbf{w}_1 = \mathbf{w}_0 - A^{-1}(A\mathbf{w}_0 - \mathbf{b}) = \mathbf{w}_0 - \mathbf{w}_0 + A^{-1}\mathbf{b} = A^{-1}\mathbf{b} = \mathbf{w}^*
 \end{equation}
-Newton's method finds the exact global minimum in \textbf{precisely one iteration}, completely independent of the condition number $\kappa$!
+Newton's method achieves the exact global minimizer in \textbf{precisely one step}, completely independent of the condition number $\kappa$!
 
 \subsubsection{Affine Invariance of Newton's Method}
-Unlike Gradient Descent, Newton's method is completely invariant to non-singular linear changes of coordinates.
-Let $\mathbf{y} = B \mathbf{w}$ where $B \in \mathbb{R}^{d \times d}$ is invertible. Define $\tilde{f}(\mathbf{y}) = f(B^{-1}\mathbf{y})$.
-By the chain rule:
+Unlike first-order gradient descent, Newton's method is completely invariant to non-singular linear transformations of coordinates.
+Let $\mathbf{y} = B \mathbf{w}$, where $B \in \mathbb{R}^{d \times d}$ is an invertible matrix. Define the objective in transformed coordinates by $\tilde{f}(\mathbf{y}) = f(B^{-1}\mathbf{y})$.
+By the multivariable chain rule:
 \begin{align}
 \nabla \tilde{f}(\mathbf{y}) &= B^{-T} \nabla f(\mathbf{w}) \\
 \nabla^2 \tilde{f}(\mathbf{y}) &= B^{-T} \nabla^2 f(\mathbf{w}) B^{-1}
 \end{align}
-The Newton step in $\mathbf{y}$-coordinates is:
+Computing the Newton step in $\mathbf{y}$-coordinates:
 \begin{align}
 \Delta \mathbf{y} &= -[\nabla^2 \tilde{f}(\mathbf{y})]^{-1} \nabla \tilde{f}(\mathbf{y}) \nonumber \\
 &= -\left[ B^{-T} \nabla^2 f(\mathbf{w}) B^{-1} \right]^{-1} \left[ B^{-T} \nabla f(\mathbf{w}) \right] \nonumber \\
 &= -B [\nabla^2 f(\mathbf{w})]^{-1} B^T B^{-T} \nabla f(\mathbf{w}) \nonumber \\
 &= B \left( -[\nabla^2 f(\mathbf{w})]^{-1} \nabla f(\mathbf{w}) \right) = B \Delta \mathbf{w}
 \end{align}
-The update in the transformed space is identical to the transformation of the update in the original space: $\mathbf{y}_{k+1} = B \mathbf{w}_{k+1}$. Newton's method effectively rescales the coordinate axes so that the contours appear perfectly spherical.
+The update in the transformed coordinate space is identically equal to the transformation of the original update: $\mathbf{y}_{k+1} = B \mathbf{w}_{k+1}$. Newton's method implicitly applies the optimal metric tensor $[\nabla^2 f(\mathbf{w})]^{-1}$, stretching and rotating the coordinate frame so that all elliptical level sets become spherical.
 
-\begin{ponderbox}[Why isn't Newton's Method used for Deep Learning?]
-If Newton's method converges quadratically ($\| \mathbf{w}_{k+1} - \mathbf{w}^* \| \le C \| \mathbf{w}_k - \mathbf{w}^* \|^2$) and is invariant to ill-conditioning, why do modern deep learning frameworks (PyTorch, TensorFlow) almost universally rely on first-order variants (SGD, Adam)?
-
-\textbf{Reflection:} Three severe obstacles prevent direct application of Newton's method in deep learning:
+\begin{ponderbox}{Why Isn't Newton's Method Used for Deep Learning?}
+If Newton's method achieves quadratic convergence ($\| \mathbf{w}_{k+1} - \mathbf{w}^* \| \le C \| \mathbf{w}_k - \mathbf{w}^* \|^2$) and is completely immune to ill-conditioning, why do modern deep learning frameworks (PyTorch, JAX) almost universally rely on first-order methods (SGD, AdamW)?
+\tcblower
+\textbf{The Socratic Resolution:} Three fundamental mathematical and computational barriers preclude Newton's method in high dimensions:
 \begin{enumerate}
-    \item \textbf{Memory Storage $\mathcal{O}(d^2)$:} A modest modern neural network has $d = 10^8$ parameters. Storing the Hessian requires $d^2 = 10^{16}$ floats ($40$ Petabytes of RAM).
-    \item \textbf{Computational Inversion $\mathcal{O}(d^3)$:} Inverting a $10^8 \times 10^8$ matrix takes $\approx 10^{24}$ FLOPs, requiring centuries of computation per gradient step.
-    \item \textbf{Non-Convexity and Saddle Points:} In high dimensions, random stationary points are overwhelmingly saddle points rather than local minima. Standard Newton's method is attracted to local \emph{maxima} and saddle points because it only seeks $\nabla f = \mathbf{0}$, jumping violently in directions of negative curvature ($\lambda_i < 0$).
+    \item \textbf{Memory Storage Barrier $\mathcal{O}(d^2)$:} A modern large language model features $d \approx 10^{11}$ parameters. Storing the Hessian requires $d^2 = 10^{22}$ floating-point numbers ($40$ Zettabytes of memory), which exceeds the memory capacity of the entire planet.
+    \item \textbf{Computational Inversion Barrier $\mathcal{O}(d^3)$:} Solving the linear system $\nabla^2 f(\mathbf{w})\Delta \mathbf{w} = -\nabla f(\mathbf{w})$ via Cholesky factorization requires $\mathcal{O}(d^3)$ operations. For $d = 10^7$, a single step would require $10^{21}$ FLOPs, taking weeks of supercomputer compute per step.
+    \item \textbf{Non-Convexity and Saddle Point Attraction:} In high-dimensional non-convex landscapes, critical points are overwhelmingly saddle points rather than local minima. Standard Newton's method seeks $\nabla f(\mathbf{w}) = \mathbf{0}$ indiscriminately. In directions of negative curvature ($\lambda_i < 0$), the Newton step jumps \emph{upward} toward local maxima and saddles rather than downward!
 \end{enumerate}
 \end{ponderbox}
 
 \subsection{Polyak Momentum: Heavy-Ball Acceleration}
-The Heavy-Ball momentum method introduces a physical inertia term:
+The Heavy-Ball momentum method (Boris Polyak, 1964) introduces a physical inertia term into the first-order update:
 \begin{equation}
 \mathbf{w}_{k+1} = \mathbf{w}_k - \alpha \nabla f(\mathbf{w}_k) + \beta (\mathbf{w}_k - \mathbf{w}_{k-1})
 \label{eq:momentum_update}
 \end{equation}
-where $\beta \in [0, 1)$ is the momentum parameter.
+where $\alpha > 0$ is the learning rate and $\beta \in [0, 1)$ is the momentum coefficient.
 
 \subsubsection{Discrete Dynamical System Formulation}
-On a one-dimensional quadratic $f(w) = \frac{1}{2} a w^2$ with $a > 0$:
+Consider minimizing the scalar quadratic $f(w) = \frac{1}{2} a w^2$ ($a > 0$). The recurrence becomes:
 \begin{equation}
-w_{k+1} = (1 - \alpha a + \beta) w_k - \beta w_{k-1}
+w_{k+1} = w_k - \alpha a w_k + \beta(w_k - w_{k-1}) = (1 - \alpha a + \beta) w_k - \beta w_{k-1}
 \end{equation}
-Stacking the state vector $\mathbf{u}_k = [w_k, w_{k-1}]^T \in \mathbb{R}^2$:
+We formulate this two-step recurrence as a first-order vector discrete dynamical system by defining the state vector $\mathbf{u}_k = [w_k, w_{k-1}]^T \in \mathbb{R}^2$:
 \begin{equation}
-\begin{bmatrix} w_{k+1} \\ w_k \end{bmatrix} = \begin{bmatrix} 1 - \alpha a + \beta & -\beta \\ 1 & 0 \end{bmatrix} \begin{bmatrix} w_k \\ w_{k-1} \end{bmatrix} \implies \mathbf{u}_{k+1} = T \mathbf{u}_k
+\begin{bmatrix} w_{k+1} \\ w_k \end{bmatrix} = \begin{bmatrix} 1 - \alpha a + \beta & -\beta \\ 1 & 0 \end{bmatrix} \begin{bmatrix} w_k \\ w_{k-1} \end{bmatrix} \iff \mathbf{u}_{k+1} = T(a) \mathbf{u}_k
 \label{eq:momentum_system}
 \end{equation}
-The characteristic polynomial of the transition matrix $T$ is:
+The characteristic polynomial of the transition companion matrix $T(a)$ is:
 \begin{equation}
-\det(T - \lambda I) = \lambda^2 - (1 - \alpha a + \beta)\lambda + \beta = 0
+p(\lambda) = \det(T(a) - \lambda I) = \det \begin{bmatrix} 1 - \alpha a + \beta - \lambda & -\beta \\ 1 & -\lambda \end{bmatrix} = \lambda^2 - (1 - \alpha a + \beta)\lambda + \beta = 0
 \end{equation}
-By Vieta's formulas, the product of the eigenvalues is $\lambda_1 \lambda_2 = \det(T) = \beta$.
-When the roots are complex conjugates, their magnitudes are identically $|\lambda_1| = |\lambda_2| = \sqrt{\beta}$!
-By optimally setting:
+By Vieta's formulas, the product of the eigenvalues is:
+\begin{equation}
+\lambda_1 \lambda_2 = \det(T(a)) = \beta
+\end{equation}
+If the discriminant is negative ($\Delta = (1 - \alpha a + \beta)^2 - 4\beta < 0$), the roots form a complex conjugate pair $\lambda_{1, 2} = r e^{\pm i \theta}$. The magnitude of each root is identically:
+\begin{equation}
+|\lambda_1| = |\lambda_2| = \sqrt{\lambda_1 \lambda_2} = \sqrt{\beta}
+\end{equation}
+Remarkably, when the eigenvalues are complex, their magnitude is \emph{completely independent of the curvature $a$}!
+By setting the optimal hyperparameters:
 \begin{equation}
 \alpha^* = \frac{4}{(\sqrt{L} + \sqrt{\mu})^2}, \quad \beta^* = \left( \frac{\sqrt{L} - \sqrt{\mu}}{\sqrt{L} + \sqrt{\mu}} \right)^2 = \left( \frac{\sqrt{\kappa} - 1}{\sqrt{\kappa} + 1} \right)^2
 \label{eq:optimal_momentum}
 \end{equation}
-the spectral radius of the transition matrix becomes:
+the discriminant remains non-positive across the entire spectrum $a \in [\mu, L]$. Consequently, the spectral radius of the transition matrix is uniformly:
 \begin{equation}
-\rho(T) = \sqrt{\beta^*} = \frac{\sqrt{\kappa} - 1}{\sqrt{\kappa} + 1}
+\rho(T) = \sqrt{\beta^*} = \frac{\sqrt{\kappa} - 1}{\sqrt{\kappa} + 1} \approx 1 - \frac{2}{\sqrt{\kappa}}
 \end{equation}
-This improves the condition number dependence from $\mathcal{O}(\kappa)$ to $\mathcal{O}(\sqrt{\kappa})$. For $\kappa = 10{,}000$, $\kappa$ drops from $10{,}000$ to $\sqrt{\kappa} = 100$, accelerating convergence by a factor of $100\times$!
+This improves the condition number dependence from $\mathcal{O}(\kappa)$ to $\mathcal{O}(\sqrt{\kappa})$. For an ill-conditioned problem with $\kappa = 10{,}000$, $\kappa$ drops from $10{,}000$ to $\sqrt{\kappa} = 100$, yielding an extraordinary $100\times$ acceleration!
 
 % ----------------------------------------------------------------------
 % PART 5: MULTI-PAGE WORKED EXAMPLES
@@ -469,25 +643,25 @@ This improves the condition number dependence from $\mathcal{O}(\kappa)$ to $\ma
 
 \begin{examplebox}[breakable]{Step-by-Step Gradient Descent Dynamics on an Ill-Conditioned Quadratic}
 \textbf{Problem Statement:}
-Consider the quadratic objective function:
+Consider minimizing the anisotropic quadratic functional:
 \begin{equation}
 f(x_1, x_2) = \frac{1}{2} x_1^2 + 5 x_2^2 = \frac{1}{2} \mathbf{x}^T \begin{bmatrix} 1 & 0 \\ 0 & 10 \end{bmatrix} \mathbf{x}
 \end{equation}
-The unique global minimum is at $\mathbf{x}^* = [0, 0]^T$ with $f^* = 0$.
-The starting point is $\mathbf{x}_0 = [10.0, 1.0]^T$.
+The unique global minimizer is $\mathbf{x}^* = [0, 0]^T$ with optimal value $f^* = 0$.
+The system is initialized at $\mathbf{x}_0 = [10.0, 1.0]^T$.
 
 \textbf{Task Requirements:}
 \begin{enumerate}
-    \item Identify the eigenvalues $\lambda_1, \lambda_2$, Lipschitz constant $L$, strong convexity parameter $\mu$, and condition number $\kappa$.
-    \item Determine the maximum non-divergent step size $\eta_{\max}$ and the theoretical optimal step size $\eta^*$.
-    \item Manually calculate the exact values of iterates $\mathbf{x}_1, \mathbf{x}_2$ and objective losses $f(\mathbf{x}_0), f(\mathbf{x}_1), f(\mathbf{x}_2)$ under the optimal learning rate $\eta^* = \frac{2}{L+\mu}$.
-    \item Contrast this with the divergent behavior under step size $\eta = 0.22 > \eta_{\max}$.
+    \item Identify the Hessian eigenvalues $\lambda_1, \lambda_2$, the Lipschitz constant $L$, strong convexity parameter $\mu$, and condition number $\kappa$.
+    \item Calculate the maximum stable step size $\eta_{\max}$ and the theoretical optimal step size $\eta^*$.
+    \item Compute the exact hand arithmetic for iterates $\mathbf{x}_1, \mathbf{x}_2$ and objective values $f(\mathbf{x}_0), f(\mathbf{x}_1), f(\mathbf{x}_2)$ under the optimal learning rate $\eta^* = \frac{2}{L+\mu}$.
+    \item Demonstrate the catastrophic divergence under the unstable step size $\eta = 0.22 > \eta_{\max}$.
 \end{enumerate}
 
 \tcblower
 
 \textbf{Step 1: Curvature Parameters and Condition Number}
-The Hessian is constant:
+The Hessian matrix is constant everywhere:
 \begin{equation}
 \nabla^2 f(\mathbf{x}) = A = \begin{bmatrix} 1 & 0 \\ 0 & 10 \end{bmatrix}
 \end{equation}
@@ -502,26 +676,26 @@ The condition number is:
 
 \textbf{Step 2: Step Size Boundaries}
 \begin{itemize}
-    \item Maximum stable step size:
+    \item Maximum theoretical stability limit:
     \begin{equation}
     \eta_{\max} = \frac{2}{L} = \frac{2}{10.0} = 0.200
     \end{equation}
-    \item Optimal asymptotic step size:
+    \item Optimal asymptotic contraction step size:
     \begin{equation}
     \eta^* = \frac{2}{L + \mu} = \frac{2}{10 + 1} = \frac{2}{11} \approx 0.181818
     \end{equation}
 \end{itemize}
 
 \textbf{Step 3: Exact Iterate Computations Under $\eta^* = \frac{2}{11}$}
-The gradient is:
+The gradient vector is:
 \begin{equation}
 \nabla f(\mathbf{x}) = \begin{bmatrix} x_1 \\ 10 x_2 \end{bmatrix}
 \end{equation}
-The initial objective value at $\mathbf{x}_0 = [10, 1]^T$ is:
+Initial objective loss at $\mathbf{x}_0 = [10, 1]^T$:
 \begin{equation}
 f(\mathbf{x}_0) = \frac{1}{2}(10)^2 + 5(1)^2 = 50 + 5 = 55.000
 \end{equation}
-The gradient at $\mathbf{x}_0$ is:
+The initial gradient is:
 \begin{equation}
 \nabla f(\mathbf{x}_0) = \begin{bmatrix} 10.0 \\ 10(1.0) \end{bmatrix} = \begin{bmatrix} 10.0 \\ 10.0 \end{bmatrix}
 \end{equation}
@@ -533,8 +707,8 @@ The gradient at $\mathbf{x}_0$ is:
 = \begin{bmatrix} 10 - \frac{20}{11} \\ 1 - \frac{20}{11} \end{bmatrix}
 = \begin{bmatrix} \frac{90}{11} \\ -\frac{9}{11} \end{bmatrix} \approx \begin{bmatrix} 8.1818 \\ -0.8182 \end{bmatrix}
 \end{align}
-Notice the critical diagnostic event: $x_2$ has flipped sign from $+1.0$ to $-0.8182$! It overshot the bottom of the ravine and landed on the opposite wall.
-The objective value at $\mathbf{x}_1$ is:
+\textbf{Diagnostic Observation:} The fast coordinate $x_2$ has flipped sign from $+1.0$ to $-0.8182$! It overshot the bottom of the ravine and landed on the opposite wall.
+Evaluating the objective value at $\mathbf{x}_1$:
 \begin{align}
 f(\mathbf{x}_1) &= \frac{1}{2}\left(\frac{90}{11}\right)^2 + 5\left(-\frac{9}{11}\right)^2 \nonumber \\
 &= \frac{1}{2} \cdot \frac{8100}{121} + 5 \cdot \frac{81}{121} = \frac{4050 + 405}{121} = \frac{4455}{121} \approx 36.8182
@@ -545,7 +719,7 @@ The gradient at $\mathbf{x}_1$ is:
 \begin{equation}
 \nabla f(\mathbf{x}_1) = \begin{bmatrix} \frac{90}{11} \\ 10\left(-\frac{9}{11}\right) \end{bmatrix} = \begin{bmatrix} \frac{90}{11} \\ -\frac{90}{11} \end{bmatrix}
 \end{equation}
-Now update:
+Updating parameters:
 \begin{align}
 \mathbf{x}_2 &= \mathbf{x}_1 - \eta^* \nabla f(\mathbf{x}_1) \nonumber \\
 &= \begin{bmatrix} \frac{90}{11} \\ -\frac{9}{11} \end{bmatrix} - \frac{2}{11} \begin{bmatrix} \frac{90}{11} \\ -\frac{90}{11} \end{bmatrix}
@@ -554,55 +728,54 @@ Now update:
 = \begin{bmatrix} \frac{810}{121} \\ \frac{81}{121} \end{bmatrix} \approx \begin{bmatrix} 6.6942 \\ +0.6694 \end{bmatrix}
 \end{align}
 The sign of $x_2$ flips back to positive ($+0.6694$).
-The coordinate progression for any step $k$ is given analytically by:
+The analytical coordinate progression for any iteration $k$ is:
 \begin{align}
 x_1^{(k)} &= \left(1 - \eta^* \lambda_1\right)^k x_1^{(0)} = \left(1 - \frac{2}{11}\right)^k (10) = 10 \left(\frac{9}{11}\right)^k \\
 x_2^{(k)} &= \left(1 - \eta^* \lambda_2\right)^k x_2^{(0)} = \left(1 - \frac{20}{11}\right)^k (1) = 1 \left(-\frac{9}{11}\right)^k
 \end{align}
-Observe that both coordinate errors contract at the exact same rate:
+Both coordinates contract in absolute magnitude at the identical theoretical rate:
 \begin{equation}
-|x_1^{(k)}| = 10 \left(\frac{9}{11}\right)^k, \quad |x_2^{(k)}| = 1 \left(\frac{9}{11}\right)^k
+\rho^* = \frac{\kappa - 1}{\kappa + 1} = \frac{10 - 1}{10 + 1} = \frac{9}{11} \approx 0.8182
 \end{equation}
-The contraction factor is precisely $\rho^* = \frac{\kappa - 1}{\kappa + 1} = \frac{10 - 1}{10 + 1} = \frac{9}{11} \approx 0.8182$.
-The objective value at $\mathbf{x}_2$ is:
+Evaluating the objective value at $\mathbf{x}_2$:
 \begin{equation}
-f(\mathbf{x}_2) = \left(\frac{9}{11}\right)^2 f(\mathbf{x}_1) = \frac{81}{121} \times \frac{4455}{121} \approx 24.646
+f(\mathbf{x}_2) = \left(\frac{9}{11}\right)^2 f(\mathbf{x}_1) = \frac{81}{121} \times \frac{4455}{121} \approx 24.6462
 \end{equation}
 
-\textbf{Step 4: Divergence with $\eta = 0.22 > \eta_{\max}$}
-Suppose a user chooses step size $\eta = 0.22 > 0.20$.
-The contraction factors along the two axes are:
+\textbf{Step 4: Catastrophic Divergence Under $\eta = 0.22 > \eta_{\max}$}
+Suppose an engineer selects $\eta = 0.22 > 0.20$.
+The modal contraction factors along the two axes are:
 \begin{align}
 1 - \eta \lambda_1 &= 1 - 0.22(1) = +0.78 \quad (\text{stable, contracts}) \\
 1 - \eta \lambda_2 &= 1 - 0.22(10) = 1 - 2.20 = -1.20 \quad (\text{UNSTABLE!})
 \end{align}
-Along the $x_2$ axis, the error expands exponentially:
+Along the $x_2$ axis, the error amplifies exponentially on every step:
 \begin{equation}
 x_2^{(k)} = (-1.20)^k \cdot (1.0)
 \end{equation}
 \begin{itemize}
-    \item $x_2^{(0)} = +1.0$
-    \item $x_2^{(1)} = -1.20$
-    \item $x_2^{(2)} = +1.44$
+    \item $x_2^{(0)} = +1.000$
+    \item $x_2^{(1)} = -1.200$
+    \item $x_2^{(2)} = +1.440$
     \item $x_2^{(5)} = -2.488$
-    \item $x_2^{(20)} \approx +38.33$
+    \item $x_2^{(20)} \approx +38.338$
     \item $x_2^{(100)} \approx 8.28 \times 10^7$
 \end{itemize}
-Even though $x_1 \to 0$, $x_2$ explodes violently to $\pm \infty$, triggering numerical overflow (\texttt{NaN} in Python).
+While $x_1 \to 0$ gracefully, $x_2$ violently explodes to $\pm \infty$, triggering arithmetic overflow (\texttt{NaN} in code).
 \end{examplebox}
 
 \begin{examplebox}[breakable]{Newton's Method vs.\ Gradient Descent on a Multi-Variable Objective}
 \textbf{Problem Statement:}
-Consider the non-quadratic function:
+Consider the non-quadratic objective functional:
 \begin{equation}
 f(x_1, x_2) = x_1^4 + 2x_1 x_2 + 2x_2^2
 \end{equation}
-Starting at the initial test point $\mathbf{x}_0 = [1.0, 1.0]^T$:
+Starting at the test point $\mathbf{x}_0 = [1.0, 1.0]^T$:
 \begin{enumerate}
-    \item Compute the gradient $\nabla f(\mathbf{x}_0)$.
+    \item Compute the gradient vector $\nabla f(\mathbf{x}_0)$.
     \item Compute the Hessian matrix $\nabla^2 f(\mathbf{x}_0)$ and verify that it is strictly positive definite.
     \item Compute the exact inverse Hessian $[\nabla^2 f(\mathbf{x}_0)]^{-1}$.
-    \item Compute the first Newton iterate $\mathbf{x}_1^{\text{Newton}}$ and compare it with the Gradient Descent iterate $\mathbf{x}_1^{\text{GD}}$ using $\eta = 0.1$.
+    \item Compute the first Newton iterate $\mathbf{x}_1^{\text{Newton}}$ and contrast it with the Gradient Descent iterate $\mathbf{x}_1^{\text{GD}}$ using $\eta = 0.1$.
 \end{enumerate}
 
 \tcblower
@@ -628,15 +801,15 @@ Evaluating at $\mathbf{x}_0 = [1, 1]^T$:
 \begin{equation}
 H_0 = \nabla^2 f(\mathbf{x}_0) = \begin{bmatrix} 12 & 2 \\ 2 & 4 \end{bmatrix}
 \end{equation}
-Check positive definiteness:
+Verifying positive definiteness via Sylvester's Criterion:
 \begin{itemize}
     \item Leading principal minor 1: $\Delta_1 = 12 > 0$.
     \item Leading principal minor 2: $\Delta_2 = \det(H_0) = (12)(4) - (2)(2) = 48 - 4 = 44 > 0$.
 \end{itemize}
-By Sylvester's Criterion, $H_0 \succ 0$ strictly.
+Since all leading principal minors are strictly positive, $H_0 \succ 0$.
 
 \textbf{Step 3: Inverse Hessian Matrix}
-Using the $2 \times 2$ matrix inverse formula:
+Using the classical $2 \times 2$ matrix inverse formula:
 \begin{equation}
 H_0^{-1} = \frac{1}{\det(H_0)} \begin{bmatrix} 4 & -2 \\ -2 & 12 \end{bmatrix} = \frac{1}{44} \begin{bmatrix} 4 & -2 \\ -2 & 12 \end{bmatrix} = \begin{bmatrix} \frac{1}{11} & -\frac{1}{22} \\ -\frac{1}{22} & \frac{3}{11} \end{bmatrix}
 \end{equation}
@@ -658,7 +831,97 @@ H_0^{-1} = \frac{1}{\det(H_0)} \begin{bmatrix} 4 & -2 \\ -2 & 12 \end{bmatrix} =
     \mathbf{x}_1^{\text{GD}} = \mathbf{x}_0 - \eta \nabla f(\mathbf{x}_0) = \begin{bmatrix} 1 \\ 1 \end{bmatrix} - 0.1 \begin{bmatrix} 6 \\ 6 \end{bmatrix} = \begin{bmatrix} 0.4 \\ 0.4 \end{bmatrix}
     \end{equation}
 \end{itemize}
-Notice that Gradient Descent moves equally along both coordinates ($0.4, 0.4$) because the gradient vector had identical components ($6, 6$). However, Newton's method recognized that the curvature along $x_1$ ($12$) is three times greater than along $x_2$ ($4$), so it took a modest step along $x_1$ and a much larger, corrective step along $x_2$, adapting automatically to the local geometry.
+\textbf{Pedagogical Insight:} Gradient Descent steps equally along both axes ($0.4, 0.4$) because the gradient vector had identical components ($6, 6$). In contrast, Newton's method recognized that the curvature along $x_1$ ($12$) is three times greater than along $x_2$ ($4$). It executed a small, cautious step along $x_1$ and a large, aggressive step along $x_2$, automatically warping its search direction to conform to the Riemannian metric induced by the Hessian.
+\end{examplebox}
+
+\begin{examplebox}[breakable]{Step-by-Step Polyak Heavy-Ball Momentum Recurrence}
+\textbf{Problem Statement:}
+Revisit the ill-conditioned quadratic from Example 1:
+\begin{equation}
+f(x_1, x_2) = \frac{1}{2} x_1^2 + 5 x_2^2
+\end{equation}
+with $\mu = 1$, $L = 10$, $\kappa = 10$, initialized at $\mathbf{x}_0 = [10.0, 1.0]^T$ with $\mathbf{x}_{-1} = \mathbf{x}_0$ (initialization at rest).
+
+\textbf{Task Requirements:}
+\begin{enumerate}
+    \item Compute the theoretical optimal momentum parameters $\alpha^*$ and $\beta^*$.
+    \item Compute the exact hand arithmetic for iterates $\mathbf{x}_1, \mathbf{x}_2, \mathbf{x}_3$ under Polyak Momentum.
+    \item Explicitly demonstrate how the momentum vector $\beta(\mathbf{x}_k - \mathbf{x}_{k-1})$ cancels cross-ravine oscillations along $x_2$ while boosting progress along $x_1$.
+\end{enumerate}
+
+\tcblower
+
+\textbf{Step 1: Optimal Momentum Hyperparameters}
+The square roots of the extreme eigenvalues are:
+\begin{equation}
+\sqrt{L} = \sqrt{10} \approx 3.162277, \quad \sqrt{\mu} = \sqrt{1} = 1.0
+\end{equation}
+Sum and difference of roots:
+\begin{equation}
+\sqrt{L} + \sqrt{\mu} = \sqrt{10} + 1 \approx 4.162277, \quad \sqrt{L} - \sqrt{\mu} = \sqrt{10} - 1 \approx 2.162277
+\end{equation}
+The optimal learning rate $\alpha^*$ is:
+\begin{equation}
+\alpha^* = \frac{4}{(\sqrt{10} + 1)^2} = \frac{4}{11 + 2\sqrt{10}} = \frac{4(11 - 2\sqrt{10})}{121 - 40} = \frac{44 - 8\sqrt{10}}{81} \approx 0.230886
+\end{equation}
+The optimal momentum coefficient $\beta^*$ is:
+\begin{equation}
+\beta^* = \left( \frac{\sqrt{10} - 1}{\sqrt{10} + 1} \right)^2 = \frac{11 - 2\sqrt{10}}{11 + 2\sqrt{10}} = \frac{(11 - 2\sqrt{10})^2}{81} = \frac{161 - 44\sqrt{10}}{81} \approx 0.269874
+\end{equation}
+The theoretical spectral radius is:
+\begin{equation}
+\rho_{\text{momentum}} = \sqrt{\beta^*} = \frac{\sqrt{10} - 1}{\sqrt{10} + 1} \approx \frac{2.162277}{4.162277} \approx 0.5195
+\end{equation}
+Notice that $\rho_{\text{momentum}} \approx 0.5195$ is dramatically superior to the standard Gradient Descent contraction factor $\rho_{\text{GD}} = \frac{9}{11} \approx 0.8182$.
+
+\textbf{Step 2: Iteration 1 ($\mathbf{x}_1$)}
+Since the system starts from rest, $\mathbf{x}_0 - \mathbf{x}_{-1} = \mathbf{0}$.
+Gradient at $\mathbf{x}_0 = [10.0, 1.0]^T$ is $\nabla f(\mathbf{x}_0) = [10.0, 10.0]^T$.
+\begin{align}
+\mathbf{x}_1 &= \mathbf{x}_0 - \alpha^* \nabla f(\mathbf{x}_0) + \beta^*(\mathbf{x}_0 - \mathbf{x}_{-1}) \nonumber \\
+&= \begin{bmatrix} 10.0 \\ 1.0 \end{bmatrix} - 0.230886 \begin{bmatrix} 10.0 \\ 10.0 \end{bmatrix} + \mathbf{0} \nonumber \\
+&= \begin{bmatrix} 10.0 - 2.30886 \\ 1.0 - 2.30886 \end{bmatrix} = \begin{bmatrix} 7.69114 \\ -1.30886 \end{bmatrix}
+\end{align}
+Displacement: $\mathbf{x}_1 - \mathbf{x}_0 = [-2.30886, -2.30886]^T$.
+
+\textbf{Step 3: Iteration 2 ($\mathbf{x}_2$)}
+Evaluating gradient at $\mathbf{x}_1$:
+\begin{equation}
+\nabla f(\mathbf{x}_1) = \begin{bmatrix} 7.69114 \\ 10(-1.30886) \end{bmatrix} = \begin{bmatrix} 7.69114 \\ -13.0886 \end{bmatrix}
+\end{equation}
+Now update using both the gradient step and the momentum displacement:
+\begin{align}
+\mathbf{x}_2 &= \mathbf{x}_1 - \alpha^* \nabla f(\mathbf{x}_1) + \beta^*(\mathbf{x}_1 - \mathbf{x}_0) \nonumber \\
+&= \begin{bmatrix} 7.69114 \\ -1.30886 \end{bmatrix} - 0.230886 \begin{bmatrix} 7.69114 \\ -13.0886 \end{bmatrix} + 0.269874 \begin{bmatrix} -2.30886 \\ -2.30886 \end{bmatrix}
+\end{align}
+Computing each coordinate individually:
+\begin{align}
+x_1^{(2)} &= 7.69114 - (0.230886)(7.69114) + (0.269874)(-2.30886) \nonumber \\
+&= 7.69114 - 1.77578 - 0.62310 = \mathbf{5.29226} \\
+x_2^{(2)} &= -1.30886 - (0.230886)(-13.0886) + (0.269874)(-2.30886) \nonumber \\
+&= -1.30886 + 3.02200 - 0.62310 = \mathbf{+1.09004}
+\end{align}
+
+\textbf{Step 4: Iteration 3 ($\mathbf{x}_3$)}
+Displacement: $\mathbf{x}_2 - \mathbf{x}_1 = [5.29226 - 7.69114, 1.09004 - (-1.30886)]^T = [-2.39888, +2.39890]^T$.
+Evaluating gradient at $\mathbf{x}_2$:
+\begin{equation}
+\nabla f(\mathbf{x}_2) = \begin{bmatrix} 5.29226 \\ 10(1.09004) \end{bmatrix} = \begin{bmatrix} 5.29226 \\ 10.9004 \end{bmatrix}
+\end{equation}
+Updating parameters:
+\begin{align}
+x_1^{(3)} &= 5.29226 - (0.230886)(5.29226) + (0.269874)(-2.39888) \nonumber \\
+&= 5.29226 - 1.22197 - 0.64740 = \mathbf{3.42289} \\
+x_2^{(3)} &= 1.09004 - (0.230886)(10.9004) + (0.269874)(+2.39890) \nonumber \\
+&= 1.09004 - 2.51675 + 0.64740 = \mathbf{-0.77931}
+\end{align}
+
+\textbf{The Mathematical Miracle of Phase Cancellation:}
+Compare the coordinate progression of Momentum vs.\ vanilla Gradient Descent:
+\begin{itemize}
+    \item Along the gentle axis ($x_1$): In vanilla GD, $x_1$ crawls from $10 \to 8.18 \to 6.69 \to 5.48$. Under Momentum, $x_1$ accelerates rapidly: $10 \to 7.69 \to 5.29 \to 3.42$. The momentum vector acts as an additive booster engine.
+    \item Along the ravine axis ($x_2$): In step 2, the gradient tried to violently shove $x_2$ up to $+1.713$ (a massive overcorrection). But the momentum term contributed $-0.6231$, actively pulling the iterate back down toward the riverbed and damping the oscillation to $+1.090$. Momentum acts as a physical shock absorber against cross-canyon bouncing!
+\end{itemize}
 \end{examplebox}
 
 % ----------------------------------------------------------------------
@@ -667,23 +930,34 @@ Notice that Gradient Descent moves equally along both coordinates ($0.4, 0.4$) b
 \section{Explicit Gotchas \& Diagnostic Misconceptions}
 
 \begin{trapbox}{Gotcha 1: Selecting Learning Rate Above the Theoretical Stability Bound ($2/L$)}
-A student sets learning rate $\eta = 0.25$ on a problem where $L = 10$. They observe the loss oscillating wildly and overflowing to \texttt{NaN} within 15 iterations.
-\textbf{The Trap:} The divergence boundary is strictly $\eta_{\max} = \frac{2}{L}$. For $L = 10$, $\eta_{\max} = \frac{2}{10} = 0.20$. Any step size $\eta \ge 0.20$ creates an error amplification factor $|1 - \eta L| \ge 1$. The error grows exponentially as $|1 - \eta L|^k \to \infty$. Step sizes must satisfy $\eta < \frac{2}{L}$. In machine learning practice, setting $\eta \le \frac{1}{L}$ guarantees monotonic objective decrease.
+A student sets learning rate $\eta = 0.25$ on an optimization problem where $L = 10$. They observe the objective loss oscillating wildly before crashing with numerical overflow (\texttt{NaN}) within 15 iterations.
+\tcblower
+\textbf{The Trap:} The divergence boundary for gradient descent is strictly $\eta_{\max} = \frac{2}{L}$. For $L = 10$, $\eta_{\max} = \frac{2}{10} = 0.20$. Any step size $\eta \ge 0.20$ creates an error amplification factor $|1 - \eta L| \ge 1$ along the principal eigenvector. The error grows geometrically as $|1 - \eta L|^k \to \infty$. Step sizes must strictly satisfy $\eta < \frac{2}{L}$. In machine learning engineering, choosing $\eta \le \frac{1}{L}$ guarantees monotonic objective decrease.
 \end{trapbox}
 
 \begin{trapbox}{Gotcha 2: Assuming Gradient Descent Always Finds the Global Minimum}
-A practitioner executes gradient descent on a complex deep neural network and asserts the final parameter vector is the global minimizer.
-\textbf{The Trap:} Gradient descent is guaranteed to find the global minimum only if the objective function is \textbf{convex}. On non-convex loss surfaces, gradient descent can be trapped in suboptimal local minima or stall indefinitely near saddle points and plateaus where $\nabla f(\mathbf{w}) \approx \mathbf{0}$.
+A practitioner executes gradient descent on a deep neural network, terminates when $\|\nabla f(\mathbf{w})\|_2 < 10^{-6}$, and asserts that the discovered parameter vector is the global minimizer.
+\tcblower
+\textbf{The Trap:} Gradient descent is guaranteed to locate the global minimizer only if the objective functional is \textbf{convex}. On non-convex loss surfaces, gradient descent can be trapped in suboptimal local minima or stall indefinitely near saddle points and flat plateaus where $\nabla f(\mathbf{w}) \approx \mathbf{0}$. First-order methods possess zero global awareness beyond the local tangent plane.
 \end{trapbox}
 
 \begin{trapbox}{Gotcha 3: Conflating Stationary Points with Local Minima}
-An optimization script terminates when $\|\nabla f(\mathbf{w})\|_2 < 10^{-5}$. The engineer logs that a local minimum has been discovered.
-\textbf{The Trap:} A vanishing gradient ($\nabla f = \mathbf{0}$) is a \textbf{necessary} condition, not a sufficient condition. On non-convex surfaces, stationary points can be local maxima or saddle points. Verifying a local minimum requires evaluating the Hessian eigenvalues: $\lambda_i(\nabla^2 f) > 0$ for all $i$.
+An automated optimization pipeline halts when $\|\nabla f(\mathbf{w})\|_2 < 10^{-5}$. The engineer logs that a strict local minimum has been discovered.
+\tcblower
+\textbf{The Trap:} A vanishing gradient ($\nabla f = \mathbf{0}$) is a \textbf{necessary} condition (FONC), never a sufficient condition. On non-convex landscapes, stationary points can be local maxima or saddle points. Verifying a strict local minimum requires inspecting the Hessian spectrum: all eigenvalues must be strictly positive ($\lambda_i(\nabla^2 f) > 0$). If even one eigenvalue is negative, the stationary point is an unstable saddle point.
 \end{trapbox}
 
 \begin{trapbox}{Gotcha 4: Inverting Hessians in High Dimensions (The $\mathcal{O}(d^3)$ Barrier)}
-An engineer decides to replace gradient descent with Newton's method on a modern computer vision model with $d = 10^7$ parameters.
-\textbf{The Trap:} Storing the Hessian requires storing $d^2 = 10^{14}$ floating-point values ($800$ Terabytes of RAM). Inverting it via Gaussian elimination requires $\mathcal{O}(d^3) = 10^{21}$ FLOPs, which would take centuries of compute time. Second-order methods in modern ML require quasi-Newton approximations (L-BFGS) or Hessian-free conjugate gradient methods.
+An engineer decides to replace Gradient Descent with Newton's method on a modern convolutional network with $d = 10^7$ parameters to eliminate tuning the learning rate.
+\tcblower
+\textbf{The Trap:} Storing the Hessian requires storing $d^2 = 10^{14}$ floating-point numbers ($800$ Terabytes of RAM). Inverting it via Gaussian elimination or Cholesky decomposition requires $\mathcal{O}(d^3) = 10^{21}$ FLOPs, which would take centuries of compute time on modern GPUs. Practical second-order methods in ML rely on quasi-Newton approximations (L-BFGS) or Hessian-free conjugate gradient methods that compute matrix-vector products $\nabla^2 f(\mathbf{w})\mathbf{v}$ without ever forming the Hessian explicitly.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 5: Conflating Global Lipschitz Smoothness with Local Smoothness}
+A student attempts to optimize the scalar quartic polynomial $f(w) = w^4$ using Gradient Descent with a fixed step size $\eta = 0.05$. Initializing at $w_0 = 5.0$, they find that the iterates explode to infinity instead of converging to the obvious global minimum at $w^* = 0$.
+\tcblower
+\textbf{The Trap:} The second derivative of $f(w) = w^4$ is $f''(w) = 12w^2$. As $|w| \to \infty$, $f''(w) \to \infty$. The functional is \textbf{not globally $L$-smooth on $\mathbb{R}$}; no finite constant $L$ exists such that $|f''(w)| \le L$ for all $w$. 
+For any fixed step size $\eta$, if $|w_0| > \sqrt{\frac{2}{12\eta}}$, the local curvature exceeds the stability threshold $2/\eta$, causing the iterates to blow up exponentially. Real-world non-quadratic objectives require adaptive step sizing (Armijo backtracking line search) or gradient clipping to preserve numerical stability.
 \end{trapbox}
 
 % ----------------------------------------------------------------------
@@ -691,24 +965,24 @@ An engineer decides to replace gradient descent with Newton's method on a modern
 % ----------------------------------------------------------------------
 \section{Comparative Synthesis \& Summary Table}
 
-Table~\ref{tab:optim_algorithms} compares the primary numerical optimization algorithms used in machine learning.
+Table~\ref{tab:optim_algorithms} synthesizes the mathematical trade-offs among the foundational optimization algorithms in machine learning.
 
 \begin{table}[htbp]
 \centering
 \small
 \begin{tabularx}{\textwidth}{lXXXXX}
 \toprule
-\textbf{Algorithm} & \textbf{Order} & \textbf{Per-Iter Cost} & \textbf{Convergence Rate (Convex)} & \textbf{Memory Requirement} & \textbf{Sensitivity to $\kappa$} \\
+\textbf{Algorithm} & \textbf{Order} & \textbf{Per-Iter Cost} & \textbf{Convergence Rate (Convex)} & \textbf{Memory Footprint} & \textbf{Conditioning Sensitivity} \\
 \midrule
-Gradient Descent (GD) & 1st & $\mathcal{O}(d)$ & Sublinear $\mathcal{O}(1/k)$ & $\mathcal{O}(d)$ & Extreme zig-zagging for large $\kappa$ \\
+Gradient Descent (GD) & 1st & $\mathcal{O}(d)$ & Sublinear $\mathcal{O}(1/k)$ & $\mathcal{O}(d)$ & Severe: requires $\mathcal{O}(\kappa)$ iterations \\
 \addlinespace
-GD with Momentum & 1st & $\mathcal{O}(d)$ & Accelerated $\mathcal{O}(1/k^2)$ & $\mathcal{O}(d)$ & Damps high-frequency oscillations \\
+Polyak Momentum & 1st + inertia & $\mathcal{O}(d)$ & Accelerated $\mathcal{O}(1/k^2)$ & $\mathcal{O}(d)$ & Moderate: requires $\mathcal{O}(\sqrt{\kappa})$ iterations \\
 \addlinespace
-Newton-Raphson & 2nd & $\mathcal{O}(d^3)$ & Quadratic $\mathcal{O}(e^{-2^k})$ & $\mathcal{O}(d^2)$ & Completely invariant to condition number \\
+Newton-Raphson & 2nd & $\mathcal{O}(d^3)$ & Quadratic $\mathcal{O}(e^{-2^k})$ & $\mathcal{O}(d^2)$ & Invariant: converges in 1 step on quadratics \\
 \addlinespace
-Quasi-Newton (BFGS) & 1st + approx 2nd & $\mathcal{O}(d^2)$ & Superlinear & $\mathcal{O}(d^2)$ & Robust; builds Hessian estimate iteratively \\
+Quasi-Newton (BFGS) & 1st + rank-2 & $\mathcal{O}(d^2)$ & Superlinear & $\mathcal{O}(d^2)$ & Highly robust; updates inverse Hessian estimate \\
 \addlinespace
-L-BFGS & Limited memory & $\mathcal{O}(m d)$ & Superlinear & $\mathcal{O}(m d)$ ($m \approx 10$) & Industrial standard for medium-scale convex ML \\
+L-BFGS & Limited memory & $\mathcal{O}(m d)$ & Superlinear & $\mathcal{O}(m d)$ ($m \approx 10$) & Industrial workhorse for medium-scale convex ML \\
 \bottomrule
 \end{tabularx}
 \caption{Comparative Synthesis: Numerical Optimization Algorithms in Machine Learning.}
@@ -720,14 +994,14 @@ L-BFGS & Limited memory & $\mathcal{O}(m d)$ & Superlinear & $\mathcal{O}(m d)$ 
 % ----------------------------------------------------------------------
 \section{Python / Scientific Computing Lab}
 
-The following production script implements Gradient Descent, empirically demonstrates divergence when $\eta > 2/L$, and contrasts isotropic vs.\ ill-conditioned convergence dynamics.
+The production script below simulates Gradient Descent, Polyak Momentum, and Newton's method on an ill-conditioned quadratic, numerically demonstrating the $2/L$ divergence barrier and phase cancellation.
 
-\begin{lstlisting}[language=Python, caption={Gradient Descent Dynamics and Stability Threshold Simulation in Python.}]
+\begin{lstlisting}[language=Python, caption={Optimization Dynamics, Momentum Acceleration, and Stability Limits in Python.}]
 import numpy as np
 
 def run_gradient_descent(A: np.ndarray, b: np.ndarray, w0: np.ndarray, lr: float, n_iters: int):
     """Simulates GD on quadratic objective f(w) = 0.5 * w^T A w - b^T w."""
-    w = w0.copy()
+    w = w0.copy().astype(float)
     history = []
     for k in range(n_iters):
         grad = A @ w - b
@@ -738,33 +1012,75 @@ def run_gradient_descent(A: np.ndarray, b: np.ndarray, w0: np.ndarray, lr: float
             break
     return w, history
 
+def run_polyak_momentum(A: np.ndarray, b: np.ndarray, w0: np.ndarray, alpha: float, beta: float, n_iters: int):
+    """Simulates Polyak Heavy-Ball Momentum on quadratic objective."""
+    w = w0.copy().astype(float)
+    w_prev = w0.copy().astype(float)
+    history = []
+    for k in range(n_iters):
+        grad = A @ w - b
+        loss = 0.5 * float(w.T @ A @ w) - float(b.T @ w)
+        history.append(loss)
+        w_next = w - alpha * grad + beta * (w - w_prev)
+        w_prev = w.copy()
+        w = w_next
+        if np.isnan(loss) or np.isinf(loss) or loss > 1e12:
+            break
+    return w, history
+
+def run_newton_method(A: np.ndarray, b: np.ndarray, w0: np.ndarray, n_iters: int):
+    """Simulates Newton-Raphson optimization on quadratic objective."""
+    w = w0.copy().astype(float)
+    history = []
+    A_inv = np.linalg.inv(A)
+    for k in range(n_iters):
+        grad = A @ w - b
+        loss = 0.5 * float(w.T @ A @ w) - float(b.T @ w)
+        history.append(loss)
+        w = w - A_inv @ grad
+        if loss < 1e-15:
+            break
+    return w, history
+
 def main():
     # Construct an ill-conditioned 2D quadratic: lambda_min = 1.0, lambda_max = 50.0 (kappa = 50)
     L = 50.0
     mu = 1.0
-    A = np.array([[L, 0.0], [0.0, mu]])
-    b = np.array([0.0, 0.0])  # Minimum at w* = [0, 0]^T
-    w0 = np.array([2.0, 2.0])
+    A = np.array([[L, 0.0], [0.0, mu]], dtype=float)
+    b = np.array([0.0, 0.0], dtype=float)  # Minimum at w* = [0, 0]^T
+    w0 = np.array([2.0, 2.0], dtype=float)
 
     stable_lr_bound = 2.0 / L
-    optimal_lr = 2.0 / (L + mu)
+    optimal_lr_gd = 2.0 / (L + mu)
+    
+    # Optimal Polyak Momentum hyperparameters
+    alpha_mom = 4.0 / ((np.sqrt(L) + np.sqrt(mu)) ** 2)
+    beta_mom = ((np.sqrt(L) - np.sqrt(mu)) / (np.sqrt(L) + np.sqrt(mu))) ** 2
 
-    print(f"Theoretical Stability Bound (2/L): {stable_lr_bound:.4f}")
-    print(f"Optimal Learning Rate 2/(L+mu):   {optimal_lr:.4f}")
-
-    # Case 1: Optimal Learning Rate
-    _, hist_opt = run_gradient_descent(A, b, w0, lr=optimal_lr, n_iters=25)
-    # Case 2: Sub-optimal Small Learning Rate
-    _, hist_small = run_gradient_descent(A, b, w0, lr=0.005, n_iters=25)
-    # Case 3: Divergent Learning Rate (eta > 2/L)
-    _, hist_div = run_gradient_descent(A, b, w0, lr=0.045, n_iters=10)
-
-    print("\nIteration Loss Comparison:")
-    print(f"{'Iter':<6}{'Optimal LR':<18}{'Small LR':<18}{'Divergent LR (> 2/L)':<25}")
+    print("=================================================================")
+    print(" CONTINUOUS OPTIMIZATION ALGORITHMIC BENCHMARK")
+    print("=================================================================")
+    print(f"Hessian Condition Number:       kappa = {L / mu:.1f}")
+    print(f"Theoretical Stability Bound:    eta_max = 2/L = {stable_lr_bound:.4f}")
+    print(f"Optimal GD Learning Rate:       eta* = 2/(L+mu) = {optimal_lr_gd:.4f}")
+    print(f"Polyak Momentum Parameters:     alpha* = {alpha_mom:.4f}, beta* = {beta_mom:.4f}")
     print("-" * 65)
-    for i in range(min(10, len(hist_opt))):
+
+    # Execute Simulations
+    _, hist_opt_gd = run_gradient_descent(A, b, w0, lr=optimal_lr_gd, n_iters=25)
+    _, hist_mom    = run_polyak_momentum(A, b, w0, alpha=alpha_mom, beta=beta_mom, n_iters=25)
+    _, hist_newton = run_newton_method(A, b, w0, n_iters=5)
+    _, hist_div    = run_gradient_descent(A, b, w0, lr=0.045, n_iters=10)  # Divergent (0.045 > 0.040)
+
+    print("\nLoss Evolution Across Iterations:")
+    print(f"{'Iter':<6}{'Optimal GD':<16}{'Polyak Momentum':<18}{'Newton Method':<16}{'Divergent GD':<15}")
+    print("-" * 72)
+    for i in range(10):
+        gd_val = f"{hist_opt_gd[i]:.4e}" if i < len(hist_opt_gd) else "-"
+        mom_val = f"{hist_mom[i]:.4e}" if i < len(hist_mom) else "-"
+        newt_val = f"{hist_newton[i]:.4e}" if i < len(hist_newton) else "0.0000e+00"
         div_val = f"{hist_div[i]:.2e}" if i < len(hist_div) else "OVERFLOW"
-        print(f"{i:<6}{hist_opt[i]:<18.4e}{hist_small[i]:<18.4e}{div_val:<25}")
+        print(f"{i:<6}{gd_val:<16}{mom_val:<18}{newt_val:<16}{div_val:<15}")
 
 if __name__ == "__main__":
     main()
@@ -791,7 +1107,7 @@ if __name__ == "__main__":
     Let $f$ be convex and $L$-smooth. Suppose we run Gradient Descent with $\eta = \frac{1}{L}$ for $T$ iterations.
     Using the descent lemma and convexity inequality $f(\mathbf{w}_k) - f^* \le \nabla f(\mathbf{w}_k)^T (\mathbf{w}_k - \mathbf{w}^*)$, prove that:
     \begin{equation}
-    f(\mathbf{w}_T) - f^* \le \frac{L \|\mathbf{w}_0 - \mathbf{w}^*\|_2^2}{2T}
+    f(\mathbf{w}_T) - f^* \le \frac{2L \|\mathbf{w}_0 - \mathbf{w}^*\|_2^2}{T}
     \end{equation}
 
     \item \textbf{Exact Newton Step on Non-Quadratic Function:}
