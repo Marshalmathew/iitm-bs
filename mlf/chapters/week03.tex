@@ -2,100 +2,126 @@
 \label{chap:week03}
 
 % ----------------------------------------------------------------------
-% PART 1: EXECUTIVE ROADMAP & LEARNING OBJECTIVES
+% PART 1: ARCHITECTURAL BRIDGE & LEARNING OBJECTIVES
 % ----------------------------------------------------------------------
-\section{Executive Roadmap \& Learning Objectives}
+\section{The Architectural Bridge: From Vector Calculus to Subspace Geometry}
 
-The foundational geometry of machine learning resides in the algebra of vector spaces and orthogonal projections. In classical high school algebra, students learn to solve systems of linear equations $A\mathbf{x} = \mathbf{b}$ where the number of equations equals the number of unknowns ($m = n$). However, modern machine learning operates almost exclusively in the regime where empirical observations vastly outnumber parameters: $m \gg n$. 
+\subsection{The Twin Engines of Optimization: Calculus vs. Geometry}
+In Chapter~\ref{chap:week01}, we established the mathematical contract of Empirical Risk Minimization (ERM). In Chapter~\ref{chap:week02}, we deployed the engine of \textbf{Multivariate Differential Calculus} to minimize the Mean Squared Error (MSE) loss:
+\begin{equation}
+\mathcal{L}(\mathbf{w}) = \frac{1}{2N} \|\mathbf{y} - X\mathbf{w}\|_2^2
+\end{equation}
+By computing the vector gradient $\nabla_{\mathbf{w}} \mathcal{L}(\mathbf{w}) = \frac{1}{N}X^T(X\mathbf{w} - \mathbf{y})$ and setting it to zero, we arrived at the celebrated \textbf{Normal Equations}:
+\begin{equation}
+(X^T X)\mathbf{w}^* = X^T \mathbf{y}
+\label{eq:w03_normal_eq_bridge}
+\end{equation}
+Chapter~\ref{chap:week02} left fundamental theoretical questions unanswered:
+\begin{itemize}
+    \item \emph{Why} are these equations called the ``Normal'' equations? What geometric entity is perpendicular (normal) to what?
+    \item What guarantees that the symmetric matrix $X^T X$ is invertible? When does inversion fail?
+    \item If the dataset has $10{,}000$ samples and $5$ features, the linear system $X\mathbf{w} = \mathbf{y}$ has $10{,}000$ equations in $5$ unknowns. Classical algebra asserts that such an inconsistent system has \emph{zero solutions}. How does machine learning extract a principled answer from an impossible system?
+\end{itemize}
 
-When ten thousand data points are collected to estimate five feature weights, the system $A\mathbf{x} = \mathbf{b}$ becomes heavily \textbf{overdetermined}. Because real-world measurements are corrupted by physical noise, unobserved latent variables, and stochastic disturbances, the target vector $\mathbf{b}$ almost never resides in the subspace spanned by the feature columns of $A$. High school algebra declares that \emph{no exact solution exists}. 
+In this chapter, we discover an astonishing mathematical truth: \textbf{calculus was never strictly necessary to solve linear regression}. The exact same normal equations~\eqref{eq:w03_normal_eq_bridge} emerge naturally from pure Euclidean geometry—by dropping an \textbf{orthogonal perpendicular} from the target observation vector $\mathbf{y} \in \mathbb{R}^N$ onto the vector subspace spanned by the feature columns of $X$. 
 
-Ordinary Least Squares (OLS) does not give up in the face of this impossibility. Instead of seeking an unattainable exact solution, OLS reinterprets the problem through linear algebra: it seeks the vector $\hat{\mathbf{x}}$ whose image $A\hat{\mathbf{x}} = \hat{\mathbf{b}}$ is the \textbf{orthogonal projection} of $\mathbf{b}$ onto the column space $\Col(A)$. This chapter uncovers the profound geometric framework behind this projection: Gilbert Strang's Four Fundamental Subspaces, the Rank-Nullity Theorem, the algebraic properties of projectors, and the numerical stability of solving the normal equations.
+Linear algebra provides the spatial framework that explains why gradient descent converges where it does, how data transforms across network layers, and how noise is mathematically separated from signal.
 
-\subsection{Prerequisites \& Scaffolding}
-Mastery of this chapter requires fluency in vector space axioms, linear independence, and matrix rank as outlined in Table~\ref{tab:w03_prereqs}.
+\subsection{Prerequisites \& Notation Conventions}
+Mastery of this chapter builds upon foundational linear algebra concepts outlined in Table~\ref{tab:w03_prereqs} and Table~\ref{tab:w03_notation}.
 
 \begin{table}[htbp]
 \centering
 \small
 \begin{tabularx}{\textwidth}{lXX}
 \toprule
-\textbf{Foundational Area} & \textbf{Core Concepts Required} & \textbf{Role in Machine Learning Foundations} \\
+\textbf{Foundational Area} & \textbf{Core Concepts Required} & \textbf{Operational Role in Machine Learning} \\
 \midrule
-Linear Algebra & Vector subspaces, span, linear independence, rank & Defining the structural domains where feature vectors and data reside \\
-Inner Product Spaces & Dot products, orthogonality $\mathbf{u}^T \mathbf{v} = 0$, Pythagoras theorem & Decomposing arbitrary observation vectors into signal and noise \\
-Matrix Operations & Transpose, inverse, reduced row echelon form (RREF) & Solving normal equations and identifying fundamental subspace bases \\
+Vector Spaces & Linear combinations, span, linear independence, basis, dimension & Defining the geometric planes and hyperplanes where feature representations reside. \\
+\addlinespace
+Inner Product Spaces & Dot products $\langle \mathbf{u}, \mathbf{v} \rangle = \mathbf{u}^T \mathbf{v}$, Euclidean norm $\|\mathbf{v}\|_2$, orthogonality & Decomposing raw measurement vectors into true signal and orthogonal noise. \\
+\addlinespace
+Matrix Operations & Transpose $A^T$, matrix rank $r = \rank(A)$, reduced row echelon form & Analyzing parameter identifiability and determining subspace bases. \\
 \bottomrule
 \end{tabularx}
 \caption{Prerequisite Scaffolding for Chapter 3.}
 \label{tab:w03_prereqs}
 \end{table}
 
-\subsection{Core Competencies}
-By the conclusion of this chapter, students will be able to:
-\begin{itemize}
-    \item Define, construct bases for, and compute the dimensions of the four fundamental subspaces ($\Col(A)$, $\Null(A)$, $\Row(A)$, and $\Null(A^T)$) associated with any matrix $A \in \mathbb{R}^{m \times n}$.
-    \item State and prove the Fundamental Theorem of Linear Algebra and orthogonal complement relationships ($\Col(A)^\perp = \Null(A^T)$ and $\Row(A)^\perp = \Null(A)$).
-    \item Derive the algebraic projection matrix $P = A(A^T A)^{-1}A^T$ from geometric first principles and verify its algebraic properties ($P^2 = P, P^T = P$).
-    \item Formulate and solve the Normal Equations $A^T A \hat{\mathbf{x}} = A^T \mathbf{b}$ through both geometric orthogonality and matrix calculus.
-    \item Diagnose multicollinearity, rank deficiency, and ill-conditioned Gram matrices $A^T A$, and explain why QR decomposition is numerically preferred in production software.
-\end{itemize}
-
-\subsection{Notation \& Mathematical Conventions}
-\begin{itemize}
-    \item $A \in \mathbb{R}^{m \times n}$: A design matrix with $m$ observations (rows) and $n$ features (columns), having rank $r = \rank(A) \le \min(m, n)$.
-    \item $\mathbf{a}_1, \dots, \mathbf{a}_n \in \mathbb{R}^m$: Column vectors of $A$, representing feature vectors across all samples.
-    \item $\Col(A) \triangleq \{\mathbf{y} \in \mathbb{R}^m \mid \exists \mathbf{x} \in \mathbb{R}^n, \mathbf{y} = A\mathbf{x}\}$: Column space (range) of $A$, a subspace of $\mathbb{R}^m$.
-    \item $\Null(A) \triangleq \{\mathbf{x} \in \mathbb{R}^n \mid A\mathbf{x} = \mathbf{0}\}$: Nullspace (kernel) of $A$, a subspace of $\mathbb{R}^n$.
-    \item $\Row(A) \triangleq \Col(A^T) \subseteq \mathbb{R}^n$: Row space of $A$, spanned by the rows of $A$.
-    \item $\Null(A^T) \subseteq \mathbb{R}^m$: Left nullspace of $A$, orthogonal to the column space.
-    \item $V^\perp$: The orthogonal complement of subspace $V$.
-    \item $P_V$: The unique orthogonal projection matrix onto subspace $V$.
-    \item $\hat{\mathbf{b}} \triangleq P_{\Col(A)}\mathbf{b}$: The orthogonal projection of $\mathbf{b}$ onto $\Col(A)$ (the fitted signal).
-    \item $\mathbf{e} \triangleq \mathbf{b} - \hat{\mathbf{b}} = (I - P)\mathbf{b}$: The residual error vector (the orthogonal noise).
-\end{itemize}
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Symbol} & \textbf{Formal Name} & \textbf{Intuitive Plain-English Meaning} \\
+\midrule
+$X \in \mathbb{R}^{N \times d}$ & Design Matrix & Dataset of $N$ training observations across $d$ feature dimensions. \\
+$\Col(X) \subseteq \mathbb{R}^N$ & Column Space (Range) & Subspace of all realizable model predictions: $\Col(X) = \{X\mathbf{w} \mid \mathbf{w} \in \mathbb{R}^d\}$. \\
+$\Null(X) \subseteq \mathbb{R}^d$ & Nullspace (Kernel) & Subspace of all weight vectors that produce zero output: $\{\mathbf{w} \mid X\mathbf{w} = \mathbf{0}\}$. \\
+$\Row(X) \subseteq \mathbb{R}^d$ & Row Space $\Col(X^T)$ & Subspace spanned by the rows of $X$; orthogonal complement of $\Null(X)$. \\
+$\Null(X^T) \subseteq \mathbb{R}^N$ & Left Nullspace & Subspace orthogonal to all column predictions; where the residual vector lives. \\
+$P \in \mathbb{R}^{N \times N}$ & Orthogonal Projector & Matrix operator that projects any vector in $\mathbb{R}^N$ onto $\Col(X)$. \\
+$\hat{\mathbf{y}} = P\mathbf{y}$ & Fitted Values (Signal) & The unique point in $\Col(X)$ that is closest to target $\mathbf{y}$ in Euclidean distance. \\
+$\mathbf{e} = \mathbf{y} - \hat{\mathbf{y}}$ & Residual Error (Noise) & Vector connecting target to prediction; strictly perpendicular to $\Col(X)$. \\
+$\kappa(X)$ & Condition Number & Ratio of largest to smallest singular value; governs numerical stability. \\
+\bottomrule
+\end{tabularx}
+\caption{Formal Mathematical Notation for Subspaces and Projections.}
+\label{tab:w03_notation}
+\end{table}
 
 % ----------------------------------------------------------------------
-% PART 2: THE GRAND PARADOX & INTUITIVE PUZZLE
+% PART 2: THE GRAND PARADOX & THE COLUMN PICTURE
 % ----------------------------------------------------------------------
 \section{The Grand Paradox \& Intuitive Motivation}
 
 \subsection{The Inconsistent Measurement Paradox}
-Consider a high-school student attempting to determine a person's height $h$ and weight $w$. If the student takes two independent measurements, they get a system of two equations in two unknowns:
+Consider a scientist attempting to determine an object's physical dimensions: length $x_1$ and width $x_2$. Taking two independent measurements yields a clean system of two equations in two unknowns:
 \begin{equation}
 \begin{aligned}
-2h + 3w &= 160 \\
-h + 2w &= 95
+2x_1 + 3x_2 &= 160 \\
+x_1 + 2x_2 &= 95
 \end{aligned}
 \end{equation}
-Assuming the equations are independent, Gaussian elimination delivers a unique, exact solution. 
+Because the two equations are linearly independent, Gaussian elimination produces a unique, exact solution: $x_1 = 35, x_2 = 30$.
 
-Now suppose the student attempts to be more scientifically rigorous by taking a \emph{third} measurement with a slightly different instrument:
+To be more scientifically rigorous, the scientist collects a \textbf{third} measurement with a slightly different instrument:
 \begin{equation}
-3h + 4w = 230
+3x_1 + 4x_2 = 230
 \end{equation}
-Substituting the solution from the first two equations ($h = 35, w = 30$) into the third equation yields $3(35) + 4(30) = 105 + 120 = 225 \ne 230$. The system is now contradictory! 
+Substituting the solution from the first two equations ($x_1 = 35, x_2 = 30$) into the third equation yields:
+\begin{equation}
+3(35) + 4(30) = 105 + 120 = 225 \ne 230
+\end{equation}
+The system is now mathematically contradictory! Classical high school algebra declares that this system of 3 equations in 2 unknowns has \textbf{zero solutions}.
 
 \begin{quote}
-\textit{\textbf{The Paradox:}} Why should collecting \textbf{more} data destroy our ability to find a mathematical solution? If more data yields more information, why does classical algebra declare that 3 equations in 2 unknowns has \textbf{zero} solutions?
+\textit{\textbf{The Paradox:}} Why should collecting \textbf{more data} destroy our ability to find a mathematical solution? If data is the currency of learning, why does classical algebra break down the moment we collect more observations than parameters?
 \end{quote}
 
-The resolution requires moving from the \textbf{Row Picture} of linear equations to the \textbf{Column Picture}:
+The resolution to this paradox requires shifting our perspective from the traditional \textbf{Row Picture} of linear algebra to the \textbf{Column Picture}:
 \begin{itemize}
-    \item \textbf{The Row Picture:} Each equation represents a line in $\mathbb{R}^2$. In an inconsistent system, the three lines do not intersect at a single point; instead, they form a triangle. There is no single $(h, w)$ that lies on all three lines simultaneously.
-    \item \textbf{The Column Picture:} We rewrite the system as a single vector equation:
+    \item \textbf{The Row Picture (Equation Space):} Each equation represents a line in $\mathbb{R}^2$. In an inconsistent system, the three lines do not intersect at a single point; instead, they form a small triangle. There is no single point $(x_1, x_2)$ that lies on all three lines simultaneously.
+    \item \textbf{The Column Picture (Data Space):} We rewrite the system as a single vector equation:
     \begin{equation}
-    h \begin{bmatrix} 2 \\ 1 \\ 3 \end{bmatrix} + w \begin{bmatrix} 3 \\ 2 \\ 4 \end{bmatrix} = \begin{bmatrix} 160 \\ 95 \\ 230 \end{bmatrix} \iff A\mathbf{x} = \mathbf{b}
+    x_1 \begin{bmatrix} 2 \\ 1 \\ 3 \end{bmatrix} + x_2 \begin{bmatrix} 3 \\ 2 \\ 4 \end{bmatrix} = \begin{bmatrix} 160 \\ 95 \\ 230 \end{bmatrix} \iff X\mathbf{w} = \mathbf{y}
     \end{equation}
-    The two column vectors $\mathbf{a}_1 = [2, 1, 3]^T$ and $\mathbf{a}_2 = [3, 2, 4]^T$ span a 2-dimensional plane embedded in 3-dimensional observation space $\mathbb{R}^3$. The measurement vector $\mathbf{b} = [160, 95, 230]^T$ does not lie on this 2D plane! Because $\mathbf{b} \notin \Col(A)$, no linear combination of $\mathbf{a}_1$ and $\mathbf{a}_2$ can ever reach $\mathbf{b}$.
+    Here, the two feature columns $\mathbf{x}_1 = [2, 1, 3]^T$ and $\mathbf{x}_2 = [3, 2, 4]^T$ live in 3-dimensional observation space $\mathbb{R}^3$. They span a 2-dimensional flat plane passing through the origin: $\Col(X) = \operatorname{span}\{\mathbf{x}_1, \mathbf{x}_2\}$.
+    
+    The target measurement vector $\mathbf{y} = [160, 95, 230]^T$ does not lie on this 2D plane! Because $\mathbf{y} \notin \Col(X)$, no linear combination of $\mathbf{x}_1$ and $\mathbf{x}_2$ can ever equal $\mathbf{y}$ exactly.
 \end{itemize}
 
-Dropping the third equation would discard real information and subject the model to the arbitrary noise of the remaining two measurements. The genius of Ordinary Least Squares is to accept that while $\mathbf{b}$ cannot be reached, there is a \emph{unique closest point} on the plane $\Col(A)$. That closest point is the \textbf{orthogonal shadow} of $\mathbf{b}$ cast onto the plane.
+Dropping the third equation to restore solvability would discard valuable empirical information and leave our estimates at the mercy of instrument noise. Ordinary Least Squares accepts that while $\mathbf{y}$ cannot be reached, there exists a \textbf{unique closest point} on the plane $\Col(X)$. That closest point is the \textbf{orthogonal shadow} (projection) of $\mathbf{y}$ cast onto the plane.
 
-\begin{ponderbox}[The Overdetermination Dilemma]
-Suppose you are training a neural network or linear model with 1,000,000 training examples and 50 weights. The system $X\mathbf{w} = \mathbf{y}$ has 1,000,000 equations and 50 unknowns. 
+\begin{ponderbox}{The Overdetermination Dilemma: Why Deleting Data Destroys Models}
+Suppose you are training a linear model on $N = 1{,}000{,}000$ patient health records using $d = 50$ biomarker features. The system $X\mathbf{w} = \mathbf{y}$ has $1{,}000{,}000$ equations and 50 unknowns. 
 
-If someone suggests: \textit{"To make the system solvable, let's randomly delete 999,950 rows so that we have 50 equations and 50 unknowns,"} why is this mathematically catastrophic from the perspective of variance and information geometry? What does orthogonal projection do with those 999,950 equations instead?
+A software engineer suggests: \textit{``To make the system perfectly consistent and solvable by Gaussian elimination, let's randomly delete 999,950 patients so that we have 50 equations and 50 unknowns.''}
+Why is this suggestion mathematically disastrous? What does orthogonal projection do with those 999,950 equations instead?
+\tcblower
+\textbf{Reflection:} Deleting 999,950 data points discards $99.995\%$ of the empirical evidence! The remaining 50 data points are corrupted by measurement noise. An exact interpolating solution through 50 noisy points has massive estimation variance: the weights will fit the noise rather than the true biological signal (severe overfitting).
+
+In contrast, Ordinary Least Squares projects $\mathbf{y} \in \mathbb{R}^{1{,}000{,}000}$ onto the 50-dimensional subspace $\Col(X)$. By the Law of Large Numbers, the uncorrelated noise in the $1{,}000{,}000$ observations cancels out along all directions orthogonal to $\Col(X)$. Orthogonal projection filters out the high-dimensional noise, shrinking parameter variance by a factor of $\mathcal{O}(1/N)$!
 \end{ponderbox}
 
 % ----------------------------------------------------------------------
@@ -164,7 +190,7 @@ For any matrix $A \in \mathbb{R}^{m \times n}$ of rank $r = \rank(A)$:
 \label{fig:strang_subspaces}
 \end{figure}
 
-\begin{theorem}[Fundamental Theorem of Linear Algebra]
+\begin{theorembox}{The Fundamental Theorem of Linear Algebra}
 Let $A \in \mathbb{R}^{m \times n}$ have rank $r$. Then:
 \begin{enumerate}
     \item The row space and nullspace are orthogonal complements in $\mathbb{R}^n$:
@@ -178,7 +204,7 @@ Let $A \in \mathbb{R}^{m \times n}$ have rank $r$. Then:
     \label{eq:ftla_rm}
     \end{equation}
 \end{enumerate}
-\end{theorem}
+\end{theorembox}
 
 \begin{proof}
 We first prove that $\Col(A)^\perp = \Null(A^T)$.
@@ -203,86 +229,99 @@ We first prove that $\Col(A)^\perp = \Null(A^T)$.
     \end{equation}
     Since $\Null(A^T) \subseteq \Col(A)^\perp$ and their dimensions are identical, we conclude that $\Col(A)^\perp = \Null(A^T)$.
 \end{enumerate}
-The proof that $\Row(A)^\perp = \Null(A)$ is obtained by substituting $A^T$ in place of $A$.
+The proof that $\Row(A)^\perp = \Null(A)$ follows identically by substituting $A^T$ in place of $A$.
 \end{proof}
 
-\begin{examplebox}{Finding the Four Fundamental Subspaces of a Concrete Matrix}
+\begin{ponderbox}{Why $X^T X$ Preserves the Kernel Exactly}
+Let $X \in \mathbb{R}^{m \times n}$. Why is $\Null(X^T X)$ always \emph{exactly} identical to $\Null(X)$?
+It is obvious that if $X\mathbf{v} = \mathbf{0}$, then $X^T (X\mathbf{v}) = X^T \mathbf{0} = \mathbf{0}$. But why can't there exist some non-zero vector $\mathbf{u} \ne \mathbf{0}$ such that $X\mathbf{u} \ne \mathbf{0}$, but multiplying by $X^T$ crushes $X^T(X\mathbf{u})$ to $\mathbf{0}$?
+\tcblower
+\textbf{Reflection:} Suppose such a vector $\mathbf{u}$ existed: $X\mathbf{u} \ne \mathbf{0}$, but $X^T (X\mathbf{u}) = \mathbf{0}$.
+Consider where the vector $\mathbf{w} \triangleq X\mathbf{u}$ lives:
+\begin{enumerate}
+    \item By definition, $\mathbf{w} = X\mathbf{u}$ is a linear combination of the columns of $X$, so $\mathbf{w} \in \Col(X)$.
+    \item Because $X^T \mathbf{w} = \mathbf{0}$, the vector $\mathbf{w}$ satisfies the definition of the left nullspace: $\mathbf{w} \in \Null(X^T)$.
+\end{enumerate}
+By the Fundamental Theorem of Linear Algebra, $\Col(X)$ and $\Null(X^T)$ are \textbf{orthogonal complements}: $\Col(X) \cap \Null(X^T) = \{\mathbf{0}\}$.
+The only vector that can simultaneously live in a subspace and its orthogonal complement is the zero vector!
+Algebraically: $\mathbf{u}^T (X^T X \mathbf{u}) = (X\mathbf{u})^T (X\mathbf{u}) = \|X\mathbf{u}\|_2^2 = 0 \implies X\mathbf{u} = \mathbf{0}$.
+Therefore, no such vector $\mathbf{u}$ can ever exist. We have proven that $\Null(X^T X) = \Null(X)$ unconditionally!
+\end{ponderbox}
+
+\begin{examplebox}{Worked Example 3.1: Finding the Four Fundamental Subspaces}
+\label{ex:w03_four_subspaces}
+\textbf{The Scenario:}
 Let matrix $A \in \mathbb{R}^{3 \times 4}$ be defined as:
 \begin{equation}
 A = \begin{bmatrix} 1 & 2 & 0 & 1 \\ 0 & 1 & 1 & 0 \\ 1 & 3 & 1 & 1 \end{bmatrix}
 \end{equation}
 Find the rank, bases for all four fundamental subspaces, and verify their orthogonal complement relationships.
 
-\textbf{Step 1: Row Reduction to RREF.}
-Row 3 minus Row 1 ($R_3 \leftarrow R_3 - R_1$):
-\begin{equation}
-\begin{bmatrix} 1 & 2 & 0 & 1 \\ 0 & 1 & 1 & 0 \\ 0 & 1 & 1 & 0 \end{bmatrix}
-\end{equation}
-Row 3 minus Row 2 ($R_3 \leftarrow R_3 - R_2$):
-\begin{equation}
-\begin{bmatrix} 1 & 2 & 0 & 1 \\ 0 & 1 & 1 & 0 \\ 0 & 0 & 0 & 0 \end{bmatrix}
-\end{equation}
-Row 1 minus 2 times Row 2 ($R_1 \leftarrow R_1 - 2R_2$):
-\begin{equation}
-R = \text{rref}(A) = \begin{bmatrix} 1 & 0 & -2 & 1 \\ 0 & 1 & 1 & 0 \\ 0 & 0 & 0 & 0 \end{bmatrix}
-\end{equation}
+\tcblower
+\textbf{Step-by-Step Analytical Solution:}
 
-\textbf{Step 2: Identify Pivot and Free Variables.}
+\textbf{Step 1: Row Reduction to RREF}
+Subtract Row 1 from Row 3 ($R_3 \leftarrow R_3 - R_1$):
+\begin{equation*}
+\begin{bmatrix} 1 & 2 & 0 & 1 \\ 0 & 1 & 1 & 0 \\ 0 & 1 & 1 & 0 \end{bmatrix}
+\end{equation*}
+Subtract Row 2 from Row 3 ($R_3 \leftarrow R_3 - R_2$):
+\begin{equation*}
+\begin{bmatrix} 1 & 2 & 0 & 1 \\ 0 & 1 & 1 & 0 \\ 0 & 0 & 0 & 0 \end{bmatrix}
+\end{equation*}
+Subtract 2 times Row 2 from Row 1 ($R_1 \leftarrow R_1 - 2R_2$):
+\begin{equation*}
+R = \text{rref}(A) = \begin{bmatrix} 1 & 0 & -2 & 1 \\ 0 & 1 & 1 & 0 \\ 0 & 0 & 0 & 0 \end{bmatrix}
+\end{equation*}
+
+\textbf{Step 2: Identify Pivot and Free Columns}
 The pivot columns are columns 1 and 2. Columns 3 and 4 are free variables ($x_3, x_4$).
 Therefore, the matrix rank is $r = \rank(A) = 2$.
 
-\textbf{Step 3: Basis for Column Space $\Col(A) \subseteq \mathbb{R}^3$.}
-The basis is formed by the pivot columns of the \textbf{original} matrix $A$ (not $R$!):
-\begin{equation}
+\textbf{Step 3: Basis for Column Space $\Col(A) \subseteq \mathbb{R}^3$}
+The basis is formed by the pivot columns of the \textbf{original matrix $A$} (never $R$!):
+\begin{equation*}
 \mathcal{B}_{\Col(A)} = \left\{ \begin{bmatrix} 1 \\ 0 \\ 1 \end{bmatrix}, \begin{bmatrix} 2 \\ 1 \\ 3 \end{bmatrix} \right\}, \quad \dim(\Col(A)) = 2
-\end{equation}
+\end{equation*}
 
-\textbf{Step 4: Basis for Row Space $\Row(A) \subseteq \mathbb{R}^4$.}
+\textbf{Step 4: Basis for Row Space $\Row(A) \subseteq \mathbb{R}^4$}
 The basis is formed by the non-zero rows of the reduced matrix $R$:
-\begin{equation}
+\begin{equation*}
 \mathcal{B}_{\Row(A)} = \left\{ \begin{bmatrix} 1 \\ 0 \\ -2 \\ 1 \end{bmatrix}, \begin{bmatrix} 0 \\ 1 \\ 1 \\ 0 \end{bmatrix} \right\}, \quad \dim(\Row(A)) = 2
-\end{equation}
+\end{equation*}
 
-\textbf{Step 5: Basis for Nullspace $\Null(A) \subseteq \mathbb{R}^4$.}
+\textbf{Step 5: Basis for Nullspace $\Null(A) \subseteq \mathbb{R}^4$}
 From $R\mathbf{x} = \mathbf{0}$, we have:
-\begin{align}
+\begin{align*}
 x_1 - 2x_3 + x_4 = 0 &\implies x_1 = 2x_3 - x_4 \\
 x_2 + x_3 = 0 &\implies x_2 = -x_3
-\end{align}
+\end{align*}
 Setting free variables $(x_3, x_4) = (1, 0)$ and $(0, 1)$ yields the special solutions:
-\begin{equation}
+\begin{equation*}
 \mathbf{s}_1 = \begin{bmatrix} 2 \\ -1 \\ 1 \\ 0 \end{bmatrix}, \quad \mathbf{s}_2 = \begin{bmatrix} -1 \\ 0 \\ 0 \\ 1 \end{bmatrix} \implies \mathcal{B}_{\Null(A)} = \left\{ \begin{bmatrix} 2 \\ -1 \\ 1 \\ 0 \end{bmatrix}, \begin{bmatrix} -1 \\ 0 \\ 0 \\ 1 \end{bmatrix} \right\}
-\end{equation}
+\end{equation*}
 Notice $\dim(\Null(A)) = n - r = 4 - 2 = 2$.
 
-\textbf{Step 6: Basis for Left Nullspace $\Null(A^T) \subseteq \mathbb{R}^3$.}
-Vectors $\mathbf{y} = [y_1, y_2, y_3]^T$ satisfying $A^T \mathbf{y} = \mathbf{0}$. We observe Row 3 of $A$ was Row 1 + Row 2. Thus:
-\begin{equation}
+\textbf{Step 6: Basis for Left Nullspace $\Null(A^T) \subseteq \mathbb{R}^3$}
+Vectors $\mathbf{y} = [y_1, y_2, y_3]^T$ satisfy $A^T \mathbf{y} = \mathbf{0}$. We observe Row 3 of $A$ was $\text{Row}_1 + \text{Row}_2$. Thus:
+\begin{equation*}
 1 \cdot \text{Row}_1 + 1 \cdot \text{Row}_2 - 1 \cdot \text{Row}_3 = \mathbf{0}^T \implies \mathbf{y} = \begin{bmatrix} 1 \\ 1 \\ -1 \end{bmatrix}
-\end{equation}
+\end{equation*}
 Indeed, $\dim(\Null(A^T)) = m - r = 3 - 2 = 1$, and:
-\begin{equation}
+\begin{equation*}
 A^T \begin{bmatrix} 1 \\ 1 \\ -1 \end{bmatrix} = \begin{bmatrix} 1 & 0 & 1 \\ 2 & 1 & 3 \\ 0 & 1 & 1 \\ 1 & 0 & 1 \end{bmatrix} \begin{bmatrix} 1 \\ 1 \\ -1 \end{bmatrix} = \begin{bmatrix} 1 - 1 \\ 2 + 1 - 3 \\ 1 - 1 \\ 1 - 1 \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \\ 0 \\ 0 \end{bmatrix}
-\end{equation}
+\end{equation*}
 
-\textbf{Step 7: Orthogonality Verification.}
+\textbf{Step 7: Orthogonality Verification}
 Testing $\Row(A) \perp \Null(A)$:
-\begin{equation}
+\begin{equation*}
 [1, 0, -2, 1] \begin{bmatrix} 2 \\ -1 \\ 1 \\ 0 \end{bmatrix} = 1(2) + 0(-1) - 2(1) + 1(0) = 2 - 2 = 0 \quad \checkmark
-\end{equation}
+\end{equation*}
 Testing $\Col(A) \perp \Null(A^T)$:
-\begin{equation}
+\begin{equation*}
 \mathbf{y}^T \mathbf{a}_1 = [1, 1, -1] \begin{bmatrix} 1 \\ 0 \\ 1 \end{bmatrix} = 1 + 0 - 1 = 0 \quad \checkmark, \quad \mathbf{y}^T \mathbf{a}_2 = [1, 1, -1] \begin{bmatrix} 2 \\ 1 \\ 3 \end{bmatrix} = 2 + 1 - 3 = 0 \quad \checkmark
-\end{equation}
+\end{equation*}
 \end{examplebox}
-
-\begin{ponderbox}[Why $X^T X$ Preserves the Kernel]
-Let $X \in \mathbb{R}^{m \times n}$. Why is $\Null(X^T X)$ always \emph{exactly} identical to $\Null(X)$?
-
-It is obvious that if $X\mathbf{v} = \mathbf{0}$, then $X^T (X\mathbf{v}) = X^T \mathbf{0} = \mathbf{0}$. But why can't there exist some magical non-zero vector $\mathbf{u} \in \mathbb{R}^n$ such that $X\mathbf{u} \ne \mathbf{0}$, but when multiplied by $X^T$, $X^T (X\mathbf{u})$ becomes $\mathbf{0}$? 
-
-\textit{Hint: If $X^T(X\mathbf{u}) = \mathbf{0}$, where must the vector $X\mathbf{u}$ lie? Can a vector simultaneously live in the column space of $X$ and the left nullspace of $X$ without being zero?}
-\end{ponderbox}
 
 % ----------------------------------------------------------------------
 % PART 4: ORTHOGONAL PROJECTIONS & DERIVATION
@@ -315,63 +354,68 @@ Substituting $\hat{x}$ back into $\hat{\mathbf{b}} = \hat{x}\mathbf{a}$:
 \end{equation}
 The matrix $P_{\mathbf{a}} = \frac{\mathbf{a}\mathbf{a}^T}{\mathbf{a}^T \mathbf{a}} \in \mathbb{R}^{m \times m}$ is the \textbf{rank-1 orthogonal projection matrix} onto the line spanned by $\mathbf{a}$. Notice the outer product $\mathbf{a}\mathbf{a}^T$ produces an $m \times m$ matrix, while the inner product $\mathbf{a}^T \mathbf{a} = \|\mathbf{a}\|_2^2$ is a scalar normalizing factor.
 
-\begin{examplebox}{1D Orthogonal Projection and Vector Decomposition}
-Let $\mathbf{a} = \begin{bmatrix} 2 \\ 1 \\ 2 \end{bmatrix}$ and target vector $\mathbf{b} = \begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix}$. 
+\begin{examplebox}{Worked Example 3.2: 1D Orthogonal Projection and Pythagoras Verification}
+\label{ex:w03_1d_projection}
+\textbf{The Scenario:}
+Let line direction $\mathbf{a} = \begin{bmatrix} 2 \\ 1 \\ 2 \end{bmatrix}$ and target vector $\mathbf{b} = \begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix}$. 
 \begin{enumerate}
-    \item Compute the projection matrix $P_{\mathbf{a}}$.
+    \item Compute the rank-1 projection matrix $P_{\mathbf{a}}$.
     \item Compute the projection $\hat{\mathbf{b}}$ and error vector $\mathbf{e}$.
-    \item Verify orthogonality $\mathbf{a}^T \mathbf{e} = 0$ and the Pythagorean theorem $\|\mathbf{b}\|_2^2 = \|\hat{\mathbf{b}}\|_2^2 + \|\mathbf{e}\|_2^2$.
+    \item Verify orthogonality $\mathbf{a}^T \mathbf{e} = 0$ and the Pythagorean identity $\|\mathbf{b}\|_2^2 = \|\hat{\mathbf{b}}\|_2^2 + \|\mathbf{e}\|_2^2$.
 \end{enumerate}
 
-\textbf{Step 1: Compute Outer and Inner Products.}
-\begin{equation}
+\tcblower
+\textbf{Step-by-Step Analytical Solution:}
+
+\textbf{Step 1: Compute Outer and Inner Products}
+\begin{equation*}
 \mathbf{a}^T \mathbf{a} = 2^2 + 1^2 + 2^2 = 4 + 1 + 4 = 9
-\end{equation}
+\end{equation*}
 The outer product matrix is:
-\begin{equation}
+\begin{equation*}
 \mathbf{a}\mathbf{a}^T = \begin{bmatrix} 2 \\ 1 \\ 2 \end{bmatrix} \begin{bmatrix} 2 & 1 & 2 \end{bmatrix} = \begin{bmatrix} 4 & 2 & 4 \\ 2 & 1 & 2 \\ 4 & 2 & 4 \end{bmatrix}
-\end{equation}
+\end{equation*}
 Thus, the projection matrix is:
-\begin{equation}
+\begin{equation*}
 P_{\mathbf{a}} = \frac{1}{9} \begin{bmatrix} 4 & 2 & 4 \\ 2 & 1 & 2 \\ 4 & 2 & 4 \end{bmatrix}
-\end{equation}
+\end{equation*}
 
-\textbf{Step 2: Compute Projection and Error.}
+\textbf{Step 2: Compute Projection and Error}
 Scalar coefficient:
-\begin{equation}
+\begin{equation*}
 \hat{x} = \frac{\mathbf{a}^T \mathbf{b}}{\mathbf{a}^T \mathbf{a}} = \frac{2(1) + 1(2) + 2(3)}{9} = \frac{2 + 2 + 6}{9} = \frac{10}{9}
-\end{equation}
+\end{equation*}
 The projection vector is:
-\begin{equation}
+\begin{equation*}
 \hat{\mathbf{b}} = \hat{x}\mathbf{a} = \frac{10}{9} \begin{bmatrix} 2 \\ 1 \\ 2 \end{bmatrix} = \begin{bmatrix} 20/9 \\ 10/9 \\ 20/9 \end{bmatrix}
-\end{equation}
+\end{equation*}
 The error vector is:
-\begin{equation}
+\begin{equation*}
 \mathbf{e} = \mathbf{b} - \hat{\mathbf{b}} = \begin{bmatrix} 1 - 20/9 \\ 2 - 10/9 \\ 3 - 20/9 \end{bmatrix} = \begin{bmatrix} -11/9 \\ 8/9 \\ 7/9 \end{bmatrix} = \frac{1}{9} \begin{bmatrix} -11 \\ 8 \\ 7 \end{bmatrix}
-\end{equation}
+\end{equation*}
 
-\textbf{Step 3: Verification of Orthogonality and Pythagoras.}
-\begin{equation}
+\textbf{Step 3: Verification of Orthogonality and Pythagoras}
+\begin{equation*}
 \mathbf{a}^T \mathbf{e} = 2(-11/9) + 1(8/9) + 2(7/9) = \frac{-22 + 8 + 14}{9} = \frac{0}{9} = 0 \quad \checkmark
-\end{equation}
+\end{equation*}
 Computing squared Euclidean norms:
-\begin{align}
+\begin{align*}
 \|\mathbf{b}\|_2^2 &= 1^2 + 2^2 + 3^2 = 1 + 4 + 9 = 14 \\
 \|\hat{\mathbf{b}}\|_2^2 &= \left(\frac{10}{9}\right)^2 (2^2 + 1^2 + 2^2) = \frac{100}{81} \cdot 9 = \frac{100}{9} \approx 11.111 \\
 \|\mathbf{e}\|_2^2 &= \frac{(-11)^2 + 8^2 + 7^2}{81} = \frac{121 + 64 + 49}{81} = \frac{234}{81} = \frac{26}{9} \approx 2.889
-\end{align}
+\end{align*}
 Summing the components:
-\begin{equation}
+\begin{equation*}
 \|\hat{\mathbf{b}}\|_2^2 + \|\mathbf{e}\|_2^2 = \frac{100}{9} + \frac{26}{9} = \frac{126}{9} = 14 = \|\mathbf{b}\|_2^2 \quad \checkmark
-\end{equation}
+\end{equation*}
 \end{examplebox}
 
 \subsection{Projection onto General Subspaces (\texorpdfstring{$n$}{n}-Dimensions)}
 
-\begin{theorem}[Invertibility of the Gram Matrix]
+\begin{theorembox}{Invertibility of the Gram Matrix}
 \label{thm:gram_invertible}
-Let $A \in \mathbb{R}^{m \times n}$. The square symmetric matrix $A^T A \in \mathbb{R}^{n \times n}$ is invertible if and only if $A$ has full column rank ($\rank(A) = n$).
-\end{theorem}
+Let $A \in \mathbb{R}^{m \times n}$. The square symmetric Gram matrix $A^T A \in \mathbb{R}^{n \times n}$ is invertible if and only if $A$ has full column rank ($\rank(A) = n$).
+\end{theorembox}
 
 \begin{proof}
 It suffices to prove that $A^T A$ and $A$ share the exact same nullspace: $\Null(A^T A) = \Null(A)$.
@@ -383,7 +427,7 @@ It suffices to prove that $A^T A$ and $A$ share the exact same nullspace: $\Null
     \end{equation}
     Thus $\mathbf{x} \in \Null(A)$, which proves $\Null(A^T A) \subseteq \Null(A)$.
 \end{enumerate}
-Since $\Null(A^T A) = \Null(A)$, the square matrix $A^T A \in \mathbb{R}^{n \times n}$ is invertible if and only if its nullspace is trivial ($\Null(A^T A) = \{\mathbf{0}\}$), which occurs if and only if $\Null(A) = \{\mathbf{0}\}$, meaning $\rank(A) = n$.
+Since $\Null(A^T A) = \Null(A)$, the square matrix $A^T A \in \mathbb{R}^{n \times n}$ is invertible if and only if its nullspace is trivial ($\Null(A^T A) = \{\mathbf{0}\}$), which occurs if and only if $\rank(A) = n$.
 \end{proof}
 
 When projecting onto an $n$-dimensional subspace spanned by the linearly independent columns of $A = [\mathbf{a}_1, \dots, \mathbf{a}_n] \in \mathbb{R}^{m \times n}$ ($m \ge n$), the target vector $\hat{\mathbf{b}}$ is a linear combination of all $n$ columns:
@@ -427,7 +471,7 @@ P \triangleq A(A^T A)^{-1}A^T
 \label{eq:proj_matrix_formula}
 \end{equation}
 
-\begin{theorem}[Fundamental Properties of the Orthogonal Projector]
+\begin{theorembox}{Fundamental Properties of the Orthogonal Projector}
 The matrix $P = A(A^T A)^{-1}A^T$ satisfies:
 \begin{enumerate}
     \item \textbf{Symmetry:} $P^T = P$.
@@ -435,7 +479,7 @@ The matrix $P = A(A^T A)^{-1}A^T$ satisfies:
     \item \textbf{Complementary Projector:} $I - P$ is the orthogonal projector onto $\Null(A^T) = \Col(A)^\perp$.
     \item \textbf{Trace-Rank Identity:} $\trace(P) = \rank(A) = n$.
 \end{enumerate}
-\end{theorem}
+\end{theorembox}
 
 \begin{proof}
 \begin{enumerate}
@@ -446,15 +490,14 @@ The matrix $P = A(A^T A)^{-1}A^T$ satisfies:
     \item \textbf{Idempotence:} Multiplying $P$ by itself:
     \begin{align}
     P^2 &= \left( A(A^T A)^{-1}A^T \right) \left( A(A^T A)^{-1}A^T \right) \\
-    &= A (A^T A)^{-1} \underbrace{\left( A^T A \right) (A^T A)^{-1}}_{= I_n} A^T \\
-    &= A (A^T A)^{-1} A^T = P
+    &= A (A^T A)^{-1} \underbrace{\left( A^T A \right) (A^T A)^{-1}}_{= I_n} A^T = A (A^T A)^{-1} A^T = P
     \end{align}
     \item \textbf{Complementary Projector:} Let $Q = I - P$.
     \begin{align}
     Q^T &= (I - P)^T = I - P^T = I - P = Q \quad (\text{symmetric}) \\
     Q^2 &= (I - P)(I - P) = I - 2P + P^2 = I - 2P + P = I - P = Q \quad (\text{idempotent})
     \end{align}
-    Furthermore, for any vector $\mathbf{v} \in \Col(A)$, $P\mathbf{v} = \mathbf{v} \implies Q\mathbf{v} = (I - P)\mathbf{v} = \mathbf{0}$. For any vector $\mathbf{u} \in \Col(A)^\perp = \Null(A^T)$, $A^T \mathbf{u} = \mathbf{0} \implies P\mathbf{u} = A(A^T A)^{-1}A^T \mathbf{u} = \mathbf{0} \implies Q\mathbf{u} = \mathbf{u}$. Thus, $Q$ projects orthogonally onto $\Col(A)^\perp$.
+    Furthermore, for any $\mathbf{v} \in \Col(A)$, $P\mathbf{v} = \mathbf{v} \implies Q\mathbf{v} = (I - P)\mathbf{v} = \mathbf{0}$. For any $\mathbf{u} \in \Col(A)^\perp$, $P\mathbf{u} = \mathbf{0} \implies Q\mathbf{u} = \mathbf{u}$. Thus, $Q$ projects orthogonally onto $\Col(A)^\perp$.
     \item \textbf{Trace:} Using the cyclic trace identity $\trace(BC) = \trace(CB)$ with $B = A$ and $C = (A^T A)^{-1}A^T$:
     \begin{equation}
     \trace(P) = \trace\left( A \cdot (A^T A)^{-1}A^T \right) = \trace\left( (A^T A)^{-1}A^T \cdot A \right) = \trace(I_n) = n = \rank(A)
@@ -462,137 +505,306 @@ The matrix $P = A(A^T A)^{-1}A^T$ satisfies:
 \end{enumerate}
 \end{proof}
 
-\begin{ponderbox}[The Idempotence Test]
-Imagine you are standing on a sunny field. The sun casts your shadow onto the 2D ground.
+\begin{ponderbox}{The Idempotence vs. Symmetry Test: Shadows in the Sun}
+Imagine you are standing in a flat open field on a sunny afternoon. The sun casts your shadow onto the 2D ground.
 \begin{enumerate}
     \item If you take the shadow on the ground and project it onto the ground a second time, does it change? Why does this explain $P^2 = P$?
-    \item If $P^2 = P$ is true for \emph{any} shadow (even a slanted, oblique shadow cast by a streetlight at an angle), what extra condition is required to ensure that the shadow is the \emph{closest} point to the original object? Why must $P = P^T$?
+    \item If $P^2 = P$ is true for \emph{any} projection (even a distorted, oblique shadow cast by a tilted streetlight), what extra property guarantees that the shadow is the \emph{closest} point to the original object? Why must $P = P^T$?
 \end{enumerate}
+\tcblower
+\textbf{Reflection:}
+1. \textbf{Idempotence ($P^2 = P$):} Once an object has been projected onto a subspace, it already resides in that subspace! Projecting it again does nothing: $P(P\mathbf{x}) = P\mathbf{x}$. Idempotence is the algebraic signature of \emph{any} projection.
+2. \textbf{Symmetry ($P = P^T$):} A skewed projection drops points along an oblique angle: the error vector is not perpendicular to the floor. To guarantee that $P\mathbf{x}$ achieves the \textbf{minimum Euclidean distance} $\min_{\mathbf{v} \in V}\|\mathbf{x} - \mathbf{v}\|_2$, the error vector must be strictly perpendicular: $\langle \mathbf{v}, \mathbf{x} - P\mathbf{x} \rangle = 0$ for all $\mathbf{v} \in V$. Expanding this condition yields $\mathbf{v}^T \mathbf{x} = \mathbf{v}^T P \mathbf{x} = (P\mathbf{v})^T \mathbf{x} \implies P = P^T$. Symmetry is the mathematical signature of \textbf{orthogonality}!
+\end{ponderbox}
+
+\subsection{The 3D Geometry of Least Squares Projections}
+Figure~\ref{fig:ols_projection_geometry} visualizes the complete geometric architecture of Ordinary Least Squares in $\mathbb{R}^N$.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=1.05, font=\sffamily\footnotesize]
+
+% Plane representing Column Space Col(X)
+\draw[thick, fill=primarylight!40, draw=primaryborder] (-1, -1) -- (5.5, -0.5) -- (7.5, 3.5) -- (1, 3.0) -- cycle;
+\node[color=primarydark, font=\bfseries] at (6.2, 3.0) {$\Col(X) = \operatorname{span}\{\mathbf{x}_1, \mathbf{x}_2\}$};
+
+% Basis vectors on the plane
+\coordinate (O) at (1.5, 0.5);
+\coordinate (X1) at (4.0, 0.8);
+\coordinate (X2) at (3.0, 2.5);
+
+\draw[->, >=stealth, line width=1.5pt, color=primarydark!80] (O) -- (X1) node[below right] {$\mathbf{x}_1$};
+\draw[->, >=stealth, line width=1.5pt, color=primarydark!80] (O) -- (X2) node[above left] {$\mathbf{x}_2$};
+\filldraw[black] (O) circle (2pt) node[below left] {$\mathbf{0}$};
+
+% Target observation vector y (pointing out of plane)
+\coordinate (Y) at (4.5, 4.2);
+\draw[->, >=stealth, line width=2.0pt, color=traprad] (O) -- (Y) node[above right] {$\mathbf{y} \in \mathbb{R}^N$ (Observation)};
+
+% Projected point y_hat on the plane
+\coordinate (Yhat) at (4.5, 1.8);
+\filldraw[tealdef] (Yhat) circle (2.5pt) node[below right=2pt] {$\hat{\mathbf{y}} = X\hat{\mathbf{w}} = P\mathbf{y}$ (Fitted Signal)};
+
+% Projection vector from origin to y_hat
+\draw[->, >=stealth, line width=1.8pt, color=tealdef] (O) -- (Yhat);
+
+% Error vector e = y - y_hat (perpendicular to plane)
+\draw[->, >=stealth, line width=2.0pt, color=primarydark] (Yhat) -- (Y) node[midway, right] {$\mathbf{e} = \mathbf{y} - \hat{\mathbf{y}} \in \Col(X)^\perp$};
+
+% Right angle symbol between error vector and plane
+\draw[thick, color=black] ($(Yhat) + (0, 0.35)$) -- ($(Yhat) + (-0.35, 0.35)$) -- ($(Yhat) + (-0.35, 0)$);
+
+\node[align=left, fill=white, draw=gray!40, rounded corners=3pt, inner sep=4pt] at (0.2, 4.0) {
+\textbf{The Least Squares Triad:}\\
+1. $\hat{\mathbf{y}} \in \Col(X)$ (Best realizable prediction)\\
+2. $\mathbf{e} \in \Null(X^T)$ (Unrecoverable noise)\\
+3. $\mathbf{y} = \hat{\mathbf{y}} + \mathbf{e}$ (Pythagorean decomposition)
+};
+
+\end{tikzpicture}
+\caption{The Geometric Architecture of Ordinary Least Squares: The target observation vector $\mathbf{y}$ hovers outside the column space $\Col(X)$. The model prediction $\hat{\mathbf{y}} = X\hat{\mathbf{w}}$ is the orthogonal shadow of $\mathbf{y}$ cast onto $\Col(X)$. The residual error vector $\mathbf{e}$ drops at a strict $90^\circ$ perpendicular angle, living in the left nullspace $\Null(X^T) = \Col(X)^\perp$.}
+\label{fig:ols_projection_geometry}
+\end{figure}
+
+% ----------------------------------------------------------------------
+% PART 5: ADVANCED COMPUTATIONAL ALGEBRA: QR & PSEUDOINVERSES
+% ----------------------------------------------------------------------
+\section{Advanced Computational Algebra: QR Decomposition \& Pseudoinverses}
+
+\subsection{Why Solving Normal Equations Directly is Numerically Dangerous}
+In textbook theory, solving linear regression is written as $\hat{\mathbf{w}} = (X^T X)^{-1} X^T \mathbf{y}$. In production engineering (PyTorch, SciPy, scikit-learn), \textbf{this formula is almost never evaluated directly}.
+
+The danger lies in the \textbf{condition number} $\kappa(X)$, defined as the ratio of the largest to smallest singular values of $X$:
+\begin{equation}
+\kappa(X) = \frac{\sigma_{\max}(X)}{\sigma_{\min}(X)} \ge 1
+\end{equation}
+The condition number measures how sensitive a matrix equation is to numerical rounding errors. If an input perturbation $\delta \mathbf{y}$ occurs, the relative output error satisfies $\frac{\|\delta \mathbf{w}\|}{\|\mathbf{w}\|} \le \kappa(X) \frac{\|\delta \mathbf{y}\|}{\|\mathbf{y}\|}$.
+
+When we form the Gram matrix $X^T X$, its condition number squares:
+\begin{equation}
+\kappa(X^T X) = \big( \kappa(X) \big)^2
+\label{eq:cond_squaring}
+\end{equation}
+Standard 64-bit floating point arithmetic (IEEE-754) provides approximately $15$ to $16$ decimal digits of precision.
+\begin{itemize}
+    \item If $X$ is moderately ill-conditioned with $\kappa(X) = 10^5$, then $\kappa(X^T X) = 10^{10}$. Solving $(X^T X)\mathbf{w} = X^T \mathbf{y}$ loses 10 digits of accuracy, leaving only 5 reliable digits!
+    \item If $\kappa(X) = 10^8$, then $\kappa(X^T X) = 10^{16}$. The Gram matrix becomes numerically indistinguishable from a singular matrix, producing catastrophic garbage values.
+\end{itemize}
+
+\subsection{The QR Decomposition Alternative}
+To solve least squares without squaring the condition number, production libraries factor $X \in \mathbb{R}^{N \times d}$ ($N \ge d$) using \textbf{QR Decomposition}:
+\begin{equation}
+X = Q R = \begin{bmatrix} Q_1 & Q_2 \end{bmatrix} \begin{bmatrix} R_1 \\ \mathbf{0} \end{bmatrix} = Q_1 R_1
+\end{equation}
+where:
+\begin{itemize}
+    \item $Q_1 \in \mathbb{R}^{N \times d}$ has orthonormal columns: $Q_1^T Q_1 = I_d$.
+    \item $R_1 \in \mathbb{R}^{d \times d}$ is an upper-triangular matrix with non-zero diagonal entries.
+\end{itemize}
+
+Substituting $X = Q_1 R_1$ into the normal equations:
+\begin{align}
+(X^T X)\hat{\mathbf{w}} = X^T \mathbf{y} &\implies (R_1^T Q_1^T Q_1 R_1)\hat{\mathbf{w}} = R_1^T Q_1^T \mathbf{y} \\
+&\implies (R_1^T I_d R_1)\hat{\mathbf{w}} = R_1^T Q_1^T \mathbf{y} \\
+&\implies R_1^T R_1 \hat{\mathbf{w}} = R_1^T Q_1^T \mathbf{y}
+\end{align}
+Because $A$ has full column rank, $R_1$ is invertible. Pre-multiplying by $(R_1^T)^{-1}$:
+\begin{equation}
+R_1 \hat{\mathbf{w}} = Q_1^T \mathbf{y}
+\label{eq:qr_ols_solution}
+\end{equation}
+Notice the immense computational advantages:
+\begin{enumerate}
+    \item \textbf{No Matrix Inversion:} Because $R_1$ is upper triangular, Equation~\eqref{eq:qr_ols_solution} is solved by simple \textbf{back-substitution} in $\mathcal{O}(d^2)$ operations!
+    \item \textbf{No Condition Number Squaring:} The system matrix is $R_1$, and $\kappa(R_1) = \kappa(X)$. We completely avoid the dangerous $\kappa(X)^2$ squaring penalty!
+\end{enumerate}
+
+\subsection{The Underdetermined Regime \& The Moore-Penrose Pseudoinverse}
+What happens in modern deep learning and bioinformatics where the number of parameters $d$ exceeds the number of observations $N$ ($d > N$)?
+
+When $d > N$, the design matrix $X \in \mathbb{R}^{N \times d}$ is wide (fat). The system $X\mathbf{w} = \mathbf{y}$ is \textbf{underdetermined}. Assuming $X$ has full row rank ($\rank(X) = N$), the target vector $\mathbf{y}$ lies inside $\Col(X) = \mathbb{R}^N$. There are \textbf{infinitely many exact interpolating solutions} satisfying $X\mathbf{w} = \mathbf{y}$!
+
+Among all possible solutions, which one should an algorithm choose?
+The gold standard is the \textbf{Minimum-Norm Solution}:
+\begin{equation}
+\mathbf{w}_{\text{min}} = \arg\min_{\mathbf{w} \in \mathbb{R}^d} \|\mathbf{w}\|_2^2 \quad \text{subject to } X\mathbf{w} = \mathbf{y}
+\end{equation}
+Using the method of Lagrange multipliers, we set up the Lagrangian:
+\begin{equation}
+\mathcal{L}(\mathbf{w}, \boldsymbol{\lambda}) = \frac{1}{2}\mathbf{w}^T \mathbf{w} - \boldsymbol{\lambda}^T (X\mathbf{w} - \mathbf{y})
+\end{equation}
+Differentiating with respect to $\mathbf{w}$ and setting to zero:
+\begin{equation}
+\nabla_{\mathbf{w}} \mathcal{L} = \mathbf{w} - X^T \boldsymbol{\lambda} = \mathbf{0} \implies \mathbf{w} = X^T \boldsymbol{\lambda} \in \Row(X)
+\end{equation}
+Multiplying by $X$:
+\begin{equation}
+X\mathbf{w} = X(X^T \boldsymbol{\lambda}) = (X X^T)\boldsymbol{\lambda} = \mathbf{y} \implies \boldsymbol{\lambda} = (X X^T)^{-1}\mathbf{y}
+\end{equation}
+Substituting $\boldsymbol{\lambda}$ back into $\mathbf{w} = X^T \boldsymbol{\lambda}$:
+\begin{equation}
+\mathbf{w}_{\text{min}} = X^T (X X^T)^{-1}\mathbf{y}
+\label{eq:underdetermined_min_norm}
+\end{equation}
+
+\begin{definitionbox}{The Moore-Penrose Pseudoinverse}
+For any matrix $X \in \mathbb{R}^{N \times d}$, the \textbf{Moore-Penrose Pseudoinverse} $X^\dagger$ provides the unique optimal operator unifying all regimes:
+\begin{enumerate}
+    \item \textbf{Overdetermined ($N > d$, full column rank):}
+    \begin{equation}
+    X^\dagger = (X^T X)^{-1} X^T \implies \hat{\mathbf{w}} = X^\dagger \mathbf{y} \quad (\text{Least-Squares Min-Residual})
+    \end{equation}
+    \item \textbf{Square Invertible ($N = d$, full rank):}
+    \begin{equation}
+    X^\dagger = X^{-1} \implies \hat{\mathbf{w}} = X^{-1} \mathbf{y} \quad (\text{Exact Unique Solution})
+    \end{equation}
+    \item \textbf{Underdetermined ($N < d$, full row rank):}
+    \begin{equation}
+    X^\dagger = X^T (X X^T)^{-1} \implies \mathbf{w}_{\text{min}} = X^\dagger \mathbf{y} \quad (\text{Exact Min-Norm Solution})
+    \end{equation}
+\end{enumerate}
+\end{definitionbox}
+
+\begin{ponderbox}{The Overparameterized Implicit Regularization Dilemma}
+In modern deep neural networks, the number of weights $d$ often exceeds the number of training data points $N$ by a factor of 100 ($d \gg N$). The network can easily achieve zero training error: $X\mathbf{w} = \mathbf{y}$.
+When we train an overparameterized linear model using Gradient Descent starting from $\mathbf{w}_0 = \mathbf{0}$, why does Gradient Descent automatically converge to the \textbf{minimum-norm solution} $\mathbf{w}_{\text{min}} = X^\dagger \mathbf{y}$ rather than any of the other infinitely many interpolating solutions?
+\tcblower
+\textbf{Reflection:}
+Recall the gradient update rule starting from $\mathbf{w}_0 = \mathbf{0}$:
+\begin{equation*}
+\mathbf{w}_{t+1} = \mathbf{w}_t - \eta X^T (X\mathbf{w}_t - \mathbf{y})
+\end{equation*}
+Notice that at every single iteration, the gradient update vector $\Delta \mathbf{w} = -\eta X^T \mathbf{e}_t$ is pre-multiplied by $X^T$.
+This means every update step is a linear combination of the rows of $X$: $\Delta \mathbf{w} \in \Col(X^T) = \Row(X)$!
+Because the row space is a vector subspace closed under addition, $\mathbf{w}_t$ remains strictly confined to $\Row(X)$ for all iterations.
+
+By the Fundamental Theorem of Linear Algebra, any vector in $\mathbb{R}^d$ decomposes uniquely into $\mathbf{w} = \mathbf{w}_{\text{row}} + \mathbf{w}_{\text{null}}$.
+For any solution satisfying $X\mathbf{w} = \mathbf{y}$, the nullspace component $\mathbf{w}_{\text{null}}$ contributes nothing to the prediction ($X\mathbf{w}_{\text{null}} = \mathbf{0}$), but adds strictly positive Euclidean energy: $\|\mathbf{w}\|_2^2 = \|\mathbf{w}_{\text{row}}\|_2^2 + \|\mathbf{w}_{\text{null}}\|_2^2$.
+Because Gradient Descent initialized at $\mathbf{0}$ never enters $\Null(X)$, its nullspace component is identically zero: $\mathbf{w}_{\text{null}} = \mathbf{0}$.
+Therefore, Gradient Descent possesses an \textbf{implicit bias} toward the minimum-norm solution!
 \end{ponderbox}
 
 % ----------------------------------------------------------------------
-% PART 5: WORKED NUMERICAL REGRESSION EXAMPLE
+% PART 6: WORKED NUMERICAL REGRESSION EXAMPLE
 % ----------------------------------------------------------------------
 \section{In-Depth Worked Numerical Example: OLS Line Fitting}
 
-\begin{examplebox}{Full Ordinary Least Squares Line Fitting via Projection Geometry}
-Fit an affine line $y = \beta_0 + \beta_1 x$ to the three empirical observations:
-\begin{equation}
+\begin{examplebox}{Worked Example 3.3: Full OLS Line Fitting via Projection Geometry}
+\label{ex:w03_ols_line_fitting}
+\textbf{The Scenario:}
+Fit an affine line $y = \beta_0 + \beta_1 x$ to three empirical observations:
+\begin{equation*}
 (x_1, y_1) = (1, 2), \quad (x_2, y_2) = (2, 2), \quad (x_3, y_3) = (3, 4)
-\end{equation}
+\end{equation*}
 Derive the design matrix, the Gram matrix, the projection matrix, the fitted values, the residual vector, and verify the zero-mean residual property.
 
-\textbf{Step 1: Formulate the Overdetermined System $X\boldsymbol{\beta} = \mathbf{y}$.}
-With intercept feature $x_0 = 1$ and slope feature $x_1$:
-\begin{equation}
-X = \begin{bmatrix} 1 & 1 \\ 1 & 2 \\ 1 & 3 \end{bmatrix} \in \mathbb{R}^{3 \times 2}, \quad \boldsymbol{\beta} = \begin{bmatrix} \beta_0 \\ \beta_1 \end{bmatrix} \in \mathbb{R}^2, \quad \mathbf{y} = \begin{bmatrix} 2 \\ 2 \\ 4 \end{bmatrix} \in \mathbb{R}^3
-\end{equation}
-Notice $m = 3$ equations and $n = 2$ unknowns. The columns $\mathbf{x}_0 = [1, 1, 1]^T$ and $\mathbf{x}_1 = [1, 2, 3]^T$ are clearly linearly independent, so $\rank(X) = 2$.
+\tcblower
+\textbf{Step-by-Step Analytical Solution:}
 
-\textbf{Step 2: Compute the Gram Matrix $X^T X$ and $X^T \mathbf{y}$.}
-\begin{equation}
+\textbf{Step 1: Formulate the Overdetermined System $X\boldsymbol{\beta} = \mathbf{y}$}
+With intercept column $x_0 = 1$ and slope feature $x_1$:
+\begin{equation*}
+X = \begin{bmatrix} 1 & 1 \\ 1 & 2 \\ 1 & 3 \end{bmatrix} \in \mathbb{R}^{3 \times 2}, \quad \boldsymbol{\beta} = \begin{bmatrix} \beta_0 \\ \beta_1 \end{bmatrix} \in \mathbb{R}^2, \quad \mathbf{y} = \begin{bmatrix} 2 \\ 2 \\ 4 \end{bmatrix} \in \mathbb{R}^3
+\end{equation*}
+Notice $N = 3$ observations and $d = 2$ unknowns. The columns $\mathbf{x}_0 = [1, 1, 1]^T$ and $\mathbf{x}_1 = [1, 2, 3]^T$ are clearly linearly independent, so $\rank(X) = 2$.
+
+\textbf{Step 2: Compute the Gram Matrix $X^T X$ and $X^T \mathbf{y}$}
+\begin{equation*}
 X^T X = \begin{bmatrix} 1 & 1 & 1 \\ 1 & 2 & 3 \end{bmatrix} \begin{bmatrix} 1 & 1 \\ 1 & 2 \\ 1 & 3 \end{bmatrix} = \begin{bmatrix} 1+1+1 & 1+2+3 \\ 1+2+3 & 1+4+9 \end{bmatrix} = \begin{bmatrix} 3 & 6 \\ 6 & 14 \end{bmatrix}
-\end{equation}
+\end{equation*}
 The determinant is $\det(X^T X) = 3(14) - 6(6) = 42 - 36 = 6 \ne 0$.
 The inverse Gram matrix is:
-\begin{equation}
+\begin{equation*}
 (X^T X)^{-1} = \frac{1}{6} \begin{bmatrix} 14 & -6 \\ -6 & 3 \end{bmatrix} = \begin{bmatrix} 7/3 & -1 \\ -1 & 1/2 \end{bmatrix}
-\end{equation}
+\end{equation*}
 The right-hand side vector is:
-\begin{equation}
+\begin{equation*}
 X^T \mathbf{y} = \begin{bmatrix} 1 & 1 & 1 \\ 1 & 2 & 3 \end{bmatrix} \begin{bmatrix} 2 \\ 2 \\ 4 \end{bmatrix} = \begin{bmatrix} 2 + 2 + 4 \\ 2(1) + 2(2) + 4(3) \end{bmatrix} = \begin{bmatrix} 8 \\ 18 \end{bmatrix}
-\end{equation}
+\end{equation*}
 
-\textbf{Step 3: Solve the Normal Equations for $\hat{\boldsymbol{\beta}}$.}
-\begin{equation}
-\hat{\boldsymbol{\beta}} = (X^T X)^{-1} X^T \mathbf{y} = \frac{1}{6} \begin{bmatrix} 14 & -6 \\ -6 & 3 \end{bmatrix} \begin{bmatrix} 8 \\ 18 \end{bmatrix} = \frac{1}{6} \begin{bmatrix} 14(8) - 6(18) \\ -6(8) + 3(18) \end{bmatrix} = \frac{1}{6} \begin{bmatrix} 112 - 108 \\ -48 + 54 \end{bmatrix} = \frac{1}{6} \begin{bmatrix} 4 \\ 6 \end{bmatrix} = \begin{bmatrix} 2/3 \\ 1 \end{bmatrix}
-\end{equation}
+\textbf{Step 3: Solve the Normal Equations for $\hat{\boldsymbol{\beta}}$}
+\begin{equation*}
+\hat{\boldsymbol{\beta}} = (X^T X)^{-1} X^T \mathbf{y} = \frac{1}{6} \begin{bmatrix} 14 & -6 \\ -6 & 3 \end{bmatrix} \begin{bmatrix} 8 \\ 18 \end{bmatrix} = \frac{1}{6} \begin{bmatrix} 112 - 108 \\ -48 + 54 \end{bmatrix} = \frac{1}{6} \begin{bmatrix} 4 \\ 6 \end{bmatrix} = \mathbf{\begin{bmatrix} 2/3 \\ 1 \end{bmatrix}}
+\end{equation*}
 Thus, the fitted Ordinary Least Squares line is:
-\begin{equation}
+\begin{equation*}
 \hat{y} = \frac{2}{3} + 1 \cdot x
-\end{equation}
+\end{equation*}
 
-\textbf{Step 4: Compute the Orthogonal Projection Matrix $P$.}
-\begin{align}
+\textbf{Step 4: Compute the Orthogonal Projection Matrix $P$}
+\begin{align*}
 P &= X (X^T X)^{-1} X^T = \begin{bmatrix} 1 & 1 \\ 1 & 2 \\ 1 & 3 \end{bmatrix} \frac{1}{6} \begin{bmatrix} 14 & -6 \\ -6 & 3 \end{bmatrix} \begin{bmatrix} 1 & 1 & 1 \\ 1 & 2 & 3 \end{bmatrix} \\
 &= \frac{1}{6} \begin{bmatrix} 1 & 1 \\ 1 & 2 \\ 1 & 3 \end{bmatrix} \begin{bmatrix} 8 & 2 & -4 \\ -3 & 0 & 3 \end{bmatrix} = \frac{1}{6} \begin{bmatrix} 5 & 2 & -1 \\ 2 & 2 & 2 \\ -1 & 2 & 5 \end{bmatrix}
-\end{align}
+\end{align*}
 Notice $P$ is symmetric ($P^T = P$) and $\trace(P) = \frac{5 + 2 + 5}{6} = \frac{12}{6} = 2 = \rank(X)$.
 
-\textbf{Step 5: Compute Fitted Values $\hat{\mathbf{y}}$ and Residuals $\mathbf{e}$.}
-\begin{equation}
-\hat{\mathbf{y}} = X\hat{\boldsymbol{\beta}} = \begin{bmatrix} 1 & 1 \\ 1 & 2 \\ 1 & 3 \end{bmatrix} \begin{bmatrix} 2/3 \\ 1 \end{bmatrix} = \begin{bmatrix} 2/3 + 1 \\ 2/3 + 2 \\ 2/3 + 3 \end{bmatrix} = \begin{bmatrix} 5/3 \\ 8/3 \\ 11/3 \end{bmatrix}
-\end{equation}
+\textbf{Step 5: Compute Fitted Values $\hat{\mathbf{y}}$ and Residuals $\mathbf{e}$}
+\begin{equation*}
+\hat{\mathbf{y}} = X\hat{\boldsymbol{\beta}} = \begin{bmatrix} 1 & 1 \\ 1 & 2 \\ 1 & 3 \end{bmatrix} \begin{bmatrix} 2/3 \\ 1 \end{bmatrix} = \begin{bmatrix} 5/3 \\ 8/3 \\ 11/3 \end{bmatrix}
+\end{equation*}
 The residual error vector is:
-\begin{equation}
+\begin{equation*}
 \mathbf{e} = \mathbf{y} - \hat{\mathbf{y}} = \begin{bmatrix} 2 - 5/3 \\ 2 - 8/3 \\ 4 - 11/3 \end{bmatrix} = \begin{bmatrix} 1/3 \\ -2/3 \\ 1/3 \end{bmatrix} = \frac{1}{3} \begin{bmatrix} 1 \\ -2 \\ 1 \end{bmatrix}
-\end{equation}
+\end{equation*}
 
-\textbf{Step 6: Confirm Error Orthogonality and Zero-Mean Residuals.}
+\textbf{Step 6: Confirm Error Orthogonality and Zero-Mean Residuals}
 We test $X^T \mathbf{e}$:
-\begin{equation}
-X^T \mathbf{e} = \begin{bmatrix} 1 & 1 & 1 \\ 1 & 2 & 3 \end{bmatrix} \left( \frac{1}{3} \begin{bmatrix} 1 \\ -2 \\ 1 \end{bmatrix} \right) = \frac{1}{3} \begin{bmatrix} 1 - 2 + 1 \\ 1(1) + 2(-2) + 3(1) \end{bmatrix} = \frac{1}{3} \begin{bmatrix} 0 \\ 1 - 4 + 3 \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \end{bmatrix} \quad \checkmark
-\end{equation}
+\begin{equation*}
+X^T \mathbf{e} = \begin{bmatrix} 1 & 1 & 1 \\ 1 & 2 & 3 \end{bmatrix} \left( \frac{1}{3} \begin{bmatrix} 1 \\ -2 \\ 1 \end{bmatrix} \right) = \frac{1}{3} \begin{bmatrix} 1 - 2 + 1 \\ 1 - 4 + 3 \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \end{bmatrix} \quad \checkmark
+\end{equation*}
 Because the first column of $X$ is the constant intercept column of ones $\mathbf{1}$, the first equation of $X^T \mathbf{e} = \mathbf{0}$ states:
-\begin{equation}
-\mathbf{1}^T \mathbf{e} = \sum_{i=1}^m e_i = \frac{1}{3} - \frac{2}{3} + \frac{1}{3} = 0
-\end{equation}
+\begin{equation*}
+\mathbf{1}^T \mathbf{e} = \sum_{i=1}^N e_i = \frac{1}{3} - \frac{2}{3} + \frac{1}{3} = 0
+\end{equation*}
 This proves mathematically why \textbf{any linear regression model that contains an intercept term always has residuals that sum to exactly zero}!
 \end{examplebox}
 
 % ----------------------------------------------------------------------
-% PART 6: EXAM TRAPS & DIAGNOSTIC MISCONCEPTIONS
+% PART 7: EXAM TRAPS & DIAGNOSTIC MISCONCEPTIONS
 % ----------------------------------------------------------------------
 \section{Exam Traps \& Diagnostic Misconceptions}
 
 \begin{trapbox}{Gotcha 1: The Rectangular Matrix Pseudo-Cancellation Fallacy}
-A student attempts to simplify the projection matrix $P = A(A^T A)^{-1}A^T$ by expanding the matrix inverse $(BC)^{-1} = C^{-1} B^{-1}$:
-\begin{equation}
+\textbf{The Scenario:} A student attempts to simplify the projection matrix $P = A(A^T A)^{-1}A^T$ by expanding the matrix inverse $(BC)^{-1} = C^{-1} B^{-1}$:
+\begin{equation*}
 P = A (A^T A)^{-1} A^T \stackrel{?}{=} A A^{-1} (A^T)^{-1} A^T = I_m \cdot I_m = I_m
-\end{equation}
-\textbf{The Trap:} The matrix $A \in \mathbb{R}^{m \times n}$ with $m > n$ is \textbf{rectangular}. Rectangular matrices do not possess a two-sided matrix inverse $A^{-1}$! The algebraic identity $(BC)^{-1} = C^{-1}B^{-1}$ holds \emph{strictly} when both $B$ and $C$ are square invertible matrices. 
+\end{equation*}
+\textbf{The Trap:} The matrix $A \in \mathbb{R}^{m \times n}$ with $m > n$ is \textbf{rectangular}. Rectangular matrices do not possess a two-sided matrix inverse $A^{-1}$! The algebraic identity $(BC)^{-1} = C^{-1}B^{-1}$ holds \emph{strictly} when both $B$ and $C$ are individual square invertible matrices. 
 
-If $P = I_m$, every vector in $\mathbb{R}^m$ would be projected onto itself, meaning $\Col(A) = \mathbb{R}^m$. But $\Col(A)$ has dimension at most $n < m$, which is a proper subspace!
+If $P = I_m$, every vector in $\mathbb{R}^m$ would project onto itself, implying $\Col(A) = \mathbb{R}^m$. But $\Col(A)$ has dimension at most $n < m$, which is a proper subspace!
 \end{trapbox}
 
-\begin{trapbox}{Gotcha 2: Confusing General (Oblique) Projectors with Orthogonal Projectors}
-A student designs a projection operator that satisfies $P^2 = P$, but discovers that the residual $\|\mathbf{b} - P\mathbf{b}\|_2$ is strictly larger than the distance to the subspace:
-\begin{equation}
+\begin{trapbox}{Gotcha 2: Confusing Oblique Projectors with Orthogonal Projectors}
+\textbf{The Scenario:} A student constructs a projection operator that satisfies $P^2 = P$, but discovers that the residual $\|\mathbf{b} - P\mathbf{b}\|_2$ is strictly larger than the true distance to the subspace:
+\begin{equation*}
 \|\mathbf{b} - P\mathbf{b}\|_2 > \min_{\mathbf{v} \in V} \|\mathbf{b} - \mathbf{v}\|_2
-\end{equation}
+\end{equation*}
 \textbf{The Trap:} Idempotence ($P^2 = P$) is the defining property of \textbf{any} projection (including skewed, oblique projections). To guarantee that $P\mathbf{b}$ is the \textbf{closest point in Euclidean distance}, the projection must be \textbf{orthogonal}, which requires the matrix to be \textbf{symmetric}: $P = P^T$. 
 
 Without symmetry, the error vector $\mathbf{b} - P\mathbf{b}$ drops along an oblique angle rather than perpendicular to the subspace, violating least-squares optimality.
 \end{trapbox}
 
 \begin{trapbox}{Gotcha 3: Exact Collinearity Causing Inversion Failure}
-A data scientist adds a redundant feature (e.g., $x_3 = 2x_1 - 5x_2$) into a design matrix $X$, and attempts to solve for regression coefficients using \texttt{np.linalg.inv(X.T @ X)}. The script crashes with a \texttt{LinAlgError: Singular matrix}.
+\textbf{The Scenario:} A data scientist adds a redundant feature (e.g., $x_3 = 2x_1 - 5x_2$) into a design matrix $X$, and attempts to solve for regression coefficients using \texttt{np.linalg.inv(X.T @ X)}. The script crashes with a \texttt{LinAlgError: Singular matrix}. \\
 \textbf{The Trap:} When columns are linearly dependent, $\rank(X) < n$, which means $\Null(X) \ne \{\mathbf{0}\}$. By Theorem~\ref{thm:gram_invertible}, $\Null(X^T X) = \Null(X) \ne \{\mathbf{0}\}$, so $\det(X^T X) = 0$. The Gram matrix is strictly singular and has no inverse. 
 
-The normal equations still have solutions, but they are \textbf{infinitely many} (an $(n-r)$-dimensional affine space). To resolve this in practice, one must either eliminate redundant features, apply Ridge regularization ($X^T X + \lambda I$), or use the Moore-Penrose pseudoinverse $X^\dagger$.
+The normal equations still have solutions, but they are \textbf{infinitely many} (an $(n-r)$-dimensional affine space). To resolve this in practice, one must eliminate redundant features, apply Ridge regularization ($X^T X + \lambda I$), or compute the minimum-norm solution via the Moore-Penrose pseudoinverse $X^\dagger$.
 \end{trapbox}
 
 \begin{trapbox}{Gotcha 4: The Gram Condition Number Squaring Curse}
-A numerical programmer decides to solve $X^T X \hat{\boldsymbol{\beta}} = X^T \mathbf{y}$ directly using Cholesky or LU decomposition when $X$ has condition number $\kappa(X) = 10^8$. The resulting parameter estimates are completely contaminated by garbage values.
-\textbf{The Trap:} The condition number of a matrix measures how much relative input perturbations are amplified in the output. For the Gram matrix:
-\begin{equation}
-\kappa(X^T X) = (\kappa(X))^2
-\end{equation}
-If $\kappa(X) = 10^8$, then $\kappa(X^T X) = 10^{16}$. Standard IEEE-754 double-precision floating-point arithmetic provides approximately $15$ to $17$ decimal digits of precision ($53$ mantissa bits). A condition number of $10^{16}$ wipes out \emph{all} digits of precision! 
+\textbf{The Scenario:} A programmer decides to solve $X^T X \hat{\boldsymbol{\beta}} = X^T \mathbf{y}$ directly using Cholesky or LU decomposition when $X$ has condition number $\kappa(X) = 10^8$. The resulting parameter estimates are completely contaminated by numerical noise. \\
+\textbf{The Trap:} The condition number of the Gram matrix squares: $\kappa(X^T X) = (\kappa(X))^2$. If $\kappa(X) = 10^8$, then $\kappa(X^T X) = 10^{16}$. Standard double-precision floating-point arithmetic provides approximately $16$ decimal digits of precision. A condition number of $10^{16}$ completely wipes out all significant digits! 
 
-For this reason, production scientific computing libraries (\texttt{scipy.linalg.lstsq}, PyTorch, LAPACK) \textbf{never} form the product $X^T X$ directly. Instead, they factor $X$ using QR decomposition ($X = QR$) or SVD, solving $R\hat{\boldsymbol{\beta}} = Q^T \mathbf{y}$ which operates directly on $\kappa(X)$ without squaring it!
+For this reason, production scientific computing libraries (\texttt{scipy.linalg.lstsq}, PyTorch, LAPACK) \textbf{never} form the product $X^T X$ directly. Instead, they factor $X$ using QR decomposition ($X = QR$), solving $R\hat{\boldsymbol{\beta}} = Q^T \mathbf{y}$ directly on $\kappa(X)$.
 \end{trapbox}
 
-\begin{ponderbox}[The Condition Number Squaring Curse]
-Suppose you have an ill-conditioned design matrix $X \in \mathbb{R}^{1000 \times 10}$ with condition number $\kappa(X) = 10^5$. 
-\begin{enumerate}
-    \item What is the condition number of the normal equations system matrix $X^T X$?
-    \item How many decimal digits of precision do you lose when solving $(X^T X)\mathbf{w} = X^T \mathbf{y}$ compared to solving via QR decomposition $R\mathbf{w} = Q^T \mathbf{y}$?
-\end{enumerate}
-\end{ponderbox}
+\begin{trapbox}{Gotcha 5: The Projection Trace Misconception}
+\textbf{The Scenario:} A student computes the trace of a $10 \times 10$ projection matrix $P$ onto a 4-dimensional subspace and gets $\trace(P) = 3.9998$ due to floating-point imprecision. The student concludes that $P$ is an approximate projection. \\
+\textbf{The Trap:} For any orthogonal projection matrix $P$, the eigenvalues are \textbf{strictly 0 or 1}. If $P$ projects onto an $r$-dimensional subspace, it has exactly $r$ eigenvalues equal to 1, and $m - r$ eigenvalues equal to 0. Therefore, the trace of an orthogonal projection matrix is \textbf{strictly an integer}: $\trace(P) = \sum \lambda_i = r = \rank(P) = \dim(V)$.
+\end{trapbox}
 
 % ----------------------------------------------------------------------
-% PART 7: COMPARATIVE SYNTHESIS TABLE
+% PART 8: COMPARATIVE SYNTHESIS TABLE
 % ----------------------------------------------------------------------
 \section{Comparative Synthesis Table}
 
@@ -619,7 +831,7 @@ Left Nullspace & $\Null(A^T)$ & $\mathbb{R}^m$ & $m - r$ & Column Space $\Col(A)
 \end{table}
 
 % ----------------------------------------------------------------------
-% PART 8: PYTHON SCIENTIFIC COMPUTING LAB
+% PART 9: PYTHON SCIENTIFIC COMPUTING LAB
 % ----------------------------------------------------------------------
 \section{Python / Scientific Computing Lab}
 
@@ -688,7 +900,7 @@ if __name__ == "__main__":
 \end{lstlisting}
 
 % ----------------------------------------------------------------------
-% PART 9: COMPREHENSIVE PRACTICE PROBLEMS
+% PART 10: COMPREHENSIVE PRACTICE PROBLEMS
 % ----------------------------------------------------------------------
 \section{Comprehensive Practice Problems}
 
