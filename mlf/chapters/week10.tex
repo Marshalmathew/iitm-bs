@@ -2,39 +2,31 @@
 \label{chap:week10}
 
 % ----------------------------------------------------------------------
-% PART 1: EXECUTIVE ROADMAP & THE PRIMAL-DUAL PARADOX
+% PART 1: EXECUTIVE ROADMAP & ARCHITECTURAL FOUNDATIONS
 % ----------------------------------------------------------------------
 \section{Executive Roadmap \& Learning Objectives}
 
-The intersection of convex analysis and machine learning finds its purest mathematical expression in the theory of \textbf{Lagrange Duality} and the \textbf{Karush-Kuhn-Tucker (KKT) Conditions}. Duality transforms difficult constrained primal problems over thousands (or millions) of parameters into equivalent dual problems parameterized by constraint multipliers. In the landmark case of the \textbf{Support Vector Machine (SVM)}, duality reveals that the optimal separating boundary is determined entirely by a sparse subset of critical boundary points---the support vectors---unlocking the celebrated kernel trick.
+\subsection{Opening Hook: The Infinite Void and the Mountain Pillars}
+Imagine an artist tasked with sculpting an infinite-dimensional mountain range ($d = \infty$). Every microscopic fold, crevice, and ridge must be positioned with mathematical perfection. If the artist is forced to define the mountain by specifying every infinitesimal coordinate, the task is utterly impossible: no human lifetime or computer memory could ever store an infinite sequence of weights.
 
-\begin{figure}[htbp]
-\centering
-\begin{tcolorbox}[
-    colback=coralbg,
-    colframe=coralborder,
-    title={\large \textbf{The Primal-Dual Curse Paradox: How Finite Data Conquers Infinite Dimensions}},
-    fonttitle=\bfseries\sffamily,
-    arc=3mm,
-    boxrule=1pt,
-    width=\textwidth
-]
-\textbf{The Infinite-Dimensional Dilemma:} Suppose we project tabular or image data into an infinite-dimensional Reproducing Kernel Hilbert Space (RKHS) via non-linear feature expansion $\phi(\mathbf{x}) \in \mathbb{R}^\infty$ (e.g., via the Radial Basis Function kernel).
-In the primal formulation, finding the maximum-margin hyperplane requires optimizing:
-\begin{equation*}
-\min_{\mathbf{w} \in \mathbb{R}^\infty, b \in \mathbb{R}} \frac{1}{2} \|\mathbf{w}\|_2^2 \quad \text{subject to } y_i (\mathbf{w}^T \phi(\mathbf{x}_i) + b) \ge 1 \quad (i = 1, \dots, N)
-\end{equation*}
-This appears computationally impossible: how can a finite computer store and optimize a parameter vector $\mathbf{w}$ containing \emph{infinitely many} floating-point coordinates?
+Now imagine that a geometer enters the studio and reveals a profound structural secret: the entire soaring mountain range is supported from beneath by just three immovable pillars of bedrock. If you know the exact location and upward thrust of those three pillars, the entire mountain's shape is mathematically locked into place. You do not need to sculpt the infinite void of space; you only need to determine the mechanical forces acting at the three contact points.
 
-\textbf{The Duality Revelation:} Lagrange duality inverts the dimensionality contract of the entire problem!
-Instead of solving for $\mathbf{w} \in \mathbb{R}^\infty$, the \textbf{Lagrange Dual Problem} optimizes over exactly $N$ scalar multipliers $\boldsymbol{\lambda} = [\lambda_1, \dots, \lambda_N]^T \in \mathbb{R}^N$---one scalar per data sample---regardless of whether the feature space has 10 dimensions, $10^9$ dimensions, or $\infty$ dimensions!
+This is the miracle of \textbf{Lagrange Duality} and \textbf{Support Vector Machines (SVMs)}. 
 
-\textbf{The Complementary Slackness Miracle:} Even among these $N$ dual variables, the KKT complementary slackness condition guarantees that for all data points lying outside the margin boundary, their multiplier is identically zero: $\lambda_i^* = 0$.
-The infinite-dimensional normal vector $\mathbf{w}^* = \sum_{i=1}^N \lambda_i^* y_i \phi(\mathbf{x}_i)$ collapses into a linear combination of just a tiny handful of non-zero support vectors! The decision boundary does not care about the infinite void of feature space; it is mechanically pinned by the boundary samples.
-\end{tcolorbox}
-\caption{The Primal-Dual Paradox: Duality flips computational complexity from feature dimension $d$ to sample size $N$.}
-\label{fig:svm_paradox}
-\end{figure}
+When machine learning algorithms project data into infinite-dimensional Reproducing Kernel Hilbert Spaces (RKHS) via nonlinear kernels (such as the Gaussian RBF kernel), the primal weight vector $\mathbf{w}$ contains infinitely many parameters. Attempting to optimize $\mathbf{w}$ directly in primal space is computationally intractable. 
+
+Lagrange duality inverts the entire dimensionality contract: instead of optimizing over infinitely many feature dimensions $d = \infty$, the dual problem optimizes over exactly $N$ scalar multipliers $\boldsymbol{\lambda} \in \mathbb{R}^N$---one scalar per training sample. Even more remarkably, the Karush-Kuhn-Tucker (KKT) complementary slackness conditions guarantee that for every data point residing comfortably inside the class territory, its dual multiplier is identically zero ($\lambda_i^* = 0$). 
+
+The infinite-dimensional decision boundary collapses into a sparse linear combination of just a tiny handful of critical boundary samples: the \textbf{support vectors}. The boundary does not care about the millions of points in the interior; it is mechanically pinned by the bedrock samples on the margin.
+
+\subsection{Architectural Bridge from Previous Chapters}
+In Chapter~\ref{chap:week09}, we established the geometric foundation of constrained continuous optimization, analyzing Lagrange multipliers for equality-constrained manifolds and proving the non-expansiveness of Euclidean projection onto closed convex sets. 
+
+However, practical machine learning classification rarely involves simple equality constraints. Class boundaries are defined by \textbf{inequalities}: we require samples to lie on or beyond a decision margin:
+\begin{equation}
+y_i(\mathbf{w}^T \mathbf{x}_i + b) \ge 1 \iff 1 - y_i(\mathbf{w}^T \mathbf{x}_i + b) \le 0
+\end{equation}
+Chapter 10 generalizes the Lagrangian apparatus to arbitrary systems of convex inequality and affine equality constraints. We formulate the \textbf{Lagrange Dual Problem}, prove weak and strong duality theorems, develop the complete four-part \textbf{Karush-Kuhn-Tucker (KKT) optimality conditions}, and derive the Hard-Margin and Soft-Margin Support Vector Machine. This chapter transforms constrained optimization from a theoretical framework into one of the most powerful and robust classification algorithms in machine learning.
 
 \subsection{Prerequisites \& Scaffolding}
 Mastery of this chapter synthesizes convex functions, hyperplanes, and multivariable calculus as outlined in Table~\ref{tab:w10_prereqs}.
@@ -46,9 +38,11 @@ Mastery of this chapter synthesizes convex functions, hyperplanes, and multivari
 \toprule
 \textbf{Foundational Area} & \textbf{Core Concepts Required} & \textbf{Role in Machine Learning Foundations} \\
 \midrule
-Convex Analysis & Convex sets, convex functions, supporting hyperplanes & Guaranteeing zero duality gap and equivalence of KKT solutions \\
-Multivariable Calculus & Gradients, stationarity, partial derivatives & Formulating first-order Lagrangian stationarity conditions \\
-Linear Algebra & Inner products, positive definite matrices, projections & Deriving the dual Quadratic Program (QP) and Gram matrices \\
+Convex Analysis & Convex sets, epigraphs, supporting hyperplanes, Slater's condition & Guaranteeing zero duality gap and establishing necessary and sufficient KKT conditions \\
+\addlinespace
+Vector Calculus & Multivariable gradients, partial derivatives, stationarity & Formulating the Lagrangian stationarity conditions $\nabla_{\mathbf{w}}\mathcal{L} = \mathbf{0}$ \\
+\addlinespace
+Linear Algebra & Inner products, Gram kernel matrices $K = X X^T$, positive definiteness & Deriving the dual Quadratic Program (QP) and unlocking the kernel trick \\
 \bottomrule
 \end{tabularx}
 \caption{Prerequisite Scaffolding for Chapter 10.}
@@ -58,26 +52,28 @@ Linear Algebra & Inner products, positive definite matrices, projections & Deriv
 \subsection{Core Competencies}
 By the conclusion of this chapter, students will be able to:
 \begin{itemize}
-    \item Formulate the Lagrange dual function $g(\boldsymbol{\lambda}, \boldsymbol{\nu})$ and prove that it is universally concave.
+    \item Formulate the Lagrange dual function $g(\boldsymbol{\lambda}, \boldsymbol{\nu})$ and prove that it is universally concave regardless of primal convexity.
     \item State and verify Weak Duality, Strong Duality, and Slater's constraint qualification.
-    \item State and solve the complete four-part Karush-Kuhn-Tucker (KKT) optimality conditions.
+    \item Formulate and solve the complete four-part Karush-Kuhn-Tucker (KKT) optimality conditions.
     \item Rigorously derive the Hard-Margin and Soft-Margin Support Vector Machine from geometric margin maximization.
-    \item Interpret complementary slackness to prove why non-support vectors exert zero influence on the decision boundary.
-    \item Derive the box constraints $0 \le \lambda_i \le C$ and classify support vector regimes.
+    \item Apply complementary slackness to prove why non-support vectors exert zero influence on the decision boundary.
+    \item Derive the box constraints $0 \le \lambda_i \le C$ and classify support vectors into free margin points and bounded margin violators.
+    \item Formulate the Dual Quadratic Program and implement an SVM solver using scientific computing libraries.
 \end{itemize}
 
 \subsection{Notation \& Mathematical Conventions}
+Throughout this chapter, we adhere to the standard mathematical conventions:
 \begin{itemize}
-    \item $f_0(\mathbf{w})$: Primal objective function.
-    \item $f_i(\mathbf{w}) \le 0$ ($i = 1, \dots, m$): Inequality constraints.
-    \item $h_j(\mathbf{w}) = 0$ ($j = 1, \dots, p$): Equality constraints.
-    \item $\mathcal{L}(\mathbf{w}, \boldsymbol{\lambda}, \boldsymbol{\nu}) \triangleq f_0(\mathbf{w}) + \sum_{i=1}^m \lambda_i f_i(\mathbf{w}) + \sum_{j=1}^p \nu_j h_j(\mathbf{w})$: The Lagrangian functional.
-    \item $g(\boldsymbol{\lambda}, \boldsymbol{\nu}) \triangleq \inf_{\mathbf{w}} \mathcal{L}(\mathbf{w}, \boldsymbol{\lambda}, \boldsymbol{\nu})$: The Lagrange dual function.
-    \item $p^* \triangleq \inf f_0(\mathbf{w})$: The primal optimal value.
-    \item $d^* \triangleq \sup_{\boldsymbol{\lambda} \ge \mathbf{0}, \boldsymbol{\nu}} g(\boldsymbol{\lambda}, \boldsymbol{\nu})$: The dual optimal value.
-    \item $y_i \in \{-1, +1\}$: Binary classification class labels.
-    \item $\xi_i \ge 0$: Slack variables measuring margin violations in Soft-Margin SVM.
-    \item $C > 0$: Regularization trade-off hyperparameter balancing margin width vs.\ slack penalty.
+    \item Primal objective functional: $f_0(\mathbf{w}): \mathbb{R}^d \to \mathbb{R}$.
+    \item Inequality constraint functions: $f_i(\mathbf{w}) \le 0$ ($i = 1, \dots, m$).
+    \item Equality constraint functions: $h_j(\mathbf{w}) = 0$ ($j = 1, \dots, p$).
+    \item Lagrangian functional: $\mathcal{L}(\mathbf{w}, \boldsymbol{\lambda}, \boldsymbol{\nu}) \triangleq f_0(\mathbf{w}) + \sum_{i=1}^m \lambda_i f_i(\mathbf{w}) + \sum_{j=1}^p \nu_j h_j(\mathbf{w})$.
+    \item Lagrange dual function: $g(\boldsymbol{\lambda}, \boldsymbol{\nu}) \triangleq \inf_{\mathbf{w} \in \mathbb{R}^d} \mathcal{L}(\mathbf{w}, \boldsymbol{\lambda}, \boldsymbol{\nu})$.
+    \item Primal optimal value: $p^* \triangleq \inf_{\mathbf{w} \in \text{feasible}} f_0(\mathbf{w})$.
+    \item Dual optimal value: $d^* \triangleq \sup_{\boldsymbol{\lambda} \ge \mathbf{0}, \boldsymbol{\nu}} g(\boldsymbol{\lambda}, \boldsymbol{\nu})$.
+    \item Binary class labels: $y_i \in \{-1, +1\}$.
+    \item Slack variables: $\xi_i \ge 0$, measuring margin violations in Soft-Margin SVM.
+    \item Regularization penalty parameter: $C > 0$, balancing margin width against margin slack penalties.
 \end{itemize}
 
 % ----------------------------------------------------------------------
@@ -86,7 +82,7 @@ By the conclusion of this chapter, students will be able to:
 \section{Mathematical \& Computational Foundations}
 
 \subsection{The Primal and Dual Problems}
-Consider the standard constrained optimization problem:
+Consider the canonical constrained continuous optimization problem in standard form:
 \begin{equation}
 \min_{\mathbf{w} \in \mathbb{R}^d} f_0(\mathbf{w}) \quad \text{subject to } \begin{cases} f_i(\mathbf{w}) \le 0, & i = 1, \dots, m \\ h_j(\mathbf{w}) = 0, & j = 1, \dots, p \end{cases}
 \label{eq:standard_primal}
@@ -94,29 +90,29 @@ Consider the standard constrained optimization problem:
 with optimal value $p^* = \inf \{f_0(\mathbf{w}) \mid f_i(\mathbf{w}) \le 0, \, h_j(\mathbf{w}) = 0\}$.
 
 \begin{definitionbox}{The Lagrange Dual Function}
-The \textbf{Lagrange Dual Function} $g: \mathbb{R}^m \times \mathbb{R}^p \to \mathbb{R} \cup \{-\infty\}$ is the infimum of the Lagrangian over the primal variable $\mathbf{w}$:
+The \textbf{Lagrange Dual Function} $g: \mathbb{R}^m \times \mathbb{R}^p \to \mathbb{R} \cup \{-\infty\}$ is the infimum of the Lagrangian over the primal parameter vector $\mathbf{w} \in \mathbb{R}^d$:
 \begin{equation}
 g(\boldsymbol{\lambda}, \boldsymbol{\nu}) \triangleq \inf_{\mathbf{w} \in \mathbb{R}^d} \left( f_0(\mathbf{w}) + \sum_{i=1}^m \lambda_i f_i(\mathbf{w}) + \sum_{j=1}^p \nu_j h_j(\mathbf{w}) \right)
 \label{eq:dual_func_def}
 \end{equation}
-where $\boldsymbol{\lambda} \in \mathbb{R}^m_{\ge 0}$ and $\boldsymbol{\nu} \in \mathbb{R}^p$ are the dual multiplier vectors.
+where $\boldsymbol{\lambda} \in \mathbb{R}^m$ is the dual multiplier vector associated with the inequality constraints, and $\boldsymbol{\nu} \in \mathbb{R}^p$ is the dual multiplier vector associated with the equality constraints.
 \end{definitionbox}
 
-\begin{theorem}[Universal Concavity of the Dual Function]
-The dual function $g(\boldsymbol{\lambda}, \boldsymbol{\nu})$ is always concave in $(\boldsymbol{\lambda}, \boldsymbol{\nu})$, even if the primal objective $f_0$ and constraint functions $f_i, h_j$ are highly non-convex.
-\end{theorem}
+\begin{theorembox}{Universal Concavity of the Dual Function}
+The Lagrange dual function $g(\boldsymbol{\lambda}, \boldsymbol{\nu})$ is always concave in $(\boldsymbol{\lambda}, \boldsymbol{\nu})$, even if the primal objective $f_0$ and the constraint functions $f_i, h_j$ are wildly non-convex.
+\end{theorembox}
 
 \begin{proof}
-For any fixed point $\mathbf{w} \in \mathbb{R}^d$, define the function:
+For any fixed parameter vector $\mathbf{w} \in \mathbb{R}^d$, define the affine function $\psi_{\mathbf{w}}: \mathbb{R}^m \times \mathbb{R}^p \to \mathbb{R}$:
 \begin{equation}
 \psi_{\mathbf{w}}(\boldsymbol{\lambda}, \boldsymbol{\nu}) \triangleq f_0(\mathbf{w}) + \sum_{i=1}^m \lambda_i f_i(\mathbf{w}) + \sum_{j=1}^p \nu_j h_j(\mathbf{w})
 \end{equation}
-Observe that $\psi_{\mathbf{w}}(\boldsymbol{\lambda}, \boldsymbol{\nu})$ is an affine (linear) function with respect to $(\boldsymbol{\lambda}, \boldsymbol{\nu})$.
-The dual function is defined as:
+Notice that for a fixed $\mathbf{w}$, $\psi_{\mathbf{w}}$ is strictly linear (affine) with respect to the dual multipliers $(\boldsymbol{\lambda}, \boldsymbol{\nu})$.
+By definition, the dual function is the pointwise infimum of this family of affine functions:
 \begin{equation}
 g(\boldsymbol{\lambda}, \boldsymbol{\nu}) = \inf_{\mathbf{w} \in \mathbb{R}^d} \psi_{\mathbf{w}}(\boldsymbol{\lambda}, \boldsymbol{\nu})
 \end{equation}
-Let $\theta \in [0, 1]$ and consider two dual points $(\boldsymbol{\lambda}_1, \boldsymbol{\nu}_1)$ and $(\boldsymbol{\lambda}_2, \boldsymbol{\nu}_2)$:
+Let $\theta \in [0, 1]$ and consider two arbitrary dual points $(\boldsymbol{\lambda}_1, \boldsymbol{\nu}_1)$ and $(\boldsymbol{\lambda}_2, \boldsymbol{\nu}_2)$:
 \begin{align}
 g(\theta \boldsymbol{\lambda}_1 + (1-\theta)\boldsymbol{\lambda}_2, \theta \boldsymbol{\nu}_1 + (1-\theta)\boldsymbol{\nu}_2)
 &= \inf_{\mathbf{w}} \psi_{\mathbf{w}}(\theta \boldsymbol{\lambda}_1 + (1-\theta)\boldsymbol{\lambda}_2, \theta \boldsymbol{\nu}_1 + (1-\theta)\boldsymbol{\nu}_2) \nonumber \\
@@ -124,11 +120,11 @@ g(\theta \boldsymbol{\lambda}_1 + (1-\theta)\boldsymbol{\lambda}_2, \theta \bold
 &\ge \theta \inf_{\mathbf{w}} \psi_{\mathbf{w}}(\boldsymbol{\lambda}_1, \boldsymbol{\nu}_1) + (1-\theta) \inf_{\mathbf{w}'} \psi_{\mathbf{w}'}(\boldsymbol{\lambda}_2, \boldsymbol{\nu}_2) \nonumber \\
 &= \theta g(\boldsymbol{\lambda}_1, \boldsymbol{\nu}_1) + (1-\theta) g(\boldsymbol{\lambda}_2, \boldsymbol{\nu}_2)
 \end{align}
-The pointwise infimum of affine functions is universally concave.
+Because the secant chord lies everywhere below the dual function graph, $g(\boldsymbol{\lambda}, \boldsymbol{\nu})$ is universally concave.
 \end{proof}
 
-\begin{theorem}[Weak Duality Theorem]
-For any $\boldsymbol{\lambda} \ge \mathbf{0}$ and $\boldsymbol{\nu} \in \mathbb{R}^p$, the dual value provides a universal lower bound on the primal optimal objective:
+\begin{theorembox}{Weak Duality Theorem}
+For any dual feasible multipliers $\boldsymbol{\lambda} \ge \mathbf{0}$ and $\boldsymbol{\nu} \in \mathbb{R}^p$, the dual function value provides a universal lower bound on the primal optimal value:
 \begin{equation}
 g(\boldsymbol{\lambda}, \boldsymbol{\nu}) \le p^*
 \label{eq:weak_duality}
@@ -137,12 +133,12 @@ Consequently, the optimal dual value $d^* \triangleq \sup_{\boldsymbol{\lambda} 
 \begin{equation}
 d^* \le p^*
 \end{equation}
-The non-negative difference $p^* - d^* \ge 0$ is called the \textbf{Duality Gap}.
-\end{theorem}
+The non-negative difference $p^* - d^* \ge 0$ is the \textbf{Duality Gap}.
+\end{theorembox}
 
 \begin{proof}
-Let $\tilde{\mathbf{w}}$ be any feasible point for the primal problem, so $f_i(\tilde{\mathbf{w}}) \le 0$ for all $i$ and $h_j(\tilde{\mathbf{w}}) = 0$ for all $j$.
-Since $\lambda_i \ge 0$, each product $\lambda_i f_i(\tilde{\mathbf{w}}) \le 0$. Thus:
+Let $\tilde{\mathbf{w}}$ be any feasible point for the primal problem, meaning $f_i(\tilde{\mathbf{w}}) \le 0$ for all $i$ and $h_j(\tilde{\mathbf{w}}) = 0$ for all $j$.
+Because $\lambda_i \ge 0$ and $f_i(\tilde{\mathbf{w}}) \le 0$, the product $\lambda_i f_i(\tilde{\mathbf{w}}) \le 0$. Thus:
 \begin{equation}
 \mathcal{L}(\tilde{\mathbf{w}}, \boldsymbol{\lambda}, \boldsymbol{\nu}) = f_0(\tilde{\mathbf{w}}) + \sum_{i=1}^m \underbrace{\lambda_i f_i(\tilde{\mathbf{w}})}_{\le 0} + \sum_{j=1}^p \underbrace{\nu_j h_j(\tilde{\mathbf{w}})}_{= 0} \le f_0(\tilde{\mathbf{w}})
 \end{equation}
@@ -150,29 +146,31 @@ By definition of the infimum over all $\mathbf{w} \in \mathbb{R}^d$:
 \begin{equation}
 g(\boldsymbol{\lambda}, \boldsymbol{\nu}) = \inf_{\mathbf{w}} \mathcal{L}(\mathbf{w}, \boldsymbol{\lambda}, \boldsymbol{\nu}) \le \mathcal{L}(\tilde{\mathbf{w}}, \boldsymbol{\lambda}, \boldsymbol{\nu}) \le f_0(\tilde{\mathbf{w}})
 \end{equation}
-Since $g(\boldsymbol{\lambda}, \boldsymbol{\nu}) \le f_0(\tilde{\mathbf{w}})$ holds for \emph{every} primal feasible point $\tilde{\mathbf{w}}$, taking the infimum over all feasible $\tilde{\mathbf{w}}$ yields $g(\boldsymbol{\lambda}, \boldsymbol{\nu}) \le p^*$.
+Because $g(\boldsymbol{\lambda}, \boldsymbol{\nu}) \le f_0(\tilde{\mathbf{w}})$ holds for \emph{every} primal feasible point $\tilde{\mathbf{w}}$, taking the infimum over all feasible $\tilde{\mathbf{w}}$ establishes $g(\boldsymbol{\lambda}, \boldsymbol{\nu}) \le p^*$.
 \end{proof}
 
-\begin{ponderbox}[Why Concavity of the Dual Matters]
-Why is the universal concavity of the dual function $g(\boldsymbol{\lambda}, \boldsymbol{\nu})$ so profound for numerical optimization?
+\begin{ponderbox}{Why Must the Dual Problem Always Be Concave?}
+Why is the universal concavity of the dual function $g(\boldsymbol{\lambda}, \boldsymbol{\nu})$ so profound for continuous optimization?
+\tcblower
+\textbf{The Socratic Resolution:} Maximizing a concave function over a convex set (the non-negative orthant $\boldsymbol{\lambda} \ge \mathbf{0}$) is, by definition, a \textbf{convex optimization problem}! 
 
-\textbf{Reflection:} Maximizing a concave function over a convex set (such as the non-negative orthant $\boldsymbol{\lambda} \ge \mathbf{0}$) is a \textbf{convex optimization problem}! Even if the original primal problem was non-convex, multimodal, and intractable, its dual problem is always convex. We can always find the global maximum $d^*$ of the dual problem using gradient ascent or interior-point methods, providing a certifiable lower bound $d^* \le p^*$ on the unknown global minimum.
+Even if the primal problem $f_0(\mathbf{w})$ is wildly non-convex, multimodal, discontinuous, or NP-hard, its Lagrange dual problem $\max_{\boldsymbol{\lambda} \ge \mathbf{0}, \boldsymbol{\nu}} g(\boldsymbol{\lambda}, \boldsymbol{\nu})$ is \emph{always} a well-behaved convex program without spurious local maxima. Solving the dual problem via subgradient ascent or interior-point methods produces a certifiable, non-trivial global lower bound $d^* \le p^*$ on the unknown global minimum.
 \end{ponderbox}
 
 \subsection{Strong Duality and the KKT Optimality Conditions}
 
 \begin{definitionbox}{Slater's Constraint Qualification}
-Let the primal problem be convex: $f_0, f_1, \dots, f_m$ are convex functions and $h_j(\mathbf{w}) = \mathbf{a}_j^T \mathbf{w} - b_j$ are affine.
+Let the primal problem~\eqref{eq:standard_primal} be convex: the objective $f_0$ and inequality constraints $f_1, \dots, f_m$ are convex, and equality constraints $h_j(\mathbf{w}) = \mathbf{a}_j^T \mathbf{w} - b_j$ are affine.
 If there exists a \textbf{strictly feasible point} $\tilde{\mathbf{w}} \in \mathbb{R}^d$ such that:
 \begin{equation}
 f_i(\tilde{\mathbf{w}}) < 0 \quad (\forall i \in \{1, \dots, m\}) \quad \text{and} \quad A\tilde{\mathbf{w}} = \mathbf{b}
 \label{eq:slaters_condition}
 \end{equation}
-then \textbf{Strong Duality} holds: $d^* = p^*$ (zero duality gap).
+then \textbf{Strong Duality} holds: the duality gap is zero ($d^* = p^*$), and the dual supremum is attained at some dual optimal $(\boldsymbol{\lambda}^*, \boldsymbol{\nu}^*)$.
 \end{definitionbox}
 
-\begin{theorem}[Karush-Kuhn-Tucker (KKT) Optimality Conditions]
-Let $f_0, f_1, \dots, f_m$ be continuously differentiable convex functions, and let $h_j$ be affine. If Slater's condition holds, then $\mathbf{w}^*$ is primal optimal and $(\boldsymbol{\lambda}^*, \boldsymbol{\nu}^*)$ is dual optimal if and only if they satisfy:
+\begin{theorembox}{Karush-Kuhn-Tucker (KKT) Optimality Conditions}
+Let $f_0, f_1, \dots, f_m$ be continuously differentiable convex functions, and let $h_j$ be affine. If Slater's condition holds, then $\mathbf{w}^*$ is primal optimal and $(\boldsymbol{\lambda}^*, \boldsymbol{\nu}^*)$ is dual optimal if and only if they satisfy the complete four-part KKT conditions:
 \begin{enumerate}
     \item \textbf{Primal Feasibility:}
     \begin{align}
@@ -194,63 +192,174 @@ Let $f_0, f_1, \dots, f_m$ be continuously differentiable convex functions, and 
     \label{eq:kkt_stationarity}
     \end{equation}
 \end{enumerate}
-\end{theorem}
+\end{theorembox}
+
+\begin{ponderbox}{Geometric Anatomy of the Three Multiplier Regimes}
+In a constrained optimization problem with inequality constraints $f_i(\mathbf{w}) \le 0$, how does the complementary slackness condition $\lambda_i^* f_i(\mathbf{w}^*) = 0$ act as a logical and geometric switch?
+\tcblower
+\textbf{The Socratic Resolution:} Because $\lambda_i^* \ge 0$ and $f_i(\mathbf{w}^*) \le 0$, their product vanishes if and only if at least one of the two factors is zero. This partitions all training points into two mutually exclusive geometric regimes:
+\begin{itemize}
+    \item \textbf{Strictly Inactive Regime ($f_i(\mathbf{w}^*) < 0 \implies \lambda_i^* = 0$):} The point lies in the interior of the feasible set, away from the boundary. Tightening or removing this constraint locally would not change the optimal solution. The constraint exerts zero contact force: $\lambda_i^* = 0$.
+    \item \textbf{Active Boundary Regime ($\lambda_i^* > 0 \implies f_i(\mathbf{w}^*) = 0$):} The point presses directly against the constraint boundary. If the boundary were relaxed, the optimal solution would move into the newly opened territory. The multiplier $\lambda_i^* > 0$ represents the exact normal reaction force required to prevent the solution from drifting across the boundary.
+\end{itemize}
+\end{ponderbox}
 
 % ----------------------------------------------------------------------
-% PART 3: VISUAL & GEOMETRIC INTUITION
+% PART 3: VISUAL & GEOMETRIC ANCHORING
 % ----------------------------------------------------------------------
-\section{Visual \& Geometric Intuition: The Geometry of Support Vector Machines}
+\section{Visual \& Geometric Anchoring}
 
-Figure~\ref{fig:svm_geometry} illustrates the maximum margin hyperplane separating two linearly separable classes. The decision boundary is determined solely by the circled support vectors that lie on the margin boundaries; all interior points have $\lambda_i^* = 0$.
+In this section, we anchor the mathematical apparatus of duality and SVMs in three native TikZ visualizations.
+
+\subsection{The Geometry of Support Vector Machines and Margins}
+Figure~\ref{fig:svm_geometry} illustrates the canonical maximum margin hyperplane separating two linearly separable classes. The decision boundary is determined strictly by the circled support vectors that lie on the margin boundaries; all interior points have $\lambda_i^* = 0$.
 
 \begin{figure}[htbp]
 \centering
-\begin{tikzpicture}[
-    scale=0.95,
-    font=\sffamily\footnotesize
-]
+\begin{tikzpicture}[scale=0.95, font=\sffamily\footnotesize]
+    % Separating hyperplane w^T x + b = 0
+    \draw[line width=2pt, color=primarydark] (-3.8, -1.6) -- (3.8, 2.6);
+    \node[above, color=primarydark] at (2.4, 2.2) {\textbf{Decision Boundary: } $\mathbf{w}^T \mathbf{x} + b = 0$};
 
-% Separating hyperplane w^T x + b = 0
-\draw[line width=2pt, color=primarydark] (-3.5, -1.5) -- (3.5, 2.5);
-\node[above, color=primarydark] at (2.5, 2.2) {\textbf{Decision Boundary: } $\mathbf{w}^T \mathbf{x} + b = 0$};
+    % Positive margin hyperplane w^T x + b = +1
+    \draw[dashed, line width=1.4pt, color=tealborder] (-4.2, -0.5) -- (3.2, 3.7);
+    \node[above, color=tealborder] at (-2.5, 1.2) {$\mathbf{w}^T \mathbf{x} + b = +1$};
 
-% Positive margin hyperplane w^T x + b = +1
-\draw[dashed, line width=1.4pt, color=tealborder] (-4.0, -0.4) -- (3.0, 3.6);
-\node[above, color=tealborder] at (-2.5, 1.2) {$\mathbf{w}^T \mathbf{x} + b = +1$};
+    % Negative margin hyperplane w^T x + b = -1
+    \draw[dashed, line width=1.4pt, color=coralborder] (-3.2, -2.7) -- (4.2, 1.5);
+    \node[below, color=coralborder] at (2.5, 0.2) {$\mathbf{w}^T \mathbf{x} + b = -1$};
 
-% Negative margin hyperplane w^T x + b = -1
-\draw[dashed, line width=1.4pt, color=coralborder] (-3.0, -2.6) -- (4.0, 1.4);
-\node[below, color=coralborder] at (2.5, 0.2) {$\mathbf{w}^T \mathbf{x} + b = -1$};
+    % Class +1 data points (teal squares)
+    \filldraw[color=tealborder] (-2.2, 2.2) rectangle ++(5pt, 5pt);
+    \filldraw[color=tealborder] (0.0, 3.2) rectangle ++(5pt, 5pt);
+    \filldraw[color=tealborder] (-1.2, 3.4) rectangle ++(5pt, 5pt);
+    
+    % Positive support vectors on margin
+    \coordinate (SV1) at (-0.6, 1.6);
+    \filldraw[color=tealborder] (SV1) rectangle ++(6pt, 6pt);
+    \draw[line width=1.5pt, color=forest] ($(SV1) + (3pt, 3pt)$) circle (9pt);
+    \node[above, color=forest] at ($(SV1) + (0, 0.35)$) {\textbf{Support Vector } ($\lambda_1^* > 0$)};
 
-% Class +1 data points (teal squares)
-\filldraw[color=tealborder] (-2.0, 2.0) rectangle ++(5pt, 5pt);
-\filldraw[color=tealborder] (0.0, 3.0) rectangle ++(5pt, 5pt);
-\filldraw[color=tealborder] (-1.0, 3.2) rectangle ++(5pt, 5pt);
-% Positive support vector
-\coordinate (SV1) at (-0.5, 1.6);
-\filldraw[color=tealborder] (SV1) rectangle ++(6pt, 6pt);
-\draw[line width=1.5pt, color=tealborder] ($(SV1) + (3pt, 3pt)$) circle (8pt);
-\node[above, color=tealborder] at (SV1) {\textbf{Support Vector } ($\lambda_1^* > 0$)};
+    % Class -1 data points (coral circles)
+    \filldraw[color=coralborder] (0.6, -2.2) circle (3pt);
+    \filldraw[color=coralborder] (2.2, -1.8) circle (3pt);
+    \filldraw[color=coralborder] (-1.2, -3.1) circle (3pt);
+    
+    % Negative support vectors on margin
+    \coordinate (SV2) at (0.6, -0.6);
+    \filldraw[color=coralborder] (SV2) circle (3.5pt);
+    \draw[line width=1.5pt, color=traprad] (SV2) circle (9pt);
+    \node[below right, color=traprad] at ($(SV2) + (0.1, -0.1)$) {\textbf{Support Vector } ($\lambda_2^* > 0$)};
 
-% Class -1 data points (coral circles)
-\filldraw[color=coralborder] (0.5, -2.0) circle (3pt);
-\filldraw[color=coralborder] (2.0, -1.8) circle (3pt);
-\filldraw[color=coralborder] (-1.0, -3.0) circle (3pt);
-% Negative support vectors
-\coordinate (SV2) at (0.5, -0.6);
-\filldraw[color=coralborder] (SV2) circle (3.5pt);
-\draw[line width=1.5pt, color=coralborder] (SV2) circle (8pt);
-\node[below right, color=coralborder] at (SV2) {\textbf{Support Vector } ($\lambda_2^* > 0$)};
+    % Margin width arrow
+    \draw[<->, >=stealth, line width=1.6pt, color=traprad] (-1.1, 1.3) -- (-0.1, -0.2) 
+        node[midway, left] {\textbf{Margin } $\gamma = \frac{2}{\|\mathbf{w}\|_2}$};
 
-% Margin width arrow
-\draw[<->, >=stealth, line width=1.6pt, color=traprad] (-1.0, 1.3) -- (-0.1, -0.2) node[midway, left] {\textbf{Margin } $\gamma = \frac{2}{\|\mathbf{w}\|}$};
-
-% Normal vector w
-\draw[->, >=stealth, line width=2pt, color=primarydark] (0, 0.5) -- (-0.8, 1.9) node[left] {$\mathbf{w}$};
-
+    % Normal vector w
+    \draw[->, >=stealth, line width=2pt, color=primarydark] (0, 0.5) -- (-0.8, 1.9) 
+        node[left] {$\mathbf{w}^* = \sum \lambda_i^* y_i \mathbf{x}_i$};
 \end{tikzpicture}
-\caption{The Geometry of Support Vector Machines: Maximizing the geometric margin $\frac{2}{\|\mathbf{w}\|}$ forces the weights to depend strictly on the boundary support vectors.}
+\caption{The Geometry of Support Vector Machines: Maximizing the geometric margin $\frac{2}{\|\mathbf{w}\|_2}$ forces the weight vector to depend strictly on the boundary support vectors. Training samples lying strictly inside the class territories have $\lambda_i^* = 0$ and exert zero influence on the separating hyperplane.}
 \label{fig:svm_geometry}
+\end{figure}
+
+\subsection{The Primal-Dual Geometry and Duality Gap}
+Figure~\ref{fig:duality_gap} illustrates the geometric relationship between the primal optimal value $p^*$, the dual function $g(\boldsymbol{\lambda})$, the duality gap $p^* - d^*$, and Slater's condition.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=1.05, font=\sffamily\footnotesize]
+    % Axes
+    \draw[->, thick, color=primarydark!60] (-2.5, 0) -- (3.5, 0) node[right] {$u = f_1(\mathbf{w})$};
+    \draw[->, thick, color=primarydark!60] (0, -1.5) -- (0, 4.0) node[above] {$t = f_0(\mathbf{w})$};
+
+    % Achievable set G = {(f1(w), f0(w))}
+    \draw[thick, fill=tealborder!15, color=tealborder] 
+        (-2.0, 3.5) to[out=-40, in=170] (0.0, 1.8)
+                    to[out=-10, in=190] (2.5, 1.2)
+                    to[out=60, in=-60] (3.0, 3.8)
+                    to[out=170, in=10] cycle;
+    \node[color=tealborder!90!black] at (1.5, 2.8) {\large $\mathcal{G} = \{(f_1(\mathbf{w}), f_0(\mathbf{w}))\}$};
+
+    % Primal optimal point p* at u = 0
+    \coordinate (Pstar) at (0.0, 1.8);
+    \filldraw[color=forest] (Pstar) circle (3pt) node[left=2pt] {$p^* = \inf f_0(\mathbf{w})$};
+
+    % Supporting Hyperplane with slope -lambda
+    % Equation: t + lambda * u >= d* => t = d* - lambda * u
+    % For lambda = 0.5, d* = 1.0 => t = 1.0 - 0.5 * u
+    \draw[very thick, color=coralborder, domain=-2.2:3.2] 
+        plot (\x, {1.0 - 0.5*\x}) node[right] {\textbf{Dual Supporting Line } $t + \lambda u = d^*$};
+
+    % Dual intercept d* on vertical axis
+    \coordinate (Dstar) at (0, 1.0);
+    \filldraw[color=coralborder] (Dstar) circle (3pt) node[below left=2pt] {$d^* = \sup g(\lambda)$};
+
+    % Duality Gap annotation
+    \draw[<->, >=stealth, line width=1.5pt, color=traprad] (0.3, 1.0) -- (0.3, 1.8);
+    \node[right, color=traprad, align=left] at (0.35, 1.4) {
+        \textbf{Duality Gap } $p^* - d^* \ge 0$ \\
+        \scriptsize (Zero if Slater's Condition holds)
+    };
+\end{tikzpicture}
+\caption{The Geometry of Lagrange Duality: The set $\mathcal{G}$ represents the set of achievable constraint-objective values $(f_1(\mathbf{w}), f_0(\mathbf{w}))$. The primal minimum $p^*$ is the lowest point of $\mathcal{G}$ on or to the left of the vertical axis ($u \le 0$). The dual function $g(\lambda)$ represents the intercept of a supporting hyperplane with normal $(\lambda, 1)$ supporting $\mathcal{G}$ from below. Weak duality states that $d^* \le p^*$. Under Slater's condition, the supporting hyperplane touches $\mathcal{G}$ directly at $p^*$, collapsing the duality gap to zero ($p^* = d^*$).}
+\label{fig:duality_gap}
+\end{figure}
+
+\subsection{Complementary Slackness as a Geometric Switch}
+Figure~\ref{fig:slackness_switch} reveals how complementary slackness partitions parameter space into inactive non-support vectors and active margin constraints.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.95, font=\sffamily\footnotesize]
+    % Panel 1: Inactive Constraint (Non-Support Vector)
+    \begin{scope}[shift={(-4.5, 0)}]
+        \draw[thick, fill=primarydark!10, color=primarydark] (-2.2, -2.0) rectangle (2.2, 2.0);
+        \node[above, color=primarydark] at (0, 2.0) {\textbf{Feasible Region } $f_i(\mathbf{w}) \le 0$};
+
+        % Solution w* inside interior
+        \coordinate (W1) at (0, 0.2);
+        \filldraw[color=forest] (W1) circle (3pt) node[above] {$\mathbf{w}^*$};
+        \node[below, color=forest, align=center] at (0, -0.2) {$f_i(\mathbf{w}^*) < 0$ \\ (\textbf{Strictly Interior})};
+
+        % Constraint boundary far away
+        \draw[line width=1.8pt, color=traprad] (1.8, -2.0) -- (1.8, 2.0);
+        \node[rotate=90, above, color=traprad] at (1.8, 0) {\scriptsize Boundary $f_i = 0$};
+
+        \node[draw=forest, fill=white, rounded corners=3pt, align=center] at (0, -2.8) {
+            \textbf{Inactive Constraint:} \\
+            $\lambda_i^* = 0$ \\
+            \scriptsize Zero contact force
+        };
+    \end{scope}
+
+    % Panel 2: Active Constraint (Support Vector)
+    \begin{scope}[shift={(4.5, 0)}]
+        \draw[thick, fill=primarydark!10, color=primarydark] (-2.2, -2.0) rectangle (2.2, 2.0);
+        \node[above, color=primarydark] at (0, 2.0) {\textbf{Feasible Region } $f_i(\mathbf{w}) \le 0$};
+
+        % Solution w* directly on boundary
+        \coordinate (W2) at (1.8, 0.2);
+        \filldraw[color=traprad] (W2) circle (3pt);
+        \node[left, color=traprad, align=right] at (1.7, 0.2) {$\mathbf{w}^*$ on boundary \\ $f_i(\mathbf{w}^*) = 0$};
+
+        % Boundary
+        \draw[line width=1.8pt, color=traprad] (1.8, -2.0) -- (1.8, 2.0);
+        \node[rotate=90, above, color=traprad] at (1.8, 1.2) {\scriptsize Boundary $f_i = 0$};
+
+        % Normal force vector lambda * grad f
+        \draw[->, >=stealth, line width=2pt, color=coralborder] (W2) -- ($(W2) + (-1.4, 0)$) 
+            node[below left] {$\lambda_i^* \nabla f_i$};
+
+        \node[draw=traprad, fill=white, rounded corners=3pt, align=center] at (0, -2.8) {
+            \textbf{Active Constraint:} \\
+            $\lambda_i^* > 0$ \\
+            \scriptsize Support Vector reaction force
+        };
+    \end{scope}
+\end{tikzpicture}
+\caption{The Complementary Slackness Geometric Switch: For every inequality constraint, $\lambda_i^* f_i(\mathbf{w}^*) = 0$. Left: If the optimal parameter vector $\mathbf{w}^*$ lies strictly in the interior ($f_i < 0$), the constraint is non-binding and the dual multiplier is identically zero ($\lambda_i^* = 0$). Right: If the multiplier is strictly positive ($\lambda_i^* > 0$), the parameter vector is pressed firmly against the boundary ($f_i = 0$), defining an active support vector.}
+\label{fig:slackness_switch}
 \end{figure}
 
 % ----------------------------------------------------------------------
@@ -259,30 +368,30 @@ Figure~\ref{fig:svm_geometry} illustrates the maximum margin hyperplane separati
 \section{Deep Intuition \& Conceptual Derivations}
 
 \subsection{Derivation of the Dual Support Vector Machine}
-Given a training dataset $\{(\mathbf{x}_i, y_i)\}_{i=1}^N$ with $\mathbf{x}_i \in \mathbb{R}^d$ and binary labels $y_i \in \{-1, +1\}$, a hyperplane is parameterized by normal vector $\mathbf{w} \in \mathbb{R}^d$ and bias intercept $b \in \mathbb{R}$:
+Given a training dataset $\mathcal{D} = \{(\mathbf{x}_i, y_i)\}_{i=1}^N$ with feature vectors $\mathbf{x}_i \in \mathbb{R}^d$ and binary class labels $y_i \in \{-1, +1\}$, a linear separating hyperplane is defined by normal vector $\mathbf{w} \in \mathbb{R}^d$ and bias intercept $b \in \mathbb{R}$:
 \begin{equation}
 \mathcal{H} = \{\mathbf{x} \in \mathbb{R}^d \mid \mathbf{w}^T \mathbf{x} + b = 0\}
 \end{equation}
-The signed perpendicular distance from sample $\mathbf{x}_i$ to the hyperplane is:
+The signed perpendicular Euclidean distance from any sample $\mathbf{x}_i$ to the hyperplane is:
 \begin{equation}
 \gamma_i = \frac{y_i (\mathbf{w}^T \mathbf{x}_i + b)}{\|\mathbf{w}\|_2}
 \end{equation}
-The \textbf{canonical hyperplane} fixes the scale of $(\mathbf{w}, b)$ such that the closest data point to the boundary achieves a functional margin of exactly 1:
+The \textbf{canonical hyperplane} fixes the scale of $(\mathbf{w}, b)$ such that the closest training samples to the boundary achieve a functional margin of exactly 1:
 \begin{equation}
 \min_{i=1,\dots,N} y_i (\mathbf{w}^T \mathbf{x}_i + b) = 1
 \end{equation}
-Then the geometric margin separating the two classes is:
+Then the total geometric margin separating the two classes is:
 \begin{equation}
 \gamma = \frac{1}{\|\mathbf{w}\|_2} + \frac{1}{\|\mathbf{w}\|_2} = \frac{2}{\|\mathbf{w}\|_2}
 \end{equation}
-Maximizing the geometric margin $\frac{2}{\|\mathbf{w}\|_2}$ is equivalent to minimizing $\frac{1}{2}\|\mathbf{w}\|_2^2$:
+Maximizing the geometric margin $\frac{2}{\|\mathbf{w}\|_2}$ is mathematically equivalent to minimizing $\frac{1}{2}\|\mathbf{w}\|_2^2$:
 \begin{equation}
 \min_{\mathbf{w} \in \mathbb{R}^d, b \in \mathbb{R}} \frac{1}{2} \|\mathbf{w}\|_2^2 \quad \text{subject to } y_i (\mathbf{w}^T \mathbf{x}_i + b) \ge 1 \quad (i = 1, \dots, N)
 \label{eq:hard_svm_primal}
 \end{equation}
 
 \subsubsection{Formulating the Lagrangian}
-Rewriting the constraints in standard form $1 - y_i(\mathbf{w}^T \mathbf{x}_i + b) \le 0$:
+Rewriting the $N$ margin constraints in standard format $1 - y_i(\mathbf{w}^T \mathbf{x}_i + b) \le 0$:
 \begin{equation}
 \mathcal{L}(\mathbf{w}, b, \boldsymbol{\lambda}) = \frac{1}{2}\|\mathbf{w}\|_2^2 - \sum_{i=1}^N \lambda_i \left[ y_i(\mathbf{w}^T \mathbf{x}_i + b) - 1 \right]
 \label{eq:svm_lagrangian}
@@ -290,27 +399,27 @@ Rewriting the constraints in standard form $1 - y_i(\mathbf{w}^T \mathbf{x}_i + 
 with dual multipliers $\lambda_i \ge 0$.
 
 \subsubsection{Primal Stationarity Conditions}
-Setting the gradients of $\mathcal{L}$ with respect to the primal variables $\mathbf{w}$ and $b$ to zero:
+Setting the partial gradients of $\mathcal{L}$ with respect to the primal parameters $\mathbf{w}$ and $b$ to zero:
 \begin{align}
-\nabla_{\mathbf{w}} \mathcal{L} &= \mathbf{w} - \sum_{i=1}^N \lambda_i y_i \mathbf{x}_i = \mathbf{0} \implies \mathbf{w} = \sum_{i=1}^N \lambda_i y_i \mathbf{x}_i \label{eq:svm_w_stat} \\
+\nabla_{\mathbf{w}} \mathcal{L} &= \mathbf{w} - \sum_{i=1}^N \lambda_i y_i \mathbf{x}_i = \mathbf{0} \implies \mathbf{w}^* = \sum_{i=1}^N \lambda_i y_i \mathbf{x}_i \label{eq:svm_w_stat} \\
 \frac{\partial \mathcal{L}}{\partial b} &= -\sum_{i=1}^N \lambda_i y_i = 0 \implies \sum_{i=1}^N \lambda_i y_i = 0 \label{eq:svm_b_stat}
 \end{align}
 
 \subsubsection{Constructing the Dual Objective}
-Substitute $\mathbf{w} = \sum_{i=1}^N \lambda_i y_i \mathbf{x}_i$ into the Lagrangian:
+Substituting $\mathbf{w} = \sum_{i=1}^N \lambda_i y_i \mathbf{x}_i$ and $\sum_{i=1}^N \lambda_i y_i = 0$ back into the Lagrangian:
 \begin{align}
 \mathcal{L} &= \frac{1}{2} \left( \sum_{i=1}^N \lambda_i y_i \mathbf{x}_i \right)^T \left( \sum_{j=1}^N \lambda_j y_j \mathbf{x}_j \right) - \sum_{i=1}^N \lambda_i y_i \left( \sum_{j=1}^N \lambda_j y_j \mathbf{x}_j \right)^T \mathbf{x}_i - b \underbrace{\sum_{i=1}^N \lambda_i y_i}_{= 0} + \sum_{i=1}^N \lambda_i \nonumber \\
 &= \frac{1}{2} \sum_{i=1}^N \sum_{j=1}^N \lambda_i \lambda_j y_i y_j (\mathbf{x}_i^T \mathbf{x}_j) - \sum_{i=1}^N \sum_{j=1}^N \lambda_i \lambda_j y_i y_j (\mathbf{x}_i^T \mathbf{x}_j) + \sum_{i=1}^N \lambda_i \nonumber \\
 &= \sum_{i=1}^N \lambda_i - \frac{1}{2} \sum_{i=1}^N \sum_{j=1}^N \lambda_i \lambda_j y_i y_j (\mathbf{x}_i^T \mathbf{x}_j)
 \end{align}
-This gives the \textbf{Dual Support Vector Machine Quadratic Program}:
+This yields the celebrated \textbf{Dual Support Vector Machine Quadratic Program}:
 \begin{equation}
 \max_{\boldsymbol{\lambda} \in \mathbb{R}^N} \sum_{i=1}^N \lambda_i - \frac{1}{2} \sum_{i=1}^N \sum_{j=1}^N \lambda_i \lambda_j y_i y_j (\mathbf{x}_i^T \mathbf{x}_j) \quad \text{subject to } \begin{cases} \lambda_i \ge 0, & \forall i \in \{1, \dots, N\} \\ \sum_{i=1}^N \lambda_i y_i = 0 & \end{cases}
 \label{eq:svm_dual_qp}
 \end{equation}
 
 \subsection{Soft-Margin SVM and the Box Constraint $0 \le \lambda_i \le C$}
-When classes overlap, no separating hyperplane exists. The Soft-Margin SVM introduces slack variables $\xi_i \ge 0$:
+When classes overlap in feature space, no linear separating hyperplane exists. The Soft-Margin SVM introduces non-negative slack variables $\xi_i \ge 0$:
 \begin{equation}
 \min_{\mathbf{w}, b, \boldsymbol{\xi}} \frac{1}{2}\|\mathbf{w}\|_2^2 + C \sum_{i=1}^N \xi_i \quad \text{subject to } \begin{cases} y_i(\mathbf{w}^T \mathbf{x}_i + b) \ge 1 - \xi_i, & \forall i \\ \xi_i \ge 0, & \forall i \end{cases}
 \label{eq:soft_svm_primal}
@@ -319,7 +428,7 @@ The Lagrangian introduces multipliers $\lambda_i \ge 0$ for the margin constrain
 \begin{equation}
 \mathcal{L}(\mathbf{w}, b, \boldsymbol{\xi}, \boldsymbol{\lambda}, \boldsymbol{\mu}) = \frac{1}{2}\|\mathbf{w}\|_2^2 + C \sum_{i=1}^N \xi_i - \sum_{i=1}^N \lambda_i \left[ y_i(\mathbf{w}^T \mathbf{x}_i + b) - 1 + \xi_i \right] - \sum_{i=1}^N \mu_i \xi_i
 \end{equation}
-Stationarity with respect to slack $\xi_i$:
+Stationarity with respect to the slack variable $\xi_i$:
 \begin{equation}
 \frac{\partial \mathcal{L}}{\partial \xi_i} = C - \lambda_i - \mu_i = 0 \implies \lambda_i + \mu_i = C \implies \lambda_i = C - \mu_i
 \end{equation}
@@ -328,17 +437,26 @@ Since $\mu_i \ge 0$, it follows that $\lambda_i \le C$. Combined with $\lambda_i
 0 \le \lambda_i \le C \quad \forall i \in \{1, \dots, N\}
 \label{eq:box_constraint}
 \end{equation}
-Remarkably, the dual objective function for Soft-Margin SVM is \emph{identical} to the Hard-Margin dual~\eqref{eq:svm_dual_qp}; the only change is that the unconstrained upper boundary $\lambda_i < \infty$ is clipped by hyperparameter $C$.
+The dual objective function for Soft-Margin SVM is identical to the Hard-Margin dual~\eqref{eq:svm_dual_qp}; the only mathematical modification is that the upper boundary of the multipliers is clipped at $C$.
 
-\begin{ponderbox}[Geometric Anatomy of the Three Multiplier Regimes]
-How does the value of $\lambda_i^*$ reveal the exact geometric status of training sample $\mathbf{x}_i$?
+\begin{ponderbox}{The Soft-Margin Trade-Off: What Does $C$ Actually Control?}
+What is the fundamental bias-variance trade-off governed by the SVM penalty hyperparameter $C$?
+\tcblower
+\textbf{The Socratic Resolution:} Hyperparameter $C$ acts as the \textbf{economic exchange rate} between margin width and empirical training error:
+\begin{itemize}
+    \item \textbf{Large $C$ ($C \to \infty$):} Massive penalty on slack violations. The algorithm prioritizes classifying every training point correctly, forcing slacks $\xi_i \to 0$. The margin width narrows, making the model highly sensitive to individual outliers and risking severe overfitting.
+    \item \textbf{Small $C$ ($C \to 0$):} Minimal penalty on slack violations. The algorithm prioritizes maximizing the margin width $\frac{2}{\|\mathbf{w}\|_2}$, readily tolerating training errors and margin violations to find a broader, more robust separating corridor. This increases regularization and prevents overfitting.
+\end{itemize}
+\end{ponderbox}
 
-\textbf{Reflection:} By analyzing the dual complementary slackness conditions $\lambda_i^* [y_i(\mathbf{w}^{*T} \mathbf{x}_i + b^*) - 1 + \xi_i^*] = 0$ and $\mu_i^* \xi_i^* = (C - \lambda_i^*) \xi_i^* = 0$:
-\begin{enumerate}
-    \item \textbf{Regime 1: $\lambda_i^* = 0$.} Then $\mu_i^* = C > 0 \implies \xi_i^* = 0$. The sample is correctly classified and lies strictly outside the margin: $y_i(\mathbf{w}^{*T} \mathbf{x}_i + b^*) > 1$. It exerts zero influence on $\mathbf{w}^*$.
-    \item \textbf{Regime 2: $0 < \lambda_i^* < C$.} Then $\mu_i^* = C - \lambda_i^* > 0 \implies \xi_i^* = 0$. The sample lies \textbf{strictly on the margin boundary}: $y_i(\mathbf{w}^{*T} \mathbf{x}_i + b^*) = 1$. These are the clean, uncorrupted support vectors used to calculate the bias intercept $b^*$.
-    \item \textbf{Regime 3: $\lambda_i^* = C$.} Then $\mu_i^* = 0$, so $\xi_i^* \ge 0$. The sample violates the margin: either within the margin ($0 < \xi_i^* \le 1$) or misclassified ($\xi_i^* > 1$).
-\end{enumerate}
+\begin{ponderbox}{Primal vs.\ Dual Computational Complexity: When to Solve Which?}
+When should an engineer solve the Primal SVM formulation, and when should they solve the Dual SVM formulation?
+\tcblower
+\textbf{The Socratic Resolution:} The choice depends strictly on the ratio between the number of training samples $N$ and the feature dimensionality $d$:
+\begin{itemize}
+    \item \textbf{Primal SVM ($\mathcal{O}(d)$ to $\mathcal{O}(d^3)$):} The primal variable vector $\mathbf{w} \in \mathbb{R}^d$ has dimension $d$. When training on massive tabular or text datasets with millions of samples ($N \gg d$, e.g., $N = 10^7, d = 100$), solving the primal problem via subgradient descent or stochastic dual coordinate ascent takes linear time $\mathcal{O}(N d)$ without storing an $N \times N$ matrix.
+    \item \textbf{Dual SVM ($\mathcal{O}(N^2)$ to $\mathcal{O}(N^3)$):} The dual variable vector $\boldsymbol{\lambda} \in \mathbb{R}^N$ has dimension $N$. When the feature space is very high-dimensional or infinite ($d \gg N$, e.g., genomics, RBF kernels where $d = \infty$), the primal cannot be solved. The dual depends strictly on the $N \times N$ Gram kernel matrix $K_{ij} = k(\mathbf{x}_i, \mathbf{x}_j)$, making non-linear classification computationally feasible.
+\end{itemize}
 \end{ponderbox}
 
 % ----------------------------------------------------------------------
@@ -348,7 +466,7 @@ How does the value of $\lambda_i^*$ reveal the exact geometric status of trainin
 
 \begin{examplebox}[breakable]{Step-by-Step Resolution of a Constrained Quadratic via KKT Conditions}
 \textbf{Problem Statement:}
-Consider the optimization problem:
+Consider the continuous optimization problem:
 \begin{equation}
 \min_{x, y \in \mathbb{R}} f_0(x, y) = x^2 + y^2 \quad \text{subject to } x + y \ge 4
 \end{equation}
@@ -563,30 +681,171 @@ x_1 + x_2 - 1 = 0
 The geometric margin width is $\gamma = \frac{2}{\|\mathbf{w}^*\|_2} = \frac{2}{\sqrt{1^2 + 1^2}} = \frac{2}{\sqrt{2}} = \sqrt{2} \approx 1.414$.
 \end{examplebox}
 
+\begin{examplebox}[breakable]{Step-by-Step Soft-Margin SVM with Margin Violator and Slack Analysis}
+\textbf{Problem Statement:}
+Consider a one-dimensional dataset with $N = 4$ points and penalty parameter $C = 2.0$:
+\begin{itemize}
+    \item $x_1 = 2.0, y_1 = +1$ (Positive class)
+    \item $x_2 = 4.0, y_2 = +1$ (Positive class, deep interior)
+    \item $x_3 = -2.0, y_3 = -1$ (Negative class)
+    \item $x_4 = 1.0, y_4 = -1$ (Outlier: negative label, but located on the positive axis!)
+\end{itemize}
+
+\textbf{Task Requirements:}
+\begin{enumerate}
+    \item Formulate the dual constraints on $\lambda_1, \lambda_2, \lambda_3, \lambda_4$ incorporating the box constraint $\lambda_i \in [0, 2.0]$.
+    \item Identify the status of outlier $x_4$ and explain why it forces $\lambda_4^* = C = 2.0$.
+    \item Using complementary slackness, deduce which points are free support vectors, non-support vectors, and bounded support vectors.
+    \item Solve for the exact dual multipliers $\boldsymbol{\lambda}^*$, optimal weight $w^*$, and bias intercept $b^*$.
+    \item Calculate the exact slack variables $\xi_1^*, \xi_2^*, \xi_3^*, \xi_4^*$ and verify all KKT conditions.
+\end{enumerate}
+
+\tcblower
+
+\textbf{Step 1: Dual Constraints and Outlier Identification}
+The dual box constraints are:
+\begin{equation}
+0 \le \lambda_i \le C = 2.0 \quad \forall i \in \{1, 2, 3, 4\}
+\end{equation}
+The equality constraint is:
+\begin{equation}
+\sum_{i=1}^4 \lambda_i y_i = \lambda_1(+1) + \lambda_2(+1) + \lambda_3(-1) + \lambda_4(-1) = 0 \implies \lambda_1 + \lambda_2 = \lambda_3 + \lambda_4
+\end{equation}
+Sample $x_4 = 1.0$ has negative label $y_4 = -1$, but is located to the right of $x_3 = -2.0$ and between $x_3$ and $x_1 = 2.0$. Because a single threshold cannot separate $x_4$ without severe margin violation, $x_4$ is an outlier. For any non-trivial margin, $x_4$ violates the margin boundary ($y_4(w x_4 + b) < 1$), which demands slack $\xi_4 > 0$.
+By complementary slackness $(C - \lambda_4)\xi_4 = 0$, having $\xi_4 > 0$ strictly forces:
+\begin{equation}
+\lambda_4^* = C = 2.0
+\end{equation}
+
+\textbf{Step 2: Regime Classification of Remaining Points}
+\begin{itemize}
+    \item $x_2 = 4.0$ lies far in the positive interior. It is a non-support vector: $\lambda_2^* = 0 \implies \xi_2^* = 0$.
+    \item Substituting $\lambda_2 = 0$ and $\lambda_4 = 2.0$ into the equality constraint:
+    \begin{equation}
+    \lambda_1 + 0 = \lambda_3 + 2.0 \implies \lambda_1 = \lambda_3 + 2.0
+    \end{equation}
+    Because $\lambda_1 \le C = 2.0$ and $\lambda_3 \ge 0$, this requires:
+    \begin{equation}
+    \lambda_3^* = 0, \quad \lambda_1^* = 2.0
+    \end{equation}
+    Wait! If $\lambda_3^* = 0$, then $x_3 = -2.0$ would exert zero weight, leaving no negative support vectors on the negative margin. Let us solve the dual objective analytically.
+\end{itemize}
+
+\textbf{Step 3: Analytical Dual Maximization}
+With $\lambda_2 = 0$, the equality constraint is $\lambda_1 = \lambda_3 + \lambda_4$.
+Kernel products in 1D ($x_i x_j$):
+\begin{itemize}
+    \item $x_1^2 = 4$, $x_3^2 = 4$, $x_4^2 = 1$
+    \item $x_1 x_3 = -4$, $x_1 x_4 = 2$, $x_3 x_4 = -2$
+\end{itemize}
+The dual quadratic objective is:
+\begin{align}
+D(\boldsymbol{\lambda}) &= \sum \lambda_i - \frac{1}{2}\sum_{i,j} \lambda_i \lambda_j y_i y_j x_i x_j \nonumber \\
+&= \sum \lambda_i - \frac{1}{2}\left( \sum \lambda_i y_i x_i \right)^2 \nonumber \\
+&= (\lambda_1 + \lambda_3 + \lambda_4) - \frac{1}{2} w^2
+\end{align}
+where $w = \lambda_1(1)(2) + \lambda_3(-1)(-2) + \lambda_4(-1)(1) = 2\lambda_1 + 2\lambda_3 - \lambda_4$.
+Substituting $\lambda_1 = \lambda_3 + \lambda_4$:
+\begin{equation}
+w = 2(\lambda_3 + \lambda_4) + 2\lambda_3 - \lambda_4 = 4\lambda_3 + \lambda_4
+\end{equation}
+Linear term:
+\begin{equation}
+\lambda_1 + \lambda_3 + \lambda_4 = (\lambda_3 + \lambda_4) + \lambda_3 + \lambda_4 = 2\lambda_3 + 2\lambda_4
+\end{equation}
+The dual function becomes:
+\begin{equation}
+D(\lambda_3, \lambda_4) = 2\lambda_3 + 2\lambda_4 - \frac{1}{2}(4\lambda_3 + \lambda_4)^2 = 2\lambda_3 + 2\lambda_4 - 8\lambda_3^2 - \frac{1}{2}\lambda_4^2 - 4\lambda_3 \lambda_4
+\end{equation}
+Differentiating with respect to $\lambda_3$:
+\begin{equation}
+\frac{\partial D}{\partial \lambda_3} = 2 - 16\lambda_3 - 4\lambda_4 = 0 \implies 4\lambda_3 + \lambda_4 = \frac{1}{2}
+\end{equation}
+Notice that $w = 4\lambda_3 + \lambda_4 = 0.50$.
+Now differentiate with respect to $\lambda_4$:
+\begin{equation}
+\frac{\partial D}{\partial \lambda_4} = 2 - \lambda_4 - 4\lambda_3 = 2 - (4\lambda_3 + \lambda_4) = 2 - \frac{1}{2} = 1.5 > 0
+\end{equation}
+Because $\frac{\partial D}{\partial \lambda_4} > 0$ everywhere, $D$ is strictly increasing in $\lambda_4$. To maximize $D$, $\lambda_4$ must be pushed to its absolute upper box bound:
+\begin{equation}
+\lambda_4^* = C = 2.0
+\end{equation}
+Now re-solve for $\lambda_3$ on the boundary $\lambda_4 = 2.0$:
+\begin{equation}
+\frac{\partial D}{\partial \lambda_3}\Big|_{\lambda_4 = 2.0} = 2 - 16\lambda_3 - 4(2.0) = 2 - 16\lambda_3 - 8 = -6 - 16\lambda_3 < 0 \quad \forall \lambda_3 \ge 0
+\end{equation}
+Because the derivative is strictly negative for all $\lambda_3 \ge 0$, the maximum occurs at the lower bound:
+\begin{equation}
+\lambda_3^* = 0.0
+\end{equation}
+Then by the equality constraint:
+\begin{equation}
+\lambda_1^* = \lambda_3^* + \lambda_4^* = 0.0 + 2.0 = 2.0
+\end{equation}
+Thus, the optimal dual multipliers are:
+\begin{equation}
+\lambda_1^* = 2.0, \quad \lambda_2^* = 0.0, \quad \lambda_3^* = 0.0, \quad \lambda_4^* = 2.0
+\end{equation}
+
+\textbf{Step 4: Primal Parameters and Hyperplane}
+Compute the optimal weight $w^*$:
+\begin{equation}
+w^* = \lambda_1^* y_1 x_1 + \lambda_4^* y_4 x_4 = (2.0)(+1)(2.0) + (2.0)(-1)(1.0) = 4.0 - 2.0 = 2.0
+\end{equation}
+Now determine the bias intercept $b^*$. 
+Since $x_1$ is at the boundary $\lambda_1^* = C$, it satisfies $y_1(w^* x_1 + b^*) = 1 - \xi_1^*$. For balanced separation between the positive cluster and the negative outlier:
+Set the decision threshold midway between $x_4 = 1.0$ and $x_1 = 2.0$:
+$x_{\text{threshold}} = 1.5 \implies w^*(1.5) + b^* = 0 \implies 2.0(1.5) + b^* = 0 \implies b^* = -3.0$.
+
+\textbf{Step 5: Slack Variable Verification}
+Evaluate the functional margins $y_i(w^* x_i + b^*)$:
+\begin{itemize}
+    \item Sample 1: $y_1(2(2.0) - 3) = +1(4 - 3) = 1.0 \implies \xi_1^* = 0$ (Lies exactly on the margin).
+    \item Sample 2: $y_2(2(4.0) - 3) = +1(8 - 3) = 5.0 > 1 \implies \xi_2^* = 0$ (Deep interior, $\lambda_2^* = 0$).
+    \item Sample 3: $y_3(2(-2.0) - 3) = -1(-4 - 3) = +7.0 > 1 \implies \xi_3^* = 0$ (Deep interior, $\lambda_3^* = 0$).
+    \item Sample 4 (Outlier): $y_4(2(1.0) - 3) = -1(2 - 3) = -1(-1) = +1.0$.
+    Functional margin is $1.0 = 1 - \xi_4 \implies \xi_4^* = 0$.
+\end{itemize}
+All constraints and complementary slackness conditions are rigorously satisfied.
+\end{examplebox}
+
 % ----------------------------------------------------------------------
 % PART 6: EXPLICIT GOTCHAS & DIAGNOSTIC MISCONCEPTIONS
 % ----------------------------------------------------------------------
 \section{Explicit Gotchas \& Diagnostic Misconceptions}
 
 \begin{trapbox}{Gotcha 1: Inverting Multiplier Signs for Inequality Constraints}
-A student writes the Lagrangian for $f_i(\mathbf{w}) \le 0$ as $\mathcal{L} = f_0 - \sum \lambda_i f_i$ with $\lambda_i \ge 0$.
-\textbf{The Trap:} The standard convention defines $\mathcal{L} = f_0 + \sum \lambda_i f_i$. Because $f_i(\mathbf{w}) \le 0$ and $\lambda_i \ge 0$, the product $\lambda_i f_i(\mathbf{w}) \le 0$, which guarantees that $\mathcal{L}(\mathbf{w}, \boldsymbol{\lambda}) \le f_0(\mathbf{w})$, establishing the weak duality lower bound. Reversing the sign flips the dual inequality and destroys the duality gap bounds.
+A student formulates the Lagrangian for inequality constraint $f_i(\mathbf{w}) \le 0$ as $\mathcal{L} = f_0 - \sum \lambda_i f_i$ with $\lambda_i \ge 0$.
+\tcblower
+\textbf{The Trap:} The standard mathematical convention defines $\mathcal{L} = f_0 + \sum \lambda_i f_i$. Because $f_i(\mathbf{w}) \le 0$ on the feasible set and $\lambda_i \ge 0$, the product $\lambda_i f_i(\mathbf{w})$ is non-positive ($\le 0$). This guarantees that $\mathcal{L}(\mathbf{w}, \boldsymbol{\lambda}) \le f_0(\mathbf{w})$, establishing the weak duality lower bound $g(\boldsymbol{\lambda}) \le p^*$. Reversing the sign flips the direction of the inequality and invalidates the duality theorem.
 \end{trapbox}
 
 \begin{trapbox}{Gotcha 2: Assuming KKT is Sufficient for Non-Convex Problems}
-An engineer solves the KKT equations for a non-convex neural network loss and asserts that the discovered point must be a global minimizer.
-\textbf{The Trap:} The KKT conditions are \textbf{necessary} for local optimality (under constraint qualifications). They are \textbf{sufficient} for global optimality if and only if the objective and inequality constraints are \textbf{convex} and equality constraints are affine. On non-convex problems, KKT points can be local maxima or saddle points.
+An engineer solves the KKT equations for a non-convex deep learning functional and asserts that the resulting parameters must be a global minimizer.
+\tcblower
+\textbf{The Trap:} The KKT conditions are \textbf{necessary} for local optimality (under constraint qualifications like LICQ or Slater's condition). They are \textbf{sufficient} for global optimality if and only if the objective functional $f_0$ and all inequality constraints $f_i$ are \textbf{convex}, and all equality constraints $h_j$ are affine. On non-convex problems, points satisfying the KKT conditions can be local maxima, inflection points, or saddle points.
 \end{trapbox}
 
 \begin{trapbox}{Gotcha 3: Applying Hard-Margin SVM to Non-Linearly Separable Data}
-A practitioner executes a hard-margin SVM solver on noisy data containing overlapping classes.
-\textbf{The Trap:} If the dataset is not linearly separable, no $(\mathbf{w}, b)$ can satisfy $y_i(\mathbf{w}^T \mathbf{x}_i + b) \ge 1$ for all $i$. The primal feasible set is empty ($p^* = +\infty$). The dual quadratic program becomes unbounded ($d^* = +\infty$), causing numerical solvers to fail. Non-separable data requires the \textbf{Soft-Margin SVM} with slack variables $\xi_i \ge 0$ and penalty box constraint $0 \le \lambda_i \le C$.
+A practitioner executes a hard-margin SVM solver on noisy empirical data containing overlapping classes.
+\tcblower
+\textbf{The Trap:} If the dataset is not strictly linearly separable, no pair $(\mathbf{w}, b)$ can satisfy $y_i(\mathbf{w}^T \mathbf{x}_i + b) \ge 1$ for all $i$. The primal feasible set is empty ($p^* = +\infty$). Consequently, the dual quadratic program becomes unbounded ($d^* = +\infty$), causing numerical QP solvers to crash or cycle endlessly. Non-separable data strictly requires the \textbf{Soft-Margin SVM} with slack variables $\xi_i \ge 0$ and the box constraint $0 \le \lambda_i \le C$.
 \end{trapbox}
 
 \begin{trapbox}{Gotcha 4: Forgetting to Recover the Bias Term $b^*$ in SVM}
-A developer computes the optimal weights $\mathbf{w}^* = \sum \lambda_i^* y_i \mathbf{x}_i$, but omits computing the intercept $b^*$.
-\textbf{The Trap:} Without the intercept $b^*$, the decision boundary is constrained to pass through the origin ($\mathbf{w}^T \mathbf{x} = 0$), destroying the maximal margin property. The bias $b^*$ must be recovered using any active support vector ($0 < \lambda_k^* < C$):
-$b^* = y_k - \mathbf{w}^{*T} \mathbf{x}_k = y_k - \sum_{i=1}^N \lambda_i^* y_i (\mathbf{x}_i^T \mathbf{x}_k)$.
+A developer reconstructs the optimal weights $\mathbf{w}^* = \sum_{i=1}^N \lambda_i^* y_i \mathbf{x}_i$, but omits computing the intercept $b^*$.
+\tcblower
+\textbf{The Trap:} Without the intercept $b^*$, the decision boundary is forced to pass through the origin ($\mathbf{w}^T \mathbf{x} = 0$), destroying the maximal margin property and severely degrading accuracy. The bias $b^*$ must be recovered using any active support vector lying strictly on the margin ($0 < \lambda_k^* < C$):
+\begin{equation}
+b^* = y_k - \mathbf{w}^{*T} \mathbf{x}_k = y_k - \sum_{i=1}^N \lambda_i^* y_i (\mathbf{x}_i^T \mathbf{x}_k)
+\end{equation}
+In practical software, $b^*$ is averaged across all free support vectors to maximize numerical stability.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 5: The $N \times N$ Gram Matrix Memory Bottleneck in Kernel SVMs}
+A data scientist attempts to train a Kernel SVM on a dataset with $N = 1{,}000{,}000$ samples and $d = 20$ features.
+\tcblower
+\textbf{The Trap:} The dual SVM requires forming or accessing the Gram kernel matrix $K_{ij} = k(\mathbf{x}_i, \mathbf{x}_j)$. Storing an $N \times N$ matrix for $N = 10^6$ requires $(10^6)^2 \times 8 \text{ bytes} = 8 \text{ Terabytes of RAM}$, causing immediate out-of-memory crashes. Dual kernel SVMs scale quadratically in storage $\mathcal{O}(N^2)$ and cubically in time $\mathcal{O}(N^3)$. When $N \gg 10^5$, linear primal SVMs (e.g., via stochastic dual coordinate ascent / LibLinear) or approximate kernel embeddings (random Fourier features) must be used.
 \end{trapbox}
 
 % ----------------------------------------------------------------------
@@ -621,7 +880,7 @@ Ridge Classification & Squared Loss: $(y_i - (\mathbf{w}^T\mathbf{x}_i+b))^2$ & 
 % ----------------------------------------------------------------------
 \section{Python / Scientific Computing Lab}
 
-The following production script implements the Dual Support Vector Machine Quadratic Program from scratch using \texttt{scipy.optimize.minimize}, isolates support vectors via complementary slackness, and reconstructs $\mathbf{w}^*$ and $b^*$.
+The production script below implements the Dual Support Vector Machine Quadratic Program from scratch using \texttt{scipy.optimize.minimize}, isolates support vectors via complementary slackness, and reconstructs $\mathbf{w}^*$ and $b^*$.
 
 \begin{lstlisting}[language=Python, caption={Dual Support Vector Machine Quadratic Programming Solver in Python.}]
 import numpy as np
@@ -641,7 +900,7 @@ def fit_dual_svm(X: np.ndarray, y: np.ndarray, C: float = 1.0):
     def dual_gradient(lam):
         return Q @ lam - np.ones(N)
 
-    # Constraint: sum(lambda_i * y_i) = 0
+    # Equality constraint: sum(lambda_i * y_i) = 0
     constraints = {'type': 'eq', 'fun': lambda lam: np.dot(lam, y), 'jac': lambda lam: y}
     # Box bounds: 0 <= lambda_i <= C
     bounds = [(0.0, C) for _ in range(N)]
@@ -664,9 +923,9 @@ def fit_dual_svm(X: np.ndarray, y: np.ndarray, C: float = 1.0):
         b_vals = [y[k] - float(np.dot(w_star, X[k])) for k in margin_svs]
         b_star = float(np.mean(b_vals))
     else:
-        # Fallback to all support vectors
+        # Fallback across all active support vectors
         b_vals = [y[k] - float(np.dot(w_star, X[k])) for k in sv_indices]
-        b_star = float(np.mean(b_vals))
+        b_star = float(np.mean(b_vals)) if len(b_vals) > 0 else 0.0
 
     return w_star, b_star, lam_opt, sv_indices
 
@@ -679,13 +938,23 @@ def main():
     X = np.vstack([X_pos, X_neg])
     y = np.array([1] * (N // 2) + [-1] * (N // 2), dtype=float)
 
-    w_star, b_star, lam_opt, sv_indices = fit_dual_svm(X, y, C=10.0)
+    C_val = 10.0
+    w_star, b_star, lam_opt, sv_indices = fit_dual_svm(X, y, C=C_val)
 
-    print("Dual SVM Optimization Completed:")
-    print(f"Optimal Weight Vector w*: [{w_star[0]:.4f}, {w_star[1]:.4f}]")
-    print(f"Optimal Bias Intercept b*: {b_star:.4f}")
-    print(f"Number of Support Vectors: {len(sv_indices)} / {N}")
-    print(f"Margin Width (2 / ||w||):   {2.0 / np.linalg.norm(w_star):.4f}")
+    print("=================================================================")
+    print(" DUAL SUPPORT VECTOR MACHINE BENCHMARK")
+    print("=================================================================")
+    print(f"Total Training Samples:          N = {N}")
+    print(f"Box Constraint Penalty:          C = {C_val:.1f}")
+    print(f"Optimal Weight Vector w*:        [{w_star[0]:.4f}, {w_star[1]:.4f}]")
+    print(f"Optimal Bias Intercept b*:       {b_star:.4f}")
+    print(f"Active Support Vectors Count:    {len(sv_indices)} / {N}")
+    print(f"Geometric Margin Width (2/||w||): {2.0 / np.linalg.norm(w_star):.4f}")
+    print("-" * 65)
+
+    print("Active Support Vector Multipliers (lambda_i > 0):")
+    for idx in sv_indices:
+        print(f"  Sample {idx:<3}: label = {int(y[idx]):+d}, lambda = {lam_opt[idx]:.4f}, x = [{X[idx, 0]:.2f}, {X[idx, 1]:.2f}]")
 
 if __name__ == "__main__":
     main()
