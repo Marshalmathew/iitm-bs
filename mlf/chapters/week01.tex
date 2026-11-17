@@ -491,11 +491,11 @@ Figure~\ref{fig:ml_pipeline_geometry} visualizes how information flows from Natu
 \draw[dashedarr] (world) -- node[left=4pt, font=\tiny\bfseries, align=right] {Evaluated on\\Nature $\mathcal{D}$} (rtrue);
 \draw[arr] (erm) -- node[right=4pt, font=\tiny\bfseries, align=left] {Evaluated on\\Sample $S$} (remp);
 
-% Horizontal Arrows (Bottom Row) feeding into Generalization Gap
-\draw[arr] (rtrue) -- node[above=2pt, font=\scriptsize\bfseries] {$+ R(\hat{h}_S)$} 
-                      node[below=2pt, font=\tiny] {(Unseen Risk)} (gap);
-\draw[arr] (remp) -- node[above=2pt, font=\scriptsize\bfseries] {$- R_{\text{emp}}$} 
-                     node[below=2pt, font=\tiny] {(Training Loss)} (gap);
+% Horizontal Arrows (Bottom Row: True Risk Decomposition R = R_emp + Delta_gen)
+\draw[arr] (remp) -- node[above=2pt, font=\scriptsize\bfseries] {$+ \Delta_{\text{gen}}$} 
+                     node[below=2pt, font=\tiny] {(Add Overfitting)} (gap);
+\draw[arr] (gap) -- node[above=2pt, font=\scriptsize\bfseries] {$= R(\hat{h}_S)$} 
+                    node[below=2pt, font=\tiny] {(Yields True Risk)} (rtrue);
 
 \end{tikzpicture}
 \caption{The Statistical Learning Pipeline: Connecting unknown generative distribution $\mathcal{D}$, finite training sample $S$, empirical optimization within hypothesis class $\mathcal{H}$, and true out-of-sample risk.}
