@@ -10,13 +10,28 @@
 Every serious journey into the mathematical foundations of machine learning must begin with an honest, common-sense question: \emph{Why do we need a new computational paradigm at all?}
 
 For more than half a century, traditional computer science solved the world's most demanding engineering problems using a single, elegant philosophical principle known as \textbf{deductive programming}:
+\begin{center}
+\begin{tikzpicture}[
+    scale=0.95,
+    font=\sffamily\footnotesize,
+    inbox/.style={rectangle, rounded corners=3pt, draw=primarydark, fill=primarylight!35, thick, minimum width=2.8cm, minimum height=0.65cm, align=center},
+    corebox/.style={rectangle, rounded corners=4pt, draw=primaryborder, fill=white, line width=1.1pt, minimum width=3.2cm, minimum height=1.5cm, align=center},
+    outbox/.style={rectangle, rounded corners=3pt, draw=forest, fill=green!10, thick, minimum width=2.8cm, minimum height=0.65cm, align=center},
+    arr/.style={->, >=stealth, line width=1.1pt, color=primarydark}
+]
+% Classical Deductive Flow
+\node[inbox] (rules) at (0, 0.48) {\textbf{Rules} (Human Logic)};
+\node[inbox] (data) at (0, -0.48) {\textbf{Data} (Input Instances)};
+\node[corebox] (engine) at (4.0, 0) {\textbf{Classical Computer}\\[2pt]\scriptsize Deductive Execution Engine};
+\node[outbox] (answers) at (8.0, 0) {\textbf{Answers}\\[2pt]\scriptsize Deterministic Outputs};
+
+\draw[arr] (rules.east) -- ++(0.4, 0) |- (engine.155);
+\draw[arr] (data.east) -- ++(0.4, 0) |- (engine.205);
+\draw[arr] (engine.east) -- (answers.west);
+\end{tikzpicture}
+\end{center}
 \begin{equation}
-\boxed{
-\begin{aligned}
-\text{Human Writes Rules (Logic)} &+ \text{Computer Receives Input Data} \\
-&\xrightarrow{\text{Deductive Execution}} \text{Deterministic Output (Answers)}
-\end{aligned}
-}
+\boxed{\big( \text{Rules (Logic)}, \; \text{Data (Inputs)} \big) \;\xrightarrow{\quad\text{Deductive Execution}\quad}\; \text{Answers (Outputs)}}
 \label{eq:deductive_flow}
 \end{equation}
 In this classical paradigm, a human software engineer studies a real-world system, formalizes a complete set of deterministic logical rules, and implements them as source code:
@@ -47,13 +62,28 @@ No team of software engineers, given centuries of effort, could write enough \te
 
 \subsubsection{The Inductive Inversion}
 \textbf{Machine Learning} inverts this computational flow into an \textbf{inductive paradigm}:
+\begin{center}
+\begin{tikzpicture}[
+    scale=0.95,
+    font=\sffamily\footnotesize,
+    inbox/.style={rectangle, rounded corners=3pt, draw=tealborder, fill=tealbg!45, thick, minimum width=2.8cm, minimum height=0.65cm, align=center},
+    corebox/.style={rectangle, rounded corners=4pt, draw=coralborder, fill=white, line width=1.1pt, minimum width=3.2cm, minimum height=1.5cm, align=center},
+    outbox/.style={rectangle, rounded corners=3pt, draw=traprad, fill=traprad!12, thick, minimum width=2.8cm, minimum height=0.65cm, align=center},
+    arr/.style={->, >=stealth, line width=1.1pt, color=tealborder}
+]
+% Machine Learning Inductive Flow
+\node[inbox] (data) at (0, 0.48) {\textbf{Data} (Input Observations)};
+\node[inbox] (answers) at (0, -0.48) {\textbf{Answers} (Known Labels)};
+\node[corebox] (engine) at (4.0, 0) {\textbf{Machine Learning}\\[2pt]\scriptsize Inductive Optimization Engine};
+\node[outbox] (rules) at (8.0, 0) {\textbf{Rules}\\[2pt]\scriptsize Discovered Hypothesis $h$};
+
+\draw[arr] (data.east) -- ++(0.4, 0) |- (engine.155);
+\draw[arr] (answers.east) -- ++(0.4, 0) |- (engine.205);
+\draw[arr, color=coralborder] (engine.east) -- (rules.west);
+\end{tikzpicture}
+\end{center}
 \begin{equation}
-\boxed{
-\begin{aligned}
-\text{Input Observations} &+ \text{Desired Outputs (Targets)} \\
-&\xrightarrow{\text{Inductive Learning}} \text{Discovered Rules (Hypothesis } h\text{)}
-\end{aligned}
-}
+\boxed{\big( \text{Data (Inputs)}, \; \text{Answers (Targets)} \big) \;\xrightarrow{\quad\text{Inductive Learning}\quad}\; \text{Rules (Hypothesis } h\text{)}}
 \label{eq:inductive_flow}
 \end{equation}
 Instead of hand-coding the logic, we collect 60,000 examples of handwritten images alongside their verified labels. We define a flexible mathematical function with adjustable numerical knobs (parameters) and a loss surface that quantifies mistakes. An optimization algorithm systematically turns those knobs until the function automatically maps raw pixels to correct labels.
