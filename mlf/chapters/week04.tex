@@ -1,4 +1,4 @@
-\chapter[Eigenvalues \& Diagonalization]{Polynomial Regression, Eigenvalues, Eigenspaces \& Diagonalization}
+\chapter[Eigenvalues \& Diagonalization]{Polynomial Regression, Eigenvalues,\\Eigenspaces \& Diagonalization}
 \label{chap:week04}
 
 % ----------------------------------------------------------------------
@@ -598,6 +598,63 @@ A^k \mathbf{q}_0 &= c_1 \lambda_1^k \mathbf{v}_1 + c_2 \lambda_2^k \mathbf{v}_2 
 Because $|\lambda_1| > |\lambda_i|$ for all $i \ge 2$, the ratio $\left(\frac{\lambda_i}{\lambda_1}\right)^k \to 0$ exponentially as $k \to \infty$.
 Normalizing at each step eliminates the scaling factor $c_1 \lambda_1^k$, leaving strictly $\mathbf{v}_1$.
 \end{proof}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=1.1,
+    font=\sffamily\small,
+    axis/.style={->, >=stealth, line width=0.8pt, color=gray!60},
+    vec/.style={->, >=stealth, line width=1.5pt},
+    iter/.style={->, >=stealth, line width=1.3pt}
+]
+
+% Coordinate axes aligned with eigenvectors
+\draw[axis] (-0.5, 0) -- (6.2, 0) node[right, font=\footnotesize] {Dominant Eigenvector $\mathbf{v}_1$ ($\lambda_1 = 3.0$)};
+\draw[axis] (0, -0.5) -- (0, 4.4) node[above, font=\footnotesize] {Subordinate $\mathbf{v}_2$ ($\lambda_2 = 1.0$)};
+
+% Unit circle arc
+\draw[dashed, color=gray!40, line width=0.8pt] (4.0, 0) arc (0:90:4.0);
+\node[color=gray!60, font=\scriptsize] at (2.8, 3.2) {Unit Sphere $\|\mathbf{q}\|_2 = 1$};
+
+% Successive iterates on the unit sphere
+\coordinate (O) at (0, 0);
+\coordinate (Q0) at ({4.0*cos(70)}, {4.0*sin(70)});
+\coordinate (Q1) at ({4.0*cos(42)}, {4.0*sin(42)});
+\coordinate (Q2) at ({4.0*cos(18)}, {4.0*sin(18)});
+\coordinate (Q3) at ({4.0*cos(6)}, {4.0*sin(6)});
+\coordinate (V1) at (4.0, 0);
+
+% Draw iterates
+\draw[iter, color=coralborder] (O) -- (Q0) node[above, font=\footnotesize\bfseries] {$\mathbf{q}_0$};
+\draw[iter, color=coralborder!80!traprad] (O) -- (Q1) node[above right, font=\footnotesize\bfseries] {$\mathbf{q}_1 = \frac{A\mathbf{q}_0}{\|A\mathbf{q}_0\|}$};
+\draw[iter, color=tealborder] (O) -- (Q2) node[above right, font=\footnotesize\bfseries] {$\mathbf{q}_2$};
+\draw[iter, color=tealborder!80!forest] (O) -- (Q3) node[above right, font=\footnotesize\bfseries] {$\mathbf{q}_3$};
+\draw[vec, color=forest, line width=2.2pt] (O) -- (V1) node[below right, font=\footnotesize\bfseries] {$\mathbf{v}_1$ (Limit)};
+
+% Curved progression arrows along the unit circle
+\draw[->, >=stealth, line width=1.0pt, color=traprad] 
+    ({4.25*cos(66)}, {4.25*sin(66)}) arc (66:46:4.25);
+\draw[->, >=stealth, line width=1.0pt, color=coralborder] 
+    ({4.25*cos(38)}, {4.25*sin(38)}) arc (38:22:4.25);
+\draw[->, >=stealth, line width=1.0pt, color=forest] 
+    ({4.25*cos(15)}, {4.25*sin(15)}) arc (15:5:4.25);
+
+% Pedagogical annotation box
+\node[draw=primarydark, fill=primarylight!30, rounded corners=3pt, font=\scriptsize, align=left] at (4.5, 3.2) {
+    \textbf{Geometric Contraction:}\\
+    $\bullet$ Each iteration scales $\mathbf{v}_1$ by $\lambda_1 = 3.0$\\
+    \hspace*{5pt} and $\mathbf{v}_2$ by $\lambda_2 = 1.0$.\\
+    $\bullet$ Subordinate ratio decays:\\
+    \hspace*{5pt} $\frac{c_2}{c_1}\left(\frac{\lambda_2}{\lambda_1}\right)^k = \frac{c_2}{c_1}\left(\frac{1}{3}\right)^k \to 0$.\\
+    $\bullet$ Normalization projects onto sphere.\\
+    $\bullet$ $\mathbf{q}_k$ rapidly aligns with $\mathbf{v}_1$.
+};
+
+\end{tikzpicture}
+\caption{The Geometry of the Power Iteration Algorithm: Starting from an arbitrary initial unit vector $\mathbf{q}_0$, repeated matrix multiplication expands the dominant eigenspace $\mathbf{v}_1$ at rate $\lambda_1$, while subordinate eigenspaces shrink by factor $(\lambda_2/\lambda_1)^k$. Normalization keeps iterates on the unit sphere, steering $\mathbf{q}_k \to \mathbf{v}_1$ at linear rate $|\lambda_2/\lambda_1|$.}
+\label{fig:power_iteration_geometry}
+\end{figure}
 
 \begin{ponderbox}{The Power Method and PageRank Damping}
 In Google's PageRank algorithm, the web transition matrix $T$ is modified into the Google Matrix:

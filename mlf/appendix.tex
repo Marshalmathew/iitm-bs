@@ -11,7 +11,10 @@ This appendix provides exhaustive, step-by-step mathematical solutions to all si
 \subsection*{Part A: Analytical Solutions}
 
 \paragraph{P1. Bayes Optimal Predictor Under Absolute Loss (MAE):}
-We wish to find $c^* = h^*(\mathbf{x}) = \argmin_{c \in \mathbb{R}} \E[|c - Y| \mid \mathbf{X} = \mathbf{x}]$.
+We seek the optimal point prediction $c^* = h^*(\mathbf{x})$:
+\[
+c^* = \argmin_{c \in \mathbb{R}} \E[|c - Y| \mid \mathbf{X} = \mathbf{x}]
+\]
 Let $f(y)$ be the conditional probability density function of $Y$ given $\mathbf{X} = \mathbf{x}$. The conditional expected loss is:
 \begin{align*}
 g(c) &= \int_{-\infty}^\infty |c - y| f(y) \, dy = \int_{-\infty}^c (c - y) f(y) \, dy + \int_c^\infty (y - c) f(y) \, dy \\
@@ -420,9 +423,11 @@ $H = \begin{bmatrix} 2 & 1 - i \\ 1 + i & 3 \end{bmatrix}$.
     $H^H = \left(\frac{M + M^H}{2}\right)^H = \frac{M^H + M}{2} = H$ (Hermitian).
     $S^H = \left(\frac{M - M^H}{2}\right)^H = \frac{M^H - M}{2} = -S$ (Skew-Hermitian).
     \item $H = \frac{1}{2}(M + M^H)$ and $S = \frac{1}{2}(M - M^H)$.
-    \item $M = \begin{bmatrix} 1+i & 4 \\ 2i & 3 \end{bmatrix} \implies M^H = \begin{bmatrix} 1-i & -2i \\ 4 & 3 \end{bmatrix}$.
-    $H = \frac{1}{2} \begin{bmatrix} 2 & 4-2i \\ 4+2i & 6 \end{bmatrix} = \begin{bmatrix} 1 & 2-i \\ 2+i & 3 \end{bmatrix}$.
-    $S = \frac{1}{2} \begin{bmatrix} 2i & 4+2i \\ 2i-4 & 0 \end{bmatrix} = \begin{bmatrix} i & 2+i \\ -2+i & 0 \end{bmatrix}$.
+    \item Given $M = \begin{bmatrix} 1+i & 4 \\ 2i & 3 \end{bmatrix}$, its conjugate transpose is $M^H = \begin{bmatrix} 1-i & -2i \\ 4 & 3 \end{bmatrix}$.
+    \begin{align*}
+    H &= \frac{1}{2} \begin{bmatrix} 2 & 4-2i \\ 4+2i & 6 \end{bmatrix} = \begin{bmatrix} 1 & 2-i \\ 2+i & 3 \end{bmatrix} \\
+    S &= \frac{1}{2} \begin{bmatrix} 2i & 4+2i \\ 2i-4 & 0 \end{bmatrix} = \begin{bmatrix} i & 2+i \\ -2+i & 0 \end{bmatrix}
+    \end{align*}
 \end{enumerate}
 
 \paragraph{P5. Courant-Fischer Min-Max Theorem:}
@@ -578,7 +583,10 @@ $S = \begin{bmatrix} 5 & 2 \\ 2 & 2 \end{bmatrix}$.
 $S = \begin{bmatrix} 10 & 0 \\ 0 & 1 \end{bmatrix}$.
 \begin{enumerate}[label=(\alph*)]
     \item The transformation scales feature 2 by $c = 10$, so $x_2' = 10x_2$.
-    The new covariance matrix is $S' = \begin{bmatrix} 1 & 0 \\ 0 & 10 \end{bmatrix} \begin{bmatrix} 10 & 0 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & 10 \end{bmatrix} = \begin{bmatrix} 10 & 0 \\ 0 & 100 \end{bmatrix}$.
+    The new covariance matrix is:
+    \[
+    S' = \begin{bmatrix} 1 & 0 \\ 0 & 10 \end{bmatrix} \begin{bmatrix} 10 & 0 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & 10 \end{bmatrix} = \begin{bmatrix} 10 & 0 \\ 0 & 100 \end{bmatrix}
+    \]
     \item For $S$: $\lambda_1 = 10, \lambda_2 = 1 \implies \mathbf{w}_1 = [1, 0]^T$ (aligned entirely with feature 1).
     For $S'$: $\lambda_1' = 100, \lambda_2' = 10 \implies \mathbf{w}_1' = [0, 1]^T$ (aligned entirely with feature 2).
     \item Scaling a single feature rotated the first principal component by 90 degrees. This demonstrates that PCA is \textbf{not scale invariant}: features with large numerical variance dominate the principal components regardless of informational importance, mandating standardizing features to unit variance before PCA.

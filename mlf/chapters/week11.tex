@@ -22,9 +22,9 @@ To model this pervasive uncertainty, machine learning transitions from purely de
 
 \begin{figure}[htbp]
 \centering
-\begin{tikzpicture}[scale=0.9, font=\sffamily\small]
+\begin{tikzpicture}[scale=0.82, font=\sffamily\small]
     % Left Panel: High-D Hypersphere Shell (The Soap Bubble)
-    \begin{scope}[shift={(-4.2, 0)}]
+    \begin{scope}[shift={(-3.8, 0)}]
         % Shaded outer shell
         \fill[tealbg!40] (0,0) circle (3.0);
         \fill[white] (0,0) circle (2.4);
@@ -49,14 +49,14 @@ To model this pervasive uncertainty, machine learning transitions from purely de
     \end{scope}
 
     % Right Panel: Opposing Forces Curves
-    \begin{scope}[shift={(3.5, -2.5)}]
-        \draw[->, >=stealth, thick, gray] (0,0) -- (5.2, 0) node[right, black] {$r = \|\mathbf{x}\|_2$};
+    \begin{scope}[shift={(2.2, -2.5)}]
+        \draw[->, >=stealth, thick, gray] (0,0) -- (4.6, 0) node[right, black] {$r$};
         \draw[->, >=stealth, thick, gray] (0,0) -- (0, 5.0) node[above, black] {Magnitude};
         
         % Curve 1: Decaying density exp(-r^2/2)
-        \draw[line width=1.4pt, traprad, smooth, domain=0:4.8] 
+        \draw[line width=1.4pt, traprad, smooth, domain=0:4.2] 
             plot (\x, {4.2*exp(-0.5*\x*\x)}) 
-            node[right, font=\scriptsize] {$f(\mathbf{x}) \propto e^{-r^2/2}$ (Decays)};
+            node[above right, font=\scriptsize] {$f(\mathbf{x}) \propto e^{-r^2/2}$};
             
         % Curve 2: Growing surface area r^{d-1}
         \draw[line width=1.4pt, primarydark, dashed, smooth, domain=0:3.2] 
@@ -322,8 +322,8 @@ Let $p(x; \boldsymbol{\eta})$ belong to the Exponential Family. The gradient and
 Because any covariance matrix is positive semidefinite ($\Cov(\mathbf{T}(X)) \succeq 0$), the log-partition function $A(\boldsymbol{\eta})$ is a \textbf{strictly convex functional} over its natural parameter space $\Omega$.
 \end{theorembox}
 
-\begin{ponderbox}{The Cumulant-Generating Magic of $A(\boldsymbol{\eta})$: Why Does Differentiating the Normalizer Yield Moments?}
-Why does differentiating the normalizing log-partition function $A(\boldsymbol{\eta})$ automatically produce the statistical moments of $T(X)$?
+\begin{ponderbox}{The Cumulant-Generating Magic of $A(\boldsymbol{\eta})$}
+Why does differentiating the normalizing log-partition function $A(\boldsymbol{\eta})$ automatically produce the statistical moments of $\mathbf{T}(X)$?
 
 \tcblower
 By definition, $e^{A(\boldsymbol{\eta})} = \int_{\mathcal{X}} h(x) e^{\boldsymbol{\eta}^T \mathbf{T}(x)} dx$. Notice that this integral is precisely the un-normalized Laplace transform (or moment-generating function) of the base measure weighted by $h(x)$.

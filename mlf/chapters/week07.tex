@@ -721,20 +721,21 @@ Table~\ref{tab:dim_reduction_comp} compares principal dimensionality reduction p
 
 \begin{table}[htbp]
 \centering
-\small
-\begin{tabularx}{\textwidth}{lXXXXX}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{lllc>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X}
 \toprule
-\textbf{Method} & \textbf{Paradigm} & \textbf{Linearity} & \textbf{Optimization Objective} & \textbf{Computational Cost} & \textbf{Primary Use Case} \\
+\textbf{Method} & \textbf{Paradigm} & \textbf{Linearity} & \textbf{Computational Cost} & \textbf{Optimization Objective} & \textbf{Primary Use Case} \\
 \midrule
-PCA & Unsupervised & Linear & Maximize variance / minimize reconstruction error & $\mathcal{O}(\min(N d^2, N^2 d))$ & Compression, denoising, feature decorrelation \\
+PCA & Unsupervised & Linear & $\mathcal{O}(\min(N d^2, N^2 d))$ & Maximize variance / minimize reconstruction error & Compression, denoising, feature decorrelation \\
 \addlinespace
-Kernel PCA & Unsupervised & Non-linear & Maximize variance in Reproducing Kernel Hilbert Space & $\mathcal{O}(N^3)$ & Non-linear manifold unrolling (e.g., Swiss roll) \\
+Kernel PCA & Unsupervised & Non-linear & $\mathcal{O}(N^3)$ & Maximize variance in Reproducing Kernel Hilbert Space & Non-linear manifold unrolling (e.g., Swiss roll) \\
 \addlinespace
-LDA & Supervised & Linear & Maximize between-class variance / minimize within-class & $\mathcal{O}(d^3 + N d^2)$ & Class-separable feature projection for classification \\
+LDA & Supervised & Linear & $\mathcal{O}(d^3 + N d^2)$ & Maximize between-class / minimize within-class variance & Class-separable feature projection for classification \\
 \addlinespace
-t-SNE & Unsupervised & Non-linear & Minimize KL divergence of pairwise Gaussian/Student-t similarities & $\mathcal{O}(N^2)$ or $\mathcal{O}(N \log N)$ & 2D/3D cluster visualization (no out-of-sample mapping) \\
+t-SNE & Unsupervised & Non-linear & $\mathcal{O}(N^2)$ or $\mathcal{O}(N \log N)$ & Minimize KL divergence of pairwise Gaussian / Student-t similarities & 2D/3D cluster visualization (no out-of-sample mapping) \\
 \addlinespace
-UMAP & Unsupervised & Non-linear & Preserve local fuzzy simplicial set geometry & $\mathcal{O}(N \log N)$ & Fast high-dimensional non-linear visualization \\
+UMAP & Unsupervised & Non-linear & $\mathcal{O}(N \log N)$ & Preserve local fuzzy simplicial set geometry & Fast high-dimensional non-linear visualization \\
 \bottomrule
 \end{tabularx}
 \caption{Comparative Synthesis: Dimensionality Reduction Techniques.}

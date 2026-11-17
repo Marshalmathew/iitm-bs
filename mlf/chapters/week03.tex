@@ -430,7 +430,7 @@ It suffices to prove that $A^T A$ and $A$ share the exact same nullspace: $\Null
 Since $\Null(A^T A) = \Null(A)$, the square matrix $A^T A \in \mathbb{R}^{n \times n}$ is invertible if and only if its nullspace is trivial ($\Null(A^T A) = \{\mathbf{0}\}$), which occurs if and only if $\rank(A) = n$.
 \end{proof}
 
-When projecting onto an $n$-dimensional subspace spanned by the linearly independent columns of $A = [\mathbf{a}_1, \dots, \mathbf{a}_n] \in \mathbb{R}^{m \times n}$ ($m \ge n$), the target vector $\hat{\mathbf{b}}$ is a linear combination of all $n$ columns:
+When projecting onto an $n$-dimensional subspace spanned by the linearly independent columns of matrix $A \in \mathbb{R}^{m \times n}$ ($m \ge n$), the target vector $\hat{\mathbf{b}}$ is a linear combination of its columns $\mathbf{a}_1, \dots, \mathbf{a}_n$:
 \begin{equation}
 \hat{\mathbf{b}} = \hat{x}_1 \mathbf{a}_1 + \hat{x}_2 \mathbf{a}_2 + \dots + \hat{x}_n \mathbf{a}_n = A\hat{\mathbf{x}} \quad \text{for some } \hat{\mathbf{x}} \in \mathbb{R}^n
 \end{equation}
@@ -618,6 +618,61 @@ Notice the immense computational advantages:
     \item \textbf{No Matrix Inversion:} Because $R_1$ is upper triangular, Equation~\eqref{eq:qr_ols_solution} is solved by simple \textbf{back-substitution} in $\mathcal{O}(d^2)$ operations!
     \item \textbf{No Condition Number Squaring:} The system matrix is $R_1$, and $\kappa(R_1) = \kappa(X)$. We completely avoid the dangerous $\kappa(X)^2$ squaring penalty!
 \end{enumerate}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=1.05,
+    font=\sffamily\small,
+    axis/.style={->, >=stealth, line width=0.8pt, color=gray!60},
+    vec/.style={->, >=stealth, line width=1.5pt},
+    proj/.style={dashed, line width=1.0pt, color=traprad}
+]
+
+% Coordinate axes
+\draw[axis] (-0.5, 0) -- (6.0, 0) node[right, font=\footnotesize] {Span($\mathbf{x}_1$)};
+\draw[axis] (0, -0.5) -- (0, 4.2) node[above, font=\footnotesize] {Orthogonal direction $\mathbf{q}_2$};
+
+% Vector x1 and its normalized unit vector q1
+\draw[vec, color=primarydark] (0, 0) -- (4.5, 0) node[below right] {$\mathbf{x}_1 = r_{11} \mathbf{q}_1$};
+\draw[vec, color=forest, line width=2.2pt] (0, 0) -- (1.5, 0) node[below, yshift=-2pt] {$\mathbf{q}_1 = \frac{\mathbf{x}_1}{\|\mathbf{x}_1\|}$};
+
+% Vector x2
+\coordinate (X2) at (3.5, 3.4);
+\coordinate (P) at (3.5, 0);
+\coordinate (U2) at (0, 3.4);
+\coordinate (Q2) at (0, 1.5);
+
+\draw[vec, color=primarydark] (0, 0) -- (X2) node[above right] {$\mathbf{x}_2 = r_{12}\mathbf{q}_1 + r_{22}\mathbf{q}_2$};
+
+% Projection of x2 onto q1
+\draw[proj] (X2) -- (P);
+\draw[vec, color=coralborder, line width=1.4pt] (0, 0) -- (P) node[below=2pt] {$\text{proj}_{\mathbf{q}_1}(\mathbf{x}_2) = r_{12}\mathbf{q}_1$};
+
+% Right angle symbol at P
+\draw[line width=0.7pt, color=traprad] (3.2, 0) -- (3.2, 0.3) -- (3.5, 0.3);
+
+% Orthogonal residual vector u2 and normalized q2
+\draw[vec, color=traprad] (0, 0) -- (U2) node[left] {$\mathbf{u}_2 = \mathbf{x}_2 - r_{12}\mathbf{q}_1$};
+\draw[proj] (X2) -- (U2);
+\draw[vec, color=forest, line width=2.2pt] (0, 0) -- (Q2) node[left, xshift=-2pt] {$\mathbf{q}_2 = \frac{\mathbf{u}_2}{\|\mathbf{u}_2\|}$};
+
+% Right angle at origin between q1 and q2
+\draw[line width=0.7pt, color=forest] (0.35, 0) -- (0.35, 0.35) -- (0, 0.35);
+
+% Pedagogical annotations in a neat text box
+\node[draw=primarydark, fill=primarylight!30, rounded corners=3pt, font=\scriptsize, align=left] at (4.5, 2.4) {
+    \textbf{QR Matrix Structure:}\\
+    $\begin{bmatrix} \mathbf{x}_1 & \mathbf{x}_2 \end{bmatrix} = \begin{bmatrix} \mathbf{q}_1 & \mathbf{q}_2 \end{bmatrix} \begin{bmatrix} r_{11} & r_{12} \\ 0 & r_{22} \end{bmatrix}$\\[4pt]
+    $\bullet\ r_{11} = \|\mathbf{x}_1\|$\\
+    $\bullet\ r_{12} = \mathbf{q}_1^T \mathbf{x}_2$\\
+    $\bullet\ r_{22} = \|\mathbf{x}_2 - r_{12}\mathbf{q}_1\|$
+};
+
+\end{tikzpicture}
+\caption{The Geometry of Gram-Schmidt Orthogonalization and QR Factorization: The raw column $\mathbf{x}_1$ establishes the first orthonormal axis $\mathbf{q}_1$. The second column $\mathbf{x}_2$ is decomposed into its parallel projection $r_{12}\mathbf{q}_1$ and its orthogonal residual $\mathbf{u}_2$, which normalizes to $\mathbf{q}_2$. The resulting upper-triangular matrix $R$ encodes projection coordinates without squaring condition numbers.}
+\label{fig:qr_gram_schmidt_geometry}
+\end{figure}
 
 \subsection{The Underdetermined Regime \& The Moore-Penrose Pseudoinverse}
 What happens in modern deep learning and bioinformatics where the number of parameters $d$ exceeds the number of observations $N$ ($d > N$)?

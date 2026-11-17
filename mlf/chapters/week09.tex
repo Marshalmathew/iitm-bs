@@ -984,8 +984,8 @@ if __name__ == "__main__":
     Let $\mathbf{p} = [p_1, \dots, p_K]^T$ be a discrete probability vector. Maximize the Shannon entropy $H(\mathbf{p}) = -\sum_{i=1}^K p_i \log p_i$ subject to the simplex constraint $\sum_{i=1}^K p_i = 1$.
     Using Lagrange multipliers, prove that the uniform distribution $p_i^* = \frac{1}{K}$ for all $i$ is the unique global maximizer.
 
-    \item \textbf{Convexity Verification via Second-Order Conditions:}
-    Consider the log-sum-exp function $f(\mathbf{x}) = \log\left( \sum_{i=1}^d \exp(x_i) \right)$.
+    \item \textbf{Convexity Verification (Second-Order Conditions):}
+    Consider the log-sum-exp function $f(\mathbf{x}) = \log\big( \sum_{i=1}^d e^{x_i} \big)$.
     \begin{enumerate}[label=(\alph*)]
         \item Compute the gradient $\nabla f(\mathbf{x})$ and show it is a probability vector (softmax).
         \item Compute the Hessian matrix $\nabla^2 f(\mathbf{x})$.

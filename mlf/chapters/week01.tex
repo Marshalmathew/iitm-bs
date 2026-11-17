@@ -11,7 +11,12 @@ Every serious journey into the mathematical foundations of machine learning must
 
 For more than half a century, traditional computer science solved the world's most demanding engineering problems using a single, elegant philosophical principle known as \textbf{deductive programming}:
 \begin{equation}
-\boxed{\text{Human Writes Rules (Logic)} + \text{Computer Receives Input Data} \xrightarrow{\text{Deductive Execution}} \text{Deterministic Output (Answers)}}
+\boxed{
+\begin{aligned}
+\text{Human Writes Rules (Logic)} &+ \text{Computer Receives Input Data} \\
+&\xrightarrow{\text{Deductive Execution}} \text{Deterministic Output (Answers)}
+\end{aligned}
+}
 \label{eq:deductive_flow}
 \end{equation}
 In this classical paradigm, a human software engineer studies a real-world system, formalizes a complete set of deterministic logical rules, and implements them as source code:
@@ -43,7 +48,12 @@ No team of software engineers, given centuries of effort, could write enough \te
 \subsubsection{The Inductive Inversion}
 \textbf{Machine Learning} inverts this computational flow into an \textbf{inductive paradigm}:
 \begin{equation}
-\boxed{\text{Input Observations} + \text{Desired Outputs (Targets)} \xrightarrow{\text{Inductive Learning}} \text{Discovered Rules (Hypothesis } h\text{)}}
+\boxed{
+\begin{aligned}
+\text{Input Observations} &+ \text{Desired Outputs (Targets)} \\
+&\xrightarrow{\text{Inductive Learning}} \text{Discovered Rules (Hypothesis } h\text{)}
+\end{aligned}
+}
 \label{eq:inductive_flow}
 \end{equation}
 Instead of hand-coding the logic, we collect 60,000 examples of handwritten images alongside their verified labels. We define a flexible mathematical function with adjustable numerical knobs (parameters) and a loss surface that quantifies mistakes. An optimization algorithm systematically turns those knobs until the function automatically maps raw pixels to correct labels.
@@ -1036,7 +1046,7 @@ Table~\ref{tab:ml_paradigms_synthesis} summarizes the primary problem formulatio
 \centering
 \footnotesize
 \setlength{\tabcolsep}{3.5pt}
-\begin{tabularx}{\textwidth}{lp{2.4cm}p{2.6cm}p{2.8cm}p{3.8cm}}
+\begin{tabularx}{\textwidth}{lp{2.4cm}p{2.6cm}p{2.8cm}X}
 \toprule
 \textbf{Paradigm} & \textbf{Data Provided} & \textbf{Core Goal} & \textbf{Standard Loss Metric} & \textbf{Primary Engineering Danger} \\
 \midrule

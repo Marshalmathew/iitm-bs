@@ -422,9 +422,9 @@ How does the variational decomposition guarantee that the true marginal log-like
 \tcblower
 By combining the E-step contact property and M-step optimality:
 \begin{align*}
-\log p(\mathbf{X}; \boldsymbol{\theta}^{(t)}) &= \text{ELBO}(q^{(t)}, \boldsymbol{\theta}^{(t)}) \quad &&\text{(E-step: KL divergence eliminated)} \\
-&\le \text{ELBO}(q^{(t)}, \boldsymbol{\theta}^{(t+1)}) \quad &&\text{(M-step: parameters maximized on ELBO)} \\
-&\le \text{ELBO}(q^{(t)}, \boldsymbol{\theta}^{(t+1)}) + D_{\text{KL}}\left(q^{(t)} \,\big\|\, p(\cdot \mid \mathbf{X}; \boldsymbol{\theta}^{(t+1)})\right) \quad &&\text{(Non-negativity of KL divergence)} \\
+\log p(\mathbf{X}; \boldsymbol{\theta}^{(t)}) &= \text{ELBO}(q^{(t)}, \boldsymbol{\theta}^{(t)}) \quad &&\text{(E-step: KL eliminated)} \\
+&\le \text{ELBO}(q^{(t)}, \boldsymbol{\theta}^{(t+1)}) \quad &&\text{(M-step: ELBO maximized)} \\
+&\le \text{ELBO}(q^{(t)}, \boldsymbol{\theta}^{(t+1)}) + D_{\text{KL}}\!\left(q^{(t)} \,\big\|\, p(\cdot \mid \mathbf{X}; \boldsymbol{\theta}^{(t+1)})\right) \quad &&\text{(Since } D_{\text{KL}} \ge 0\text{)} \\
 &= \log p(\mathbf{X}; \boldsymbol{\theta}^{(t+1)}) \quad &&\text{(Identity~\eqref{eq:elbo_decomp})}
 \end{align*}
 Therefore:
@@ -712,14 +712,15 @@ Table~\ref{tab:clustering_comp} compares the mathematical characteristics of clu
 
 \begin{table}[htbp]
 \centering
-\small
+\footnotesize
+\setlength{\tabcolsep}{3pt}
 \begin{tabularx}{\textwidth}{lXXXXX}
 \toprule
 \textbf{Model} & \textbf{Cluster Assignment} & \textbf{Cluster Geometry} & \textbf{Objective Function} & \textbf{Computational Complexity} & \textbf{Density Output} \\
 \midrule
 $K$-Means & Hard (Binary $0/1$) & Spherical (isotropic Voronoi cells) & Residual sum of squares $\sum \|\mathbf{x}_i - \boldsymbol{\mu}_{z_i}\|^2$ & $\mathcal{O}(N K d \cdot \text{iters})$ & No (Centroids only) \\
 \addlinespace
-GMM (EM) & Soft (Probabilities $\gamma_{ik} \in [0, 1]$) & Ellipsoidal (arbitrary full covariance $\Sigma_k$) & Marginal log-likelihood $\sum \log \sum \pi_k \mathcal{N}(\mathbf{x}_i)$ & $\mathcal{O}(N K d^2 \cdot \text{iters})$ & Yes (Complete generative density $p(\mathbf{x})$) \\
+GMM (EM) & Soft (Probabilities $\gamma_{ik} \in [0, 1]$) & Ellipsoidal (arbitrary full covariance $\Sigma_k$) & Marginal log-likelihood $\sum_i \log \sum_k \pi_k \mathcal{N}_{ik}$ & $\mathcal{O}(N K d^2 \cdot \text{iters})$ & Yes (Complete generative density $p(\mathbf{x})$) \\
 \addlinespace
 Factor Analysis & Continuous latent $\mathbf{z} \in \mathbb{R}^k$ & Linear manifold + diagonal noise & Marginal Gaussian log-likelihood & $\mathcal{O}(N d k \cdot \text{iters})$ & Yes (Low-rank Gaussian density) \\
 \addlinespace
