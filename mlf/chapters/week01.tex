@@ -443,7 +443,7 @@ Figure~\ref{fig:ml_pipeline_geometry} visualizes how information flows from Natu
 \begin{tikzpicture}[
     scale=0.92,
     font=\sffamily\footnotesize,
-    node/.style={rectangle, thick, rounded corners=4pt, text width=3.3cm, minimum height=1.35cm, align=center},
+    node/.style={rectangle, thick, rounded corners=4pt, text width=3.2cm, minimum height=1.35cm, align=center},
     arr/.style={->, >=stealth, line width=1.2pt, color=primarydark},
     dashedarr/.style={->, >=stealth, line width=1.2pt, dashed, color=coralborder}
 ]
@@ -455,52 +455,52 @@ Figure~\ref{fig:ml_pipeline_geometry} visualizes how information flows from Natu
     $(\mathbf{x}, y) \sim \mathcal{D}$
 };
 
-\node[node, draw=primarydark, fill=primarylight!40] (sample) at (5.5, 0) {
+\node[node, draw=primarydark, fill=primarylight!40] (sample) at (5.6, 0) {
     \textbf{Finite Training Set}\\
     $S = \{(\mathbf{x}_i, y_i)\}_{i=1}^N$\\
-    $N$ i.i.d.\ observations
+    $N$ i.i.d.\ draws
 };
 
-\node[node, draw=tealborder, fill=tealbg] (erm) at (11.0, 0) {
+\node[node, draw=tealborder, fill=tealbg] (erm) at (11.2, 0) {
     \textbf{ERM Optimization}\\
     $\hat{h}_S = \argmin_{h \in \mathcal{H}} R_{\text{emp}}(h)$\\
     Inductive Bias $\mathcal{H}$
 };
 
 % Bottom Row: Risk & Generalization Evaluation
-\node[node, draw=coralborder, fill=coralbg] (rtrue) at (0, -3.2) {
+\node[node, draw=coralborder, fill=coralbg] (rtrue) at (0, -3.4) {
     \textbf{True Risk $R(\hat{h}_S)$}\\
     $\E_{(\mathbf{x},y)\sim\mathcal{D}}[\ell(\hat{h}_S(\mathbf{x}), y)]$\\
     Unseen Generalization
 };
 
-\node[node, draw=traprad, fill=traprad!12] (gap) at (5.5, -3.2) {
+\node[node, draw=traprad, fill=traprad!12] (gap) at (5.6, -3.4) {
     \textbf{Generalization Gap}\\
     $\Delta_{\text{gen}} = R(\hat{h}_S) - R_{\text{emp}}$\\
     Overfitting Magnitude
 };
 
-\node[node, draw=coralborder, fill=coralbg] (remp) at (11.0, -3.2) {
+\node[node, draw=coralborder, fill=coralbg] (remp) at (11.2, -3.4) {
     \textbf{Empirical Risk}\\
     $R_{\text{emp}}(\hat{h}_S; S) = \frac{1}{N}\sum_{i=1}^N \ell_i$\\
     Observable Training Loss
 };
 
 % Horizontal Arrows (Top Row)
-\draw[arr] (world) -- node[above, font=\scriptsize\bfseries] {i.i.d.\ Sampling} 
-                      node[below, font=\scriptsize] {$S \sim \mathcal{D}^N$} (sample);
-\draw[arr] (sample) -- node[above, font=\scriptsize\bfseries] {Minimization} 
-                       node[below, font=\scriptsize] {Search over $\mathcal{H}$} (erm);
+\draw[arr] (world) -- node[above=2pt, font=\scriptsize\bfseries] {Sample $S \sim \mathcal{D}^N$} 
+                      node[below=2pt, font=\scriptsize] {$N$ i.i.d.\ draws} (sample);
+\draw[arr] (sample) -- node[above=2pt, font=\scriptsize\bfseries] {ERM Search} 
+                       node[below=2pt, font=\scriptsize] {over class $\mathcal{H}$} (erm);
 
 % Vertical Downward Arrows
-\draw[dashedarr] (world) -- node[left, font=\scriptsize\bfseries, align=right] {Evaluated on\\Nature $\mathcal{D}$} (rtrue);
-\draw[arr] (erm) -- node[right, font=\scriptsize\bfseries, align=left] {Observed Loss\\on Sample $S$} (remp);
+\draw[dashedarr] (world) -- node[left=3pt, font=\scriptsize\bfseries, align=right] {Evaluated on\\Nature $\mathcal{D}$} (rtrue);
+\draw[arr] (erm) -- node[right=3pt, font=\scriptsize\bfseries, align=left] {Evaluated on\\Sample $S$} (remp);
 
 % Horizontal Arrows (Bottom Row) feeding into Generalization Gap
-\draw[arr] (rtrue) -- node[above, font=\scriptsize\bfseries] {Expected Loss} 
-                      node[below, font=\scriptsize] {Final Exam} (gap);
-\draw[arr] (remp) -- node[above, font=\scriptsize\bfseries] {Training Loss} 
-                     node[below, font=\scriptsize] {Practice Homework} (gap);
+\draw[arr] (rtrue) -- node[above=2pt, font=\scriptsize\bfseries] {$+$ True Loss} 
+                      node[below=2pt, font=\scriptsize] {(Final Exam)} (gap);
+\draw[arr] (remp) -- node[above=2pt, font=\scriptsize\bfseries] {$-$ Train Loss} 
+                     node[below=2pt, font=\scriptsize] {(Practice HW)} (gap);
 
 \end{tikzpicture}
 \caption{The Statistical Learning Pipeline: Connecting unknown generative distribution $\mathcal{D}$, finite training sample $S$, empirical optimization within hypothesis class $\mathcal{H}$, and true out-of-sample risk.}
@@ -514,16 +514,15 @@ Why is zero generalization error fundamentally impossible in real-world problems
 \centering
 \begin{tikzpicture}
 \begin{axis}[
-    width=0.88\textwidth,
-    height=5.0cm,
-    samples=150,
+    width=0.90\textwidth,
+    height=5.8cm,
+    samples=160,
     domain=-3.0:5.5,
     xlabel={Observed Sensor Measurement $x$},
     ylabel={Joint Probability Density $p(x, Y=y)$},
-    ymin=0, ymax=0.32,
-    legend pos=north east,
+    ymin=0, ymax=0.36,
     axis lines=left,
-    legend style={font=\footnotesize\sffamily, fill=white, draw=gray!30}
+    legend style={at={(0.98, 0.95)}, anchor=north east, font=\scriptsize\sffamily, fill=white, fill opacity=0.9, draw=gray!30}
 ]
 
 % Class 0: Functional (0.70 * N(0, 1))
@@ -541,17 +540,20 @@ Why is zero generalization error fundamentally impossible in real-world problems
 % For x >= 1.4236, predicting Y=1 makes an error when Y=0
 \addplot[domain=1.4236:5.0, draw=none, fill=coralborder, fill opacity=0.45] {0.70 * exp(-0.5*x^2)/sqrt(2*pi)} \closedcycle;
 
-% Optimal Boundary Line at x* = 1.4236
-\draw[dashed, thick, color=coralformula] (axis cs:1.4236, 0) -- (axis cs:1.4236, 0.28)
-    node[above, font=\footnotesize\bfseries\sffamily] {Bayes Boundary $x^* = 1.4236$};
+% Naive Midpoint marker at x = 1.0 (drawn with left-pointing callout at y=0.21, completely clear of Bayes Boundary)
+\draw[dotted, line width=1.0pt, color=gray!70!black] (axis cs:1.0, 0) -- (axis cs:1.0, 0.22);
+\node[font=\scriptsize\sffamily, color=gray!80!black, anchor=east] at (axis cs:0.95, 0.21) {Naive Midpoint $x=1.0 \to$};
 
-% Naive Midpoint marker at x = 1.0
-\draw[dotted, thick, color=gray] (axis cs:1.0, 0) -- (axis cs:1.0, 0.22)
-    node[above, font=\scriptsize\sffamily, color=gray!80!black] {Naive Midpoint $x=1.0$};
+% Optimal Boundary Line at x* = 1.4236 (drawn tall with top header at y=0.31)
+\draw[dashed, line width=1.1pt, color=coralformula] (axis cs:1.4236, 0) -- (axis cs:1.4236, 0.28);
+\node[font=\scriptsize\bfseries\sffamily, color=coralformula, align=center] at (axis cs:1.4236, 0.31) {Bayes Boundary\\$x^* = 1.4236$};
 
-\node[font=\footnotesize\sffamily, color=coralformula] at (axis cs:1.4236, 0.05) {\textbf{Bayes Error}};
-\node[font=\footnotesize\sffamily, color=primarydark] at (axis cs:-0.8, 0.20) {Predict $\hat{y} = 0$};
-\node[font=\footnotesize\sffamily, color=tealdef] at (axis cs:3.2, 0.14) {Predict $\hat{y} = 1$};
+% Shaded Region Callout Badge
+\node[font=\scriptsize\bfseries\sffamily, color=white, fill=coralformula, rounded corners=2pt, inner sep=2pt] at (axis cs:1.4236, 0.04) {Bayes Error};
+
+% Decision Region Labels
+\node[font=\footnotesize\bfseries\sffamily, color=primarydark, align=center] at (axis cs:-1.2, 0.14) {Predict $\hat{y} = 0$\\[2pt]\scriptsize(Functional)};
+\node[font=\footnotesize\bfseries\sffamily, color=tealdef, align=center] at (axis cs:3.4, 0.10) {Predict $\hat{y} = 1$\\[2pt]\scriptsize(Defective)};
 
 \end{axis}
 \end{tikzpicture}
