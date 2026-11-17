@@ -1027,6 +1027,62 @@ p_k = \frac{e^{\eta_k}}{1 + \sum_{j=1}^{K-1} e^{\eta_j}}
 \end{equation*}
 Setting $\eta_K = 0$ yields the symmetric Softmax function: $p_k = \frac{e^{\eta_k}}{\sum_{j=1}^K e^{\eta_j}}$.
 
+\paragraph{P6. Maximum Entropy Derivation of the Univariate Gaussian:}
+$X$ is continuous on $(-\infty, \infty)$ with $\E[X] = \mu$ and $\Var(X) = \sigma^2 \implies \E[X^2] = \mu^2 + \sigma^2$.
+\begin{enumerate}[label=(\alph*)]
+    \item The functional Lagrangian to maximize Shannon entropy $H(p) = -\int_{-\infty}^\infty p(x)\log p(x) dx$ subject to normalization, mean, and second moment constraints is:
+    \begin{align*}
+    \mathcal{L}[p] &= -\int_{-\infty}^\infty p(x)\log p(x) dx - \lambda_0 \left(\int_{-\infty}^\infty p(x) dx - 1\right) \\
+    &\quad - \lambda_1 \left(\int_{-\infty}^\infty x p(x) dx - \mu\right) - \lambda_2 \left(\int_{-\infty}^\infty x^2 p(x) dx - (\mu^2 + \sigma^2)\right)
+    \end{align*}
+    \item Taking the functional derivative with respect to $p(x)$ and equating to zero:
+    \begin{align*}
+    \frac{\delta \mathcal{L}}{\delta p(x)} &= -(\log p(x) + 1) - \lambda_0 - \lambda_1 x - \lambda_2 x^2 = 0 \\
+    \implies \log p(x) &= -(1 + \lambda_0) - \lambda_1 x - \lambda_2 x^2 \\
+    \implies p^*(x) &= \exp\left( -(1 + \lambda_0) - \lambda_1 x - \lambda_2 x^2 \right)
+    \end{align*}
+    Completing the square in the exponent: $-\lambda_2\left(x + \frac{\lambda_1}{2\lambda_2}\right)^2 + \frac{\lambda_1^2}{4\lambda_2} - (1 + \lambda_0)$.
+    \item For the density to be integrable over $(-\infty, \infty)$, we must have $\lambda_2 > 0$. Let $\lambda_2 = \frac{1}{2s^2}$ and $-\frac{\lambda_1}{2\lambda_2} = m$. Then:
+    \begin{equation*}
+    p^*(x) = C \exp\left( -\frac{(x - m)^2}{2s^2} \right)
+    \end{equation*}
+    Integrating to 1 yields normalizing constant $C = \frac{1}{\sqrt{2\pi}s}$, which is the Gaussian PDF $\mathcal{N}(m, s^2)$.
+    Equating constraints:
+    $\E[X] = m = \mu$, and $\Var(X) = s^2 = \sigma^2$.
+    The unique Maximum Entropy distribution is identically the Gaussian distribution $\mathcal{N}(\mu, \sigma^2)$.
+\end{enumerate}
+
+\paragraph{P7. Fisher Information and Asymptotic Efficiency for the Exponential Distribution:}
+$X_i \stackrel{\text{i.i.d.}}{\sim} \text{Exponential}(\lambda)$ with $f(x; \lambda) = \lambda e^{-\lambda x}$ for $x \ge 0$.
+\begin{enumerate}[label=(\alph*)]
+    \item In canonical form: $\eta = -\lambda$ and $A(\eta) = -\log(-\eta)$.
+    The first derivative is $A'(\eta) = -\frac{1}{\eta} = \frac{1}{\lambda} = \E[X]$.
+    The second derivative is the Fisher Information:
+    \begin{equation*}
+    \mathcal{I}(\eta) = A''(\eta) = \frac{d}{d\eta}\left(-\frac{1}{\eta}\right) = \frac{1}{\eta^2} = \frac{1}{(-\lambda)^2} = \frac{1}{\lambda^2}
+    \end{equation*}
+    \item By the reparameterization rule for Fisher Information:
+    \begin{equation*}
+    \mathcal{I}(\lambda) = \mathcal{I}(\eta) \left( \frac{d\eta}{d\lambda} \right)^2 = \left(\frac{1}{\lambda^2}\right) (-1)^2 = \frac{1}{\lambda^2}
+    \end{equation*}
+    Alternatively, directly from log-likelihood $\log f(x; \lambda) = \log\lambda - \lambda x$:
+    $\frac{\partial^2}{\partial \lambda^2} \log f = -\frac{1}{\lambda^2}$, so $\mathcal{I}(\lambda) = -\E\left[\frac{\partial^2}{\partial \lambda^2} \log f\right] = \frac{1}{\lambda^2}$.
+    \item For $N$ i.i.d.\ observations, the log-likelihood is $\ell(\lambda) = N\log\lambda - \lambda \sum_{i=1}^N x_i$. Setting the score to zero:
+    \begin{equation*}
+    \frac{d\ell}{d\lambda} = \frac{N}{\lambda} - \sum_{i=1}^N x_i = 0 \implies \hat{\lambda}_{\text{MLE}} = \frac{N}{\sum_{i=1}^N x_i} = \frac{1}{\bar{X}_N}
+    \end{equation*}
+    By the Central Limit Theorem, $\sqrt{N}(\bar{X}_N - \frac{1}{\lambda}) \xrightarrow{d} \mathcal{N}(0, \frac{1}{\lambda^2})$.
+    Applying the Delta method with $g(u) = 1/u \implies g'(u) = -1/u^2$:
+    \begin{equation*}
+    \sqrt{N}\left( \hat{\lambda}_{\text{MLE}} - \lambda \right) \xrightarrow{d} \mathcal{N}\left( 0, \; [g'(1/\lambda)]^2 \Var(\bar{X}) \right) = \mathcal{N}\left( 0, \; (-\lambda^2)^2 \frac{1}{\lambda^2} \right) = \mathcal{N}(0, \lambda^2)
+    \end{equation*}
+    Thus, as $N \to \infty$:
+    \begin{equation*}
+    \Var(\hat{\lambda}_{\text{MLE}}) \to \frac{\lambda^2}{N} = \frac{1}{N \mathcal{I}(\lambda)}
+    \end{equation*}
+    The maximum likelihood estimator achieves the Cramér-Rao lower bound, proving it is asymptotically efficient.
+\end{enumerate}
+
 \subsection*{Part B: Diagnostic Multiple-Choice Rationales}
 
 \paragraph{MCQ1: Linear Transformation Density Rule}
