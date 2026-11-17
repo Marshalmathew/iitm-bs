@@ -30,10 +30,7 @@ For more than half a century, traditional computer science solved the world's mo
 \draw[arr] (engine.east) -- (answers.west);
 \end{tikzpicture}
 \end{center}
-\begin{equation}
-\boxed{\big( \text{Rules (Logic)}, \; \text{Data (Inputs)} \big) \;\xrightarrow{\quad\text{Deductive Execution}\quad}\; \text{Answers (Outputs)}}
-\label{eq:deductive_flow}
-\end{equation}
+
 In this classical paradigm, a human software engineer studies a real-world system, formalizes a complete set of deterministic logical rules, and implements them as source code:
 \begin{itemize}
     \item If you need to calculate corporate tax liabilities, you read the tax code, write a sequence of \texttt{if-else} branches corresponding to each income bracket, and run the program.
@@ -83,10 +80,7 @@ No team of software engineers, given centuries of effort, could write enough \te
 \draw[outarr] (engine.east) -- (rules.west);
 \end{tikzpicture}
 \end{center}
-\begin{equation}
-\boxed{\big( \text{Data (Inputs)}, \; \text{Answers (Targets)} \big) \;\xrightarrow{\quad\text{Inductive Learning}\quad}\; \text{Rules (Hypothesis } h\text{)}}
-\label{eq:inductive_flow}
-\end{equation}
+
 Instead of hand-coding the logic, we collect 60,000 examples of handwritten images alongside their verified labels. We define a flexible mathematical function with adjustable numerical knobs (parameters) and a loss surface that quantifies mistakes. An optimization algorithm systematically turns those knobs until the function automatically maps raw pixels to correct labels.
 
 In 1959, artificial intelligence pioneer Arthur Samuel captured this philosophy:
@@ -442,8 +436,9 @@ Figure~\ref{fig:ml_pipeline_geometry} visualizes how information flows from Natu
 \centering
 \begin{tikzpicture}[
     scale=0.92,
+    transform shape,
     font=\sffamily\footnotesize,
-    node/.style={rectangle, thick, rounded corners=4pt, text width=3.2cm, minimum height=1.35cm, align=center},
+    node/.style={rectangle, thick, rounded corners=4pt, text width=2.8cm, minimum height=1.3cm, inner sep=3pt, align=center},
     arr/.style={->, >=stealth, line width=1.2pt, color=primarydark},
     dashedarr/.style={->, >=stealth, line width=1.2pt, dashed, color=coralborder}
 ]
@@ -455,32 +450,32 @@ Figure~\ref{fig:ml_pipeline_geometry} visualizes how information flows from Natu
     $(\mathbf{x}, y) \sim \mathcal{D}$
 };
 
-\node[node, draw=primarydark, fill=primarylight!40] (sample) at (5.6, 0) {
+\node[node, draw=primarydark, fill=primarylight!40] (sample) at (5.8, 0) {
     \textbf{Finite Training Set}\\
     $S = \{(\mathbf{x}_i, y_i)\}_{i=1}^N$\\
     $N$ i.i.d.\ draws
 };
 
-\node[node, draw=tealborder, fill=tealbg] (erm) at (11.2, 0) {
+\node[node, draw=tealborder, fill=tealbg] (erm) at (11.6, 0) {
     \textbf{ERM Optimization}\\
     $\hat{h}_S = \argmin_{h \in \mathcal{H}} R_{\text{emp}}(h)$\\
     Inductive Bias $\mathcal{H}$
 };
 
 % Bottom Row: Risk & Generalization Evaluation
-\node[node, draw=coralborder, fill=coralbg] (rtrue) at (0, -3.4) {
+\node[node, draw=coralborder, fill=coralbg] (rtrue) at (0, -3.2) {
     \textbf{True Risk $R(\hat{h}_S)$}\\
     $\E_{(\mathbf{x},y)\sim\mathcal{D}}[\ell(\hat{h}_S(\mathbf{x}), y)]$\\
-    Unseen Generalization
+    Unseen Risk
 };
 
-\node[node, draw=traprad, fill=traprad!12] (gap) at (5.6, -3.4) {
+\node[node, draw=traprad, fill=traprad!12] (gap) at (5.8, -3.2) {
     \textbf{Generalization Gap}\\
     $\Delta_{\text{gen}} = R(\hat{h}_S) - R_{\text{emp}}$\\
     Overfitting Magnitude
 };
 
-\node[node, draw=coralborder, fill=coralbg] (remp) at (11.2, -3.4) {
+\node[node, draw=coralborder, fill=coralbg] (remp) at (11.6, -3.2) {
     \textbf{Empirical Risk}\\
     $R_{\text{emp}}(\hat{h}_S; S) = \frac{1}{N}\sum_{i=1}^N \ell_i$\\
     Observable Training Loss
@@ -488,19 +483,19 @@ Figure~\ref{fig:ml_pipeline_geometry} visualizes how information flows from Natu
 
 % Horizontal Arrows (Top Row)
 \draw[arr] (world) -- node[above=2pt, font=\scriptsize\bfseries] {Sample $S \sim \mathcal{D}^N$} 
-                      node[below=2pt, font=\scriptsize] {$N$ i.i.d.\ draws} (sample);
-\draw[arr] (sample) -- node[above=2pt, font=\scriptsize\bfseries] {ERM Search} 
-                       node[below=2pt, font=\scriptsize] {over class $\mathcal{H}$} (erm);
+                      node[below=2pt, font=\tiny] {$N$ i.i.d.\ draws} (sample);
+\draw[arr] (sample) -- node[above=2pt, font=\scriptsize\bfseries] {Minimize} 
+                       node[below=2pt, font=\tiny] {$\hat{h}_S \in \mathcal{H}$} (erm);
 
 % Vertical Downward Arrows
-\draw[dashedarr] (world) -- node[left=3pt, font=\scriptsize\bfseries, align=right] {Evaluated on\\Nature $\mathcal{D}$} (rtrue);
-\draw[arr] (erm) -- node[right=3pt, font=\scriptsize\bfseries, align=left] {Evaluated on\\Sample $S$} (remp);
+\draw[dashedarr] (world) -- node[left=4pt, font=\tiny\bfseries, align=right] {Evaluated on\\Nature $\mathcal{D}$} (rtrue);
+\draw[arr] (erm) -- node[right=4pt, font=\tiny\bfseries, align=left] {Evaluated on\\Sample $S$} (remp);
 
 % Horizontal Arrows (Bottom Row) feeding into Generalization Gap
-\draw[arr] (rtrue) -- node[above=2pt, font=\scriptsize\bfseries] {$+$ True Loss} 
-                      node[below=2pt, font=\scriptsize] {(Final Exam)} (gap);
-\draw[arr] (remp) -- node[above=2pt, font=\scriptsize\bfseries] {$-$ Train Loss} 
-                     node[below=2pt, font=\scriptsize] {(Practice HW)} (gap);
+\draw[arr] (rtrue) -- node[above=2pt, font=\scriptsize\bfseries] {$+ R(\hat{h}_S)$} 
+                      node[below=2pt, font=\tiny] {(Unseen Risk)} (gap);
+\draw[arr] (remp) -- node[above=2pt, font=\scriptsize\bfseries] {$- R_{\text{emp}}$} 
+                     node[below=2pt, font=\tiny] {(Training Loss)} (gap);
 
 \end{tikzpicture}
 \caption{The Statistical Learning Pipeline: Connecting unknown generative distribution $\mathcal{D}$, finite training sample $S$, empirical optimization within hypothesis class $\mathcal{H}$, and true out-of-sample risk.}
@@ -522,16 +517,16 @@ Why is zero generalization error fundamentally impossible in real-world problems
     ylabel={Joint Probability Density $p(x, Y=y)$},
     ymin=0, ymax=0.36,
     axis lines=left,
-    legend style={at={(0.98, 0.95)}, anchor=north east, font=\scriptsize\sffamily, fill=white, fill opacity=0.9, draw=gray!30}
+    legend style={at={(0.98, 0.95)}, anchor=north east, font=\tiny\sffamily, fill=white, fill opacity=0.92, draw=gray!30}
 ]
 
 % Class 0: Functional (0.70 * N(0, 1))
 \addplot[thick, color=primarydark, fill=primarylight, fill opacity=0.35] {0.70 * exp(-0.5*x^2)/sqrt(2*pi)};
-\addlegendentry{$p(x, Y=0) = 0.70 \cdot \mathcal{N}(0, 1)$ (Functional)}
+\addlegendentry{Functional: $0.70 \cdot \mathcal{N}(0, 1)$}
 
 % Class 1: Defective (0.30 * N(2, 1))
 \addplot[thick, color=tealdef, fill=tealbg, fill opacity=0.35] {0.30 * exp(-0.5*(x-2)^2)/sqrt(2*pi)};
-\addlegendentry{$p(x, Y=1) = 0.30 \cdot \mathcal{N}(2, 1)$ (Defective)}
+\addlegendentry{Defective: $0.30 \cdot \mathcal{N}(2, 1)$}
 
 % Shaded Bayes Error Region:
 % For x < 1.4236, predicting Y=0 makes an error when Y=1
@@ -540,20 +535,20 @@ Why is zero generalization error fundamentally impossible in real-world problems
 % For x >= 1.4236, predicting Y=1 makes an error when Y=0
 \addplot[domain=1.4236:5.0, draw=none, fill=coralborder, fill opacity=0.45] {0.70 * exp(-0.5*x^2)/sqrt(2*pi)} \closedcycle;
 
-% Naive Midpoint marker at x = 1.0 (drawn with left-pointing callout at y=0.21, completely clear of Bayes Boundary)
-\draw[dotted, line width=1.0pt, color=gray!70!black] (axis cs:1.0, 0) -- (axis cs:1.0, 0.22);
-\node[font=\scriptsize\sffamily, color=gray!80!black, anchor=east] at (axis cs:0.95, 0.21) {Naive Midpoint $x=1.0 \to$};
+% Naive Midpoint marker at x = 1.0
+\draw[dotted, line width=1.0pt, color=gray!70!black] (axis cs:1.0, 0) -- (axis cs:1.0, 0.18);
+\node[font=\tiny\sffamily, color=gray!80!black, anchor=east, fill=white, fill opacity=0.9, text opacity=1, inner sep=1pt] at (axis cs:0.95, 0.17) {Naive Midpoint $x=1.0 \to$};
 
-% Optimal Boundary Line at x* = 1.4236 (drawn tall with top header at y=0.31)
-\draw[dashed, line width=1.1pt, color=coralformula] (axis cs:1.4236, 0) -- (axis cs:1.4236, 0.28);
-\node[font=\scriptsize\bfseries\sffamily, color=coralformula, align=center] at (axis cs:1.4236, 0.31) {Bayes Boundary\\$x^* = 1.4236$};
+% Optimal Boundary Line at x* = 1.4236
+\draw[dashed, line width=1.1pt, color=coralformula] (axis cs:1.4236, 0) -- (axis cs:1.4236, 0.23);
+\node[font=\scriptsize\bfseries\sffamily, color=coralformula, align=center, fill=white, fill opacity=0.9, text opacity=1, inner sep=1.5pt] at (axis cs:1.4236, 0.26) {Bayes Boundary\\$x^* = 1.4236$};
 
 % Shaded Region Callout Badge
-\node[font=\scriptsize\bfseries\sffamily, color=white, fill=coralformula, rounded corners=2pt, inner sep=2pt] at (axis cs:1.4236, 0.04) {Bayes Error};
+\node[font=\tiny\bfseries\sffamily, color=white, fill=coralformula, rounded corners=2pt, inner sep=1.5pt] at (axis cs:1.4236, 0.04) {Bayes Error};
 
 % Decision Region Labels
-\node[font=\footnotesize\bfseries\sffamily, color=primarydark, align=center] at (axis cs:-1.2, 0.14) {Predict $\hat{y} = 0$\\[2pt]\scriptsize(Functional)};
-\node[font=\footnotesize\bfseries\sffamily, color=tealdef, align=center] at (axis cs:3.4, 0.10) {Predict $\hat{y} = 1$\\[2pt]\scriptsize(Defective)};
+\node[font=\scriptsize\bfseries\sffamily, color=primarydark, align=center, fill=white, fill opacity=0.85, text opacity=1, inner sep=1.5pt, rounded corners=2pt] at (axis cs:-1.6, 0.18) {Predict $\hat{y} = 0$\\[1pt]\tiny(Functional)};
+\node[font=\scriptsize\bfseries\sffamily, color=tealdef, align=center, fill=white, fill opacity=0.85, text opacity=1, inner sep=1.5pt, rounded corners=2pt] at (axis cs:3.6, 0.12) {Predict $\hat{y} = 1$\\[1pt]\tiny(Defective)};
 
 \end{axis}
 \end{tikzpicture}
