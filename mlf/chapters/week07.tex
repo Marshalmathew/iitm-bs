@@ -6,6 +6,22 @@
 % ----------------------------------------------------------------------
 \section{Executive Roadmap \& Learning Objectives}
 
+\begin{tcolorbox}[
+    colback=primarylight!30,
+    colframe=primarydark,
+    title={\large \textbf{Architectural Bridge: From Matrix SVD to Empirical Statistical Geometry}},
+    fonttitle=\bfseries\sffamily,
+    arc=3mm,
+    boxrule=1pt,
+    width=\textwidth
+]
+In Chapter~6, we developed the algebraic machinery of the Singular Value Decomposition (SVD): any matrix $A \in \mathbb{R}^{N \times d}$ admits a factorization $A = U \Sigma V^T$, and the Eckart-Young-Mirsky Theorem established that truncating this factorization to rank $k$ yields the provably optimal low-rank matrix approximation under the Frobenius and spectral norms. 
+
+However, pure linear algebra treats matrices as arbitrary arrays of numbers. In empirical data science and machine learning, data matrices represent collections of stochastic physical observations. Features have physical units, empirical means, and non-zero cross-correlations. 
+
+In this chapter, we bridge abstract SVD to empirical statistics: \textbf{Principal Component Analysis (PCA)} is precisely the statistical realization of SVD applied to mean-centered data. We show how algebraic singular vectors translate into statistical loading directions that maximize explained variance, compress high-dimensional observations without supervised labels, and eliminate redundant collinear noise.
+\end{tcolorbox}
+
 Modern data science routinely handles empirical observations embedded in extraordinarily high-dimensional feature spaces ($d \sim 10^3$ to $10^6$), such as genomic expression profiles, facial images, consumer purchase histories, and neural embedding vectors. In these high-dimensional regimes, models confront the \textbf{curse of dimensionality}: volume grows exponentially, sample density vanishes into near-vacuum, pairwise distances between all points become equidistant, and severe multicollinearity renders linear models numerically unstable.
 
 Yet, real-world data does not fill high-dimensional space uniformly. A set of facial photographs in $\mathbb{R}^{4096}$ (a $64 \times 64$ pixel grid) does not scatter across all 4,096 dimensions; rather, anatomical geometry, lighting, and head poses force the points to cluster tightly along a smooth, low-dimensional manifold.
@@ -86,6 +102,30 @@ Furthermore, linear projections are governed by an unyielding conservation law r
 \text{Total Dataset Variance} = \text{Captured Shadow Variance} + \text{Lost Perpendicular Depth}
 \end{equation}
 Because the total variance of the centered points is a fixed physical constant, \textbf{maximizing the spread of the projected points} is mathematically identical to \textbf{minimizing the perpendicular drop distance from the points to the projection subspace}!
+
+\subsection{The Eigenfaces Paradox: Why Random Pixels Never Yield a Face}
+To grasp why dimensionality reduction succeeds so spectacularly in high-dimensional engineering regimes, consider the physical geometry of facial images. 
+
+Suppose we collect grayscale photographs digitized on a modest grid of $100 \times 100$ pixels. Mathematically, each image is an unrolled vector $\mathbf{x} \in \mathbb{R}^{d}$ where $d = 100 \times 100 = 10{,}000$. If each pixel intensity is digitized between $0$ and $255$, the space of all possible images forms a $10{,}000$-dimensional hypercube $[0, 255]^{10{,}000}$, encompassing a volume of $255^{10{,}000} \approx 10^{24{,}065}$.
+
+Now, imagine an automated image generator that samples an image uniformly at random from this hypercube by assigning each pixel an independent value drawn from $\mathcal{U}[0, 255]$. 
+
+\begin{quote}
+\textit{\textbf{The Thought Experiment:}} If a supercomputer generates one trillion random images per second for a trillion years, what is the probability that even a single generated image will remotely resemble a human face?
+\end{quote}
+
+The probability is \textbf{strictly zero} ($< 10^{-1{,}000}$). Every generated image is purely indistinguishable high-frequency television static (white noise). 
+
+Why? Because human faces obey stringent biological and physical constraints:
+\begin{enumerate}
+    \item \textbf{Bilateral Anatomical Symmetry:} Left and right cheek intensities are intensely correlated; eyes are horizontally aligned across a common scanline; the nose is centered between the eyes.
+    \item \textbf{Spatial Continuity \& Smoothness:} Nearby pixels within the forehead or cheek exhibit nearly identical illumination. Neighboring pixel gradients are smooth, not independent Bernoulli jumps.
+    \item \textbf{Global Illumination Physics:} Lambertian reflectance models dictate that ambient studio lighting casts coordinated shadows across the entire facial surface simultaneously.
+\end{enumerate}
+
+These physical constraints mean that although the ambient pixel space has dimension $d = 10{,}000$, valid human face images do not scatter throughout the $10{,}000$-dimensional volume. Instead, they are confined to an extraordinarily thin, low-dimensional sub-manifold $\mathcal{M} \subset \mathbb{R}^{10{,}000}$ whose intrinsic degrees of freedom (head pose, lighting angle, jawline width, eye separation) span at most $k \le 50$ dimensions!
+
+In the celebrated \emph{Eigenfaces} framework developed by Turk and Pentland (1991), PCA computes the optimal linear tangent subspace that approximates this facial manifold. By projecting each $10{,}000$-dimensional raw pixel vector onto the top $k = 40$ principal component loading vectors ($\mathbf{w}_1, \dots, \mathbf{w}_{40}$), an image is compressed into a 40-dimensional feature vector $\mathbf{z} \in \mathbb{R}^{40}$ with over $95\%$ reconstruction fidelity. PCA succeeds precisely because nature abhors full-rank noise.
 
 \begin{ponderbox}{The Shadow Geometry \& The Pythagorean Conservation Law}
 Consider a zero-mean cloud of $N$ data points in $\mathbb{R}^d$. Let $\mathbf{w} \in \mathbb{R}^d$ be any candidate unit vector ($\|\mathbf{w}\|_2 = 1$).
@@ -241,6 +281,7 @@ Now consider the dual perspective. We seek an orthonormal basis $W_k = [\mathbf{
 \end{equation}
 
 \begin{theorembox}{Equivalence of PCA Formulations}
+\label{thm:pca_equivalence}
 Maximizing empirical projected variance is mathematically identical to minimizing the mean squared reconstruction error. For any target dimension $k \le d$, the optimal projection matrix $W_k$ consists of the top $k$ eigenvectors of the sample covariance matrix $S$.
 
 Furthermore, the minimum reconstruction error achieved is strictly the sum of the discarded eigenvalues:
@@ -277,6 +318,36 @@ The residual error is:
 \mathcal{J}(W_k) = \trace(S) - \sum_{i=1}^k \lambda_i = \sum_{j=1}^d \lambda_j - \sum_{i=1}^k \lambda_i = \sum_{j=k+1}^d \lambda_j
 \end{equation}
 \end{proof}
+
+\subsection{The Eckart-Young-Mirsky Equivalence: Sample MSE as Matrix Frobenius Approximation}
+The formulation in Equation~\eqref{eq:pca_recon_opt} defines reconstruction error as the sum of Euclidean squared distances across individual samples $\tilde{\mathbf{x}}_i \in \mathbb{R}^d$. A profound algebraic insight emerges when we re-examine this objective through the lens of matrix norms.
+
+\begin{theorembox}{Frobenius Norm Representation of Reconstruction Error}
+Let $\tilde{X} \in \mathbb{R}^{N \times d}$ denote the mean-centered data matrix, and let $W_k = [\mathbf{w}_1, \dots, \mathbf{w}_k] \in \mathbb{R}^{d \times k}$ with $W_k^T W_k = I_k$. The sample mean squared reconstruction error is identically the normalized squared Frobenius distance between $\tilde{X}$ and the rank-$k$ reconstructed data matrix $\hat{X} \triangleq \tilde{X} W_k W_k^T$:
+\begin{equation}
+\mathcal{J}(W_k) = \frac{1}{N}\sum_{i=1}^N \|\tilde{\mathbf{x}}_i - \hat{\mathbf{x}}_i\|_2^2 = \frac{1}{N} \|\tilde{X} - \tilde{X} W_k W_k^T\|_F^2
+\label{eq:frobenius_mse_equiv}
+\end{equation}
+\end{theorembox}
+
+\begin{proof}
+Recall that the squared Frobenius norm of any matrix $M \in \mathbb{R}^{N \times d}$ is the sum of the squared Euclidean norms of its rows:
+\begin{equation}
+\|M\|_F^2 = \sum_{i=1}^N \|\mathbf{m}_{i,:}\|_2^2 = \operatorname{Tr}(M M^T) = \operatorname{Tr}(M^T M)
+\end{equation}
+Setting $M = \tilde{X} - \tilde{X} W_k W_k^T = \tilde{X} (I_d - W_k W_k^T)$, the $i$-th row of $M$ is precisely the transposed reconstruction error vector $(\tilde{\mathbf{x}}_i - W_k W_k^T \tilde{\mathbf{x}}_i)^T$. Taking the squared norm of each row and summing:
+\begin{equation}
+\|\tilde{X} - \tilde{X} W_k W_k^T\|_F^2 = \sum_{i=1}^N \|\tilde{\mathbf{x}}_i - W_k W_k^T \tilde{\mathbf{x}}_i\|_2^2
+\end{equation}
+Dividing both sides by $N$ immediately yields Equation~\eqref{eq:frobenius_mse_equiv}.
+\end{proof}
+
+This equivalence creates a direct bridge to the \textbf{Eckart-Young-Mirsky Low-Rank Approximation Theorem} derived in Chapter~6:
+\begin{equation}
+\min_{\operatorname{rank}(B) \le k} \left\| \frac{1}{\sqrt{N}}\tilde{X} - B \right\|_F^2 = \left\| \frac{1}{\sqrt{N}}\tilde{X} - U_k \Sigma_k V_k^T \right\|_F^2 = \sum_{j=k+1}^{\min(N, d)} \sigma_j^2
+\end{equation}
+Because the singular values of $\frac{1}{\sqrt{N}}\tilde{X}$ satisfy $\sigma_j^2 = \lambda_j(S)$, the minimal matrix Frobenius distance is identically $\sum_{j=k+1}^d \lambda_j$. 
+Thus, empirical statistical variance maximization, point-wise Euclidean reconstruction error minimization, and global matrix-level Eckart-Young-Mirsky truncated SVD approximation are three mathematically identical manifestations of the same geometric truth!
 
 \begin{figure}[htbp]
 \centering
@@ -461,6 +532,235 @@ Suppose you are analyzing $N = 50$ cancer patient tissue samples, where each sam
 \end{enumerate}
 \end{ponderbox}
 
+\subsection{Probabilistic PCA (PPCA): The Latent Gaussian Generative Foundation}
+Classical PCA is a purely algebraic, deterministic projection algorithm. While mathematically elegant, deterministic PCA suffers from four critical theoretical limitations:
+\begin{enumerate}
+    \item \textbf{Absence of a Likelihood Function:} Because PCA does not define a probability density $p(\mathbf{x})$, one cannot compute marginal likelihoods, perform Bayesian model selection, or evaluate out-of-sample data density.
+    \item \textbf{Inability to Handle Missing Data:} If a single feature in an observation is unobserved, the entire sample must be discarded or heuristically imputed prior to SVD.
+    \item \textbf{Inability to Generate Data:} Classical PCA cannot synthesize new synthetic samples that emulate the training distribution.
+    \item \textbf{Incompatibility with Mixtures:} Classical PCA cannot be chained into a mixture model (e.g., a Mixture of Probabilistic PCAs) to model multi-modal data manifolds.
+\end{enumerate}
+
+To resolve these limitations, Tipping and Bishop (1999) and Roweis (1998) introduced \textbf{Probabilistic Principal Component Analysis (PPCA)}, framing dimensionality reduction as a constrained Gaussian latent variable model.
+
+\begin{definitionbox}{Probabilistic PCA Generative Model}
+Let $\mathbf{z} \in \mathbb{R}^k$ be a low-dimensional latent state governed by an isotropic standard Gaussian prior:
+\begin{equation}
+\mathbf{z} \sim \mathcal{N}(\mathbf{0}, I_k), \quad k < d
+\label{eq:ppca_prior}
+\end{equation}
+The observed high-dimensional vector $\mathbf{x} \in \mathbb{R}^d$ is generated via a linear affine mapping perturbed by independent isotropic Gaussian noise:
+\begin{equation}
+\mathbf{x} = W \mathbf{z} + \boldsymbol{\mu} + \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \sigma^2 I_d)
+\label{eq:ppca_generative}
+\end{equation}
+where $W \in \mathbb{R}^{d \times k}$ is the factor loading matrix, $\boldsymbol{\mu} \in \mathbb{R}^d$ is the displacement mean, $\sigma^2 > 0$ is the noise variance, and $\mathbf{z} \perp \boldsymbol{\epsilon}$.
+\end{definitionbox}
+
+\subsubsection{Marginal and Conditional Distributions}
+Conditioned on a specific latent realization $\mathbf{z}$, the observation is Gaussian with mean shifted by $W\mathbf{z} + \boldsymbol{\mu}$:
+\begin{equation}
+\mathbf{x} \mid \mathbf{z} \sim \mathcal{N}(W\mathbf{z} + \boldsymbol{\mu}, \; \sigma^2 I_d)
+\end{equation}
+Because the prior $p(\mathbf{z})$ and conditional $p(\mathbf{x} \mid \mathbf{z})$ are both Gaussian, the marginal distribution $p(\mathbf{x}) = \int p(\mathbf{x} \mid \mathbf{z}) p(\mathbf{z}) d\mathbf{z}$ is analytically tractable. Computing its first two moments:
+\begin{align}
+\E[\mathbf{x}] &= \E[W\mathbf{z} + \boldsymbol{\mu} + \boldsymbol{\epsilon}] = W\E[\mathbf{z}] + \boldsymbol{\mu} + \E[\boldsymbol{\epsilon}] = \boldsymbol{\mu} \\
+\Cov(\mathbf{x}) &= \E[(\mathbf{x} - \boldsymbol{\mu})(\mathbf{x} - \boldsymbol{\mu})^T] = \E[(W\mathbf{z} + \boldsymbol{\epsilon})(W\mathbf{z} + \boldsymbol{\epsilon})^T] \notag \\
+&= W \E[\mathbf{z}\mathbf{z}^T] W^T + \E[\boldsymbol{\epsilon}\boldsymbol{\epsilon}^T] = W I_k W^T + \sigma^2 I_d \triangleq C
+\end{align}
+Thus, the marginal distribution of observed data under PPCA is a single multivariate Gaussian:
+\begin{equation}
+\mathbf{x} \sim \mathcal{N}(\boldsymbol{\mu}, C), \quad \text{where } C \triangleq W W^T + \sigma^2 I_d \in \mathbb{R}^{d \times d}
+\label{eq:ppca_marginal}
+\end{equation}
+
+\subsubsection{Maximum Likelihood Estimation and the Classical PCA Limit}
+Given an i.i.d.\ dataset $X = \{\mathbf{x}_i\}_{i=1}^N$, the log-likelihood function is:
+\begin{equation}
+\ln p(X \mid W, \boldsymbol{\mu}, \sigma^2) = -\frac{N d}{2}\ln(2\pi) - \frac{N}{2}\ln\det(C) - \frac{1}{2}\sum_{i=1}^N (\mathbf{x}_i - \boldsymbol{\mu})^T C^{-1} (\mathbf{x}_i - \boldsymbol{\mu})
+\end{equation}
+Tipping and Bishop proved that setting gradients to zero yields explicit closed-form maximum likelihood estimators:
+\begin{align}
+\hat{\boldsymbol{\mu}}_{\text{ML}} &= \frac{1}{N}\sum_{i=1}^N \mathbf{x}_i \\
+\hat{W}_{\text{ML}} &= V_k (\Lambda_k - \sigma^2 I_k)^{1/2} R \label{eq:ppca_w_mle} \\
+\hat{\sigma}^2_{\text{ML}} &= \frac{1}{d - k}\sum_{j=k+1}^d \lambda_j \label{eq:ppca_sigma_mle}
+\end{align}
+where $V_k \in \mathbb{R}^{d \times k}$ contains the top $k$ eigenvectors of the sample covariance matrix $S$, $\Lambda_k = \diag(\lambda_1, \dots, \lambda_k)$ contains the corresponding eigenvalues, and $R \in \mathcal{O}(k)$ is an arbitrary $k \times k$ orthogonal rotation matrix. 
+
+Notice the physical elegance of Equation~\eqref{eq:ppca_sigma_mle}: the maximum likelihood noise variance $\hat{\sigma}^2_{\text{ML}}$ is precisely the \textbf{average of the discarded eigenvalues}! The variance lost along discarded dimensions is modeled as isotropic Gaussian background noise.
+
+\begin{theorembox}{The Zero-Noise Limit of PPCA}
+Under Bayes' theorem, the posterior distribution of the latent state given an observation is Gaussian:
+\begin{equation}
+\mathbf{z} \mid \mathbf{x} \sim \mathcal{N}(M^{-1} W^T (\mathbf{x} - \boldsymbol{\mu}), \; \sigma^2 M^{-1}), \quad \text{where } M \triangleq W^T W + \sigma^2 I_k
+\label{eq:ppca_posterior}
+\end{equation}
+In the zero-noise limit where $\sigma^2 \to 0$:
+\begin{equation}
+\lim_{\sigma^2 \to 0} \E[\mathbf{z} \mid \mathbf{x}] = (W^T W)^{-1} W^T (\mathbf{x} - \boldsymbol{\mu}) = W_k^T \tilde{\mathbf{x}}
+\label{eq:ppca_limit}
+\end{equation}
+which is identically the orthogonal score projection of standard deterministic PCA.
+\end{theorembox}
+
+\subsection{Kernel PCA: The Double-Centering Theorem on Gram Matrices}
+Standard PCA identifies optimal \emph{linear} subspaces. However, when complex engineering or physical data resides on a non-linear manifold (such as concentric circles, spirals, or folding manifolds), linear PCA collapses distinct structures onto each other.
+
+\textbf{Kernel PCA (KPCA)} (Schölkopf, Smola, and Müller, 1998) generalizes PCA to non-linear geometries by mapping input vectors into a high-dimensional Reproducing Kernel Hilbert Space (RKHS) $\mathcal{H}$ via a non-linear feature map $\Phi: \mathbb{R}^d \to \mathcal{H}$:
+\begin{equation}
+\mathbf{x} \mapsto \Phi(\mathbf{x})
+\end{equation}
+By Mercer's Theorem, inner products in $\mathcal{H}$ can be evaluated directly in input space using a positive semi-definite kernel function:
+\begin{equation}
+k(\mathbf{x}_i, \mathbf{x}_j) = \langle \Phi(\mathbf{x}_i), \Phi(\mathbf{x}_j) \rangle_{\mathcal{H}}
+\end{equation}
+
+\subsubsection{The Centering Obstacle in Hilbert Space}
+PCA requires data to be zero-mean. However, we cannot simply subtract the mean $\boldsymbol{\mu}_{\Phi} = \frac{1}{N}\sum_{i=1}^N \Phi(\mathbf{x}_i)$ explicitly, because $\Phi(\mathbf{x})$ may be infinite-dimensional (e.g., under the Gaussian RBF kernel $k(\mathbf{x}, \mathbf{x}') = \exp(-\gamma \|\mathbf{x} - \mathbf{x}'\|_2^2)$)!
+Let the centered feature map be:
+\begin{equation}
+\tilde{\Phi}(\mathbf{x}_i) \triangleq \Phi(\mathbf{x}_i) - \frac{1}{N}\sum_{r=1}^N \Phi(\mathbf{x}_r)
+\end{equation}
+The centered Gram matrix has entries:
+\begin{equation}
+\tilde{K}_{ij} \triangleq \langle \tilde{\Phi}(\mathbf{x}_i), \tilde{\Phi}(\mathbf{x}_j) \rangle_{\mathcal{H}}
+\end{equation}
+
+\begin{theorembox}{The Gram Matrix Double-Centering Theorem}
+Let $K \in \mathbb{R}^{N \times N}$ be the raw uncentered kernel Gram matrix with entries $K_{ij} = k(\mathbf{x}_i, \mathbf{x}_j)$. The exact centered Gram matrix $\tilde{K} \in \mathbb{R}^{N \times N}$ in Hilbert space is computed directly in $\mathcal{O}(N^2)$ operations via algebraic double-centering:
+\begin{equation}
+\tilde{K} = H K H
+\label{eq:kpca_double_centering}
+\end{equation}
+where $H \triangleq I_N - \frac{1}{N}\mathbf{1}_N \mathbf{1}_N^T \in \mathbb{R}^{N \times N}$ is the symmetric, idempotent centering matrix ($H^T = H, H^2 = H$).
+\end{theorembox}
+
+\begin{proof}
+Expanding the inner product $\tilde{K}_{ij} = \langle \tilde{\Phi}(\mathbf{x}_i), \tilde{\Phi}(\mathbf{x}_j) \rangle$:
+\begin{align}
+\tilde{K}_{ij} &= \left\langle \Phi(\mathbf{x}_i) - \frac{1}{N}\sum_{r=1}^N \Phi(\mathbf{x}_r), \; \Phi(\mathbf{x}_j) - \frac{1}{N}\sum_{s=1}^N \Phi(\mathbf{x}_s) \right\rangle \notag \\
+&= \langle \Phi(\mathbf{x}_i), \Phi(\mathbf{x}_j) \rangle - \frac{1}{N}\sum_{s=1}^N \langle \Phi(\mathbf{x}_i), \Phi(\mathbf{x}_s) \rangle - \frac{1}{N}\sum_{r=1}^N \langle \Phi(\mathbf{x}_r), \Phi(\mathbf{x}_j) \rangle + \frac{1}{N^2}\sum_{r=1}^N \sum_{s=1}^N \langle \Phi(\mathbf{x}_r), \Phi(\mathbf{x}_s) \rangle \notag \\
+&= K_{ij} - \frac{1}{N}\sum_{s=1}^N K_{is} - \frac{1}{N}\sum_{r=1}^N K_{rj} + \frac{1}{N^2}\sum_{r=1}^N \sum_{s=1}^N K_{rs}
+\label{eq:kpca_elementwise_centering}
+\end{align}
+Now consider the matrix product $H K H$ with $H = I_N - \frac{1}{N}\mathbf{1}\mathbf{1}^T$:
+\begin{align}
+H K H &= \left(I_N - \frac{1}{N}\mathbf{1}\mathbf{1}^T\right) K \left(I_N - \frac{1}{N}\mathbf{1}\mathbf{1}^T\right) \notag \\
+&= \left(K - \frac{1}{N}\mathbf{1}\mathbf{1}^T K\right) \left(I_N - \frac{1}{N}\mathbf{1}\mathbf{1}^T\right) \notag \\
+&= K - \frac{1}{N} K \mathbf{1}\mathbf{1}^T - \frac{1}{N}\mathbf{1}\mathbf{1}^T K + \frac{1}{N^2}\mathbf{1}\mathbf{1}^T K \mathbf{1}\mathbf{1}^T
+\end{align}
+Evaluating entry $(i, j)$:
+\begin{itemize}
+    \item $[K \mathbf{1}\mathbf{1}^T]_{ij} = \sum_{s=1}^N K_{is}$ (row sum of row $i$).
+    \item $[\mathbf{1}\mathbf{1}^T K]_{ij} = \sum_{r=1}^N K_{rj}$ (column sum of column $j$).
+    \item $[\mathbf{1}\mathbf{1}^T K \mathbf{1}\mathbf{1}^T]_{ij} = \sum_{r=1}^N \sum_{s=1}^N K_{rs}$ (grand sum of all entries).
+\end{itemize}
+Substituting these terms matches Equation~\eqref{eq:kpca_elementwise_centering} identically, establishing $\tilde{K} = H K H$.
+\end{proof}
+
+Once $\tilde{K}$ is obtained, we solve the dual eigenvalue problem $\tilde{K}\mathbf{a} = \lambda \mathbf{a}$. To ensure that the continuous eigenvector $\mathbf{v} \in \mathcal{H}$ has unit norm ($\|\mathbf{v}\|_{\mathcal{H}} = 1$), the discrete eigenvector $\mathbf{a}$ must be normalized such that $\lambda \|\mathbf{a}\|_2^2 = 1 \implies \|\mathbf{a}\|_2 = \frac{1}{\sqrt{\lambda}}$.
+The non-linear principal component score for a new point $\mathbf{x}^*$ is:
+\begin{equation}
+z_k(\mathbf{x}^*) = \langle \mathbf{v}_k, \tilde{\Phi}(\mathbf{x}^*) \rangle = \sum_{i=1}^N a_{k,i} \tilde{k}(\mathbf{x}_i, \mathbf{x}^*)
+\end{equation}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.88, font=\sffamily\footnotesize]
+
+% PANEL A: Concentric Rings (Linear PCA Fails)
+\begin{scope}[shift={(0, 0)}]
+    \draw[->, >=stealth, color=gray!60] (-3.0, 0) -- (3.0, 0) node[right] {$x_1$};
+    \draw[->, >=stealth, color=gray!60] (0, -3.0) -- (0, 3.0) node[above] {$x_2$};
+    
+    % Inner Ring (Class 0: Teal)
+    \foreach \ang in {0, 30, 60, ..., 330} {
+        \filldraw[color=tealdef] ({0.9*cos(\ang)}, {0.9*sin(\ang)}) circle (2.0pt);
+    }
+    % Outer Ring (Class 1: Coral)
+    \foreach \ang in {15, 45, ..., 345} {
+        \filldraw[color=traprad] ({2.2*cos(\ang)}, {2.2*sin(\ang)}) circle (2.0pt);
+    }
+    
+    % Linear PCA projection axis
+    \draw[line width=1.5pt, color=primarydark, dashed] (-2.7, 0) -- (2.7, 0);
+    \node[above, font=\scriptsize\bfseries, color=primarydark] at (0, 2.3) {Linear PCA Axis};
+    
+    % Projected points on axis (overlap!)
+    \draw[fill=white, draw=primarydark, line width=0.8pt] (-2.8, -3.8) rectangle (2.8, -4.6);
+    \node[above, font=\scriptsize\bfseries] at (0, -3.7) {1D Linear PCA Projection:};
+    \foreach \x in {-2.2, -1.8, ..., 2.2} {
+        \filldraw[color=traprad] (\x, -4.2) circle (1.8pt);
+    }
+    \foreach \x in {-0.9, -0.6, ..., 0.9} {
+        \filldraw[color=tealdef] (\x, -4.2) circle (1.8pt);
+    }
+    \node[below=2pt, font=\tiny\bfseries, color=traprad] at (0, -4.7) {Severe Overlap: Inner \& Outer Rings Collide!};
+    
+    \node[font=\bfseries] at (0, 3.4) {(a) Linear PCA Failure};
+\end{scope}
+
+% Big Arrow Mapping to Hilbert Space
+\draw[->, >=stealth, line width=2.5pt, color=primarydark] (3.6, 0.5) -- node[above=4pt, font=\small\bfseries, align=center] {Kernel Trick\\$\Phi(\mathbf{x}) \in \mathcal{H}$} (5.6, 0.5);
+
+% PANEL B: Kernel PCA (RBF Unrolling)
+\begin{scope}[shift={(9.2, 0)}]
+    \draw[->, >=stealth, color=gray!60] (-2.8, 0) -- (3.2, 0) node[right] {KPCA 1 ($z_1$)};
+    \draw[->, >=stealth, color=gray!60] (0, -2.8) -- (0, 3.0) node[above] {KPCA 2 ($z_2$)};
+    
+    % Inner Ring unrolls to tight cluster at origin
+    \foreach \ang in {0, 30, ..., 330} {
+        \filldraw[color=tealdef] ({-1.6 + 0.3*cos(\ang)}, {0.3*sin(\ang)}) circle (2.0pt);
+    }
+    \node[above=2pt, font=\scriptsize\bfseries, color=tealdef] at (-1.6, 0.5) {Inner Ring Cluster};
+    
+    % Outer Ring unrolls to separated cluster
+    \foreach \ang in {0, 30, ..., 330} {
+        \filldraw[color=traprad] ({1.6 + 0.35*cos(\ang)}, {0.35*sin(\ang)}) circle (2.0pt);
+    }
+    \node[above=2pt, font=\scriptsize\bfseries, color=traprad] at (1.6, 0.5) {Outer Ring Cluster};
+    
+    % Separating hyperplane
+    \draw[line width=1.5pt, color=tealborder, dashed] (0, -2.2) -- (0, 2.2);
+    \node[right, font=\tiny\bfseries, color=tealborder, align=left] at (0.1, 1.8) {Linearly Separable\\Decision Boundary};
+    
+    \node[font=\bfseries] at (0.2, 3.4) {(b) Kernel PCA Manifold Unrolling};
+\end{scope}
+
+\end{tikzpicture}
+\caption{Nonlinear Manifold Dynamics: Linear PCA Collapse vs. Kernel PCA Manifold Unrolling. (a) On concentric circular manifolds, linear PCA projects onto the horizontal diameter, completely blending inner and outer rings into an inseparable overlap. (b) Kernel PCA with an RBF or polynomial kernel maps the data into Hilbert space where the non-linear manifold is unrolled, yielding linearly separable clusters along the principal eigenfunctions.}
+\label{fig:kpca_manifold_unrolling}
+\end{figure}
+
+\begin{ponderbox}{The Nonlinear Manifold Trap: Why Linear PCA Collapses on Spheres and Concentric Rings}
+Consider $N$ data points sampled uniformly from the surface of a 2D circle $x_1^2 + x_2^2 = r^2$ in $\mathbb{R}^2$.
+\begin{enumerate}
+    \item Compute the sample mean $\boldsymbol{\mu}$ and the population covariance matrix $\Sigma = \E[\mathbf{x}\mathbf{x}^T]$.
+    \item What are the eigenvalues and eigenvectors of $\Sigma$? Can linear PCA reduce this dataset from 2 dimensions to 1 without destroying topological continuity?
+    \item How does a non-linear kernel map $\Phi(x_1, x_2) = [x_1^2, \sqrt{2}x_1 x_2, x_2^2]^T$ unroll the circular manifold?
+\end{enumerate}
+\tcblower
+\textbf{Reflections and Mathematical Rationale:}
+\begin{enumerate}
+    \item By circular symmetry, $\E[x_1] = \E[x_2] = 0$, so $\boldsymbol{\mu} = \mathbf{0}$.
+    Evaluating second moments:
+    \begin{equation*}
+    \E[x_1^2] = \E[r^2 \cos^2\theta] = \frac{r^2}{2}, \quad \E[x_2^2] = \E[r^2 \sin^2\theta] = \frac{r^2}{2}, \quad \E[x_1 x_2] = \E[r^2 \cos\theta\sin\theta] = 0
+    \end{equation*}
+    Thus, the covariance matrix is an isotropic multiple of the identity:
+    \begin{equation*}
+    \Sigma = \begin{bmatrix} r^2/2 & 0 \\ 0 & r^2/2 \end{bmatrix} = \frac{r^2}{2} I_2
+    \end{equation*}
+    \item The eigenvalues are completely identical: $\lambda_1 = \lambda_2 = \frac{r^2}{2}$.
+    Because $\lambda_1 = \lambda_2$, the covariance ellipse is a perfect circle: \textbf{every unit vector in $\mathbb{R}^2$ is an eigenvector!} Linear PCA has no preferred direction whatsoever. Projecting a 1D circle onto any straight line collapses the two opposite semicircles onto each other, ripping the topological loop and creating artificial density singularities at the endpoints $[-r, r]$.
+    \item Under the degree-2 polynomial kernel map $\Phi(\mathbf{x}) = [x_1^2, \sqrt{2}x_1 x_2, x_2^2]^T$, notice that:
+    \begin{equation*}
+    \Phi_1(\mathbf{x}) + \Phi_3(\mathbf{x}) = x_1^2 + x_2^2 = r^2 = \text{Constant}
+    \end{equation*}
+    The circular manifold is mapped onto a flat 2D affine hyperplane in $\mathbb{R}^3$, where non-linear Kernel PCA cleanly captures the intrinsic 1D phase angle without self-intersection!
+\end{enumerate}
+\end{ponderbox}
+
 % ----------------------------------------------------------------------
 % PART 5: WORKED NUMERICAL EXAMPLES
 % ----------------------------------------------------------------------
@@ -518,17 +818,44 @@ Total variance is $\trace(S) = 1.25 + 1.25 = 2.50 = \lambda_1 + \lambda_2$.
 \frac{\lambda_1}{\lambda_1 + \lambda_2} = \frac{2.25}{2.50} = 0.90 \implies \mathbf{90\% \text{ of variance is captured by PC1 alone!}}
 \end{equation}
 
-\textbf{Step 5: Projection and Reconstruction of $\mathbf{x}_4$.}
-Centered sample is $\tilde{\mathbf{x}}_4 = [4 - 2.5, 4 - 2.5]^T = [1.5, 1.5]^T$.
-The 1D scalar score is:
+\textbf{Step 5: Full Projection, Reconstruction Matrix, and Residual Verification.}
+Let us compute the 1-dimensional scores $z_i = \mathbf{w}_1^T \tilde{\mathbf{x}}_i$ for all $N = 4$ observations:
+\begin{align}
+z_1 &= \frac{1}{\sqrt{2}} (-1.5(1) - 1.5(1)) = -\frac{3.0}{\sqrt{2}} \approx -2.121 \\
+z_2 &= \frac{1}{\sqrt{2}} (-0.5(1) + 0.5(1)) = 0 \\
+z_3 &= \frac{1}{\sqrt{2}} (0.5(1) - 0.5(1)) = 0 \\
+z_4 &= \frac{1}{\sqrt{2}} (1.5(1) + 1.5(1)) = \frac{3.0}{\sqrt{2}} \approx 2.121
+\end{align}
+In matrix notation, the score vector is $\mathbf{z} = \tilde{X}\mathbf{w}_1 = \left[-\frac{3}{\sqrt{2}}, 0, 0, \frac{3}{\sqrt{2}}\right]^T \in \mathbb{R}^4$.
+The rank-1 reconstructed centered data matrix is:
 \begin{equation}
-z_1 = \mathbf{w}_1^T \tilde{\mathbf{x}}_4 = \frac{1}{\sqrt{2}} (1.5(1) + 1.5(1)) = \frac{3.0}{\sqrt{2}} = 1.5\sqrt{2} \approx 2.121
+\hat{\tilde{X}} = \mathbf{z} \mathbf{w}_1^T = \begin{bmatrix} -3/\sqrt{2} \\ 0 \\ 0 \\ 3/\sqrt{2} \end{bmatrix} \left( \frac{1}{\sqrt{2}} \begin{bmatrix} 1 & 1 \end{bmatrix} \right) = \begin{bmatrix} -1.5 & -1.5 \\ 0 & 0 \\ 0 & 0 \\ 1.5 & 1.5 \end{bmatrix}
 \end{equation}
-The reconstructed observation $\hat{\mathbf{x}}_4$ in original coordinates is:
+Adding back the empirical mean $\boldsymbol{\mu} = [2.5, 2.5]^T$ yields the full reconstructed dataset $\hat{X} \in \mathbb{R}^{4 \times 2}$:
 \begin{equation}
-\hat{\mathbf{x}}_4 = \boldsymbol{\mu} + z_1 \mathbf{w}_1 = \begin{bmatrix} 2.5 \\ 2.5 \end{bmatrix} + \left( \frac{3.0}{\sqrt{2}} \right) \left( \frac{1}{\sqrt{2}}\begin{bmatrix} 1 \\ 1 \end{bmatrix} \right) = \begin{bmatrix} 2.5 \\ 2.5 \end{bmatrix} + \begin{bmatrix} 1.5 \\ 1.5 \end{bmatrix} = \begin{bmatrix} 4.0 \\ 4.0 \end{bmatrix} = \mathbf{x}_4
+\hat{X} = \mathbf{1}_4 \boldsymbol{\mu}^T + \hat{\tilde{X}} = \begin{bmatrix} 2.5 - 1.5 & 2.5 - 1.5 \\ 2.5 + 0 & 2.5 + 0 \\ 2.5 + 0 & 2.5 + 0 \\ 2.5 + 1.5 & 2.5 + 1.5 \end{bmatrix} = \begin{bmatrix} 1.0 & 1.0 \\ 2.5 & 2.5 \\ 2.5 & 2.5 \\ 4.0 & 4.0 \end{bmatrix}
 \end{equation}
-The reconstruction error is exactly zero ($\|\mathbf{x}_4 - \hat{\mathbf{x}}_4\|_2 = 0$) because $\tilde{\mathbf{x}}_4$ lies directly along the principal axis $\mathbf{w}_1$.
+Now, let us compute the exact error residual matrix $E \triangleq X - \hat{X}$:
+\begin{equation}
+E = \begin{bmatrix} 1 & 1 \\ 2 & 3 \\ 3 & 2 \\ 4 & 4 \end{bmatrix} - \begin{bmatrix} 1.0 & 1.0 \\ 2.5 & 2.5 \\ 2.5 & 2.5 \\ 4.0 & 4.0 \end{bmatrix} = \begin{bmatrix} 0 & 0 \\ -0.5 & 0.5 \\ 0.5 & -0.5 \\ 0 & 0 \end{bmatrix}
+\end{equation}
+Evaluating the squared Euclidean norm of each sample's residual vector:
+\begin{itemize}
+    \item Sample 1: $\|\mathbf{e}_1\|_2^2 = 0^2 + 0^2 = 0$
+    \item Sample 2: $\|\mathbf{e}_2\|_2^2 = (-0.5)^2 + 0.5^2 = 0.25 + 0.25 = 0.50$
+    \item Sample 3: $\|\mathbf{e}_3\|_2^2 = 0.5^2 + (-0.5)^2 = 0.25 + 0.25 = 0.50$
+    \item Sample 4: $\|\mathbf{e}_4\|_2^2 = 0^2 + 0^2 = 0$
+\end{itemize}
+The total squared Frobenius error is $\|E\|_F^2 = 0 + 0.50 + 0.50 + 0 = 1.00$.
+The mean squared reconstruction error across the dataset is:
+\begin{equation}
+\text{MSE} = \frac{1}{N}\|E\|_F^2 = \frac{1}{4}(1.00) = \mathbf{0.25}
+\end{equation}
+Notice that this matches the discarded second eigenvalue with absolute perfection:
+\begin{equation}
+\text{MSE} = \lambda_2 = 0.25 \quad \checkmark
+\end{equation}
+This confirms Theorem~\ref{thm:pca_equivalence} and the Eckart-Young-Mirsky matrix identity down to the final decimal digit!
 \end{examplebox}
 
 \begin{examplebox}{The Collapse of Scale Invariance in PCA}
@@ -615,6 +942,84 @@ Dividing by $3$:
 \end{equation}
 Checking normalization: $\|\mathbf{v}_1\|_2^2 = \frac{1}{6}(1^2 + 2^2 + 1^2 + 0^2) = \frac{6}{6} = 1 \quad \checkmark$.
 We have computed the 4-dimensional principal component strictly through a $3 \times 3$ matrix!
+\end{examplebox}
+
+\begin{examplebox}{Hand-Calculated Kernel PCA Double-Centering on a Toy Dataset}
+Consider a 1-dimensional non-linear dataset consisting of $N = 3$ scalar samples:
+\begin{equation}
+x_1 = -1, \quad x_2 = 0, \quad x_3 = 1
+\end{equation}
+We apply Kernel PCA using a polynomial kernel of degree 2:
+\begin{equation}
+k(x, y) = (x y + 1)^2
+\end{equation}
+\begin{enumerate}
+    \item Compute the raw $3 \times 3$ Gram matrix $K$.
+    \item Construct the centering matrix $H$ and compute the exact double-centered Gram matrix $\tilde{K} = H K H$.
+    \item Find the eigenvalues and eigenvectors of $\tilde{K}$.
+    \item Compute the proportion of non-linear variance captured by the first principal component, and calculate the non-linear scores for all three samples.
+\end{enumerate}
+
+\textbf{Step 1: Compute Raw Gram Matrix $K$.}
+Evaluating $K_{ij} = (x_i x_j + 1)^2$:
+\begin{itemize}
+    \item $K_{11} = ((-1)(-1) + 1)^2 = (1 + 1)^2 = 4$
+    \item $K_{12} = ((-1)(0) + 1)^2 = 1^2 = 1$
+    \item $K_{13} = ((-1)(1) + 1)^2 = (-1 + 1)^2 = 0$
+    \item $K_{21} = K_{12} = 1, \quad K_{22} = (0 + 1)^2 = 1, \quad K_{23} = (0(1) + 1)^2 = 1$
+    \item $K_{31} = K_{13} = 0, \quad K_{32} = K_{23} = 1, \quad K_{33} = (1(1) + 1)^2 = 4$
+\end{itemize}
+Thus:
+\begin{equation}
+K = \begin{bmatrix} 4 & 1 & 0 \\ 1 & 1 & 1 \\ 0 & 1 & 4 \end{bmatrix}
+\end{equation}
+
+\textbf{Step 2: Double-Centering via $H K H$.}
+The $3 \times 3$ centering matrix is $H = I_3 - \frac{1}{3}\mathbf{1}\mathbf{1}^T$:
+\begin{equation}
+H = \begin{bmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{bmatrix} - \frac{1}{3}\begin{bmatrix} 1 & 1 & 1 \\ 1 & 1 & 1 \\ 1 & 1 & 1 \end{bmatrix} = \frac{1}{3}\begin{bmatrix} 2 & -1 & -1 \\ -1 & 2 & -1 \\ -1 & -1 & 2 \end{bmatrix}
+\end{equation}
+Multiplying $K$ by $H$ on the right:
+\begin{equation}
+K H = \begin{bmatrix} 4 & 1 & 0 \\ 1 & 1 & 1 \\ 0 & 1 & 4 \end{bmatrix} \left( \frac{1}{3}\begin{bmatrix} 2 & -1 & -1 \\ -1 & 2 & -1 \\ -1 & -1 & 2 \end{bmatrix} \right) = \frac{1}{3}\begin{bmatrix} 7 & -2 & -5 \\ 0 & 0 & 0 \\ -5 & -2 & 7 \end{bmatrix}
+\end{equation}
+Multiplying by $H$ on the left yields $\tilde{K} = H (K H)$:
+\begin{equation}
+\tilde{K} = \frac{1}{9}\begin{bmatrix} 2 & -1 & -1 \\ -1 & 2 & -1 \\ -1 & -1 & 2 \end{bmatrix} \begin{bmatrix} 7 & -2 & -5 \\ 0 & 0 & 0 \\ -5 & -2 & 7 \end{bmatrix} = \frac{1}{9}\begin{bmatrix} 19 & -2 & -17 \\ -2 & 4 & -2 \\ -17 & -2 & 19 \end{bmatrix}
+\end{equation}
+Verification: Every row sum and column sum of $\tilde{K}$ is identically zero:
+$19 - 2 - 17 = 0$ and $-2 + 4 - 2 = 0 \quad \checkmark$.
+
+\textbf{Step 3: Eigendecomposition of $\tilde{K}$.}
+Let $M = 9\tilde{K} = \begin{bmatrix} 19 & -2 & -17 \\ -2 & 4 & -2 \\ -17 & -2 & 19 \end{bmatrix}$. 
+Because row sums are zero, the trivial eigenpair is $\mu_3 = 0$ with $\mathbf{a}_3 = \frac{1}{\sqrt{3}}[1, 1, 1]^T$.
+By anti-symmetry, test $\mathbf{a}_1 = [1, 0, -1]^T$:
+\begin{equation}
+M \begin{bmatrix} 1 \\ 0 \\ -1 \end{bmatrix} = \begin{bmatrix} 19(1) - 17(-1) \\ -2(1) - 2(-1) \\ -17(1) + 19(-1) \end{bmatrix} = \begin{bmatrix} 36 \\ 0 \\ -36 \end{bmatrix} = 36 \begin{bmatrix} 1 \\ 0 \\ -1 \end{bmatrix}
+\end{equation}
+Thus $\mu_1 = 36$ with normalized eigenvector $\mathbf{a}_1 = \frac{1}{\sqrt{2}}[1, 0, -1]^T$.
+Since $\operatorname{Tr}(M) = 19 + 4 + 19 = 42$, the remaining eigenvalue satisfies:
+\begin{equation}
+\mu_1 + \mu_2 + \mu_3 = 42 \implies 36 + \mu_2 + 0 = 42 \implies \mu_2 = 6
+\end{equation}
+Its eigenvector is $\mathbf{a}_2 = \frac{1}{\sqrt{6}}[1, -2, 1]^T$.
+Dividing by $9$, the true eigenvalues of $\tilde{K}$ are:
+\begin{equation}
+\lambda_1 = \frac{36}{9} = \mathbf{4}, \quad \lambda_2 = \frac{6}{9} = \frac{\mathbf{2}}{\mathbf{3}}, \quad \lambda_3 = \mathbf{0}
+\end{equation}
+
+\textbf{Step 4: Non-Linear Variance and Principal Scores.}
+Total variance in Hilbert space is $\operatorname{Tr}(\tilde{K}) = 4 + \frac{2}{3} = \frac{14}{3}$.
+The proportion of non-linear variance explained by the first component is:
+\begin{equation}
+\frac{\lambda_1}{\lambda_1 + \lambda_2} = \frac{4}{14/3} = \frac{12}{14} = \frac{\mathbf{6}}{\mathbf{7}} \approx \mathbf{85.71\%}
+\end{equation}
+The continuous Hilbert-space eigenvector is $\mathbf{v}_1 = \sum_{i=1}^3 \alpha_{1,i}\tilde{\Phi}(x_i)$, where normalization requires $\|\boldsymbol{\alpha}_1\|_2 = \frac{1}{\sqrt{\lambda_1}} = \frac{1}{2}$, so $\boldsymbol{\alpha}_1 = \frac{1}{2}\mathbf{a}_1 = \frac{1}{2\sqrt{2}}[1, 0, -1]^T$.
+The principal component score for each training sample is $z_{1,i} = \sqrt{\lambda_1} a_{1,i} = 2 a_{1,i}$:
+\begin{equation}
+z_1(x_1) = 2\left(\frac{1}{\sqrt{2}}\right) = \sqrt{\mathbf{2}}, \quad z_1(x_2) = 2(0) = \mathbf{0}, \quad z_1(x_3) = 2\left(-\frac{1}{\sqrt{2}}\right) = -\sqrt{\mathbf{2}}
+\end{equation}
+Notice how KPCA maps the non-linear dataset $\{-1, 0, 1\}$ into perfectly centered, symmetric coordinates $[\sqrt{2}, 0, -\sqrt{2}]$ with $85.7\%$ variance retention!
 \end{examplebox}
 
 \begin{ponderbox}{The Decorrelation Paradox: Uncorrelated vs. Independent}
@@ -710,6 +1115,11 @@ A student treats PCA and Factor Analysis (FA) as identical algorithms with diffe
 \Sigma = \Lambda \Lambda^T + \Psi
 \end{equation*}
 where $\Psi$ is a diagonal uniqueness matrix. PCA makes zero distinction between common variance and idiosyncratic noise, whereas Factor Analysis explicitly estimates and subtracts the noise floor $\Psi$.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 6: The Kernel PCA Pre-Image Pathology}
+An engineer uses Kernel PCA for non-linear image denoising, projects the noisy image into top kernel components, and attempts to reconstruct the cleaned image $\hat{\mathbf{x}} \in \mathbb{R}^d$ back into input space.
+\textbf{The Trap:} In linear PCA, reconstructing back to input space is trivial: $\hat{\mathbf{x}} = \boldsymbol{\mu} + W_k \mathbf{z}$. In Kernel PCA, projection occurs in an abstract, potentially infinite-dimensional Hilbert space $\mathcal{H}$. A reconstructed feature vector $\boldsymbol{\Psi} \in \mathcal{H}$ lies in the span of $\{\tilde{\Phi}(\mathbf{x}_i)\}$. However, there is \textbf{no mathematical guarantee} that there exists any point $\mathbf{x}^* \in \mathbb{R}^d$ such that $\Phi(\mathbf{x}^*) = \boldsymbol{\Psi}$! This is the celebrated \textbf{Pre-Image Problem}. Finding an approximate pre-image requires solving a non-convex non-linear optimization problem $\min_{\mathbf{x}} \|\Phi(\mathbf{x}) - \boldsymbol{\Psi}\|_{\mathcal{H}}^2$, which is prone to severe local minima and numerical instability. KPCA is exceptional for non-linear feature extraction, but fundamentally ill-suited for lossless signal reconstruction!
 \end{trapbox}
 
 % ----------------------------------------------------------------------
@@ -877,6 +1287,24 @@ if __name__ == "__main__":
 
     \item \textbf{High-Dimensional Dual PCA Rank Bound:}
     Let $\tilde{X} \in \mathbb{R}^{N \times d}$ with $N < d$. Prove that the covariance matrix $S = \frac{1}{N}\tilde{X}^T \tilde{X}$ has at most $N - 1$ strictly positive eigenvalues, and deduce that at least $d - N + 1$ eigenvalues must be identically zero.
+
+    \item \textbf{Eckart-Young-Mirsky Equivalence Proof via Truncated SVD:}
+    Let $\tilde{X} \in \mathbb{R}^{N \times d}$ have thin SVD $\frac{1}{\sqrt{N}}\tilde{X} = U \Sigma V^T$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Prove that the sample-wise mean squared reconstruction error $\frac{1}{N}\sum_{i=1}^N \|\tilde{\mathbf{x}}_i - W_k W_k^T \tilde{\mathbf{x}}_i\|_2^2$ is identically equal to the normalized squared Frobenius matrix distance $\frac{1}{N}\|\tilde{X} - \tilde{X}W_k W_k^T\|_F^2$.
+        \item Using the Eckart-Young-Mirsky Theorem from Chapter~6, show that setting $W_k = V_k$ achieves the global minimum over all rank-$k$ linear projections, and express the minimal Frobenius error in terms of singular values $\sigma_j$ and covariance eigenvalues $\lambda_j$.
+    \end{enumerate}
+
+    \item \textbf{Kernel PCA Gram Matrix Double-Centering Proof:}
+    Let $\Phi: \mathbb{R}^d \to \mathcal{H}$ be a non-linear feature map with kernel $k(\mathbf{x}, \mathbf{x}') = \langle \Phi(\mathbf{x}), \Phi(\mathbf{x}') \rangle_{\mathcal{H}}$, and let $K \in \mathbb{R}^{N \times N}$ be the raw Gram matrix $K_{ij} = k(\mathbf{x}_i, \mathbf{x}_j)$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Let $\tilde{\Phi}(\mathbf{x}_i) \triangleq \Phi(\mathbf{x}_i) - \frac{1}{N}\sum_{r=1}^N \Phi(\mathbf{x}_r)$. Prove that the centered Gram entries $\tilde{K}_{ij} \triangleq \langle \tilde{\Phi}(\mathbf{x}_i), \tilde{\Phi}(\mathbf{x}_j) \rangle$ satisfy:
+        \begin{equation}
+        \tilde{K}_{ij} = K_{ij} - \frac{1}{N}\sum_{s=1}^N K_{is} - \frac{1}{N}\sum_{r=1}^N K_{rj} + \frac{1}{N^2}\sum_{r=1}^N \sum_{s=1}^N K_{rs}
+        \end{equation}
+        \item Let $H \triangleq I_N - \frac{1}{N}\mathbf{1}_N \mathbf{1}_N^T$. Prove that $\tilde{K} = H K H$.
+        \item Prove that $H$ is symmetric and idempotent ($H^2 = H$), and deduce that $\mathbf{1}_N$ lies in the nullspace of $\tilde{K}$, confirming that all row and column sums of $\tilde{K}$ are strictly zero.
+    \end{enumerate}
 \end{enumerate}
 
 \subsection*{Part B: Diagnostic Multiple-Choice Questions}

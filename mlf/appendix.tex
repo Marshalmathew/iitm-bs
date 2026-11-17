@@ -628,6 +628,66 @@ Since $S$ is a $d \times d$ matrix with rank at most $N - 1$, by the Rank-Nullit
 \end{equation*}
 Thus at least $d - N + 1$ eigenvalues must be identically zero.
 
+\paragraph{P6. Eckart-Young-Mirsky Equivalence Proof via Truncated SVD:}
+Let $\frac{1}{\sqrt{N}}\tilde{X} = U \Sigma V^T \in \mathbb{R}^{N \times d}$.
+\begin{enumerate}[label=(\alph*)]
+    \item Let $M = \tilde{X} - \tilde{X}W_k W_k^T = \tilde{X}(I_d - W_k W_k^T)$. The $i$-th row of $M$ is $\mathbf{m}_{i,:} = (\tilde{\mathbf{x}}_i - W_k W_k^T \tilde{\mathbf{x}}_i)^T$.
+    By definition of the Frobenius norm:
+    \[
+    \|M\|_F^2 = \sum_{i=1}^N \|\mathbf{m}_{i,:}\|_2^2 = \sum_{i=1}^N \|\tilde{\mathbf{x}}_i - W_k W_k^T \tilde{\mathbf{x}}_i\|_2^2
+    \]
+    Dividing both sides by $N$ gives:
+    \[
+    \frac{1}{N}\sum_{i=1}^N \|\tilde{\mathbf{x}}_i - W_k W_k^T \tilde{\mathbf{x}}_i\|_2^2 = \frac{1}{N}\|\tilde{X} - \tilde{X}W_k W_k^T\|_F^2 = \left\| \frac{1}{\sqrt{N}}\tilde{X} - \frac{1}{\sqrt{N}}\tilde{X} W_k W_k^T \right\|_F^2
+    \]
+    \item Let $A = \frac{1}{\sqrt{N}}\tilde{X} = U \Sigma V^T$. Any rank-$k$ linear reconstruction matrix has the form $B = A W_k W_k^T$, which satisfies $\rank(B) \le k$.
+    By the Eckart-Young-Mirsky Theorem (proved in Chapter~6), the unique global minimizer of $\|A - B\|_F^2$ over all matrices $B$ of rank at most $k$ is the truncated SVD:
+    \[
+    A_k = U_k \Sigma_k V_k^T = (U \Sigma V^T) V_k V_k^T = A V_k V_k^T
+    \]
+    Setting $W_k = V_k$ (the top $k$ right singular vectors of $\frac{1}{\sqrt{N}}\tilde{X}$, which are identically the top $k$ eigenvectors of $S = A^T A$) achieves this minimum.
+    The minimal error is:
+    \[
+    \min_{W_k} \frac{1}{N}\|\tilde{X} - \tilde{X} W_k W_k^T\|_F^2 = \|A - A_k\|_F^2 = \sum_{j=k+1}^{\min(N, d)} \sigma_j^2
+    \]
+    Since $S = A^T A = V \Sigma^2 V^T$, the eigenvalues of $S$ satisfy $\lambda_j = \sigma_j^2$. Thus the minimal reconstruction error is strictly:
+    \[
+    \min_{W_k} \mathcal{J}(W_k) = \sum_{j=k+1}^d \lambda_j
+    \]
+\end{enumerate}
+
+\paragraph{P7. Kernel PCA Gram Matrix Double-Centering Proof:}
+\begin{enumerate}[label=(\alph*)]
+    \item Substituting the centered feature map $\tilde{\Phi}(\mathbf{x}_i) = \Phi(\mathbf{x}_i) - \frac{1}{N}\sum_{r=1}^N \Phi(\mathbf{x}_r)$ into the inner product:
+    \begin{align*}
+    \tilde{K}_{ij} &= \left\langle \Phi(\mathbf{x}_i) - \frac{1}{N}\sum_{r=1}^N \Phi(\mathbf{x}_r), \; \Phi(\mathbf{x}_j) - \frac{1}{N}\sum_{s=1}^N \Phi(\mathbf{x}_s) \right\rangle \\
+    &= \langle \Phi(\mathbf{x}_i), \Phi(\mathbf{x}_j) \rangle - \frac{1}{N}\sum_{s=1}^N \langle \Phi(\mathbf{x}_i), \Phi(\mathbf{x}_s) \rangle - \frac{1}{N}\sum_{r=1}^N \langle \Phi(\mathbf{x}_r), \Phi(\mathbf{x}_j) \rangle + \frac{1}{N^2}\sum_{r=1}^N \sum_{s=1}^N \langle \Phi(\mathbf{x}_r), \Phi(\mathbf{x}_s) \rangle \\
+    &= K_{ij} - \frac{1}{N}\sum_{s=1}^N K_{is} - \frac{1}{N}\sum_{r=1}^N K_{rj} + \frac{1}{N^2}\sum_{r=1}^N \sum_{s=1}^N K_{rs}
+    \end{align*}
+    \item Let $H = I_N - \frac{1}{N}\mathbf{1}_N \mathbf{1}_N^T$. Expanding $H K H$:
+    \begin{align*}
+    H K H &= \left(I_N - \frac{1}{N}\mathbf{1}\mathbf{1}^T\right) K \left(I_N - \frac{1}{N}\mathbf{1}\mathbf{1}^T\right) = \left(K - \frac{1}{N}\mathbf{1}\mathbf{1}^T K\right)\left(I_N - \frac{1}{N}\mathbf{1}\mathbf{1}^T\right) \\
+    &= K - \frac{1}{N} K \mathbf{1}\mathbf{1}^T - \frac{1}{N}\mathbf{1}\mathbf{1}^T K + \frac{1}{N^2}\mathbf{1}(\mathbf{1}^T K \mathbf{1})\mathbf{1}^T
+    \end{align*}
+    Evaluating entry $(i, j)$: $[K \mathbf{1}\mathbf{1}^T]_{ij} = \sum_{s=1}^N K_{is}$, $[\mathbf{1}\mathbf{1}^T K]_{ij} = \sum_{r=1}^N K_{rj}$, and $[\mathbf{1}(\mathbf{1}^T K \mathbf{1})\mathbf{1}^T]_{ij} = \sum_{r,s} K_{rs}$.
+    This is identical to the formula in part (a), proving $\tilde{K} = H K H$.
+    \item Symmetry: $H^T = (I_N - \frac{1}{N}\mathbf{1}\mathbf{1}^T)^T = I_N^T - \frac{1}{N}(\mathbf{1}\mathbf{1}^T)^T = I_N - \frac{1}{N}\mathbf{1}\mathbf{1}^T = H$.
+    Idempotence:
+    \[
+    H^2 = \left(I_N - \frac{1}{N}\mathbf{1}\mathbf{1}^T\right)\left(I_N - \frac{1}{N}\mathbf{1}\mathbf{1}^T\right) = I_N - \frac{2}{N}\mathbf{1}\mathbf{1}^T + \frac{1}{N^2}\mathbf{1}(\mathbf{1}^T \mathbf{1})\mathbf{1}^T
+    \]
+    Since $\mathbf{1}^T \mathbf{1} = N$:
+    \[
+    H^2 = I_N - \frac{2}{N}\mathbf{1}\mathbf{1}^T + \frac{1}{N^2}\mathbf{1}(N)\mathbf{1}^T = I_N - \frac{2}{N}\mathbf{1}\mathbf{1}^T + \frac{1}{N}\mathbf{1}\mathbf{1}^T = I_N - \frac{1}{N}\mathbf{1}\mathbf{1}^T = H
+    \]
+    Nullspace: $H \mathbf{1}_N = (I_N - \frac{1}{N}\mathbf{1}\mathbf{1}^T)\mathbf{1} = \mathbf{1} - \frac{1}{N}\mathbf{1}(N) = \mathbf{1} - \mathbf{1} = \mathbf{0}$.
+    Consequently:
+    \[
+    \tilde{K} \mathbf{1}_N = (H K H)\mathbf{1}_N = H K (H \mathbf{1}_N) = H K \mathbf{0} = \mathbf{0}
+    \]
+    Thus $\mathbf{1}_N \in \Null(\tilde{K})$, which means $\sum_{j=1}^N \tilde{K}_{ij} = 0$ for all rows $i$, ensuring perfect zero-mean centering in Hilbert space.
+\end{enumerate}
+
 \subsection*{Part B: Diagnostic Multiple-Choice Rationales}
 
 \paragraph{MCQ1: Proportion of Variance Explained}
