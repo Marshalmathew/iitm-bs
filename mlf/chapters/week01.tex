@@ -402,30 +402,64 @@ Figure~\ref{fig:ml_pipeline_geometry} visualizes how information flows from Natu
 \begin{tikzpicture}[
     scale=0.92,
     font=\sffamily\footnotesize,
-    node distance=1.1cm and 1.3cm,
-    block/.style={rectangle, draw=primarydark, fill=primarylight, thick, rounded corners=3pt, minimum width=2.7cm, minimum height=1.1cm, align=center},
-    model/.style={rectangle, draw=tealborder, fill=tealbg, thick, rounded corners=3pt, minimum width=2.9cm, minimum height=1.1cm, align=center},
-    risk/.style={rectangle, draw=coralborder, fill=coralbg, thick, rounded corners=3pt, minimum width=2.7cm, minimum height=1.1cm, align=center},
-    arr/.style={->, >=stealth, thick, color=primarydark}
+    node/.style={rectangle, thick, rounded corners=4pt, text width=3.3cm, minimum height=1.35cm, align=center},
+    arr/.style={->, >=stealth, line width=1.2pt, color=primarydark},
+    dashedarr/.style={->, >=stealth, line width=1.2pt, dashed, color=coralborder}
 ]
 
-% Top Row: Data Flow
-\node[block] (world) {\textbf{Generative World}\\Joint Measure $\mathcal{D}$\\$(\mathbf{x}, y) \sim \mathcal{D}$};
-\node[block, right=of world] (sample) {\textbf{Finite Training Set}\\$S = \{(\mathbf{x}_i, y_i)\}_{i=1}^N$\\$N$ i.i.d. draws};
-\node[model, right=of sample] (erm) {\textbf{ERM Optimization}\\$\hat{h}_S = \argmin_{h \in \mathcal{H}} R_{\text{emp}}(h)$\\Inductive Bias $\mathcal{H}$};
+% Top Row: Data & Optimization Flow
+\node[node, draw=primarydark, fill=primarylight!40] (world) at (0, 0) {
+    \textbf{Generative World}\\
+    Joint Measure $\mathcal{D}$\\
+    $(\mathbf{x}, y) \sim \mathcal{D}$
+};
 
-% Bottom Row: Risk Assessment
-\node[risk, below=1.4cm of erm] (remp) {\textbf{Empirical Risk}\\$R_{\text{emp}}(\hat{h}_S; S) = \frac{1}{N}\sum \ell_i$\\Observable Training Loss};
-\node[risk, left=of remp] (rtrue) {\textbf{True Generalization Risk}\\$R(\hat{h}_S) = \E_{(\mathbf{x},y)}[\ell(\hat{h}_S(\mathbf{x}), y)]$\\Unobservable Expectation};
-\node[block, left=of rtrue] (gap) {\textbf{Generalization Gap}\\$\Delta_{\text{gen}} = R(\hat{h}_S) - R_{\text{emp}}$\\Overfitting Magnitude};
+\node[node, draw=primarydark, fill=primarylight!40] (sample) at (5.5, 0) {
+    \textbf{Finite Training Set}\\
+    $S = \{(\mathbf{x}_i, y_i)\}_{i=1}^N$\\
+    $N$ i.i.d.\ observations
+};
 
-% Arrows
-\draw[arr] (world) -- node[above] {Sample $S \sim \mathcal{D}^N$} (sample);
-\draw[arr] (sample) -- node[above] {Minimize} (erm);
-\draw[arr] (erm) -- (remp);
-\draw[arr] (remp) -- node[above] {Generalization Test} (rtrue);
-\draw[arr] (rtrue) -- (gap);
-\draw[dashed, ->, thick, color=coralborder] (world) |- node[below right, pos=0.25] {Evaluated Against Nature} (rtrue);
+\node[node, draw=tealborder, fill=tealbg] (erm) at (11.0, 0) {
+    \textbf{ERM Optimization}\\
+    $\hat{h}_S = \argmin_{h \in \mathcal{H}} R_{\text{emp}}(h)$\\
+    Inductive Bias $\mathcal{H}$
+};
+
+% Bottom Row: Risk & Generalization Evaluation
+\node[node, draw=coralborder, fill=coralbg] (rtrue) at (0, -3.2) {
+    \textbf{True Risk $R(\hat{h}_S)$}\\
+    $\E_{(\mathbf{x},y)\sim\mathcal{D}}[\ell(\hat{h}_S(\mathbf{x}), y)]$\\
+    Unseen Generalization
+};
+
+\node[node, draw=traprad, fill=traprad!12] (gap) at (5.5, -3.2) {
+    \textbf{Generalization Gap}\\
+    $\Delta_{\text{gen}} = R(\hat{h}_S) - R_{\text{emp}}$\\
+    Overfitting Magnitude
+};
+
+\node[node, draw=coralborder, fill=coralbg] (remp) at (11.0, -3.2) {
+    \textbf{Empirical Risk}\\
+    $R_{\text{emp}}(\hat{h}_S; S) = \frac{1}{N}\sum_{i=1}^N \ell_i$\\
+    Observable Training Loss
+};
+
+% Horizontal Arrows (Top Row)
+\draw[arr] (world) -- node[above, font=\scriptsize\bfseries] {i.i.d.\ Sampling} 
+                      node[below, font=\scriptsize] {$S \sim \mathcal{D}^N$} (sample);
+\draw[arr] (sample) -- node[above, font=\scriptsize\bfseries] {Minimization} 
+                       node[below, font=\scriptsize] {Search over $\mathcal{H}$} (erm);
+
+% Vertical Downward Arrows
+\draw[dashedarr] (world) -- node[left, font=\scriptsize\bfseries, align=right] {Evaluated on\\Nature $\mathcal{D}$} (rtrue);
+\draw[arr] (erm) -- node[right, font=\scriptsize\bfseries, align=left] {Observed Loss\\on Sample $S$} (remp);
+
+% Horizontal Arrows (Bottom Row) feeding into Generalization Gap
+\draw[arr] (rtrue) -- node[above, font=\scriptsize\bfseries] {Expected Loss} 
+                      node[below, font=\scriptsize] {Final Exam} (gap);
+\draw[arr] (remp) -- node[above, font=\scriptsize\bfseries] {Training Loss} 
+                     node[below, font=\scriptsize] {Practice Homework} (gap);
 
 \end{tikzpicture}
 \caption{The Statistical Learning Pipeline: Connecting unknown generative distribution $\mathcal{D}$, finite training sample $S$, empirical optimization within hypothesis class $\mathcal{H}$, and true out-of-sample risk.}
@@ -440,7 +474,7 @@ Why is zero generalization error fundamentally impossible in real-world problems
 \begin{tikzpicture}
 \begin{axis}[
     width=0.88\textwidth,
-    height=6.2cm,
+    height=5.0cm,
     samples=150,
     domain=-3.0:5.5,
     xlabel={Observed Sensor Measurement $x$},
