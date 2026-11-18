@@ -190,6 +190,66 @@ $f(x, y) = x^3 - 3x - y^2 + 4y$.
     At $P_2 = (-1, 2)$: $H(-1, 2) = \begin{bmatrix} -6 & 0 \\ 0 & -2 \end{bmatrix}$. Eigenvalues are $\lambda_1 = -6 < 0$ and $\lambda_2 = -2 < 0$. Since both eigenvalues are strictly negative, $H$ is negative definite, meaning $P_2$ is a strict \textbf{Local Maximum}.
 \end{enumerate}
 
+\paragraph{P6. Fréchet Differentiability and Pathological Directional Derivatives:}
+\begin{enumerate}[label=(\alph*)]
+    \item Let $\mathbf{u} = [u_1, u_2]^T$ be an arbitrary unit direction vector ($\|\mathbf{u}\|_2 = 1$). By definition, the directional derivative (Gâteaux derivative) at the origin is:
+    \begin{equation*}
+    D_{\mathbf{u}} f(0, 0) = \lim_{t \to 0} \frac{f(t u_1, t u_2) - f(0, 0)}{t} = \lim_{t \to 0} \frac{1}{t} \left( \frac{(t u_1)^3 (t u_2)}{(t u_1)^6 + (t u_2)^2} \right) = \lim_{t \to 0} \frac{t^4 u_1^3 u_2}{t \left( t^6 u_1^6 + t^2 u_2^2 \right)}
+    \end{equation*}
+    \begin{itemize}
+        \item If $u_2 \ne 0$: Factor $t^2$ from the denominator:
+        \begin{equation*}
+        D_{\mathbf{u}} f(0, 0) = \lim_{t \to 0} \frac{t^4 u_1^3 u_2}{t^3 (t^4 u_1^6 + u_2^2)} = \lim_{t \to 0} \frac{t u_1^3 u_2}{t^4 u_1^6 + u_2^2} = \frac{0 \cdot u_1^3 u_2}{0 + u_2^2} = 0
+        \end{equation*}
+        \item If $u_2 = 0$ (so $u_1 = \pm 1$ along the horizontal $x$-axis):
+        \begin{equation*}
+        f(t u_1, 0) = \frac{(t u_1)^3 \cdot 0}{t^6 u_1^6 + 0} = 0 \implies D_{\mathbf{u}} f(0, 0) = \lim_{t \to 0} \frac{0 - 0}{t} = 0
+        \end{equation*}
+    \end{itemize}
+    Thus, $D_{\mathbf{u}} f(0, 0) = 0$ for every straight-line direction $\mathbf{u} \in \mathbb{R}^2$ without exception!
+    
+    \item Approach the origin along the cubic parabolic trajectory $y = x^3$:
+    \begin{equation*}
+    f(x, x^3) = \frac{x^3 (x^3)}{x^6 + (x^3)^2} = \frac{x^6}{x^6 + x^6} = \frac{x^6}{2 x^6} = \frac{1}{2}
+    \end{equation*}
+    Taking the limit as $x \to 0$:
+    \begin{equation*}
+    \lim_{\substack{(x, y) \to (0, 0) \\ y = x^3}} f(x, y) = \frac{1}{2} \ne f(0, 0) = 0
+    \end{equation*}
+
+    \item Because the limit along $y = x^3$ ($\frac{1}{2}$) does not equal the function value at the origin ($0$), $f$ is \textbf{discontinuous} at $(0, 0)$.
+    A function that is discontinuous at a point cannot be Fréchet (totally) differentiable, since Fréchet differentiability requires:
+    \begin{equation*}
+    \lim_{\mathbf{v} \to \mathbf{0}} \frac{f(\mathbf{v}) - f(\mathbf{0}) - \nabla f(\mathbf{0})^T \mathbf{v}}{\|\mathbf{v}\|_2} = 0 \implies \lim_{\mathbf{v} \to \mathbf{0}} f(\mathbf{v}) = f(\mathbf{0})
+    \end{equation*}
+    \textbf{The Optimization Lesson:} Gâteaux directional derivatives inspect the landscape exclusively through rigid 1D linear slits. They are completely blind to non-linear curved ravines. Only Fréchet differentiability guarantees that a tangent hyperplane provides an honest, uniform local linear approximation across all approaching trajectories.
+\end{enumerate}
+
+\paragraph{P7. Binary Logistic Regression Hessian and Strict Convexity:}
+\begin{enumerate}[label=(\alph*)]
+    \item As derived in Chapter 2, the gradient is $\nabla_{\mathbf{w}} \mathcal{L}(\mathbf{w}) = X^T(\mathbf{p} - \mathbf{y}) = \sum_{i=1}^N (p_i - y_i)\mathbf{x}_i$. Differentiating with respect to $\mathbf{w}$ using $\frac{\partial p_i}{\partial \mathbf{w}} = p_i(1 - p_i)\mathbf{x}_i$:
+    \begin{equation*}
+    H(\mathbf{w}) = \nabla^2_{\mathbf{w}}\mathcal{L}(\mathbf{w}) = \sum_{i=1}^N \mathbf{x}_i \left( \frac{\partial p_i}{\partial \mathbf{w}} \right)^T = \sum_{i=1}^N p_i(1 - p_i) \mathbf{x}_i \mathbf{x}_i^T
+    \end{equation*}
+    With diagonal matrix $S(\mathbf{w}) = \operatorname{diag}\big(p_1(1-p_1), \dots, p_N(1-p_N)\big)$, this sum of outer products is identical to the matrix product $X^T S(\mathbf{w}) X$.
+    
+    \item For any finite $\mathbf{w} \in \mathbb{R}^d$, the linear score $z_i = \mathbf{w}^T \mathbf{x}_i$ is bounded, so $p_i = \sigma(z_i) \in (0, 1)$. Thus, $s_i = p_i(1 - p_i) > 0$ for all $i = 1, \dots, N$.
+    For any non-zero $\mathbf{v} \in \mathbb{R}^d \setminus \{\mathbf{0}\}$:
+    \begin{equation*}
+    \mathbf{v}^T H(\mathbf{w}) \mathbf{v} = \mathbf{v}^T X^T S X \mathbf{v} = (X\mathbf{v})^T S (X\mathbf{v}) = \sum_{i=1}^N s_i (X\mathbf{v})_i^2 \ge \left( \min_{k} s_k \right) \|X\mathbf{v}\|_2^2
+    \end{equation*}
+    Since $X$ has full column rank ($N \ge d$), its columns are linearly independent, which implies $X\mathbf{v} \ne \mathbf{0}$ whenever $\mathbf{v} \ne \mathbf{0}$.
+    Because $\min_k s_k > 0$ and $\|X\mathbf{v}\|_2^2 > 0$, it follows that $\mathbf{v}^T H(\mathbf{w}) \mathbf{v} > 0$. Therefore, $H(\mathbf{w}) \succ 0$ is strictly positive definite everywhere on $\mathbb{R}^d$.
+    
+    \item Strict positive definiteness of the Hessian ($H(\mathbf{w}) \succ 0$ for all $\mathbf{w} \in \mathbb{R}^d$) guarantees that $\mathcal{L}(\mathbf{w})$ is \textbf{strictly convex}.
+    By fundamental convex optimization theory:
+    \begin{itemize}
+        \item Any stationary point ($\nabla \mathcal{L}(\mathbf{w}) = \mathbf{0}$) is guaranteed to be a \textbf{global minimum}.
+        \item There are \textbf{no local minima} that are not global minima, and \textbf{no saddle points} exist anywhere on the loss surface.
+        \item The global minimizer $\mathbf{w}^*$ is \textbf{strictly unique} (provided the data is not linearly separable to infinity, in which case the loss infimum is approached as $\|\mathbf{w}\| \to \infty$).
+    \end{itemize}
+\end{enumerate}
+
 \subsection*{Part B: Diagnostic Multiple-Choice Rationales}
 
 \paragraph{MCQ1: Gradient of Non-Symmetric Quadratic Form}

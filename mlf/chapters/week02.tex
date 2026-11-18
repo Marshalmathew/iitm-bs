@@ -145,6 +145,17 @@ The approximation error vanishes strictly faster than the step size $\|\mathbf{v
 f(\mathbf{x} + \mathbf{v}) = f(\mathbf{x}) + \nabla f(\mathbf{x})^T \mathbf{v} + o(\|\mathbf{v}\|_2)
 \end{equation}
 
+\subsubsection{Fréchet Differentiability vs. Gâteaux Directional Derivatives}
+A crucial distinction in rigorous optimization lies between \textbf{Fréchet differentiability} (total derivative) and \textbf{Gâteaux differentiability} (directional derivatives):
+\begin{itemize}
+    \item \textbf{Gâteaux Derivative (Directional):} Checks limits strictly along straight 1D rays:
+    \begin{equation}
+    \delta f(\mathbf{x}; \mathbf{v}) \triangleq \lim_{t \to 0} \frac{f(\mathbf{x} + t\mathbf{v}) - f(\mathbf{x})}{t}
+    \end{equation}
+    \item \textbf{Fréchet Derivative (Total):} Demands uniform linear approximation over \emph{all possible curves and trajectories} entering $\mathbf{x}$, as formulated in Equation~\eqref{eq:frechet_diff}.
+\end{itemize}
+Crucially, the existence of all directional derivatives does \emph{not} imply total differentiability, as demonstrated in the classic counterexample below.
+
 \begin{ponderbox}{The Multi-Path Trap: Do Partial Derivatives Guarantee Differentiability?}
 Suppose an objective function $f(x, y)$ has well-defined, finite partial derivatives $\frac{\partial f}{\partial x}(0, 0)$ and $\frac{\partial f}{\partial y}(0, 0)$ along both coordinate axes. Does this guarantee that $f$ is continuous or differentiable at the origin?
 \tcblower
@@ -355,7 +366,48 @@ Equation~\eqref{eq:chain_rule_matrix_prod} is the mathematical engine behind \te
 \begin{equation}
 \mathbf{x} \xrightarrow{\quad\mathbf{f}_1\quad} \mathbf{h}_1 \xrightarrow{\quad\mathbf{f}_2\quad} \mathbf{h}_2 \dots \xrightarrow{\quad\mathbf{f}_L\quad} \hat{\mathbf{y}} \xrightarrow{\quad\ell\quad} \text{Loss}
 \end{equation}
-The total derivative of the scalar loss with respect to the input weights is simply a cascade of matrix-matrix multiplications of individual layer Jacobians!
+The total derivative of the scalar loss with respect to the input weights is fundamentally a cascade of vector-Jacobian products.
+
+\subsubsection{Automatic Differentiation: Forward Mode (JVPs) vs. Reverse Mode (VJPs)}
+In contemporary machine learning, design matrices and neural network weights contain millions to billions of parameters ($d \ge 10^7$). Instantiating the full $m \times d$ Jacobian matrix explicitly in memory would require petabytes of RAM and is computationally impossible.
+
+Modern autodiff engines (PyTorch, JAX, TensorFlow) resolve this through two complementary dual operations that evaluate directional derivatives without ever constructing the matrix $J$:
+\begin{enumerate}
+    \item \textbf{Forward-Mode AD (Jacobian-Vector Product, JVP):}
+    Given an input perturbation direction $\mathbf{v} \in \mathbb{R}^n$, forward mode evaluates the directional derivative:
+    \begin{equation}
+    \operatorname{jvp}(\mathbf{v}) \triangleq J_{\mathbf{f}}(\mathbf{x})\, \mathbf{v} = \lim_{\epsilon \to 0} \frac{\mathbf{f}(\mathbf{x} + \epsilon \mathbf{v}) - \mathbf{f}(\mathbf{x})}{\epsilon} \in \mathbb{R}^m
+    \end{equation}
+    Forward mode propagates derivatives along the computational graph concurrently with the forward evaluation pass. When $n \ll m$ (few inputs, many outputs, such as trajectory simulation from initial conditions), forward mode is exceptionally fast. However, for training neural networks where $m = 1$ (scalar loss) and $n = d$ (billions of parameters), forward mode requires $d$ independent forward passes—one for each basis vector $\mathbf{e}_k$—making it prohibitively slow ($\mathcal{O}(d)$ passes).
+
+    \item \textbf{Reverse-Mode AD (Vector-Jacobian Product, VJP):}
+    Given an upstream cotangent vector (or adjoint sensitivity) $\mathbf{u} \in \mathbb{R}^m$, reverse mode evaluates:
+    \begin{equation}
+    \operatorname{vjp}(\mathbf{u}) \triangleq \mathbf{u}^T J_{\mathbf{f}}(\mathbf{x}) \in \mathbb{R}^{1 \times n} \iff J_{\mathbf{f}}(\mathbf{x})^T \mathbf{u} \in \mathbb{R}^n
+    \end{equation}
+    Reverse mode traverses the computational graph backward from the output to the inputs. For a scalar objective functional $\mathcal{L}: \mathbb{R}^d \to \mathbb{R}$, $m = 1$. By initializing the backward seed with the scalar $u = 1$, reverse mode evaluates:
+    \begin{equation}
+    J_{\mathcal{L}}(\mathbf{w})^T \cdot [1] = \nabla_{\mathbf{w}} \mathcal{L} \in \mathbb{R}^d
+    \end{equation}
+    in \textbf{a single backward sweep}! The computational time is mathematically proven to be bounded by at most $3\times$ to $5\times$ the forward pass evaluation time, \emph{completely independent of the parameter dimension $d$}!
+\end{enumerate}
+
+\begin{ponderbox}{The Reverse-Mode Revolution: The $\mathcal{O}(1)$ vs. $\mathcal{O}(d)$ Complexity Miracle}
+Consider training a modern Large Language Model with $d = 70 \times 10^9$ parameters on a batch of data, where computing the forward loss $\mathcal{L}(\mathbf{w})$ takes 100 milliseconds.
+\begin{enumerate}
+    \item If we computed the gradient $\nabla_{\mathbf{w}} \mathcal{L}$ using finite differences $\frac{\mathcal{L}(\mathbf{w} + \epsilon \mathbf{e}_k) - \mathcal{L}(\mathbf{w})}{\epsilon}$, or using Forward-Mode AD, how long would a single gradient step take?
+    \item How long does Reverse-Mode AD (backpropagation) take for the exact same step?
+    \item Why is this computational asymmetry the single mathematical reason deep learning exists today?
+\end{enumerate}
+\tcblower
+\textbf{Reflection:}
+1. \textbf{Forward Mode / Finite Differences ($\mathcal{O}(d)$):} To compute the gradient with respect to 70 billion parameters, we must evaluate the function along 70 billion orthogonal coordinate directions. At 100 milliseconds per evaluation:
+\begin{equation*}
+\text{Time} = 70 \times 10^9 \times 0.1\text{ s} = 7 \times 10^9\text{ seconds} \approx 222\text{ years for a single gradient step!}
+\end{equation*}
+2. \textbf{Reverse Mode AD ($\mathcal{O}(1)$ relative overhead):} By traversing the chain rule in reverse (from the scalar loss back to the parameters), a single backward pass computes all 70 billion partial derivatives simultaneously in approximately $2 \times 100\text{ ms} = 200\text{ milliseconds}$!
+3. \textbf{The Foundational Breakthrough:} Deep learning is possible because machine learning optimization is asymmetric: we map a massive parameter space ($\mathbb{R}^d$) down to a \textbf{single scalar loss} ($\mathbb{R}^1$). Reverse-mode automatic differentiation is the mathematical key that unlocked optimization over billions of degrees of freedom.
+\end{ponderbox}
 
 \subsection{The Hessian Matrix and Second-Order Taylor Approximations}
 First derivatives tell us the slope; second derivatives tell us the \textbf{curvature}.
@@ -430,12 +482,51 @@ Let $\mathbf{x}^*$ be a stationary point ($\nabla f(\mathbf{x}^*) = \mathbf{0}$)
 \end{enumerate}
 \end{theorembox}
 
+\subsection{Curvature Geometry: The Rayleigh Quotient and the Condition Number}
+The second-order Taylor expansion reveals that the local geometry around any point $\mathbf{x}$ is governed by the quadratic form $\mathbf{v}^T H(\mathbf{x})\mathbf{v}$. How does this quadratic form behave as we probe different spatial directions?
+
+\subsubsection{Directional Curvature and the Rayleigh Quotient}
+Let $\mathbf{u} \in \mathbb{R}^d$ be an arbitrary unit direction vector ($\|\mathbf{u}\|_2 = 1$). The second directional derivative of $f$ along $\mathbf{u}$ represents the \textbf{directional curvature}:
+\begin{equation}
+D^2_{\mathbf{u}} f(\mathbf{x}) \triangleq \lim_{t \to 0} \frac{f(\mathbf{x} + t\mathbf{u}) - 2f(\mathbf{x}) + f(\mathbf{x} - t\mathbf{u})}{t^2} = \mathbf{u}^T \nabla^2 f(\mathbf{x}) \mathbf{u}
+\end{equation}
+For an unnormalized perturbation vector $\mathbf{v} \ne \mathbf{0}$, the curvature along $\mathbf{v}$ is given by the celebrated \textbf{Rayleigh Quotient} of the Hessian:
+\begin{equation}
+R_H(\mathbf{v}) \triangleq \frac{\mathbf{v}^T H(\mathbf{x}) \mathbf{v}}{\mathbf{v}^T \mathbf{v}} = \frac{\mathbf{v}^T H(\mathbf{x}) \mathbf{v}}{\|\mathbf{v}\|_2^2}
+\label{eq:rayleigh_quotient}
+\end{equation}
+Because the Hessian $H(\mathbf{x})$ is real and symmetric, the Rayleigh-Ritz theorem guarantees that the directional curvature is strictly bounded by the extreme eigenvalues of $H$:
+\begin{equation}
+\lambda_{\min}\big(H(\mathbf{x})\big) \le R_H(\mathbf{v}) \le \lambda_{\max}\big(H(\mathbf{x})\big) \quad \text{for all } \mathbf{v} \ne \mathbf{0}
+\end{equation}
+The lower bound $\lambda_{\min}$ is achieved when $\mathbf{v}$ aligns with the minimal eigenvector $\mathbf{q}_{\min}$ (the direction of flattest curvature), while the upper bound $\lambda_{\max}$ is achieved along the maximal eigenvector $\mathbf{q}_{\max}$ (the direction of sharpest curvature).
+
+\subsubsection{Ellipsoidal Contours and the Hessian Condition Number}
+When the Hessian is strictly positive definite ($H \succ 0$), the local second-order level sets $\{\mathbf{v} \in \mathbb{R}^d : \frac{1}{2}\mathbf{v}^T H \mathbf{v} = c\}$ define $d$-dimensional concentric \textbf{hyper-ellipsoids}.
+Decomposing $H = Q \Lambda Q^T$ into its orthonormal eigenvectors $\mathbf{q}_1, \dots, \mathbf{q}_d$ and positive eigenvalues $\lambda_1 \ge \dots \ge \lambda_d > 0$:
+\begin{equation}
+\frac{1}{2}\mathbf{v}^T Q \Lambda Q^T \mathbf{v} = \frac{1}{2} \sum_{i=1}^d \lambda_i (\mathbf{q}_i^T \mathbf{v})^2 = c \iff \sum_{i=1}^d \frac{(\mathbf{q}_i^T \mathbf{v})^2}{2c / \lambda_i} = 1
+\end{equation}
+This reveals the fundamental geometric duality between eigenvalues and spatial geometry:
+\begin{itemize}
+    \item The principal axes of the contour ellipsoids align precisely with the eigenvectors $\mathbf{q}_i$ of the Hessian.
+    \item The semi-axis length along direction $\mathbf{q}_i$ is $a_i = \sqrt{\frac{2c}{\lambda_i}}$.
+    \item \textbf{Inverse Relationship:} A \emph{large} eigenvalue $\lambda_{\max}$ produces a \emph{steep, narrow} canyon wall (short semi-axis), whereas a \emph{small} eigenvalue $\lambda_{\min}$ produces a \emph{flat, elongated} valley floor (long semi-axis).
+\end{itemize}
+
+The eccentricity of these contour ellipsoids is quantified by the \textbf{Hessian condition number}:
+\begin{equation}
+\kappa(H) \triangleq \frac{\lambda_{\max}(H)}{\lambda_{\min}(H)} \ge 1
+\end{equation}
+When $\kappa(H) = 1$, the eigenvalues are equal ($\lambda_i = \lambda$), the contours are perfectly spherical, and the negative gradient $-\nabla f(\mathbf{x})$ points straight to the minimizer $\mathbf{x}^*$.
+However, in realistic machine learning objectives, $\kappa(H)$ frequently exceeds $10^4$ or $10^6$ due to unnormalized input features or deep network depth. On such ill-conditioned landscapes, the gradient vector points almost perpendicular to the direction toward the minimum! This geometric fact explains why naive gradient descent zig-zags chaotically, and motivates second-order methods (Newton-Raphson) which multiply by $H^{-1}$ to mathematically pre-whiten the Hessian into an identity sphere ($H^{-1}H = I$).
+
 % ----------------------------------------------------------------------
 % PART 3: IN-CHAPTER STEP-BY-STEP WORKED EXAMPLES
 % ----------------------------------------------------------------------
 \section{In-Chapter Step-by-Step Pedagogical Examples}
 
-\begin{examplebox}{Worked Example 2.1: Directional Derivative \& Angular Sweep}
+\begin{examplebox}[breakable]{Worked Example 2.1: Directional Derivative \& Angular Sweep}
 \label{ex:w02_directional_derivative}
 \textbf{The Scenario:}
 Consider a two-dimensional loss function representing the cost surface of an industrial heating system:
@@ -503,7 +594,7 @@ Notice the profound geometric relationship:
 The zero-change direction is \textbf{strictly perpendicular} to the gradient, precisely tangent to the contour ellipse $f(x_1, x_2) = f(1, 2) = 3(1)^2 + 2(1)(2) + 2^2 = 11$.
 \end{examplebox}
 
-\begin{examplebox}{Worked Example 2.2: Matrix Calculus of Linear Regression (OLS)}
+\begin{examplebox}[breakable]{Worked Example 2.2: Matrix Calculus of Linear Regression (OLS)}
 \label{ex:w02_ols_matrix_calculus}
 \textbf{The Scenario:}
 In Ordinary Least Squares (OLS) regression, we are given a design matrix $X \in \mathbb{R}^{N \times d}$ and a target vector $\mathbf{y} \in \mathbb{R}^N$. We wish to find weights $\mathbf{w} \in \mathbb{R}^d$ minimizing the Mean Squared Error (MSE) empirical risk:
@@ -571,7 +662,7 @@ Because the squared Euclidean norm $\|X\mathbf{v}\|_2^2$ is non-negative for any
 Hence, the Hessian is \textbf{positive semi-definite} ($H \succeq 0$) globally. The MSE loss surface is a convex bowl with no local traps; setting the gradient to zero yields the global minimum $(X^T X)\mathbf{w}^* = X^T \mathbf{y}$!
 \end{examplebox}
 
-\begin{examplebox}{Worked Example 2.3: Concrete Numerical OLS Step \& Inversion on Toy Data}
+\begin{examplebox}[breakable]{Worked Example 2.3: Concrete Numerical OLS Step \& Inversion on Toy Data}
 \label{ex:w02_numerical_ols_step}
 \textbf{The Scenario:}
 To demystify vector calculus and observe the numbers in action, consider a concrete toy dataset of $N = 3$ samples with a single input feature $x$, augmented with a bias column ($d = 2$ parameters $\mathbf{w} = [w_0, w_1]^T$ where $\hat{y} = w_0 + w_1 x$):
@@ -648,7 +739,7 @@ The updated loss evaluates to:
 \textbf{The Verdict:} In a single step of gradient descent, the loss plummeted from $\mathbf{6.3333}$ to $\mathbf{1.2826}$ (a \textbf{79.7\% reduction} in error)! Furthermore, the weights moved from $[0, 0]^T$ to $[0.3333, 0.7667]^T$, progressing directly along the trajectory toward the analytical minimum $\mathbf{w}^* = [0.3333, 1.5000]^T$.
 \end{examplebox}
 
-\begin{examplebox}{Worked Example 2.4: Critical Point Classification on a Non-Convex Landscape}
+\begin{examplebox}[breakable]{Worked Example 2.4: Critical Point Classification on a Non-Convex Landscape}
 \label{ex:w02_critical_point_classification}
 \textbf{The Scenario:}
 A machine learning researcher evaluates a toy non-convex loss function with two features $(x, y)$:
@@ -718,6 +809,161 @@ Because the off-diagonal entries are zero, the diagonal entries are the eigenval
 This example perfectly demonstrates the double-well potential: two symmetrical valleys separated by a central mountain saddle pass at the origin.
 \end{examplebox}
 
+\begin{examplebox}[breakable]{Worked Example 2.5: Binary Logistic Regression: Gradient, Hessian \& Newton-Raphson Step}
+\label{ex:w02_logistic_regression_calculus}
+\textbf{The Scenario:}
+In binary classification, we model the probability that label $y_i \in \{0, 1\}$ equals $1$ given feature vector $\mathbf{x}_i \in \mathbb{R}^d$ via the logistic sigmoid link function:
+\begin{equation*}
+p_i(\mathbf{w}) \triangleq \sigma(\mathbf{w}^T \mathbf{x}_i) = \frac{1}{1 + e^{-\mathbf{w}^T \mathbf{x}_i}}
+\end{equation*}
+Given a training dataset of $N$ observations $(X, \mathbf{y})$ where $X \in \mathbb{R}^{N \times d}$ and $\mathbf{y} \in \{0, 1\}^N$, the negative log-likelihood (cross-entropy) empirical loss is:
+\begin{equation*}
+\mathcal{L}(\mathbf{w}) = -\sum_{i=1}^N \Big[ y_i \ln p_i(\mathbf{w}) + (1 - y_i) \ln\big(1 - p_i(\mathbf{w})\big) \Big]
+\end{equation*}
+Consider a concrete toy dataset of $N = 2$ orthogonal samples in $d = 2$ dimensions:
+\begin{equation*}
+\mathbf{x}_1 = \begin{bmatrix} 1 \\ 0 \end{bmatrix}, \; y_1 = 1; \qquad \mathbf{x}_2 = \begin{bmatrix} 0 \\ 1 \end{bmatrix}, \; y_2 = 0 \implies X = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} = I_2, \quad \mathbf{y} = \begin{bmatrix} 1 \\ 0 \end{bmatrix}
+\end{equation*}
+
+\textbf{Questions to Solve:}
+\begin{enumerate}
+    \item Derive the exact gradient vector $\nabla_{\mathbf{w}} \mathcal{L}(\mathbf{w})$ from first principles, demonstrating the cancellation of the sigmoid denominator. Express the result compactly in matrix-vector notation.
+    \item Derive the exact Hessian matrix $H(\mathbf{w}) = \nabla^2_{\mathbf{w}} \mathcal{L}(\mathbf{w})$.
+    \item Prove that if $X$ has full column rank, $H(\mathbf{w})$ is strictly positive definite for all finite $\mathbf{w} \in \mathbb{R}^d$, guaranteeing strict convexity and a unique global minimum.
+    \item Initialize weights at the origin: $\mathbf{w}_0 = [0, 0]^T$. Compute the predicted probabilities $\mathbf{p}_0$, the initial cross-entropy loss $\mathcal{L}(\mathbf{w}_0)$, the gradient $\mathbf{g}_0$, and the Hessian $H_0$.
+    \item Execute one full Newton-Raphson second-order optimization step:
+    \begin{equation*}
+    \mathbf{w}_1 = \mathbf{w}_0 - H_0^{-1} \mathbf{g}_0
+    \end{equation*}
+    \item Evaluate the updated probabilities $\mathbf{p}_1$ and new loss $\mathcal{L}(\mathbf{w}_1)$. Contrast the single-step progress with standard first-order gradient descent.
+\end{enumerate}
+
+\tcblower
+\textbf{Step-by-Step Analytical Solution:}
+
+\textbf{Step 1: Deriving the Gradient Vector}
+Let $z_i = \mathbf{w}^T \mathbf{x}_i = \sum_{j=1}^d w_j X_{ij}$. The sigmoid function satisfies the classic differential identity:
+\begin{equation*}
+\sigma'(z) = \frac{d}{dz}\left( \frac{1}{1 + e^{-z}} \right) = \frac{e^{-z}}{(1 + e^{-z})^2} = \left(\frac{1}{1 + e^{-z}}\right)\left(1 - \frac{1}{1 + e^{-z}}\right) = \sigma(z)(1 - \sigma(z))
+\end{equation*}
+By the univariate chain rule, the partial derivative of $p_i = \sigma(z_i)$ with respect to weight $w_j$ is:
+\begin{equation*}
+\frac{\partial p_i}{\partial w_j} = \sigma'(z_i) \frac{\partial z_i}{\partial w_j} = p_i(1 - p_i) X_{ij}
+\end{equation*}
+Now, differentiating the $i$-th cross-entropy loss component $\ell_i = -[y_i \ln p_i + (1 - y_i) \ln(1 - p_i)]$:
+\begin{align*}
+\frac{\partial \ell_i}{\partial w_j} &= -\left[ \frac{y_i}{p_i} \frac{\partial p_i}{\partial w_j} - \frac{1 - y_i}{1 - p_i} \frac{\partial p_i}{\partial w_j} \right] = -\left[ \frac{y_i}{p_i} - \frac{1 - y_i}{1 - p_i} \right] p_i(1 - p_i) X_{ij} \\
+&= -\left[ \frac{y_i(1 - p_i) - (1 - y_i)p_i}{p_i(1 - p_i)} \right] p_i(1 - p_i) X_{ij} \\
+&= -[y_i - y_i p_i - p_i + y_i p_i] X_{ij} = -(y_i - p_i) X_{ij} = (p_i - y_i) X_{ij}
+\end{align*}
+Summing over all $N$ data points:
+\begin{equation*}
+\frac{\partial \mathcal{L}}{\partial w_j} = \sum_{i=1}^N (p_i - y_i) X_{ij} = \sum_{i=1}^N X_{ij} (p_i - y_i)
+\end{equation*}
+In compact matrix notation, stacking predictions into $\mathbf{p} = [p_1, \dots, p_N]^T \in \mathbb{R}^N$:
+\begin{equation*}
+\nabla_{\mathbf{w}} \mathcal{L}(\mathbf{w}) = \mathbf{X^T (\mathbf{p} - \mathbf{y})}
+\end{equation*}
+Notice the breathtaking structural elegance: the cross-entropy gradient matches the exact algebraic structure of the OLS linear regression gradient $X^T(\hat{\mathbf{y}} - \mathbf{y})$, with probabilities replacing linear predictions!
+
+\textbf{Step 2: Deriving the Hessian Matrix}
+Differentiating the gradient $\nabla_{\mathbf{w}} \mathcal{L}(\mathbf{w}) = \sum_{i=1}^N (p_i - y_i) \mathbf{x}_i$ with respect to $\mathbf{w}$:
+\begin{equation*}
+H(\mathbf{w}) = \frac{\partial}{\partial \mathbf{w}} \left( \sum_{i=1}^N (p_i - y_i) \mathbf{x}_i \right) = \sum_{i=1}^N \mathbf{x}_i \left( \nabla_{\mathbf{w}} p_i \right)^T
+\end{equation*}
+Since $\nabla_{\mathbf{w}} p_i = p_i(1 - p_i)\mathbf{x}_i$, we obtain the weighted sum of rank-one outer products:
+\begin{equation*}
+H(\mathbf{w}) = \sum_{i=1}^N p_i(1 - p_i) \mathbf{x}_i \mathbf{x}_i^T
+\end{equation*}
+Define the diagonal weight matrix $S(\mathbf{w}) \in \mathbb{R}^{N \times N}$:
+\begin{equation*}
+S = \operatorname{diag}\big( p_1(1 - p_1), \; p_2(1 - p_2), \; \dots, \; p_N(1 - p_N) \big)
+\end{equation*}
+Then the Hessian is compactly expressed as:
+\begin{equation*}
+\mathbf{H(\mathbf{w}) = X^T S(\mathbf{w}) X}
+\end{equation*}
+
+\textbf{Step 3: Proving Strict Positive Definiteness and Global Convexity}
+For any finite weight vector $\mathbf{w} \in \mathbb{R}^d$, the linear activations $z_i = \mathbf{w}^T \mathbf{x}_i \in (-\infty, \infty)$ are strictly finite.
+Since the sigmoid map satisfies $0 < \sigma(z) < 1$ for all finite $z$, each variance term $s_i = p_i(1 - p_i)$ is strictly positive:
+\begin{equation*}
+s_i = p_i(1 - p_i) \in \left(0, \frac{1}{4}\right] \quad \forall i \in \{1, \dots, N\}
+\end{equation*}
+Thus, $S$ is a diagonal matrix with strictly positive diagonal entries, meaning $S \succ 0$ is strictly positive definite.
+Now consider the quadratic form for any non-zero test vector $\mathbf{v} \in \mathbb{R}^d \setminus \{\mathbf{0}\}$:
+\begin{equation*}
+\mathbf{v}^T H(\mathbf{w}) \mathbf{v} = \mathbf{v}^T X^T S X \mathbf{v} = (X\mathbf{v})^T S (X\mathbf{v})
+\end{equation*}
+Let $\mathbf{u} = X\mathbf{v} \in \mathbb{R}^N$. Then:
+\begin{equation*}
+\mathbf{u}^T S \mathbf{u} = \sum_{i=1}^N s_i u_i^2 \ge \min_{i} (s_i) \|\mathbf{u}\|_2^2
+\end{equation*}
+Because $X$ has full column rank ($N \ge d$), its nullspace is trivial: $\operatorname{null}(X) = \{\mathbf{0}\}$.
+Therefore, $\mathbf{v} \ne \mathbf{0} \implies \mathbf{u} = X\mathbf{v} \ne \mathbf{0}$.
+Since $\min_i(s_i) > 0$ and $\|\mathbf{u}\|_2^2 > 0$, we conclude:
+\begin{equation*}
+\mathbf{v}^T H(\mathbf{w}) \mathbf{v} > 0 \quad \forall \mathbf{v} \ne \mathbf{0} \implies H(\mathbf{w}) \succ 0
+\end{equation*}
+Because the Hessian is strictly positive definite everywhere on $\mathbb{R}^d$, the binary logistic regression loss $\mathcal{L}(\mathbf{w})$ is \textbf{strictly convex}. It possesses no saddle points, no local maxima, and exactly one unique global minimum!
+
+\textbf{Step 4: Concrete Evaluation at Initial Point $\mathbf{w}_0 = [0, 0]^T$}
+With $X = I_2$ and $\mathbf{y} = [1, 0]^T$:
+\begin{itemize}
+    \item Linear scores: $z_1 = \mathbf{w}_0^T \mathbf{x}_1 = [0, 0][1, 0]^T = 0$; $z_2 = \mathbf{w}_0^T \mathbf{x}_2 = 0$.
+    \item Predicted probabilities: $p_1 = \sigma(0) = \frac{1}{1 + 1} = 0.5$; $p_2 = \sigma(0) = 0.5 \implies \mathbf{p}_0 = [0.5, 0.5]^T$.
+    \item Initial Loss:
+    \begin{align*}
+    \mathcal{L}(\mathbf{w}_0) &= -\Big[ 1 \ln(0.5) + (1-1)\ln(0.5) + 0\ln(0.5) + (1-0)\ln(1-0.5) \Big] \\
+    &= -[ \ln(0.5) + \ln(0.5) ] = -2 \ln(0.5) = 2 \ln 2 \approx \mathbf{1.3863}
+    \end{align*}
+    \item Gradient vector $\mathbf{g}_0$:
+    \begin{equation*}
+    \mathbf{g}_0 = X^T (\mathbf{p}_0 - \mathbf{y}) = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} \left( \begin{bmatrix} 0.5 \\ 0.5 \end{bmatrix} - \begin{bmatrix} 1 \\ 0 \end{bmatrix} \right) = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} -0.5 \\ +0.5 \end{bmatrix} = \mathbf{\begin{bmatrix} -0.5 \\ +0.5 \end{bmatrix}}
+    \end{equation*}
+    \item Weight variance matrix $S_0$:
+    \begin{equation*}
+    s_1 = 0.5(1 - 0.5) = 0.25, \quad s_2 = 0.5(1 - 0.5) = 0.25 \implies S_0 = \begin{bmatrix} 0.25 & 0 \\ 0 & 0.25 \end{bmatrix}
+    \end{equation*}
+    \item Initial Hessian $H_0$:
+    \begin{equation*}
+    H_0 = X^T S_0 X = I_2 \begin{bmatrix} 0.25 & 0 \\ 0 & 0.25 \end{bmatrix} I_2 = \begin{bmatrix} 0.25 & 0 \\ 0 & 0.25 \end{bmatrix}
+    \end{equation*}
+\end{itemize}
+
+\textbf{Step 5: Executing the Newton-Raphson Step}
+The inverse of the diagonal Hessian is trivial:
+\begin{equation*}
+H_0^{-1} = \begin{bmatrix} \frac{1}{0.25} & 0 \\ 0 & \frac{1}{0.25} \end{bmatrix} = \begin{bmatrix} 4 & 0 \\ 0 & 4 \end{bmatrix}
+\end{equation*}
+The second-order Newton step evaluates to:
+\begin{equation*}
+\Delta \mathbf{w} = -H_0^{-1} \mathbf{g}_0 = -\begin{bmatrix} 4 & 0 \\ 0 & 4 \end{bmatrix} \begin{bmatrix} -0.5 \\ +0.5 \end{bmatrix} = -\begin{bmatrix} -2.0 \\ +2.0 \end{bmatrix} = \begin{bmatrix} +2.0 \\ -2.0 \end{bmatrix}
+\end{equation*}
+Updating the parameter vector:
+\begin{equation*}
+\mathbf{w}_1 = \mathbf{w}_0 + \Delta \mathbf{w} = \begin{bmatrix} 0 \\ 0 \end{bmatrix} + \begin{bmatrix} 2.0 \\ -2.0 \end{bmatrix} = \mathbf{\begin{bmatrix} 2.0 \\ -2.0 \end{bmatrix}}
+\end{equation*}
+
+\textbf{Step 6: Loss Verification and Convergence Analysis}
+At new parameter point $\mathbf{w}_1 = [2.0, -2.0]^T$:
+\begin{itemize}
+    \item New linear activations: $z_1 = \mathbf{w}_1^T \mathbf{x}_1 = +2.0$, and $z_2 = \mathbf{w}_1^T \mathbf{x}_2 = -2.0$.
+    \item New predictions:
+    \begin{align*}
+    p_1 &= \sigma(2.0) = \frac{1}{1 + e^{-2}} = \frac{1}{1 + 0.135335} \approx \mathbf{0.8808} \\
+    p_2 &= \sigma(-2.0) = \frac{1}{1 + e^{2}} = \frac{1}{1 + 7.389056} \approx \mathbf{0.1192}
+    \end{align*}
+    The predictions have shifted dramatically toward their true targets ($y_1 = 1$, $y_2 = 0$)!
+    \item Updated Cross-Entropy Loss:
+    \begin{align*}
+    \mathcal{L}(\mathbf{w}_1) &= -\Big[ 1 \ln(0.8808) + 0 + 0 + 1 \ln(1 - 0.1192) \Big] \\
+    &= -\Big[ \ln(0.8808) + \ln(0.8808) \Big] = -2(-0.1269) \approx \mathbf{0.2538}
+    \end{align*}
+\end{itemize}
+\textbf{The Verdict:} In a single Newton-Raphson step, curvature scaling accelerated convergence, driving the loss from $\mathbf{1.3863}$ down to $\mathbf{0.2538}$---an astounding \textbf{81.7\% reduction in empirical error}! By accounting for the local curvature tensor $H^{-1}$, the algorithm took a bold, perfectly scaled jump ($\|\Delta \mathbf{w}\|_2 = 2\sqrt{2} \approx 2.828$) without suffering the oscillatory instability of unscaled first-order gradient descent.
+\end{examplebox}
+
 % ----------------------------------------------------------------------
 % PART 4: VISUAL & GEOMETRIC INTUITION
 % ----------------------------------------------------------------------
@@ -766,7 +1012,7 @@ Figure~\ref{fig:contour_geometry} visualizes the fundamental geometric relations
 \end{figure}
 
 \subsection{Optimization Dynamics: Trajectories in Anisotropic Ravines}
-Figure~\ref{fig:gd_trajectories} illustrates the dynamic stepping behavior of Gradient Descent across elliptical loss contours. In high-dimensional machine learning, different parameters often have vastly different curvatures (governed by the eigenvalues $\lambda_{\max}$ and $\lambda_{\min}$ of the Hessian).
+Figure~\ref{fig:w02_gd_trajectories} illustrates the dynamic stepping behavior of Gradient Descent across elliptical loss contours. In high-dimensional machine learning, different parameters often have vastly different curvatures (governed by the eigenvalues $\lambda_{\max}$ and $\lambda_{\min}$ of the Hessian).
 
 \begin{figure}[htbp]
 \centering
@@ -812,7 +1058,7 @@ while creeping painfully slowly along the gentle valley floor.
 
 \end{tikzpicture}
 \caption{The Trajectory of Gradient Descent in an Anisotropic Ravine: When the Hessian has high condition number ($\kappa = \lambda_{\max}/\lambda_{\min} \gg 1$), the negative gradient points almost perpendicular to the long axis of the valley, causing severe oscillatory zig-zagging.}
-\label{fig:gd_trajectories}
+\label{fig:w02_gd_trajectories}
 \end{figure}
 
 \subsection{Saddle Point Geometry vs. Local Minima}
@@ -886,6 +1132,16 @@ Figure~\ref{fig:saddle_vs_minimum} contrasts the geometry of a local minimum (wh
 \begin{trapbox}{Gotcha 5: The Exploding Step-Size Trap ($\eta > 2/\lambda_{\max}$)}
 \textbf{The Scenario:} An engineer observes that gradient descent is converging slowly and decides to increase the learning rate from $\eta = 0.01$ to $\eta = 1.0$. Immediately, the loss explodes to \texttt{NaN}. \\
 \textbf{The Trap:} On a quadratic surface with Hessian $H$, gradient descent converges if and only if the step size satisfies $\eta < \frac{2}{\lambda_{\max}(H)}$, where $\lambda_{\max}$ is the largest eigenvalue (maximum curvature). If $\eta > \frac{2}{\lambda_{\max}}$, each step overshoots the valley floor so violently that the distance to the minimum increases exponentially at every iteration!
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 6: The Chain Rule Layout Confusion (Numerator vs. Denominator Conventions)}
+\textbf{The Scenario:} An engineer derives backpropagation rules by chaining Jacobians: $\frac{\partial \mathcal{L}}{\partial \mathbf{w}} = \frac{\partial \mathcal{L}}{\partial \mathbf{y}} \frac{\partial \mathbf{y}}{\partial \mathbf{w}}$. Attempting to update weights via $\mathbf{w} \leftarrow \mathbf{w} - \eta \frac{\partial \mathcal{L}}{\partial \mathbf{w}}$, the program throws a runtime shape mismatch error: cannot subtract a $1 \times d$ row vector from a $d \times 1$ column vector. \\
+\textbf{The Trap:} Vector calculus literature is divided into two competing conventions:
+\begin{itemize}
+    \item \textbf{Numerator Layout (Jacobian formulation):} Derivatives with respect to a vector $\mathbf{w} \in \mathbb{R}^d$ are formatted as row vectors ($1 \times d$), preserving matrix multiplication: $\frac{\partial \mathbf{z}}{\partial \mathbf{x}} \in \mathbb{R}^{m \times n}$.
+    \item \textbf{Denominator Layout (Hessian/Machine Learning formulation):} The gradient of a scalar with respect to a column vector $\mathbf{w} \in \mathbb{R}^{d \times 1}$ is formatted as a column vector $\nabla_{\mathbf{w}} f \in \mathbb{R}^{d \times 1}$, matching the physical shape of the parameter.
+\end{itemize}
+In modern ML frameworks (PyTorch, JAX), parameter gradients always match the exact shape of the underlying tensor (Denominator layout). When applying matrix calculus formulas, always establish which convention is active. In Numerator layout, $\nabla f = (\frac{\partial f}{\partial \mathbf{w}})^T$.
 \end{trapbox}
 
 % ----------------------------------------------------------------------
@@ -1037,6 +1293,25 @@ if __name__ == "__main__":
         \item Find all critical points of $f(x, y)$ in $\mathbb{R}^2$ where $\nabla f(x, y) = \mathbf{0}$.
         \item Compute the Hessian matrix $H(x, y)$.
         \item Classify each critical point as a local minimum, local maximum, or saddle point via eigenvalue evaluation.
+    \end{enumerate}
+
+    \item \textbf{Fréchet Differentiability and Pathological Directional Derivatives:}
+    Consider the bivariate function $f: \mathbb{R}^2 \to \mathbb{R}$ defined by:
+    \begin{equation}
+    f(x, y) = \begin{cases} \dfrac{x^3 y}{x^6 + y^2}, & (x, y) \ne (0, 0) \\ 0, & (x, y) = (0, 0) \end{cases}
+    \end{equation}
+    \begin{enumerate}[label=(\alph*)]
+        \item Let $\mathbf{u} = [u_1, u_2]^T$ be an arbitrary unit vector. Show that the directional derivative (Gâteaux derivative) $D_{\mathbf{u}} f(0, 0)$ exists along every straight ray and equals zero for all directions $\mathbf{u}$.
+        \item Compute the limit of $f(x, y)$ as $(x, y) \to (0, 0)$ along the polynomial curve $y = x^3$.
+        \item Conclude whether $f$ is continuous at the origin. Is $f$ Fréchet differentiable at $(0, 0)$? Explain the profound lesson for gradient-based optimization.
+    \end{enumerate}
+
+    \item \textbf{Binary Logistic Regression Hessian and Strict Convexity:}
+    Consider the binary logistic regression loss functional $\mathcal{L}(\mathbf{w}) = -\sum_{i=1}^N [y_i \ln p_i + (1 - y_i)\ln(1 - p_i)]$ where $p_i = \sigma(\mathbf{w}^T \mathbf{x}_i)$ and $X \in \mathbb{R}^{N \times d}$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Prove that the Hessian matrix can be written as $H(\mathbf{w}) = X^T S(\mathbf{w}) X$, where $S(\mathbf{w}) = \operatorname{diag}\big(p_1(1-p_1), \dots, p_N(1-p_N)\big)$.
+        \item Prove that if $X$ has full column rank ($N \ge d$), then $H(\mathbf{w}) \succ 0$ is strictly positive definite for any finite $\mathbf{w} \in \mathbb{R}^d$.
+        \item What does this imply about the uniqueness of the minimizer and the existence of local minima or saddle points in logistic regression?
     \end{enumerate}
 \end{enumerate}
 
