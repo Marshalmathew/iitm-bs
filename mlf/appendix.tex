@@ -540,6 +540,86 @@ $A = \begin{bmatrix} 1 & 1 \\ 2 & 2 \end{bmatrix}$.
     $A^+ A A^+ = A^+ (A A^+) = \frac{1}{10}\begin{bmatrix} 1 & 2 \\ 1 & 2 \end{bmatrix} \begin{bmatrix} 0.2 & 0.4 \\ 0.4 & 0.8 \end{bmatrix} = \frac{1}{10}\begin{bmatrix} 1 & 2 \\ 1 & 2 \end{bmatrix} = A^+$.
 \end{enumerate}
 
+\paragraph{P6. Eckart-Young Spectral Norm Optimality Proof via Subspace Intersection:}
+\begin{enumerate}[label=(\alph*)]
+    \item The residual matrix is $A - A_k = \sum_{i=k+1}^r \sigma_i \mathbf{u}_i \mathbf{v}_i^T$.
+    Evaluating the spectral norm:
+    \[
+    \|A - A_k\|_2 = \max_{\|\mathbf{x}\|_2 = 1} \|(A - A_k)\mathbf{x}\|_2 = \max_{\|\mathbf{x}\|_2 = 1} \left\| \sum_{i=k+1}^r \sigma_i (\mathbf{v}_i^T \mathbf{x}) \mathbf{u}_i \right\|_2 = \sqrt{\sum_{i=k+1}^r \sigma_i^2 (\mathbf{v}_i^T \mathbf{x})^2}
+    \]
+    Since $\sigma_{k+1} \ge \sigma_{k+2} \ge \dots \ge \sigma_r > 0$, the maximum occurs when $\mathbf{x} = \mathbf{v}_{k+1}$, giving:
+    \[
+    \|A - A_k\|_2 = \sigma_{k+1}
+    \]
+    \item By the Rank-Nullity Theorem, for any linear operator $B: \mathbb{R}^n \to \mathbb{R}^m$:
+    \[
+    \dim(\Null(B)) = n - \rank(B) \ge n - k \quad (\text{since } \rank(B) \le k)
+    \]
+    \item Let $W = \Span\{\mathbf{v}_1, \dots, \mathbf{v}_{k+1}\} \subset \mathbb{R}^n$, which has $\dim(W) = k + 1$.
+    Both $\Null(B)$ and $W$ are linear subspaces of $\mathbb{R}^n$.
+    By the Subspace Dimension Theorem:
+    \[
+    \dim(\Null(B) \cap W) = \dim(\Null(B)) + \dim(W) - \dim(\Null(B) + W)
+    \]
+    Since $\Null(B) + W \subseteq \mathbb{R}^n$, its dimension cannot exceed $n$: $\dim(\Null(B) + W) \le n$.
+    Therefore:
+    \[
+    \dim(\Null(B) \cap W) \ge (n - k) + (k + 1) - n = 1
+    \]
+    Thus, the intersection $\Null(B) \cap W$ contains at least a 1-dimensional subspace, guaranteeing the existence of a non-zero vector.
+    \item Let $\mathbf{z} \in \Null(B) \cap W$ with unit norm $\|\mathbf{z}\|_2 = 1$.
+    Because $\mathbf{z} \in \Null(B)$, $B\mathbf{z} = \mathbf{0}$.
+    Because $\mathbf{z} \in W$, we can expand $\mathbf{z}$ in the orthonormal basis $\{\mathbf{v}_1, \dots, \mathbf{v}_{k+1}\}$:
+    \[
+    \mathbf{z} = \sum_{i=1}^{k+1} c_i \mathbf{v}_i, \quad \text{with } \sum_{i=1}^{k+1} c_i^2 = \|\mathbf{z}\|_2^2 = 1
+    \]
+    Evaluating $\|(A - B)\mathbf{z}\|_2$:
+    \[
+    \|(A - B)\mathbf{z}\|_2^2 = \|A\mathbf{z} - B\mathbf{z}\|_2^2 = \|A\mathbf{z}\|_2^2 = \left\| \sum_{i=1}^{k+1} c_i A\mathbf{v}_i \right\|_2^2 = \left\| \sum_{i=1}^{k+1} c_i \sigma_i \mathbf{u}_i \right\|_2^2
+    \]
+    Since the left singular vectors $\{\mathbf{u}_i\}$ are orthonormal:
+    \[
+    \|(A - B)\mathbf{z}\|_2^2 = \sum_{i=1}^{k+1} c_i^2 \sigma_i^2 \ge \sigma_{k+1}^2 \sum_{i=1}^{k+1} c_i^2 = \sigma_{k+1}^2 (1) = \sigma_{k+1}^2
+    \]
+    Taking square roots yields $\|(A - B)\mathbf{z}\|_2 \ge \sigma_{k+1}$.
+    By definition of the matrix operator norm:
+    \[
+    \|A - B\|_2 = \max_{\|\mathbf{x}\|_2 = 1} \|(A - B)\mathbf{x}\|_2 \ge \|(A - B)\mathbf{z}\|_2 \ge \sigma_{k+1}
+    \]
+    This proves that no rank-$k$ matrix can achieve a spectral error smaller than $\sigma_{k+1}$, establishing $A_k$ as the unique optimal rank-$k$ approximation under the Spectral norm.
+\end{enumerate}
+
+\paragraph{P7. Uniqueness of the Moore-Penrose Pseudoinverse \& Minimum-Norm Least Squares:}
+\begin{enumerate}[label=(\alph*)]
+    \item Suppose both $X$ and $Y$ satisfy the four Moore-Penrose axioms. Then:
+    \begin{align*}
+    X &= X A X = X (A X)^T = X X^T A^T = X X^T (A Y A)^T = X X^T A^T Y^T A^T \\
+    &= X (A X)^T (A Y)^T = X (A X) (A Y) = (X A X) A Y = X A Y \\
+    &= (X A) (Y A Y) = (X A)^T (Y A)^T Y = A^T X^T A^T Y^T Y = (A X A)^T Y^T Y \\
+    &= A^T Y^T Y = (Y A)^T Y = Y A Y = Y
+    \end{align*}
+    Thus $X = Y$, proving the Moore-Penrose pseudoinverse $A^+$ is unique.
+    \item Compact SVD: $A^+ = V_r \Sigma_r^{-1} U_r^T$. For any $\mathbf{b} \in \mathbb{R}^m$:
+    \[
+    \mathbf{x}_{\text{LS}} = A^+ \mathbf{b} = V_r (\Sigma_r^{-1} U_r^T \mathbf{b}) = \sum_{i=1}^r \left( \frac{\mathbf{u}_i^T \mathbf{b}}{\sigma_i} \right) \mathbf{v}_i
+    \]
+    Since the columns of $V_r = [\mathbf{v}_1, \dots, \mathbf{v}_r]$ form an orthonormal basis for $\Row(A)$, $\mathbf{x}_{\text{LS}}$ is an explicit linear combination of row space vectors, so $\mathbf{x}_{\text{LS}} \in \Row(A)$ strictly.
+    \item Any least-squares minimizer satisfies the normal equations $A^T A \mathbf{x} = A^T \mathbf{b}$.
+    Let $\mathbf{x} \in \mathcal{S}_{\text{LS}}$ be an arbitrary least-squares solution. Decompose $\mathbf{x} = \mathbf{x}_{\text{LS}} + \mathbf{x}_0$, where $\mathbf{x}_0 = \mathbf{x} - \mathbf{x}_{\text{LS}}$.
+    Multiplying by $A^T A$:
+    \[
+    A^T A \mathbf{x}_0 = A^T A \mathbf{x} - A^T A \mathbf{x}_{\text{LS}} = A^T \mathbf{b} - A^T \mathbf{b} = \mathbf{0}
+    \]
+    Since $\mathbf{x}_0^T A^T A \mathbf{x}_0 = \|A\mathbf{x}_0\|_2^2 = 0$, we have $A\mathbf{x}_0 = \mathbf{0}$, meaning $\mathbf{x}_0 \in \Null(A)$.
+    By the Fundamental Theorem of Linear Algebra, $\Row(A) \perp \Null(A)$, which implies $\mathbf{x}_{\text{LS}} \perp \mathbf{x}_0$.
+    By the Pythagorean Theorem:
+    \[
+    \|\mathbf{x}\|_2^2 = \|\mathbf{x}_{\text{LS}} + \mathbf{x}_0\|_2^2 = \|\mathbf{x}_{\text{LS}}\|_2^2 + \|\mathbf{x}_0\|_2^2
+    \]
+    If $\mathbf{x} \ne \mathbf{x}_{\text{LS}}$, then $\mathbf{x}_0 \ne \mathbf{0}$, meaning $\|\mathbf{x}_0\|_2^2 > 0$ and $\|\mathbf{x}\|_2^2 > \|\mathbf{x}_{\text{LS}}\|_2^2$.
+    Thus $\mathbf{x}_{\text{LS}} = A^+ \mathbf{b}$ is strictly the unique minimum-norm least-squares solution!
+\end{enumerate}
+
 \subsection*{Part B: Diagnostic Multiple-Choice Rationales}
 
 \paragraph{MCQ1: Eckart-Young-Mirsky Low-Rank Approximation Error}

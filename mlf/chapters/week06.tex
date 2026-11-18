@@ -111,6 +111,55 @@ The Singular Value Decomposition is nothing more and nothing less than the exact
     \item The original, perpendicular directions on the input sphere that are stretched into these axes are the \textbf{right singular vectors} $\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_r$.
 \end{itemize}
 
+\subsection{The Sonic Tomography Paradox: Why Inversion Explodes into Noise}
+To see why the Singular Value Decomposition is an indispensable computational pillar in modern physical science and machine learning, consider the engineering dilemma of \textbf{computed tomography} (e.g., medical ultrasound imaging, seismic geophysical imaging, or atmospheric satellite sensing).
+
+In continuous physical imaging, an unobserved internal density field $\mathbf{x} \in \mathbb{R}^n$ (such as acoustic tissue density in an organ or rock layers beneath the Earth's crust) is probed by sending sound waves through the medium. Boundary detectors record the resulting acoustic signals $\mathbf{b} \in \mathbb{R}^m$. The physical measurement process is governed by a linear integral operator:
+\begin{equation}
+A \mathbf{x} = \mathbf{b}
+\end{equation}
+Because physical wave propagation naturally dissipates high-spatial-frequency variations, the matrix $A$ acts as a massive low-pass filter. Consequently, while the low-frequency singular values $\sigma_1, \sigma_2$ are large, the high-frequency singular values decay exponentially fast toward zero:
+\begin{equation}
+\sigma_1 \sim 10^2, \quad \sigma_2 \sim 10^1, \quad \dots, \quad \sigma_n \sim 10^{-7}
+\end{equation}
+
+Now, suppose an engineer attempts to recover the tissue image $\mathbf{x}$ using standard textbook linear algebra by computing $\mathbf{x} = A^{-1} \mathbf{b}$. Using the SVD expansion of the inverse operator:
+\begin{equation}
+\mathbf{x} = A^{-1} \mathbf{b} = \sum_{i=1}^n \frac{\mathbf{u}_i^T \mathbf{b}}{\sigma_i} \mathbf{v}_i
+\end{equation}
+
+\begin{quote}
+\textit{\textbf{The Physical Paradox:}} Real-world electronic detectors can never record an exact mathematical vector $\mathbf{b}$. Thermal noise in the detector wires adds an imperceptible, microscopic voltage jitter:
+\begin{equation}
+\mathbf{b}_{\text{obs}} = \mathbf{b}_{\text{true}} + \boldsymbol{\epsilon}, \quad \text{where } \|\boldsymbol{\epsilon}\|_2 \approx 10^{-6} \text{ (one microvolt)}
+\end{equation}
+What happens when this microvolt noise is inverted by $A^{-1}$?
+\end{quote}
+
+The reconstructed density field becomes:
+\begin{equation}
+\mathbf{x}_{\text{recon}} = A^{-1} \mathbf{b}_{\text{obs}} = \sum_{i=1}^n \frac{\mathbf{u}_i^T \mathbf{b}_{\text{true}}}{\sigma_i} \mathbf{v}_i + \sum_{i=1}^n \frac{\mathbf{u}_i^T \boldsymbol{\epsilon}}{\sigma_i} \mathbf{v}_i
+\end{equation}
+Focus on the error term corresponding to the smallest singular value $\sigma_n = 10^{-7}$. The noise projection along $\mathbf{u}_n$ is scaled by:
+\begin{equation}
+\frac{1}{\sigma_n} = \frac{1}{10^{-7}} = 10^7
+\end{equation}
+The microvolt noise is magnified by ten million times! A tiny $10^{-6}$ volt fluctuation explodes into an error of magnitude:
+\begin{equation}
+\frac{\|\boldsymbol{\epsilon}\|_2}{\sigma_n} \approx \frac{10^{-6}}{10^{-7}} = 10.0 \text{ density units!}
+\end{equation}
+The inverted image is not a medical scan; it is a violent, blinding blizzard of high-frequency numerical artifacts that completely overwhelms the biological signal.
+
+This is the celebrated pathology of \textbf{ill-posed linear inverse problems}. The Singular Value Decomposition is the only mathematical framework capable of diagnosing and curing this explosion:
+\begin{itemize}
+    \item \textbf{Diagnostic Precision:} The singular spectrum $\{\sigma_i\}$ explicitly identifies which components contain recoverable signal ($\sigma_i \gg \|\boldsymbol{\epsilon}\|_2$) and which components are noise traps ($\sigma_i \le \|\boldsymbol{\epsilon}\|_2$).
+    \item \textbf{Truncated SVD (TSVD) Regularization:} By setting a noise cutoff threshold $\tau$ and truncating the expansion to rank $k$:
+    \begin{equation}
+    \mathbf{x}_{\text{TSVD}} \triangleq \sum_{i=1}^k \frac{\mathbf{u}_i^T \mathbf{b}_{\text{obs}}}{\sigma_i} \mathbf{v}_i, \quad \text{where } \sigma_k \ge \tau > \sigma_{k+1}
+    \end{equation}
+    TSVD completely eliminates the noise explosion, restoring pristine anatomical images.
+\end{itemize}
+
 \begin{ponderbox}{Singular Values vs. Eigenvalues}
 Consider the $90^\circ$ planar rotation matrix scaled by 3:
 \begin{equation*}
@@ -346,6 +395,73 @@ The true pedagogical magnificence of SVD is that it unifies all of linear algebr
 \caption{The Singular Value Decomposition and Strang's Four Fundamental Subspaces. SVD sets up an orthogonal coordinate system in both domain and codomain: $\{\mathbf{v}_1, \dots, \mathbf{v}_r\}$ maps isomorphically to $\{\mathbf{u}_1, \dots, \mathbf{u}_r\}$ scaled by $\sigma_i$, while the remaining domain directions $\Null(A)$ are crushed to the zero vector.}
 \label{fig:four_subspaces_svd}
 \end{figure}
+
+\subsection{The Moore-Penrose Pseudoinverse \& Minimum-Norm Least Squares}
+When a linear system $A\mathbf{x} = \mathbf{b}$ has an invertible square matrix $A \in \mathbb{R}^{n \times n}$, the solution is uniquely given by $\mathbf{x} = A^{-1}\mathbf{b}$. However, in machine learning and data science, matrices are almost never square and invertible:
+\begin{enumerate}
+    \item \textbf{Overdetermined Systems ($m > n$):} We possess more equations (observations) than unknowns (features). No exact solution exists; we seek the best least-squares fit $\min_{\mathbf{x}} \|A\mathbf{x} - \mathbf{b}\|_2$.
+    \item \textbf{Underdetermined Systems ($m < n$):} We possess more features than observations (e.g., genomics, text embeddings). Infinitely many exact solutions exist; we seek the solution with minimal parameter energy $\min_{\mathbf{x}} \|\mathbf{x}\|_2$.
+    \item \textbf{Rank-Deficient Systems ($\rank(A) = r < \min(m, n)$):} Features exhibit severe multicollinearity. There are infinitely many least-squares minimizers.
+\end{enumerate}
+
+The \textbf{Moore-Penrose Pseudoinverse} $A^+ \in \mathbb{R}^{n \times m}$ provides the unified, definitive mathematical solution to all three regimes simultaneously.
+
+\begin{definitionbox}{The Moore-Penrose Pseudoinverse via SVD}
+Let $A \in \mathbb{R}^{m \times n}$ have compact SVD $A = U_r \Sigma_r V_r^T$, where $\Sigma_r = \diag(\sigma_1, \dots, \sigma_r)$ contains all non-zero singular values. The Moore-Penrose pseudoinverse $A^+ \in \mathbb{R}^{n \times m}$ is defined as:
+\begin{equation}
+A^+ \triangleq V_r \Sigma_r^{-1} U_r^T = \sum_{i=1}^r \frac{1}{\sigma_i} \mathbf{v}_i \mathbf{u}_i^T
+\label{eq:pseudoinverse_svd_def}
+\end{equation}
+In full SVD notation $A = U \Sigma V^T$, $A^+ = V \Sigma^+ U^T$, where $\Sigma^+ \in \mathbb{R}^{n \times m}$ is formed by inverting non-zero singular values and transposing.
+\end{definitionbox}
+
+\begin{theorembox}{The Four Moore-Penrose Axioms}
+The matrix $A^+$ defined in Equation~\eqref{eq:pseudoinverse_svd_def} is the \textbf{unique} matrix in $\mathbb{R}^{n \times m}$ satisfying the four Moore-Penrose algebraic conditions:
+\begin{align}
+1. \quad & A A^+ A = A \label{eq:mp_axiom1} \\
+2. \quad & A^+ A A^+ = A^+ \label{eq:mp_axiom2} \\
+3. \quad & (A A^+)^T = A A^+ \quad (\text{Orthogonal projector onto } \Col(A)) \label{eq:mp_axiom3} \\
+4. \quad & (A^+ A)^T = A^+ A \quad (\text{Orthogonal projector onto } \Row(A)) \label{eq:mp_axiom4}
+\end{align}
+\end{theorembox}
+
+\begin{proof}
+Substituting $A = U_r \Sigma_r V_r^T$ and $A^+ = V_r \Sigma_r^{-1} U_r^T$, and using the fact that $U_r^T U_r = I_r$ and $V_r^T V_r = I_r$:
+\begin{enumerate}
+    \item $A A^+ A = (U_r \Sigma_r V_r^T)(V_r \Sigma_r^{-1} U_r^T)(U_r \Sigma_r V_r^T) = U_r \Sigma_r I_r \Sigma_r^{-1} I_r \Sigma_r V_r^T = U_r \Sigma_r V_r^T = A$.
+    \item $A^+ A A^+ = (V_r \Sigma_r^{-1} U_r^T)(U_r \Sigma_r V_r^T)(V_r \Sigma_r^{-1} U_r^T) = V_r \Sigma_r^{-1} I_r \Sigma_r I_r \Sigma_r^{-1} U_r^T = V_r \Sigma_r^{-1} U_r^T = A^+$.
+    \item $A A^+ = (U_r \Sigma_r V_r^T)(V_r \Sigma_r^{-1} U_r^T) = U_r U_r^T$. Since $(U_r U_r^T)^T = U_r U_r^T$, $(A A^+)^T = A A^+$.
+    \item $A^+ A = (V_r \Sigma_r^{-1} U_r^T)(U_r \Sigma_r V_r^T) = V_r V_r^T$. Since $(V_r V_r^T)^T = V_r V_r^T$, $(A^+ A)^T = A^+ A$.
+\end{enumerate}
+Uniqueness is established in Problem~P7.
+\end{proof}
+
+\begin{theorembox}{Minimum-Norm Least Squares Optimality}
+For any linear system $A\mathbf{x} = \mathbf{b}$, the candidate solution:
+\begin{equation}
+\mathbf{x}_{\text{LS}} \triangleq A^+ \mathbf{b}
+\end{equation}
+is the \textbf{unique minimum Euclidean norm least-squares solution}:
+\begin{equation}
+\mathbf{x}_{\text{LS}} = \arg\min_{\mathbf{x} \in \mathcal{S}_{\text{LS}}} \|\mathbf{x}\|_2, \quad \text{where } \mathcal{S}_{\text{LS}} \triangleq \arg\min_{\mathbf{x} \in \mathbb{R}^n} \|A\mathbf{x} - \mathbf{b}\|_2
+\label{eq:min_norm_ls_opt}
+\end{equation}
+\end{theorembox}
+
+\begin{proof}
+Let $\mathbf{x} \in \mathbb{R}^n$ be any arbitrary vector. By the Fundamental Theorem of Linear Algebra, we can decompose $\mathbb{R}^n$ into orthogonal complements: $\mathbb{R}^n = \Row(A) \oplus \Null(A)$, writing $\mathbf{x} = \mathbf{x}_r + \mathbf{x}_n$, where $\mathbf{x}_r \in \Row(A)$ and $\mathbf{x}_n \in \Null(A)$.
+Then $A\mathbf{x} = A(\mathbf{x}_r + \mathbf{x}_n) = A\mathbf{x}_r + \mathbf{0} = A\mathbf{x}_r$.
+The residual error depends strictly on $\mathbf{x}_r$:
+\begin{equation}
+\|A\mathbf{x} - \mathbf{b}\|_2 = \|A\mathbf{x}_r - \mathbf{b}\|_2
+\end{equation}
+Therefore, adding any non-zero component $\mathbf{x}_n \in \Null(A)$ does not change the least-squares residual error, but strictly increases the solution norm via the Pythagorean theorem:
+\begin{equation}
+\|\mathbf{x}\|_2^2 = \|\mathbf{x}_r + \mathbf{x}_n\|_2^2 = \|\mathbf{x}_r\|_2^2 + \|\mathbf{x}_n\|_2^2 \ge \|\mathbf{x}_r\|_2^2
+\end{equation}
+Equality holds if and only if $\mathbf{x}_n = \mathbf{0}$, meaning the minimum-norm solution must lie strictly in $\Row(A)$.
+Now, expand $\mathbf{x}_{\text{LS}} = A^+ \mathbf{b} = V_r \Sigma_r^{-1} U_r^T \mathbf{b}$. Because the columns of $V_r$ form an orthonormal basis for $\Row(A)$, $\mathbf{x}_{\text{LS}}$ lies strictly in $\Row(A)$, and $A \mathbf{x}_{\text{LS}} = (U_r U_r^T) \mathbf{b} = P_{\Col(A)}\mathbf{b}$, which is the exact orthogonal projection of $\mathbf{b}$ onto $\Col(A)$. Thus $\mathbf{x}_{\text{LS}}$ minimizes the residual and achieves the absolute minimum norm!
+\end{proof}
 
 % ----------------------------------------------------------------------
 % PART 4: POSITIVE DEFINITE MATRICES
@@ -697,6 +813,138 @@ E_1 = A - A_1 = \begin{bmatrix} 1 & 1 \\ 0 & 1 \\ -1 & 1 \end{bmatrix} - \begin{
 \end{itemize}
 \end{examplebox}
 
+\begin{examplebox}{Moore-Penrose Pseudoinverse \& The Four Axioms by Hand}
+Consider a rank-deficient rectangular matrix $A \in \mathbb{R}^{3 \times 2}$:
+\begin{equation}
+A = \begin{bmatrix} 1 & 1 \\ 1 & 1 \\ 0 & 0 \end{bmatrix}
+\end{equation}
+\begin{enumerate}
+    \item Determine $\rank(A)$ and construct its compact SVD $A = \sigma_1 \mathbf{u}_1 \mathbf{v}_1^T$.
+    \item Compute the Moore-Penrose pseudoinverse $A^+ = \frac{1}{\sigma_1} \mathbf{v}_1 \mathbf{u}_1^T$.
+    \item Explicitly verify the four Moore-Penrose algebraic conditions.
+    \item For observation vector $\mathbf{b} = [2, 4, 1]^T$, find the minimum-norm least-squares solution $\mathbf{x}_{\text{LS}} = A^+ \mathbf{b}$, and verify that all other least-squares solutions have strictly larger Euclidean norm.
+\end{enumerate}
+
+\textbf{Step 1: Compact SVD.}
+Notice row 2 equals row 1 and row 3 is zero, so $\rank(A) = 1$.
+Computing Gram matrix:
+\begin{equation}
+A^T A = \begin{bmatrix} 1 & 1 & 0 \\ 1 & 1 & 0 \end{bmatrix} \begin{bmatrix} 1 & 1 \\ 1 & 1 \\ 0 & 0 \end{bmatrix} = \begin{bmatrix} 2 & 2 \\ 2 & 2 \end{bmatrix}
+\end{equation}
+The eigenvalues are $\lambda_1 = 4$ and $\lambda_2 = 0$.
+The sole non-zero singular value is:
+\begin{equation}
+\sigma_1 = \sqrt{4} = 2
+\end{equation}
+Right singular vector for $\lambda_1 = 4$:
+\begin{equation}
+(A^T A - 4I)\mathbf{v}_1 = \begin{bmatrix} -2 & 2 \\ 2 & -2 \end{bmatrix}\mathbf{v}_1 = \mathbf{0} \implies \mathbf{v}_1 = \frac{1}{\sqrt{2}}\begin{bmatrix} 1 \\ 1 \end{bmatrix}
+\end{equation}
+Left singular vector:
+\begin{equation}
+\mathbf{u}_1 = \frac{1}{\sigma_1} A \mathbf{v}_1 = \frac{1}{2} \begin{bmatrix} 1 & 1 \\ 1 & 1 \\ 0 & 0 \end{bmatrix} \left( \frac{1}{\sqrt{2}}\begin{bmatrix} 1 \\ 1 \end{bmatrix} \right) = \frac{1}{2\sqrt{2}} \begin{bmatrix} 2 \\ 2 \\ 0 \end{bmatrix} = \frac{1}{\sqrt{2}}\begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix}
+\end{equation}
+Checking normalization: $\|\mathbf{u}_1\|_2 = \sqrt{(1/\sqrt{2})^2 + (1/\sqrt{2})^2 + 0} = 1 \quad \checkmark$.
+
+\textbf{Step 2: Construct Pseudoinverse $A^+$.}
+Using the dyadic SVD inversion formula:
+\begin{align}
+A^+ &= \frac{1}{\sigma_1} \mathbf{v}_1 \mathbf{u}_1^T = \frac{1}{2} \left( \frac{1}{\sqrt{2}}\begin{bmatrix} 1 \\ 1 \end{bmatrix} \right) \left( \frac{1}{\sqrt{2}}\begin{bmatrix} 1 & 1 & 0 \end{bmatrix} \right) \notag \\
+&= \frac{1}{4} \begin{bmatrix} 1 \\ 1 \end{bmatrix} \begin{bmatrix} 1 & 1 & 0 \end{bmatrix} = \frac{1}{4} \begin{bmatrix} 1 & 1 & 0 \\ 1 & 1 & 0 \end{bmatrix} = \begin{bmatrix} 0.25 & 0.25 & 0 \\ 0.25 & 0.25 & 0 \end{bmatrix}
+\end{align}
+
+\textbf{Step 3: Verification of the Four Moore-Penrose Axioms.}
+\begin{itemize}
+    \item \textbf{Axiom 1 ($A A^+ A = A$):}
+    \begin{equation}
+    A A^+ = \begin{bmatrix} 1 & 1 \\ 1 & 1 \\ 0 & 0 \end{bmatrix} \begin{bmatrix} 0.25 & 0.25 & 0 \\ 0.25 & 0.25 & 0 \end{bmatrix} = \begin{bmatrix} 0.5 & 0.5 & 0 \\ 0.5 & 0.5 & 0 \\ 0 & 0 & 0 \end{bmatrix}
+    \end{equation}
+    Then:
+    \begin{equation}
+    (A A^+) A = \begin{bmatrix} 0.5 & 0.5 & 0 \\ 0.5 & 0.5 & 0 \\ 0 & 0 & 0 \end{bmatrix} \begin{bmatrix} 1 & 1 \\ 1 & 1 \\ 0 & 0 \end{bmatrix} = \begin{bmatrix} 1 & 1 \\ 1 & 1 \\ 0 & 0 \end{bmatrix} = A \quad \checkmark
+    \end{equation}
+    \item \textbf{Axiom 2 ($A^+ A A^+ = A^+$):}
+    \begin{equation}
+    A^+ A = \begin{bmatrix} 0.25 & 0.25 & 0 \\ 0.25 & 0.25 & 0 \end{bmatrix} \begin{bmatrix} 1 & 1 \\ 1 & 1 \\ 0 & 0 \end{bmatrix} = \begin{bmatrix} 0.5 & 0.5 \\ 0.5 & 0.5 \end{bmatrix}
+    \end{equation}
+    Then:
+    \begin{equation}
+    A^+ (A A^+) = \begin{bmatrix} 0.25 & 0.25 & 0 \\ 0.25 & 0.25 & 0 \end{bmatrix} \begin{bmatrix} 0.5 & 0.5 & 0 \\ 0.5 & 0.5 & 0 \\ 0 & 0 & 0 \end{bmatrix} = \begin{bmatrix} 0.25 & 0.25 & 0 \\ 0.25 & 0.25 & 0 \end{bmatrix} = A^+ \quad \checkmark
+    \end{equation}
+    \item \textbf{Axiom 3 ($(A A^+)^T = A A^+$):}
+    \begin{equation}
+    (A A^+)^T = \begin{bmatrix} 0.5 & 0.5 & 0 \\ 0.5 & 0.5 & 0 \\ 0 & 0 & 0 \end{bmatrix}^T = \begin{bmatrix} 0.5 & 0.5 & 0 \\ 0.5 & 0.5 & 0 \\ 0 & 0 & 0 \end{bmatrix} = A A^+ \quad \checkmark
+    \end{equation}
+    \item \textbf{Axiom 4 ($(A^+ A)^T = A^+ A$):}
+    \begin{equation}
+    (A^+ A)^T = \begin{bmatrix} 0.5 & 0.5 \\ 0.5 & 0.5 \end{bmatrix}^T = \begin{bmatrix} 0.5 & 0.5 \\ 0.5 & 0.5 \end{bmatrix} = A^+ A \quad \checkmark
+    \end{equation}
+\end{itemize}
+
+\textbf{Step 4: Minimum-Norm Least-Squares Solution for $\mathbf{b} = [2, 4, 1]^T$.}
+\begin{equation}
+\mathbf{x}_{\text{LS}} = A^+ \mathbf{b} = \begin{bmatrix} 0.25 & 0.25 & 0 \\ 0.25 & 0.25 & 0 \end{bmatrix} \begin{bmatrix} 2 \\ 4 \\ 1 \end{bmatrix} = \begin{bmatrix} 0.25(2) + 0.25(4) \\ 0.25(2) + 0.25(4) \end{bmatrix} = \begin{bmatrix} 1.5 \\ 1.5 \end{bmatrix}
+\end{equation}
+Checking normal equations $A^T A \mathbf{x} = A^T \mathbf{b}$:
+\begin{align}
+A^T \mathbf{b} &= \begin{bmatrix} 1 & 1 & 0 \\ 1 & 1 & 0 \end{bmatrix} \begin{bmatrix} 2 \\ 4 \\ 1 \end{bmatrix} = \begin{bmatrix} 6 \\ 6 \end{bmatrix} \\
+A^T A \mathbf{x}_{\text{LS}} &= \begin{bmatrix} 2 & 2 \\ 2 & 2 \end{bmatrix} \begin{bmatrix} 1.5 \\ 1.5 \end{bmatrix} = \begin{bmatrix} 3 + 3 \\ 3 + 3 \end{bmatrix} = \begin{bmatrix} 6 \\ 6 \end{bmatrix} \quad \checkmark
+\end{align}
+Thus $\mathbf{x}_{\text{LS}} = [1.5, 1.5]^T$ is an exact least-squares minimizer with norm:
+\begin{equation}
+\|\mathbf{x}_{\text{LS}}\|_2 = \sqrt{1.5^2 + 1.5^2} = \sqrt{4.5} \approx 2.121
+\end{equation}
+The general least-squares solution set is $\mathbf{x} = \mathbf{x}_{\text{LS}} + c \begin{bmatrix} 1 \\ -1 \end{bmatrix}$ for any $c \in \mathbb{R}$ (since $[1, -1]^T \in \Null(A)$).
+Its norm is:
+\begin{equation}
+\|\mathbf{x}(c)\|_2^2 = (1.5 + c)^2 + (1.5 - c)^2 = 2(2.25 + c^2) = 4.5 + 2c^2 \ge 4.5
+\end{equation}
+The norm is strictly minimized at $c = 0$, confirming that $A^+ \mathbf{b}$ isolates the unique minimum-norm solution!
+\end{examplebox}
+
+\begin{examplebox}{Matrix Denoising via Outer-Product Layer Decomposition}
+A noisy $3 \times 3$ sensor observation matrix is collected:
+\begin{equation}
+A = \begin{bmatrix} 3.02 & 3.01 & 0.03 \\ 2.98 & 2.99 & -0.02 \\ 0.01 & -0.02 & 0.01 \end{bmatrix}
+\end{equation}
+Physical modeling indicates the true signal has rank 1, corrupted by small additive measurement noise.
+\begin{enumerate}
+    \item Approximate the singular spectrum of $A$.
+    \item Construct the rank-1 denoised matrix $A_1 = \sigma_1 \mathbf{u}_1 \mathbf{v}_1^T$.
+    \item Compute the proportion of Frobenius energy retained by the rank-1 signal layer.
+\end{enumerate}
+
+\textbf{Step 1: Singular Spectrum Analysis.}
+Notice that rows 1 and 2 are almost identical to $[3, 3, 0]$, while row 3 is near zero.
+The uncorrupted low-rank backbone is $A_{\text{clean}} = \begin{bmatrix} 3 & 3 & 0 \\ 3 & 3 & 0 \\ 0 & 0 & 0 \end{bmatrix}$.
+For $A_{\text{clean}}$, the singular values are $\sigma_1 = 6.00$ and $\sigma_2 = \sigma_3 = 0$.
+By Weyl's singular value perturbation theorem, the singular values of $A = A_{\text{clean}} + E_{\text{noise}}$ (where $\|E\|_F \approx 0.05$) are:
+\begin{equation}
+\sigma_1 \approx 6.00, \quad \sigma_2 \approx 0.045, \quad \sigma_3 \approx 0.012
+\end{equation}
+
+\textbf{Step 2: Construct Denoised Matrix $A_1$.}
+The dominant singular vectors align with the signal subspace:
+\begin{equation}
+\mathbf{u}_1 \approx \frac{1}{\sqrt{2}}\begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix}, \quad \mathbf{v}_1 \approx \frac{1}{\sqrt{2}}\begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix}
+\end{equation}
+The optimal rank-1 reconstruction is:
+\begin{equation}
+A_1 = \sigma_1 \mathbf{u}_1 \mathbf{v}_1^T = 6.00 \left( \frac{1}{\sqrt{2}}\begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix} \right) \left( \frac{1}{\sqrt{2}}\begin{bmatrix} 1 & 1 & 0 \end{bmatrix} \right) = \begin{bmatrix} 3.00 & 3.00 & 0 \\ 3.00 & 3.00 & 0 \\ 0 & 0 & 0 \end{bmatrix}
+\end{equation}
+
+\textbf{Step 3: Energy Retention Ratio.}
+Total Frobenius energy across all singular values:
+\begin{equation}
+\|A\|_F^2 = \sigma_1^2 + \sigma_2^2 + \sigma_3^2 \approx 6.00^2 + 0.045^2 + 0.012^2 = 36.00 + 0.0020 + 0.0001 = 36.0021
+\end{equation}
+The proportion of energy preserved by the rank-1 structural layer is:
+\begin{equation}
+\frac{\sigma_1^2}{\sum_{i=1}^3 \sigma_i^2} = \frac{36.0000}{36.0021} \approx \mathbf{99.994\%}
+\end{equation}
+By discarding $\sigma_2$ and $\sigma_3$, truncated SVD strips away $100\%$ of the high-frequency off-manifold sensor jitter while preserving over $99.99\%$ of the structural signal!
+\end{examplebox}
+
 \begin{ponderbox}{The Pseudoinverse Geometry}
 Let $A \in \mathbb{R}^{m \times n}$ be rank-deficient ($\rank(A) = r < n$). The linear system $A\mathbf{x} = \mathbf{b}$ has either zero solutions or infinitely many solutions.
 \begin{enumerate}
@@ -721,6 +969,35 @@ Let $A \in \mathbb{R}^{m \times n}$ be rank-deficient ($\rank(A) = r < n$). The 
     \|\mathbf{x}\|_2^2 = \|\mathbf{x}^+ + \mathbf{x}_0\|_2^2 = \|\mathbf{x}^+\|_2^2 + \|\mathbf{x}_0\|_2^2
     \end{equation*}
     For any solution where $\mathbf{x}_0 \ne \mathbf{0}$, $\|\mathbf{x}_0\|_2^2 > 0$, forcing $\|\mathbf{x}\|_2 > \|\mathbf{x}^+\|_2$. Thus the SVD pseudoinverse automatically selects the unique \textbf{minimum-norm solution}!
+\end{enumerate}
+\end{ponderbox}
+
+\begin{ponderbox}{Randomized SVD: The Streaming Subspace Projection Trick}
+Suppose you are analyzing an internet-scale user-item interaction matrix $A \in \mathbb{R}^{m \times n}$ with $m = 10{,}000{,}000$ users and $n = 50{,}000$ products. Classical SVD algorithms (Golub-Kahan-Reinsch) require $\mathcal{O}(m n \min(m, n)) \approx 10^{16}$ operations, requiring months of compute and terabytes of RAM.
+\begin{enumerate}
+    \item How does drawing a small Gaussian random projection matrix $\Omega \in \mathbb{R}^{n \times (k + p)}$ (with target rank $k = 50$ and oversampling buffer $p = 10$) capture the dominant range of $A$?
+    \item Form the sample matrix $Y = A \Omega \in \mathbb{R}^{m \times 60}$ and compute its QR decomposition $Y = Q R$. What does the orthogonal matrix $Q \in \mathbb{R}^{m \times 60}$ represent?
+    \item How does projecting $B = Q^T A \in \mathbb{R}^{60 \times n}$ allow us to compute the SVD in just a single pass over the dataset?
+\end{enumerate}
+\tcblower
+\textbf{Reflections and Mathematical Rationale:}
+\begin{enumerate}
+    \item By the Johnson-Lindenstrauss lemma and random matrix theory (Halko, Martinsson, and Tropp, 2011), multiplying $A$ by a random Gaussian matrix $\Omega$ creates linear combinations of the columns of $A$. Because the singular values decay rapidly, the random vectors are overwhelmingly drawn toward the dominant $k$-dimensional singular subspace. The small oversampling parameter ($p = 5$ to $10$) guarantees with probability $1 - 10^{-10}$ that no significant singular direction is missed!
+    \item The QR factorization $Y = Q R$ produces an orthonormal basis $Q$ spanning the range of $Y$. Thus, $Q Q^T$ acts as an approximate orthogonal projector onto the dominant column space of $A$:
+    \begin{equation*}
+    A \approx Q Q^T A
+    \end{equation*}
+    \item Let $B \triangleq Q^T A \in \mathbb{R}^{60 \times n}$. Notice that $B$ is a tiny, flat matrix with only $60$ rows!
+    We compute the standard exact SVD of this tiny matrix:
+    \begin{equation*}
+    B = \tilde{U} \Sigma V^T, \quad \text{where } \tilde{U} \in \mathbb{R}^{60 \times 60}, \; \Sigma \in \mathbb{R}^{60 \times 60}, \; V \in \mathbb{R}^{n \times 60}
+    \end{equation*}
+    Then the left singular vectors of $A$ are recovered by back-projecting:
+    \begin{equation*}
+    U \triangleq Q \tilde{U} \in \mathbb{R}^{m \times 60}
+    \end{equation*}
+    This yields $A \approx Q B = Q (\tilde{U} \Sigma V^T) = U \Sigma V^T$!
+    The entire algorithm runs in $\mathcal{O}(m n k)$ time and requires only one or two streaming sequential passes over $A$, making production-scale SVD possible on commodity hardware.
 \end{enumerate}
 \end{ponderbox}
 
@@ -768,6 +1045,19 @@ The true proportion of retained energy is $\frac{\sum_{i=1}^k \sigma_i^2}{\sum_{
 \begin{trapbox}{Gotcha 5: The Invertibility of $A^T A$ Trap}
 A student writes the normal equations $\mathbf{w}^* = (A^T A)^{-1} A^T \mathbf{y}$, assuming $A^T A$ is always strictly positive definite and invertible.
 \textbf{The Trap:} $A^T A$ is guaranteed to be positive \emph{semidefinite} ($A^T A \succeq 0$), but it is strictly positive \emph{definite} ($A^T A \succ 0$) if and only if $A$ has \textbf{full column rank} ($\rank(A) = n$). If two features are collinear, $\rank(A) < n$, meaning $\lambda_{\min}(A^T A) = 0$ and $A^T A$ is non-invertible! In this case, one must use the SVD pseudoinverse $A^+$.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 6: The Normal Equations Condition Squaring Disaster}
+A software developer implements linear regression by forming the Gram matrix explicitly and inverting: $\mathbf{w} = (X^T X)^{-1} X^T \mathbf{y}$.
+\textbf{The Trap:} Forming the matrix product $X^T X$ squares the condition number:
+\begin{equation*}
+\kappa(X^T X) = (\kappa(X))^2
+\end{equation*}
+In standard IEEE 754 64-bit double precision, machine epsilon is $\epsilon_{\text{mach}} \approx 1.1 \times 10^{-16}$, providing approximately 16 decimal digits of numerical precision. If the feature matrix $X$ has condition number $\kappa(X) = 10^8$ (a common occurrence when polynomial features or collinear physical sensors are present), the matrix $X^T X$ has condition number:
+\begin{equation*}
+\kappa(X^T X) = (10^8)^2 = 10^{16}
+\end{equation*}
+The matrix $X^T X$ becomes numerically singular! Inverting $X^T X$ loses all $16$ digits of precision, returning garbage coefficients dominated by floating-point roundoff catastrophe. Production numerical software (\texttt{numpy.linalg.lstsq}, \texttt{scikit-learn}, LAPACK) never forms $X^T X$; it computes least-squares directly via thin SVD or QR factorization ($\mathbf{w} = V \Sigma^+ U^T \mathbf{y}$), preserving the full condition number $\kappa(X) = 10^8$ and guaranteeing 8 pristine digits of numerical accuracy!
 \end{trapbox}
 
 % ----------------------------------------------------------------------
@@ -914,6 +1204,27 @@ if __name__ == "__main__":
         \item Determine $\rank(A)$ and compute its compact SVD $A = \sigma_1 \mathbf{u}_1 \mathbf{v}_1^T$.
         \item Compute the Moore-Penrose pseudoinverse $A^+ = \frac{1}{\sigma_1} \mathbf{v}_1 \mathbf{u}_1^T$.
         \item Verify that $A A^+ A = A$ and $A^+ A A^+ = A^+$.
+    \end{enumerate}
+
+    \item \textbf{Eckart-Young Spectral Norm Optimality Proof via Subspace Intersection:}
+    Let $A \in \mathbb{R}^{m \times n}$ have SVD $A = \sum_{i=1}^r \sigma_i \mathbf{u}_i \mathbf{v}_i^T$ with singular values $\sigma_1 \ge \sigma_2 \ge \dots \ge \sigma_r > 0$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Show that the residual matrix $A - A_k = \sum_{i=k+1}^r \sigma_i \mathbf{u}_i \mathbf{v}_i^T$ has spectral norm $\|A - A_k\|_2 = \sigma_{k+1}$.
+        \item Suppose there exists an arbitrary matrix $B \in \mathbb{R}^{m \times n}$ with $\rank(B) \le k$. Prove that $\dim(\Null(B)) \ge n - k$.
+        \item Let $W \triangleq \Span\{\mathbf{v}_1, \dots, \mathbf{v}_{k+1}\} \subset \mathbb{R}^n$. Prove by dimension counting that $\dim(\Null(B) \cap W) \ge 1$.
+        \item Choose a unit vector $\mathbf{z} \in \Null(B) \cap W$ with $\|\mathbf{z}\|_2 = 1$. Prove that $\|(A - B)\mathbf{z}\|_2 \ge \sigma_{k+1}$, and conclude that $\|A - B\|_2 \ge \sigma_{k+1}$ for every rank-$k$ matrix $B$.
+    \end{enumerate}
+
+    \item \textbf{Uniqueness of the Moore-Penrose Pseudoinverse \& Minimum-Norm Least Squares:}
+    Let $A \in \mathbb{R}^{m \times n}$ have compact SVD $A = U_r \Sigma_r V_r^T$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Suppose two matrices $X, Y \in \mathbb{R}^{n \times m}$ both satisfy the four Moore-Penrose axioms:
+        \begin{equation*}
+        A X A = A, \quad X A X = X, \quad (A X)^T = A X, \quad (X A)^T = X A
+        \end{equation*}
+        Prove that $X = Y$, establishing that the pseudoinverse $A^+$ is unique.
+        \item For any $\mathbf{b} \in \mathbb{R}^m$, prove that the candidate vector $\mathbf{x}_{\text{LS}} = A^+ \mathbf{b}$ lies strictly in the row space $\Row(A)$.
+        \item Prove that any least-squares solution can be decomposed as $\mathbf{x} = \mathbf{x}_{\text{LS}} + \mathbf{x}_0$ where $\mathbf{x}_0 \in \Null(A)$, and deduce that $\|\mathbf{x}\|_2^2 = \|\mathbf{x}_{\text{LS}}\|_2^2 + \|\mathbf{x}_0\|_2^2$, strictly proving that $\mathbf{x}_{\text{LS}}$ is the unique least-squares solution of minimum Euclidean norm.
     \end{enumerate}
 \end{enumerate}
 
