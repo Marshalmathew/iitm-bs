@@ -566,6 +566,125 @@ Figure~\ref{fig:ols_projection_geometry} visualizes the complete geometric archi
 \label{fig:ols_projection_geometry}
 \end{figure}
 
+\subsection{Statistical Optimality: The Gauss-Markov Theorem (BLUE)}
+Having established that $\hat{\mathbf{w}} = (X^T X)^{-1} X^T \mathbf{y}$ is the unique minimizer of the Euclidean residual norm $\|\mathbf{y} - X\mathbf{w}\|_2^2$, a profound statistical question arises: \emph{Does this geometric projection also possess optimal statistical properties under random observation noise?}
+
+Consider the classic linear data-generating process:
+\begin{equation}
+\mathbf{y} = X\boldsymbol{\beta}^* + \boldsymbol{\varepsilon}
+\label{eq:gauss_markov_model}
+\end{equation}
+where $X \in \mathbb{R}^{N \times d}$ is a fixed, deterministic design matrix with full column rank ($\rank(X) = d \le N$), $\boldsymbol{\beta}^* \in \mathbb{R}^d$ is the true, unknown parameter vector, and $\boldsymbol{\varepsilon} \in \mathbb{R}^N$ is a random disturbance vector satisfying the \textbf{Gauss-Markov assumptions}:
+\begin{enumerate}
+    \item \textbf{Mean-Zero Noise:} $\mathbb{E}[\boldsymbol{\varepsilon}] = \mathbf{0}$.
+    \item \textbf{Homoscedastic \& Uncorrelated Noise (Spherical Covariance):}
+    \begin{equation}
+    \Cov(\boldsymbol{\varepsilon}) = \mathbb{E}[\boldsymbol{\varepsilon} \boldsymbol{\varepsilon}^T] = \sigma^2 I_N
+    \end{equation}
+    where $\sigma^2 < \infty$ represents the constant noise variance across all observations.
+\end{enumerate}
+
+\begin{theorembox}{The Gauss-Markov Theorem: Ordinary Least Squares is BLUE}
+\label{thm:gauss_markov}
+Under the Gauss-Markov assumptions, the Ordinary Least Squares estimator:
+\begin{equation}
+\hat{\boldsymbol{\beta}}_{\mathrm{OLS}} = (X^T X)^{-1} X^T \mathbf{y}
+\end{equation}
+is the \textbf{Best Linear Unbiased Estimator (BLUE)}. That is:
+\begin{enumerate}
+    \item $\hat{\boldsymbol{\beta}}_{\mathrm{OLS}}$ is \textbf{linear} in $\mathbf{y}$: $\hat{\boldsymbol{\beta}}_{\mathrm{OLS}} = C_{\mathrm{OLS}} \mathbf{y}$ with $C_{\mathrm{OLS}} = (X^T X)^{-1} X^T$.
+    \item $\hat{\boldsymbol{\beta}}_{\mathrm{OLS}}$ is \textbf{unbiased}: $\mathbb{E}[\hat{\boldsymbol{\beta}}_{\mathrm{OLS}}] = \boldsymbol{\beta}^*$.
+    \item For any other linear unbiased estimator $\tilde{\boldsymbol{\beta}} = C \mathbf{y}$, the covariance matrix difference is positive semidefinite:
+    \begin{equation}
+    \Cov(\tilde{\boldsymbol{\beta}}) - \Cov(\hat{\boldsymbol{\beta}}_{\mathrm{OLS}}) \succeq 0
+    \label{eq:loewner_ordering}
+    \end{equation}
+    which implies that for every non-zero vector $\mathbf{c} \in \mathbb{R}^d$, the scalar variance satisfies $\Var(\mathbf{c}^T \tilde{\boldsymbol{\beta}}) \ge \Var(\mathbf{c}^T \hat{\boldsymbol{\beta}}_{\mathrm{OLS}})$.
+\end{enumerate}
+\end{theorembox}
+
+\begin{proof}
+We divide the proof into two logical steps: verifying unbiasedness and establishing minimal covariance.
+
+\textbf{Step 1: Unbiasedness Constraint on Linear Estimators.}
+Let $\tilde{\boldsymbol{\beta}} = C \mathbf{y} \in \mathbb{R}^d$ be an arbitrary linear estimator parameterized by matrix $C \in \mathbb{R}^{d \times N}$. Taking expectations:
+\begin{equation}
+\mathbb{E}[\tilde{\boldsymbol{\beta}}] = \mathbb{E}[C(X\boldsymbol{\beta}^* + \boldsymbol{\varepsilon})] = C X \boldsymbol{\beta}^* + C \mathbb{E}[\boldsymbol{\varepsilon}] = C X \boldsymbol{\beta}^*
+\end{equation}
+For $\tilde{\boldsymbol{\beta}}$ to be unbiased for \emph{all possible} true vectors $\boldsymbol{\beta}^* \in \mathbb{R}^d$, we must have:
+\begin{equation}
+C X \boldsymbol{\beta}^* = \boldsymbol{\beta}^* \quad \forall \boldsymbol{\beta}^* \in \mathbb{R}^d \iff C X = I_d
+\label{eq:unbiased_linear_condition}
+\end{equation}
+For OLS, $C_{\mathrm{OLS}} X = (X^T X)^{-1} X^T X = (X^T X)^{-1}(X^T X) = I_d$, confirming that $\hat{\boldsymbol{\beta}}_{\mathrm{OLS}}$ is unbiased.
+
+\textbf{Step 2: Covariance Comparison via Matrix Decomposition.}
+Decompose the arbitrary matrix $C$ as:
+\begin{equation}
+C = (X^T X)^{-1} X^T + D
+\end{equation}
+where $D \triangleq C - (X^T X)^{-1} X^T \in \mathbb{R}^{d \times N}$ represents the deviation of $C$ from the OLS projection operator.
+Applying condition~\eqref{eq:unbiased_linear_condition}:
+\begin{equation}
+C X = \left( (X^T X)^{-1} X^T + D \right) X = I_d + D X = I_d \implies D X = \mathbf{0}_{d \times d}
+\label{eq:dx_zero}
+\end{equation}
+Transposing both sides gives $X^T D^T = \mathbf{0}_{d \times d}$.
+
+Now compute the covariance matrix of $\tilde{\boldsymbol{\beta}}$. Since $\tilde{\boldsymbol{\beta}} - \mathbb{E}[\tilde{\boldsymbol{\beta}}] = C \boldsymbol{\varepsilon}$:
+\begin{equation}
+\Cov(\tilde{\boldsymbol{\beta}}) = \mathbb{E}\left[ (C \boldsymbol{\varepsilon})(C \boldsymbol{\varepsilon})^T \right] = C\, \mathbb{E}[\boldsymbol{\varepsilon} \boldsymbol{\varepsilon}^T]\, C^T = \sigma^2 C C^T
+\end{equation}
+Expanding $C C^T$:
+\begin{align}
+C C^T &= \left( (X^T X)^{-1} X^T + D \right) \left( X(X^T X)^{-1} + D^T \right) \nonumber \\
+&= (X^T X)^{-1} X^T X (X^T X)^{-1} + (X^T X)^{-1} X^T D^T + D X (X^T X)^{-1} + D D^T
+\end{align}
+Using $D X = \mathbf{0}$ and $X^T D^T = \mathbf{0}$, both cross-terms vanish identically:
+\begin{equation}
+C C^T = (X^T X)^{-1} + \mathbf{0} + \mathbf{0} + D D^T = (X^T X)^{-1} + D D^T
+\end{equation}
+Multiplying by $\sigma^2$:
+\begin{equation}
+\Cov(\tilde{\boldsymbol{\beta}}) = \sigma^2 (X^T X)^{-1} + \sigma^2 D D^T = \Cov(\hat{\boldsymbol{\beta}}_{\mathrm{OLS}}) + \sigma^2 D D^T
+\label{eq:cov_beta_tilde_decomp}
+\end{equation}
+For any non-zero vector $\mathbf{u} \in \mathbb{R}^d$, consider the quadratic form:
+\begin{equation}
+\mathbf{u}^T \left( \Cov(\tilde{\boldsymbol{\beta}}) - \Cov(\hat{\boldsymbol{\beta}}_{\mathrm{OLS}}) \right) \mathbf{u} = \sigma^2 \mathbf{u}^T (D D^T) \mathbf{u} = \sigma^2 \|D^T \mathbf{u}\|_2^2 \ge 0
+\end{equation}
+Because $\|D^T \mathbf{u}\|_2^2 \ge 0$ for all $\mathbf{u}$, the difference matrix $\Cov(\tilde{\boldsymbol{\beta}}) - \Cov(\hat{\boldsymbol{\beta}}_{\mathrm{OLS}})$ is positive semidefinite ($\succeq 0$). Equality holds if and only if $D^T \mathbf{u} = \mathbf{0}$ for all $\mathbf{u} \in \mathbb{R}^d$, which requires $D = \mathbf{0}_{d \times N}$, meaning $C = (X^T X)^{-1} X^T$. Hence, OLS is strictly minimal in covariance among all linear unbiased estimators.
+\end{proof}
+
+\subsection{Multicollinearity, Covariance Inflation \& Variance Inflation Factors (VIF)}
+The covariance matrix of the OLS estimator derived in Equation~\eqref{eq:cov_beta_tilde_decomp} is:
+\begin{equation}
+\Cov(\hat{\boldsymbol{\beta}}_{\mathrm{OLS}}) = \sigma^2 (X^T X)^{-1}
+\label{eq:ols_cov_matrix}
+\end{equation}
+Notice that the uncertainty of our parameter estimates is governed directly by the inverse Gram matrix $(X^T X)^{-1}$.
+
+When features are orthogonal ($X^T X = \operatorname{diag}(\|\mathbf{x}_1\|_2^2, \dots, \|\mathbf{x}_d\|_2^2)$), the inverse Gram matrix is diagonal, and each parameter estimate is estimated independently with variance $\Var(\hat{\beta}_j) = \sigma^2 / \|\mathbf{x}_j\|_2^2$.
+
+However, in real-world tabular data and sensor arrays, features frequently exhibit strong linear correlations, a phenomenon known as \textbf{multicollinearity}. 
+Let $\mathbf{x}_j$ denote the $j$-th column of $X$, and let $X_{-j}$ denote the matrix containing all remaining $d-1$ columns. By the Frisch-Waugh-Lovell theorem and block matrix inversion, the variance of the $j$-th regression coefficient decomposes as:
+\begin{equation}
+\Var(\hat{\beta}_j) = \frac{\sigma^2}{(1 - R_j^2) \sum_{i=1}^N (x_{ij} - \bar{x}_j)^2} = \frac{\sigma^2}{\sum_{i=1}^N (x_{ij} - \bar{x}_j)^2} \cdot \operatorname{VIF}_j
+\label{eq:vif_formula}
+\end{equation}
+where $R_j^2$ is the coefficient of determination from an auxiliary OLS regression of feature $\mathbf{x}_j$ onto all other features $X_{-j}$, and:
+\begin{equation}
+\operatorname{VIF}_j \triangleq \frac{1}{1 - R_j^2} \ge 1
+\end{equation}
+is the \textbf{Variance Inflation Factor}.
+
+\begin{itemize}
+    \item \textbf{Orthogonal Features ($R_j^2 = 0$):} $\operatorname{VIF}_j = 1$. The feature contains zero redundancy, and its parameter variance is at the theoretical minimum.
+    \item \textbf{Moderate Collinearity ($R_j^2 = 0.90$):} $\operatorname{VIF}_j = 10$. The variance of $\hat{\beta}_j$ is inflated tenfold, expanding the confidence intervals by $\sqrt{10} \approx 3.16$.
+    \item \textbf{Severe Collinearity ($R_j^2 = 0.99$):} $\operatorname{VIF}_j = 100$. The parameter variance is inflated by a factor of 100. Geometrically, the Gram matrix $X^T X$ has an eigenvalue $\lambda_{\min} \approx 0$, causing $(X^T X)^{-1}$ to blow up along that eigenvector.
+\end{itemize}
+This variance explosion explains why Ordinary Least Squares can become statistically fragile despite remaining BLUE: an estimator can be the ``best'' among unbiased estimators while still having unacceptably high absolute variance! This motivates introducing deliberate bias through Ridge regression ($L_2$ regularization) to drastically shrink variance.
+
 % ----------------------------------------------------------------------
 % PART 5: ADVANCED COMPUTATIONAL ALGEBRA: QR & PSEUDOINVERSES
 % ----------------------------------------------------------------------
@@ -674,6 +793,34 @@ Notice the immense computational advantages:
 \label{fig:qr_gram_schmidt_geometry}
 \end{figure}
 
+\begin{theorembox}{Invariance of the Orthogonal Projector under QR Factorization}
+\label{thm:qr_proj_invariance}
+Let $X \in \mathbb{R}^{N \times d}$ ($N \ge d$) have full column rank with thin QR factorization $X = Q_1 R_1$, where $Q_1 \in \mathbb{R}^{N \times d}$ satisfies $Q_1^T Q_1 = I_d$ and $R_1 \in \mathbb{R}^{d \times d}$ is non-singular upper triangular. Then the orthogonal projector $P \in \mathbb{R}^{N \times N}$ onto $\Col(X)$ is identically:
+\begin{equation}
+P = X(X^T X)^{-1} X^T = Q_1 Q_1^T
+\label{eq:qr_proj_identity}
+\end{equation}
+\end{theorembox}
+
+\begin{proof}
+Directly substitute the factorization $X = Q_1 R_1$ into the projection operator definition:
+\begin{align}
+P &= (Q_1 R_1) \left( (Q_1 R_1)^T (Q_1 R_1) \right)^{-1} (Q_1 R_1)^T \\
+&= Q_1 R_1 \left( R_1^T \underbrace{(Q_1^T Q_1)}_{= I_d} R_1 \right)^{-1} R_1^T Q_1^T \\
+&= Q_1 R_1 \left( R_1^T R_1 \right)^{-1} R_1^T Q_1^T
+\end{align}
+Because $X$ has full column rank, $R_1 \in \mathbb{R}^{d \times d}$ is square and invertible ($\det(R_1) \ne 0$). By standard matrix inversion properties, $(R_1^T R_1)^{-1} = R_1^{-1} (R_1^T)^{-1}$. Substituting this expansion:
+\begin{equation}
+P = Q_1 \underbrace{(R_1 R_1^{-1})}_{= I_d} \underbrace{\left( (R_1^T)^{-1} R_1^T \right)}_{= I_d} Q_1^T = Q_1 I_d I_d Q_1^T = Q_1 Q_1^T
+\end{equation}
+Furthermore, the two fundamental projection axioms follow instantly:
+\begin{enumerate}
+    \item \textbf{Symmetry:} $(Q_1 Q_1^T)^T = (Q_1^T)^T Q_1^T = Q_1 Q_1^T$.
+    \item \textbf{Idempotence:} $(Q_1 Q_1^T)(Q_1 Q_1^T) = Q_1 \underbrace{(Q_1^T Q_1)}_{= I_d} Q_1^T = Q_1 Q_1^T$.
+\end{enumerate}
+Evaluating the orthogonal projection of any vector $\mathbf{y} \in \mathbb{R}^N$ via $P\mathbf{y} = Q_1 (Q_1^T \mathbf{y})$ requires only an orthonormal inner product followed by a linear combination of orthonormal columns, completely bypassing matrix inversion and preserving floating-point stability.
+\end{proof}
+
 \subsection{The Underdetermined Regime \& The Moore-Penrose Pseudoinverse}
 What happens in modern deep learning and bioinformatics where the number of parameters $d$ exceeds the number of observations $N$ ($d > N$)?
 
@@ -739,12 +886,209 @@ Because Gradient Descent initialized at $\mathbf{0}$ never enters $\Null(X)$, it
 Therefore, Gradient Descent possesses an \textbf{implicit bias} toward the minimum-norm solution!
 \end{ponderbox}
 
-% ----------------------------------------------------------------------
-% PART 6: WORKED NUMERICAL REGRESSION EXAMPLE
-% ----------------------------------------------------------------------
-\section{In-Depth Worked Numerical Example: OLS Line Fitting}
+\begin{ponderbox}{The Gauss-Markov Miracle: Why OLS Outperforms Linear Estimators}
+The Gauss-Markov theorem guarantees that Ordinary Least Squares has the strictly minimal variance among all linear unbiased estimators. But why should machine learning practitioners constrain themselves exclusively to \emph{unbiased} estimators? If accepting a minor amount of bias can drastically compress parameter variance, why would anyone stubbornly insist on OLS when features are correlated?
+\tcblower
+\textbf{Reflection:}
+Recall the classical Mean Squared Error (MSE) bias-variance decomposition for an estimator $\tilde{\boldsymbol{\beta}}$:
+\begin{equation*}
+\operatorname{MSE}(\tilde{\boldsymbol{\beta}}) = \mathbb{E}\big[\|\tilde{\boldsymbol{\beta}} - \boldsymbol{\beta}^*\|_2^2\big] = \|\operatorname{Bias}(\tilde{\boldsymbol{\beta}})\|_2^2 + \trace\big(\Cov(\tilde{\boldsymbol{\beta}})\big)
+\end{equation*}
+The Gauss-Markov theorem operates strictly on the constrained subset of linear estimators where $\operatorname{Bias}(\tilde{\boldsymbol{\beta}}) = \mathbf{0}$. Within this zero-bias subspace, OLS is globally and unbeatably optimal.
 
-\begin{examplebox}{Worked Example 3.3: Full OLS Line Fitting via Projection Geometry}
+However, when design matrix features exhibit multicollinearity, the Gram matrix $X^T X$ has an eigenvalue $\lambda_{\min} \approx 0$. By Equation~\eqref{eq:ols_cov_matrix}, the total variance of OLS blows up:
+\begin{equation*}
+\trace\big(\Cov(\hat{\boldsymbol{\beta}}_{\mathrm{OLS}})\big) = \sigma^2 \trace\big((X^T X)^{-1}\big) = \sigma^2 \sum_{i=1}^d \frac{1}{\lambda_i(X^T X)} \ge \frac{\sigma^2}{\lambda_{\min}(X^T X)} \to \infty
+\end{equation*}
+Ridge regression ($L_2$ regularization) deliberately introduces a positive shrinkage penalty $\lambda > 0$, estimating $\hat{\boldsymbol{\beta}}_{\mathrm{Ridge}} = (X^T X + \lambda I)^{-1} X^T \mathbf{y}$. This introduces a controllable bias of order $\mathcal{O}(\lambda)$, but aggressively shrinks parameter variance by damping every eigenvalue to $(\lambda_i + \lambda)^{-1}$.
+
+Whenever $\lambda_{\min} \ll \sigma^2$, the variance reduction overwhelmingly outstrips the squared bias, yielding a strictly lower total Mean Squared Error: $\operatorname{MSE}(\hat{\boldsymbol{\beta}}_{\mathrm{Ridge}}) < \operatorname{MSE}(\hat{\boldsymbol{\beta}}_{\mathrm{OLS}})$. The Gauss-Markov theorem does not promise absolute statistical perfection; it defines the exact price of dogmatic unbiasedness!
+\end{ponderbox}
+
+% ----------------------------------------------------------------------
+% PART 6: EXHAUSTIVE MULTI-STEP NUMERICAL WORKED EXAMPLES
+% ----------------------------------------------------------------------
+\section{Exhaustive Multi-Step Numerical Worked Examples}
+
+\begin{examplebox}[breakable]{Worked Example 3.1: Classical \& Modified Gram-Schmidt Orthonormalization}
+\label{ex:w03_gram_schmidt}
+\textbf{The Scenario:}
+Given the linearly independent column vectors spanning a subspace of $\mathbb{R}^3$:
+\begin{equation*}
+\mathbf{a}_1 = \begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix}, \quad \mathbf{a}_2 = \begin{bmatrix} 1 \\ 0 \\ 1 \end{bmatrix}, \quad \mathbf{a}_3 = \begin{bmatrix} 0 \\ 1 \\ 1 \end{bmatrix}
+\end{equation*}
+Construct an orthonormal basis $\{\mathbf{q}_1, \mathbf{q}_2, \mathbf{q}_3\}$ via Gram-Schmidt orthogonalization. Form the full QR factorization $A = QR$, verify that $Q^T Q = I_3$, and contrast the numerical loss of orthogonality in Classical Gram-Schmidt (CGS) versus Modified Gram-Schmidt (MGS).
+
+\tcblower
+\textbf{Step-by-Step Analytical Solution:}
+
+\textbf{Step 1: Normalize the First Column $\mathbf{a}_1$}
+Compute the Euclidean norm of $\mathbf{a}_1$:
+\begin{equation*}
+r_{11} = \|\mathbf{a}_1\|_2 = \sqrt{1^2 + 1^2 + 0^2} = \sqrt{2}
+\end{equation*}
+The first unit basis vector is:
+\begin{equation*}
+\mathbf{q}_1 = \frac{\mathbf{a}_1}{r_{11}} = \frac{1}{\sqrt{2}} \begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix} = \begin{bmatrix} 1/\sqrt{2} \\ 1/\sqrt{2} \\ 0 \end{bmatrix}
+\end{equation*}
+
+\textbf{Step 2: Project $\mathbf{a}_2$ onto $\mathbf{q}_1$ and Extract Orthogonal Component $\mathbf{u}_2$}
+The projection coefficient along $\mathbf{q}_1$ is:
+\begin{equation*}
+r_{12} = \mathbf{q}_1^T \mathbf{a}_2 = \frac{1}{\sqrt{2}}(1 \cdot 1 + 1 \cdot 0 + 0 \cdot 1) = \frac{1}{\sqrt{2}}
+\end{equation*}
+Subtract the parallel projection from $\mathbf{a}_2$:
+\begin{equation*}
+\mathbf{u}_2 = \mathbf{a}_2 - r_{12}\mathbf{q}_1 = \begin{bmatrix} 1 \\ 0 \\ 1 \end{bmatrix} - \frac{1}{\sqrt{2}} \left( \frac{1}{\sqrt{2}} \begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix} \right) = \begin{bmatrix} 1 \\ 0 \\ 1 \end{bmatrix} - \begin{bmatrix} 1/2 \\ 1/2 \\ 0 \end{bmatrix} = \begin{bmatrix} 1/2 \\ -1/2 \\ 1 \end{bmatrix}
+\end{equation*}
+Compute the norm of $\mathbf{u}_2$:
+\begin{equation*}
+r_{22} = \|\mathbf{u}_2\|_2 = \sqrt{(1/2)^2 + (-1/2)^2 + 1^2} = \sqrt{\frac{1}{4} + \frac{1}{4} + 1} = \sqrt{\frac{3}{2}} = \frac{\sqrt{6}}{2}
+\end{equation*}
+The second orthonormal vector is:
+\begin{equation*}
+\mathbf{q}_2 = \frac{\mathbf{u}_2}{r_{22}} = \frac{2}{\sqrt{6}} \begin{bmatrix} 1/2 \\ -1/2 \\ 1 \end{bmatrix} = \frac{1}{\sqrt{6}} \begin{bmatrix} 1 \\ -1 \\ 2 \end{bmatrix}
+\end{equation*}
+Check orthogonality: $\mathbf{q}_1^T \mathbf{q}_2 = \frac{1}{\sqrt{12}}(1 - 1 + 0) = 0$. $\checkmark$
+
+\textbf{Step 3: Project $\mathbf{a}_3$ onto $\operatorname{span}\{\mathbf{q}_1, \mathbf{q}_2\}$ and Extract $\mathbf{u}_3$}
+Compute the inner products with the established orthonormal axes:
+\begin{align*}
+r_{13} &= \mathbf{q}_1^T \mathbf{a}_3 = \frac{1}{\sqrt{2}}(0 + 1 + 0) = \frac{1}{\sqrt{2}} \\
+r_{23} &= \mathbf{q}_2^T \mathbf{a}_3 = \frac{1}{\sqrt{6}}(0 - 1 + 2) = \frac{1}{\sqrt{6}}
+\end{align*}
+Subtract both projections:
+\begin{align*}
+\mathbf{u}_3 &= \mathbf{a}_3 - r_{13}\mathbf{q}_1 - r_{23}\mathbf{q}_2 \\
+&= \begin{bmatrix} 0 \\ 1 \\ 1 \end{bmatrix} - \frac{1}{2}\begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix} - \frac{1}{6}\begin{bmatrix} 1 \\ -1 \\ 2 \end{bmatrix} = \begin{bmatrix} -1/2 - 1/6 \\ 1 - 1/2 + 1/6 \\ 1 - 2/6 \end{bmatrix} = \begin{bmatrix} -2/3 \\ 2/3 \\ 2/3 \end{bmatrix} = \frac{2}{3} \begin{bmatrix} -1 \\ 1 \\ 1 \end{bmatrix}
+\end{align*}
+Compute the norm of $\mathbf{u}_3$:
+\begin{equation*}
+r_{33} = \|\mathbf{u}_3\|_2 = \frac{2}{3} \sqrt{(-1)^2 + 1^2 + 1^2} = \frac{2\sqrt{3}}{3} = \frac{2}{\sqrt{3}}
+\end{equation*}
+The third orthonormal vector is:
+\begin{equation*}
+\mathbf{q}_3 = \frac{\mathbf{u}_3}{r_{33}} = \frac{\sqrt{3}}{2} \left( \frac{2}{3}\begin{bmatrix} -1 \\ 1 \\ 1 \end{bmatrix} \right) = \frac{1}{\sqrt{3}} \begin{bmatrix} -1 \\ 1 \\ 1 \end{bmatrix}
+\end{equation*}
+Check orthogonality:
+$\mathbf{q}_1^T \mathbf{q}_3 = \frac{1}{\sqrt{6}}(-1 + 1 + 0) = 0$, and $\mathbf{q}_2^T \mathbf{q}_3 = \frac{1}{\sqrt{18}}(-1 - 1 + 2) = 0$. $\checkmark$
+
+\textbf{Step 4: Construct the Factored Matrices $Q$ and $R$}
+\begin{equation*}
+Q = \begin{bmatrix} \mathbf{q}_1 & \mathbf{q}_2 & \mathbf{q}_3 \end{bmatrix} = \begin{bmatrix}
+1/\sqrt{2} & 1/\sqrt{6} & -1/\sqrt{3} \\
+1/\sqrt{2} & -1/\sqrt{6} & 1/\sqrt{3} \\
+0 & 2/\sqrt{6} & 1/\sqrt{3}
+\end{bmatrix}, \quad
+R = \begin{bmatrix}
+r_{11} & r_{12} & r_{13} \\
+0 & r_{22} & r_{23} \\
+0 & 0 & r_{33}
+\end{bmatrix} = \begin{bmatrix}
+\sqrt{2} & 1/\sqrt{2} & 1/\sqrt{2} \\
+0 & \sqrt{3/2} & 1/\sqrt{6} \\
+0 & 0 & 2/\sqrt{3}
+\end{bmatrix}
+\end{equation*}
+Direct multiplication confirms:
+\begin{align*}
+QR &= \begin{bmatrix}
+1 & \frac{1}{2} + \frac{1}{2} & \frac{1}{2} + \frac{1}{6} - \frac{2}{3} \\[4pt]
+1 & \frac{1}{2} - \frac{1}{2} & \frac{1}{2} - \frac{1}{6} + \frac{2}{3} \\[4pt]
+0 & 1 & \frac{1}{3} + \frac{2}{3}
+\end{bmatrix} = \begin{bmatrix} 1 & 1 & 0 \\ 1 & 0 & 1 \\ 0 & 1 & 1 \end{bmatrix} = A \quad \checkmark
+\end{align*}
+
+\textbf{Step 5: Classical vs. Modified Gram-Schmidt Numerical Stability}
+In exact arithmetic, Classical Gram-Schmidt (subtracting all projections simultaneously from the raw vector $\mathbf{a}_k$) and Modified Gram-Schmidt (subtracting each projection sequentially from the updated intermediate vector) are mathematically equivalent. 
+However, in floating-point arithmetic, CGS suffers from catastrophic cancellation when vectors are nearly collinear, rapidly losing orthogonality ($Q^T Q \ne I$). MGS updates the working vector after each projection step ($\mathbf{a}_k^{(j)} \leftarrow \mathbf{a}_k^{(j-1)} - (\mathbf{q}_j^T \mathbf{a}_k^{(j-1)})\mathbf{q}_j$), which is mathematically proven to be backward stable!
+\end{examplebox}
+
+\begin{examplebox}[breakable]{Worked Example 3.2: Four Fundamental Subspaces Decomposition of an Arbitrary Vector}
+\label{ex:w03_four_subspaces_decomp}
+\textbf{The Scenario:}
+Let $A \in \mathbb{R}^{3 \times 2}$ be the rank-deficient matrix and $\mathbf{b} \in \mathbb{R}^3$ be the target observation:
+\begin{equation*}
+A = \begin{bmatrix} 1 & 2 \\ 2 & 4 \\ 1 & 2 \end{bmatrix}, \quad \mathbf{b} = \begin{bmatrix} 3 \\ 1 \\ 5 \end{bmatrix}
+\end{equation*}
+Determine orthonormal bases and dimensions for all four fundamental subspaces ($\Col(A)$, $\Null(A^T)$, $\Row(A)$, $\Null(A)$). Decompose $\mathbf{b} = \mathbf{b}_{\Col} + \mathbf{b}_{\Null^T}$ where $\mathbf{b}_{\Col} \in \Col(A)$ and $\mathbf{b}_{\Null^T} \in \Null(A^T)$, confirm orthogonality $\mathbf{b}_{\Col}^T \mathbf{b}_{\Null^T} = 0$, and verify the Pythagorean norm conservation $\|\mathbf{b}\|_2^2 = \|\mathbf{b}_{\Col}\|_2^2 + \|\mathbf{b}_{\Null^T}\|_2^2$.
+
+\tcblower
+\textbf{Step-by-Step Analytical Solution:}
+
+\textbf{Step 1: Identify Matrix Dimensions and Rank}
+The matrix has size $m = 3$ rows and $n = 2$ columns.
+Notice that the second column $\mathbf{a}_2 = [2, 4, 2]^T = 2 \mathbf{a}_1$.
+Hence, the columns are linearly dependent, and $\rank(A) = r = 1$.
+
+\textbf{Step 2: Subspaces of the Domain $\mathbb{R}^2$ ($\Row(A)$ and $\Null(A)$)}
+\begin{enumerate}
+    \item \textbf{Row Space $\Row(A) \subset \mathbb{R}^2$:}
+    $\dim(\Row(A)) = r = 1$. The rows are all multiples of $[1, 2]$. An orthonormal basis vector is:
+    \begin{equation*}
+    \mathbf{v}_{\mathrm{row}} = \frac{1}{\sqrt{1^2 + 2^2}} \begin{bmatrix} 1 \\ 2 \end{bmatrix} = \frac{1}{\sqrt{5}} \begin{bmatrix} 1 \\ 2 \end{bmatrix}
+    \end{equation*}
+    \item \textbf{Nullspace $\Null(A) \subset \mathbb{R}^2$:}
+    $\dim(\Null(A)) = n - r = 2 - 1 = 1$. The equation $A\mathbf{x} = \mathbf{0}$ reduces to $x_1 + 2x_2 = 0 \implies x_1 = -2x_2$. An orthonormal basis vector is:
+    \begin{equation*}
+    \mathbf{v}_{\mathrm{null}} = \frac{1}{\sqrt{(-2)^2 + 1^2}} \begin{bmatrix} -2 \\ 1 \end{bmatrix} = \frac{1}{\sqrt{5}} \begin{bmatrix} -2 \\ 1 \end{bmatrix}
+    \end{equation*}
+    Check: $\mathbf{v}_{\mathrm{row}}^T \mathbf{v}_{\mathrm{null}} = \frac{1}{5}(-2 + 2) = 0$. $\checkmark$
+\end{enumerate}
+
+\textbf{Step 3: Subspaces of the Codomain $\mathbb{R}^3$ ($\Col(A)$ and $\Null(A^T)$)}
+\begin{enumerate}
+    \item \textbf{Column Space $\Col(A) \subset \mathbb{R}^3$:}
+    $\dim(\Col(A)) = r = 1$. Spanned by the first column $\mathbf{a}_1 = [1, 2, 1]^T$. An orthonormal basis is:
+    \begin{equation*}
+    \mathbf{u}_1 = \frac{1}{\sqrt{1^2 + 2^2 + 1^2}} \begin{bmatrix} 1 \\ 2 \\ 1 \end{bmatrix} = \frac{1}{\sqrt{6}} \begin{bmatrix} 1 \\ 2 \\ 1 \end{bmatrix}
+    \end{equation*}
+    \item \textbf{Left Nullspace $\Null(A^T) \subset \mathbb{R}^3$:}
+    $\dim(\Null(A^T)) = m - r = 3 - 1 = 2$.
+    The equation $A^T \mathbf{y} = \mathbf{0}$ yields:
+    \begin{equation*}
+    y_1 + 2y_2 + y_3 = 0 \implies y_3 = -y_1 - 2y_2
+    \end{equation*}
+    Setting free variables $(y_1, y_2) = (2, -1)$ yields $\mathbf{w}_1 = [2, -1, 0]^T$.
+    Setting free variables $(y_1, y_2) = (1, 2)$ yields $y_3 = -5$, so $\mathbf{w}_2 = [1, 2, -5]^T$.
+    Check mutual orthogonality: $\mathbf{w}_1^T \mathbf{w}_2 = 2(1) - 1(2) + 0(-5) = 0$. $\checkmark$
+    Orthonormalizing gives basis vectors $\mathbf{u}_2 = \frac{1}{\sqrt{5}}[2, -1, 0]^T$ and $\mathbf{u}_3 = \frac{1}{\sqrt{30}}[1, 2, -5]^T$.
+\end{enumerate}
+
+\textbf{Step 4: Compute the Orthogonal Projection $\mathbf{b}_{\Col} \in \Col(A)$}
+Since $\Col(A)$ is 1-dimensional with unit vector $\mathbf{u}_1$:
+\begin{equation*}
+\mathbf{b}_{\Col} = (\mathbf{u}_1^T \mathbf{b})\, \mathbf{u}_1 = \left( \frac{1}{\sqrt{6}} \big( 1(3) + 2(1) + 1(5) \big) \right) \left( \frac{1}{\sqrt{6}} \begin{bmatrix} 1 \\ 2 \\ 1 \end{bmatrix} \right) = \frac{10}{6} \begin{bmatrix} 1 \\ 2 \\ 1 \end{bmatrix} = \frac{5}{3} \begin{bmatrix} 1 \\ 2 \\ 1 \end{bmatrix} = \begin{bmatrix} 5/3 \\ 10/3 \\ 5/3 \end{bmatrix}
+\end{equation*}
+
+\textbf{Step 5: Compute the Left Nullspace Component $\mathbf{b}_{\Null^T} \in \Null(A^T)$}
+By complementary orthogonal projection:
+\begin{equation*}
+\mathbf{b}_{\Null^T} = \mathbf{b} - \mathbf{b}_{\Col} = \begin{bmatrix} 3 \\ 1 \\ 5 \end{bmatrix} - \begin{bmatrix} 5/3 \\ 10/3 \\ 5/3 \end{bmatrix} = \begin{bmatrix} 4/3 \\ -7/3 \\ 10/3 \end{bmatrix} = \frac{1}{3} \begin{bmatrix} 4 \\ -7 \\ 10 \end{bmatrix}
+\end{equation*}
+Verify that $\mathbf{b}_{\Null^T} \in \Null(A^T)$:
+\begin{equation*}
+A^T \mathbf{b}_{\Null^T} = \begin{bmatrix} 1 & 2 & 1 \\ 2 & 4 & 2 \end{bmatrix} \left( \frac{1}{3}\begin{bmatrix} 4 \\ -7 \\ 10 \end{bmatrix} \right) = \frac{1}{3} \begin{bmatrix} 4 - 14 + 10 \\ 8 - 28 + 20 \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \end{bmatrix} \quad \checkmark
+\end{equation*}
+
+\textbf{Step 6: Verify Orthogonality and Energy Conservation}
+\begin{equation*}
+\langle \mathbf{b}_{\Col}, \mathbf{b}_{\Null^T} \rangle = \left( \frac{5}{3} \begin{bmatrix} 1 \\ 2 \\ 1 \end{bmatrix} \right)^T \left( \frac{1}{3} \begin{bmatrix} 4 \\ -7 \\ 10 \end{bmatrix} \right) = \frac{5}{9}\big( 1(4) + 2(-7) + 1(10) \big) = \frac{5}{9}(4 - 14 + 10) = 0 \quad \checkmark
+\end{equation*}
+Now verify the Pythagorean theorem:
+\begin{align*}
+\|\mathbf{b}\|_2^2 &= 3^2 + 1^2 + 5^2 = 9 + 1 + 25 = 35 \\
+\|\mathbf{b}_{\Col}\|_2^2 &= \left(\frac{5}{3}\right)^2 (1^2 + 2^2 + 1^2) = \frac{25}{9} \times 6 = \frac{150}{9} = \frac{50}{3} \\
+\|\mathbf{b}_{\Null^T}\|_2^2 &= \left(\frac{1}{3}\right)^2 (4^2 + (-7)^2 + 10^2) = \frac{1}{9}(16 + 49 + 100) = \frac{165}{9} = \frac{55}{3}
+\end{align*}
+Summing the components:
+\begin{equation*}
+\|\mathbf{b}_{\Col}\|_2^2 + \|\mathbf{b}_{\Null^T}\|_2^2 = \frac{50}{3} + \frac{55}{3} = \frac{105}{3} = 35 = \|\mathbf{b}\|_2^2 \quad \checkmark
+\end{equation*}
+The total energy decomposes completely into signal and residual without cross-term leakage!
+\end{examplebox}
+
+\begin{examplebox}[breakable]{Worked Example 3.3: Full OLS Line Fitting via Projection Geometry}
 \label{ex:w03_ols_line_fitting}
 \textbf{The Scenario:}
 Fit an affine line $y = \beta_0 + \beta_1 x$ to three empirical observations:
@@ -761,7 +1105,7 @@ With intercept column $x_0 = 1$ and slope feature $x_1$:
 \begin{equation*}
 X = \begin{bmatrix} 1 & 1 \\ 1 & 2 \\ 1 & 3 \end{bmatrix} \in \mathbb{R}^{3 \times 2}, \quad \boldsymbol{\beta} = \begin{bmatrix} \beta_0 \\ \beta_1 \end{bmatrix} \in \mathbb{R}^2, \quad \mathbf{y} = \begin{bmatrix} 2 \\ 2 \\ 4 \end{bmatrix} \in \mathbb{R}^3
 \end{equation*}
-Notice $N = 3$ observations and $d = 2$ unknowns. The columns $\mathbf{x}_0 = [1, 1, 1]^T$ and $\mathbf{x}_1 = [1, 2, 3]^T$ are clearly linearly independent, so $\rank(X) = 2$.
+Notice $N = 3$ observations and $d = 2$ unknowns. The columns $\mathbf{x}_0 = [1, 1, 1]^T$ and $\mathbf{x}_1 = [1, 2, 3]^T$ are linearly independent, so $\rank(X) = 2$.
 
 \textbf{Step 2: Compute the Gram Matrix $X^T X$ and $X^T \mathbf{y}$}
 \begin{equation*}
@@ -814,6 +1158,165 @@ Because the first column of $X$ is the constant intercept column of ones $\mathb
 This proves mathematically why \textbf{any linear regression model that contains an intercept term always has residuals that sum to exactly zero}!
 \end{examplebox}
 
+\begin{examplebox}[breakable]{Worked Example 3.4: OLS via QR Decomposition vs. Normal Equations Condition Squaring}
+\label{ex:w03_qr_vs_normal}
+\textbf{The Scenario:}
+Consider a least-squares problem with design matrix $X \in \mathbb{R}^{3 \times 2}$ exhibiting severe collinearity:
+\begin{equation*}
+X = \begin{bmatrix} 1 & 1 \\ 1 & 1 + 10^{-4} \\ 1 & 1 - 10^{-4} \end{bmatrix}, \quad \mathbf{y} = \begin{bmatrix} 2 \\ 2.0001 \\ 1.9999 \end{bmatrix}
+\end{equation*}
+Compute the condition number $\kappa(X)$, demonstrate the condition squaring effect $\kappa(X^T X) \approx \kappa(X)^2$, compute the thin QR factorization $X = Q_1 R_1$, and solve $R_1 \hat{\boldsymbol{\beta}} = Q_1^T \mathbf{y}$ via back-substitution to illustrate why production engines avoid the normal equations.
+
+\tcblower
+\textbf{Step-by-Step Analytical Solution:}
+
+\textbf{Step 1: Compute the Gram Matrix $X^T X$ and Condition Number}
+Let $\epsilon = 10^{-4}$. The Gram matrix is:
+\begin{align*}
+X^T X &= \begin{bmatrix} 1 & 1 & 1 \\ 1 & 1+\epsilon & 1-\epsilon \end{bmatrix} \begin{bmatrix} 1 & 1 \\ 1 & 1+\epsilon \\ 1 & 1-\epsilon \end{bmatrix} \\
+&= \begin{bmatrix} 3 & 3 \\ 3 & 1 + (1+\epsilon)^2 + (1-\epsilon)^2 \end{bmatrix} = \begin{bmatrix} 3 & 3 \\ 3 & 3 + 2\epsilon^2 \end{bmatrix} = \begin{bmatrix} 3 & 3 \\ 3 & 3 + 2 \times 10^{-8} \end{bmatrix}
+\end{align*}
+The determinant of $X^T X$ is:
+\begin{equation*}
+\det(X^T X) = 3(3 + 2\epsilon^2) - 3(3) = 6\epsilon^2 = 6 \times 10^{-8}
+\end{equation*}
+The trace is $\trace(X^T X) = 6 + 2\epsilon^2 \approx 6$.
+The eigenvalues are given by $\lambda^2 - 6\lambda + 6\epsilon^2 = 0$:
+\begin{equation*}
+\lambda_{\max} \approx 6, \quad \lambda_{\min} = \frac{\det(X^T X)}{\lambda_{\max}} \approx \frac{6\epsilon^2}{6} = \epsilon^2 = 10^{-8}
+\end{equation*}
+The singular values of $X$ are $\sigma_{\max} = \sqrt{\lambda_{\max}} \approx \sqrt{6} \approx 2.449$ and $\sigma_{\min} = \sqrt{\lambda_{\min}} \approx \epsilon = 10^{-4}$.
+Thus, the condition number of the design matrix is:
+\begin{equation*}
+\kappa(X) = \frac{\sigma_{\max}}{\sigma_{\min}} \approx \frac{2.449}{10^{-4}} \approx 2.45 \times 10^4
+\end{equation*}
+When forming the normal equations Gram matrix $X^T X$, the condition number is:
+\begin{equation*}
+\kappa(X^T X) = \frac{\lambda_{\max}}{\lambda_{\min}} \approx \frac{6}{10^{-8}} = 6 \times 10^8 \approx \big( \kappa(X) \big)^2
+\end{equation*}
+In single-precision float32 arithmetic (providing 7 decimal digits of precision), forming $X^T X$ loses all precision, causing the solver to treat $X^T X$ as singular!
+
+\textbf{Step 2: Thin QR Factorization of $X$}
+Notice the column vectors of $X$ are $\mathbf{x}_1 = [1, 1, 1]^T$ and $\mathbf{x}_2 = [1, 1+\epsilon, 1-\epsilon]^T$.
+\begin{enumerate}
+    \item First basis vector:
+    \begin{equation*}
+    r_{11} = \|\mathbf{x}_1\|_2 = \sqrt{3}, \quad \mathbf{q}_1 = \frac{1}{\sqrt{3}} \begin{bmatrix} 1 \\ 1 \\ 1 \end{bmatrix}
+    \end{equation*}
+    \item Projection of $\mathbf{x}_2$ onto $\mathbf{q}_1$:
+    \begin{equation*}
+    r_{12} = \mathbf{q}_1^T \mathbf{x}_2 = \frac{1}{\sqrt{3}}(1 + 1 + \epsilon + 1 - \epsilon) = \frac{3}{\sqrt{3}} = \sqrt{3}
+    \end{equation*}
+    \item Orthogonal residual $\mathbf{u}_2$:
+    \begin{equation*}
+    \mathbf{u}_2 = \mathbf{x}_2 - r_{12}\mathbf{q}_1 = \begin{bmatrix} 1 \\ 1+\epsilon \\ 1-\epsilon \end{bmatrix} - \begin{bmatrix} 1 \\ 1 \\ 1 \end{bmatrix} = \begin{bmatrix} 0 \\ \epsilon \\ -\epsilon \end{bmatrix}
+    \end{equation*}
+    \item Second basis vector:
+    \begin{equation*}
+    r_{22} = \|\mathbf{u}_2\|_2 = \sqrt{0^2 + \epsilon^2 + (-\epsilon)^2} = \epsilon\sqrt{2} = 10^{-4}\sqrt{2}
+    \end{equation*}
+    \begin{equation*}
+    \mathbf{q}_2 = \frac{\mathbf{u}_2}{r_{22}} = \frac{1}{\sqrt{2}} \begin{bmatrix} 0 \\ 1 \\ -1 \end{bmatrix}
+    \end{equation*}
+\end{enumerate}
+Thus, the thin QR factorization is:
+\begin{equation*}
+Q_1 = \begin{bmatrix} 1/\sqrt{3} & 0 \\ 1/\sqrt{3} & 1/\sqrt{2} \\ 1/\sqrt{3} & -1/\sqrt{2} \end{bmatrix}, \quad R_1 = \begin{bmatrix} \sqrt{3} & \sqrt{3} \\ 0 & 10^{-4}\sqrt{2} \end{bmatrix}
+\end{equation*}
+
+\textbf{Step 3: Solve $R_1 \hat{\boldsymbol{\beta}} = Q_1^T \mathbf{y}$ via Back-Substitution}
+Compute $Q_1^T \mathbf{y}$:
+\begin{equation*}
+Q_1^T \mathbf{y} = \begin{bmatrix} 1/\sqrt{3} & 1/\sqrt{3} & 1/\sqrt{3} \\ 0 & 1/\sqrt{2} & -1/\sqrt{2} \end{bmatrix} \begin{bmatrix} 2 \\ 2 + \epsilon \\ 2 - \epsilon \end{bmatrix} = \begin{bmatrix} \frac{6}{\sqrt{3}} \\ \frac{2\epsilon}{\sqrt{2}} \end{bmatrix} = \begin{bmatrix} 2\sqrt{3} \\ \epsilon\sqrt{2} \end{bmatrix}
+\end{equation*}
+Set up the upper-triangular system $R_1 \hat{\boldsymbol{\beta}} = Q_1^T \mathbf{y}$:
+\begin{equation*}
+\begin{bmatrix} \sqrt{3} & \sqrt{3} \\ 0 & \epsilon\sqrt{2} \end{bmatrix} \begin{bmatrix} \hat{\beta}_0 \\ \hat{\beta}_1 \end{bmatrix} = \begin{bmatrix} 2\sqrt{3} \\ \epsilon\sqrt{2} \end{bmatrix}
+\end{equation*}
+From row 2:
+\begin{equation*}
+\epsilon\sqrt{2}\, \hat{\beta}_1 = \epsilon\sqrt{2} \implies \hat{\beta}_1 = 1
+\end{equation*}
+From row 1 by back-substitution:
+\begin{equation*}
+\sqrt{3}\, \hat{\beta}_0 + \sqrt{3}(1) = 2\sqrt{3} \implies \hat{\beta}_0 = 1
+\end{equation*}
+The exact parameter estimate is $\hat{\boldsymbol{\beta}} = [1, 1]^T$.
+Notice that back-substitution on $R_1$ evaluates the ratio $\frac{\epsilon\sqrt{2}}{\epsilon\sqrt{2}} = 1$ without ever squaring $\epsilon$ into $10^{-8}$, preserving complete numerical stability!
+\end{examplebox}
+
+\begin{examplebox}[breakable]{Worked Example 3.5: Minimum-Norm Solution for Underdetermined Systems}
+\label{ex:w03_min_norm_underdetermined}
+\textbf{The Scenario:}
+Consider the underdetermined linear system with $N = 1$ constraint and $d = 3$ unknowns:
+\begin{equation*}
+x_1 + 2x_2 + 2x_3 = 9
+\end{equation*}
+Represent the system as $A\mathbf{x} = \mathbf{y}$ with $A = \begin{bmatrix} 1 & 2 & 2 \end{bmatrix} \in \mathbb{R}^{1 \times 3}$ and $\mathbf{y} = [9]$. Compute the right Moore-Penrose pseudoinverse $A^\dagger$, find the minimum-norm solution $\mathbf{x}_{\mathrm{min}}$, show that $\mathbf{x}_{\mathrm{min}} \in \Row(A)$, and prove that any other satisfying solution $\mathbf{x} = \mathbf{x}_{\mathrm{min}} + \mathbf{z}$ with $\mathbf{z} \in \Null(A)$ ($\mathbf{z} \ne \mathbf{0}$) has strictly greater Euclidean norm.
+
+\tcblower
+\textbf{Step-by-Step Analytical Solution:}
+
+\textbf{Step 1: Characterize the Fundamental Subspaces}
+The matrix $A = \begin{bmatrix} 1 & 2 & 2 \end{bmatrix}$ has $m = 1$ row, $n = 3$ columns, and $\rank(A) = 1$.
+\begin{itemize}
+    \item \textbf{Row Space $\Row(A) \subset \mathbb{R}^3$:} 1-dimensional line spanned by $\mathbf{a}^T = [1, 2, 2]^T$.
+    \item \textbf{Nullspace $\Null(A) \subset \mathbb{R}^3$:} 2-dimensional hyperplane consisting of all vectors $\mathbf{z} \in \mathbb{R}^3$ satisfying $z_1 + 2z_2 + 2z_3 = 0$.
+\end{itemize}
+Since $d = 3 > N = 1$, the system is underdetermined with infinitely many solutions lying on the affine plane $x_1 + 2x_2 + 2x_3 = 9$.
+
+\textbf{Step 2: Compute the Right Moore-Penrose Pseudoinverse}
+Because $A$ has full row rank ($\rank(A) = 1$), the Gram product $A A^T$ is a scalar:
+\begin{equation*}
+A A^T = \begin{bmatrix} 1 & 2 & 2 \end{bmatrix} \begin{bmatrix} 1 \\ 2 \\ 2 \end{bmatrix} = 1^2 + 2^2 + 2^2 = 9
+\end{equation*}
+The inverse is $(A A^T)^{-1} = [1/9]$.
+The right pseudoinverse $A^\dagger \in \mathbb{R}^{3 \times 1}$ is:
+\begin{equation*}
+A^\dagger = A^T (A A^T)^{-1} = \begin{bmatrix} 1 \\ 2 \\ 2 \end{bmatrix} \left( \frac{1}{9} \right) = \frac{1}{9} \begin{bmatrix} 1 \\ 2 \\ 2 \end{bmatrix}
+\end{equation*}
+
+\textbf{Step 3: Compute the Minimum-Norm Solution}
+\begin{equation*}
+\mathbf{x}_{\mathrm{min}} = A^\dagger \mathbf{y} = \left( \frac{1}{9} \begin{bmatrix} 1 \\ 2 \\ 2 \end{bmatrix} \right) [9] = \begin{bmatrix} 1 \\ 2 \\ 2 \end{bmatrix}
+\end{equation*}
+Verify constraint satisfaction:
+\begin{equation*}
+A\mathbf{x}_{\mathrm{min}} = 1(1) + 2(2) + 2(2) = 1 + 4 + 4 = 9 = \mathbf{y} \quad \checkmark
+\end{equation*}
+Notice that $\mathbf{x}_{\mathrm{min}} = [1, 2, 2]^T = 1 \cdot A^T \in \Row(A)$. The minimum-norm solution is strictly aligned with the row space!
+
+\textbf{Step 4: Prove Strict Energy Minimality}
+Let $\mathbf{x}_{\mathrm{any}}$ be \emph{any} solution satisfying $A\mathbf{x} = 9$.
+Decompose $\mathbf{x}_{\mathrm{any}} = \mathbf{x}_{\mathrm{min}} + \mathbf{z}$.
+Multiplying by $A$:
+\begin{equation*}
+A\mathbf{x}_{\mathrm{any}} = A(\mathbf{x}_{\mathrm{min}} + \mathbf{z}) = A\mathbf{x}_{\mathrm{min}} + A\mathbf{z} = 9 + A\mathbf{z} = 9 \implies A\mathbf{z} = \mathbf{0} \implies \mathbf{z} \in \Null(A)
+\end{equation*}
+By the Fundamental Theorem of Linear Algebra, $\Row(A) \perp \Null(A)$.
+Because $\mathbf{x}_{\mathrm{min}} \in \Row(A)$ and $\mathbf{z} \in \Null(A)$, their inner product vanishes identically:
+\begin{equation*}
+\langle \mathbf{x}_{\mathrm{min}}, \mathbf{z} \rangle = \mathbf{x}_{\mathrm{min}}^T \mathbf{z} = 0
+\end{equation*}
+Applying the Pythagorean theorem to the squared Euclidean norm:
+\begin{equation*}
+\|\mathbf{x}_{\mathrm{any}}\|_2^2 = \|\mathbf{x}_{\mathrm{min}} + \mathbf{z}\|_2^2 = \|\mathbf{x}_{\mathrm{min}}\|_2^2 + \|\mathbf{z}\|_2^2 + 2 \underbrace{\mathbf{x}_{\mathrm{min}}^T \mathbf{z}}_{= 0} = \|\mathbf{x}_{\mathrm{min}}\|_2^2 + \|\mathbf{z}\|_2^2
+\end{equation*}
+For our specific vector $\mathbf{x}_{\mathrm{min}} = [1, 2, 2]^T$:
+\begin{equation*}
+\|\mathbf{x}_{\mathrm{min}}\|_2^2 = 1^2 + 2^2 + 2^2 = 9
+\end{equation*}
+Consider, for instance, the alternative solution $\mathbf{x}_{\mathrm{alt}} = [3, 3, 0]^T$.
+Checking the constraint: $1(3) + 2(3) + 2(0) = 9$. $\checkmark$
+Here $\mathbf{z} = \mathbf{x}_{\mathrm{alt}} - \mathbf{x}_{\mathrm{min}} = [3 - 1, 3 - 2, 0 - 2]^T = [2, 1, -2]^T$.
+Check nullspace: $A\mathbf{z} = 1(2) + 2(1) + 2(-2) = 2 + 2 - 4 = 0$. $\checkmark$
+The norm of the alternative solution is:
+\begin{equation*}
+\|\mathbf{x}_{\mathrm{alt}}\|_2^2 = 3^2 + 3^2 + 0^2 = 18 = 9 + \|\mathbf{z}\|_2^2 = 9 + (2^2 + 1^2 + (-2)^2) = 9 + 9 = 18 > 9
+\end{equation*}
+Because $\|\mathbf{z}\|_2^2 > 0$ for any $\mathbf{z} \ne \mathbf{0}$, $\mathbf{x}_{\mathrm{min}}$ is the unique global minimizer of Euclidean energy $\|\mathbf{x}\|_2^2$.
+\end{examplebox}
+
 % ----------------------------------------------------------------------
 % PART 7: EXAM TRAPS & DIAGNOSTIC MISCONCEPTIONS
 % ----------------------------------------------------------------------
@@ -856,6 +1359,15 @@ For this reason, production scientific computing libraries (\texttt{scipy.linalg
 \begin{trapbox}{Gotcha 5: The Projection Trace Misconception}
 \textbf{The Scenario:} A student computes the trace of a $10 \times 10$ projection matrix $P$ onto a 4-dimensional subspace and gets $\trace(P) = 3.9998$ due to floating-point imprecision. The student concludes that $P$ is an approximate projection. \\
 \textbf{The Trap:} For any orthogonal projection matrix $P$, the eigenvalues are \textbf{strictly 0 or 1}. If $P$ projects onto an $r$-dimensional subspace, it has exactly $r$ eigenvalues equal to 1, and $m - r$ eigenvalues equal to 0. Therefore, the trace of an orthogonal projection matrix is \textbf{strictly an integer}: $\trace(P) = \sum \lambda_i = r = \rank(P) = \dim(V)$.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 6: The "Orthogonal Subspaces vs. Orthogonal Complements" Fallacy}
+\textbf{The Scenario:} A student observes that two subspaces $V, W \subset \mathbb{R}^m$ are orthogonal ($V \perp W$, meaning $\mathbf{v}^T \mathbf{w} = 0$ for all $\mathbf{v} \in V, \mathbf{w} \in W$) and incorrectly concludes that any vector $\mathbf{x} \in \mathbb{R}^m$ can be uniquely decomposed as $\mathbf{x} = \mathbf{v} + \mathbf{w}$. \\
+\textbf{The Trap:} Subspace orthogonality alone guarantees only that the intersection is trivial: $V \cap W = \{\mathbf{0}\}$. It does \emph{not} guarantee that their sum spans the entire ambient space! For the direct sum decomposition $\mathbb{R}^m = V \oplus W$ to hold, $W$ must be the complete \textbf{orthogonal complement} $V^\perp$, which requires the dimensional sum identity:
+\begin{equation*}
+\dim(V) + \dim(W) = m
+\end{equation*}
+Consider in $\mathbb{R}^3$: let $V = \operatorname{span}\{[1, 0, 0]^T\}$ (the $x$-axis) and $W = \operatorname{span}\{[0, 1, 0]^T\}$ (the $y$-axis). Clearly $V \perp W$. However, $V \oplus W$ is merely the 2D $xy$-plane; it cannot represent any vector having a non-zero $z$-component! In contrast, the Fundamental Theorem of Linear Algebra guarantees that $\Col(A) \oplus \Null(A^T) = \mathbb{R}^m$ precisely because their dimensions sum to $r + (m - r) = m$.
 \end{trapbox}
 
 % ----------------------------------------------------------------------
@@ -998,6 +1510,24 @@ if __name__ == "__main__":
     \item \textbf{Subspace Intersection and Projection Commutativity:}
     Let $P_1$ and $P_2$ be orthogonal projection matrices onto subspaces $V_1$ and $V_2$, respectively.
     Prove that the composite operator $P_1 P_2$ is an orthogonal projection matrix if and only if $P_1$ and $P_2$ commute ($P_1 P_2 = P_2 P_1$), in which case it projects onto $V_1 \cap V_2$.
+
+    \item \textbf{The Gauss-Markov Theorem (BLUE Estimator):}
+    Consider the linear regression model $\mathbf{y} = X\boldsymbol{\beta}^* + \boldsymbol{\varepsilon}$ with deterministic full-column-rank matrix $X \in \mathbb{R}^{N \times d}$, mean $\mathbb{E}[\boldsymbol{\varepsilon}] = \mathbf{0}$, and homoscedastic covariance $\Cov(\boldsymbol{\varepsilon}) = \sigma^2 I_N$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Let $\tilde{\boldsymbol{\beta}} = C \mathbf{y}$ be any linear estimator with $C \in \mathbb{R}^{d \times N}$. Prove that for $\tilde{\boldsymbol{\beta}}$ to be unbiased for all $\boldsymbol{\beta}^* \in \mathbb{R}^d$, the matrix $C$ must satisfy $C X = I_d$.
+        \item Let $D \triangleq C - (X^T X)^{-1} X^T$. Show that $D X = \mathbf{0}_{d \times d}$.
+        \item Prove that $\Cov(\tilde{\boldsymbol{\beta}}) = \sigma^2 (X^T X)^{-1} + \sigma^2 D D^T$.
+        \item Prove that $\Cov(\tilde{\boldsymbol{\beta}}) - \Cov(\hat{\boldsymbol{\beta}}_{\mathrm{OLS}}) \succeq 0$, and state the necessary and sufficient condition under which equality holds.
+    \end{enumerate}
+
+    \item \textbf{QR Factorization and Projection Matrix Invariance:}
+    Let $X \in \mathbb{R}^{N \times d}$ have full column rank with thin QR factorization $X = Q_1 R_1$, where $Q_1 \in \mathbb{R}^{N \times d}$ has orthonormal columns ($Q_1^T Q_1 = I_d$) and $R_1 \in \mathbb{R}^{d \times d}$ is non-singular upper triangular.
+    \begin{enumerate}[label=(\alph*)]
+        \item Prove analytically that the orthogonal projector $P = X(X^T X)^{-1}X^T$ simplifies identically to $P = Q_1 Q_1^T$.
+        \item Prove directly from $Q_1^T Q_1 = I_d$ that $P = Q_1 Q_1^T$ is symmetric and idempotent.
+        \item Show that $\trace(Q_1 Q_1^T) = d$.
+        \item Explain why computing model predictions via $\hat{\mathbf{y}} = Q_1 (Q_1^T \mathbf{y})$ is numerically backward stable, whereas computing $\hat{\mathbf{y}} = X(X^T X)^{-1}X^T \mathbf{y}$ is vulnerable to catastrophic cancellation when $X$ has condition number $\kappa(X) \gg 1$.
+    \end{enumerate}
 \end{enumerate}
 
 \subsection*{Part B: Diagnostic Multiple-Choice Questions}

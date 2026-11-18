@@ -271,6 +271,55 @@ Symmetry: $(P_1 P_2)^T = P_2^T P_1^T = P_2 P_1 = P_1 P_2$.
 Idempotence: $(P_1 P_2)^2 = (P_1 P_2)(P_1 P_2) = P_1 (P_2 P_1) P_2 = P_1 (P_1 P_2) P_2 = P_1^2 P_2^2 = P_1 P_2$.
 Since $P_1 P_2$ is symmetric and idempotent, it is an orthogonal projector. Its range is $\Col(P_1 P_2) = V_1 \cap V_2$.
 
+\paragraph{P6. The Gauss-Markov Theorem (BLUE Estimator):}
+\begin{enumerate}[label=(\alph*)]
+    \item We are given $\tilde{\boldsymbol{\beta}} = C\mathbf{y} = C(X\boldsymbol{\beta}^* + \boldsymbol{\varepsilon}) = CX\boldsymbol{\beta}^* + C\boldsymbol{\varepsilon}$.
+    Taking expectations: $\mathbb{E}[\tilde{\boldsymbol{\beta}}] = CX\boldsymbol{\beta}^* + C\mathbb{E}[\boldsymbol{\varepsilon}] = CX\boldsymbol{\beta}^*$.
+    For $\tilde{\boldsymbol{\beta}}$ to be an unbiased estimator for \emph{every} parameter vector $\boldsymbol{\beta}^* \in \mathbb{R}^d$, we must have $CX\boldsymbol{\beta}^* = \boldsymbol{\beta}^*$ for all $\boldsymbol{\beta}^*$, which holds if and only if $CX = I_d$.
+    \item With $D \triangleq C - (X^T X)^{-1} X^T$, post-multiplying by $X$ yields:
+    \begin{equation*}
+    DX = \left( C - (X^T X)^{-1} X^T \right) X = CX - (X^T X)^{-1}(X^T X) = I_d - I_d = \mathbf{0}_{d \times d}
+    \end{equation*}
+    Taking the transpose yields $X^T D^T = (DX)^T = \mathbf{0}_{d \times d}$.
+    \item Since $\mathbb{E}[\tilde{\boldsymbol{\beta}}] = \boldsymbol{\beta}^*$, the deviation is $\tilde{\boldsymbol{\beta}} - \mathbb{E}[\tilde{\boldsymbol{\beta}}] = C\boldsymbol{\varepsilon}$.
+    The covariance matrix is:
+    \begin{align*}
+    \Cov(\tilde{\boldsymbol{\beta}}) &= \mathbb{E}\big[(C\boldsymbol{\varepsilon})(C\boldsymbol{\varepsilon})^T\big] = C\,\mathbb{E}[\boldsymbol{\varepsilon}\boldsymbol{\varepsilon}^T]\,C^T = \sigma^2 C C^T \\
+    &= \sigma^2 \left( (X^T X)^{-1} X^T + D \right) \left( X(X^T X)^{-1} + D^T \right) \\
+    &= \sigma^2 \left( (X^T X)^{-1} X^T X (X^T X)^{-1} + (X^T X)^{-1} \underbrace{X^T D^T}_{=\mathbf{0}} + \underbrace{DX}_{=\mathbf{0}} (X^T X)^{-1} + DD^T \right) \\
+    &= \sigma^2 (X^T X)^{-1} + \sigma^2 DD^T
+    \end{align*}
+    \item Since $\Cov(\hat{\boldsymbol{\beta}}_{\mathrm{OLS}}) = \sigma^2 (X^T X)^{-1}$, the covariance difference is:
+    \begin{equation*}
+    \Cov(\tilde{\boldsymbol{\beta}}) - \Cov(\hat{\boldsymbol{\beta}}_{\mathrm{OLS}}) = \sigma^2 DD^T
+    \end{equation*}
+    For any non-zero vector $\mathbf{u} \in \mathbb{R}^d$, the quadratic form evaluates to:
+    \begin{equation*}
+    \mathbf{u}^T \left( \Cov(\tilde{\boldsymbol{\beta}}) - \Cov(\hat{\boldsymbol{\beta}}_{\mathrm{OLS}}) \right) \mathbf{u} = \sigma^2 \mathbf{u}^T (DD^T) \mathbf{u} = \sigma^2 \|D^T \mathbf{u}\|_2^2 \ge 0
+    \end{equation*}
+    Because the quadratic form is non-negative for all $\mathbf{u} \in \mathbb{R}^d$, $\Cov(\tilde{\boldsymbol{\beta}}) - \Cov(\hat{\boldsymbol{\beta}}_{\mathrm{OLS}}) \succeq 0$. Equality holds if and only if $D^T \mathbf{u} = \mathbf{0}$ for all $\mathbf{u}$, which requires $D = \mathbf{0}_{d \times N}$, meaning $C = (X^T X)^{-1} X^T = C_{\mathrm{OLS}}$.
+\end{enumerate}
+
+\paragraph{P7. QR Factorization and Projection Matrix Invariance:}
+\begin{enumerate}[label=(\alph*)]
+    \item Substituting $X = Q_1 R_1$ into $P = X(X^T X)^{-1} X^T$:
+    \begin{align*}
+    P &= (Q_1 R_1) \left( (Q_1 R_1)^T (Q_1 R_1) \right)^{-1} (Q_1 R_1)^T \\
+    &= Q_1 R_1 \left( R_1^T (Q_1^T Q_1) R_1 \right)^{-1} R_1^T Q_1^T
+    \end{align*}
+    Since the columns of $Q_1$ are orthonormal, $Q_1^T Q_1 = I_d$:
+    \begin{equation*}
+    P = Q_1 R_1 (R_1^T R_1)^{-1} R_1^T Q_1^T = Q_1 R_1 R_1^{-1} (R_1^T)^{-1} R_1^T Q_1^T = Q_1 I_d I_d Q_1^T = Q_1 Q_1^T
+    \end{equation*}
+    \item Symmetry: $(Q_1 Q_1^T)^T = (Q_1^T)^T Q_1^T = Q_1 Q_1^T$.
+    Idempotence: $(Q_1 Q_1^T)(Q_1 Q_1^T) = Q_1 (Q_1^T Q_1) Q_1^T = Q_1 I_d Q_1^T = Q_1 Q_1^T$.
+    \item Using the cyclic trace property:
+    \begin{equation*}
+    \trace(Q_1 Q_1^T) = \trace(Q_1^T Q_1) = \trace(I_d) = d = \rank(X)
+    \end{equation*}
+    \item When using normal equations, forming $X^T X$ squares the condition number: $\kappa(X^T X) = (\kappa(X))^2$. If $\kappa(X) = 10^7$, then $\kappa(X^T X) = 10^{14}$, which destroys 14 digits of precision in double precision (IEEE-754). In contrast, computing $P\mathbf{y} = Q_1 (Q_1^T \mathbf{y})$ only involves matrix-vector multiplications with an orthogonal matrix $Q_1$ ($\|Q_1\|_2 = 1$), which is unconditionally backward stable and introduces no condition squaring!
+\end{enumerate}
+
 \subsection*{Part B: Diagnostic Multiple-Choice Rationales}
 
 \paragraph{MCQ1: Normal Equations with Rank-Deficient Matrix}
