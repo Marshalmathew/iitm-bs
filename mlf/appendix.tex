@@ -566,6 +566,51 @@ Therefore, for any fixed $\mathbf{x}$: $\mathbf{x}^H (A + B) \mathbf{x} = \mathb
 Taking the max over $\mathbf{x} \in S$ preserves the inequality: $\max_{\mathbf{x} \in S, \|\mathbf{x}\|=1} \mathbf{x}^H (A+B)\mathbf{x} \ge \max_{\mathbf{x} \in S, \|\mathbf{x}\|=1} \mathbf{x}^H A \mathbf{x}$.
 Taking the min over all $k$-dimensional subspaces $S$ preserves the inequality, proving $\lambda_k(A + B) \ge \lambda_k(A)$.
 
+\paragraph{P6. Schur's Triangularization Theorem and Spectral Corollary:}
+\begin{enumerate}[label=(\alph*)]
+    \item Schur's theorem states that any square matrix $A \in \mathbb{C}^{n \times n}$ factors as $A = U T U^H$, with unitary $U$ and upper-triangular $T$.
+    Because $A$ and $T$ are related by a unitary similarity transformation, their characteristic polynomials coincide:
+    \begin{equation*}
+    \det(A - \lambda I) = \det(U(T - \lambda I)U^H) = \det(U)\det(T - \lambda I)\det(U^{-1}) = \det(T - \lambda I)
+    \end{equation*}
+    For an upper-triangular matrix $T$, its determinant is the product of its diagonal entries: $\det(T - \lambda I) = \prod_{i=1}^n (T_{ii} - \lambda)$. Thus, the roots of the characteristic polynomial (the eigenvalues of $A$) are precisely the diagonal entries $T_{11}, \dots, T_{nn}$.
+    \item If $A = A^H$, conjugate transposition gives:
+    \begin{equation*}
+    T^H = (U^H A U)^H = U^H A^H U = U^H A U = T
+    \end{equation*}
+    For an upper-triangular matrix $T$, $T_{ij} = 0$ for all $i > j$.
+    Hermiticity $T^H = T$ demands $T_{ij} = \overline{T_{ji}}$.
+    For any off-diagonal entry with $i < j$, we have $T_{ij} = \overline{T_{ji}} = \overline{0} = 0$.
+    Since both above and below the main diagonal all entries are zero, $T$ is strictly diagonal.
+    \item On the main diagonal, $T_{ii} = \overline{T_{ii}}$, which requires the imaginary part of $T_{ii}$ to vanish: $\text{Im}(T_{ii}) = 0$. Hence all eigenvalues are strictly real.
+    \item If $A \in \mathbb{R}^{n \times n}$ is real symmetric, all its eigenvalues are real. When performing the Schur inductive step, starting from a real eigenvalue $\lambda_1 \in \mathbb{R}$ produces a real eigenvector $\mathbf{u}_1 \in \mathbb{R}^n$. Extending via real Gram-Schmidt produces a real orthogonal matrix $Q_1 \in \mathbb{R}^{n \times n}$. By induction, the transformation matrix $Q$ is purely real and orthogonal ($Q^T Q = I_n$), yielding $A = Q \Lambda Q^T$ with real eigenvectors $\mathbf{q}_i \in \mathbb{R}^n$.
+\end{enumerate}
+
+\paragraph{P7. Simultaneous Diagonalization of Commuting Operators:}
+\begin{enumerate}[label=(\alph*)]
+    \item Let $\mathbf{v} \in E_\lambda$, so that $A\mathbf{v} = \lambda \mathbf{v}$.
+    Evaluate $A(B\mathbf{v})$:
+    \begin{equation*}
+    A(B\mathbf{v}) = (AB)\mathbf{v} = (BA)\mathbf{v} = B(A\mathbf{v}) = B(\lambda \mathbf{v}) = \lambda (B\mathbf{v})
+    \end{equation*}
+    Since $A(B\mathbf{v}) = \lambda (B\mathbf{v})$, the vector $B\mathbf{v}$ resides in $E_\lambda$. Hence $E_\lambda$ is an invariant subspace under $B$.
+    \item Let $\tilde{B} = B|_{E_\lambda}$ denote the restriction of $B$ to $E_\lambda$.
+    For any $\mathbf{u}, \mathbf{v} \in E_\lambda$:
+    \begin{equation*}
+    \langle \mathbf{u}, \tilde{B}\mathbf{v} \rangle = \mathbf{u}^H (B\mathbf{v}) = (B^H \mathbf{u})^H \mathbf{v} = (B\mathbf{u})^H \mathbf{v} = \langle \tilde{B}\mathbf{u}, \mathbf{v} \rangle
+    \end{equation*}
+    Since $B$ is Hermitian on the full space, its restriction $\tilde{B}$ is Hermitian on $E_\lambda$. By the Spectral Theorem, $E_\lambda$ possesses an orthonormal basis of eigenvectors of $\tilde{B}$.
+    \item Every vector in this basis for $E_\lambda$ is an eigenvector of $B$ (by construction) and simultaneously an eigenvector of $A$ (with eigenvalue $\lambda$, since it lives in $E_\lambda$).
+    By Theorem~\ref{thm:ortho_eigenvectors}, eigenspaces of $A$ corresponding to distinct eigenvalues are mutually orthogonal.
+    Taking the union of these orthonormal bases across all distinct eigenspaces of $A$ yields a complete orthonormal eigenbasis for $\mathbb{C}^n$ diagonalizing both $A$ and $B$. Assembling them as columns of $U$ proves $U^H A U = \Lambda_A$ and $U^H B U = \Lambda_B$.
+    \item Consider the real symmetric Pauli matrices $X = \begin{bmatrix} 0 & 1 \\ 1 & 0 \end{bmatrix}$ and $Z = \begin{bmatrix} 1 & 0 \\ 0 & -1 \end{bmatrix}$.
+    Their commutator is:
+    \begin{equation*}
+    XZ - ZX = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix} - \begin{bmatrix} 0 & 1 \\ -1 & 0 \end{bmatrix} = \begin{bmatrix} 0 & -2 \\ 2 & 0 \end{bmatrix} \ne \mathbf{0}
+    \end{equation*}
+    The eigenbasis of $Z$ is the standard basis $\{\mathbf{e}_1, \mathbf{e}_2\}$, along which $X$ has entirely off-diagonal entries ($X_{12} = X_{21} = 1$). The eigenbasis of $X$ is $\frac{1}{\sqrt{2}}\{[1, 1]^T, [1, -1]^T\}$, along which $Z$ has off-diagonal entries. No single basis can simultaneously diagonalize both!
+\end{enumerate}
+
 \subsection*{Part B: Diagnostic Multiple-Choice Rationales}
 
 \paragraph{MCQ1: Hermitian Matrix Properties}
