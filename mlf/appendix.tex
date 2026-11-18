@@ -356,6 +356,83 @@ $T = \begin{bmatrix} 0.8 & 0.3 \\ 0.2 & 0.7 \end{bmatrix}$.
     Since $|\lambda_2| = 0.5 < 1$, $\lim_{k \to \infty} \lambda_2^k = 0$, so $\lim_{k \to \infty} T^k \mathbf{p}_0 = \boldsymbol{\pi}$ for all initial probability vectors $\mathbf{p}_0$.
 \end{enumerate}
 
+\paragraph{P6. Chebyshev Node Distribution and Minimax Interpolation Error:}
+\begin{enumerate}[label=(\alph*)]
+    \item By definition, $T_n(x) = \cos(n \theta)$ where $x = \cos \theta \in [-1, 1]$ and $\theta \in [0, \pi]$.
+    Setting $T_n(x) = 0 \iff \cos(n \theta) = 0$.
+    The roots of the cosine function occur at odd multiples of $\pi/2$:
+    \[
+    n \theta_k = \frac{2k - 1}{2}\pi \implies \theta_k = \frac{2k - 1}{2n}\pi \quad \text{for } k \in \{1, 2, \dots, n\}
+    \]
+    Substituting back into $x = \cos \theta$ yields the $n$ distinct real roots in $(-1, 1)$:
+    \[
+    x_k = \cos\left( \frac{2k - 1}{2n}\pi \right), \quad k \in \{1, 2, \dots, n\}
+    \]
+    \item Using the trigonometric identity $\cos((n+1)\theta) + \cos((n-1)\theta) = 2\cos \theta \cos(n\theta)$, we obtain the standard three-term recurrence for Chebyshev polynomials:
+    \[
+    T_{n+1}(x) = 2x T_n(x) - T_{n-1}(x)
+    \]
+    with base cases $T_0(x) = 1$ and $T_1(x) = x$.
+    By induction: the leading coefficient of $T_1(x)$ is $1 = 2^{1-1}$. Assuming the leading coefficient of $T_n(x)$ is $2^{n-1}$, the recurrence implies the leading term of $T_{n+1}(x)$ is $2x(2^{n-1} x^n) = 2^n x^{n+1}$.
+    Thus, by mathematical induction, the leading coefficient of $T_n(x)$ is $2^{n-1}$ for all $n \ge 1$.
+    \item Because the leading coefficient of $T_n(x)$ is $2^{n-1}$ and its roots are $x_1, \dots, x_n$, the monic polynomial with the same roots is:
+    \[
+    \tilde{T}_n(x) = \frac{1}{2^{n-1}} T_n(x) = \prod_{k=1}^n (x - x_k)
+    \]
+    Since $|T_n(x)| = |\cos(n \theta)| \le 1$ on $[-1, 1]$ and reaches $\pm 1$ at the $n+1$ Chebyshev extrema $\bar{x}_j = \cos(j\pi/n)$, the maximum absolute deviation is strictly:
+    \[
+    \max_{x \in [-1, 1]} |\tilde{T}_n(x)| = \frac{1}{2^{n-1}} \max_{x \in [-1, 1]} |T_n(x)| = \frac{1}{2^{n-1}}
+    \]
+    By Theorem~\ref{thm:chebyshev_minimax}, any alternative monic polynomial would require $n+1$ sign alterations on $[-1, 1]$, which would necessitate $n$ roots for a degree $n-1$ difference polynomial, an algebraic impossibility. Hence, $\frac{1}{2^{n-1}}$ is the unique global minimax bound!
+    \item For equispaced nodes $x_k^{\text{equi}} = -1 + \frac{2k-1}{n}$, the node polynomial $\prod_{k=1}^n (x - x_k^{\text{equi}})$ is severely unconstrained near the boundary intervals $[-1, x_1]$ and $[x_n, 1]$. In the outer intervals, the distance $|x - x_k|$ grows roughly proportional to $2$, causing the product to scale as $\sim \frac{2^n}{e n \log n}$. This boundary explosion amplifies high-order Lagrange interpolation derivatives, triggering Runge's violent edge oscillations.
+\end{enumerate}
+
+\paragraph{P7. Matrix Exponential and Cayley-Hamilton Spectral Expansion:}
+$M = \begin{bmatrix} 3 & 1 \\ 0 & 2 \end{bmatrix}$.
+\begin{enumerate}[label=(\alph*)]
+    \item $M$ is upper triangular. The eigenvalues are the diagonal entries: $\lambda_1 = 3$ and $\lambda_2 = 2$.
+    The characteristic polynomial is:
+    \[
+    p_M(\lambda) = (\lambda - 3)(\lambda - 2) = \lambda^2 - 5\lambda + 6 = 0
+    \]
+    \item By polynomial remainder division, dividing $e^{\lambda t}$ by $p_M(\lambda)$ yields:
+    \[
+    e^{\lambda t} = q(\lambda, t) p_M(\lambda) + c_1(t)\lambda + c_0(t)
+    \]
+    Evaluating this scalar identity at the two eigenvalues:
+    \begin{align*}
+    \lambda = 3: \quad & e^{3t} = 3 c_1(t) + c_0(t) \\
+    \lambda = 2: \quad & e^{2t} = 2 c_1(t) + c_0(t)
+    \end{align*}
+    Subtracting the second equation from the first:
+    \[
+    c_1(t) = e^{3t} - e^{2t}
+    \]
+    Substituting $c_1(t)$ back to find $c_0(t)$:
+    \[
+    c_0(t) = e^{2t} - 2 c_1(t) = e^{2t} - 2(e^{3t} - e^{2t}) = 3e^{2t} - 2e^{3t}
+    \]
+    \item By the Cayley-Hamilton Theorem, $p_M(M) = \mathbf{0}$, so:
+    \begin{align*}
+    e^{Mt} &= c_1(t) M + c_0(t) I \\
+    &= (e^{3t} - e^{2t}) \begin{bmatrix} 3 & 1 \\ 0 & 2 \end{bmatrix} + (3e^{2t} - 2e^{3t}) \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} \\
+    &= \begin{bmatrix} 3(e^{3t} - e^{2t}) + (3e^{2t} - 2e^{3t}) & (e^{3t} - e^{2t}) \cdot 1 \\ 0 & 2(e^{3t} - e^{2t}) + (3e^{2t} - 2e^{3t}) \end{bmatrix} \\
+    &= \begin{bmatrix} e^{3t} & e^{3t} - e^{2t} \\ 0 & e^{2t} \end{bmatrix}
+    \end{align*}
+    \textbf{Direct Verifications:}
+    \begin{itemize}
+        \item At $t = 0$: $e^{M \cdot 0} = \begin{bmatrix} e^0 & e^0 - e^0 \\ 0 & e^0 \end{bmatrix} = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} = I \quad \checkmark$
+        \item Differentiating entrywise with respect to $t$:
+        \[
+        \frac{d}{dt} e^{Mt} = \begin{bmatrix} 3e^{3t} & 3e^{3t} - 2e^{2t} \\ 0 & 2e^{2t} \end{bmatrix}
+        \]
+        Evaluating at $t = 0$:
+        \[
+        \left.\frac{d}{dt} e^{Mt}\right|_{t=0} = \begin{bmatrix} 3 & 3 - 2 \\ 0 & 2 \end{bmatrix} = \begin{bmatrix} 3 & 1 \\ 0 & 2 \end{bmatrix} = M \quad \checkmark
+        \]
+    \end{itemize}
+\end{enumerate}
+
 \subsection*{Part B: Diagnostic Multiple-Choice Rationales}
 
 \paragraph{MCQ1: Trace and Determinant Invariants}
