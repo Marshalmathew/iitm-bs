@@ -169,6 +169,67 @@ f_i(\tilde{\mathbf{w}}) < 0 \quad (\forall i \in \{1, \dots, m\}) \quad \text{an
 then \textbf{Strong Duality} holds: the duality gap is zero ($d^* = p^*$), and the dual supremum is attained at some dual optimal $(\boldsymbol{\lambda}^*, \boldsymbol{\nu}^*)$.
 \end{definitionbox}
 
+\begin{theorembox}{Strong Duality Theorem under Slater's Condition}
+Consider the standard convex optimization problem:
+\begin{equation}
+p^* \triangleq \min_{\mathbf{w} \in \mathcal{D}} f_0(\mathbf{w}) \quad \text{subject to } f_i(\mathbf{w}) \le 0 \; (i = 1, \dots, m), \quad A\mathbf{w} = \mathbf{b}
+\end{equation}
+where $f_0, f_1, \dots, f_m$ are convex and the domain $\mathcal{D} \subseteq \mathbb{R}^d$ is convex.
+If Slater's condition holds (there exists $\tilde{\mathbf{w}} \in \operatorname{relint}(\mathcal{D})$ such that $f_i(\tilde{\mathbf{w}}) < 0$ for all non-affine constraints and $A\tilde{\mathbf{w}} = \mathbf{b}$), then the optimal duality gap is strictly zero:
+\begin{equation}
+d^* = \max_{\boldsymbol{\lambda} \ge \mathbf{0}, \boldsymbol{\nu}} g(\boldsymbol{\lambda}, \boldsymbol{\nu}) = p^*
+\label{eq:strong_duality_equality}
+\end{equation}
+and the dual optimal value is attained at some dual vector $(\boldsymbol{\lambda}^*, \boldsymbol{\nu}^*)$ with $\boldsymbol{\lambda}^* \ge \mathbf{0}$.
+\end{theorembox}
+
+\begin{proof}
+Assume for simplicity that the equality constraints are absent ($p=0$, the general case follows identically by projecting onto the affine subspace $A\mathbf{w} = \mathbf{b}$). Define the achievable constraint-objective set $\mathcal{A} \subset \mathbb{R}^{m+1}$:
+\begin{equation}
+\mathcal{A} \triangleq \left\{ (\mathbf{u}, t) \in \mathbb{R}^m \times \mathbb{R} \;\middle|\; \exists \mathbf{w} \in \mathcal{D} \text{ such that } f_i(\mathbf{w}) \le u_i \; (i = 1, \dots, m) \text{ and } f_0(\mathbf{w}) \le t \right\}
+\end{equation}
+Because $f_0, f_1, \dots, f_m$ are convex functions and $\mathcal{D}$ is a convex set, $\mathcal{A}$ is a non-empty convex set in $\mathbb{R}^{m+1}$.
+Next, define the target set of strictly sub-optimal values $\mathcal{B} \subset \mathbb{R}^{m+1}$:
+\begin{equation}
+\mathcal{B} \triangleq \left\{ (\mathbf{0}, s) \in \mathbb{R}^m \times \mathbb{R} \;\middle|\; s < p^* \right\}
+\end{equation}
+The set $\mathcal{B}$ is convex. Crucially, $\mathcal{A} \cap \mathcal{B} = \emptyset$: if there existed $(\mathbf{0}, s) \in \mathcal{A} \cap \mathcal{B}$, there would exist some $\mathbf{w} \in \mathcal{D}$ with $f_i(\mathbf{w}) \le 0$ for all $i$ and $f_0(\mathbf{w}) \le s < p^*$, contradicting the primal optimality of $p^*$.
+
+By the Separating Hyperplane Theorem (Chapter~\ref{chap:week09}), there exists a non-zero normal vector $(\tilde{\boldsymbol{\lambda}}, \mu) \in \mathbb{R}^m \times \mathbb{R}$ and scalar $\alpha \in \mathbb{R}$ such that:
+\begin{align}
+\tilde{\boldsymbol{\lambda}}^T \mathbf{u} + \mu t &\ge \alpha \quad \forall (\mathbf{u}, t) \in \mathcal{A} \label{eq:sep_hyp_A} \\
+\tilde{\boldsymbol{\lambda}}^T \mathbf{0} + \mu s &\le \alpha \quad \forall s < p^* \label{eq:sep_hyp_B}
+\end{align}
+From~\eqref{eq:sep_hyp_B}, $\mu s \le \alpha$ for all $s < p^*$, which immediately forces $\mu \ge 0$. Furthermore, taking $s \to p^*$ yields $\mu p^* \le \alpha$.
+Similarly, because any coordinate $u_i$ or $t$ in $\mathcal{A}$ can be increased to $+\infty$ while remaining in $\mathcal{A}$,~\eqref{eq:sep_hyp_A} implies $\tilde{\lambda}_i \ge 0$ for all $i = 1, \dots, m$.
+
+Now we prove that $\mu > 0$. Suppose for contradiction that $\mu = 0$. Then $(\tilde{\boldsymbol{\lambda}}, 0) \ne \mathbf{0}$, meaning $\tilde{\boldsymbol{\lambda}} \ge \mathbf{0}$ with $\tilde{\boldsymbol{\lambda}} \ne \mathbf{0}$.
+Substituting $\mathbf{u} = [f_1(\mathbf{w}), \dots, f_m(\mathbf{w})]^T$ into~\eqref{eq:sep_hyp_A} with $\mu = 0$ yields:
+\begin{equation}
+\sum_{i=1}^m \tilde{\lambda}_i f_i(\mathbf{w}) \ge \alpha \ge 0 \quad \forall \mathbf{w} \in \mathcal{D}
+\end{equation}
+Evaluating this at the Slater point $\tilde{\mathbf{w}}$ where $f_i(\tilde{\mathbf{w}}) < 0$ for all $i$:
+\begin{equation}
+\sum_{i=1}^m \tilde{\lambda}_i f_i(\tilde{\mathbf{w}}) < 0
+\end{equation}
+since $\tilde{\lambda}_i \ge 0$ with at least one $\tilde{\lambda}_k > 0$. This directly contradicts $\sum \tilde{\lambda}_i f_i(\tilde{\mathbf{w}}) \ge 0$.
+Hence, $\mu$ cannot be zero; we must have $\mu > 0$.
+
+Dividing~\eqref{eq:sep_hyp_A} by $\mu > 0$ and defining normalized multipliers $\lambda_i^* \triangleq \tilde{\lambda}_i / \mu \ge 0$:
+\begin{equation}
+t + \sum_{i=1}^m \lambda_i^* u_i \ge p^* \quad \forall (\mathbf{u}, t) \in \mathcal{A}
+\end{equation}
+Setting $t = f_0(\mathbf{w})$ and $u_i = f_i(\mathbf{w})$ for any $\mathbf{w} \in \mathcal{D}$:
+\begin{equation}
+f_0(\mathbf{w}) + \sum_{i=1}^m \lambda_i^* f_i(\mathbf{w}) = \mathcal{L}(\mathbf{w}, \boldsymbol{\lambda}^*) \ge p^*
+\end{equation}
+Taking the infimum over all $\mathbf{w} \in \mathcal{D}$ yields:
+\begin{equation}
+g(\boldsymbol{\lambda}^*) = \inf_{\mathbf{w} \in \mathcal{D}} \mathcal{L}(\mathbf{w}, \boldsymbol{\lambda}^*) \ge p^*
+\end{equation}
+By Weak Duality, $d^* \ge g(\boldsymbol{\lambda}^*) \ge p^*$, while $d^* \le p^*$ always. Thus, $d^* = p^*$, establishing Strong Duality.
+\end{proof}
+
 \begin{theorembox}{Karush-Kuhn-Tucker (KKT) Optimality Conditions}
 Let $f_0, f_1, \dots, f_m$ be continuously differentiable convex functions, and let $h_j$ be affine. If Slater's condition holds, then $\mathbf{w}^*$ is primal optimal and $(\boldsymbol{\lambda}^*, \boldsymbol{\nu}^*)$ is dual optimal if and only if they satisfy the complete four-part KKT conditions:
 \begin{enumerate}
@@ -457,6 +518,154 @@ When should an engineer solve the Primal SVM formulation, and when should they s
     \item \textbf{Primal SVM ($\mathcal{O}(d)$ to $\mathcal{O}(d^3)$):} The primal variable vector $\mathbf{w} \in \mathbb{R}^d$ has dimension $d$. When training on massive tabular or text datasets with millions of samples ($N \gg d$, e.g., $N = 10^7, d = 100$), solving the primal problem via subgradient descent or stochastic dual coordinate ascent takes linear time $\mathcal{O}(N d)$ without storing an $N \times N$ matrix.
     \item \textbf{Dual SVM ($\mathcal{O}(N^2)$ to $\mathcal{O}(N^3)$):} The dual variable vector $\boldsymbol{\lambda} \in \mathbb{R}^N$ has dimension $N$. When the feature space is very high-dimensional or infinite ($d \gg N$, e.g., genomics, RBF kernels where $d = \infty$), the primal cannot be solved. The dual depends strictly on the $N \times N$ Gram kernel matrix $K_{ij} = k(\mathbf{x}_i, \mathbf{x}_j)$, making non-linear classification computationally feasible.
 \end{itemize}
+\end{ponderbox}
+
+\subsection{The Kernel Trick and the Representer Theorem}
+The primary mathematical motivation for deriving the dual SVM~\eqref{eq:svm_dual_qp} is that feature vectors appear \emph{exclusively} through mutual inner products $\mathbf{x}_i^T \mathbf{x}_j$. 
+
+If the data is non-linearly separable, we map each input vector $\mathbf{x} \in \mathbb{R}^d$ into a high-dimensional (or infinite-dimensional) Hilbert feature space $\mathcal{H}$ via a non-linear feature map $\Phi: \mathbb{R}^d \to \mathcal{H}$. Computing the inner product $\langle \Phi(\mathbf{x}_i), \Phi(\mathbf{x}_j) \rangle_{\mathcal{H}}$ directly would be computationally prohibitive if $\dim(\mathcal{H})$ is massive, and impossible if $\dim(\mathcal{H}) = \infty$.
+
+The \textbf{Kernel Trick} bypasses this explicit mapping by employing a positive semidefinite \textbf{Mercer Kernel Function} $K: \mathbb{R}^d \times \mathbb{R}^d \to \mathbb{R}$ that evaluates the inner product directly in input space:
+\begin{equation}
+K(\mathbf{x}_i, \mathbf{x}_j) \triangleq \langle \Phi(\mathbf{x}_i), \Phi(\mathbf{x}_j) \rangle_{\mathcal{H}}
+\end{equation}
+Canonical kernel functions include:
+\begin{itemize}
+    \item \textbf{Linear Kernel:} $K(\mathbf{x}, \mathbf{z}) = \mathbf{x}^T \mathbf{z}$.
+    \item \textbf{Polynomial Kernel:} $K(\mathbf{x}, \mathbf{z}) = (\mathbf{x}^T \mathbf{z} + c)^p$ with $c \ge 0, p \in \mathbb{N}$.
+    \item \textbf{Gaussian Radial Basis Function (RBF) Kernel:} $K(\mathbf{x}, \mathbf{z}) = \exp\left( -\gamma \|\mathbf{x} - \mathbf{z}\|_2^2 \right) = \exp\left( -\frac{\|\mathbf{x} - \mathbf{z}\|_2^2}{2\sigma^2} \right)$, where $\dim(\mathcal{H}) = \infty$.
+\end{itemize}
+
+A fundamental question arises: why is the optimal non-linear decision boundary guaranteed to lie within the finite span of the training data, even when $\mathcal{H}$ is infinite-dimensional? The answer is provided by the celebrated \textbf{Representer Theorem}.
+
+\begin{theorembox}{The Representer Theorem (Kimeldorf \& Wahba)}
+Let $\mathcal{H}$ be a Reproducing Kernel Hilbert Space (RKHS) associated with a positive definite kernel $K(\cdot, \cdot)$. Consider the general regularized empirical risk minimization problem:
+\begin{equation}
+f^* = \argmin_{f \in \mathcal{H}} \sum_{i=1}^N L(f(\mathbf{x}_i), y_i) + \Omega(\|f\|_{\mathcal{H}})
+\label{eq:representer_prob}
+\end{equation}
+where $L: \mathbb{R} \times \mathbb{R} \to \mathbb{R}$ is an arbitrary empirical loss function and $\Omega: [0, \infty) \to \mathbb{R}$ is a strictly monotonically increasing regularization function.
+
+Then any optimal solution $f^* \in \mathcal{H}$ admits a finite representation in the linear span of the kernel functions evaluated at the $N$ training samples:
+\begin{equation}
+f^*(\mathbf{x}) = \sum_{i=1}^N \alpha_i K(\mathbf{x}, \mathbf{x}_i)
+\label{eq:representer_expansion}
+\end{equation}
+for unique real coefficients $\alpha_1, \dots, \alpha_N \in \mathbb{R}$.
+\end{theorembox}
+
+\begin{proof}
+Let $S \subset \mathcal{H}$ denote the finite-dimensional linear subspace spanned by the training sample kernel functions:
+\begin{equation}
+S \triangleq \Span\left\{ K(\cdot, \mathbf{x}_1), K(\cdot, \mathbf{x}_2), \dots, K(\cdot, \mathbf{x}_N) \right\}
+\end{equation}
+By the Projection Theorem in Hilbert Spaces (Chapter~\ref{chap:week03}), any function $f \in \mathcal{H}$ can be uniquely decomposed into two orthogonal components:
+\begin{equation}
+f = f_{\|} + f_{\perp} \quad \text{where } f_{\|} \in S \text{ and } f_{\perp} \in S^\perp
+\end{equation}
+such that $\langle f_{\perp}, g \rangle_{\mathcal{H}} = 0$ for all $g \in S$.
+
+By the \textbf{Reproducing Property} of the RKHS, evaluating the function $f$ at any training point $\mathbf{x}_j$ is equivalent to taking the inner product with $K(\cdot, \mathbf{x}_j) \in S$:
+\begin{equation}
+f(\mathbf{x}_j) = \langle f, K(\cdot, \mathbf{x}_j) \rangle_{\mathcal{H}} = \langle f_{\|}, K(\cdot, \mathbf{x}_j) \rangle_{\mathcal{H}} + \underbrace{\langle f_{\perp}, K(\cdot, \mathbf{x}_j) \rangle_{\mathcal{H}}}_{= 0 \text{ since } f_{\perp} \perp S} = f_{\|}(\mathbf{x}_j)
+\end{equation}
+Consequently, the empirical loss functional depends \emph{exclusively} on the parallel component $f_{\|}$:
+\begin{equation}
+\sum_{i=1}^N L(f(\mathbf{x}_i), y_i) = \sum_{i=1}^N L(f_{\|}(\mathbf{x}_i), y_i)
+\end{equation}
+Meanwhile, by the generalized Pythagorean theorem in $\mathcal{H}$:
+\begin{equation}
+\|f\|_{\mathcal{H}}^2 = \|f_{\|} + f_{\perp}\|_{\mathcal{H}}^2 = \|f_{\|}\|_{\mathcal{H}}^2 + \|f_{\perp}\|_{\mathcal{H}}^2 \ge \|f_{\|}\|_{\mathcal{H}}^2
+\end{equation}
+with equality if and only if $\|f_{\perp}\|_{\mathcal{H}} = 0$ ($\iff f_{\perp} = 0$).
+
+Because $\Omega$ is strictly monotonically increasing:
+\begin{equation}
+\Omega(\|f\|_{\mathcal{H}}) \ge \Omega(\|f_{\|}\|_{\mathcal{H}})
+\end{equation}
+with strict inequality whenever $f_{\perp} \ne 0$.
+Therefore, replacing any function $f$ that has a non-zero orthogonal component $f_{\perp} \ne 0$ with its projection $f_{\|}$ leaves the empirical loss completely unchanged while strictly reducing the regularizer penalty:
+\begin{equation}
+\sum_{i=1}^N L(f_{\|}(\mathbf{x}_i), y_i) + \Omega(\|f_{\|}\|_{\mathcal{H}}) < \sum_{i=1}^N L(f(\mathbf{x}_i), y_i) + \Omega(\|f\|_{\mathcal{H}})
+\end{equation}
+Thus, any global minimizer must satisfy $f_{\perp} = 0$, forcing $f^* = f_{\|} \in S$. Expressing $f^*$ as a linear combination of the basis functions of $S$ yields the finite expansion~\eqref{eq:representer_expansion}.
+\end{proof}
+
+\subsection{Sequential Minimal Optimization (SMO): Analytical Coordinate Ascent}
+The dual Support Vector Machine~\eqref{eq:svm_dual_qp} is a quadratic programming problem over $N$ variables:
+\begin{equation}
+\max_{\boldsymbol{\lambda} \in \mathbb{R}^N} \Psi(\boldsymbol{\lambda}) \triangleq \sum_{i=1}^N \lambda_i - \frac{1}{2} \sum_{i=1}^N \sum_{j=1}^N \lambda_i \lambda_j y_i y_j K(\mathbf{x}_i, \mathbf{x}_j) \quad \text{subject to } \begin{cases} 0 \le \lambda_i \le C, & \forall i \\ \sum_{i=1}^N \lambda_i y_i = 0 & \end{cases}
+\end{equation}
+Standard coordinate ascent optimizes the objective with respect to one coordinate $\lambda_i$ while fixing all other $N - 1$ coordinates. 
+
+\textbf{Why Single-Coordinate Ascent Fails on SVM:}
+Suppose we hold all multipliers fixed except $\lambda_1$. The linear equality constraint requires:
+\begin{equation}
+\lambda_1 y_1 + \sum_{k=2}^N \lambda_k y_k = 0 \implies \lambda_1 = -y_1 \sum_{k=2}^N \lambda_k y_k
+\end{equation}
+Because the right-hand side is completely fixed, $\lambda_1$ is locked to a single scalar value. It cannot move by even an infinitesimal step without instantly violating the equality constraint.
+
+\textbf{The Minimal Working Set:}
+To optimize within the feasible domain, Platt's \textbf{Sequential Minimal Optimization (SMO)} algorithm updates the smallest possible working set: exactly \textbf{two multipliers at a time}, say $(\lambda_1, \lambda_2)$, holding $\lambda_3, \dots, \lambda_N$ fixed.
+
+The equality constraint on the pair $(\lambda_1, \lambda_2)$ reduces to a 1D line:
+\begin{equation}
+\lambda_1 y_1 + \lambda_2 y_2 = -\sum_{k=3}^N \lambda_k y_k \triangleq \gamma
+\end{equation}
+Multiplying by $y_1$ (recalling $y_1 \in \{-1, +1\} \implies y_1^2 = 1$):
+\begin{equation}
+\lambda_1 = y_1(\gamma - y_2 \lambda_2) = y_1 \gamma - y_1 y_2 \lambda_2 = \kappa - s \lambda_2
+\label{eq:smo_line_sub}
+\end{equation}
+where $s \triangleq y_1 y_2 \in \{-1, +1\}$ and $\kappa \triangleq y_1 \gamma$.
+
+Substituting~\eqref{eq:smo_line_sub} into the dual objective $\Psi(\boldsymbol{\lambda})$ reduces the quadratic problem to a single unconstrained scalar quadratic in $\lambda_2$. Differentiating with respect to $\lambda_2$ and setting to zero yields the \textbf{Unconstrained SMO Update}:
+\begin{equation}
+\lambda_2^{\text{new, unc}} = \lambda_2^{\text{old}} - \frac{y_2(E_1 - E_2)}{\eta}
+\label{eq:smo_unconstrained}
+\end{equation}
+where:
+\begin{itemize}
+    \item $E_i \triangleq f(\mathbf{x}_i) - y_i = \left( \sum_{j=1}^N \lambda_j y_j K(\mathbf{x}_j, \mathbf{x}_i) + b \right) - y_i$ is the model's prediction error on sample $\mathbf{x}_i$.
+    \item $\eta$ is the second directional derivative (curvature) along the constraint line:
+    \begin{equation}
+    \eta \triangleq 2 K(\mathbf{x}_1, \mathbf{x}_2) - K(\mathbf{x}_1, \mathbf{x}_1) - K(\mathbf{x}_2, \mathbf{x}_2) = -\|\Phi(\mathbf{x}_1) - \Phi(\mathbf{x}_2)\|_{\mathcal{H}}^2 \le 0
+    \end{equation}
+\end{itemize}
+Because $\eta \le 0$, the negative sign in~\eqref{eq:smo_unconstrained} ensures that the update moves in the direction of steepest quadratic ascent.
+
+\textbf{Clipping to the Feasible Box $[L, H]$:}
+To satisfy $0 \le \lambda_1 \le C$ and $0 \le \lambda_2 \le C$, $\lambda_2^{\text{new, unc}}$ is clipped to the interval $[L, H]$ formed by the intersection of the line $\lambda_1 y_1 + \lambda_2 y_2 = \gamma$ with the box $[0, C] \times [0, C]$:
+\begin{equation}
+\lambda_2^{\text{new}} = \begin{cases} H & \text{if } \lambda_2^{\text{new, unc}} > H \\ \lambda_2^{\text{new, unc}} & \text{if } L \le \lambda_2^{\text{new, unc}} \le H \\ L & \text{if } \lambda_2^{\text{new, unc}} < L \end{cases}
+\end{equation}
+where the boundary endpoints are given by:
+\begin{align}
+\text{If } y_1 \ne y_2: & \quad L = \max\left(0, \, \lambda_2^{\text{old}} - \lambda_1^{\text{old}}\right), \quad H = \min\left(C, \, C + \lambda_2^{\text{old}} - \lambda_1^{\text{old}}\right) \\
+\text{If } y_1 = y_2: & \quad L = \max\left(0, \, \lambda_1^{\text{old}} + \lambda_2^{\text{old}} - C\right), \quad H = \min\left(C, \, \lambda_1^{\text{old}} + \lambda_2^{\text{old}}\right)
+\end{align}
+Finally, update the companion multiplier $\lambda_1^{\text{new}}$ using the linear constraint:
+\begin{equation}
+\lambda_1^{\text{new}} = \lambda_1^{\text{old}} + y_1 y_2 \left( \lambda_2^{\text{old}} - \lambda_2^{\text{new}} \right)
+\end{equation}
+This closed-form analytical step eliminates the need for any numerical matrix inversions or iterative QP solvers, enabling SVM training to scale efficiently to real-world datasets.
+
+\begin{ponderbox}{The Support Vector Sparsity Paradox: Why Most Data Points Do Not Matter}
+In typical classification tasks trained on thousands of samples, the final SVM model often depends on only $5\%$ to $10\%$ of the training instances. Why does deleting or perturbing the remaining $90\%$ to $95\%$ of the dataset leave the decision boundary completely unaltered?
+\tcblower
+\textbf{The Socratic Resolution:} This is the direct geometric consequence of \textbf{Complementary Slackness}:
+\begin{equation}
+\lambda_i^* \left[ y_i(\mathbf{w}^T \mathbf{x}_i + b) - 1 + \xi_i \right] = 0
+\end{equation}
+Any training point lying strictly outside the margin boundary ($y_i(\mathbf{w}^T \mathbf{x}_i + b) > 1$) satisfies the strict inequality. Therefore, complementary slackness forces its dual multiplier to be identically zero: $\lambda_i^* = 0$.
+
+Looking at the optimal weight vector and decision function:
+\begin{equation}
+\mathbf{w}^* = \sum_{i=1}^N \lambda_i^* y_i \mathbf{x}_i = \sum_{i \in \mathcal{S}} \lambda_i^* y_i \mathbf{x}_i, \quad f(\mathbf{x}) = \sum_{i \in \mathcal{S}} \lambda_i^* y_i K(\mathbf{x}_i, \mathbf{x}) + b^*
+\end{equation}
+where $\mathcal{S} = \{i \mid \lambda_i^* > 0\}$ is the sparse subset of \textbf{Support Vectors}.
+
+Non-support vectors have multiplier $\lambda_i^* = 0$ and make exactly zero contribution to $\mathbf{w}^*$, $b^*$, and the decision boundary $f(\mathbf{x})$. You could perturb non-support vectors (as long as they stay outside the margin corridor) or delete them from the training set entirely, and the retrained SVM would produce the exact same hyperplane down to the last decimal place.
 \end{ponderbox}
 
 % ----------------------------------------------------------------------
@@ -809,6 +1018,222 @@ Evaluate the functional margins $y_i(w^* x_i + b^*)$:
 All constraints and complementary slackness conditions are rigorously satisfied.
 \end{examplebox}
 
+\begin{examplebox}[breakable]{Hand-Calculated Non-Linear Polynomial Kernel SVM}
+\textbf{Problem Statement:}
+Consider a 1-dimensional binary classification dataset with $N = 3$ points:
+\begin{align}
+x_1 &= -1.0, \quad y_1 = +1 \\
+x_2 &= \phantom{-}0.0, \quad y_2 = -1 \\
+x_3 &= +1.0, \quad y_3 = +1
+\end{align}
+Notice that the positive class ($y = +1$) flanks the negative class ($y = -1$) on both sides. In $\mathbb{R}^1$, no linear threshold can separate these classes.
+
+We apply a non-linear quadratic polynomial kernel:
+\begin{equation}
+K(x, z) \triangleq (x z + 1)^2
+\end{equation}
+
+\textbf{Task Requirements:}
+\begin{enumerate}
+    \item Compute the full $3 \times 3$ kernel Gram matrix $K \in \mathbb{R}^{3 \times 3}$ and verify positive semidefiniteness.
+    \item Formulate the dual Support Vector Machine quadratic objective $D(\boldsymbol{\lambda})$ and equality constraint $\sum_{i=1}^3 \lambda_i y_i = 0$.
+    \item Solve analytically for the optimal dual multipliers $\lambda_1^*, \lambda_2^*, \lambda_3^*$, showing that all three data points are active support vectors.
+    \item Compute the exact bias intercept $b^*$ using the KKT condition on support vector $x_2$.
+    \item Write out the explicit non-linear decision function $f(x) = \sum_{i=1}^3 \lambda_i^* y_i K(x_i, x) + b^*$, determine the exact decision boundaries where $f(x) = 0$, and classify test points $x = 0.5$ and $x = 2.0$.
+\end{enumerate}
+
+\tcblower
+
+\textbf{Step 1: Kernel Gram Matrix Calculation}
+Evaluate $K(x_i, x_j) = (x_i x_j + 1)^2$ for all pairs $i, j \in \{1, 2, 3\}$:
+\begin{align}
+K_{11} &= ((-1)(-1) + 1)^2 = (1 + 1)^2 = 2^2 = 4 \\
+K_{12} &= ((-1)(0) + 1)^2 = (0 + 1)^2 = 1^2 = 1 \\
+K_{13} &= ((-1)(1) + 1)^2 = (-1 + 1)^2 = 0^2 = 0 \\
+K_{22} &= ((0)(0) + 1)^2 = (0 + 1)^2 = 1^2 = 1 \\
+K_{23} &= ((0)(1) + 1)^2 = (0 + 1)^2 = 1^2 = 1 \\
+K_{33} &= ((1)(1) + 1)^2 = (1 + 1)^2 = 2^2 = 4
+\end{align}
+By symmetry ($K_{ij} = K_{ji}$), the kernel Gram matrix is:
+\begin{equation}
+K = \begin{bmatrix} 4 & 1 & 0 \\ 1 & 1 & 1 \\ 0 & 1 & 4 \end{bmatrix}
+\end{equation}
+Testing positive semidefiniteness: The leading principal minors are $M_1 = 4 > 0$, $M_2 = 4(1) - 1(1) = 3 > 0$, and $\det(K) = 4(4 - 1) - 1(4 - 0) + 0 = 4(3) - 4 = 12 - 4 = 8 > 0$. By Sylvester's Criterion, $K \succ 0$ (strictly positive definite).
+
+\textbf{Step 2: Dual Formulation}
+The dual objective function is:
+\begin{equation}
+D(\boldsymbol{\lambda}) = \sum_{i=1}^3 \lambda_i - \frac{1}{2} \sum_{i=1}^3 \sum_{j=1}^3 \lambda_i \lambda_j y_i y_j K_{ij}
+\end{equation}
+subject to the linear equality constraint:
+\begin{equation}
+\lambda_1 y_1 + \lambda_2 y_2 + \lambda_3 y_3 = \lambda_1(+1) + \lambda_2(-1) + \lambda_3(+1) = 0 \implies \lambda_2 = \lambda_1 + \lambda_3
+\label{eq:kernel_svm_eq_constr}
+\end{equation}
+and non-negativity $\lambda_i \ge 0$.
+
+\textbf{Step 3: Analytical Dual Solution}
+By the geometric symmetry of $x_1 = -1$ and $x_3 = +1$ about the origin $x_2 = 0$, we have $\lambda_1 = \lambda_3$.
+From~\eqref{eq:kernel_svm_eq_constr}:
+\begin{equation}
+\lambda_2 = \lambda_1 + \lambda_3 = 2\lambda_1
+\end{equation}
+Now express the signed multiplier vector $\boldsymbol{\alpha} = [\lambda_1 y_1, \lambda_2 y_2, \lambda_3 y_3]^T$:
+\begin{equation}
+\boldsymbol{\alpha} = \begin{bmatrix} \lambda_1(+1) \\ 2\lambda_1(-1) \\ \lambda_1(+1) \end{bmatrix} = \lambda_1 \begin{bmatrix} 1 \\ -2 \\ 1 \end{bmatrix}
+\end{equation}
+Compute the matrix-vector product $K \boldsymbol{\alpha}$:
+\begin{equation}
+K \boldsymbol{\alpha} = \lambda_1 \begin{bmatrix} 4 & 1 & 0 \\ 1 & 1 & 1 \\ 0 & 1 & 4 \end{bmatrix} \begin{bmatrix} 1 \\ -2 \\ 1 \end{bmatrix} = \lambda_1 \begin{bmatrix} 4(1) + 1(-2) + 0(1) \\ 1(1) + 1(-2) + 1(1) \\ 0(1) + 1(-2) + 4(1) \end{bmatrix} = \lambda_1 \begin{bmatrix} 2 \\ 0 \\ 2 \end{bmatrix}
+\end{equation}
+Now evaluate the quadratic form:
+\begin{equation}
+\boldsymbol{\alpha}^T K \boldsymbol{\alpha} = \lambda_1^2 \begin{bmatrix} 1 & -2 & 1 \end{bmatrix} \begin{bmatrix} 2 \\ 0 \\ 2 \end{bmatrix} = \lambda_1^2 \left( 1(2) - 2(0) + 1(2) \right) = 4\lambda_1^2
+\end{equation}
+The linear term is:
+\begin{equation}
+\sum_{i=1}^3 \lambda_i = \lambda_1 + \lambda_2 + \lambda_3 = \lambda_1 + 2\lambda_1 + \lambda_1 = 4\lambda_1
+\end{equation}
+The dual objective as a function of the single variable $\lambda_1$ is:
+\begin{equation}
+D(\lambda_1) = 4\lambda_1 - \frac{1}{2}(4\lambda_1^2) = 4\lambda_1 - 2\lambda_1^2
+\end{equation}
+Differentiating with respect to $\lambda_1$ and setting to zero:
+\begin{equation}
+\frac{dD}{d\lambda_1} = 4 - 4\lambda_1 = 0 \implies \lambda_1^* = 1.0
+\end{equation}
+Back-substituting yields the complete optimal dual solution:
+\begin{equation}
+\lambda_1^* = 1.0, \quad \lambda_2^* = 2.0, \quad \lambda_3^* = 1.0
+\end{equation}
+Because $\lambda_i^* > 0$ for all $i \in \{1, 2, 3\}$, every single training point is an active Support Vector!
+
+\textbf{Step 4: Bias Intercept Calculation}
+For any support vector $\mathbf{x}_k$, the complementary slackness condition forces the functional margin to equal 1: $y_k f(x_k) = 1 \implies f(x_k) = y_k$.
+Evaluating at Support Vector $x_2 = 0$ ($y_2 = -1$):
+\begin{align}
+f(0) &= \sum_{i=1}^3 \lambda_i^* y_i K(x_i, 0) + b^* \nonumber \\
+&= (1.0)(+1)K(-1, 0) + (2.0)(-1)K(0, 0) + (1.0)(+1)K(1, 0) + b^* \nonumber \\
+&= 1.0(1) - 2.0(1) + 1.0(1) + b^* = 0.0 + b^* = b^*
+\end{align}
+Because $f(0) = y_2 = -1$, we immediately determine:
+\begin{equation}
+b^* = -1.0
+\end{equation}
+Checking Support Vector $x_1 = -1$ ($y_1 = +1$):
+\begin{align}
+f(-1) &= 1.0(+1)K(-1, -1) - 2.0K(0, -1) + 1.0K(1, -1) + b^* \nonumber \\
+&= 1(4) - 2(1) + 1(0) - 1.0 = 4 - 2 + 0 - 1 = +1.0 = y_1 \quad (\checkmark)
+\end{align}
+
+\textbf{Step 5: Non-Linear Decision Function \& Classification}
+Construct the closed-form algebraic decision function $f(x)$:
+\begin{align}
+f(x) &= \sum_{i=1}^3 \lambda_i^* y_i K(x_i, x) + b^* \nonumber \\
+&= 1(+1)(-x + 1)^2 - 2(1)^2 + 1(+1)(x + 1)^2 - 1.0 \nonumber \\
+&= (x^2 - 2x + 1) - 2 + (x^2 + 2x + 1) - 1 \nonumber \\
+&= 2x^2 - 1.0
+\end{align}
+The decision boundary occurs where $f(x) = 0$:
+\begin{equation}
+2x^2 - 1.0 = 0 \implies x^2 = 0.5 \implies x = \pm \frac{1}{\sqrt{2}} \approx \pm 0.7071
+\end{equation}
+The decision rule is:
+\begin{equation}
+\hat{y}(x) = \operatorname{sign}(2x^2 - 1.0) = \begin{cases} +1 & \text{if } |x| > \frac{1}{\sqrt{2}} \approx 0.7071 \\ -1 & \text{if } |x| < \frac{1}{\sqrt{2}} \approx 0.7071 \end{cases}
+\end{equation}
+Evaluating test instances:
+\begin{itemize}
+    \item Test Point $x = 0.5$: $f(0.5) = 2(0.5)^2 - 1 = 2(0.25) - 1 = -0.50 \implies \hat{y} = -1$ (Classified as negative class).
+    \item Test Point $x = 2.0$: $f(2.0) = 2(2.0)^2 - 1 = 2(4) - 1 = +7.00 \implies \hat{y} = +1$ (Classified as positive class).
+\end{itemize}
+The quadratic kernel has transformed non-linearly separable 1D data into an inverted parabolic bowl, carving out two symmetric decision boundaries entirely through dot products!
+\end{examplebox}
+
+\begin{examplebox}[breakable]{Step-by-Step Numerical Walkthrough of an SMO Iteration}
+\textbf{Problem Statement:}
+In training a Soft-Margin Support Vector Machine with regularization parameter $C = 2.0$, the optimizer selects the working-set pair $(\lambda_1, \lambda_2)$ to update while holding all other multipliers fixed.
+The training samples are:
+\begin{align}
+\mathbf{x}_1 &= \begin{bmatrix} 1.0 \\ 0.0 \end{bmatrix}, \quad y_1 = +1 \\
+\mathbf{x}_2 &= \begin{bmatrix} 0.0 \\ 1.0 \end{bmatrix}, \quad y_2 = -1
+\end{align}
+Under a linear kernel $K(\mathbf{u}, \mathbf{v}) = \mathbf{u}^T \mathbf{v}$, the Gram entries are $K_{11} = 1.0, K_{22} = 1.0, K_{12} = 0.0$.
+The current multipliers are:
+\begin{equation}
+\lambda_1^{\text{old}} = 0.50, \quad \lambda_2^{\text{old}} = 0.50
+\end{equation}
+Notice that primal equality feasibility is satisfied: $\sum \lambda_i y_i = (0.50)(+1) + (0.50)(-1) = 0.0$.
+Current model prediction errors on these two points are:
+\begin{equation}
+E_1 = f(\mathbf{x}_1) - y_1 = -0.80, \quad E_2 = f(\mathbf{x}_2) - y_2 = +1.20
+\end{equation}
+
+\textbf{Task Requirements:}
+\begin{enumerate}
+    \item Compute the second directional derivative (curvature) $\eta$ along the 1D constraint line.
+    \item Compute the unconstrained optimal multiplier $\lambda_2^{\text{new, unc}}$ using the SMO formula.
+    \item Determine the feasible clipping box boundaries $[L, H]$ for $y_1 \ne y_2$ and compute the clipped multiplier $\lambda_2^{\text{new}}$.
+    \item Compute the updated companion multiplier $\lambda_1^{\text{new}}$ and verify primal equality and box feasibility.
+    \item Calculate the exact increase in the dual objective functional $\Delta \Psi$ achieved in this single step.
+\end{enumerate}
+
+\tcblower
+
+\textbf{Step 1: Curvature Computation}
+The curvature along the line $\lambda_1 y_1 + \lambda_2 y_2 = \gamma$ is:
+\begin{equation}
+\eta = 2 K_{12} - K_{11} - K_{22} = 2(0.0) - 1.0 - 1.0 = -2.0
+\end{equation}
+Notice that $\eta = -\|\mathbf{x}_1 - \mathbf{x}_2\|_2^2 = -\|[1, -1]^T\|_2^2 = -2.0 < 0$. The negative curvature confirms that the 1D slice is strictly concave with a unique global maximum.
+
+\textbf{Step 2: Unconstrained Update of $\lambda_2$}
+Applying the analytical SMO formula:
+\begin{align}
+\lambda_2^{\text{new, unc}} &= \lambda_2^{\text{old}} - \frac{y_2(E_1 - E_2)}{\eta} \nonumber \\
+&= 0.50 - \frac{(-1)\left( -0.80 - 1.20 \right)}{-2.0} \nonumber \\
+&= 0.50 - \frac{(-1)(-2.00)}{-2.0} = 0.50 - \frac{2.00}{-2.0} = 0.50 - (-1.00) = 1.50
+\end{align}
+
+\textbf{Step 3: Clipping to Feasible Box $[L, H]$}
+Because $y_1 \ne y_2$ ($y_1 = +1, y_2 = -1$), the linear constraint is $\lambda_1 - \lambda_2 = \gamma = 0.50 - 0.50 = 0$.
+The clipping boundaries are:
+\begin{align}
+L &= \max\left(0, \, \lambda_2^{\text{old}} - \lambda_1^{\text{old}}\right) = \max\left(0, \, 0.50 - 0.50\right) = 0.0 \\
+H &= \min\left(C, \, C + \lambda_2^{\text{old}} - \lambda_1^{\text{old}}\right) = \min\left(2.0, \, 2.0 + 0.0\right) = 2.0
+\end{align}
+Checking the unconstrained candidate:
+\begin{equation}
+L = 0.0 \le \lambda_2^{\text{new, unc}} = 1.50 \le H = 2.0
+\end{equation}
+Because the candidate falls strictly within the interval $[L, H]$, no clipping is needed:
+\begin{equation}
+\lambda_2^{\text{new}} = 1.50
+\end{equation}
+
+\textbf{Step 4: Update of Companion Multiplier $\lambda_1$}
+Update $\lambda_1$ using the invariant $\lambda_1 y_1 + \lambda_2 y_2 = \text{const}$:
+\begin{align}
+\lambda_1^{\text{new}} &= \lambda_1^{\text{old}} + y_1 y_2 \left( \lambda_2^{\text{old}} - \lambda_2^{\text{new}} \right) \nonumber \\
+&= 0.50 + (+1)(-1)\left( 0.50 - 1.50 \right) \nonumber \\
+&= 0.50 - 1(-1.00) = 0.50 + 1.00 = 1.50
+\end{align}
+Feasibility verification:
+\begin{itemize}
+    \item Equality constraint: $y_1 \lambda_1^{\text{new}} + y_2 \lambda_2^{\text{new}} = (+1)(1.50) + (-1)(1.50) = 0.0$ ($\checkmark$).
+    \item Box constraint: $0 \le \lambda_1^{\text{new}} = 1.50 \le C = 2.0$ ($\checkmark$) and $0 \le \lambda_2^{\text{new}} = 1.50 \le C = 2.0$ ($\checkmark$).
+\end{itemize}
+
+\textbf{Step 5: Exact Dual Objective Increase}
+Along the 1D coordinate ascent path, the change in the dual objective functional $\Psi(\boldsymbol{\lambda})$ is governed by the curvature $\eta$:
+\begin{align}
+\Delta \Psi &= -\frac{1}{2} \eta \left( \lambda_2^{\text{new}} - \lambda_2^{\text{old}} \right)^2 \nonumber \\
+&= -\frac{1}{2}(-2.0)\left( 1.50 - 0.50 \right)^2 \nonumber \\
+&= 1.0 \left( 1.0 \right)^2 = +1.00
+\end{align}
+In a single closed-form step taking microseconds and requiring zero matrix operations, the SMO algorithm increases the dual objective by $+1.00$ while maintaining 100\% primal and dual feasibility.
+\end{examplebox}
+
 % ----------------------------------------------------------------------
 % PART 6: EXPLICIT GOTCHAS & DIAGNOSTIC MISCONCEPTIONS
 % ----------------------------------------------------------------------
@@ -846,6 +1271,17 @@ In practical software, $b^*$ is averaged across all free support vectors to maxi
 A data scientist attempts to train a Kernel SVM on a dataset with $N = 1{,}000{,}000$ samples and $d = 20$ features.
 \tcblower
 \textbf{The Trap:} The dual SVM requires forming or accessing the Gram kernel matrix $K_{ij} = k(\mathbf{x}_i, \mathbf{x}_j)$. Storing an $N \times N$ matrix for $N = 10^6$ requires $(10^6)^2 \times 8 \text{ bytes} = 8 \text{ Terabytes of RAM}$, causing immediate out-of-memory crashes. Dual kernel SVMs scale quadratically in storage $\mathcal{O}(N^2)$ and cubically in time $\mathcal{O}(N^3)$. When $N \gg 10^5$, linear primal SVMs (e.g., via stochastic dual coordinate ascent / LibLinear) or approximate kernel embeddings (random Fourier features) must be used.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 6: The "Support Vector Collapse" Trap: Tuning the Asymptotic Extremes of $C$}
+A student tunes hyperparameter $C$ in Soft-Margin SVM and observes: ``Setting $C = 10^8$ gives $100\%$ training accuracy, so it must be the optimal model. Conversely, setting $C = 10^{-6}$ simplifies the model by maximizing the margin width $\frac{2}{\|\mathbf{w}\|_2}$.''
+\tcblower
+\textbf{The Trap:} Both asymptotic extremes lead to catastrophic model failure:
+\begin{itemize}
+    \item \textbf{Asymptote $C \to \infty$ (Overfitting / Hard Margin Collapse):} When $C$ is astronomical, the penalty term $C \sum \xi_i$ dominates the margin objective $\frac{1}{2}\|\mathbf{w}\|_2^2$. The solver refuses to tolerate even a microscopic slack violation $\xi_i > 0$. If a single noisy mislabeled point exists, the margin width collapses to near-zero, or the problem becomes completely infeasible. The decision boundary contorts around individual training outliers, destroying generalization performance.
+    \item \textbf{Asymptote $C \to 0$ (Underfitting / Support Vector Saturation):} When $C \to 0$, the box constraint $0 \le \lambda_i \le C$ squeezes all dual multipliers toward zero. The penalty for misclassification vanishes, and the solver prioritizes setting $\|\mathbf{w}\|_2 \to 0$ (infinite margin). Because $C$ is tiny, the model permits massive slack violations on nearly every sample. Consequently, almost \textbf{every single data point becomes a bounded support vector} ($\lambda_i^* = C$), destroying model sparsity and predicting the majority class uniformly.
+\end{itemize}
+Always select $C$ via $K$-fold cross-validation on a logarithmic grid (e.g., $C \in \{10^{-3}, 10^{-2}, \dots, 10^3\}$).
 \end{trapbox}
 
 % ----------------------------------------------------------------------
@@ -1010,6 +1446,27 @@ if __name__ == "__main__":
     \begin{equation}
     \hat{y}(\mathbf{x}_{\text{test}}) = \mathbf{k}(\mathbf{x}_{\text{test}})^T (K + \lambda I)^{-1} \mathbf{y}
     \end{equation}
+
+    \item \textbf{The Representer Theorem via Orthogonal Decomposition:}
+    Let $\mathcal{H}$ be a Reproducing Kernel Hilbert Space (RKHS) associated with reproducing kernel $K(\mathbf{x}, \mathbf{x}') = \langle \Phi(\mathbf{x}), \Phi(\mathbf{x}') \rangle_{\mathcal{H}}$. Consider the general regularized learning problem:
+    \begin{equation}
+    f^* = \argmin_{f \in \mathcal{H}} \sum_{i=1}^N L(f(\mathbf{x}_i), y_i) + \Omega(\|f\|_{\mathcal{H}})
+    \end{equation}
+    where $L$ is an arbitrary loss function and $\Omega: [0, \infty) \to \mathbb{R}$ is strictly increasing.
+    \begin{enumerate}[label=(\alph*)]
+        \item Let $S = \Span\{K(\cdot, \mathbf{x}_1), \dots, K(\cdot, \mathbf{x}_N)\} \subset \mathcal{H}$. Decompose any function $f \in \mathcal{H}$ uniquely as $f = f_{\|} + f_{\perp}$ with $f_{\|} \in S$ and $f_{\perp} \in S^\perp$. Prove using the reproducing property that $f(\mathbf{x}_j) = f_{\|}(\mathbf{x}_j)$ for all training instances $j \in \{1, \dots, N\}$.
+        \item Prove that $\|f\|_{\mathcal{H}}^2 = \|f_{\|}\|_{\mathcal{H}}^2 + \|f_{\perp}\|_{\mathcal{H}}^2$, and deduce that $\Omega(\|f\|_{\mathcal{H}}) \ge \Omega(\|f_{\|}\|_{\mathcal{H}})$ with equality if and only if $f_{\perp} = 0$.
+        \item Conclude that any minimizer must satisfy $f_{\perp} = 0$, establishing that the infinite-dimensional problem reduces to learning the finite linear combination $f^*(\mathbf{x}) = \sum_{i=1}^N \alpha_i K(\mathbf{x}, \mathbf{x}_i)$.
+    \end{enumerate}
+
+    \item \textbf{Geometric Proof of Strong Duality under Slater's Condition:}
+    Consider the convex inequality-constrained optimization problem $\min_{\mathbf{w} \in \mathcal{D}} f_0(\mathbf{w})$ subject to $f_i(\mathbf{w}) \le 0$ ($i = 1, \dots, m$) with optimal primal value $p^*$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Define the achievable constraint-objective set $\mathcal{A} = \{(\mathbf{u}, t) \in \mathbb{R}^m \times \mathbb{R} \mid \exists \mathbf{w} \in \mathcal{D}, f_i(\mathbf{w}) \le u_i, f_0(\mathbf{w}) \le t\}$ and the sub-optimal target set $\mathcal{B} = \{(\mathbf{0}, s) \mid s < p^*\}$. Prove that $\mathcal{A}$ and $\mathcal{B}$ are convex sets and that $\mathcal{A} \cap \mathcal{B} = \emptyset$.
+        \item State the separating hyperplane separating $\mathcal{A}$ and $\mathcal{B}$ with normal vector $(\tilde{\boldsymbol{\lambda}}, \mu) \in \mathbb{R}^m \times \mathbb{R}$, and prove that $\tilde{\boldsymbol{\lambda}} \ge \mathbf{0}$ and $\mu \ge 0$.
+        \item Using Slater's condition ($\exists \tilde{\mathbf{w}} \in \mathcal{D}$ such that $f_i(\tilde{\mathbf{w}}) < 0$ for all $i$), prove by contradiction that the vertical multiplier cannot vanish: $\mu > 0$.
+        \item Define the normalized dual multipliers $\boldsymbol{\lambda}^* = \tilde{\boldsymbol{\lambda}} / \mu \ge \mathbf{0}$ and prove that $g(\boldsymbol{\lambda}^*) = p^*$, establishing Strong Duality without duality gap.
+    \end{enumerate}
 \end{enumerate}
 
 \subsection*{Part B: Diagnostic Multiple-Choice Questions}
