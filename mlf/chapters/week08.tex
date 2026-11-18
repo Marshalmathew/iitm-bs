@@ -238,6 +238,7 @@ Why do optimization texts emphasize two fundamentally different "optimal" step s
 \subsection{Convergence Rates: Convex vs.\ Strongly Convex}
 
 \begin{theorembox}{Sublinear Convergence for Convex $L$-Smooth Functions}
+\label{thm:convex_rate}
 Let $f: \mathbb{R}^d \to \mathbb{R}$ be convex and $L$-smooth with a global minimizer $\mathbf{w}^*$. Under Gradient Descent with constant step size $\eta = \frac{1}{L}$, after $T$ iterations:
 \begin{equation}
 f(\mathbf{w}_T) - f^* \le \frac{2L \|\mathbf{w}_0 - \mathbf{w}^*\|_2^2}{T} = \mathcal{O}\left(\frac{1}{T}\right)
@@ -636,12 +637,200 @@ the discriminant remains non-positive across the entire spectrum $a \in [\mu, L]
 \end{equation}
 This improves the condition number dependence from $\mathcal{O}(\kappa)$ to $\mathcal{O}(\sqrt{\kappa})$. For an ill-conditioned problem with $\kappa = 10{,}000$, $\kappa$ drops from $10{,}000$ to $\sqrt{\kappa} = 100$, yielding an extraordinary $100\times$ acceleration!
 
+\subsection{Nesterov Accelerated Gradient (NAG): The Look-Ahead Correction}
+While Polyak Heavy-Ball momentum achieves the accelerated $\mathcal{O}(\sqrt{\kappa})$ rate on strongly convex quadratics, it exhibits a fundamental weakness: it does not guarantee acceleration on general smooth convex functions, and can oscillate wildly if the momentum carries the iterate up a steep opposing canyon wall.
+
+In 1983, Yurii Nesterov resolved this pathology with an ingenious mathematical insight: \textbf{evaluate the gradient after making the momentum step, rather than before}.
+
+\subsubsection{The Look-Ahead Formulation}
+In standard Polyak momentum, we compute the gradient at the current position $\mathbf{w}_k$ and then add the momentum velocity $\beta(\mathbf{w}_k - \mathbf{w}_{k-1})$. If the momentum vector is pointing toward an overshoot, the gradient calculation at $\mathbf{w}_k$ is oblivious to the imminent disaster.
+
+Nesterov's Accelerated Gradient (NAG) re-sequences these operations:
+\begin{enumerate}
+    \item \textbf{Look-Ahead Extrapolation:} First, apply the momentum displacement from the current position to compute a predicted interim parameter vector:
+    \begin{equation}
+    \mathbf{y}_k = \mathbf{w}_k + \beta_k (\mathbf{w}_k - \mathbf{w}_{k-1})
+    \label{eq:nesterov_lookahead}
+    \end{equation}
+    \item \textbf{Look-Ahead Gradient Correction:} Evaluate the gradient of the objective functional \emph{at the look-ahead point} $\mathbf{y}_k$:
+    \begin{equation}
+    \mathbf{w}_{k+1} = \mathbf{y}_k - \alpha \nabla f(\mathbf{y}_k)
+    \label{eq:nesterov_update}
+    \end{equation}
+\end{enumerate}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=1.05, font=\sffamily\footnotesize]
+    % Ravine contours
+    \draw[thick, color=primarydark!35] (0, 0) ellipse (4.6cm and 1.4cm);
+    \draw[thick, color=primarydark!60] (0, 0) ellipse (3.0cm and 0.9cm);
+    \draw[thick, color=primarydark!85] (0, 0) ellipse (1.5cm and 0.45cm);
+    \filldraw[color=tealborder] (0, 0) circle (2.5pt) node[below=2pt] {$\mathbf{w}^*$};
+
+    % Points
+    \coordinate (Wprev) at (-3.8, 1.3);
+    \coordinate (Wcurr) at (-2.6, 0.4);
+    
+    % Polyak flow
+    \coordinate (Grad_polyak) at (-2.6, -0.6);
+    \coordinate (W_polyak) at (-1.4, -0.1);
+
+    % Nesterov look-ahead flow
+    \coordinate (Ylook) at (-1.4, -0.5);
+    \coordinate (Grad_nest) at (-1.4, 0.2);
+    \coordinate (W_nest) at (-0.6, 0.05);
+
+    \filldraw[color=primarydark] (Wprev) circle (2pt) node[above left] {$\mathbf{w}_{k-1}$};
+    \filldraw[color=primarydark] (Wcurr) circle (2.5pt) node[above] {$\mathbf{w}_k$};
+    \draw[->, >=stealth, line width=1.2pt, color=primarydark] (Wprev) -- (Wcurr);
+
+    % Lookahead jump
+    \draw[->, >=stealth, line width=1.5pt, dashed, color=forest!80!black] (Wcurr) -- (Ylook) 
+        node[midway, sloped, above] {\scriptsize Momentum Leap: $\beta(\mathbf{w}_k - \mathbf{w}_{k-1})$};
+    \filldraw[color=forest!80!black] (Ylook) circle (2.5pt) node[below] {$\mathbf{y}_k$ (Look-Ahead Point)};
+
+    % Lookahead gradient correction
+    \draw[->, >=stealth, line width=1.5pt, color=traprad] (Ylook) -- (W_nest) 
+        node[midway, right] {\scriptsize $-\alpha \nabla f(\mathbf{y}_k)$ (Adaptive Brake)};
+    \filldraw[color=tealborder] (W_nest) circle (2.5pt) node[above right] {$\mathbf{w}_{k+1}$ (NAG Step)};
+\end{tikzpicture}
+\caption{The Geometry of Nesterov Accelerated Gradient (NAG): Unlike standard momentum, NAG performs the momentum leap first to land at the look-ahead point $\mathbf{y}_k$. If the momentum is carrying the iterate uphill toward an overshoot, the gradient at $\mathbf{y}_k$ points strongly back downhill, applying an anticipatory brake that curbs cross-ravine oscillation.}
+\label{fig:nesterov_lookahead}
+\end{figure}
+
+\subsubsection{Optimal Acceleration for General Convex Functions}
+The paramount theoretical triumph of Nesterov's method is its convergence rate on general (non-strongly) convex $L$-smooth functionals. By selecting the dynamic momentum schedule:
+\begin{equation}
+\lambda_0 = 0, \quad \lambda_k = \frac{1 + \sqrt{1 + 4\lambda_{k-1}^2}}{2}, \quad \beta_k = \frac{\lambda_{k-1} - 1}{\lambda_k} \approx \frac{k - 1}{k + 2}
+\label{eq:nesterov_schedule}
+\end{equation}
+Nesterov proved via the method of \textbf{estimate sequences} that the objective suboptimality decays as:
+\begin{equation}
+f(\mathbf{w}_k) - f^* \le \frac{2 L \|\mathbf{w}_0 - \mathbf{w}^*\|_2^2}{(k + 1)^2} = \mathcal{O}\left( \frac{1}{k^2} \right)
+\label{eq:nesterov_rate}
+\end{equation}
+Recall from Theorem~\ref{thm:convex_rate} that standard Gradient Descent converges at rate $\mathcal{O}(1/k)$, requiring $\mathcal{O}(1/\epsilon)$ iterations to achieve $\epsilon$-accuracy. Nesterov acceleration reduces the iteration complexity to $\mathcal{O}(1/\sqrt{\epsilon})$!
+To reach $\epsilon = 10^{-6}$ precision, standard GD requires $1{,}000{,}000$ iterations, whereas Nesterov acceleration requires merely $1{,}000$ iterations---a three-orders-of-magnitude computational leap with identical per-iteration cost $\mathcal{O}(d)$!
+
+\subsection{Adaptive Gradient Methods: From AdaGrad and RMSprop to AdamW}
+In high-dimensional machine learning (e.g., natural language processing and computer vision), optimization surfaces exhibit severe \textbf{coordinate-wise anisotropy}:
+\begin{itemize}
+    \item Frequent features (such as common stop words in NLP) receive large gradients on almost every batch, demanding small step sizes to prevent explosion.
+    \item Rare features (informative domain keywords) receive gradients only on rare occasions, requiring large step sizes to make meaningful progress.
+\end{itemize}
+A single scalar learning rate $\eta$ applied uniformly across all $d$ dimensions either causes frequent features to diverge or throttles rare features into stagnation.
+
+\subsubsection{AdaGrad: Cumulative Coordinate Scaling}
+AdaGrad (Duchi et al., 2011) introduces coordinate-specific adaptive learning rates by tracking the cumulative sum of squared past gradients:
+\begin{align}
+G_{k, i} &= \sum_{t=0}^k [\nabla f(\mathbf{w}_t)]_i^2 \\
+w_{k+1, i} &= w_{k, i} - \frac{\eta}{\sqrt{G_{k, i}} + \epsilon} [\nabla f(\mathbf{w}_k)]_i
+\end{align}
+where $\epsilon > 0$ is a small smoothing constant ($10^{-8}$) preventing division by zero.
+\textbf{The Fatal Flaw of AdaGrad:} Because $G_{k, i}$ is a monotonically non-decreasing sum of positive squares ($G_{k+1, i} \ge G_{k, i}$), the effective learning rate $\frac{\eta}{\sqrt{G_{k, i}}}$ decays monotonically toward zero. Early in training, the learning rate vanishes entirely, causing the optimizer to freeze and fail to converge to the minimum on non-convex or long-horizon tasks.
+
+\subsubsection{RMSprop: Exponential Moving Average of Second Moments}
+RMSprop (Tieleman \& Hinton, 2012) fixes AdaGrad's premature freeze by replacing the unbounded cumulative sum with an \textbf{exponentially decaying moving average} of squared gradients:
+\begin{align}
+\mathbf{v}_k &= \beta_2 \mathbf{v}_{k-1} + (1 - \beta_2) \nabla f(\mathbf{w}_k) \odot \nabla f(\mathbf{w}_k) \\
+\mathbf{w}_{k+1} &= \mathbf{w}_k - \frac{\eta}{\sqrt{\mathbf{v}_k} + \epsilon} \odot \nabla f(\mathbf{w}_k)
+\end{align}
+where $\beta_2 \in [0, 1)$ (typically $0.99$) is the second-moment decay coefficient, and $\odot$ denotes element-wise (Hadamard) vector multiplication. RMSprop restricts the memory of past squared gradients to a sliding window of effective length $\frac{1}{1 - \beta_2} \approx 100$ steps, permitting the step size to scale up or down dynamically as the local curvature changes.
+
+\subsubsection{Adam: Adaptive Moment Estimation}
+Adam (Kingma \& Ba, 2014) marries the inertial advantages of first-moment momentum with the coordinate-adaptive scaling of RMSprop second moments:
+\begin{align}
+\mathbf{m}_k &= \beta_1 \mathbf{m}_{k-1} + (1 - \beta_1) \nabla f(\mathbf{w}_k) \quad &&\text{(First Moment: Velocity)} \label{eq:adam_m} \\
+\mathbf{v}_k &= \beta_2 \mathbf{v}_{k-1} + (1 - \beta_2) \nabla f(\mathbf{w}_k) \odot \nabla f(\mathbf{w}_k) \quad &&\text{(Second Moment: Variance)} \label{eq:adam_v}
+\end{align}
+Default hyperparameters are conventionally set to $\beta_1 = 0.9$, $\beta_2 = 0.999$, $\epsilon = 10^{-8}$.
+
+\textbf{Initialization Bias Correction:} When initialized from rest ($\mathbf{m}_0 = \mathbf{0}, \mathbf{v}_0 = \mathbf{0}$), both moments are heavily biased toward zero in initial iterations.
+Unrolling the recurrence for $\mathbf{m}_k$:
+\begin{equation}
+\mathbf{m}_k = (1 - \beta_1) \sum_{i=1}^k \beta_1^{k-i} \nabla f(\mathbf{w}_i)
+\end{equation}
+Taking expectations assuming the gradients come from a stationary distribution ($\mathbb{E}[\nabla f(\mathbf{w}_i)] \approx \mathbb{E}[\nabla f(\mathbf{w}_k)]$):
+\begin{equation}
+\mathbb{E}[\mathbf{m}_k] = \mathbb{E}[\nabla f(\mathbf{w}_k)] (1 - \beta_1) \sum_{i=1}^k \beta_1^{k-i} = \mathbb{E}[\nabla f(\mathbf{w}_k)] (1 - \beta_1) \frac{1 - \beta_1^k}{1 - \beta_1} = (1 - \beta_1^k) \mathbb{E}[\nabla f(\mathbf{w}_k)]
+\end{equation}
+Dividing by $(1 - \beta_1^k)$ exactly eliminates the initial cold-start bias! Applying the identical correction to $\mathbf{v}_k$:
+\begin{equation}
+\hat{\mathbf{m}}_k = \frac{\mathbf{m}_k}{1 - \beta_1^k}, \qquad \hat{\mathbf{v}}_k = \frac{\mathbf{v}_k}{1 - \beta_2^k}
+\label{eq:adam_bias_correction}
+\end{equation}
+The parameter update is then executed:
+\begin{equation}
+\mathbf{w}_{k+1} = \mathbf{w}_k - \frac{\eta}{\sqrt{\hat{\mathbf{v}}_k} + \epsilon} \odot \hat{\mathbf{m}}_k
+\label{eq:adam_update}
+\end{equation}
+
+\subsubsection{The AdamW Breakthrough: Decoupled Weight Decay}
+For standard SGD, $L_2$ regularization ($\mathcal{L}_{\text{reg}}(\mathbf{w}) = \mathcal{L}(\mathbf{w}) + \frac{\lambda}{2}\|\mathbf{w}\|_2^2$) and weight decay ($\mathbf{w}_{k+1} = (1 - \eta \lambda)\mathbf{w}_k - \eta \nabla \mathcal{L}(\mathbf{w}_k)$) are mathematically identical:
+\begin{equation}
+\nabla \mathcal{L}_{\text{reg}}(\mathbf{w}_k) = \nabla \mathcal{L}(\mathbf{w}_k) + \lambda \mathbf{w}_k \implies \mathbf{w}_{k+1} = \mathbf{w}_k - \eta (\nabla \mathcal{L}(\mathbf{w}_k) + \lambda \mathbf{w}_k) = (1 - \eta \lambda)\mathbf{w}_k - \eta \nabla \mathcal{L}(\mathbf{w}_k)
+\end{equation}
+However, in adaptive gradient methods like Adam, this equivalence completely collapses!
+When $L_2$ regularization is added directly to the loss, the regularizer gradient $\lambda \mathbf{w}_k$ is injected into the gradient $\mathbf{g}_k = \nabla \mathcal{L}(\mathbf{w}_k) + \lambda \mathbf{w}_k$. This gradient is fed into the second moment $\mathbf{v}_k \approx \mathbf{g}_k^2$:
+\begin{equation}
+\mathbf{w}_{k+1} = \mathbf{w}_k - \frac{\eta}{\sqrt{\hat{\mathbf{v}}_k} + \epsilon} \odot \left( \hat{\mathbf{m}}_k + \lambda \mathbf{w}_k \right)
+\end{equation}
+\textbf{The Mathematical Catastrophe:} The regularization term is divided by $\sqrt{\hat{\mathbf{v}}_k}$!
+\begin{itemize}
+    \item Weights with \textbf{large, frequent gradients} receive large $\hat{\mathbf{v}}_k$, which \emph{suppresses} their weight decay: $\frac{\lambda \mathbf{w}_k}{\sqrt{\hat{\mathbf{v}}_k}} \ll \lambda \mathbf{w}_k$.
+    \item Weights with \textbf{small, infrequent gradients} receive microscopic $\hat{\mathbf{v}}_k$, which \emph{amplifies} their weight decay!
+\end{itemize}
+This is the exact opposite of the intended regularizing behavior!
+Loshchilov and Hutter (2017) resolved this by introducing \textbf{AdamW}, which decouples weight decay entirely from the adaptive gradient moment updates:
+\begin{equation}
+\mathbf{w}_{k+1} = (1 - \eta \lambda)\mathbf{w}_k - \frac{\eta}{\sqrt{\hat{\mathbf{v}}_k} + \epsilon} \odot \hat{\mathbf{m}}_k
+\label{eq:adamw_update}
+\end{equation}
+AdamW ensures that all parameters decay at the exact prescribed rate $\eta \lambda$, regardless of their individual gradient variances. This single mathematical correction is responsible for the state-of-the-art generalization performance of modern Transformers and LLMs.
+
+\begin{ponderbox}{The Information-Theoretic Lower Bound: Why Can't First-Order Methods Beat $\mathcal{O}(1/k^2)$?}
+Can an ingenious researcher invent a first-order optimization algorithm that converges at $\mathcal{O}(1/k^3)$ on general convex $L$-smooth functions?
+\tcblower
+\textbf{The Socratic Resolution:}
+No! In 1983, Arkadi Nemirovski and David Yudin proved an absolute, insurmountable information-theoretic lower bound: \textbf{no first-order method can converge faster than $\Omega(1/k^2)$ on the class of convex $L$-smooth functions}.
+
+\textbf{Nesterov's "Worst Function in the World":}
+To understand why, consider Nesterov's celebrated pathological quadratic in infinite dimensions ($d \to \infty$):
+\begin{equation*}
+f(\mathbf{w}) = \frac{L}{4} \left[ \frac{1}{2}(w_1^2 + w_d^2) + \frac{1}{2}\sum_{i=1}^{d-1}(w_i - w_{i+1})^2 - w_1 \right]
+\end{equation*}
+The Hessian matrix of this objective is a tridiagonal Toeplitz matrix:
+\begin{equation*}
+\nabla^2 f(\mathbf{w}) = \frac{L}{4} \begin{bmatrix} 2 & -1 & 0 & \dots & 0 \\ -1 & 2 & -1 & \dots & 0 \\ 0 & -1 & 2 & \dots & 0 \\ \vdots & & \ddots & \ddots & \vdots \\ 0 & \dots & 0 & -1 & 2 \end{bmatrix}
+\end{equation*}
+Suppose we initialize at the origin $\mathbf{w}_0 = \mathbf{0}$. The initial gradient is:
+\begin{equation*}
+\nabla f(\mathbf{w}_0) = \left[ -\frac{L}{4}, \; 0, \; 0, \; \dots, \; 0 \right]^T
+\end{equation*}
+Only the \emph{first coordinate} is non-zero!
+When we take a step, the update $\mathbf{w}_1$ has non-zero entries only in coordinate $1$.
+Now compute the gradient at $\mathbf{w}_1$: because the Hessian is tridiagonal, multiplying $\nabla^2 f$ by a vector with non-zero entry at index $1$ introduces a non-zero entry at index $2$, but \emph{zero everywhere else}!
+\begin{itemize}
+    \item At iteration $1$, the iterate $\mathbf{w}_1$ has non-zeros only in coordinate $1$.
+    \item At iteration $2$, the iterate $\mathbf{w}_2$ has non-zeros only in coordinates $\{1, 2\}$.
+    \item At iteration $k$, the iterate $\mathbf{w}_k$ has non-zeros only in coordinates $\{1, 2, \dots, k\}$.
+\end{itemize}
+Information propagates down the tridiagonal chain at a strictly limited "speed of light": \textbf{at most one coordinate per iteration} ($\mathbf{w}_k \in \operatorname{span}\{\mathbf{e}_1, \dots, \mathbf{e}_k\}$).
+Because the true global minimizer $\mathbf{w}^*$ has non-zero values across all infinite coordinates ($w_i^* = 1 - \frac{i}{d+1} > 0$), after $k$ steps, the remaining coordinates $k+1, \dots, d$ remain strictly zero!
+By calculating the minimum residual error of any vector supported on the first $k$ coordinates, Nesterov proved that:
+\begin{equation*}
+f(\mathbf{w}_k) - f^* \ge \frac{3L \|\mathbf{w}_0 - \mathbf{w}^*\|_2^2}{32 (k + 1)^2} = \Omega\left(\frac{1}{k^2}\right)
+\end{equation*}
+Nesterov's Accelerated Gradient algorithm is \textbf{optimal}: it achieves the exact mathematical speed limit permitted by the laws of information theory!
+\end{ponderbox}
+
 % ----------------------------------------------------------------------
 % PART 5: MULTI-PAGE WORKED EXAMPLES
 % ----------------------------------------------------------------------
 \section{Multi-Page Breakable Numerical Worked Examples}
 
-\begin{examplebox}[breakable]{Step-by-Step Gradient Descent Dynamics on an Ill-Conditioned Quadratic}
+\begin{examplebox}[breakable]{Worked Example 8.1: Step-by-Step Gradient Descent Dynamics on an Ill-Conditioned Quadratic}
 \textbf{Problem Statement:}
 Consider minimizing the anisotropic quadratic functional:
 \begin{equation}
@@ -764,7 +953,7 @@ x_2^{(k)} = (-1.20)^k \cdot (1.0)
 While $x_1 \to 0$ gracefully, $x_2$ violently explodes to $\pm \infty$, triggering arithmetic overflow (\texttt{NaN} in code).
 \end{examplebox}
 
-\begin{examplebox}[breakable]{Newton's Method vs.\ Gradient Descent on a Multi-Variable Objective}
+\begin{examplebox}[breakable]{Worked Example 8.2: Newton's Method vs.\ Gradient Descent on a Multi-Variable Objective}
 \textbf{Problem Statement:}
 Consider the non-quadratic objective functional:
 \begin{equation}
@@ -834,7 +1023,7 @@ H_0^{-1} = \frac{1}{\det(H_0)} \begin{bmatrix} 4 & -2 \\ -2 & 12 \end{bmatrix} =
 \textbf{Pedagogical Insight:} Gradient Descent steps equally along both axes ($0.4, 0.4$) because the gradient vector had identical components ($6, 6$). In contrast, Newton's method recognized that the curvature along $x_1$ ($12$) is three times greater than along $x_2$ ($4$). It executed a small, cautious step along $x_1$ and a large, aggressive step along $x_2$, automatically warping its search direction to conform to the Riemannian metric induced by the Hessian.
 \end{examplebox}
 
-\begin{examplebox}[breakable]{Step-by-Step Polyak Heavy-Ball Momentum Recurrence}
+\begin{examplebox}[breakable]{Worked Example 8.3: Step-by-Step Polyak Heavy-Ball Momentum Recurrence}
 \textbf{Problem Statement:}
 Revisit the ill-conditioned quadratic from Example 1:
 \begin{equation}
@@ -924,6 +1113,230 @@ Compare the coordinate progression of Momentum vs.\ vanilla Gradient Descent:
 \end{itemize}
 \end{examplebox}
 
+\begin{examplebox}[breakable]{Worked Example 8.4: Armijo Backtracking Line Search on a Non-Convex Landscape}
+\label{ex:w08_armijo_line_search}
+\textbf{The Scenario:}
+In practical machine learning optimization, the global Lipschitz constant $L$ is rarely known a priori, and non-quadratic objective surfaces possess spatially varying curvature. Fixed learning rates either cause catastrophic divergence on steep faces or crawl sluggishly across flat plateaus.
+To guarantee monotonic descent without computing the Hessian, practitioners employ the \textbf{Armijo Backtracking Line Search}.
+
+Given a descent direction $\mathbf{p}_k = -\nabla f(\mathbf{w}_k)$, the Armijo condition (sufficient decrease condition) demands:
+\begin{equation*}
+f(\mathbf{w}_k + \eta \mathbf{p}_k) \le f(\mathbf{w}_k) + c_1 \eta \nabla f(\mathbf{w}_k)^T \mathbf{p}_k = f(\mathbf{w}_k) - c_1 \eta \|\nabla f(\mathbf{w}_k)\|_2^2
+\end{equation*}
+where $c_1 \in (0, 1)$ is a small tolerance parameter (typically $c_1 = 10^{-4}$ or $0.1$).
+Starting from an initial optimistic step size $\eta = \eta_{\text{init}}$, the algorithm checks the Armijo condition. If violated, it contracts the step size by factor $\tau \in (0, 1)$ ($\eta \leftarrow \tau \eta$, typically $\tau = 0.5$) repeatedly until the inequality is satisfied.
+
+Consider the non-convex scalar objective:
+\begin{equation*}
+f(w) = w^4 - 3w^2 + 2w
+\end{equation*}
+An optimizer is currently positioned at $w_0 = 1.5$.
+Line search parameters: initial trial step size $\eta_{\text{init}} = 1.0$, contraction factor $\tau = 0.5$, Armijo constant $c_1 = 0.1$.
+
+\textbf{Questions to Solve:}
+\begin{enumerate}
+    \item Evaluate the objective $f(w_0)$ and the derivative $f'(w_0)$. Formulate the descent direction $p_0 = -f'(w_0)$.
+    \item Formulate the Armijo sufficient decrease threshold as an explicit linear function of step size $\eta$: $T(\eta) = f(w_0) - c_1 \eta (f'(w_0))^2$.
+    \item Test Trial Step 1 ($\eta = 1.0$). Compute candidate iterate $w_{\text{trial}}$, candidate loss $f(w_{\text{trial}})$, and verify whether the Armijo condition holds.
+    \item If violated, test Trial Step 2 ($\eta = 0.5$). Check whether the Armijo condition holds.
+    \item State the accepted step size $\eta^*$, the updated iterate $w_1$, and the verified objective decrease $\Delta f = f(w_0) - f(w_1)$.
+\end{enumerate}
+
+\tcblower
+\textbf{Step-by-Step Analytical Solution:}
+
+\textbf{Step 1: Current Function and Derivative Values}
+At current position $w_0 = 1.5$:
+\begin{align*}
+f(1.5) &= (1.5)^4 - 3(1.5)^2 + 2(1.5) = 5.0625 - 3(2.25) + 3.0 \\
+&= 5.0625 - 6.75 + 3.0 = \mathbf{1.3125}
+\end{align*}
+Computing the first derivative:
+\begin{equation*}
+f'(w) = 4w^3 - 6w + 2
+\end{equation*}
+Evaluating at $w_0 = 1.5$:
+\begin{equation*}
+f'(1.5) = 4(1.5)^3 - 6(1.5) + 2 = 4(3.375) - 9.0 + 2 = 13.5 - 9.0 + 2 = \mathbf{6.5}
+\end{equation*}
+The steepest descent direction is $p_0 = -f'(w_0) = -6.5$.
+
+\textbf{Step 2: Formulating the Armijo Threshold}
+With $c_1 = 0.1$ and $f'(w_0) = 6.5$:
+\begin{equation*}
+c_1 (f'(w_0))^2 = 0.1 \times (6.5)^2 = 0.1 \times 42.25 = 4.225
+\end{equation*}
+The Armijo sufficient decrease condition requires:
+\begin{equation*}
+f(1.5 - 6.5\eta) \le 1.3125 - 4.225 \eta
+\end{equation*}
+
+\textbf{Step 3: Trial Step 1 ($\eta = 1.0$)}
+Candidate position:
+\begin{equation*}
+w_{\text{trial}}^{(1)} = w_0 - \eta (6.5) = 1.5 - 1.0(6.5) = -5.0
+\end{equation*}
+Evaluating candidate loss:
+\begin{equation*}
+f(-5.0) = (-5)^4 - 3(-5)^2 + 2(-5) = 625 - 3(25) - 10 = 625 - 75 - 10 = \mathbf{540.0}
+\end{equation*}
+Armijo threshold:
+\begin{equation*}
+T(1.0) = 1.3125 - 4.225(1.0) = -2.9125
+\end{equation*}
+\textbf{Condition Check:} $540.0 \le -2.9125$ is \textbf{FALSE}!
+Taking $\eta = 1.0$ caused the iterate to wildly overshoot the valley floor, launching it halfway up the quartic wall and blowing up the loss from $1.3125$ to $540.0$.
+\textbf{Action:} Reject $\eta = 1.0$. Contract step size: $\eta \leftarrow 1.0 \times 0.5 = 0.5$.
+
+\textbf{Step 4: Trial Step 2 ($\eta = 0.5$)}
+Candidate position:
+\begin{equation*}
+w_{\text{trial}}^{(2)} = 1.5 - 0.5(6.5) = 1.5 - 3.25 = -1.75
+\end{equation*}
+Evaluating candidate loss:
+\begin{align*}
+f(-1.75) &= (-1.75)^4 - 3(-1.75)^2 + 2(-1.75) = 9.3789 - 3(3.0625) - 3.5 \\
+&= 9.3789 - 9.1875 - 3.5 = \mathbf{-3.3086}
+\end{align*}
+Armijo threshold:
+\begin{equation*}
+T(0.5) = 1.3125 - 4.225(0.5) = 1.3125 - 2.1125 = \mathbf{-0.8000}
+\end{equation*}
+\textbf{Condition Check:} Is $-3.3086 \le -0.8000$?
+\textbf{YES!} $-3.3086 < -0.8000$.
+The Armijo condition is satisfied! The trial loss is strictly below the sufficient decrease threshold.
+
+\textbf{Step 5: Final Update and Convergence Analysis}
+The backtracking procedure terminates at iteration 2, accepting $\eta^* = 0.5$.
+The updated iterate is:
+\begin{equation*}
+w_1 = w_{\text{trial}}^{(2)} = \mathbf{-1.75}
+\end{equation*}
+The objective function decreased by:
+\begin{equation*}
+\Delta f = f(w_0) - f(w_1) = 1.3125 - (-3.3086) = \mathbf{4.6211}
+\end{equation*}
+\textbf{Pedagogical Insight:} Backtracking line search automatically filtered out the catastrophic overshoot step ($\eta = 1.0$) in a single arithmetic test, selecting a step size that guaranteed substantial descent without ever calculating the second derivative $f''(w)$.
+\end{examplebox}
+
+\begin{examplebox}[breakable]{Worked Example 8.5: Quasi-Newton BFGS Inverse Hessian Update Step-by-Step}
+\label{ex:w08_bfgs_update}
+\textbf{The Scenario:}
+Newton's method achieves quadratic convergence by multiplying the gradient by the inverse Hessian $[\nabla^2 f(\mathbf{w})]^{-1}$, but computing and inverting a $d \times d$ Hessian requires $\mathcal{O}(d^3)$ operations.
+The \textbf{Broyden-Fletcher-Goldfarb-Shanno (BFGS)} algorithm bypasses this barrier by constructing an iterative sequence of symmetric positive-definite inverse Hessian approximations $H_k \approx [\nabla^2 f(\mathbf{w}_k)]^{-1}$ using only gradient differences, maintaining $\mathcal{O}(d^2)$ complexity per iteration!
+
+\textbf{The Secant Equation:}
+Let parameter displacement be $\mathbf{s}_k = \mathbf{w}_{k+1} - \mathbf{w}_k$ and gradient displacement be $\mathbf{y}_k = \nabla f(\mathbf{w}_{k+1}) - \nabla f(\mathbf{w}_k)$.
+Taylor's expansion demands the secant relation:
+\begin{equation*}
+\nabla f(\mathbf{w}_{k+1}) - \nabla f(\mathbf{w}_k) \approx \nabla^2 f(\mathbf{w}_{k+1}) (\mathbf{w}_{k+1} - \mathbf{w}_k) \iff \mathbf{y}_k \approx B_{k+1} \mathbf{s}_k \iff H_{k+1} \mathbf{y}_k = \mathbf{s}_k
+\end{equation*}
+where $H_k \triangleq B_k^{-1}$ directly denotes the inverse Hessian estimate.
+The celebrated \textbf{BFGS Inverse Update Formula} is:
+\begin{equation*}
+H_{k+1} = \left( I - \rho_k \mathbf{s}_k \mathbf{y}_k^T \right) H_k \left( I - \rho_k \mathbf{y}_k \mathbf{s}_k^T \right) + \rho_k \mathbf{s}_k \mathbf{s}_k^T, \quad \text{where } \rho_k \triangleq \frac{1}{\mathbf{y}_k^T \mathbf{s}_k}
+\end{equation*}
+
+Consider minimizing the 2D quadratic objective:
+\begin{equation*}
+f(x_1, x_2) = 2x_1^2 + x_2^2 + x_1 x_2 \implies \nabla f(\mathbf{x}) = \begin{bmatrix} 4x_1 + x_2 \\ 2x_2 + x_1 \end{bmatrix}, \quad \nabla^2 f(\mathbf{x}) = A = \begin{bmatrix} 4 & 1 \\ 1 & 2 \end{bmatrix}
+\end{equation*}
+An engineer initializes BFGS with the identity inverse Hessian: $H_0 = I_2 = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}$ at $\mathbf{x}_0 = [1.0, 2.0]^T$.
+
+\textbf{Questions to Solve:}
+\begin{enumerate}
+    \item Compute initial gradient $\mathbf{g}_0 = \nabla f(\mathbf{x}_0)$ and quasi-Newton search direction $\mathbf{p}_0 = -H_0 \mathbf{g}_0$.
+    \item Taking step size $\alpha_0 = 0.2$, compute new iterate $\mathbf{x}_1 = \mathbf{x}_0 + \alpha_0 \mathbf{p}_0$ and new gradient $\mathbf{g}_1 = \nabla f(\mathbf{x}_1)$.
+    \item Compute the step displacement vector $\mathbf{s}_0 = \mathbf{x}_1 - \mathbf{x}_0$ and gradient difference vector $\mathbf{y}_0 = \mathbf{g}_1 - \mathbf{g}_0$.
+    \item Verify the curvature condition $\mathbf{s}_0^T \mathbf{y}_0 > 0$ and compute scalar $\rho_0 = \frac{1}{\mathbf{y}_0^T \mathbf{s}_0}$.
+    \item Compute the rank-one projection matrix $V_0 = I - \rho_0 \mathbf{y}_0 \mathbf{s}_0^T$ and evaluate the matrix product $V_0^T H_0 V_0$.
+    \item Add the correction term $\rho_0 \mathbf{s}_0 \mathbf{s}_0^T$ to construct the updated inverse Hessian estimate $H_1$.
+    \item Compare $H_1$ against the exact analytical inverse Hessian $A^{-1} = \begin{bmatrix} 4 & 1 \\ 1 & 2 \end{bmatrix}^{-1}$.
+\end{enumerate}
+
+\tcblower
+\textbf{Step-by-Step Analytical Solution:}
+
+\textbf{Step 1: Initial Direction}
+At $\mathbf{x}_0 = [1.0, 2.0]^T$:
+\begin{equation*}
+\mathbf{g}_0 = \nabla f(1, 2) = \begin{bmatrix} 4(1) + 2 \\ 2(2) + 1 \end{bmatrix} = \begin{bmatrix} 6.0 \\ 5.0 \end{bmatrix}
+\end{equation*}
+With $H_0 = I_2$, the quasi-Newton search direction is:
+\begin{equation*}
+\mathbf{p}_0 = -H_0 \mathbf{g}_0 = -I_2 \begin{bmatrix} 6.0 \\ 5.0 \end{bmatrix} = \begin{bmatrix} -6.0 \\ -5.0 \end{bmatrix}
+\end{equation*}
+
+\textbf{Step 2: Iterate $\mathbf{x}_1$ and Gradient $\mathbf{g}_1$}
+With step size $\alpha_0 = 0.2$:
+\begin{equation*}
+\mathbf{x}_1 = \mathbf{x}_0 + \alpha_0 \mathbf{p}_0 = \begin{bmatrix} 1.0 \\ 2.0 \end{bmatrix} + 0.2 \begin{bmatrix} -6.0 \\ -5.0 \end{bmatrix} = \begin{bmatrix} 1.0 - 1.2 \\ 2.0 - 1.0 \end{bmatrix} = \mathbf{\begin{bmatrix} -0.2 \\ 1.0 \end{bmatrix}}
+\end{equation*}
+Evaluating gradient at $\mathbf{x}_1$:
+\begin{equation*}
+\mathbf{g}_1 = \nabla f(-0.2, 1.0) = \begin{bmatrix} 4(-0.2) + 1.0 \\ 2(1.0) + (-0.2) \end{bmatrix} = \begin{bmatrix} -0.8 + 1.0 \\ 2.0 - 0.2 \end{bmatrix} = \mathbf{\begin{bmatrix} 0.2 \\ 1.8 \end{bmatrix}}
+\end{equation*}
+
+\textbf{Step 3: Displacements $\mathbf{s}_0$ and $\mathbf{y}_0$}
+\begin{align*}
+\mathbf{s}_0 &= \mathbf{x}_1 - \mathbf{x}_0 = \begin{bmatrix} -0.2 - 1.0 \\ 1.0 - 2.0 \end{bmatrix} = \mathbf{\begin{bmatrix} -1.2 \\ -1.0 \end{bmatrix}} \\
+\mathbf{y}_0 &= \mathbf{g}_1 - \mathbf{g}_0 = \begin{bmatrix} 0.2 - 6.0 \\ 1.8 - 5.0 \end{bmatrix} = \mathbf{\begin{bmatrix} -5.8 \\ -3.2 \end{bmatrix}}
+\end{align*}
+
+\textbf{Step 4: Curvature Condition and $\rho_0$}
+The inner product $\mathbf{y}_0^T \mathbf{s}_0$ evaluates to:
+\begin{equation*}
+\mathbf{y}_0^T \mathbf{s}_0 = (-5.8)(-1.2) + (-3.2)(-1.0) = 6.96 + 3.20 = \mathbf{10.16}
+\end{equation*}
+Because $\mathbf{y}_0^T \mathbf{s}_0 = 10.16 > 0$, the curvature condition is strictly satisfied, guaranteeing that $H_1$ remains strictly positive definite!
+Computing scalar $\rho_0$:
+\begin{equation*}
+\rho_0 = \frac{1}{\mathbf{y}_0^T \mathbf{s}_0} = \frac{1}{10.16} \approx \mathbf{0.098425}
+\end{equation*}
+
+\textbf{Step 5: Outer Products and Projection Matrix}
+First compute the rank-one outer product $\mathbf{y}_0 \mathbf{s}_0^T$:
+\begin{equation*}
+\mathbf{y}_0 \mathbf{s}_0^T = \begin{bmatrix} -5.8 \\ -3.2 \end{bmatrix} \begin{bmatrix} -1.2 & -1.0 \end{bmatrix} = \begin{bmatrix} (-5.8)(-1.2) & (-5.8)(-1.0) \\ (-3.2)(-1.2) & (-3.2)(-1.0) \end{bmatrix} = \begin{bmatrix} 6.96 & 5.80 \\ 3.84 & 3.20 \end{bmatrix}
+\end{equation*}
+Scaling by $\rho_0 = \frac{1}{10.16}$:
+\begin{equation*}
+\rho_0 \mathbf{y}_0 \mathbf{s}_0^T = \frac{1}{10.16} \begin{bmatrix} 6.96 & 5.80 \\ 3.84 & 3.20 \end{bmatrix} \approx \begin{bmatrix} 0.6850 & 0.5709 \\ 0.3780 & 0.3150 \end{bmatrix}
+\end{equation*}
+Subtracting from identity yields $V_0 = I - \rho_0 \mathbf{y}_0 \mathbf{s}_0^T$:
+\begin{equation*}
+V_0 = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} - \begin{bmatrix} 0.6850 & 0.5709 \\ 0.3780 & 0.3150 \end{bmatrix} = \begin{bmatrix} 0.3150 & -0.5709 \\ -0.3780 & 0.6850 \end{bmatrix}
+\end{equation*}
+Since $H_0 = I$, $V_0^T H_0 V_0 = V_0^T V_0$:
+\begin{align*}
+V_0^T V_0 &= \begin{bmatrix} 0.3150 & -0.3780 \\ -0.5709 & 0.6850 \end{bmatrix} \begin{bmatrix} 0.3150 & -0.5709 \\ -0.3780 & 0.6850 \end{bmatrix} \\
+&= \begin{bmatrix} (0.3150)^2 + (-0.3780)^2 & (0.3150)(-0.5709) + (-0.3780)(0.6850) \\ (0.3150)(-0.5709) + (-0.3780)(0.6850) & (-0.5709)^2 + (0.6850)^2 \end{bmatrix} \\
+&= \begin{bmatrix} 0.0992 + 0.1429 & -0.1798 - 0.2589 \\ -0.1798 - 0.2589 & 0.3259 + 0.4692 \end{bmatrix} = \mathbf{\begin{bmatrix} 0.2421 & -0.4387 \\ -0.4387 & 0.7951 \end{bmatrix}}
+\end{align*}
+
+\textbf{Step 6: Rank-One Correction and Assembling $H_1$}
+Compute outer product $\mathbf{s}_0 \mathbf{s}_0^T$:
+\begin{equation*}
+\mathbf{s}_0 \mathbf{s}_0^T = \begin{bmatrix} -1.2 \\ -1.0 \end{bmatrix} \begin{bmatrix} -1.2 & -1.0 \end{bmatrix} = \begin{bmatrix} 1.44 & 1.20 \\ 1.20 & 1.00 \end{bmatrix}
+\end{equation*}
+Scaling by $\rho_0 = \frac{1}{10.16}$:
+\begin{equation*}
+\rho_0 \mathbf{s}_0 \mathbf{s}_0^T = \frac{1}{10.16} \begin{bmatrix} 1.44 & 1.20 \\ 1.20 & 1.00 \end{bmatrix} \approx \mathbf{\begin{bmatrix} 0.1417 & 0.1181 \\ 0.1181 & 0.0984 \end{bmatrix}}
+\end{equation*}
+Summing both terms gives the updated BFGS inverse Hessian estimate:
+\begin{equation*}
+H_1 = V_0^T H_0 V_0 + \rho_0 \mathbf{s}_0 \mathbf{s}_0^T = \begin{bmatrix} 0.2421 & -0.4387 \\ -0.4387 & 0.7951 \end{bmatrix} + \begin{bmatrix} 0.1417 & 0.1181 \\ 0.1181 & 0.0984 \end{bmatrix} = \mathbf{\begin{bmatrix} 0.3838 & -0.3206 \\ -0.3206 & 0.8935 \end{bmatrix}}
+\end{equation*}
+
+\textbf{Step 7: Comparison with True Analytical Inverse Hessian}
+The exact true Hessian is $A = \begin{bmatrix} 4 & 1 \\ 1 & 2 \end{bmatrix}$. Determinant: $\det(A) = (4)(2) - (1)(1) = 7$.
+The true inverse Hessian is:
+\begin{equation*}
+A^{-1} = \frac{1}{7} \begin{bmatrix} 2 & -1 \\ -1 & 4 \end{bmatrix} = \begin{bmatrix} 2/7 & -1/7 \\ -1/7 & 4/7 \end{bmatrix} \approx \mathbf{\begin{bmatrix} 0.2857 & -0.1429 \\ -0.1429 & 0.5714 \end{bmatrix}}
+\end{equation*}
+\textbf{The Verdict:} In a single step of BFGS starting from the naive isotropic identity $H_0 = I_2$, the inverse estimate $H_1$ automatically developed negative off-diagonal coupling ($-0.3206$) matching the negative cross-coupling of $A^{-1}$ ($-0.1429$), and scaled the diagonal entries toward their true inverse values without computing a single second derivative or inverting any matrix!
+\end{examplebox}
+
 % ----------------------------------------------------------------------
 % PART 6: EXPLICIT GOTCHAS & DIAGNOSTIC MISCONCEPTIONS
 % ----------------------------------------------------------------------
@@ -958,6 +1371,14 @@ A student attempts to optimize the scalar quartic polynomial $f(w) = w^4$ using 
 \tcblower
 \textbf{The Trap:} The second derivative of $f(w) = w^4$ is $f''(w) = 12w^2$. As $|w| \to \infty$, $f''(w) \to \infty$. The functional is \textbf{not globally $L$-smooth on $\mathbb{R}$}; no finite constant $L$ exists such that $|f''(w)| \le L$ for all $w$. 
 For any fixed step size $\eta$, if $|w_0| > \sqrt{\frac{2}{12\eta}}$, the local curvature exceeds the stability threshold $2/\eta$, causing the iterates to blow up exponentially. Real-world non-quadratic objectives require adaptive step sizing (Armijo backtracking line search) or gradient clipping to preserve numerical stability.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 6: The Weight Decay vs. L2 Regularization Trap in Adaptive Optimizers (Adam vs. AdamW)}
+A deep learning practitioner adds an explicit $L_2$ penalty to their training loss: $\mathcal{L}_{\text{total}}(\mathbf{w}) = \mathcal{L}(\mathbf{w}) + \frac{\lambda}{2}\|\mathbf{w}\|_2^2$, and trains the network with the standard Adam optimizer. They expect weights to decay at rate $(1 - \eta \lambda)$ per step.
+\tcblower
+\textbf{The Trap:} In adaptive optimizers (Adam, RMSprop), $L_2$ regularization is \textbf{not} equivalent to weight decay! The gradient fed into Adam is $\mathbf{g}_t = \nabla \mathcal{L}(\mathbf{w}_t) + \lambda \mathbf{w}_t$. This gradient is squared inside the second-moment accumulator $\mathbf{v}_t$.
+Consequently, weights with large gradients have large $\mathbf{v}_t$, which divides and drastically suppresses the effective weight decay to $\frac{\lambda \mathbf{w}_t}{\sqrt{\mathbf{v}_t}} \ll \lambda \mathbf{w}_t$. Conversely, weights with small gradients receive disproportionately aggressive decay.
+To achieve true, uncorrupted weight decay in adaptive methods, always use **AdamW** (Decoupled Weight Decay), which subtracts $\eta \lambda \mathbf{w}_t$ directly from the parameter vector after the adaptive step is evaluated.
 \end{trapbox}
 
 % ----------------------------------------------------------------------
@@ -1132,6 +1553,33 @@ if __name__ == "__main__":
     \|\mathbf{w}_k - \mathbf{w}^*\|_2 \le \left( \frac{\kappa - 1}{\kappa + 1} \right)^k \|\mathbf{w}_0 - \mathbf{w}^*\|_2
     \end{equation}
     where $\kappa = L / \mu$.
+
+    \item \textbf{Nesterov Accelerated Gradient Look-Ahead Dynamics:}
+    Consider Nesterov's Accelerated Gradient (NAG) method on a smooth convex objective $f$:
+    \begin{equation}
+    \mathbf{y}_k = \mathbf{w}_k + \beta_k (\mathbf{w}_k - \mathbf{w}_{k-1}), \qquad \mathbf{w}_{k+1} = \mathbf{y}_k - \alpha \nabla f(\mathbf{y}_k)
+    \end{equation}
+    \begin{enumerate}[label=(\alph*)]
+        \item Explain geometrically why evaluating the gradient at the look-ahead point $\mathbf{y}_k$ acts as an adaptive damping mechanism (brake) that prevents the overshoot oscillations observed in Polyak's classical Heavy-Ball method.
+        \item Using the dynamic momentum schedule $\beta_k = \frac{k-1}{k+2}$ with step size $\alpha = \frac{1}{L}$, state the convergence rate bound on objective suboptimality $f(\mathbf{w}_k) - f^*$.
+        \item Contrast the iteration complexity of Gradient Descent vs. NAG to achieve precision $\epsilon = 10^{-6}$.
+    \end{enumerate}
+
+    \item \textbf{BFGS Secant Condition and Positive Definiteness Preservation:}
+    In quasi-Newton optimization, the inverse Hessian estimate $H_{k+1}$ is updated via the BFGS formula:
+    \begin{equation}
+    H_{k+1} = \left( I - \rho_k \mathbf{s}_k \mathbf{y}_k^T \right) H_k \left( I - \rho_k \mathbf{y}_k \mathbf{s}_k^T \right) + \rho_k \mathbf{s}_k \mathbf{s}_k^T, \quad \text{where } \rho_k = \frac{1}{\mathbf{y}_k^T \mathbf{s}_k}
+    \end{equation}
+    where $\mathbf{s}_k = \mathbf{w}_{k+1} - \mathbf{w}_k$ and $\mathbf{y}_k = \nabla f(\mathbf{w}_{k+1}) - \nabla f(\mathbf{w}_k)$.
+    \begin{enumerate}[label=(\alph*)]
+        \item Prove that $H_{k+1}$ satisfies the inverse secant equation: $H_{k+1} \mathbf{y}_k = \mathbf{s}_k$.
+        \item Prove that if $H_k \succ 0$ is strictly positive definite and the curvature condition $\mathbf{y}_k^T \mathbf{s}_k > 0$ holds, then $H_{k+1} \succ 0$ is also strictly positive definite.
+        \item Explain why preserving positive definiteness guarantees that the quasi-Newton direction:
+        \begin{equation*}
+        \mathbf{p}_{k+1} = -H_{k+1} \nabla f(\mathbf{w}_{k+1})
+        \end{equation*}
+        is always a strictly valid descent direction.
+    \end{enumerate}
 \end{enumerate}
 
 \subsection*{Part B: Diagnostic Multiple-Choice Questions}

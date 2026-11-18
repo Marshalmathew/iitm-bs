@@ -1101,6 +1101,69 @@ With $\eta^* = \frac{2}{L + \mu}$:
 The spectral radius is $\rho^* = \max_i |1 - \eta^* \lambda_i| = \frac{\kappa - 1}{\kappa + 1}$.
 Therefore: $\|\mathbf{w}_k - \mathbf{w}^*\|_2 \le \left( \frac{\kappa - 1}{\kappa + 1} \right)^k \|\mathbf{w}_0 - \mathbf{w}^*\|_2$.
 
+\paragraph{P6. Nesterov Accelerated Gradient Look-Ahead Dynamics:}
+\begin{enumerate}[label=(\alph*)]
+    \item \textbf{Geometric Damping Mechanism:} In Polyak Heavy-Ball momentum, the update is $\mathbf{w}_{k+1} = \mathbf{w}_k - \alpha \nabla f(\mathbf{w}_k) + \beta(\mathbf{w}_k - \mathbf{w}_{k-1})$. The gradient is computed at the current position $\mathbf{w}_k$, completely ignorant of the upcoming momentum displacement. If momentum is carrying the iterate uphill toward an overshoot across a steep valley wall, Polyak momentum still pushes forward, causing severe oscillations.
+    In contrast, Nesterov computes the momentum extrapolation first: $\mathbf{y}_k = \mathbf{w}_k + \beta_k(\mathbf{w}_k - \mathbf{w}_{k-1})$. Evaluating the gradient at $\mathbf{y}_k$ senses the upcoming steep wall \emph{in advance}. The gradient $-\alpha \nabla f(\mathbf{y}_k)$ points sharply back downhill toward the riverbed, acting as an anticipatory brake that cancels the overshoot before it occurs.
+
+    \item \textbf{Convergence Rate Bound:} For any convex $L$-smooth function, with $\alpha = 1/L$ and $\beta_k = \frac{k-1}{k+2}$, Nesterov's estimate sequence theorem guarantees:
+    \begin{equation*}
+    f(\mathbf{w}_k) - f^* \le \frac{2 L \|\mathbf{w}_0 - \mathbf{w}^*\|_2^2}{(k + 1)^2} = \mathcal{O}\left( \frac{1}{k^2} \right)
+    \end{equation*}
+
+    \item \textbf{Iteration Complexity Comparison:}
+    To reach suboptimality $f(\mathbf{w}_k) - f^* \le \epsilon = 10^{-6}$:
+    \begin{itemize}
+        \item Standard Gradient Descent requires $k_{\text{GD}} = \mathcal{O}(1/\epsilon) \approx 10^6 = \mathbf{1{,}000{,}000\text{ iterations}}$.
+        \item Nesterov Accelerated Gradient requires $k_{\text{NAG}} = \mathcal{O}(1/\sqrt{\epsilon}) \approx \sqrt{10^6} = \mathbf{1{,}000\text{ iterations}}$.
+    \end{itemize}
+    NAG achieves a $1{,}000\times$ acceleration while preserving the identical $\mathcal{O}(d)$ per-iteration compute cost!
+\end{enumerate}
+
+\paragraph{P7. BFGS Secant Condition and Positive Definiteness Preservation:}
+\begin{enumerate}[label=(\alph*)]
+    \item \textbf{Verifying the Inverse Secant Equation:}
+    Multiply $H_{k+1}$ by $\mathbf{y}_k$:
+    \begin{equation*}
+    H_{k+1} \mathbf{y}_k = \left( I - \rho_k \mathbf{s}_k \mathbf{y}_k^T \right) H_k \left( I - \rho_k \mathbf{y}_k \mathbf{s}_k^T \right) \mathbf{y}_k + \rho_k \mathbf{s}_k \mathbf{s}_k^T \mathbf{y}_k
+    \end{equation*}
+    Notice that $\mathbf{s}_k^T \mathbf{y}_k = \mathbf{y}_k^T \mathbf{s}_k = \frac{1}{\rho_k}$. Thus:
+    \begin{equation*}
+    \left( I - \rho_k \mathbf{y}_k \mathbf{s}_k^T \right) \mathbf{y}_k = \mathbf{y}_k - \rho_k \mathbf{y}_k (\mathbf{s}_k^T \mathbf{y}_k) = \mathbf{y}_k - \mathbf{y}_k = \mathbf{0}
+    \end{equation*}
+    The entire first term vanishes identically! The second term simplifies to:
+    \begin{equation*}
+    \rho_k \mathbf{s}_k (\mathbf{s}_k^T \mathbf{y}_k) = \rho_k \mathbf{s}_k \left( \frac{1}{\rho_k} \right) = \mathbf{s}_k
+    \end{equation*}
+    Therefore, $H_{k+1} \mathbf{y}_k = \mathbf{s}_k$ holds exactly.
+
+    \item \textbf{Proof of Positive Definiteness Preservation:}
+    Let $\mathbf{z} \in \mathbb{R}^d \setminus \{\mathbf{0}\}$ be any non-zero test vector. Evaluate the quadratic form $\mathbf{z}^T H_{k+1} \mathbf{z}$:
+    \begin{align*}
+    \mathbf{z}^T H_{k+1} \mathbf{z} &= \mathbf{z}^T \left( I - \rho_k \mathbf{s}_k \mathbf{y}_k^T \right) H_k \left( I - \rho_k \mathbf{y}_k \mathbf{s}_k^T \right) \mathbf{z} + \rho_k \mathbf{z}^T \mathbf{s}_k \mathbf{s}_k^T \mathbf{z} \\
+    &= \mathbf{v}^T H_k \mathbf{v} + \rho_k (\mathbf{s}_k^T \mathbf{z})^2
+    \end{align*}
+    where $\mathbf{v} \triangleq \left( I - \rho_k \mathbf{y}_k \mathbf{s}_k^T \right) \mathbf{z} = \mathbf{z} - \rho_k (\mathbf{s}_k^T \mathbf{z}) \mathbf{y}_k$.
+    Since $\rho_k = \frac{1}{\mathbf{y}_k^T \mathbf{s}_k} > 0$ and $(\mathbf{s}_k^T \mathbf{z})^2 \ge 0$, the second term is strictly non-negative.
+    Since $H_k \succ 0$, $\mathbf{v}^T H_k \mathbf{v} \ge 0$, with equality if and only if $\mathbf{v} = \mathbf{0}$.
+    Suppose $\mathbf{v} = \mathbf{0}$. Then $\mathbf{z} = \rho_k (\mathbf{s}_k^T \mathbf{z}) \mathbf{y}_k$. Taking the inner product with $\mathbf{s}_k$:
+    \begin{equation*}
+    \mathbf{s}_k^T \mathbf{z} = \rho_k (\mathbf{s}_k^T \mathbf{z}) (\mathbf{s}_k^T \mathbf{y}_k) = (\mathbf{s}_k^T \mathbf{z}) (1) \implies \mathbf{s}_k^T \mathbf{z} \ne 0 \text{ (since } \mathbf{z} \ne \mathbf{0})
+    \end{equation*}
+    If $\mathbf{v} = \mathbf{0}$, the second term $\rho_k (\mathbf{s}_k^T \mathbf{z})^2 > 0$ is strictly positive!
+    If $\mathbf{v} \ne \mathbf{0}$, the first term $\mathbf{v}^T H_k \mathbf{v} > 0$ is strictly positive.
+    In either case, $\mathbf{z}^T H_{k+1} \mathbf{z} > 0$ for all $\mathbf{z} \ne \mathbf{0}$.
+    Hence, $H_{k+1} \succ 0$ is strictly positive definite!
+
+    \item \textbf{Descent Direction Guarantee:}
+    Because $H_{k+1} \succ 0$ is positive definite, the directional derivative along the quasi-Newton direction $\mathbf{p}_{k+1} = -H_{k+1}\nabla f(\mathbf{w}_{k+1})$ is:
+    \begin{equation*}
+    \nabla f(\mathbf{w}_{k+1})^T \mathbf{p}_{k+1} = -\nabla f(\mathbf{w}_{k+1})^T H_{k+1} \nabla f(\mathbf{w}_{k+1}) < 0
+    \end{equation*}
+    whenever $\nabla f(\mathbf{w}_{k+1}) \ne \mathbf{0}$.
+    This guarantees that $\mathbf{p}_{k+1}$ always forms an acute angle ($< 90^\circ$) with the negative gradient, ensuring that small steps in direction $\mathbf{p}_{k+1}$ strictly decrease the objective functional.
+\end{enumerate}
+
 \subsection*{Part B: Diagnostic Multiple-Choice Rationales}
 
 \paragraph{MCQ1: Gradient Descent Stability Bound}
