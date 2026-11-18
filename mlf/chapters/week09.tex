@@ -126,6 +126,56 @@ By the Fundamental Theorem of Linear Algebra (Chapter~\ref{chap:week02}), $\left
 Expressing $\nabla f(\mathbf{w}^*)$ as a linear combination of $\{\nabla h_j(\mathbf{w}^*)\}$ with coefficients $-\nu_j^*$ yields~\eqref{eq:lagrange_stationarity}. Linear independence (LICQ) guarantees that these multiplier coefficients $\nu_j^*$ are uniquely determined.
 \end{proof}
 
+\begin{theorembox}{Lagrange Multiplier Sensitivity \& Shadow Price Theorem}
+Let $f, h_1, \dots, h_p: \mathbb{R}^d \to \mathbb{R}$ be twice continuously differentiable. Consider the perturbed family of equality-constrained optimization problems:
+\begin{equation}
+f^*(\mathbf{c}) \triangleq \min_{\mathbf{w} \in \mathbb{R}^d} f(\mathbf{w}) \quad \text{subject to } h_j(\mathbf{w}) = c_j \quad (j = 1, \dots, p)
+\label{eq:perturbed_opt_prob}
+\end{equation}
+where $\mathbf{c} = [c_1, \dots, c_p]^T \in \mathbb{R}^p$ represents a vector of constraint shifts.
+
+Assume that at $\mathbf{c} = \mathbf{0}$, $\mathbf{w}^* = \mathbf{w}^*(\mathbf{0})$ is a local minimizer satisfying LICQ and the second-order sufficient condition ($\mathbf{v}^T \nabla_{\mathbf{w}}^2 \mathcal{L}(\mathbf{w}^*, \boldsymbol{\nu}^*) \mathbf{v} > 0$ for all non-zero $\mathbf{v} \in T_{\mathcal{M}}(\mathbf{w}^*)$).
+
+Then the optimal value function $f^*(\mathbf{c})$ is continuously differentiable in an open neighborhood of $\mathbf{c} = \mathbf{0}$, and its gradient with respect to constraint perturbations is given exactly by the negative Lagrange multipliers:
+\begin{equation}
+\nabla_{\mathbf{c}} f^*(\mathbf{0}) = -\boldsymbol{\nu}^* \iff \frac{\partial f^*(\mathbf{0})}{\partial c_j} = -\nu_j^* \quad (j = 1, \dots, p)
+\label{eq:lagrange_sensitivity_grad}
+\end{equation}
+\end{theorembox}
+
+\begin{proof}
+By the Implicit Function Theorem applied to the stationary Karush-Kuhn-Tucker system:
+\begin{equation}
+F(\mathbf{w}, \boldsymbol{\nu}, \mathbf{c}) = \begin{bmatrix} \nabla f(\mathbf{w}) + \sum_{j=1}^p \nu_j \nabla h_j(\mathbf{w}) \\ h_1(\mathbf{w}) - c_1 \\ \vdots \\ h_p(\mathbf{w}) - c_p \end{bmatrix} = \mathbf{0}
+\end{equation}
+the Jacobian matrix with respect to $(\mathbf{w}, \boldsymbol{\nu})$ is:
+\begin{equation}
+J_{(\mathbf{w}, \boldsymbol{\nu})} = \begin{bmatrix} \nabla_{\mathbf{w}}^2 \mathcal{L}(\mathbf{w}, \boldsymbol{\nu}) & \nabla \mathbf{h}(\mathbf{w}) \\ \nabla \mathbf{h}(\mathbf{w})^T & O \end{bmatrix}
+\end{equation}
+Under LICQ and the second-order sufficient condition, this bordered Hessian matrix is non-singular. Consequently, there exist unique, continuously differentiable local solution trajectories $\mathbf{w}^*(\mathbf{c})$ and $\boldsymbol{\nu}^*(\mathbf{c})$ satisfying $\mathbf{w}^*(\mathbf{0}) = \mathbf{w}^*$, $\boldsymbol{\nu}^*(\mathbf{0}) = \boldsymbol{\nu}^*$, and $h_j(\mathbf{w}^*(\mathbf{c})) = c_j$ identically.
+
+Now evaluate the derivative of the optimal value function $f^*(\mathbf{c}) = f(\mathbf{w}^*(\mathbf{c}))$ with respect to coordinate $c_k$ via the multivariable chain rule:
+\begin{equation}
+\frac{\partial f^*(\mathbf{c})}{\partial c_k} = \sum_{i=1}^d \frac{\partial f(\mathbf{w}^*(\mathbf{c}))}{\partial w_i} \frac{\partial w_i^*(\mathbf{c})}{\partial c_k} = \nabla f(\mathbf{w}^*(\mathbf{c}))^T \frac{\partial \mathbf{w}^*(\mathbf{c})}{\partial c_k}
+\end{equation}
+Substitute the stationarity condition $\nabla f(\mathbf{w}^*(\mathbf{c})) = -\sum_{j=1}^p \nu_j^*(\mathbf{c}) \nabla h_j(\mathbf{w}^*(\mathbf{c}))$:
+\begin{equation}
+\frac{\partial f^*(\mathbf{c})}{\partial c_k} = -\sum_{j=1}^p \nu_j^*(\mathbf{c}) \left( \nabla h_j(\mathbf{w}^*(\mathbf{c}))^T \frac{\partial \mathbf{w}^*(\mathbf{c})}{\partial c_k} \right)
+\label{eq:chain_rule_sub}
+\end{equation}
+Next, differentiate the identity $h_j(\mathbf{w}^*(\mathbf{c})) = c_j$ with respect to $c_k$ on both sides:
+\begin{equation}
+\frac{\partial}{\partial c_k} h_j(\mathbf{w}^*(\mathbf{c})) = \nabla h_j(\mathbf{w}^*(\mathbf{c}))^T \frac{\partial \mathbf{w}^*(\mathbf{c})}{\partial c_k} = \frac{\partial c_j}{\partial c_k} = \delta_{jk}
+\end{equation}
+where $\delta_{jk}$ is the Kronecker delta ($\delta_{jk} = 1$ if $j = k$, and $0$ otherwise).
+
+Substituting this identity into~\eqref{eq:chain_rule_sub}:
+\begin{equation}
+\frac{\partial f^*(\mathbf{c})}{\partial c_k} = -\sum_{j=1}^p \nu_j^*(\mathbf{c}) \delta_{jk} = -\nu_k^*(\mathbf{c})
+\end{equation}
+Evaluating at $\mathbf{c} = \mathbf{0}$ yields the fundamental shadow price identity $\frac{\partial f^*(\mathbf{0})}{\partial c_k} = -\nu_k^*$.
+\end{proof}
+
 \begin{ponderbox}{What Do Lagrange Multipliers Actually Measure?}
 What is the physical and economic significance of the optimal Lagrange multiplier $\nu_j^*$?
 \tcblower
@@ -251,6 +301,40 @@ Let $f: C \to \mathbb{R}$ be twice continuously differentiable on an open convex
     \item If the Hessian is strictly positive definite everywhere ($\nabla^2 f(\mathbf{x}) \succ 0$ for all $\mathbf{x} \in C$), then $f$ is \textbf{strictly convex}.
 \end{itemize}
 \end{theorembox}
+
+\begin{theorembox}{The Strong Convexity \& Smoothness Quadratic Sandwich}
+Let $f: \mathbb{R}^d \to \mathbb{R}$ be twice continuously differentiable.
+\begin{enumerate}
+    \item $f$ is \textbf{$m$-strongly convex} ($m > 0$) if and only if $\nabla^2 f(\mathbf{x}) \succeq m I$ for all $\mathbf{x} \in \mathbb{R}^d$. This is equivalent to the global quadratic under-estimator:
+    \begin{equation}
+    f(\mathbf{y}) \ge f(\mathbf{x}) + \nabla f(\mathbf{x})^T(\mathbf{y} - \mathbf{x}) + \frac{m}{2}\|\mathbf{y} - \mathbf{x}\|_2^2 \quad \forall \mathbf{x}, \mathbf{y} \in \mathbb{R}^d
+    \label{eq:strong_convexity_lower}
+    \end{equation}
+    \item $f$ is \textbf{$L$-smooth} ($L > 0$) if and only if its gradient is $L$-Lipschitz continuous ($\|\nabla f(\mathbf{x}) - \nabla f(\mathbf{y})\|_2 \le L \|\mathbf{x} - \mathbf{y}\|_2$), which is equivalent to $\nabla^2 f(\mathbf{x}) \preceq L I$ for all $\mathbf{x} \in \mathbb{R}^d$. This implies the global quadratic over-estimator (Descent Lemma):
+    \begin{equation}
+    f(\mathbf{y}) \le f(\mathbf{x}) + \nabla f(\mathbf{x})^T(\mathbf{y} - \mathbf{x}) + \frac{L}{2}\|\mathbf{y} - \mathbf{x}\|_2^2 \quad \forall \mathbf{x}, \mathbf{y} \in \mathbb{R}^d
+    \label{eq:smoothness_upper}
+    \end{equation}
+\end{enumerate}
+Combining both bounds, any $m$-strongly convex and $L$-smooth functional is strictly sandwiched between two quadratic paraboloids of curvature $m$ and $L$:
+\begin{equation}
+f(\mathbf{x}) + \nabla f(\mathbf{x})^T(\mathbf{y} - \mathbf{x}) + \frac{m}{2}\|\mathbf{y} - \mathbf{x}\|_2^2 \le f(\mathbf{y}) \le f(\mathbf{x}) + \nabla f(\mathbf{x})^T(\mathbf{y} - \mathbf{x}) + \frac{L}{2}\|\mathbf{y} - \mathbf{x}\|_2^2
+\label{eq:quadratic_sandwich}
+\end{equation}
+The ratio $\kappa \triangleq \frac{L}{m} \ge 1$ is the \textbf{condition number} of the objective functional, dictating the geometric eccentricity of all sublevel sets and governing the linear convergence rate $(1 - 1/\kappa)$ of both Gradient Descent and Projected Gradient Descent.
+\end{theorembox}
+
+\begin{proof}
+By Taylor's theorem with integral remainder applied to the scalar function $g(t) = f(\mathbf{x} + t(\mathbf{y} - \mathbf{x}))$ for $t \in [0, 1]$:
+\begin{equation}
+f(\mathbf{y}) = f(\mathbf{x}) + \nabla f(\mathbf{x})^T(\mathbf{y} - \mathbf{x}) + \int_0^1 (1 - t) (\mathbf{y} - \mathbf{x})^T \nabla^2 f(\mathbf{x} + t(\mathbf{y} - \mathbf{x})) (\mathbf{y} - \mathbf{x}) \, dt
+\end{equation}
+If $\nabla^2 f(\mathbf{z}) \succeq m I$ for all $\mathbf{z}$, then $(\mathbf{y} - \mathbf{x})^T \nabla^2 f(\mathbf{z}) (\mathbf{y} - \mathbf{x}) \ge m \|\mathbf{y} - \mathbf{x}\|_2^2$. Integrating:
+\begin{equation}
+\int_0^1 (1 - t) m \|\mathbf{y} - \mathbf{x}\|_2^2 \, dt = m \|\mathbf{y} - \mathbf{x}\|_2^2 \left[ t - \frac{t^2}{2} \right]_0^1 = \frac{m}{2} \|\mathbf{y} - \mathbf{x}\|_2^2
+\end{equation}
+which proves~\eqref{eq:strong_convexity_lower}. Applying the identical integration to the upper bound $(\mathbf{y} - \mathbf{x})^T \nabla^2 f(\mathbf{z}) (\mathbf{y} - \mathbf{x}) \le L \|\mathbf{y} - \mathbf{x}\|_2^2$ yields~\eqref{eq:smoothness_upper}.
+\end{proof}
 
 \begin{ponderbox}{Convex Sets vs.\ Convex Functions: The Quasiconvexity Ambiguity}
 Every convex function has convex sublevel sets $\mathcal{S}_\alpha = \{\mathbf{x} \mid f(\mathbf{x}) \le \alpha\}$. Does having convex sublevel sets guarantee that a function is convex?
@@ -439,6 +523,51 @@ Figure~\ref{fig:epigraph_supporting} illustrates the equivalence between functio
 \label{fig:epigraph_supporting}
 \end{figure}
 
+\subsection{The Geometry of Water-Filling and Resource Allocation}
+Figure~\ref{fig:waterfilling_geometry} visualizes the fundamental \textbf{Water-Filling Principle} originating in Shannon information theory and convex resource allocation. When allocating a finite total resource (such as transmit power $P_{\text{total}}$ or portfolio capital) across independent channels subjected to varying noise levels $\sigma_i^2$, the optimal Lagrange multiplier establishes a global equilibrium threshold $\mu^* \triangleq 1/\nu^*$. 
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=1.0, font=\sffamily\footnotesize]
+    % Channel 1 basin: x in [0.5, 2.5], floor at y = 0.4
+    \draw[thick, fill=gray!20] (0.5, 0.4) rectangle (2.5, 0);
+    \draw[thick] (0.5, 3.5) -- (0.5, 0.4) -- (2.5, 0.4) -- (2.5, 3.5);
+    \node at (1.5, 0.2) {\textbf{Noise } $\sigma_1^2 = 0.2$};
+    
+    % Channel 2 basin: x in [3.5, 5.5], floor at y = 1.2
+    \draw[thick, fill=gray!20] (3.5, 1.2) rectangle (5.5, 0);
+    \draw[thick] (3.5, 3.5) -- (3.5, 1.2) -- (5.5, 1.2) -- (5.5, 3.5);
+    \node at (4.5, 0.6) {\textbf{Noise } $\sigma_2^2 = 0.6$};
+    
+    % Channel 3 basin: x in [6.5, 8.5], floor at y = 3.0
+    \draw[thick, fill=gray!20] (6.5, 3.0) rectangle (8.5, 0);
+    \draw[thick] (6.5, 3.5) -- (6.5, 3.0) -- (8.5, 3.0) -- (8.5, 3.5);
+    \node at (7.5, 1.5) {\textbf{Noise } $\sigma_3^2 = 1.5$};
+
+    % Water level mu* = 1.40 => y = 2.8
+    \draw[very thick, dashed, color=coralborder] (-0.2, 2.8) -- (9.0, 2.8) 
+        node[right, color=coralborder] {\textbf{Water Level } $\mu^* = \frac{1}{\nu^*} = 1.40$};
+
+    % Water in Channel 1 (height 2.4, y from 0.4 to 2.8)
+    \fill[tealborder!35] (0.52, 0.42) rectangle (2.48, 2.78);
+    \node[color=primarydark, font=\bfseries] at (1.5, 1.6) {$P_1^* = 1.20$};
+
+    % Water in Channel 2 (height 1.6, y from 1.2 to 2.8)
+    \fill[tealborder!35] (3.52, 1.22) rectangle (5.48, 2.78);
+    \node[color=primarydark, font=\bfseries] at (4.5, 2.0) {$P_2^* = 0.80$};
+
+    % Channel 3 has floor at 3.0 > 2.8 => DRY!
+    \node[color=traprad, font=\bfseries, align=center] at (7.5, 3.25) {\textsc{Dry Basin} \\ $P_3^* = 0.0$};
+
+    % Labels
+    \node[below=4pt] at (1.5, 0) {\textbf{Channel 1} (Clean)};
+    \node[below=4pt] at (4.5, 0) {\textbf{Channel 2} (Moderate)};
+    \node[below=4pt] at (7.5, 0) {\textbf{Channel 3} (Severe Noise)};
+\end{tikzpicture}
+\caption{The Water-Filling Principle for Parallel Gaussian Channels: Transmit power is poured into independent communication basins whose floor elevations represent noise power spectral densities $\sigma_i^2$. Channels with noise strictly below the equilibrium water level $\mu^*$ receive active transmit power $P_i^* = \mu^* - \sigma_i^2$, while channels with excessive noise ($\sigma_3^2 \ge \mu^*$) remain completely dry ($P_3^* = 0$), mathematically demonstrating how inequality constraints prune suboptimal dimensions.}
+\label{fig:waterfilling_geometry}
+\end{figure}
+
 % ----------------------------------------------------------------------
 % PART 4: DEEP INTUITION & CONCEPTUAL DERIVATIONS
 % ----------------------------------------------------------------------
@@ -455,48 +584,72 @@ the \textbf{Projected Gradient Descent (PGD)} algorithm interleaves standard unc
 \label{eq:pgd_update}
 \end{equation}
 
-\begin{theorembox}{Non-Expansiveness of the Convex Projection Operator}
-Let $C \subseteq \mathbb{R}^d$ be a closed convex set. The Euclidean projection operator $\Pi_C: \mathbb{R}^d \to C$ is \textbf{non-expansive} (a Lipschitz mapping with constant $L = 1$):
+\begin{theorembox}{Variational Characterization of Euclidean Projection}
+Let $C \subseteq \mathbb{R}^d$ be a non-empty closed convex set, and let $\mathbf{w} \in \mathbb{R}^d$. A point $\mathbf{z}^* \in C$ is the unique Euclidean projection of $\mathbf{w}$ onto $C$ ($\mathbf{z}^* = \Pi_C(\mathbf{w}) = \argmin_{\mathbf{z} \in C} \frac{1}{2}\|\mathbf{z} - \mathbf{w}\|_2^2$) if and only if:
 \begin{equation}
-\|\Pi_C(\mathbf{u}) - \Pi_C(\mathbf{v})\|_2 \le \|\mathbf{u} - \mathbf{v}\|_2 \quad \forall \mathbf{u}, \mathbf{v} \in \mathbb{R}^d
-\label{eq:non_expansive}
+\langle \mathbf{w} - \mathbf{z}^*, \mathbf{x} - \mathbf{z}^* \rangle \le 0 \quad \forall \mathbf{x} \in C
+\label{eq:proj_variational_char}
 \end{equation}
+Geometrically, this obtuse angle condition ensures that moving from the projection $\mathbf{z}^*$ toward any other feasible point $\mathbf{x} \in C$ forms an angle $\ge 90^\circ$ with the displacement vector $\mathbf{w} - \mathbf{z}^*$.
 \end{theorembox}
 
 \begin{proof}
-Let $\hat{\mathbf{u}} = \Pi_C(\mathbf{u})$ and $\hat{\mathbf{v}} = \Pi_C(\mathbf{v})$. By the fundamental variational characterization of Euclidean projection onto a convex set, $\hat{\mathbf{u}}$ minimizes $\frac{1}{2}\|\mathbf{z} - \mathbf{u}\|_2^2$ over $\mathbf{z} \in C$ if and only if:
+\textbf{Necessity ($\implies$):} Suppose $\mathbf{z}^* = \Pi_C(\mathbf{w})$. For any arbitrary point $\mathbf{x} \in C$, consider the convex combination $\mathbf{z}(t) = (1 - t)\mathbf{z}^* + t \mathbf{x} = \mathbf{z}^* + t(\mathbf{x} - \mathbf{z}^*)$ for $t \in [0, 1]$. Because $C$ is convex, $\mathbf{z}(t) \in C$ for all $t \in [0, 1]$. Define the scalar quadratic objective:
 \begin{equation}
-\langle \mathbf{u} - \hat{\mathbf{u}}, \mathbf{z} - \hat{\mathbf{u}} \rangle \le 0 \quad \forall \mathbf{z} \in C
-\label{eq:proj_char1}
+\phi(t) \triangleq \frac{1}{2}\|\mathbf{z}(t) - \mathbf{w}\|_2^2 = \frac{1}{2}\|\mathbf{z}^* + t(\mathbf{x} - \mathbf{z}^*) - \mathbf{w}\|_2^2
 \end{equation}
-Geometrically, this states that the angle between the displacement vector $\mathbf{u} - \hat{\mathbf{u}}$ and any chord $\mathbf{z} - \hat{\mathbf{u}}$ inside $C$ is obtuse ($\ge 90^\circ$).
-Applying this variational inequality to $\hat{\mathbf{v}} = \Pi_C(\mathbf{v})$:
+Since $\mathbf{z}^* = \mathbf{z}(0)$ minimizes the distance over $C$, the one-sided directional derivative at $t = 0$ must be non-negative: $\phi'(0) \ge 0$. Differentiating with respect to $t$:
 \begin{equation}
-\langle \mathbf{v} - \hat{\mathbf{v}}, \mathbf{z}' - \hat{\mathbf{v}} \rangle \le 0 \quad \forall \mathbf{z}' \in C
-\label{eq:proj_char2}
+\phi'(t) = \langle \mathbf{z}(t) - \mathbf{w}, \mathbf{x} - \mathbf{z}^* \rangle \implies \phi'(0) = \langle \mathbf{z}^* - \mathbf{w}, \mathbf{x} - \mathbf{z}^* \rangle \ge 0
 \end{equation}
-Because $\hat{\mathbf{v}} \in C$, we can substitute $\mathbf{z} = \hat{\mathbf{v}}$ into~\eqref{eq:proj_char1}. Similarly, because $\hat{\mathbf{u}} \in C$, substitute $\mathbf{z}' = \hat{\mathbf{u}}$ into~\eqref{eq:proj_char2}:
+Multiplying by $-1$ reverses the inequality:
+\begin{equation}
+\langle \mathbf{w} - \mathbf{z}^*, \mathbf{x} - \mathbf{z}^* \rangle \le 0
+\end{equation}
+\textbf{Sufficiency ($\impliedby$):} Suppose $\mathbf{z}^* \in C$ satisfies~\eqref{eq:proj_variational_char} for all $\mathbf{x} \in C$. For any feasible point $\mathbf{x} \in C$ with $\mathbf{x} \ne \mathbf{z}^*$, expand the squared distance:
+\begin{align}
+\|\mathbf{x} - \mathbf{w}\|_2^2 &= \|(\mathbf{x} - \mathbf{z}^*) + (\mathbf{z}^* - \mathbf{w})\|_2^2 \nonumber \\
+&= \|\mathbf{x} - \mathbf{z}^*\|_2^2 + \|\mathbf{z}^* - \mathbf{w}\|_2^2 + 2\langle \mathbf{z}^* - \mathbf{w}, \mathbf{x} - \mathbf{z}^* \rangle \nonumber \\
+&= \|\mathbf{x} - \mathbf{z}^*\|_2^2 + \|\mathbf{z}^* - \mathbf{w}\|_2^2 - 2\langle \mathbf{w} - \mathbf{z}^*, \mathbf{x} - \mathbf{z}^* \rangle
+\end{align}
+Because $-2\langle \mathbf{w} - \mathbf{z}^*, \mathbf{x} - \mathbf{z}^* \rangle \ge 0$ by~\eqref{eq:proj_variational_char} and $\|\mathbf{x} - \mathbf{z}^*\|_2^2 > 0$ for $\mathbf{x} \ne \mathbf{z}^*$:
+\begin{equation}
+\|\mathbf{x} - \mathbf{w}\|_2^2 > \|\mathbf{z}^* - \mathbf{w}\|_2^2
+\end{equation}
+Thus, $\mathbf{z}^*$ is the unique global minimizer of Euclidean distance over $C$.
+\end{proof}
+
+\begin{theorembox}{Firm Non-Expansiveness of the Convex Projection Operator}
+Let $C \subseteq \mathbb{R}^d$ be a closed convex set. The Euclidean projection operator $\Pi_C: \mathbb{R}^d \to C$ is \textbf{firmly non-expansive}:
+\begin{equation}
+\|\Pi_C(\mathbf{u}) - \Pi_C(\mathbf{v})\|_2^2 + \|(I - \Pi_C)(\mathbf{u}) - (I - \Pi_C)(\mathbf{v})\|_2^2 \le \|\mathbf{u} - \mathbf{v}\|_2^2 \quad \forall \mathbf{u}, \mathbf{v} \in \mathbb{R}^d
+\label{eq:firm_non_expansive}
+\end{equation}
+Consequently, $\Pi_C$ is strictly non-expansive ($\|\Pi_C(\mathbf{u}) - \Pi_C(\mathbf{v})\|_2 \le \|\mathbf{u} - \mathbf{v}\|_2$).
+\end{theorembox}
+
+\begin{proof}
+Let $\hat{\mathbf{u}} = \Pi_C(\mathbf{u})$ and $\hat{\mathbf{v}} = \Pi_C(\mathbf{v})$. Applying the variational characterization~\eqref{eq:proj_variational_char}:
+\begin{align}
+\langle \mathbf{u} - \hat{\mathbf{u}}, \mathbf{x} - \hat{\mathbf{u}} \rangle &\le 0 \quad \forall \mathbf{x} \in C \label{eq:var_u} \\
+\langle \mathbf{v} - \hat{\mathbf{v}}, \mathbf{x}' - \hat{\mathbf{v}} \rangle &\le 0 \quad \forall \mathbf{x}' \in C \label{eq:var_v}
+\end{align}
+Since $\hat{\mathbf{v}} \in C$, substitute $\mathbf{x} = \hat{\mathbf{v}}$ into~\eqref{eq:var_u}. Similarly, substitute $\mathbf{x}' = \hat{\mathbf{u}}$ into~\eqref{eq:var_v}:
 \begin{align}
 \langle \mathbf{u} - \hat{\mathbf{u}}, \hat{\mathbf{v}} - \hat{\mathbf{u}} \rangle &\le 0 \implies \langle \hat{\mathbf{u}} - \mathbf{u}, \hat{\mathbf{u}} - \hat{\mathbf{v}} \rangle \le 0 \\
 \langle \mathbf{v} - \hat{\mathbf{v}}, \hat{\mathbf{u}} - \hat{\mathbf{v}} \rangle &\le 0
 \end{align}
 Summing these two inequalities:
 \begin{equation}
-\langle (\hat{\mathbf{u}} - \hat{\mathbf{v}}) - (\mathbf{u} - \mathbf{v}), \hat{\mathbf{u}} - \hat{\mathbf{v}} \rangle \le 0
+\langle (\hat{\mathbf{u}} - \hat{\mathbf{v}}) - (\mathbf{u} - \mathbf{v}), \hat{\mathbf{u}} - \hat{\mathbf{v}} \rangle \le 0 \implies \|\hat{\mathbf{u}} - \hat{\mathbf{v}}\|_2^2 \le \langle \mathbf{u} - \mathbf{v}, \hat{\mathbf{u}} - \hat{\mathbf{v}} \rangle
+\label{eq:firm_step}
 \end{equation}
-Expanding the inner product:
-\begin{equation}
-\|\hat{\mathbf{u}} - \hat{\mathbf{v}}\|_2^2 \le \langle \mathbf{u} - \mathbf{v}, \hat{\mathbf{u}} - \hat{\mathbf{v}} \rangle
-\end{equation}
-By the Cauchy-Schwarz inequality, $\langle \mathbf{u} - \mathbf{v}, \hat{\mathbf{u}} - \hat{\mathbf{v}} \rangle \le \|\mathbf{u} - \mathbf{v}\|_2 \|\hat{\mathbf{u}} - \hat{\mathbf{v}}\|_2$. Therefore:
-\begin{equation}
-\|\hat{\mathbf{u}} - \hat{\mathbf{v}}\|_2^2 \le \|\mathbf{u} - \mathbf{v}\|_2 \|\hat{\mathbf{u}} - \hat{\mathbf{v}}\|_2
-\end{equation}
-Dividing both sides by $\|\hat{\mathbf{u}} - \hat{\mathbf{v}}\|_2$ (assuming $\hat{\mathbf{u}} \ne \hat{\mathbf{v}}$, otherwise the result is trivial) yields:
-\begin{equation}
-\|\Pi_C(\mathbf{u}) - \Pi_C(\mathbf{v})\|_2 \le \|\mathbf{u} - \mathbf{v}\|_2
-\end{equation}
-establishing that projection onto convex sets is strictly non-expansive.
+Now consider the vector identity for any vectors $\mathbf{a}, \mathbf{b} \in \mathbb{R}^d$: $\|\mathbf{a} + \mathbf{b}\|_2^2 = \|\mathbf{a}\|_2^2 + \|\mathbf{b}\|_2^2 + 2\langle \mathbf{a}, \mathbf{b} \rangle$. Setting $\mathbf{a} = \hat{\mathbf{u}} - \hat{\mathbf{v}}$ and $\mathbf{b} = (\mathbf{u} - \hat{\mathbf{u}}) - (\mathbf{v} - \hat{\mathbf{v}})$ so that $\mathbf{a} + \mathbf{b} = \mathbf{u} - \mathbf{v}$:
+\begin{align}
+\|\mathbf{u} - \mathbf{v}\|_2^2 &= \|\hat{\mathbf{u}} - \hat{\mathbf{v}}\|_2^2 + \|(\mathbf{u} - \hat{\mathbf{u}}) - (\mathbf{v} - \hat{\mathbf{v}})\|_2^2 + 2\langle \hat{\mathbf{u}} - \hat{\mathbf{v}}, (\mathbf{u} - \hat{\mathbf{u}}) - (\mathbf{v} - \hat{\mathbf{v}}) \rangle \nonumber \\
+&= \|\Pi_C(\mathbf{u}) - \Pi_C(\mathbf{v})\|_2^2 + \|(I - \Pi_C)(\mathbf{u}) - (I - \Pi_C)(\mathbf{v})\|_2^2 + 2\big(\langle \hat{\mathbf{u}} - \hat{\mathbf{v}}, \mathbf{u} - \mathbf{v} \rangle - \|\hat{\mathbf{u}} - \hat{\mathbf{v}}\|_2^2\big)
+\end{align}
+By~\eqref{eq:firm_step}, the cross-term $\langle \hat{\mathbf{u}} - \hat{\mathbf{v}}, \mathbf{u} - \mathbf{v} \rangle - \|\hat{\mathbf{u}} - \hat{\mathbf{v}}\|_2^2 \ge 0$. Dropping this non-negative term yields~\eqref{eq:firm_non_expansive}. Dropping the non-negative residual norm $\|(I - \Pi_C)(\mathbf{u}) - (I - \Pi_C)(\mathbf{v})\|_2^2 \ge 0$ immediately gives $\|\Pi_C(\mathbf{u}) - \Pi_C(\mathbf{v})\|_2 \le \|\mathbf{u} - \mathbf{v}\|_2$.
 \end{proof}
 
 \begin{ponderbox}{Does Projection Accelerate or Retard Convergence?}
@@ -536,6 +689,31 @@ In Machine Learning Foundations, Jensen's inequality serves as the primary theor
     \end{equation}
     guaranteeing that relative entropy is strictly non-negative, with equality if and only if $p = q$ almost everywhere.
 \end{enumerate}
+
+\begin{ponderbox}{The Water-Filling Paradox: Pruning Corrupted Channels}
+In parallel Gaussian communication or multi-task resource allocation, common intuition suggests that every available channel should receive at least a small sliver of power ($\epsilon > 0$) to harvest its information throughput. Why does the optimal KKT solution ruthlessly assign $P_k^* = 0$ to noisy channels, and why would providing $\epsilon > 0$ power to those channels strictly degrade total transmission capacity?
+\tcblower
+\textbf{The Socratic Resolution:} This phenomenon is governed by the \textbf{Equal Marginal Returns Principle} of constrained convex optimization.
+
+The marginal capacity gain obtained from injecting an incremental watt into channel $i$ is:
+\begin{equation}
+\frac{\partial C}{\partial P_i} = \frac{1}{\ln 2} \cdot \frac{1}{P_i + \sigma_i^2}
+\end{equation}
+Notice that when power is zero ($P_i = 0$), the initial marginal return is bounded above by the inverse noise floor: $\left.\frac{\partial C}{\partial P_i}\right|_{P_i = 0} = \frac{1}{\sigma_i^2 \ln 2}$. 
+
+Now suppose the system reaches equilibrium across the clean channels at water level $\mu^* = 1/\nu^*$. Every active channel satisfies $P_j^* + \sigma_j^2 = \mu^*$, yielding identical marginal capacity returns: $\frac{\partial C}{\partial P_j} = \frac{1}{\mu^* \ln 2}$.
+
+If a severely corrupted channel has noise variance $\sigma_k^2 > \mu^*$, its maximum possible marginal return (at $P_k = 0$) is:
+\begin{equation}
+\left.\frac{\partial C}{\partial P_k}\right|_{P_k = 0} = \frac{1}{\sigma_k^2 \ln 2} < \frac{1}{\mu^* \ln 2}
+\end{equation}
+Because the total power budget $\sum P_i = P_{\text{total}}$ is strictly conserved, granting $\epsilon > 0$ power to the noisy channel requires stealing $\epsilon$ power from clean channels. 
+The capacity loss incurred by depriving clean channels is $\approx \frac{\epsilon}{\mu^* \ln 2}$, whereas the capacity gained from the noisy channel is only $\approx \frac{\epsilon}{\sigma_k^2 \ln 2}$. Because $\sigma_k^2 > \mu^*$:
+\begin{equation}
+\Delta C_{\text{total}} \approx \epsilon \left( \frac{1}{\sigma_k^2 \ln 2} - \frac{1}{\mu^* \ln 2} \right) < 0
+\end{equation}
+Every watt diverted to the noisy channel produces less capacity than it destroys in the clean channels. In constrained optimization, the boundary condition $P_k^* = 0$ is not a defect; it is nature's mechanism for pruning suboptimal dimensions.
+\end{ponderbox}
 
 % ----------------------------------------------------------------------
 % PART 5: MULTI-PAGE WORKED EXAMPLES
@@ -823,6 +1001,227 @@ Notice that this matches the classical point-to-plane distance formula:
 \end{equation}
 \end{examplebox}
 
+\begin{examplebox}[breakable]{The Water-Filling Algorithm for Parallel Gaussian Channels}
+\textbf{Problem Statement:}
+In wireless communications and optimal resource allocation, a transmitter must distribute a total power budget $P_{\text{total}} = 2.0$ watts across $K = 3$ independent parallel Gaussian channels to maximize the total Shannon information throughput. The channel noise variances are:
+\begin{equation}
+\sigma_1^2 = 0.20, \quad \sigma_2^2 = 0.60, \quad \sigma_3^2 = 1.50
+\end{equation}
+The total Shannon capacity (in bits per second per Hertz) is given by:
+\begin{equation}
+C(P_1, P_2, P_3) = \frac{1}{2} \sum_{i=1}^3 \log_2\left( 1 + \frac{P_i}{\sigma_i^2} \right)
+\end{equation}
+Subject to the budget and non-negativity constraints:
+\begin{equation}
+\sum_{i=1}^3 P_i = 2.0, \quad P_i \ge 0 \quad (i = 1, 2, 3)
+\end{equation}
+
+\textbf{Task Requirements:}
+\begin{enumerate}
+    \item Formulate the equivalent convex minimization problem and its Lagrangian functional $\mathcal{L}(\mathbf{P}, \nu, \boldsymbol{\lambda})$.
+    \item Derive the Karush-Kuhn-Tucker (KKT) first-order optimality conditions and the explicit water-filling equation $P_i^* = \max(0, \mu^* - \sigma_i^2)$ with water level $\mu^* \triangleq 1/\nu^*$.
+    \item Solve step-by-step for the exact equilibrium water level $\mu^*$, proving why Channel~3 must be deactivated ($P_3^* = 0$).
+    \item Compute the exact optimal power allocation $\mathbf{P}^* = [P_1^*, P_2^*, P_3^*]^T$ and dual multipliers $\nu^*$ and $\lambda_3^*$.
+    \item Calculate the optimal Shannon capacity $C(\mathbf{P}^*)$ and contrast it with a naive uniform allocation $P_1 = P_2 = P_3 = \frac{2}{3}$, quantifying the percentage spectral efficiency gain.
+\end{enumerate}
+
+\tcblower
+
+\textbf{Step 1: Convex Minimization Formulation \& Lagrangian}
+Maximizing $\sum \frac{1}{2}\log_2(1 + P_i/\sigma_i^2)$ is mathematically equivalent to minimizing the negative natural logarithm:
+\begin{equation}
+\min_{\mathbf{P} \in \mathbb{R}^3} f(\mathbf{P}) \triangleq -\sum_{i=1}^3 \ln(P_i + \sigma_i^2) \quad \text{subject to } \sum_{i=1}^3 P_i = 2.0, \quad -P_i \le 0 \; (i=1, 2, 3)
+\end{equation}
+where we dropped the constant terms $\ln(\sigma_i^2)$. The objective is strictly convex because each $-\ln(P_i + \sigma_i^2)$ has positive second derivative $\frac{1}{(P_i + \sigma_i^2)^2} > 0$.
+Introducing equality multiplier $\nu \in \mathbb{R}$ and inequality multipliers $\lambda_i \ge 0$:
+\begin{equation}
+\mathcal{L}(\mathbf{P}, \nu, \boldsymbol{\lambda}) = -\sum_{i=1}^3 \ln(P_i + \sigma_i^2) + \nu \left( \sum_{i=1}^3 P_i - 2.0 \right) - \sum_{i=1}^3 \lambda_i P_i
+\end{equation}
+
+\textbf{Step 2: KKT Optimality Conditions}
+The KKT conditions require:
+\begin{align}
+\text{Stationarity: } & \frac{\partial \mathcal{L}}{\partial P_i} = -\frac{1}{P_i + \sigma_i^2} + \nu - \lambda_i = 0 \implies \frac{1}{P_i + \sigma_i^2} = \nu - \lambda_i \label{eq:wf_stat} \\
+\text{Primal Feasibility: } & \sum_{i=1}^3 P_i = 2.0, \quad P_i \ge 0 \quad \forall i \in \{1, 2, 3\} \\
+\text{Dual Feasibility: } & \lambda_i \ge 0 \quad \forall i \in \{1, 2, 3\} \\
+\text{Complementary Slackness: } & \lambda_i P_i = 0 \quad \forall i \in \{1, 2, 3\} \label{eq:wf_slack}
+\end{align}
+From complementary slackness~\eqref{eq:wf_slack}:
+\begin{itemize}
+    \item If $P_i > 0$, then $\lambda_i = 0$. From~\eqref{eq:wf_stat}: $\frac{1}{P_i + \sigma_i^2} = \nu \implies P_i + \sigma_i^2 = \frac{1}{\nu} \triangleq \mu^*$. Thus $P_i = \mu^* - \sigma_i^2$.
+    \item If $P_i = 0$, then $\lambda_i = \nu - \frac{1}{\sigma_i^2} \ge 0 \implies \nu \ge \frac{1}{\sigma_i^2} \iff \sigma_i^2 \ge \frac{1}{\nu} = \mu^*$.
+\end{itemize}
+Combining both cases yields the master \textbf{Water-Filling Formula}:
+\begin{equation}
+P_i^* = \max\left(0, \, \mu^* - \sigma_i^2\right) = (\mu^* - \sigma_i^2)^+
+\end{equation}
+
+\textbf{Step 3: Analytical Determination of Water Level $\mu^*$}
+We determine $\mu^*$ by sorting noise levels in ascending order: $\sigma_1^2 = 0.20 < \sigma_2^2 = 0.60 < \sigma_3^2 = 1.50$.
+
+\emph{Trial 1: Assume all $K=3$ channels are active ($P_i > 0$ for $i=1, 2, 3$).}
+The total power constraint becomes:
+\begin{equation}
+\sum_{i=1}^3 (\mu - \sigma_i^2) = 3\mu - (0.20 + 0.60 + 1.50) = 3\mu - 2.30 = 2.00
+\end{equation}
+Solving for $\mu$:
+\begin{equation}
+3\mu = 4.30 \implies \mu = \frac{4.30}{3} \approx 1.4333
+\end{equation}
+Now check feasibility for Channel~3:
+\begin{equation}
+P_3 = \mu - \sigma_3^2 = 1.4333 - 1.50 = -0.0667 < 0
+\end{equation}
+This violates the primal non-negativity constraint $P_3 \ge 0$. Hence, Channel~3 cannot be active.
+
+\emph{Trial 2: Set $P_3^* = 0$ (Channel~3 deactivated). Assume Channels~1 and~2 are active.}
+The power budget must be satisfied exclusively by Channels~1 and~2:
+\begin{equation}
+(\mu - \sigma_1^2) + (\mu - \sigma_2^2) = (\mu - 0.20) + (\mu - 0.60) = 2\mu - 0.80 = 2.00
+\end{equation}
+Solving for $\mu^*$:
+\begin{equation}
+2\mu^* = 2.80 \implies \mu^* = 1.40
+\end{equation}
+Now verify consistency across all three channels:
+\begin{align}
+P_1^* &= \mu^* - \sigma_1^2 = 1.40 - 0.20 = 1.20 > 0 \quad \checkmark \\
+P_2^* &= \mu^* - \sigma_2^2 = 1.40 - 0.60 = 0.80 > 0 \quad \checkmark \\
+\sigma_3^2 &= 1.50 \ge \mu^* = 1.40 \implies P_3^* = 0.00 \quad \checkmark
+\end{align}
+Total power allocated: $P_1^* + P_2^* + P_3^* = 1.20 + 0.80 + 0.00 = 2.00 = P_{\text{total}}$ ($\checkmark$).
+
+\textbf{Step 4: Verification of Dual Multipliers}
+\begin{align}
+\text{Equality Multiplier: } & \nu^* = \frac{1}{\mu^*} = \frac{1}{1.40} = \frac{5}{7} \approx 0.7143 \\
+\text{Channel 1 Multiplier: } & \lambda_1^* = 0.00 \quad (\text{since } P_1^* > 0) \\
+\text{Channel 2 Multiplier: } & \lambda_2^* = 0.00 \quad (\text{since } P_2^* > 0) \\
+\text{Channel 3 Multiplier: } & \lambda_3^* = \nu^* - \frac{1}{\sigma_3^2} = \frac{5}{7} - \frac{1}{1.50} = \frac{5}{7} - \frac{2}{3} = \frac{15 - 14}{21} = \frac{1}{21} \approx 0.0476 \ge 0 \quad \checkmark
+\end{align}
+Because $\lambda_3^* > 0$, dual feasibility holds strictly, proving that Channel~3 is correctly inactive.
+
+\textbf{Step 5: Capacity Evaluation \& Benchmark Comparison}
+Compute the optimal Shannon capacity under water-filling allocation $\mathbf{P}^* = [1.20, 0.80, 0.00]^T$:
+\begin{align}
+C(\mathbf{P}^*) &= \frac{1}{2}\left[ \log_2\left(1 + \frac{1.20}{0.20}\right) + \log_2\left(1 + \frac{0.80}{0.60}\right) + \log_2\left(1 + \frac{0.00}{1.50}\right) \right] \nonumber \\
+&= \frac{1}{2}\left[ \log_2(7.0) + \log_2(2.3333) + 0 \right] \nonumber \\
+&= \frac{1}{2}\left[ 2.8074 + 1.2224 \right] = \frac{4.0298}{2} = 2.0149 \text{ bits/s/Hz}
+\end{align}
+
+Now contrast with a naive uniform allocation dividing $P_{\text{total}} = 2.0$ equally: $P_1 = P_2 = P_3 = \frac{2}{3} \approx 0.6667$:
+\begin{align}
+C(\mathbf{P}_{\text{uniform}}) &= \frac{1}{2}\left[ \log_2\left(1 + \frac{2/3}{0.20}\right) + \log_2\left(1 + \frac{2/3}{0.60}\right) + \log_2\left(1 + \frac{2/3}{1.50}\right) \right] \nonumber \\
+&= \frac{1}{2}\left[ \log_2(1 + 3.3333) + \log_2(1 + 1.1111) + \log_2(1 + 0.4444) \right] \nonumber \\
+&= \frac{1}{2}\left[ \log_2(4.3333) + \log_2(2.1111) + \log_2(1.4444) \right] \nonumber \\
+&= \frac{1}{2}\left[ 2.1155 + 1.0780 + 0.5305 \right] = \frac{3.7240}{2} = 1.8620 \text{ bits/s/Hz}
+\end{align}
+The relative capacity gain delivered by optimal water-filling is:
+\begin{equation}
+\Delta C = \frac{2.0149 - 1.8620}{1.8620} \times 100\% = +8.21\%
+\end{equation}
+By recognizing that Channel~3's noise floor ($\sigma_3^2 = 1.50$) exceeds the system water level ($\mu^* = 1.40$) and shutting it down entirely, the transmitter diverts critical energy to Channels~1 and~2, achieving a substantial $8.21\%$ increase in spectral efficiency.
+\end{examplebox}
+
+\begin{examplebox}[breakable]{Step-by-Step Numerical Trace of Projected Gradient Descent}
+\textbf{Problem Statement:}
+Consider minimizing the strongly convex, anisotropic quadratic loss functional:
+\begin{equation}
+f(w_1, w_2) = (w_1 - 3)^2 + 4(w_2 - 2)^2
+\end{equation}
+subject to the hypercube box constraint set:
+\begin{equation}
+\mathcal{C} = \left\{ \mathbf{w} \in \mathbb{R}^2 \;\middle|\; 0 \le w_1 \le 1, \; 0 \le w_2 \le 1 \right\} = [0, 1] \times [0, 1]
+\end{equation}
+Notice that the unconstrained global minimizer is at $\mathbf{w}_{\text{unc}}^* = (3, 2)$ where $f(3, 2) = 0$, which lies strictly outside the feasible box $\mathcal{C}$.
+
+\textbf{Task Requirements:}
+\begin{enumerate}
+    \item Compute the objective gradient $\nabla f(\mathbf{w})$ and state the coordinate-wise Euclidean projection operator $\Pi_{\mathcal{C}}(\mathbf{z})$.
+    \item Perform the complete numerical calculation for **Iteration 1** starting from $\mathbf{w}_0 = (0.0, 0.0)^T$ with learning rate $\eta = 0.20$: compute the gradient $\nabla f(\mathbf{w}_0)$, unconstrained update $\tilde{\mathbf{w}}_1$, projected point $\mathbf{w}_1$, and loss $f(\mathbf{w}_1)$.
+    \item Perform the complete numerical calculation for **Iteration 2**: compute $\nabla f(\mathbf{w}_1)$, unconstrained candidate $\tilde{\mathbf{w}}_2$, projected point $\mathbf{w}_2$, and test for numerical convergence.
+    \item Rigorously prove that the terminal iterate satisfies the Variational Characterization of Optimality for constrained convex minimization:
+    \begin{equation}
+    \nabla f(\mathbf{w}^*)^T (\mathbf{z} - \mathbf{w}^*) \ge 0 \quad \forall \mathbf{z} \in \mathcal{C}
+    \end{equation}
+    confirming that the iterate is the exact, global constrained minimizer.
+\end{enumerate}
+
+\tcblower
+
+\textbf{Step 1: Gradient Vector and Projection Operator}
+The gradient of $f$ is:
+\begin{equation}
+\nabla f(\mathbf{w}) = \begin{bmatrix} \frac{\partial f}{\partial w_1} \\ \frac{\partial f}{\partial w_2} \end{bmatrix} = \begin{bmatrix} 2(w_1 - 3) \\ 8(w_2 - 2) \end{bmatrix}
+\end{equation}
+The Euclidean projection onto the box $\mathcal{C} = [0, 1] \times [0, 1]$ decouples into independent 1D interval projections (clipping):
+\begin{equation}
+\Pi_{\mathcal{C}}(\mathbf{z}) = \begin{bmatrix} \operatorname{clip}(z_1, 0, 1) \\ \operatorname{clip}(z_2, 0, 1) \end{bmatrix} = \begin{bmatrix} \min(1, \max(0, z_1)) \\ \min(1, \max(0, z_2)) \end{bmatrix}
+\end{equation}
+
+\textbf{Step 2: Iteration 1 Walkthrough}
+\begin{itemize}
+    \item Initial state: $\mathbf{w}_0 = [0.0, 0.0]^T$.
+    \item Initial objective value:
+    \begin{equation}
+    f(\mathbf{w}_0) = (0 - 3)^2 + 4(0 - 2)^2 = (-3)^2 + 4(-2)^2 = 9 + 4(4) = 9 + 16 = 25.0
+    \end{equation}
+    \item Gradient computation at $\mathbf{w}_0$:
+    \begin{equation}
+    \nabla f(\mathbf{w}_0) = \begin{bmatrix} 2(0 - 3) \\ 8(0 - 2) \end{bmatrix} = \begin{bmatrix} -6.0 \\ -16.0 \end{bmatrix}
+    \end{equation}
+    \item Intermediate unconstrained gradient step ($\eta = 0.20$):
+    \begin{equation}
+    \tilde{\mathbf{w}}_1 = \mathbf{w}_0 - \eta \nabla f(\mathbf{w}_0) = \begin{bmatrix} 0.0 \\ 0.0 \end{bmatrix} - 0.20 \begin{bmatrix} -6.0 \\ -16.0 \end{bmatrix} = \begin{bmatrix} 0.0 + 1.20 \\ 0.0 + 3.20 \end{bmatrix} = \begin{bmatrix} 1.20 \\ 3.20 \end{bmatrix}
+    \end{equation}
+    Notice that $\tilde{\mathbf{w}}_1 = (1.20, 3.20)$ violates both upper bounds ($w_1 \le 1$ and $w_2 \le 1$).
+    \item Orthogonal projection onto $\mathcal{C}$:
+    \begin{equation}
+    \mathbf{w}_1 = \Pi_{\mathcal{C}}(\tilde{\mathbf{w}}_1) = \begin{bmatrix} \min(1, \max(0, 1.20)) \\ \min(1, \max(0, 3.20)) \end{bmatrix} = \begin{bmatrix} 1.0 \\ 1.0 \end{bmatrix}
+    \end{equation}
+    \item Objective value after Iteration 1:
+    \begin{equation}
+    f(\mathbf{w}_1) = f(1.0, 1.0) = (1 - 3)^2 + 4(1 - 2)^2 = (-2)^2 + 4(-1)^2 = 4 + 4(1) = 8.0
+    \end{equation}
+    The loss plunges dramatically from $25.0 \to 8.0$ (a $68.0\%$ error reduction in a single iteration).
+\end{itemize}
+
+\textbf{Step 3: Iteration 2 Walkthrough}
+\begin{itemize}
+    \item Gradient computation at $\mathbf{w}_1 = [1.0, 1.0]^T$:
+    \begin{equation}
+    \nabla f(\mathbf{w}_1) = \begin{bmatrix} 2(1 - 3) \\ 8(1 - 2) \end{bmatrix} = \begin{bmatrix} 2(-2) \\ 8(-1) \end{bmatrix} = \begin{bmatrix} -4.0 \\ -8.0 \end{bmatrix}
+    \end{equation}
+    \item Intermediate unconstrained gradient step:
+    \begin{equation}
+    \tilde{\mathbf{w}}_2 = \mathbf{w}_1 - \eta \nabla f(\mathbf{w}_1) = \begin{bmatrix} 1.0 \\ 1.0 \end{bmatrix} - 0.20 \begin{bmatrix} -4.0 \\ -8.0 \end{bmatrix} = \begin{bmatrix} 1.0 + 0.80 \\ 1.0 + 1.60 \end{bmatrix} = \begin{bmatrix} 1.80 \\ 2.60 \end{bmatrix}
+    \end{equation}
+    \item Orthogonal projection onto $\mathcal{C}$:
+    \begin{equation}
+    \mathbf{w}_2 = \Pi_{\mathcal{C}}(\tilde{\mathbf{w}}_2) = \begin{bmatrix} \min(1, \max(0, 1.80)) \\ \min(1, \max(0, 2.60)) \end{bmatrix} = \begin{bmatrix} 1.0 \\ 1.0 \end{bmatrix}
+    \end{equation}
+    \item Convergence check:
+    \begin{equation}
+    \|\mathbf{w}_2 - \mathbf{w}_1\|_2 = \|[1.0, 1.0]^T - [1.0, 1.0]^T\|_2 = 0.0
+    \end{equation}
+    The iterate has locked onto the stationary fixed point $\mathbf{w}^* = (1.0, 1.0)$ in exactly one step!
+\end{itemize}
+
+\textbf{Step 4: Verification of First-Order Variational Optimality}
+At the terminal iterate $\mathbf{w}^* = [1.0, 1.0]^T$, the objective gradient is $\nabla f(\mathbf{w}^*) = [-4.0, -8.0]^T$.
+Testing the first-order variational inequality for \emph{any} arbitrary feasible point $\mathbf{z} \in [0, 1] \times [0, 1]$:
+\begin{align}
+\nabla f(\mathbf{w}^*)^T (\mathbf{z} - \mathbf{w}^*) &= \begin{bmatrix} -4.0 & -8.0 \end{bmatrix} \begin{bmatrix} z_1 - 1.0 \\ z_2 - 1.0 \end{bmatrix} \nonumber \\
+&= -4.0(z_1 - 1.0) - 8.0(z_2 - 1.0) \nonumber \\
+&= 4.0(1.0 - z_1) + 8.0(1.0 - z_2)
+\end{align}
+Because $\mathbf{z} \in \mathcal{C}$, we have $z_1 \le 1.0 \implies 1.0 - z_1 \ge 0$, and $z_2 \le 1.0 \implies 1.0 - z_2 \ge 0$.
+Since both terms are strictly non-negative, their weighted sum is non-negative:
+\begin{equation}
+\nabla f(\mathbf{w}^*)^T (\mathbf{z} - \mathbf{w}^*) \ge 0 \quad \forall \mathbf{z} \in \mathcal{C}
+\end{equation}
+with equality if and only if $\mathbf{z} = \mathbf{w}^*$. This rigorously proves that $\mathbf{w}^* = (1.0, 1.0)$ is the unique global constrained minimizer of $f$ over the box $\mathcal{C}$.
+\end{examplebox}
+
 % ----------------------------------------------------------------------
 % PART 6: EXPLICIT GOTCHAS & DIAGNOSTIC MISCONCEPTIONS
 % ----------------------------------------------------------------------
@@ -856,6 +1255,18 @@ A practitioner sets up a Lagrangian for the constraint $h(x, y) = x^2 + y^2 = 0$
 When asked to minimize an objective $f(\mathbf{w})$ over a convex set $C$, an engineer computes the unconstrained minimum $\mathbf{w}_{\text{unc}}^* = \argmin_{\mathbf{w}} f(\mathbf{w})$ and projects it onto the boundary: $\hat{\mathbf{w}} = \Pi_C(\mathbf{w}_{\text{unc}}^*)$.
 \tcblower
 \textbf{The Trap:} The projection $\Pi_C(\mathbf{w}_{\text{unc}}^*)$ is \textbf{almost never the true constrained minimum}! Orthogonal projection minimizes Euclidean distance $\|\mathbf{w} - \mathbf{w}_{\text{unc}}^*\|_2^2$, treating all directions with equal isotropic weighting. If the objective function has anisotropic curvature (different eigenvalues in its Hessian), the true constrained optimum occurs at a point of \textbf{tangency} where $\nabla f(\mathbf{w}^*)$ is normal to the constraint boundary, not at the closest Euclidean point.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 6: The "Convex Loss on Non-Convex Parameterization" Illusion}
+An ML engineer reasons: ``Mean Squared Error is quadratic and therefore strictly convex. Therefore, fitting a matrix factorization model $W \approx U V^T$ or a two-layer linear network $\hat{\mathbf{y}} = W_2 W_1 \mathbf{x}$ by minimizing squared reconstruction error has no spurious local minima or saddle points.''
+\tcblower
+\textbf{The Trap:} The composition of a convex function with a non-linear parameterization is \textbf{almost never convex}. 
+
+While the loss functional $\phi(W) = \frac{1}{2}\|Y - W\|_F^2$ is strictly convex with respect to the matrix entries $W$, re-parameterizing $W = U V^T$ transforms the objective into:
+\begin{equation}
+f(U, V) = \frac{1}{2}\|Y - U V^T\|_F^2
+\end{equation}
+which is a degree-4 polynomial in the parameters $(U, V)$. Although $f(U, V)$ is \textbf{biconvex} (convex in $U$ for fixed $V$, and convex in $V$ for fixed $U$), it is jointly non-convex. It introduces saddle points at the origin $(U=O, V=O)$ where $\nabla f = \mathbf{0}$ but the Hessian is indefinite, as well as permutation symmetries and non-isolated manifolds of critical points. Never confuse the convexity of an outer loss with the convexity of the parameterized optimization problem.
 \end{trapbox}
 
 % ----------------------------------------------------------------------
@@ -1004,6 +1415,31 @@ if __name__ == "__main__":
     \begin{equation}
     \left( \prod_{i=1}^n a_i \right)^{1/n} \le \frac{1}{n} \sum_{i=1}^n a_i
     \end{equation}
+
+    \item \textbf{Variational Characterization of Projection \& Firm Non-Expansiveness:}
+    Let $C \subset \mathbb{R}^d$ be a non-empty closed convex set.
+    \begin{enumerate}[label=(\alph*)]
+        \item Let $\mathbf{w} \in \mathbb{R}^d$. Prove that $\mathbf{z}^* = \Pi_C(\mathbf{w})$ if and only if:
+        \begin{equation*}
+        \langle \mathbf{w} - \mathbf{z}^*, \mathbf{x} - \mathbf{z}^* \rangle \le 0 \quad \forall \mathbf{x} \in C
+        \end{equation*}
+        \item Using part (a), prove that the projection operator is \emph{firmly non-expansive}:
+        \begin{equation*}
+        \|\Pi_C(\mathbf{u}) - \Pi_C(\mathbf{v})\|_2^2 + \|(I - \Pi_C)(\mathbf{u}) - (I - \Pi_C)(\mathbf{v})\|_2^2 \le \|\mathbf{u} - \mathbf{v}\|_2^2 \quad \forall \mathbf{u}, \mathbf{v} \in \mathbb{R}^d
+        \end{equation*}
+        \item Deduce that $\|\Pi_C(\mathbf{u}) - \Pi_C(\mathbf{v})\|_2 \le \|\mathbf{u} - \mathbf{v}\|_2$, establishing that $\Pi_C$ is a 1-Lipschitz contraction mapping.
+    \end{enumerate}
+
+    \item \textbf{Lagrange Multiplier Sensitivity \& Shadow Price Derivation:}
+    Consider the perturbed constrained optimization problem $f^*(\mathbf{c}) = \min_{\mathbf{w}} f(\mathbf{w})$ subject to $h_j(\mathbf{w}) = c_j$ for $j = 1, \dots, p$, where $f$ and all $h_j$ are smooth.
+    \begin{enumerate}[label=(\alph*)]
+        \item Set up the Lagrangian $\mathcal{L}(\mathbf{w}, \boldsymbol{\nu}; \mathbf{c}) = f(\mathbf{w}) + \sum_{j=1}^p \nu_j (h_j(\mathbf{w}) - c_j)$.
+        \item Assuming the optimal trajectory $\mathbf{w}^*(\mathbf{c})$ is differentiable and satisfies the LICQ condition at $\mathbf{c} = \mathbf{0}$, prove using the multivariable chain rule that:
+        \begin{equation*}
+        \frac{\partial f^*(\mathbf{c})}{\partial c_k} = -\nu_k^*(\mathbf{c})
+        \end{equation*}
+        \item An automated trading algorithm allocates a total capital budget $B = \$100{,}000$ across assets by minimizing portfolio variance subject to $\sum w_i = B$. If the optimal Lagrange multiplier is $\nu^* = -0.0042$, calculate the exact marginal change in minimal portfolio variance if the capital budget is increased by $\$1{,}000$.
+    \end{enumerate}
 \end{enumerate}
 
 \subsection*{Part B: Diagnostic Multiple-Choice Questions}

@@ -1043,6 +1043,96 @@ Exponentiating both sides:
 \frac{1}{n}\sum_{i=1}^n a_i \ge \left( \prod_{i=1}^n a_i \right)^{1/n} \quad (\text{AM} \ge \text{GM})
 \end{equation*}
 
+\paragraph{P6. Variational Characterization of Projection \& Firm Non-Expansiveness:}
+Let $C \subset \mathbb{R}^d$ be a non-empty closed convex set.
+\begin{enumerate}[label=(\alph*)]
+    \item \textbf{Necessity ($\implies$):} Let $\mathbf{z}^* = \Pi_C(\mathbf{w}) = \argmin_{\mathbf{z} \in C} \frac{1}{2}\|\mathbf{z} - \mathbf{w}\|_2^2$. For any $\mathbf{x} \in C$, convexity of $C$ guarantees that the line segment $\mathbf{z}(t) = (1 - t)\mathbf{z}^* + t\mathbf{x} = \mathbf{z}^* + t(\mathbf{x} - \mathbf{z}^*)$ belongs to $C$ for all $t \in [0, 1]$.
+    Define $\phi(t) = \frac{1}{2}\|\mathbf{z}(t) - \mathbf{w}\|_2^2$. Since $\mathbf{z}^* = \mathbf{z}(0)$ is the global minimizer over $C$, the one-sided derivative at $t=0$ must satisfy:
+    \begin{equation*}
+    \phi'(0) = \lim_{t \to 0^+} \frac{\phi(t) - \phi(0)}{t} \ge 0
+    \end{equation*}
+    Computing the derivative: $\phi'(t) = \langle \mathbf{z}(t) - \mathbf{w}, \mathbf{x} - \mathbf{z}^* \rangle$. At $t = 0$:
+    \begin{equation*}
+    \phi'(0) = \langle \mathbf{z}^* - \mathbf{w}, \mathbf{x} - \mathbf{z}^* \rangle \ge 0 \iff \langle \mathbf{w} - \mathbf{z}^*, \mathbf{x} - \mathbf{z}^* \rangle \le 0
+    \end{equation*}
+    \textbf{Sufficiency ($\impliedby$):} Suppose $\mathbf{z}^* \in C$ satisfies $\langle \mathbf{w} - \mathbf{z}^*, \mathbf{x} - \mathbf{z}^* \rangle \le 0$ for all $\mathbf{x} \in C$. For any $\mathbf{x} \in C$ with $\mathbf{x} \ne \mathbf{z}^*$:
+    \begin{align*}
+    \|\mathbf{x} - \mathbf{w}\|_2^2 &= \|(\mathbf{x} - \mathbf{z}^*) + (\mathbf{z}^* - \mathbf{w})\|_2^2 \\
+    &= \|\mathbf{x} - \mathbf{z}^*\|_2^2 + \|\mathbf{z}^* - \mathbf{w}\|_2^2 + 2\langle \mathbf{z}^* - \mathbf{w}, \mathbf{x} - \mathbf{z}^* \rangle \\
+    &= \|\mathbf{x} - \mathbf{z}^*\|_2^2 + \|\mathbf{z}^* - \mathbf{w}\|_2^2 - 2\langle \mathbf{w} - \mathbf{z}^*, \mathbf{x} - \mathbf{z}^* \rangle
+    \end{align*}
+    Because $\langle \mathbf{w} - \mathbf{z}^*, \mathbf{x} - \mathbf{z}^* \rangle \le 0$, the cross-term $-2\langle \mathbf{w} - \mathbf{z}^*, \mathbf{x} - \mathbf{z}^* \rangle \ge 0$. Furthermore, since $\mathbf{x} \ne \mathbf{z}^*$, $\|\mathbf{x} - \mathbf{z}^*\|_2^2 > 0$. Thus:
+    \begin{equation*}
+    \|\mathbf{x} - \mathbf{w}\|_2^2 > \|\mathbf{z}^* - \mathbf{w}\|_2^2
+    \end{equation*}
+    proving that $\mathbf{z}^*$ is the unique global minimizer: $\mathbf{z}^* = \Pi_C(\mathbf{w})$.
+    
+    \item \textbf{Firm Non-Expansiveness:} Let $\hat{\mathbf{u}} = \Pi_C(\mathbf{u})$ and $\hat{\mathbf{v}} = \Pi_C(\mathbf{v})$. Setting $\mathbf{x} = \hat{\mathbf{v}} \in C$ in the variational condition for $\hat{\mathbf{u}}$:
+    \begin{equation*}
+    \langle \mathbf{u} - \hat{\mathbf{u}}, \hat{\mathbf{v}} - \hat{\mathbf{u}} \rangle \le 0 \implies \langle \hat{\mathbf{u}} - \mathbf{u}, \hat{\mathbf{u}} - \hat{\mathbf{v}} \rangle \le 0
+    \end{equation*}
+    Setting $\mathbf{x} = \hat{\mathbf{u}} \in C$ in the variational condition for $\hat{\mathbf{v}}$:
+    \begin{equation*}
+    \langle \mathbf{v} - \hat{\mathbf{v}}, \hat{\mathbf{u}} - \hat{\mathbf{v}} \rangle \le 0
+    \end{equation*}
+    Adding the two inequalities:
+    \begin{equation*}
+    \langle (\hat{\mathbf{u}} - \hat{\mathbf{v}}) - (\mathbf{u} - \mathbf{v}), \hat{\mathbf{u}} - \hat{\mathbf{v}} \rangle \le 0 \implies \|\hat{\mathbf{u}} - \hat{\mathbf{v}}\|_2^2 \le \langle \mathbf{u} - \mathbf{v}, \hat{\mathbf{u}} - \hat{\mathbf{v}} \rangle
+    \end{equation*}
+    Now expand the norm of $(\mathbf{u} - \mathbf{v})$ by decomposing it into projection difference and complementary difference:
+    \begin{align*}
+    \|\mathbf{u} - \mathbf{v}\|_2^2 &= \|(\hat{\mathbf{u}} - \hat{\mathbf{v}}) + ((I - \Pi_C)(\mathbf{u}) - (I - \Pi_C)(\mathbf{v}))\|_2^2 \\
+    &= \|\hat{\mathbf{u}} - \hat{\mathbf{v}}\|_2^2 + \|(I - \Pi_C)(\mathbf{u}) - (I - \Pi_C)(\mathbf{v})\|_2^2 + 2\langle \hat{\mathbf{u}} - \hat{\mathbf{v}}, (\mathbf{u} - \hat{\mathbf{u}}) - (\mathbf{v} - \hat{\mathbf{v}}) \rangle
+    \end{align*}
+    Notice that the cross-term is:
+    \begin{equation*}
+    \langle \hat{\mathbf{u}} - \hat{\mathbf{v}}, (\mathbf{u} - \mathbf{v}) - (\hat{\mathbf{u}} - \hat{\mathbf{v}}) \rangle = \langle \mathbf{u} - \mathbf{v}, \hat{\mathbf{u}} - \hat{\mathbf{v}} \rangle - \|\hat{\mathbf{u}} - \hat{\mathbf{v}}\|_2^2 \ge 0
+    \end{equation*}
+    Therefore:
+    \begin{equation*}
+    \|\Pi_C(\mathbf{u}) - \Pi_C(\mathbf{v})\|_2^2 + \|(I - \Pi_C)(\mathbf{u}) - (I - \Pi_C)(\mathbf{v})\|_2^2 \le \|\mathbf{u} - \mathbf{v}\|_2^2
+    \end{equation*}
+    \item Because the complementary squared norm $\|(I - \Pi_C)(\mathbf{u}) - (I - \Pi_C)(\mathbf{v})\|_2^2 \ge 0$, dropping it gives:
+    \begin{equation*}
+    \|\Pi_C(\mathbf{u}) - \Pi_C(\mathbf{v})\|_2^2 \le \|\mathbf{u} - \mathbf{v}\|_2^2 \implies \|\Pi_C(\mathbf{u}) - \Pi_C(\mathbf{v})\|_2 \le \|\mathbf{u} - \mathbf{v}\|_2
+    \end{equation*}
+    proving that $\Pi_C$ is a 1-Lipschitz contraction mapping.
+\end{enumerate}
+
+\paragraph{P7. Lagrange Multiplier Sensitivity \& Shadow Price Derivation:}
+$f^*(\mathbf{c}) = \min_{\mathbf{w}} f(\mathbf{w})$ subject to $h_j(\mathbf{w}) = c_j$ for $j = 1, \dots, p$.
+\begin{enumerate}[label=(\alph*)]
+    \item Perturbed Lagrangian:
+    \begin{equation*}
+    \mathcal{L}(\mathbf{w}, \boldsymbol{\nu}; \mathbf{c}) = f(\mathbf{w}) + \sum_{j=1}^p \nu_j (h_j(\mathbf{w}) - c_j)
+    \end{equation*}
+    \item Let $\mathbf{w}^*(\mathbf{c})$ and $\boldsymbol{\nu}^*(\mathbf{c})$ denote the optimal trajectories. By the chain rule:
+    \begin{equation*}
+    \frac{\partial f^*(\mathbf{c})}{\partial c_k} = \nabla f(\mathbf{w}^*(\mathbf{c}))^T \frac{\partial \mathbf{w}^*(\mathbf{c})}{\partial c_k}
+    \end{equation*}
+    At the optimal point $\mathbf{w}^*(\mathbf{c})$, the Lagrange stationarity condition satisfies $\nabla f(\mathbf{w}^*(\mathbf{c})) = -\sum_{j=1}^p \nu_j^*(\mathbf{c}) \nabla h_j(\mathbf{w}^*(\mathbf{c}))$. Substituting this:
+    \begin{equation*}
+    \frac{\partial f^*(\mathbf{c})}{\partial c_k} = -\sum_{j=1}^p \nu_j^*(\mathbf{c}) \left( \nabla h_j(\mathbf{w}^*(\mathbf{c}))^T \frac{\partial \mathbf{w}^*(\mathbf{c})}{\partial c_k} \right)
+    \end{equation*}
+    Differentiating the constraint identity $h_j(\mathbf{w}^*(\mathbf{c})) = c_j$ with respect to $c_k$:
+    \begin{equation*}
+    \nabla h_j(\mathbf{w}^*(\mathbf{c}))^T \frac{\partial \mathbf{w}^*(\mathbf{c})}{\partial c_k} = \frac{\partial c_j}{\partial c_k} = \delta_{jk}
+    \end{equation*}
+    Thus:
+    \begin{equation*}
+    \frac{\partial f^*(\mathbf{c})}{\partial c_k} = -\sum_{j=1}^p \nu_j^*(\mathbf{c}) \delta_{jk} = -\nu_k^*(\mathbf{c})
+    \end{equation*}
+    \item For the portfolio problem, minimizing variance $\sigma_p^2$ subject to $\sum w_i = B$ yields:
+    \begin{equation*}
+    \frac{d (\sigma_p^2)^*}{dB} = -\nu^* = -(-0.0042) = +0.0042
+    \end{equation*}
+    For a capital increase of $\Delta B = +\$1{,}000$, the first-order change in minimal portfolio variance is:
+    \begin{equation*}
+    \Delta (\sigma_p^2)^* \approx (-\nu^*) \Delta B = (0.0042)(1{,}000) = +4.2 \text{ variance units}
+    \end{equation*}
+    The shadow price reveals exactly how much risk budget must expand per dollar of increased capital deployment.
+\end{enumerate}
+
 \subsection*{Part B: Diagnostic Multiple-Choice Rationales}
 
 \paragraph{MCQ1: Identification of Non-Convex Sets}
