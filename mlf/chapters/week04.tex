@@ -1066,7 +1066,7 @@ Normalizing at each step eliminates the scaling factor $c_1 \lambda_1^k$, leavin
 
 % Unit circle arc
 \draw[dashed, color=gray!40, line width=0.8pt] (4.0, 0) arc (0:90:4.0);
-\node[color=gray!60, font=\scriptsize] at (2.8, 3.2) {Unit Sphere $\|\mathbf{q}\|_2 = 1$};
+\node[color=gray!60, font=\scriptsize, align=center] at (1.5, 3.8) {Unit Sphere\\$\|\mathbf{q}\|_2 = 1$};
 
 % Successive iterates on the unit sphere
 \coordinate (O) at (0, 0);
@@ -1078,9 +1078,9 @@ Normalizing at each step eliminates the scaling factor $c_1 \lambda_1^k$, leavin
 
 % Draw iterates
 \draw[iter, color=coralborder] (O) -- (Q0) node[above, font=\footnotesize\bfseries] {$\mathbf{q}_0$};
-\draw[iter, color=coralborder!80!traprad] (O) -- (Q1) node[above right, font=\footnotesize\bfseries] {$\mathbf{q}_1 = \frac{A\mathbf{q}_0}{\|A\mathbf{q}_0\|}$};
-\draw[iter, color=tealborder] (O) -- (Q2) node[above right, font=\footnotesize\bfseries] {$\mathbf{q}_2$};
-\draw[iter, color=tealborder!80!forest] (O) -- (Q3) node[above right, font=\footnotesize\bfseries] {$\mathbf{q}_3$};
+\draw[iter, color=coralborder!80!traprad] (O) -- (Q1) node[above right=-1pt, font=\footnotesize\bfseries] {$\mathbf{q}_1$};
+\draw[iter, color=tealborder] (O) -- (Q2) node[above right=-1pt, font=\footnotesize\bfseries] {$\mathbf{q}_2$};
+\draw[iter, color=tealborder!80!forest] (O) -- (Q3) node[above right=-1pt, font=\footnotesize\bfseries] {$\mathbf{q}_3$};
 \draw[vec, color=forest, line width=2.2pt] (O) -- (V1) node[below right, font=\footnotesize\bfseries] {$\mathbf{v}_1$ (Limit)};
 
 % Curved progression arrows along the unit circle

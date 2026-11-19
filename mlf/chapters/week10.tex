@@ -280,7 +280,7 @@ Figure~\ref{fig:svm_geometry} illustrates the canonical maximum margin hyperplan
 \begin{tikzpicture}[scale=0.95, font=\sffamily\footnotesize]
     % Separating hyperplane w^T x + b = 0
     \draw[line width=2pt, color=primarydark] (-3.8, -1.6) -- (3.8, 2.6);
-    \node[above, color=primarydark] at (2.4, 2.2) {\textbf{Decision Boundary: } $\mathbf{w}^T \mathbf{x} + b = 0$};
+    \node[below right, color=primarydark] at (1.6, 1.1) {\textbf{Decision Boundary: } $\mathbf{w}^T \mathbf{x} + b = 0$};
 
     % Positive margin hyperplane w^T x + b = +1
     \draw[dashed, line width=1.4pt, color=tealborder] (-4.2, -0.5) -- (3.2, 3.7);
@@ -299,7 +299,7 @@ Figure~\ref{fig:svm_geometry} illustrates the canonical maximum margin hyperplan
     \coordinate (SV1) at (-0.6, 1.6);
     \filldraw[color=tealborder] (SV1) rectangle ++(6pt, 6pt);
     \draw[line width=1.5pt, color=forest] ($(SV1) + (3pt, 3pt)$) circle (9pt);
-    \node[above, color=forest] at ($(SV1) + (0, 0.35)$) {\textbf{Support Vector } ($\lambda_1^* > 0$)};
+    \node[above left, color=forest] at ($(SV1) + (-0.1, 0.25)$) {\textbf{Support Vector } ($\lambda_1^* > 0$)};
 
     % Class -1 data points (coral circles)
     \filldraw[color=coralborder] (0.6, -2.2) circle (3pt);
@@ -313,12 +313,12 @@ Figure~\ref{fig:svm_geometry} illustrates the canonical maximum margin hyperplan
     \node[below right, color=traprad] at ($(SV2) + (0.1, -0.1)$) {\textbf{Support Vector } ($\lambda_2^* > 0$)};
 
     % Margin width arrow
-    \draw[<->, >=stealth, line width=1.6pt, color=traprad] (-1.1, 1.3) -- (-0.1, -0.2) 
-        node[midway, left] {\textbf{Margin } $\gamma = \frac{2}{\|\mathbf{w}\|_2}$};
+    \draw[<->, >=stealth, line width=1.6pt, color=traprad] (-1.3, 1.2) -- (-0.3, -0.3) 
+        node[midway, left, font=\scriptsize\bfseries] {\textbf{Margin } $\gamma = \frac{2}{\|\mathbf{w}\|_2}$};
 
     % Normal vector w
-    \draw[->, >=stealth, line width=2pt, color=primarydark] (0, 0.5) -- (-0.8, 1.9) 
-        node[left] {$\mathbf{w}^* = \sum \lambda_i^* y_i \mathbf{x}_i$};
+    \draw[->, >=stealth, line width=2pt, color=primarydark] (0, 0.3) -- (-0.8, 1.7) 
+        node[left, font=\scriptsize\bfseries] {$\mathbf{w}^* = \sum \lambda_i^* y_i \mathbf{x}_i$};
 \end{tikzpicture}
 \caption{The Geometry of Support Vector Machines: Maximizing the geometric margin $\frac{2}{\|\mathbf{w}\|_2}$ forces the weight vector to depend strictly on the boundary support vectors. Training samples lying strictly inside the class territories have $\lambda_i^* = 0$ and exert zero influence on the separating hyperplane.}
 \label{fig:svm_geometry}

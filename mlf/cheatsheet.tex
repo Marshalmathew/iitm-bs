@@ -1,64 +1,286 @@
 \chapter*{Machine Learning Foundations --- Quick Reference Cheat Sheet}
 \addcontentsline{toc}{chapter}{Machine Learning Foundations --- Quick Reference Cheat Sheet}
 
-\begin{tcolorbox}[colback=primarylight!40,colframe=primarydark,title=\textbf{1. Linear Algebra \& Fundamental Subspaces}]
-Let $A \in \mathbb{R}^{m \times n}$ with $\rank(A) = r$:
-\begin{itemize}[leftmargin=*]
-    \item \textbf{Rank-Nullity Theorem:} $\dim(\Col(A)) = \dim(\Row(A)) = r$, $\dim(\Null(A)) = n - r$, $\dim(\Null(A^T)) = m - r$.
-    \item \textbf{Orthogonal Complements:} $\Row(A) \perp \Null(A)$ in $\mathbb{R}^n$, and $\Col(A) \perp \Null(A^T)$ in $\mathbb{R}^m$.
-    \item \textbf{Projection Matrix onto $\Col(A)$:} If $A$ has full column rank ($r = n$), $P = A(A^T A)^{-1}A^T$.
-    \item \textbf{Normal Equations (OLS):} $A^T A \mathbf{w} = A^T \mathbf{y} \implies \mathbf{w}^* = (A^T A)^{-1}A^T \mathbf{y}$.
-\end{itemize}
-\end{tcolorbox}
-
-\begin{tcolorbox}[colback=tealbg!40,colframe=tealborder,title=\textbf{2. Matrix Decompositions \& Eigendecomposition}]
-\begin{itemize}[leftmargin=*]
-    \item \textbf{Spectral Theorem (Symmetric $A = A^T$):} $A = Q \Lambda Q^T = \sum_{i=1}^n \lambda_i \mathbf{q}_i \mathbf{q}_i^T$ with orthonormal eigenvectors $\mathbf{q}_i$.
-    \item \textbf{Singular Value Decomposition (SVD):} Any $A \in \mathbb{R}^{m \times n}$ decomposes as $A = U \Sigma V^T = \sum_{i=1}^r \sigma_i \mathbf{u}_i \mathbf{v}_i^T$, where $\sigma_1 \ge \sigma_2 \ge \dots \ge \sigma_r > 0$.
-    \item \textbf{PCA Projection:} Given zero-mean data matrix $X \in \mathbb{R}^{N \times d}$, sample covariance is $S = \frac{1}{N} X^T X$. The principal components are the eigenvectors of $S$: $S \mathbf{v}_i = \lambda_i \mathbf{v}_i$, sorted by decreasing $\lambda_i$.
-    \item \textbf{Moore-Penrose Pseudoinverse:} $A^+ = V \Sigma^+ U^T$.
-\end{itemize}
-\end{tcolorbox}
-
-\begin{tcolorbox}[colback=coralbg!40,colframe=coralborder,title=\textbf{3. Multivariate Calculus \& Numerical Optimization}]
-\begin{itemize}[leftmargin=*]
-    \item \textbf{Gradient \& Hessian:} $\nabla f(\mathbf{x}) \in \mathbb{R}^d$, $H(\mathbf{x}) = \nabla^2 f(\mathbf{x}) \in \mathbb{R}^{d \times d}$.
-    \item \textbf{Second-Order Taylor Expansion:} $f(\mathbf{x} + \mathbf{v}) \approx f(\mathbf{x}) + \nabla f(\mathbf{x})^T \mathbf{v} + \frac{1}{2} \mathbf{v}^T \nabla^2 f(\mathbf{x}) \mathbf{v}$.
-    \item \textbf{Convexity:} $f(\theta \mathbf{x} + (1-\theta)\mathbf{y}) \le \theta f(\mathbf{x}) + (1-\theta) f(\mathbf{y})$ for $\theta \in [0, 1]$. For twice-differentiable $f$, $f$ is convex $\iff \nabla^2 f(\mathbf{x}) \succeq 0$ ($\forall \mathbf{x}$).
-    \item \textbf{Gradient Descent Update:} $\mathbf{x}_{k+1} = \mathbf{x}_k - \eta \nabla f(\mathbf{x}_k)$. Converges for $L$-smooth convex $f$ when $\eta \in (0, 2/L)$.
-    \item \textbf{Newton-Raphson Update:} $\mathbf{x}_{k+1} = \mathbf{x}_k - [H(\mathbf{x}_k)]^{-1} \nabla f(\mathbf{x}_k)$.
-\end{itemize}
-\end{tcolorbox}
-
-\begin{tcolorbox}[colback=purplebg!40,colframe=purpleborder,title=\textbf{4. Constrained Optimization \& KKT Conditions}]
-Minimize $f_0(\mathbf{x})$ subject to $f_i(\mathbf{x}) \le 0$ ($i = 1, \dots, m$) and $h_j(\mathbf{x}) = 0$ ($j = 1, \dots, p$):
-\begin{itemize}[leftmargin=*]
-    \item \textbf{Lagrangian:} $\mathcal{L}(\mathbf{x}, \boldsymbol{\lambda}, \boldsymbol{\nu}) = f_0(\mathbf{x}) + \sum_{i=1}^m \lambda_i f_i(\mathbf{x}) + \sum_{j=1}^p \nu_j h_j(\mathbf{x})$.
-    \item \textbf{Karush-Kuhn-Tucker (KKT) Conditions:}
+\begin{tcolorbox}[breakable, colback=primarylight!30, colframe=primarydark, title={\large \textbf{1. Linear Algebra, Subspaces \& Regularized Regression (Weeks 1, 3--4)}}]
+Let $A \in \mathbb{R}^{m \times n}$ with rank $r = \rank(A) \le \min(m, n)$:
+\begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+    \item \textbf{Strang's Four Fundamental Subspaces:}
+    \begin{itemize}[leftmargin=*, noitemsep]
+        \item Column space: $\Col(A) \subset \mathbb{R}^m$, dimension $\dim(\Col(A)) = r$.
+        \item Row space: $\Row(A) \subset \mathbb{R}^n$, dimension $\dim(\Row(A)) = r$.
+        \item Nullspace (Kernel): $\Null(A) \subset \mathbb{R}^n$, dimension $\dim(\Null(A)) = n - r$ (Rank-Nullity: $r + \dim(\Null(A)) = n$).
+        \item Left nullspace: $\Null(A^T) \subset \mathbb{R}^m$, dimension $\dim(\Null(A^T)) = m - r$.
+    \end{itemize}
+    \item \textbf{Fundamental Orthogonal Decompositions:}
     \begin{align*}
-        \text{Primal Feasibility:} \quad & f_i(\mathbf{x}^*) \le 0, \quad h_j(\mathbf{x}^*) = 0 \\
-        \text{Dual Feasibility:} \quad & \lambda_i^* \ge 0 \\
-        \text{Complementary Slackness:} \quad & \lambda_i^* f_i(\mathbf{x}^*) = 0 \quad (\forall i) \\
-        \text{Stationarity:} \quad & \nabla_{\mathbf{x}} \mathcal{L}(\mathbf{x}^*, \boldsymbol{\lambda}^*, \boldsymbol{\nu}^*) = \mathbf{0}
+    \Row(A) &\perp \Null(A) \quad (\mathbb{R}^n = \Row(A) \oplus \Null(A)) \\
+    \Col(A) &\perp \Null(A^T) \quad (\mathbb{R}^m = \Col(A) \oplus \Null(A^T))
     \end{align*}
+    \item \textbf{Orthogonal Projection Operators:}
+    \begin{itemize}[leftmargin=*, noitemsep]
+        \item Onto a unit vector $\mathbf{u}$: $P_{\mathbf{u}} = \mathbf{u}\mathbf{u}^T$.
+        \item Onto $\Col(A)$ ($r = n$): $P = A(A^T A)^{-1}A^T$. Onto $\Null(A^T)$: $P_\perp = I_m - P$.
+        \item Properties: Idempotent ($P^2 = P$), Symmetric ($P^T = P$), Eigenvalues $\lambda \in \{0, 1\}$, $\trace(P) = r$.
+    \end{itemize}
+    \item \textbf{Ordinary Least Squares (OLS) \& Normal Equations:}
+    \begin{equation*}
+    A^T A \mathbf{w}^* = A^T \mathbf{y} \implies \mathbf{w}^* = (A^T A)^{-1} A^T \mathbf{y}, \qquad \hat{\mathbf{y}} = P\mathbf{y}, \qquad \mathbf{e} = \mathbf{y} - \hat{\mathbf{y}} \in \Null(A^T)
+    \end{equation*}
+    \item \textbf{QR Factorization for Stable OLS:} $A = QR$ ($Q^T Q = I_n$, $R$ upper triangular). Solves $R \mathbf{w}^* = Q^T \mathbf{y}$ via back-substitution without forming $A^T A$, avoiding condition squaring.
+    \item \textbf{Ridge Regression (Tikhonov / $\ell_2$ Regularization):}
+    \begin{equation*}
+    \mathbf{w}_{\text{ridge}}^* = (X^T X + \lambda I)^{-1} X^T \mathbf{y} = \sum_{i=1}^r \frac{\sigma_i^2}{\sigma_i^2 + \lambda} \frac{\mathbf{u}_i^T \mathbf{y}}{\sigma_i} \mathbf{v}_i
+    \end{equation*}
+    Guarantees invertibility because $(X^T X + \lambda I) \succ 0$ for $\lambda > 0$; strictly shrinks singular directions.
+    \item \textbf{Lasso Regression ($\ell_1$ Regularization):} $\min_{\mathbf{w}} \frac{1}{2}\|X\mathbf{w} - \mathbf{y}\|_2^2 + \lambda \|\mathbf{w}\|_1$. Produces exact coordinate sparsity; 1D closed form via Soft-Thresholding:
+    \begin{equation*}
+    S_\lambda(z) \triangleq \operatorname{sign}(z)\max(|z| - \lambda, 0)
+    \end{equation*}
+    \item \textbf{Bias-Variance Decomposition:} $\operatorname{MSE}(\hat{\mathbf{w}}) = \operatorname{Bias}(\hat{\mathbf{w}})^2 + \operatorname{Var}(\hat{\mathbf{w}})$. Ridge introduces small bias to slash variance $\sigma^2 \trace\big((X^T X + \lambda I)^{-1} X^T X (X^T X + \lambda I)^{-1}\big)$.
+    \item \textbf{Vector Norms \& Dualities:}
+    \begin{itemize}[leftmargin=*, noitemsep]
+        \item $\ell_1$: $\|\mathbf{x}\|_1 = \sum |x_i|$ (sparsity); $\ell_2$: $\|\mathbf{x}\|_2 = \sqrt{\sum x_i^2}$; $\ell_\infty$: $\|\mathbf{x}\|_\infty = \max |x_i|$.
+        \item Cauchy-Schwarz: $|\mathbf{x}^T \mathbf{y}| \le \|\mathbf{x}\|_2 \|\mathbf{y}\|_2$; Hölder: $|\mathbf{x}^T \mathbf{y}| \le \|\mathbf{x}\|_p \|\mathbf{y}\|_q$ ($\frac{1}{p} + \frac{1}{q} = 1$).
+    \end{itemize}
+    \item \textbf{Matrix Norms \& Sensitivity:}
+    \begin{itemize}[leftmargin=*, noitemsep]
+        \item Spectral Norm: $\|A\|_2 \triangleq \sup_{\mathbf{x} \ne \mathbf{0}} \frac{\|A\mathbf{x}\|_2}{\|\mathbf{x}\|_2} = \sigma_{\max}(A) = \sigma_1$.
+        \item Frobenius Norm: $\|A\|_F \triangleq \sqrt{\sum_{i,j} A_{ij}^2} = \sqrt{\trace(A^T A)} = \sqrt{\sum_{i=1}^r \sigma_i^2}$.
+        \item Nuclear Norm: $\|A\|_* \triangleq \sum_{i=1}^r \sigma_i(A) = \trace(\sqrt{A^T A})$ (convex envelope of rank).
+        \item Condition Number: $\kappa(A) \triangleq \|A\|_2 \|A^{-1}\|_2 = \frac{\sigma_{\max}(A)}{\sigma_{\min}(A)}$. Error: $\frac{\|\delta \mathbf{x}\|_2}{\|\mathbf{x}\|_2} \le \kappa(A) \frac{\|\delta \mathbf{b}\|_2}{\|\mathbf{b}\|_2}$.
+        \item \textbf{Condition Squaring Disaster:} $\kappa(A^T A) = (\kappa(A))^2$. Forming normal equations squares condition number!
+    \end{itemize}
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[colback=tealbg!40,colframe=tealborder,title=\textbf{5. Probability, MLE, \& Expectation-Maximization}]
-\begin{itemize}[leftmargin=*]
-    \item \textbf{Multivariate Gaussian:} $\mathcal{N}(\mathbf{x}; \boldsymbol{\mu}, \Sigma) = \frac{1}{(2\pi)^{d/2} |\Sigma|^{1/2}} \exp\left(-\frac{1}{2}(\mathbf{x} - \boldsymbol{\mu})^T \Sigma^{-1} (\mathbf{x} - \boldsymbol{\mu})\right)$.
-    \item \textbf{Maximum Likelihood Estimation:} $\hat{\boldsymbol{\theta}}_{\text{MLE}} = \argmax_{\boldsymbol{\theta}} \sum_{i=1}^N \log p(\mathbf{x}_i; \boldsymbol{\theta})$.
-    \item \textbf{EM Algorithm (Latent Variables $\mathbf{z}$):}
-    \begin{itemize}
-        \item \textbf{E-step:} Compute posterior responsibilities $\gamma_{ik} = p(z_i = k \mid \mathbf{x}_i, \boldsymbol{\theta}^{(t)})$.
-        \item \textbf{M-step:} Update $\boldsymbol{\theta}^{(t+1)} = \argmax_{\boldsymbol{\theta}} \sum_{i=1}^N \sum_{k} \gamma_{ik} \log p(\mathbf{x}_i, z_i = k; \boldsymbol{\theta})$.
+\begin{tcolorbox}[breakable, colback=tealbg!30, colframe=tealborder, title={\large \textbf{2. Spectral Theory, Complex Operators \& Rayleigh Quotient (Weeks 4--5)}}]
+\begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+    \item \textbf{Eigenvalues \& Diagonalization:} $A \mathbf{v} = \lambda \mathbf{v}$ ($\mathbf{v} \ne \mathbf{0}$). Characteristic poly: $\det(A - \lambda I) = 0$.
+    \begin{itemize}[leftmargin=*, noitemsep]
+        \item Trace: $\trace(A) = \sum_{i=1}^n \lambda_i = \sum_{i=1}^n A_{ii}$, and Determinant: $\det(A) = \prod_{i=1}^n \lambda_i$.
+        \item Algebraic vs. Geometric Multiplicity: $1 \le \text{g.m.}(\lambda) \le \text{a.m.}(\lambda)$. Diagonalizable $\iff \text{g.m.}(\lambda) = \text{a.m.}(\lambda)$ for all $\lambda$.
+        \item Similarity Invariant: $B = P^{-1} A P \implies \det(B) = \det(A), \trace(B) = \trace(A)$, identical spectrum.
     \end{itemize}
-    \item \textbf{Concentration Inequalities:}
-    \begin{itemize}
-        \item Markov: $P(X \ge a) \le \frac{\E[X]}{a}$ for $X \ge 0$.
-        \item Chebyshev: $P(|X - \mu| \ge \epsilon) \le \frac{\sigma^2}{\epsilon^2}$.
-        \item Hoeffding: $P(|\bar{X} - \mu| \ge \epsilon) \le 2 \exp\left(-\frac{2N\epsilon^2}{(b-a)^2}\right)$ for $X_i \in [a, b]$.
+    \item \textbf{Complex Inner Product Spaces:}
+    \begin{itemize}[leftmargin=*, noitemsep]
+        \item Inner product: $\langle \mathbf{u}, \mathbf{v} \rangle = \mathbf{u}^H \mathbf{v} = \sum \bar{u}_i v_i$. Conjugate transpose: $A^H = \overline{A^T}$.
+        \item \textbf{Hermitian ($A^H = A$):} All eigenvalues are strictly real ($\lambda_i \in \mathbb{R}$); eigenvectors of distinct eigenvalues are mutually orthogonal.
+        \item \textbf{Unitary ($U^H U = I$):} Preserves Euclidean length and angles ($\|U\mathbf{x}\|_2 = \|\mathbf{x}\|_2$); eigenvalues satisfy $|\lambda_i| = 1$.
+        \item \textbf{Schur Decomposition:} For any square $A \in \mathbb{C}^{n \times n}$, there exists unitary $Q$ such that $A = Q T Q^H$ where $T$ is upper triangular.
+    \end{itemize}
+    \item \textbf{The Spectral Theorem (Real Symmetric $A = A^T$ or Hermitian $A = A^H$):}
+    \begin{equation*}
+    A = Q \Lambda Q^T = \sum_{i=1}^n \lambda_i \mathbf{q}_i \mathbf{q}_i^T, \qquad Q^T Q = I_n, \quad \lambda_i \in \mathbb{R}, \quad \mathbf{q}_i^T \mathbf{q}_j = \delta_{ij}
+    \end{equation*}
+    \item \textbf{Rayleigh Quotient \& Variational Bounds:}
+    \begin{equation*}
+    R_A(\mathbf{x}) \triangleq \frac{\mathbf{x}^T A \mathbf{x}}{\mathbf{x}^T \mathbf{x}} \implies \lambda_{\min}(A) \le R_A(\mathbf{x}) \le \lambda_{\max}(A) \quad (\forall \mathbf{x} \ne \mathbf{0})
+    \end{equation*}
+    $\argmax_{\|\mathbf{x}\|=1} R_A(\mathbf{x}) = \mathbf{q}_1$ (dominant eigenvector); $\argmin_{\|\mathbf{x}\|=1} R_A(\mathbf{x}) = \mathbf{q}_n$.
+    \item \textbf{Courant-Fischer Min-Max Theorem:} Variational characterization of the $k$-th eigenvalue:
+    \begin{equation*}
+    \lambda_k(A) = \max_{\dim(V) = k} \min_{\mathbf{x} \in V, \mathbf{x} \ne \mathbf{0}} \frac{\mathbf{x}^T A \mathbf{x}}{\mathbf{x}^T \mathbf{x}} = \min_{\dim(V) = n - k + 1} \max_{\mathbf{x} \in V, \mathbf{x} \ne \mathbf{0}} \frac{\mathbf{x}^T A \mathbf{x}}{\mathbf{x}^T \mathbf{x}}
+    \end{equation*}
+    \item \textbf{Positive Definite Matrices ($A \succ 0$):} $\mathbf{x}^T A \mathbf{x} > 0 \; (\forall \mathbf{x} \ne \mathbf{0})$.
+    \textbf{Four Equivalent Tests:} (1) All $\lambda_i > 0$; (2) Sylvester: all leading principal minors $\Delta_k > 0$; (3) Cholesky: unique $A = L L^T$ ($l_{ii} > 0$); (4) Energy landscape is a strictly convex bowl.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[breakable, colback=coralbg!30, colframe=coralborder, title={\large \textbf{3. SVD, Pseudoinverse \& Principal Component Analysis (Weeks 5--7)}}]
+\begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+    \item \textbf{Singular Value Decomposition (SVD):}
+    For any rectangular $A \in \mathbb{R}^{m \times n}$ with $\rank(A) = r$:
+    \begin{equation*}
+    A = U \Sigma V^T = \sum_{i=1}^r \sigma_i \mathbf{u}_i \mathbf{v}_i^T, \qquad U \in \mathbb{R}^{m \times m}, \; \Sigma \in \mathbb{R}^{m \times n}, \; V \in \mathbb{R}^{n \times n}
+    \end{equation*}
+    \begin{itemize}[leftmargin=*, noitemsep]
+        \item Singular values: $\sigma_i = \sqrt{\lambda_i(A^T A)} \ge 0$, sorted: $\sigma_1 \ge \sigma_2 \ge \dots \ge \sigma_r > 0$.
+        \item Right singular vectors $V$: Orthonormal eigenvectors of $A^T A$ ($A^T A \mathbf{v}_i = \sigma_i^2 \mathbf{v}_i$).
+        \item Left singular vectors $U$: Orthonormal eigenvectors of $A A^T$ ($\mathbf{u}_i = \frac{1}{\sigma_i} A \mathbf{v}_i$).
+    \end{itemize}
+    \item \textbf{Eckart-Young-Mirsky Theorem (Optimal Low-Rank Approximation):}
+    For $k < r$, the truncated SVD $A_k \triangleq \sum_{i=1}^k \sigma_i \mathbf{u}_i \mathbf{v}_i^T$ uniquely minimizes rank-$k$ approximation error:
+    \begin{equation*}
+    \min_{\rank(B) \le k} \|A - B\|_2 = \|A - A_k\|_2 = \sigma_{k+1}, \qquad \min_{\rank(B) \le k} \|A - B\|_F = \sqrt{\sum_{i=k+1}^r \sigma_i^2}
+    \end{equation*}
+    \item \textbf{Polar Decomposition:} $A = Q P$ where $Q = U V^T$ ($Q^T Q = I$) and $P = V \Sigma V^T = \sqrt{A^T A} \succeq 0$.
+    \item \textbf{Moore-Penrose Pseudoinverse:} $A^+ = V \Sigma^+ U^T = \sum_{i=1}^r \frac{1}{\sigma_i} \mathbf{v}_i \mathbf{u}_i^T$.
+    \begin{itemize}[leftmargin=*, noitemsep]
+        \item Four Axioms: (1) $A A^+ A = A$, (2) $A^+ A A^+ = A^+$, (3) $(A A^+)^T = A A^+$, (4) $(A^+ A)^T = A^+ A$.
+        \item Minimum-Norm OLS: $\mathbf{x}_{\text{LS}} = A^+ \mathbf{b}$ satisfies $\mathbf{x}_{\text{LS}} \in \Row(A)$ with $\|\mathbf{x}_{\text{LS}}\|_2 < \|\mathbf{x}\|_2$ for any other minimizer.
+    \end{itemize}
+    \item \textbf{Principal Component Analysis (PCA):}
+    \begin{itemize}[leftmargin=*, noitemsep]
+        \item Centering Data: $\tilde{X} = X - \mathbf{1}\bar{\mathbf{x}}^T$. Sample Covariance Matrix: $S = \frac{1}{N-1}\tilde{X}^T \tilde{X} \in \mathbb{R}^{d \times d}$.
+        \item Covariance Eigendecomposition: $S \mathbf{u}_i = \lambda_i \mathbf{u}_i$ with $\Var(\tilde{X}\mathbf{u}_i) = \lambda_i$.
+        \item SVD Connection: If $\tilde{X} = U \Sigma V^T$, then $S = \frac{1}{N-1} V \Sigma^2 V^T \implies \mathbf{u}_i = \mathbf{v}_i$ and $\lambda_i = \frac{\sigma_i^2}{N-1}$.
+        \item Principal Component Scores: $Z = \tilde{X} V_k \in \mathbb{R}^{N \times k}$ with uncorrelated columns: $\frac{1}{N-1}Z^T Z = \Lambda_k$.
+        \item Variance Explained \& Scree Ratio: $\eta_k = \frac{\sum_{i=1}^k \lambda_i}{\sum_{j=1}^d \lambda_j}$; Reconstruction Error: $\|X - \hat{X}_k\|_F^2 = \sum_{j=k+1}^d \lambda_j$.
+        \item \textbf{Dual Gram Shortcut ($N \ll d$):} Compute $K = \tilde{X}\tilde{X}^T \in \mathbb{R}^{N \times N}$. If $K \mathbf{a}_i = \sigma_i^2 \mathbf{a}_i$, the high-dimensional loading vector is $\mathbf{v}_i = \frac{1}{\sigma_i} \tilde{X}^T \mathbf{a}_i$ (saving $\mathcal{O}(d^3)$ computations).
     \end{itemize}
 \end{itemize}
 \end{tcolorbox}
 
+\begin{tcolorbox}[breakable, colback=purplebg!30, colframe=purpleborder, title={\large \textbf{4. Multivariate Calculus \& Numerical Optimization (Weeks 2 \& 8)}}]
+\begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+    \item \textbf{Gradient, Hessian \& Directional Derivative:}
+    \begin{equation*}
+    \nabla f(\mathbf{x}) = \left[\frac{\partial f}{\partial x_1}, \dots, \frac{\partial f}{\partial x_d}\right]^T \in \mathbb{R}^d, \qquad H(\mathbf{x}) = \nabla^2 f(\mathbf{x}) \in \mathbb{R}^{d \times d}, \qquad D_{\mathbf{v}} f(\mathbf{x}) = \nabla f(\mathbf{x})^T \mathbf{v}
+    \end{equation*}
+    $\nabla f(\mathbf{x})$ points strictly in the direction of \textbf{steepest ascent} and is orthogonal to level curves.
+    \item \textbf{Second-Order Taylor Expansion:}
+    \begin{equation*}
+    f(\mathbf{x} + \mathbf{v}) \approx f(\mathbf{x}) + \nabla f(\mathbf{x})^T \mathbf{v} + \frac{1}{2} \mathbf{v}^T \nabla^2 f(\mathbf{x}) \mathbf{v}
+    \end{equation*}
+    Critical point classification ($\nabla f(\mathbf{x}^*) = \mathbf{0}$): Minimum if $\nabla^2 f \succ 0$; Maximum if $\nabla^2 f \prec 0$; Saddle if indefinite.
+    \item \textbf{Convexity Definitions \& Tests:}
+    \begin{itemize}[leftmargin=*, noitemsep]
+        \item Jensen's Inequality: $f(\theta \mathbf{x} + (1-\theta)\mathbf{y}) \le \theta f(\mathbf{x}) + (1-\theta) f(\mathbf{y})$ for $\theta \in [0, 1]$.
+        \item First-Order: $f(\mathbf{y}) \ge f(\mathbf{x}) + \nabla f(\mathbf{x})^T(\mathbf{y} - \mathbf{x})$ (supporting hyperplanes).
+        \item Second-Order: $f$ is convex $\iff \nabla^2 f(\mathbf{x}) \succeq 0$ (positive semidefinite Hessian).
+    \end{itemize}
+    \item \textbf{Descent Lemma ($L$-Smoothness):} If $\|\nabla f(\mathbf{x}) - \nabla f(\mathbf{y})\|_2 \le L \|\mathbf{x} - \mathbf{y}\|_2$:
+    \begin{equation*}
+    f(\mathbf{y}) \le f(\mathbf{x}) + \nabla f(\mathbf{x})^T(\mathbf{y} - \mathbf{x}) + \frac{L}{2}\|\mathbf{y} - \mathbf{x}\|_2^2
+    \end{equation*}
+    \item \textbf{Gradient Descent (GD) Dynamics \& Rates:} $\mathbf{w}_{k+1} = \mathbf{w}_k - \alpha \nabla f(\mathbf{w}_k)$.
+    \begin{itemize}[leftmargin=*, noitemsep]
+        \item Stability: Decreases monotonically if $\alpha < \frac{2}{L}$. Optimal step: $\alpha = \frac{1}{L}$.
+        \item Convex $L$-smooth: Sublinear rate $f(\mathbf{w}_k) - f^* \le \frac{L \|\mathbf{w}_0 - \mathbf{w}^*\|^2}{2k} = \mathcal{O}(1/k)$.
+        \item Strongly convex ($\mu I \preceq \nabla^2 f \preceq L I$): Linear rate $\|\mathbf{w}_k - \mathbf{w}^*\|_2 \le \left(\frac{\kappa - 1}{\kappa + 1}\right)^k \|\mathbf{w}_0 - \mathbf{w}^*\|_2$.
+    \end{itemize}
+    \item \textbf{Accelerated Momentum \& Modern Optimizers:}
+    \begin{itemize}[leftmargin=*, noitemsep]
+        \item Polyak Heavy-Ball: $\mathbf{v}_{k+1} = \beta \mathbf{v}_k + \alpha \nabla f(\mathbf{w}_k)$, $\mathbf{w}_{k+1} = \mathbf{w}_k - \mathbf{v}_{k+1}$.
+        \item Nesterov Accelerated Gradient (NAG): Evaluates $\nabla f(\mathbf{w}_k - \beta \mathbf{v}_k)$, achieving optimal $\mathcal{O}(1/k^2)$ convex rate.
+        \item Adam: Updates via $\mathbf{w}_{t+1} = \mathbf{w}_t - \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon}\hat{m}_t$ with bias-corrected moments $\hat{m}_t, \hat{v}_t$.
+        \item AdamW: Decouples weight decay: $\mathbf{w}_{t+1} = (1 - \eta \lambda)\mathbf{w}_t - \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon}\hat{m}_t$.
+        \item Newton-Raphson: $\mathbf{w}_{k+1} = \mathbf{w}_k - [H(\mathbf{w}_k)]^{-1}\nabla f(\mathbf{w}_k)$ (quadratic rate $\mathcal{O}(\epsilon^2)$ near minimum).
+    \end{itemize}
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[breakable, colback=primarylight!30, colframe=primarydark, title={\large \textbf{5. Constrained Optimization, KKT \& Support Vector Machines (Weeks 9--10)}}]
+\begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+    \item \textbf{General Constrained Optimization Problem:}
+    \begin{equation*}
+    \min_{\mathbf{x}} f_0(\mathbf{x}) \quad \text{subject to} \quad f_i(\mathbf{x}) \le 0 \; (i = 1, \dots, m), \quad h_j(\mathbf{x}) = 0 \; (j = 1, \dots, p)
+    \end{equation*}
+    \item \textbf{Lagrangian Function \& Duality:}
+    \begin{equation*}
+    \mathcal{L}(\mathbf{x}, \boldsymbol{\lambda}, \boldsymbol{\nu}) \triangleq f_0(\mathbf{x}) + \sum_{i=1}^m \lambda_i f_i(\mathbf{x}) + \sum_{j=1}^p \nu_j h_j(\mathbf{x}), \qquad g(\boldsymbol{\lambda}, \boldsymbol{\nu}) \triangleq \inf_{\mathbf{x}} \mathcal{L}(\mathbf{x}, \boldsymbol{\lambda}, \boldsymbol{\nu})
+    \end{equation*}
+    \begin{itemize}[leftmargin=*, noitemsep]
+        \item Dual Problem: $\max_{\boldsymbol{\lambda} \succeq \mathbf{0}, \boldsymbol{\nu}} g(\boldsymbol{\lambda}, \boldsymbol{\nu})$. The dual function $g$ is \textbf{always concave}.
+        \item Weak Duality: $d^* \le p^*$ always. Strong Duality ($d^* = p^*$): Holds under Slater's Condition ($\exists \mathbf{x} : f_i(\mathbf{x}) < 0$).
+    \end{itemize}
+    \item \textbf{The Karush-Kuhn-Tucker (KKT) Optimality Conditions:}
+    \begin{align*}
+    \text{1. Primal Feasibility:} \quad & f_i(\mathbf{x}^*) \le 0 \quad (\forall i), \quad h_j(\mathbf{x}^*) = 0 \quad (\forall j) \\
+    \text{2. Dual Feasibility:} \quad & \lambda_i^* \ge 0 \quad (\forall i) \\
+    \text{3. Complementary Slackness:} \quad & \lambda_i^* f_i(\mathbf{x}^*) = 0 \quad (\forall i) \implies (\lambda_i^* > 0 \implies f_i(\mathbf{x}^*) = 0) \\
+    \text{4. Stationarity:} \quad & \nabla f_0(\mathbf{x}^*) + \sum_{i=1}^m \lambda_i^* \nabla f_i(\mathbf{x}^*) + \sum_{j=1}^p \nu_j^* \nabla h_j(\mathbf{x}^*) = \mathbf{0}
+    \end{align*}
+    \item \textbf{Support Vector Machines (SVM):}
+    \begin{itemize}[leftmargin=*, noitemsep]
+        \item Hard-Margin SVM: $\min_{\mathbf{w}, b} \frac{1}{2}\|\mathbf{w}\|_2^2$ s.t. $y_i(\mathbf{w}^T \mathbf{x}_i + b) \ge 1 \; (\forall i)$. Margin: $\gamma = \frac{1}{\|\mathbf{w}\|_2}$.
+        \item Soft-Margin SVM: $\min_{\mathbf{w}, b, \boldsymbol{\xi}} \frac{1}{2}\|\mathbf{w}\|_2^2 + C \sum_{i=1}^N \xi_i$ s.t. $y_i(\mathbf{w}^T \mathbf{x}_i + b) \ge 1 - \xi_i, \; \xi_i \ge 0$.
+        \item Dual Soft-Margin Formulation:
+        \begin{equation*}
+        \max_{\boldsymbol{\alpha}} \sum_{i=1}^N \alpha_i - \frac{1}{2}\sum_{i=1}^N \sum_{j=1}^N \alpha_i \alpha_j y_i y_j K(\mathbf{x}_i, \mathbf{x}_j) \quad \text{s.t.} \quad 0 \le \alpha_i \le C, \quad \sum_{i=1}^N \alpha_i y_i = 0
+        \end{equation*}
+        \item Optimal Weights: $\mathbf{w}^* = \sum_{i=1}^N \alpha_i^* y_i \mathbf{x}_i$. Only Support Vectors ($\alpha_i^* > 0$) define the boundary!
+        \item Complementary Slackness: $\alpha_i = 0 \implies$ correctly classified; $0 < \alpha_i < C \implies$ on margin; $\alpha_i = C \implies$ margin violation ($\xi_i > 0$).
+    \end{itemize}
+    \item \textbf{Kernel Theory \& The Representer Theorem:}
+    \begin{itemize}[leftmargin=*, noitemsep]
+        \item Mercer's Theorem: $K(\mathbf{x}, \mathbf{z})$ is a valid Mercer kernel $\iff$ Gram matrix $K_{ij} = K(\mathbf{x}_i, \mathbf{x}_j) \succeq 0$.
+        \item Kernels: Linear $\mathbf{x}^T \mathbf{z}$; Polynomial $(\mathbf{x}^T \mathbf{z} + c)^d$; RBF/Gaussian $\exp(-\gamma \|\mathbf{x} - \mathbf{z}\|_2^2)$.
+        \item Representer Theorem: Any regularized empirical risk minimizer admits $f^*(\mathbf{x}) = \sum_{i=1}^N \alpha_i K(\mathbf{x}_i, \mathbf{x})$.
+        \item Kernel Ridge Regression: $\boldsymbol{\alpha}^* = (K + \lambda I)^{-1}\mathbf{y}$ with closed-form predictor $f(\mathbf{x}) = \mathbf{k}(\mathbf{x})^T (K + \lambda I)^{-1}\mathbf{y}$.
+    \end{itemize}
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[breakable, colback=tealbg!30, colframe=tealborder, title={\large \textbf{6. Probability Foundations, The Exponential Family \& GLMs (Weeks 10--11)}}]
+\begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+    \item \textbf{Multivariate Density Transformations (Jacobian Rule):}
+    For invertible $\mathbf{y} = \mathbf{g}(\mathbf{x})$:
+    \begin{equation*}
+    f_{\mathbf{Y}}(\mathbf{y}) = f_{\mathbf{X}}(\mathbf{g}^{-1}(\mathbf{y})) \cdot \big|\det J_{\mathbf{g}^{-1}}(\mathbf{y})\big| = \frac{f_{\mathbf{X}}(\mathbf{x})}{\big|\det J_{\mathbf{g}}(\mathbf{x})\big|}
+    \end{equation*}
+    Linear maps $\mathbf{Y} = A\mathbf{X} + \mathbf{b}$: $f_{\mathbf{Y}}(\mathbf{y}) = f_{\mathbf{X}}(A^{-1}(\mathbf{y} - \mathbf{b})) \cdot \frac{1}{|\det A|}$.
+    \item \textbf{The Canonical Exponential Family:}
+    \begin{equation*}
+    p(x; \boldsymbol{\eta}) = h(x) \exp\left( \boldsymbol{\eta}^T \mathbf{T}(x) - A(\boldsymbol{\eta}) \right)
+    \end{equation*}
+    $\boldsymbol{\eta}$: natural parameter, $\mathbf{T}(x)$: sufficient statistics, $A(\boldsymbol{\eta})$: log-partition function.
+    \item \textbf{Moment Properties of $A(\boldsymbol{\eta})$:}
+    \begin{equation*}
+    \nabla_{\boldsymbol{\eta}} A(\boldsymbol{\eta}) = \E[\mathbf{T}(X)], \qquad \nabla_{\boldsymbol{\eta}}^2 A(\boldsymbol{\eta}) = \Cov(\mathbf{T}(X)) \succeq 0 \implies A(\boldsymbol{\eta}) \text{ is strictly convex}
+    \end{equation*}
+    \item \textbf{MLE via Moment Matching:} Setting $\nabla \ell(\boldsymbol{\eta}) = \mathbf{0}$ yields:
+    \begin{equation*}
+    \nabla_{\boldsymbol{\eta}} A(\hat{\boldsymbol{\eta}}_{\text{MLE}}) = \frac{1}{N}\sum_{i=1}^N \mathbf{T}(x_i) \iff \E_{\hat{\boldsymbol{\eta}}}[\mathbf{T}(X)] = \bar{\mathbf{T}}_{\text{emp}}
+    \end{equation*}
+    \item \textbf{Fisher Information Matrix \& CRLB:}
+    \begin{equation*}
+    \mathcal{I}(\boldsymbol{\eta}) \triangleq \E\left[ (\nabla \log p)(\nabla \log p)^T \right] = \nabla_{\boldsymbol{\eta}}^2 A(\boldsymbol{\eta}) = \Cov(\mathbf{T}(X)), \qquad \Cov(\hat{\boldsymbol{\eta}}) \succeq \frac{1}{N}\mathcal{I}(\boldsymbol{\eta})^{-1}
+    \end{equation*}
+    \item \textbf{Universal GLM Gradient:} With $\eta_i = \mathbf{w}^T \mathbf{x}_i$ and $\mu_i = A'(\eta_i)$:
+    \begin{equation*}
+    \nabla_{\mathbf{w}} \ell(\mathbf{w}) = \sum_{i=1}^N (y_i - \mu_i)\mathbf{x}_i \quad \iff \quad \text{Prediction Error} \times \text{Input Feature}
+    \end{equation*}
+    \item \textbf{Information Theory \& Cross-Entropy Loss:}
+    \begin{equation*}
+    H(P) \triangleq -\sum P(x) \log P(x), \qquad H(P, Q) \triangleq -\sum P(x) \log Q(x) = H(P) + D_{\text{KL}}(P \parallel Q)
+    \end{equation*}
+    Minimizing cross-entropy directly minimizes KL divergence to Nature's empirical distribution.
+    \item \textbf{KL Divergence \& Bregman Duality:}
+    \begin{equation*}
+    D_{\text{KL}}\left( p(x; \boldsymbol{\eta}_1) \parallel p(x; \boldsymbol{\eta}_2) \right) = A(\boldsymbol{\eta}_2) - A(\boldsymbol{\eta}_1) - (\boldsymbol{\eta}_2 - \boldsymbol{\eta}_1)^T \nabla A(\boldsymbol{\eta}_1) = B_A(\boldsymbol{\eta}_2 \parallel \boldsymbol{\eta}_1)
+    \end{equation*}
+    \item \textbf{Canonical Conjugate Prior:} $p(\boldsymbol{\eta}; \boldsymbol{\chi}, \nu) \propto \exp(\boldsymbol{\eta}^T \boldsymbol{\chi} - \nu A(\boldsymbol{\eta})) \implies \boldsymbol{\chi}_N = \boldsymbol{\chi}_0 + \sum \mathbf{T}(x_i), \; \nu_N = \nu_0 + N$.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[breakable, colback=coralbg!30, colframe=coralborder, title={\large \textbf{7. GMMs, Expectation-Maximization \& Concentration Inequalities (Week 12)}}]
+\begin{itemize}[leftmargin=*, noitemsep, topsep=2pt]
+    \item \textbf{Multivariate Gaussian Distribution:}
+    \begin{equation*}
+    \mathcal{N}(\mathbf{x}; \boldsymbol{\mu}, \Sigma) = \frac{1}{(2\pi)^{d/2} |\Sigma|^{1/2}} \exp\left( -\frac{1}{2}(\mathbf{x} - \boldsymbol{\mu})^T \Sigma^{-1} (\mathbf{x} - \boldsymbol{\mu}) \right)
+    \end{equation*}
+    \begin{itemize}[leftmargin=*, noitemsep]
+        \item Mahalanobis Distance: $D_M(\mathbf{x}, \boldsymbol{\mu}) = \sqrt{(\mathbf{x} - \boldsymbol{\mu})^T \Sigma^{-1} (\mathbf{x} - \boldsymbol{\mu})}$. Contours align with eigenvectors $\mathbf{q}_i$.
+        \item Sample Covariance Bias: $\hat{\Sigma}_{\text{MLE}} = \frac{1}{N}\sum (\mathbf{x}_i - \bar{\mathbf{x}})(\mathbf{x}_i - \bar{\mathbf{x}})^T \implies \E[\hat{\Sigma}_{\text{MLE}}] = \frac{N-1}{N}\Sigma$. Unbiased: $S = \frac{N}{N-1}\hat{\Sigma}_{\text{MLE}}$.
+    \end{itemize}
+    \item \textbf{Gaussian Mixture Models (GMM) \& The EM Algorithm:}
+    $p(\mathbf{x}) = \sum_{k=1}^K \pi_k \mathcal{N}(\mathbf{x}; \boldsymbol{\mu}_k, \Sigma_k)$.
+    \begin{itemize}[leftmargin=*, noitemsep]
+        \item \textbf{E-Step:} $\gamma_{ik} \triangleq P(z_i = k \mid \mathbf{x}_i, \boldsymbol{\theta}^{(t)}) = \frac{\pi_k^{(t)} \mathcal{N}(\mathbf{x}_i; \boldsymbol{\mu}_k^{(t)}, \Sigma_k^{(t)})}{\sum_{j=1}^K \pi_j^{(t)} \mathcal{N}(\mathbf{x}_i; \boldsymbol{\mu}_j^{(t)}, \Sigma_j^{(t)})}$, and $N_k \triangleq \sum_{i=1}^N \gamma_{ik}$.
+        \item \textbf{M-Step:} $\pi_k = \frac{N_k}{N}$, $\boldsymbol{\mu}_k = \frac{1}{N_k}\sum \gamma_{ik}\mathbf{x}_i$, $\Sigma_k = \frac{1}{N_k}\sum \gamma_{ik}(\mathbf{x}_i - \boldsymbol{\mu}_k)(\mathbf{x}_i - \boldsymbol{\mu}_k)^T$.
+        \item \textbf{ELBO-KL Decomposition:} $\log p(\mathbf{X}; \boldsymbol{\theta}) = \text{ELBO}(q, \boldsymbol{\theta}) + D_{\text{KL}}\left( q(\mathbf{Z}) \parallel p(\mathbf{Z} \mid \mathbf{X}; \boldsymbol{\theta}) \right)$.
+        \item \textbf{Monotonic Ascent Guarantee:} $\ell(\boldsymbol{\theta}^{(t+1)}) \ge \ell(\boldsymbol{\theta}^{(t)})$.
+    \end{itemize}
+    \item \textbf{High-Dimensional Gaussian Geometry (The Orange Peel Paradox):}
+    For $\mathbf{X} \sim \mathcal{N}(\mathbf{0}, I_d)$, $R = \|\mathbf{X}\|_2 \approx \sqrt{d} \pm \frac{1}{\sqrt{2}}$. Mass concentrates in a thin spherical shell; the mode at the origin is an empty desert!
+    \item \textbf{Hierarchy of Non-Asymptotic Concentration Inequalities:}
+    \begin{itemize}[leftmargin=*, noitemsep]
+        \item \textbf{Markov ($X \ge 0$):} $P(X \ge a) \le \frac{\E[X]}{a}$ for all $a > 0$ ($\mathcal{O}(1/a)$ decay).
+        \item \textbf{Chebyshev:} $P(|X - \mu| \ge \epsilon) \le \frac{\sigma^2}{\epsilon^2}$ ($\mathcal{O}(1/\epsilon^2)$ decay; Sample size: $N \ge \frac{\sigma^2}{\epsilon^2 \delta}$).
+        \item \textbf{Hoeffding (Bounded $X_i \in [a_i, b_i]$):}
+        \begin{equation*}
+        P\left( |\bar{X}_N - \mu| \ge \epsilon \right) \le 2 \exp\left( -\frac{2 N^2 \epsilon^2}{\sum_{i=1}^N (b_i - a_i)^2} \right) \implies N \ge \frac{(b-a)^2 \ln(2/\delta)}{2\epsilon^2}
+        \end{equation*}
+        \item \textbf{Bernstein (Variance-Aware):} For independent zero-mean $X_i$ with $|X_i| \le c$ and variance $\sigma^2$:
+        \begin{equation*}
+        P\left( \bar{X}_N - \mu \ge \epsilon \right) \le \exp\left( -\frac{N\epsilon^2}{2\sigma^2 + \frac{2}{3}c\epsilon} \right) \implies \text{substantially tighter when } \sigma^2 \ll \frac{(b-a)^2}{4}
+        \end{equation*}
+        \item \textbf{McDiarmid (Bounded Differences for Functions $f(X_1, \dots, X_N)$):}
+        If $|f - f'_i| \le c_i$:
+        \begin{equation*}
+        P\left( f(\mathbf{X}) - \E[f(\mathbf{X})] \ge \epsilon \right) \le \exp\left( -\frac{2\epsilon^2}{\sum_{i=1}^N c_i^2} \right)
+        \end{equation*}
+    \end{itemize}
+\end{itemize}
+\end{tcolorbox}

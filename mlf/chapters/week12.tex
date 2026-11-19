@@ -44,7 +44,7 @@ In this capstone chapter, we expand probability foundations into the rich realm 
     \draw[dotted, thick, black] (2.5, 0) -- (2.5, 3.9);
     \filldraw[tealborder] (2.5, 3.9) circle (3pt);
     \node[below, font=\footnotesize\bfseries] at (2.5, 0) {$\boldsymbol{\theta}^{(t)}$};
-    \node[above left, tealdef, font=\scriptsize\bfseries, align=center] at (2.4, 3.9) {
+    \node[above left, tealdef, fill=white, fill opacity=0.9, text opacity=1, inner sep=2pt, rounded corners=2pt, font=\scriptsize\bfseries, align=center] at (2.4, 4.0) {
         \textbf{E-Step: } $D_{\text{KL}}(q \,\|\, p) = 0$\\
         $\text{ELBO}(q^{(t)}, \boldsymbol{\theta}^{(t)}) = \ell(\boldsymbol{\theta}^{(t)})$
     };
@@ -561,19 +561,19 @@ Figure~\ref{fig:concentration_hierarchy} visualizes the dramatic hierarchy of co
     \draw[->, >=stealth, thick, gray] (0,0) -- (0, 5.2) node[above, black] {Tail Bound $P(|X - \mu| \ge \epsilon)$};
 
     % Markov bound: 1/x decay
-    \draw[line width=1.6pt, traprad, domain=0.8:7.0, smooth] 
-        plot (\x, {3.2 / \x}) 
-        node[right, font=\scriptsize] {Markov: $\mathcal{O}(1/\epsilon)$ (Reciprocal)};
+    \draw[line width=1.6pt, traprad, domain=0.8:6.5, smooth] 
+        plot (\x, {3.2 / \x});
+    \node[color=traprad, font=\scriptsize\bfseries, align=left] at (2.2, 2.3) {Markov: $\mathcal{O}(1/\epsilon)$\\(Reciprocal)};
 
     % Chebyshev bound: 1/x^2 decay
-    \draw[line width=1.6pt, primarydark, dashed, domain=0.9:7.0, smooth] 
-        plot (\x, {2.8 / (\x * \x)}) 
-        node[above right, font=\scriptsize] {Chebyshev: $\mathcal{O}(1/\epsilon^2)$ (Quadratic)};
+    \draw[line width=1.6pt, primarydark, dashed, domain=0.9:6.5, smooth] 
+        plot (\x, {2.8 / (\x * \x)});
+    \node[color=primarydark, font=\scriptsize\bfseries, align=left] at (3.5, 0.7) {Chebyshev: $\mathcal{O}(1/\epsilon^2)$\\(Quadratic)};
 
     % Hoeffding bound: exponential decay
-    \draw[line width=2.0pt, forest, domain=0.5:5.5, smooth] 
-        plot (\x, {4.8 * exp(-0.8 * \x * \x)}) 
-        node[right, font=\scriptsize] {Hoeffding: $\mathcal{O}(\exp(-2N\epsilon^2))$ (Exponential)};
+    \draw[line width=2.0pt, forest, domain=0.5:4.5, smooth] 
+        plot (\x, {4.8 * exp(-0.8 * \x * \x)});
+    \node[color=forest, font=\scriptsize\bfseries, align=left] at (1.2, 0.9) {Hoeffding: $\mathcal{O}(e^{-2N\epsilon^2})$\\(Exponential)};
 
     % Axis ticks
     \draw[dotted, gray] (2.0, 0) -- (2.0, 5.0);
@@ -633,7 +633,7 @@ Consider a standard isotropic multivariate Gaussian vector in $d$ dimensions: $\
     \begin{scope}[shift={(0, 0)}]
         \draw[step=1.0cm, gray!20, very thin] (-3.2,-3.2) grid (3.2,3.2);
         \draw[->, >=stealth, gray] (-3.4, 0) -- (3.4, 0) node[right, black] {$x_1$};
-        \draw[->, >=stealth, gray] (0, -3.4) -- (0, 3.4) node[above, black] {$x_2$};
+        \draw[->, >=stealth, gray] (0, -3.2) -- (0, 3.2) node[right, black] {$x_2$};
         
         \fill[primarylight!50, opacity=0.5] (0,0) circle (2.6cm);
         \fill[primarydark!20, opacity=0.6] (0,0) circle (1.8cm);
@@ -644,14 +644,14 @@ Consider a standard isotropic multivariate Gaussian vector in $d$ dimensions: $\
         \draw[thick, primarydark] (0,0) circle (1.8cm);
         \draw[thick, primarydark] (0,0) circle (2.6cm);
         
-        \node[font=\bfseries, align=center, fill=white, inner sep=2pt, rounded corners=2pt] at (0, 3.8) {2D Gaussian:\\Solid Ball Centered at Origin};
+        \node[font=\bfseries, align=center, fill=white, inner sep=2pt, rounded corners=2pt] at (0, 3.9) {2D Gaussian:\\Solid Ball Centered at Origin};
         \node[font=\scriptsize, align=center] at (0, -2.9) {Mode at $\mathbf{0}$; $68\%$ mass within $r \le 1.5$};
     \end{scope}
 
     % High-D Panel (Orange Peel Shell)
     \begin{scope}[shift={(8.2, 0)}]
         \draw[->, >=stealth, gray] (-3.4, 0) -- (3.4, 0) node[right, black] {$x_i$};
-        \draw[->, >=stealth, gray] (0, -3.4) -- (0, 3.4) node[above, black] {$x_j$};
+        \draw[->, >=stealth, gray] (0, -3.2) -- (0, 3.2) node[right, black] {$x_j$};
         
         % Empty interior (hollow)
         \fill[gray!5] (0,0) circle (2.2cm);
@@ -666,7 +666,7 @@ Consider a standard isotropic multivariate Gaussian vector in $d$ dimensions: $\
         \draw[<->, >=stealth, line width=1.2pt, coralformula] (0,0) -- (1.63, 1.63) 
             node[midway, above left, font=\scriptsize\bfseries] {Radius $r \approx \sqrt{d}$};
             
-        \node[font=\bfseries, align=center, fill=white, inner sep=2pt, rounded corners=2pt] at (0, 3.8) {High-D Gaussian ($d = 100$):\\Hollow ``Orange Peel'' Shell};
+        \node[font=\bfseries, align=center, fill=white, inner sep=2pt, rounded corners=2pt] at (0, 3.9) {High-D Gaussian ($d = 100$):\\Hollow ``Orange Peel'' Shell};
         
         % Callout to empty center
         \node[draw=gray, fill=white, rounded corners=2pt, font=\tiny, align=center] (empty) at (-1.5, -1.2) {Empty Desert!\\Density high, but\\volume element $\to 0$};
