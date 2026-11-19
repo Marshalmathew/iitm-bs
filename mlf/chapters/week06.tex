@@ -463,6 +463,181 @@ Equality holds if and only if $\mathbf{x}_n = \mathbf{0}$, meaning the minimum-n
 Now, expand $\mathbf{x}_{\text{LS}} = A^+ \mathbf{b} = V_r \Sigma_r^{-1} U_r^T \mathbf{b}$. Because the columns of $V_r$ form an orthonormal basis for $\Row(A)$, $\mathbf{x}_{\text{LS}}$ lies strictly in $\Row(A)$, and $A \mathbf{x}_{\text{LS}} = (U_r U_r^T) \mathbf{b} = P_{\Col(A)}\mathbf{b}$, which is the exact orthogonal projection of $\mathbf{b}$ onto $\Col(A)$. Thus $\mathbf{x}_{\text{LS}}$ minimizes the residual and achieves the absolute minimum norm!
 \end{proof}
 
+\subsection{The Polar Decomposition: Decoupling Rotation and Pure Deformation}
+In complex analysis, any non-zero complex scalar $z \in \mathbb{C}$ can be written in polar form as $z = r e^{i\theta}$, where $r = |z| \ge 0$ is a non-negative stretching factor and $e^{i\theta}$ is a pure rotation on the unit circle.
+The \textbf{Polar Decomposition} is the profound multivariable matrix analogue of this scalar polar identity.
+
+\begin{theorembox}{The Polar Decomposition Theorem}
+Let $A \in \mathbb{R}^{n \times n}$ be an arbitrary real square matrix. There exists an orthogonal matrix $Q \in \mathbb{R}^{n \times n}$ ($Q^T Q = I$) and a unique symmetric positive semidefinite matrix $P \in \mathbb{R}^{n \times n}$ ($P = P^T \succeq 0$) such that:
+\begin{equation}
+A = Q P \quad \text{(Right Polar Decomposition)}
+\label{eq:right_polar}
+\end{equation}
+Moreover, $P$ is explicitly given by the unique positive semidefinite square root of the Gram matrix:
+\begin{equation}
+P = \sqrt{A^T A}
+\end{equation}
+If $A$ is invertible, then $Q$ is strictly unique and $P \succ 0$ is strictly positive definite.
+Similarly, $A$ admits a left polar decomposition $A = P' Q$, where $P' = \sqrt{A A^T} \succeq 0$.
+\end{theorembox}
+
+\begin{proof}
+Let $A \in \mathbb{R}^{n \times n}$ have SVD $A = U \Sigma V^T$, where $U, V \in \mathbb{R}^{n \times n}$ are orthogonal matrices and $\Sigma = \operatorname{diag}(\sigma_1, \dots, \sigma_n)$ contains singular values $\sigma_i \ge 0$.
+Inserting the identity $I = V^T V$:
+\begin{align}
+A &= U \Sigma V^T = U (V^T V) \Sigma V^T \nonumber \\
+&= (U V^T) (V \Sigma V^T)
+\end{align}
+Define:
+\begin{equation}
+Q \triangleq U V^T \quad \text{and} \quad P \triangleq V \Sigma V^T
+\end{equation}
+We verify the two requisite properties:
+\begin{enumerate}
+    \item \textbf{Orthogonality of $Q$:}
+    \begin{equation}
+    Q^T Q = (U V^T)^T (U V^T) = (V U^T)(U V^T) = V (U^T U) V^T = V I V^T = V V^T = I
+    \end{equation}
+    Thus $Q$ is an orthogonal transformation (a combination of pure spatial rotation and reflection).
+    \item \textbf{Symmetry and Positive Semidefiniteness of $P$:}
+    \begin{equation}
+    P^T = (V \Sigma V^T)^T = V \Sigma^T V^T = V \Sigma V^T = P
+    \end{equation}
+    Furthermore, $P$ is orthogonally similar to $\Sigma$. Because all diagonal entries $\sigma_i \ge 0$, the eigenvalues of $P$ are identically the singular values of $A$. Hence $P \succeq 0$.
+    Finally, $P^2 = (V \Sigma V^T)(V \Sigma V^T) = V \Sigma^2 V^T = A^T A \implies P = \sqrt{A^T A}$.
+\end{enumerate}
+For the left decomposition, write $A = U \Sigma V^T = (U \Sigma U^T)(U V^T) = P' Q$, where $P' = U \Sigma U^T = \sqrt{A A^T}$.
+\end{proof}
+
+\subsubsection{Physical and Computational Significance of Polar Decomposition}
+Polar decomposition reveals the geometric duality of general linear transformations:
+\begin{itemize}
+    \item \textbf{Continuum Mechanics \& Robotics:} When a physical material undergoes stress or a robotic arm moves, the deformation gradient tensor $F = \nabla \boldsymbol{\phi}$ maps infinitesimal material elements. The polar decomposition $F = R U$ separates the pure rigid-body rotation $R$ from the pure physical strain/stretch $U$.
+    \item \textbf{The Orthogonal Procrustes Problem:} In computer vision and manifold alignment, we often seek the closest orthogonal matrix to an observed transformation $A$:
+    \begin{equation}
+    Q^* = \arg\min_{Q^T Q = I} \|A - Q\|_F^2
+    \end{equation}
+    The exact analytical global minimizer is precisely the orthogonal factor $Q = U V^T$ from the Polar Decomposition of $A$!
+\end{itemize}
+
+\subsection{Unitary Invariance of Matrix Norms: Spectral, Frobenius, and Nuclear Norms}
+How do we measure the "size" or "magnitude" of a matrix operator in machine learning?
+The SVD provides the natural foundation for the three most essential matrix norms in data science:
+
+\begin{definitionbox}{The Canonical SVD-Induced Matrix Norms}
+Let $A \in \mathbb{R}^{m \times n}$ have singular values $\sigma_1 \ge \sigma_2 \ge \dots \ge \sigma_r > 0$, where $r = \rank(A)$.
+\begin{enumerate}
+    \item \textbf{Spectral Norm (Operator 2-Norm):} The maximum directional amplification of any unit vector:
+    \begin{equation}
+    \|A\|_2 \triangleq \sup_{\mathbf{x} \ne \mathbf{0}} \frac{\|A\mathbf{x}\|_2}{\|\mathbf{x}\|_2} = \sigma_1(A)
+    \label{eq:spectral_norm_def}
+    \end{equation}
+    \item \textbf{Frobenius Norm (Euclidean Matrix Norm):} The square root of the sum of squared matrix entries:
+    \begin{equation}
+    \|A\|_F \triangleq \sqrt{\sum_{i=1}^m \sum_{j=1}^n A_{ij}^2} = \sqrt{\trace(A^T A)} = \sqrt{\sum_{i=1}^r \sigma_i^2}
+    \label{eq:frobenius_norm_svd}
+    \end{equation}
+    \item \textbf{Nuclear Norm (Trace Norm):} The sum of all singular values (the convex envelope of matrix rank):
+    \begin{equation}
+    \|A\|_* \triangleq \sum_{i=1}^r \sigma_i(A) = \trace\left(\sqrt{A^T A}\right)
+    \label{eq:nuclear_norm_def}
+    \end{equation}
+\end{enumerate}
+\end{definitionbox}
+
+\begin{theorembox}{Unitary Invariance of Matrix Norms}
+The Spectral, Frobenius, and Nuclear norms are \textbf{unitarily invariant}: for any orthogonal matrices $Q_1 \in \mathbb{R}^{m \times m}$ ($Q_1^T Q_1 = I_m$) and $Q_2 \in \mathbb{R}^{n \times n}$ ($Q_2^T Q_2 = I_n$):
+\begin{equation}
+\|Q_1 A Q_2^T\|_2 = \|A\|_2, \qquad \|Q_1 A Q_2^T\|_F = \|A\|_F, \qquad \|Q_1 A Q_2^T\|_* = \|A\|_*
+\end{equation}
+\end{theorembox}
+
+\begin{proof}
+The proof relies on the algebraic properties of the SVD and trace:
+\begin{enumerate}
+    \item \textbf{Frobenius Norm:} Using the cyclic property of the trace $\trace(B C) = \trace(C B)$:
+    \begin{align}
+    \|Q_1 A Q_2^T\|_F^2 &= \trace\left( (Q_1 A Q_2^T)^T (Q_1 A Q_2^T) \right) = \trace\left( Q_2 A^T Q_1^T Q_1 A Q_2^T \right) \nonumber \\
+    &= \trace\left( Q_2 A^T I_m A Q_2^T \right) = \trace\left( Q_2 (A^T A) Q_2^T \right) \nonumber \\
+    &= \trace\left( (A^T A) Q_2^T Q_2 \right) = \trace(A^T A) = \|A\|_F^2
+    \end{align}
+    Plugging in $A = U \Sigma V^T$, we immediately obtain $\|A\|_F = \|\Sigma\|_F = \sqrt{\sum \sigma_i^2}$.
+    \item \textbf{Spectral Norm:} For any orthogonal $Q_1$, $\|Q_1 \mathbf{y}\|_2 = \|\mathbf{y}\|_2$. Let $\mathbf{z} = Q_2^T \mathbf{x}$. Because $Q_2^T$ is an isometry, $\|\mathbf{z}\|_2 = \|\mathbf{x}\|_2$, and as $\mathbf{x}$ ranges over the unit sphere $\mathbb{S}^{n-1}$, $\mathbf{z}$ also ranges over the entire unit sphere $\mathbb{S}^{n-1}$:
+    \begin{equation}
+    \sup_{\|\mathbf{x}\|_2 = 1} \|Q_1 A Q_2^T \mathbf{x}\|_2 = \sup_{\|\mathbf{x}\|_2 = 1} \|A (Q_2^T \mathbf{x})\|_2 = \sup_{\|\mathbf{z}\|_2 = 1} \|A \mathbf{z}\|_2 = \|A\|_2 = \sigma_1(A)
+    \end{equation}
+    \item \textbf{Nuclear Norm:} The non-zero singular values of $Q_1 A Q_2^T$ are the square roots of the eigenvalues of the product:
+    \begin{equation*}
+    (Q_1 A Q_2^T)^T (Q_1 A Q_2^T) = Q_2 (A^T A) Q_2^T
+    \end{equation*}
+    Because $Q_2 (A^T A) Q_2^T$ is orthogonally similar to $A^T A$, their eigenvalues are identical. Therefore, the singular values $\sigma_i$ are invariant under orthogonal transformations, yielding $\|Q_1 A Q_2^T\|_* = \sum_{i=1}^r \sigma_i = \|A\|_*$.
+\end{enumerate}
+\end{proof}
+
+\subsection{Perturbation Theory, Condition Number, and Tikhonov Regularization}
+In linear inverse problems $A\mathbf{x} = \mathbf{b}$, measured observations are inevitably corrupted by physical sensor noise:
+\begin{equation}
+\mathbf{b}_{\text{obs}} = \mathbf{b}_{\text{true}} + \boldsymbol{\epsilon}
+\end{equation}
+How does this observation noise $\boldsymbol{\epsilon}$ perturb the reconstructed solution $\mathbf{x}$?
+
+\subsubsection{The Fundamental Perturbation Inequality}
+Let $A \in \mathbb{R}^{n \times n}$ be an invertible square matrix. Suppose the RHS vector $\mathbf{b}$ is perturbed to $\mathbf{b} + \delta \mathbf{b}$, inducing a perturbation in the solution:
+\begin{equation}
+A(\mathbf{x} + \delta \mathbf{x}) = \mathbf{b} + \delta \mathbf{b} \iff A \delta \mathbf{x} = \delta \mathbf{b} \implies \delta \mathbf{x} = A^{-1} \delta \mathbf{b}
+\end{equation}
+Taking Euclidean vector norms and applying sub-multiplicativity of matrix norms:
+\begin{equation}
+\|\delta \mathbf{x}\|_2 \le \|A^{-1}\|_2 \|\delta \mathbf{b}\|_2
+\end{equation}
+Concurrently, from the unperturbed relation $A\mathbf{x} = \mathbf{b}$:
+\begin{equation}
+\|\mathbf{b}\|_2 = \|A\mathbf{x}\|_2 \le \|A\|_2 \|\mathbf{x}\|_2 \implies \frac{1}{\|\mathbf{x}\|_2} \le \frac{\|A\|_2}{\|\mathbf{b}\|_2}
+\end{equation}
+Multiplying these two inequalities directly:
+\begin{equation}
+\frac{\|\delta \mathbf{x}\|_2}{\|\mathbf{x}\|_2} \le \Big( \|A\|_2 \|A^{-1}\|_2 \Big) \frac{\|\delta \mathbf{b}\|_2}{\|\mathbf{b}\|_2}
+\label{eq:relative_error_bound}
+\end{equation}
+
+\begin{definitionbox}{The Matrix Condition Number}
+The \textbf{condition number} of an invertible matrix $A$ with respect to inversion is defined as:
+\begin{equation}
+\kappa(A) \triangleq \|A\|_2 \|A^{-1}\|_2 = \frac{\sigma_{\max}(A)}{\sigma_{\min}(A)} = \frac{\sigma_1}{\sigma_n} \ge 1
+\label{eq:condition_number_svd}
+\end{equation}
+The condition number $\kappa(A)$ measures the \textbf{worst-case relative error amplification factor}. If $\kappa(A) = 10^6$, an imperceptible $0.001\%$ measurement noise in $\mathbf{b}$ can cause a catastrophic $1{,}000\%$ error in the reconstructed model $\mathbf{x}$!
+\end{definitionbox}
+
+\subsubsection{The Spectral Filter View: Truncated SVD vs. Tikhonov Regularization}
+Expanding the exact inverse solution in the SVD basis:
+\begin{equation}
+\mathbf{x}_{\text{obs}} = A^{-1}(\mathbf{b}_{\text{true}} + \boldsymbol{\epsilon}) = \sum_{i=1}^n \frac{\mathbf{u}_i^T \mathbf{b}_{\text{true}}}{\sigma_i} \mathbf{v}_i + \sum_{i=1}^n \frac{\mathbf{u}_i^T \boldsymbol{\epsilon}}{\sigma_i} \mathbf{v}_i
+\end{equation}
+As $i \to n$, the singular values decay toward zero ($\sigma_i \ll 1$). The noise term $\frac{\mathbf{u}_i^T \boldsymbol{\epsilon}}{\sigma_i}$ divides by a near-zero scalar, exploding exponentially and drowning out the true signal!
+
+To tame this catastrophe, regularized inversion introduces \textbf{spectral filter factors} $f_i \in [0, 1]$:
+\begin{equation}
+\mathbf{x}_{\text{reg}} \triangleq \sum_{i=1}^n f_i \frac{\mathbf{u}_i^T \mathbf{b}_{\text{obs}}}{\sigma_i} \mathbf{v}_i
+\end{equation}
+\begin{enumerate}
+    \item \textbf{Truncated SVD (Hard Spectral Thresholding):}
+    \begin{equation}
+    f_i^{\text{TSVD}} = \begin{cases} 1, & \sigma_i \ge \tau \\ 0, & \sigma_i < \tau \end{cases}
+    \end{equation}
+    It retains all spectral components above threshold $\tau$ with zero distortion, while completely discarding high-frequency noise components.
+    \item \textbf{Tikhonov Regularization (Ridge Regression / Soft Shrinkage):}
+    Minimizing the penalized residual functional $\min_{\mathbf{x}} \|A\mathbf{x} - \mathbf{b}\|_2^2 + \lambda \|\mathbf{x}\|_2^2$ yields the closed-form normal equation $(A^T A + \lambda I)\mathbf{x} = A^T \mathbf{b}$. In the SVD basis:
+    \begin{equation}
+    \mathbf{x}_{\lambda} = (A^T A + \lambda I)^{-1} A^T \mathbf{b} = \sum_{i=1}^n \frac{\sigma_i}{\sigma_i^2 + \lambda} (\mathbf{u}_i^T \mathbf{b}) \mathbf{v}_i = \sum_{i=1}^n \left( \frac{\sigma_i^2}{\sigma_i^2 + \lambda} \right) \frac{\mathbf{u}_i^T \mathbf{b}}{\sigma_i} \mathbf{v}_i
+    \end{equation}
+    The Tikhonov filter factor is smooth:
+    \begin{equation}
+    f_i^{\text{Tikhonov}} = \frac{\sigma_i^2}{\sigma_i^2 + \lambda}
+    \end{equation}
+    For large singular values ($\sigma_i^2 \gg \lambda$), $f_i \approx 1$ (the signal passes unharmed). For microscopic singular values ($\sigma_i^2 \ll \lambda$), $f_i \approx \frac{\sigma_i^2}{\lambda} \to 0$, smoothly suppressing the noise term $\frac{\sigma_i}{\sigma_i^2 + \lambda} \to 0$ without a discontinuous cutoff!
+\end{enumerate}
+
 % ----------------------------------------------------------------------
 % PART 4: POSITIVE DEFINITE MATRICES
 % ----------------------------------------------------------------------
@@ -669,7 +844,7 @@ Consider a high-resolution grayscale image of size $1000 \times 1000$ ($1{,}000{
 % ----------------------------------------------------------------------
 \section{In-Depth Worked Numerical Examples}
 
-\begin{examplebox}{Full SVD of a Rectangular $3 \times 2$ Matrix by Hand}
+\begin{examplebox}[breakable]{Worked Example 6.1: Full SVD of a Rectangular $3 \times 2$ Matrix by Hand}
 Let matrix $A \in \mathbb{R}^{3 \times 2}$ be defined as:
 \begin{equation}
 A = \begin{bmatrix} 1 & 1 \\ 0 & 1 \\ -1 & 1 \end{bmatrix}
@@ -732,7 +907,7 @@ U \Sigma V^T &= \begin{bmatrix} 1 & 1 \\ 1 & 0 \\ 1 & -1 \end{bmatrix} \begin{bm
 \end{align}
 \end{examplebox}
 
-\begin{examplebox}{Positive Definiteness Diagnostic: Sylvester vs. Cholesky}
+\begin{examplebox}[breakable]{Worked Example 6.2: Positive Definiteness Diagnostic: Sylvester vs. Cholesky}
 Consider the tridiagonal stiffness/Laplacian matrix:
 \begin{equation}
 M = \begin{bmatrix} 2 & -1 & 0 \\ -1 & 2 & -1 \\ 0 & -1 & 2 \end{bmatrix} \in \mathbb{R}^{3 \times 3}
@@ -776,7 +951,7 @@ Because this is a sum of four squares, it is strictly non-negative. It equals ze
 Hence $\mathbf{x}^T M \mathbf{x} > 0$ for all $\mathbf{x} \ne \mathbf{0}$, providing independent visual proof that $M \succ 0$!
 \end{examplebox}
 
-\begin{examplebox}{Low-Rank Approximation and Eckart-Young Error Bounds}
+\begin{examplebox}[breakable]{Worked Example 6.3: Low-Rank Approximation and Eckart-Young Error Bounds}
 Using matrix $A = \begin{bmatrix} 1 & 1 \\ 0 & 1 \\ -1 & 1 \end{bmatrix}$ from Example~6.1 with singular values $\sigma_1 = \sqrt{3}$ and $\sigma_2 = \sqrt{2}$:
 \begin{enumerate}
     \item Construct the optimal rank-1 approximation $A_1 = \sigma_1 \mathbf{u}_1 \mathbf{v}_1^T$.
@@ -813,7 +988,7 @@ E_1 = A - A_1 = \begin{bmatrix} 1 & 1 \\ 0 & 1 \\ -1 & 1 \end{bmatrix} - \begin{
 \end{itemize}
 \end{examplebox}
 
-\begin{examplebox}{Moore-Penrose Pseudoinverse \& The Four Axioms by Hand}
+\begin{examplebox}[breakable]{Worked Example 6.4: Moore-Penrose Pseudoinverse \& The Four Axioms by Hand}
 Consider a rank-deficient rectangular matrix $A \in \mathbb{R}^{3 \times 2}$:
 \begin{equation}
 A = \begin{bmatrix} 1 & 1 \\ 1 & 1 \\ 0 & 0 \end{bmatrix}
@@ -902,7 +1077,7 @@ Its norm is:
 The norm is strictly minimized at $c = 0$, confirming that $A^+ \mathbf{b}$ isolates the unique minimum-norm solution!
 \end{examplebox}
 
-\begin{examplebox}{Matrix Denoising via Outer-Product Layer Decomposition}
+\begin{examplebox}[breakable]{Worked Example 6.5: Matrix Denoising via Outer-Product Layer Decomposition}
 A noisy $3 \times 3$ sensor observation matrix is collected:
 \begin{equation}
 A = \begin{bmatrix} 3.02 & 3.01 & 0.03 \\ 2.98 & 2.99 & -0.02 \\ 0.01 & -0.02 & 0.01 \end{bmatrix}
