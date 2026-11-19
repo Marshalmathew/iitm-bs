@@ -683,6 +683,24 @@ is the \textbf{Variance Inflation Factor}.
     \item \textbf{Moderate Collinearity ($R_j^2 = 0.90$):} $\operatorname{VIF}_j = 10$. The variance of $\hat{\beta}_j$ is inflated tenfold, expanding the confidence intervals by $\sqrt{10} \approx 3.16$.
     \item \textbf{Severe Collinearity ($R_j^2 = 0.99$):} $\operatorname{VIF}_j = 100$. The parameter variance is inflated by a factor of 100. Geometrically, the Gram matrix $X^T X$ has an eigenvalue $\lambda_{\min} \approx 0$, causing $(X^T X)^{-1}$ to blow up along that eigenvector.
 \end{itemize}
+
+
+\begin{intuitionbox}{Practitioner Callout: Feature Standardization as Condition Number Preconditioning}
+Why is feature scaling (\texttt{StandardScaler}: subtracting the mean and dividing by the standard deviation) universally recommended before training linear models or running gradient descent?
+
+Consider an unscaled tabular dataset with two features: $x_1 = \text{Annual Income} \in [10^4, 10^6]$ (measured in dollars) and $x_2 = \text{Age} \in [18, 80]$ (measured in years).
+Because the variance of $x_1$ is $10^8$ times larger than the variance of $x_2$, the entries of the Gram matrix $X^T X$ span drastically different orders of magnitude:
+\begin{equation*}
+(X^T X)_{11} = \sum_{i=1}^N x_{i1}^2 \sim 10^{12}, \quad (X^T X)_{22} = \sum_{i=1}^N x_{i2}^2 \sim 10^5
+\end{equation*}
+This unit discrepancy forces the ratio of extreme eigenvalues to explode: $\lambda_{\max} / \lambda_{\min} \sim 10^7$, producing a condition number $\kappa(X) \sim 3{,}000$ and a Gram condition number $\kappa(X^T X) \sim 10^7$!
+\begin{enumerate}
+    \item \textbf{Loss Surface Geometry:} The MSE loss surface $\frac{1}{2N}\|X\mathbf{w} - \mathbf{y}\|_2^2$ becomes a severely elongated, eccentric valley (an anisotropic ellipsoid). First-order gradient descent oscillates violently between the steep walls along the $w_1$ axis while making infinitesimally slow progress along the flat $w_2$ valley floor.
+    \item \textbf{Numerical Stability:} Solving the normal equations on unscaled features magnifies rounding errors by factor $\kappa(X)^2 \approx 10^7$.
+\end{enumerate}
+\textbf{The Standardization Remedy:} Transforming each feature to $z_{ij} = \frac{x_{ij} - \bar{x}_j}{s_j}$ normalizes the diagonal of the sample covariance matrix to unity ($S_{jj} = 1$). This geometric preconditioning transforms eccentric ellipsoids into near-spherical contours, drastically lowering $\kappa(X)$ and allowing gradient descent to converge in a fraction of the iterations!
+\end{intuitionbox}
+
 This variance explosion explains why Ordinary Least Squares can become statistically fragile despite remaining BLUE: an estimator can be the ``best'' among unbiased estimators while still having unacceptably high absolute variance! This motivates introducing deliberate bias through Ridge regression ($L_2$ regularization) to drastically shrink variance.
 
 % ----------------------------------------------------------------------
@@ -1437,42 +1455,57 @@ The production script below demonstrates subspace projector construction, verifi
 \begin{lstlisting}[language=Python, caption={Subspace Projections and Numerical Stability Comparison in Python.}]
 import numpy as np
 
-def build_projection_matrix(A: np.ndarray) -> np.ndarray:
-    """Computes orthogonal projection matrix P = A (A^T A)^{-1} A^T."""
+from scipy.linalg import solve_triangular
+
+def project_vector_matrix_free(A: np.ndarray, b: np.ndarray) -> np.ndarray:
+    """
+    Computes orthogonal projection b_hat = Q (Q^T b) via thin QR.
+    Matrix-free: avoids allocating an N x N dense matrix P (which takes ~80 GB on N = 100,000)!
+    """
+    Q, _ = np.linalg.qr(A, mode='reduced')
+    return Q @ (Q.T @ b)
+
+def build_dense_projection_matrix_toy(A: np.ndarray) -> np.ndarray:
+    """Dense projector P = A (A^T A)^(-1) A^T. Only for small diagnostic toys (N <= 1000)."""
     AtA = A.T @ A
-    AtA_inv = np.linalg.inv(AtA)
-    return A @ AtA_inv @ A.T
+    return A @ np.linalg.inv(AtA) @ A.T
 
 def solve_ols_normal_equations(A: np.ndarray, b: np.ndarray) -> np.ndarray:
-    """Solves normal equations directly: (A^T A) x = A^T b."""
+    """Solves normal equations directly: (A^T A) x = A^T b. Scales as O(d^3) + O(N d^2)."""
     return np.linalg.solve(A.T @ A, A.T @ b)
 
 def solve_ols_qr(A: np.ndarray, b: np.ndarray) -> np.ndarray:
-    """Solves OLS stably using QR decomposition: A = QR => R x = Q^T b."""
-    Q, R = np.linalg.qr(A)
-    return np.linalg.solve(R, Q.T @ b)
+    """
+    Solves OLS stably using QR decomposition: A = QR => R x = Q^T b.
+    Uses solve_triangular for O(d^2) back-substitution rather than O(d^3) general LU!
+    """
+    Q, R = np.linalg.qr(A, mode='reduced')
+    qty = Q.T @ b
+    return solve_triangular(R, qty, lower=False)
 
 def main():
-    rng = np.random.RandomState(42)
+    rng = np.random.default_rng(42)
     m, n = 8, 3
-    A = rng.randn(m, n)
-    b = rng.randn(m)
+    A = rng.normal(0.0, 1.0, size=(m, n))
+    b = rng.normal(0.0, 1.0, size=m)
 
-    # 1. Compute projection matrix
-    P = build_projection_matrix(A)
+    # 1. Compare matrix-free projection vs dense toy projection
+    b_hat_free = project_vector_matrix_free(A, b)
+    P_dense = build_dense_projection_matrix_toy(A)
+    b_hat_dense = P_dense @ b
+    print(f"Matrix-free vs Dense Discrepancy: {np.linalg.norm(b_hat_free - b_hat_dense):.2e}")
 
-    # 2. Verify algebraic properties
-    is_idempotent = np.allclose(P @ P, P)
-    is_symmetric = np.allclose(P, P.T)
-    trace_val = np.trace(P)
+    # 2. Verify algebraic properties of dense projector
+    is_idempotent = np.allclose(P_dense @ P_dense, P_dense)
+    is_symmetric = np.allclose(P_dense, P_dense.T)
+    trace_val = np.trace(P_dense)
 
     print(f"P is Idempotent (P^2 == P): {is_idempotent}")
     print(f"P is Symmetric (P == P^T):  {is_symmetric}")
     print(f"Trace of P: {trace_val:.4f} (Expected rank = {n})")
 
     # 3. Verify error vector orthogonality: A^T e = 0
-    b_hat = P @ b
-    e = b - b_hat
+    e = b - b_hat_free
     orthogonality_check = np.linalg.norm(A.T @ e)
     print(f"Orthogonality ||A^T e||: {orthogonality_check:.2e} (Expected ~ 0)")
 

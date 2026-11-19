@@ -1354,28 +1354,49 @@ The production script below implements polynomial regression, evaluates the cond
 \begin{lstlisting}[language=Python, caption={Polynomial Regression, Spectral Diagonalization, and Power Iteration in Python.}]
 import numpy as np
 
+from scipy.linalg import solve_triangular
+
 def fit_polynomial(x: np.ndarray, y: np.ndarray, degree: int):
-    """Fits polynomial regression via Vandermonde expansion and evaluates condition number."""
+    """Fits polynomial regression via Vandermonde expansion using back-substitution."""
     Phi = np.vander(x, N=degree + 1, increasing=True)
     cond_num = np.linalg.cond(Phi)
-    # Solve via QR for numerical stability
-    Q, R = np.linalg.qr(Phi)
-    w = np.linalg.solve(R, Q.T @ y)
+    # Solve via thin QR and solve_triangular for O(d^2) stability
+    Q, R = np.linalg.qr(Phi, mode='reduced')
+    w = solve_triangular(R, Q.T @ y, lower=False)
     return w, cond_num
 
-def power_iteration(A: np.ndarray, num_iterations: int = 100):
-    """Computes dominant eigenvalue and eigenvector via Power Iteration."""
-    rng = np.random.RandomState(42)
-    b_k = rng.randn(A.shape[1])
-    b_k = b_k / np.linalg.norm(b_k)
+def fit_polynomial_ridge(x: np.ndarray, y: np.ndarray, degree: int, alpha: float = 1e-4):
+    """Fits polynomial regression with L2 Ridge regularization to suppress Runge oscillations."""
+    Phi = np.vander(x, N=degree + 1, increasing=True)
+    d = Phi.shape[1]
+    # Normal equations with Tikhonov regularization: (Phi^T Phi + alpha * I) w = Phi^T y
+    w = np.linalg.solve(Phi.T @ Phi + alpha * np.eye(d), Phi.T @ y)
+    return w
 
-    for _ in range(num_iterations):
-        b_k1 = A @ b_k
-        b_k = b_k1 / np.linalg.norm(b_k1)
+def power_iteration(A: np.ndarray, max_iter: int = 1000, tol: float = 1e-8, seed: int = 42):
+    """
+    Computes dominant eigenvalue and eigenvector via Power Iteration with residual tolerance check.
+    Terminates when ||A q_k - lambda_k q_k||_2 < tol.
+    """
+    rng = np.random.default_rng(seed)
+    q = rng.normal(0.0, 1.0, size=A.shape[1])
+    q = q / np.linalg.norm(q)
 
-    # Rayleigh quotient for eigenvalue estimation
-    eigenvalue = float((b_k.T @ A @ b_k) / (b_k.T @ b_k))
-    return eigenvalue, b_k
+    eigenvalue = 0.0
+    for iteration in range(1, max_iter + 1):
+        z = A @ q
+        q_next = z / np.linalg.norm(z)
+        
+        # Rayleigh quotient
+        lambda_k = float(q_next.T @ A @ q_next)
+        residual_norm = float(np.linalg.norm(A @ q_next - lambda_k * q_next))
+        
+        q = q_next
+        eigenvalue = lambda_k
+        if residual_norm < tol:
+            return eigenvalue, q, iteration, residual_norm
+
+    return eigenvalue, q, max_iter, residual_norm
 
 def fibonacci_via_diagonalization(k: int) -> int:
     """Computes k-th Fibonacci number via spectral eigendecomposition of transition matrix."""
@@ -1404,11 +1425,20 @@ def main():
         Phi = np.vander(x_sample, N=deg + 1, increasing=True)
         print(f"  Degree {deg:2d}: kappa(Phi) = {np.linalg.cond(Phi):.2e}")
 
-    # 2. Power Iteration Verification
+    # 2. Power Iteration Verification with Convergence Tracking
     A_test = np.array([[4.0, 2.0], [1.0, 3.0]])
-    dom_eig, dom_vec = power_iteration(A_test)
+    dom_eig, dom_vec, iters, res = power_iteration(A_test, tol=1e-8)
     print(f"\nPower Iteration Dominant Eigenvalue: {dom_eig:.4f} (Expected = 5.0000)")
-    print(f"Power Iteration Dominant Eigenvector: {dom_vec.round(4)}")
+    print(f"Converged in {iters} iterations with residual ||Aq - lambda*q|| = {res:.2e}")
+    print(f"Dominant Eigenvector: {dom_vec.round(4)}")
+
+    # 3. Runge's Phenomenon: Unregularized vs. Ridge Polynomial Regression
+    x_runge = np.linspace(-1.0, 1.0, 15)
+    y_runge = 1.0 / (1.0 + 25.0 * x_runge ** 2)
+    w_unreg, _ = fit_polynomial(x_runge, y_runge, degree=14)
+    w_ridge = fit_polynomial_ridge(x_runge, y_runge, degree=14, alpha=1e-3)
+    print(f"\nDegree-14 Weights L2 Norm - Unregularized: {np.linalg.norm(w_unreg):.2e}")
+    print(f"Degree-14 Weights L2 Norm - Ridge Regularized: {np.linalg.norm(w_ridge):.2e}")
 
     # 3. Fibonacci closed-form verification
     print("\nFibonacci Sequence via Matrix Powers:")

@@ -994,6 +994,32 @@ At new parameter point $\mathbf{w}_1 = [2.0, -2.0]^T$:
 \textbf{The Verdict:} In a single Newton-Raphson step, curvature scaling accelerated convergence, driving the loss from $\mathbf{1.3863}$ down to $\mathbf{0.2538}$---an astounding \textbf{81.7\% reduction in empirical error}! By accounting for the local curvature tensor $H^{-1}$, the algorithm took a bold, perfectly scaled jump ($\|\Delta \mathbf{w}\|_2 = 2\sqrt{2} \approx 2.828$) without suffering the oscillatory instability of unscaled first-order gradient descent.
 \end{examplebox}
 
+\begin{formulabox}{Production Callout: The Log-Sum-Exp Trick \& BCEWithLogitsLoss}
+In Worked Example~2.5, the binary cross-entropy loss was written mathematically as:
+\begin{equation*}
+\ell_i(\mathbf{w}) = -y_i \log \sigma(\mathbf{w}^T \mathbf{x}_i) - (1 - y_i) \log(1 - \sigma(\mathbf{w}^T \mathbf{x}_i))
+\end{equation*}
+If implemented naively in production code as \texttt{-y * np.log(sigmoid(z))}, this formula is \textbf{numerically catastrophic}:
+\begin{itemize}
+    \item If logit $z = \mathbf{w}^T \mathbf{x} < -709$, \texttt{np.exp(z)} underflows to \texttt{0.0}, causing \texttt{sigmoid(z) = 0.0} and \texttt{log(0.0) = -inf}.
+    \item If logit $z > 709$, evaluating $e^z$ overflows standard 64-bit IEEE float limits ($> 1.8 \times 10^{308}$), yielding \texttt{inf} and \texttt{NaN} gradients that crash model training!
+\end{itemize}
+\textbf{The Mathematical Solution: The Log-Sum-Exp Identity}
+Notice that $-\log \sigma(z) = \log(1 + e^{-z}) = \operatorname{softplus}(-z)$. For any vector $[z_1, z_2]$, the \textbf{Log-Sum-Exp} trick factors out the maximum scalar $c = \max_i z_i$:
+\begin{equation}
+\log(e^{z_1} + e^{z_2}) = c + \log\left(e^{z_1 - c} + e^{z_2 - c}\right)
+\label{eq:log_sum_exp_identity}
+\end{equation}
+Because the exponents $z_i - c \le 0$, the exponentials are bounded in $(0, 1]$, completely eliminating floating-point overflow!
+In single-variable binary classification, this yields the unified, numerically stable formulation:
+\begin{equation}
+\ell(z, y) = \max(z, 0) - y z + \log\left(1 + e^{-|z|}\right)
+\label{eq:stable_bce_logits}
+\end{equation}
+This is the exact formula implemented inside PyTorch's \texttt{torch.nn.BCEWithLogitsLoss} and TensorFlow's \texttt{binary\_crossentropy(from\_logits=True)}. \textbf{Production Rule:} Never compute \texttt{sigmoid} followed by \texttt{log}; always feed raw unconstrained logits $z = \mathbf{w}^T \mathbf{x}$ directly into a combined log-sum-exp loss!
+\end{formulabox}
+
+
 % ----------------------------------------------------------------------
 % PART 4: VISUAL & GEOMETRIC INTUITION
 % ----------------------------------------------------------------------
@@ -1151,6 +1177,26 @@ Figure~\ref{fig:saddle_vs_minimum} contrasts the geometry of a local minimum (wh
 \textbf{The Trap:} Mixed partial derivatives commute only if the second partial derivatives are continuous in a neighborhood of the point (Schwarz's Theorem). On non-smooth loss functions (e.g., those involving piecewise linear ReLUs, hinge losses, or discontinuous thresholds), mixed partials can disagree, producing an asymmetric Hessian that crashes Newton-Raphson solvers.
 \end{trapbox}
 
+\begin{intuitionbox}{Practitioner Bridge: How Autograd Trains Non-Smooth ReLUs via Subgradients}
+Gotcha~2 highlights that piecewise linear activations (e.g., $\operatorname{ReLU}(z) = \max(0, z)$) and Hinge losses ($\max(0, 1 - y f(x))$) violate the classical $C^2$ smoothness requirement at their "kinks" ($z = 0$). How, then, do modern deep learning frameworks (PyTorch, JAX, TensorFlow) backpropagate gradients through millions of ReLUs without crashing?
+
+The answer lies in \textbf{subgradient calculus} for non-smooth convex functions:
+\begin{enumerate}
+    \item \textbf{Subgradient Definition:} A vector $\mathbf{g} \in \mathbb{R}^d$ is a \emph{subgradient} of convex function $f$ at $\mathbf{w}$ if it defines a global linear underestimator:
+    \begin{equation*}
+    f(\mathbf{u}) \ge f(\mathbf{w}) + \mathbf{g}^T (\mathbf{u} - \mathbf{w}) \quad \forall \, \mathbf{u} \in \mathbb{R}^d
+    \end{equation*}
+    The set of all subgradients at $\mathbf{w}$ is called the \textbf{subdifferential} $\partial f(\mathbf{w})$.
+    \item \textbf{Subdifferential of ReLU:} For scalar $z$, the subdifferential of $\operatorname{ReLU}(z) = \max(0, z)$ is:
+    \begin{equation*}
+    \partial \operatorname{ReLU}(z) = \begin{cases} \{1\} & z > 0 \\ [0, 1] & z = 0 \\ \{0\} & z < 0 \end{cases}
+    \end{equation*}
+    At $z = 0$, \emph{any} value between $0$ and $1$ is a mathematically valid subgradient.
+    \item \textbf{Production Framework Convention:} In practice, automatic differentiation engines choose a deterministic arbitrary selection rule: at $z = 0$, PyTorch and JAX define $\frac{d}{dz}\operatorname{ReLU}(0) \triangleq 0$. In floating-point arithmetic with continuous inputs, the probability of pre-activation landing \emph{exactly} at $0.00000000$ has Lebesgue measure zero! Furthermore, Stochastic Subgradient Descent converges almost surely to a local stationary point on Clarke-regular non-smooth neural landscapes.
+\end{enumerate}
+\end{intuitionbox}
+
+
 \begin{trapbox}{Gotcha 3: Conflating Stationary Points with Local Minima in High Dimensions}
 \textbf{The Scenario:} In training a 100-parameter deep network, an optimization algorithm terminates because $\|\nabla f(\mathbf{w})\|_2 < 10^{-7}$. The engineer reports that the global or local minimum has been successfully found. \\
 \textbf{The Trap:} In high-dimensional optimization surfaces, stationary points ($\nabla f = \mathbf{0}$) are overwhelmingly \textbf{saddle points}, not local minima. If the Hessian has 99 positive eigenvalues and just 1 negative eigenvalue, the point is a saddle. The optimizer has not minimized the loss; it is merely stalled on a high-dimensional plateau.
@@ -1255,17 +1301,26 @@ def classify_critical_point(H: np.ndarray) -> str:
     else:
         return f"Degenerate / Inconclusive (Zero eigenvalue detected)"
 
+def stable_bce_with_logits(z: np.ndarray, y: np.ndarray) -> np.ndarray:
+    # Numerically stable BCE loss via log-sum-exp: max(z, 0) - y*z + log(1 + exp(-|z|))
+    return np.maximum(z, 0) - y * z + np.log1p(np.exp(-np.abs(z)))
+
+def naive_bce_loss(z: np.ndarray, y: np.ndarray) -> np.ndarray:
+    # Naive sigmoid followed by log: vulnerable to inf/NaN overflow
+    sig = 1.0 / (1.0 + np.exp(-z))
+    return -(y * np.log(sig) + (1.0 - y) * np.log(1.0 - sig))
+
 def run_gradient_check_lab():
     print("=" * 70)
     print("EXPERIMENT 1: ANALYTICAL VS NUMERICAL GRADIENT VERIFICATION")
     print("=" * 70)
-    rng = np.random.RandomState(42)
+    rng = np.random.default_rng(42)
     N, d = 100, 5
-    X = rng.randn(N, d)
-    w_true = rng.randn(d)
-    y = X @ w_true + 0.1 * rng.randn(N)
+    X = rng.normal(0.0, 1.0, size=(N, d))
+    w_true = rng.normal(0.0, 1.0, size=d)
+    y = X @ w_true + 0.1 * rng.normal(0.0, 1.0, size=N)
 
-    w_test = rng.randn(d)
+    w_test = rng.normal(0.0, 1.0, size=d)
     grad_analytic = analytical_gradient(w_test, X, y)
     grad_numeric = numerical_gradient_central(loss_func, w_test, 1e-6, X, y)
 
@@ -1276,6 +1331,22 @@ def run_gradient_check_lab():
 
     H = (1.0 / N) * (X.T @ X)
     print(f"\nHessian Eigenvalue Classification: {classify_critical_point(H)}")
+
+    print("\n" + "=" * 70)
+    print("EXPERIMENT 2: NUMERICAL STABILITY (LOG-SUM-EXP VS NAIVE BCE)")
+    print("=" * 70)
+    # Test on extreme logits where exp(-z) or exp(z) overflows
+    extreme_logits = np.array([-1000.0, -50.0, 0.0, 50.0, 1000.0])
+    labels = np.array([0.0, 0.0, 1.0, 1.0, 1.0])
+    
+    stable_losses = stable_bce_with_logits(extreme_logits, labels)
+    with np.errstate(over='ignore', divide='ignore', invalid='ignore'):
+        naive_losses = naive_bce_loss(extreme_logits, labels)
+        
+    print(f"{'Logit z':<12}{'Label y':<10}{'Stable BCE Loss':<20}{'Naive BCE Loss':<20}")
+    print("-" * 62)
+    for z_val, y_val, s_loss, n_loss in zip(extreme_logits, labels, stable_losses, naive_losses):
+        print(f"{z_val:<12.1f}{y_val:<10.1f}{s_loss:<20.6f}{str(n_loss):<20}")
 
 if __name__ == "__main__":
     run_gradient_check_lab()

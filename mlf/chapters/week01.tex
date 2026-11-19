@@ -424,6 +424,28 @@ If a student is allowed to choose which exam questions they answer, and scores $
 \textbf{Reflection:} This is precisely what ERM does. The algorithm inspects the training sample $S$ and selects the hypothesis $\hat{h}_S$ that scores highest on those specific questions. The training error $R_{\text{emp}}(\hat{h}_S; S)$ is fundamentally self-graded and optimistic. The only honest evaluation is a \textbf{held-out test set} drawn independently from Nature, which the algorithm never saw during training.
 \end{ponderbox}
 
+\subsection{Practitioner Bridges: Validation Strategy, Non-i.i.d. Data \& Leakage}
+\label{subsec:validation_strategy}
+
+In textbook presentations, machine learning is often introduced as a simple two-way split: train on sample $S$, and evaluate on test sample $S_{\text{test}}$. In industrial production (finance, algorithmic fraud, clinical diagnostics), this naive approach is the leading cause of silent model failure.
+
+\begin{definitionbox}{The Production Three-Way Partition: Train / Validation / Test}
+To prevent data snooping, a machine learning workflow requires three strictly separated datasets:
+\begin{enumerate}
+    \item \textbf{Training Set ($\mathcal{D}_{\text{train}}$):} Used exclusively by the optimization algorithm to update internal model parameters $\mathbf{w}$ (e.g., gradient descent on empirical risk).
+    \item \textbf{Validation Set ($\mathcal{D}_{\text{val}}$):} Used to tune \emph{hyperparameters} (model capacity, polynomial degree, regularization strength $\lambda$, neural architecture) and execute early stopping.
+    \item \textbf{Test Set ($\mathcal{D}_{\text{test}}$):} Kept strictly locked in a cryptographic vault until all modeling decisions are frozen. It is evaluated exactly once to produce an unbiased estimate of the deployed true risk $R(h)$. If you tune hyperparameters using the test set, the test set becomes training data, and the reported error becomes optimistically biased!
+\end{enumerate}
+\end{definitionbox}
+
+\subsubsection{When the i.i.d. Assumption Breaks: Production Split Strategies}
+The classical ERM contract assumes data points are independent and identically distributed ($\mathbf{z}_i \overset{\text{i.i.d.}}{\sim} \mathcal{D}$). In production, this assumption is routinely violated:
+\begin{itemize}
+    \item \textbf{Group / Clustered Data (\texttt{GroupKFold}):} In healthcare, a dataset may contain 50 diagnostic scans from each of 200 patients. If rows are partitioned randomly, images from the same patient land in both train and validation sets. Rather than learning tumor morphology, the model memorizes idiosyncratic patient features (bone shape, skin tone, scanner calibration artifacts), achieving $99\%$ validation accuracy but failing catastrophically on new patients! \textbf{Production Rule:} Partition by group identifier (\texttt{patient\_id}, \texttt{device\_id}, \texttt{store\_id}) so that no entity ever appears in both training and evaluation splits.
+    \item \textbf{Temporal Sequences \& Lookahead Leakage (\texttt{TimeSeriesSplit}):} In fraud detection, algorithmic trading, and demand forecasting, observations arrive sequentially across time. Standard cross-validation randomly shuffles rows, allowing the model to train on future records ($t+1$) to predict the past ($t$). This creates fatal \textbf{lookahead data leakage}. \textbf{Production Rule:} Enforce strictly forward-chaining temporal splits: train on past window $[0, t]$, validate on subsequent forward window $[t+1, t+\Delta t]$.
+    \item \textbf{Imbalanced Classification (\texttt{StratifiedKFold}):} When the positive class is rare (e.g., $0.1\%$ fraud), random sampling produces validation folds containing zero positive examples. Stratification guarantees each fold replicates the true empirical class prior $\pi_1$.
+\end{itemize}
+
 % ----------------------------------------------------------------------
 % PART 3: VISUAL & GEOMETRIC INTUITION
 % ----------------------------------------------------------------------
@@ -605,6 +627,26 @@ Figure~\ref{fig:bias_variance_geometry} illustrates what happens as we make our 
 \caption{The Fundamental Dilemma of Machine Learning: Training error drops monotonically as models become more complex, but true test error forms a U-shape. The goal of machine learning is to find the sweet spot at the bottom of the U. (Note: The horizontal axis is schematic; the exact operational measure of capacity depends on the model class, such as polynomial degree or parameter count).}
 \label{fig:bias_variance_geometry}
 \end{figure}
+
+\subsubsection{Data Drift: Why Deployed Models Decay in Production}
+Even if a model achieves a low test risk $R(h)$ on the offline held-out test set, its performance inevitably degrades over time once deployed into live software systems. This degradation is driven by \textbf{data drift}—the violation of the stationary distribution assumption:
+\begin{itemize}
+    \item \textbf{Covariate Shift:} The marginal input feature distribution changes ($p_{\text{deploy}}(\mathbf{x}) \ne p_{\text{train}}(\mathbf{x})$), while the true physical labeling function remains unchanged ($p(y \mid \mathbf{x})$ is constant). \emph{Example:} An autonomous driving perception model trained in sunny California deployed in a Canadian snowstorm.
+    \item \textbf{Label Shift:} The prior distribution of targets shifts ($p_{\text{deploy}}(y) \ne p_{\text{train}}(y)$), while conditional feature generation remains identical ($p(\mathbf{x} \mid y)$ is constant). \emph{Example:} During a viral epidemic, the prevalence of respiratory infection in clinical triage spikes from $2\%$ to $35\%$.
+    \item \textbf{Concept Shift (The Most Severe):} Nature's underlying physical or behavioral mapping shifts ($p_{\text{deploy}}(y \mid \mathbf{x}) \ne p_{\text{train}}(y \mid \mathbf{x})$). \emph{Example:} In financial fraud or spam filtering, adversaries dynamically adapt their behavior to bypass previously learned decision boundaries. Yesterday's fraudulent transaction profile becomes tomorrow's benign pattern.
+\end{itemize}
+\textbf{Production Remedy:} Production systems must continuously monitor feature drift via statistical distance metrics (e.g., Population Stability Index, Kolmogorov-Smirnov tests, Wasserstein distance) and maintain scheduled retraining pipelines.
+
+\subsubsection{The Modern Regime: Deep Learning \& The Double Descent Phenomenon}
+The classical U-shaped generalization curve (Figure~\ref{fig:bias_variance_geometry}) is the foundational doctrine of classical statistical learning theory. It asserts that as model parameter count $p$ exceeds the number of training samples $N$, models inevitably overfit.
+
+However, modern deep neural networks and Large Language Models (LLMs) operate in a regime where the number of parameters vastly exceeds the sample size ($p \gg N$, often by factors of $100\times$), yet achieve state-of-the-art generalization performance! This apparent paradox was resolved by Belkin et al.\ (2019) through the discovery of the \textbf{Double Descent} phenomenon:
+\begin{enumerate}
+    \item \textbf{Underparameterized Regime ($p < N$):} Classical U-shaped curve holds. Increasing capacity reduces bias and decreases test error until the sweet spot is reached.
+    \item \textbf{The Interpolation Threshold ($p \approx N$):} When model capacity is exactly sufficient to achieve zero training error ($R_{\text{emp}} = 0$), the empirical Gram matrix becomes nearly singular. The norm of the parameter vector $\|\mathbf{w}\|_2$ spikes violently toward infinity, and test risk exhibits a catastrophic resonance spike.
+    \item \textbf{Overparameterized Regime ($p \gg N$):} Once capacity extends far beyond the interpolation threshold, test error begins \emph{decreasing again}! In this overparameterized regime, infinitely many interpolating solutions exist that achieve zero training error. The optimization algorithm (e.g., Stochastic Gradient Descent) possesses an \textbf{implicit inductive bias} that automatically selects the unique interpolating solution with minimum Euclidean parameter norm $\|\mathbf{w}\|_2$ (as we will derive analytically in Chapter~\ref{chap:week03} for OLS). This implicit regularization tames oscillations, allowing massively overparameterized deep networks to generalize exceptionally well.
+\end{enumerate}
+
 
 % ----------------------------------------------------------------------
 % PART 4: DEEP INTUITION & CONCEPTUAL DERIVATIONS
@@ -897,6 +939,26 @@ Plugging in our clinical costs ($C_{10} = 1$ and $C_{01} = 100$):
 \textbf{The Life-Saving Lesson:}
 The doctor must order a biopsy whenever the probability of malignancy exceeds \textbf{$1\%$}! 
 If an engineer naively deployed a standard machine learning classifier with a default $50\%$ decision threshold ($\tau = 0.50$), the system would ignore patients with an $8\%, 20\%,$ or $45\%$ risk of cancer, killing hundreds of patients. The threshold of a classifier is not a mathematical constant; it is an economic and ethical choice dictated by the loss matrix.
+
+
+\begin{intuitionbox}{Practitioner Callout: The Probability Calibration Precondition}
+Worked Example~1.3 demonstrated that the Bayes optimal decision threshold is $\tau^* = \frac{100}{100 + 10{,}000} \approx 0.0099$. However, applying this threshold in production relies on a crucial precondition: \textbf{the model score $\hat{\eta}(\mathbf{x})$ must be a genuine, calibrated posterior probability}!
+
+A classifier is \textbf{calibrated} if among all instances assigned predicted score $\hat{p} = 0.01$, exactly $1\%$ are truly positive: $\mathbb{P}(Y = 1 \mid \hat{\eta}(X) = p) = p$.
+Modern complex models—particularly gradient-boosted decision trees (XGBoost, LightGBM) and overparameterized deep neural networks—are notoriously \textbf{uncalibrated}:
+\begin{itemize}
+    \item Cross-entropy optimization pushes logits toward $\pm \infty$, producing extreme, overconfident predictions clustering near $0.0$ and $1.0$.
+    \item Margin-based classifiers (SVMs) output arbitrary uncalibrated distances to a hyperplane.
+\end{itemize}
+If an uncalibrated network outputs $\hat{p} = 0.02$ for a patient whose true physiological risk is only $0.001$, the model will erroneously trigger invasive surgery! 
+
+\textbf{Production Remedy:} Before applying cost-sensitive thresholds, calibrate model scores on held-out validation data using:
+\begin{enumerate}
+    \item \textbf{Platt Scaling:} Fit a 1D logistic regression $\sigma(A z + B)$ mapping raw validation logits $z = f(\mathbf{x})$ to probabilities.
+    \item \textbf{Isotonic Regression:} Fit a non-parametric, monotonic step function minimizing squared calibration error.
+\end{enumerate}
+Evaluate calibration quality using the \textbf{Brier Score} $\frac{1}{N}\sum_{i=1}^N (\hat{p}_i - y_i)^2$ and \textbf{Expected Calibration Error (ECE)} via reliability diagrams.
+\end{intuitionbox}
 \end{examplebox}
 
 \subsection{Approximation Error vs. Estimation Error: The Archer Analogy}
@@ -1122,7 +1184,7 @@ import numpy as np
 
 def generate_noisy_sine(n_samples: int, noise_std: float = 0.25, seed: int = 42):
     # Generates synthetic data from true law: y = sin(2*pi*x) + Gaussian noise
-    rng = np.random.RandomState(seed)
+    rng = np.random.default_rng(seed)
     x = rng.uniform(0.0, 1.0, size=n_samples)
     y = np.sin(2 * np.pi * x) + rng.normal(0.0, noise_std, size=n_samples)
     return x, y
@@ -1177,18 +1239,16 @@ def run_curse_of_dimensionality_lab():
     print(f"{'Dimension d':<14}{'Mean Distance':<18}{'D_min':<12}{'D_max':<12}{'Relative Spread':<15}")
     print("-" * 70)
 
+    from scipy.spatial.distance import pdist
     dimensions = [2, 10, 50, 200, 1000]
     n_points = 200
-    rng = np.random.RandomState(42)
+    rng = np.random.default_rng(42)
 
     for d in dimensions:
         # Draw 200 points uniformly from unit hypercube [0, 1]^d
         X = rng.uniform(0.0, 1.0, size=(n_points, d))
-        # Compute all pairwise Euclidean distances
-        diffs = X[:, np.newaxis, :] - X[np.newaxis, :, :]
-        dists = np.sqrt(np.sum(diffs ** 2, axis=-1))
-        # Extract off-diagonal pairs
-        pairwise = dists[np.triu_indices(n_points, k=1)]
+        # Compute pairwise Euclidean distances memory-efficiently via pdist (O(N d) vs O(N^2 d) 3D array)
+        pairwise = pdist(X, metric='euclidean')
         
         d_mean = np.mean(pairwise)
         d_min = np.min(pairwise)
