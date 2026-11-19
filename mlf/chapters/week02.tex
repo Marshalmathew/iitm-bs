@@ -455,7 +455,17 @@ Plugging $\nabla f(\mathbf{x}^*) = \mathbf{0}$ into the Taylor expansion~\eqref{
 \begin{equation}
 f(\mathbf{x}^* + \mathbf{v}) - f(\mathbf{x}^*) \approx \frac{1}{2} \mathbf{v}^T H(\mathbf{x}^*) \mathbf{v}
 \end{equation}
-Because $H(\mathbf{x}^*)$ is real and symmetric, the Spectral Theorem (which we prove in Week 6) guarantees that $H$ possesses $d$ real eigenvalues $\lambda_1, \lambda_2, \dots, \lambda_d$ with an orthonormal basis of eigenvectors $\mathbf{q}_1, \dots, \mathbf{q}_d$.
+
+\begin{theorembox}{Pedagogical Roadmap: Why Symmetric Hessians Have Real Eigenvalues (Preview of Chapter 5)}
+In general, an arbitrary square matrix $A \in \mathbb{R}^{d \times d}$ can possess complex eigenvalues and defective eigenvectors. However, by Schwarz's Clairaut Theorem on the equality of mixed partial derivatives ($H_{ij} = \frac{\partial^2 f}{\partial x_i \partial x_j} = \frac{\partial^2 f}{\partial x_j \partial x_i}$ for $C^2$ functions), the Hessian matrix is \textbf{strictly real and symmetric} ($H = H^T$).
+
+A cornerstone result of linear algebra---the \textbf{Spectral Theorem for Real Symmetric Matrices} (which we rigorously prove from first principles in Chapter~5)---guarantees that:
+\begin{enumerate}[leftmargin=*, noitemsep]
+    \item Every eigenvalue $\lambda_1, \dots, \lambda_d$ of $H(\mathbf{x}^*)$ is \textbf{strictly real} ($\lambda_i \in \mathbb{R}$).
+    \item There exists an \textbf{orthonormal basis} of eigenvectors $\mathbf{q}_1, \dots, \mathbf{q}_d$ such that $H = Q \Lambda Q^T$ with $Q^T Q = I$.
+\end{enumerate}
+For the purposes of multivariate calculus in this chapter, students should take the existence of this real spectral decomposition as a foundational postulate; its full geometric and algebraic machinery will be systematically unveiled in Chapter~5.
+\end{theorembox}
 
 \begin{theorembox}{The Second-Order Critical Point Classification}
 Let $\mathbf{x}^*$ be a stationary point ($\nabla f(\mathbf{x}^*) = \mathbf{0}$) of a $C^2$ function $f$, and let $\lambda_1, \dots, \lambda_d$ be the eigenvalues of its Hessian $H(\mathbf{x}^*)$:
@@ -829,7 +839,7 @@ Consider a concrete toy dataset of $N = 2$ orthogonal samples in $d = 2$ dimensi
 \begin{enumerate}
     \item Derive the exact gradient vector $\nabla_{\mathbf{w}} \mathcal{L}(\mathbf{w})$ from first principles, demonstrating the cancellation of the sigmoid denominator. Express the result compactly in matrix-vector notation.
     \item Derive the exact Hessian matrix $H(\mathbf{w}) = \nabla^2_{\mathbf{w}} \mathcal{L}(\mathbf{w})$.
-    \item Prove that if $X$ has full column rank, $H(\mathbf{w})$ is strictly positive definite for all finite $\mathbf{w} \in \mathbb{R}^d$, guaranteeing strict convexity and a unique global minimum.
+    \item Prove that if $X$ has full column rank, $H(\mathbf{w})$ is strictly positive definite for all finite $\mathbf{w} \in \mathbb{R}^d$, guaranteeing strict convexity (at most one minimizer). Address the profound Complete Separation Pathology: why does this toy dataset possess no finite minimizer ($w_1 \to +\infty, w_2 \to -\infty$), and how does $L_2$ regularization $\frac{\lambda}{2}\|\mathbf{w}\|_2^2$ guarantee the existence of a unique finite minimizer?
     \item Initialize weights at the origin: $\mathbf{w}_0 = [0, 0]^T$. Compute the predicted probabilities $\mathbf{p}_0$, the initial cross-entropy loss $\mathcal{L}(\mathbf{w}_0)$, the gradient $\mathbf{g}_0$, and the Hessian $H_0$.
     \item Execute one full Newton-Raphson second-order optimization step:
     \begin{equation*}
@@ -905,7 +915,27 @@ Since $\min_i(s_i) > 0$ and $\|\mathbf{u}\|_2^2 > 0$, we conclude:
 \begin{equation*}
 \mathbf{v}^T H(\mathbf{w}) \mathbf{v} > 0 \quad \forall \mathbf{v} \ne \mathbf{0} \implies H(\mathbf{w}) \succ 0
 \end{equation*}
-Because the Hessian is strictly positive definite everywhere on $\mathbb{R}^d$, the binary logistic regression loss $\mathcal{L}(\mathbf{w})$ is \textbf{strictly convex}. It possesses no saddle points, no local maxima, and exactly one unique global minimum!
+Because the Hessian is strictly positive definite everywhere on $\mathbb{R}^d$, the binary logistic regression loss $\mathcal{L}(\mathbf{w})$ is \textbf{strictly convex}. It possesses no saddle points and no local maxima.
+
+\textbf{Crucial Mathematical Insight: Strict Convexity Guarantees Uniqueness, NOT Existence!}
+A widespread student misconception is assuming that strict convexity implies the existence of a minimizer. It does \emph{not}; strict convexity only guarantees that \emph{if} a global minimizer exists, it is strictly unique. (For example, $f(x) = e^{-x}$ is strictly convex on $\mathbb{R}$, yet has no minimizer!)
+
+Worse, on this exact toy dataset, the data is \textbf{linearly separable} (complete separation). Substituting our two points into the loss:
+\begin{equation*}
+\mathcal{L}(\mathbf{w}) = \ln\big(1 + e^{-w_1}\big) + \ln\big(1 + e^{w_2}\big)
+\end{equation*}
+As $w_1 \to +\infty$ and $w_2 \to -\infty$, both cross-entropy terms vanish:
+\begin{equation*}
+\lim_{\substack{w_1 \to +\infty \\ w_2 \to -\infty}} \mathcal{L}(w_1, w_2) = \ln(1 + 0) + \ln(1 + 0) = 0
+\end{equation*}
+The infimum is $0$, but it is \textbf{never achieved at any finite parameter point} $\mathbf{w} \in \mathbb{R}^2$! Unregularized logistic regression weights diverge to $\pm\infty$ on linearly separable data.
+
+\textbf{The Regularization Remedy: Guaranteeing Existence via Coercivity}
+To guarantee that a finite minimizer exists, we add an $L_2$ penalty $\frac{\lambda}{2}\|\mathbf{w}\|_2^2$ ($\lambda > 0$):
+\begin{equation*}
+\mathcal{L}_{\text{reg}}(\mathbf{w}) = \mathcal{L}(\mathbf{w}) + \frac{\lambda}{2}\|\mathbf{w}\|_2^2
+\end{equation*}
+Since $\mathcal{L}(\mathbf{w}) \ge 0$, we have $\mathcal{L}_{\text{reg}}(\mathbf{w}) \ge \frac{\lambda}{2}\|\mathbf{w}\|_2^2 \to \infty$ as $\|\mathbf{w}\|_2 \to \infty$ (\textbf{coercivity}). Furthermore, $\nabla^2 \mathcal{L}_{\text{reg}}(\mathbf{w}) = H(\mathbf{w}) + \lambda I_d \succeq \lambda I_d \succ 0$ is strongly convex. By Weierstrass' theorem on coercive functions, coercivity guarantees that a global minimizer $\mathbf{w}^*$ \textbf{exists}, and strong convexity guarantees it is \textbf{strictly unique}!
 
 \textbf{Step 4: Concrete Evaluation at Initial Point $\mathbf{w}_0 = [0, 0]^T$}
 With $X = I_2$ and $\mathbf{y} = [1, 0]^T$:
@@ -981,30 +1011,32 @@ Figure~\ref{fig:contour_geometry} visualizes the fundamental geometric relations
 
 % Elliptical contour curves (level sets of quadratic function)
 \draw[thick, color=gray!50] (0, 0) ellipse (4.8cm and 2.6cm);
-\node[right, color=gray!80!black] at (4.8, 0) {$f(\mathbf{x}) = c_3$};
+\node[below=2pt, font=\scriptsize\sffamily, color=gray!80!black] at (0, -2.6) {$f(\mathbf{x}) = c_3$};
 
 \draw[thick, color=primarydark!60] (0, 0) ellipse (3.4cm and 1.8cm);
-\node[right, color=primarydark!80!black] at (3.4, 0) {$f(\mathbf{x}) = c_2$};
+\node[left=2pt, font=\scriptsize\sffamily, color=primarydark!80!black] at (-3.4, 0) {$f(\mathbf{x}) = c_2$};
 
 \draw[thick, color=primarydark] (0, 0) ellipse (1.8cm and 1.0cm);
-\node[right, color=primarydark] at (1.8, 0) {$f(\mathbf{x}) = c_1 < c_2 < c_3$};
+\node[above=2pt, font=\scriptsize\sffamily, color=primarydark] at (0, 1.0) {$f(\mathbf{x}) = c_1$};
+
+\node[below left, font=\scriptsize\itshape\sffamily, color=gray!70!black] at (-2.8, -2.0) {Level set heights: $c_1 < c_2 < c_3$};
 
 % Optimum center
-\filldraw[color=tealdef] (0, 0) circle (2.5pt) node[below=3pt] {$\mathbf{x}^*$ (Global Minimum)};
+\filldraw[color=tealdef] (0, 0) circle (2.5pt) node[below=3pt, font=\scriptsize\bfseries\sffamily] {$\mathbf{x}^*$ (Minimum)};
 
 % Evaluation point on contour c2
 \coordinate (P) at (2.40, 1.27);
-\filldraw[color=traprad] (P) circle (2.5pt) node[above right=2pt] {$\mathbf{x}_0$};
+\filldraw[color=traprad] (P) circle (2.5pt) node[above right=2pt, font=\scriptsize\bfseries\sffamily] {$\mathbf{x}_0$};
 
 % Tangent line at P
-\draw[dashed, line width=1.2pt, color=tealdef] ($(P) + (-2.2, 1.5)$) -- ($(P) + (2.2, -1.5)$);
-\node[above, color=tealdef] at ($(P) + (1.6, -1.5)$) {Tangent Plane: $\nabla f(\mathbf{x}_0)^T(\mathbf{x} - \mathbf{x}_0) = 0$};
+\draw[dashed, line width=1.1pt, color=tealdef] ($(P) + (-1.9, 1.35)$) -- ($(P) + (1.6, -1.14)$);
+\node[above left, color=tealdef, font=\scriptsize\bfseries\sffamily, align=right] at ($(P) + (-1.7, 1.25)$) {Tangent Line:\\[-1pt]\tiny$\nabla f(\mathbf{x}_0)^T(\mathbf{x} - \mathbf{x}_0) = 0$};
 
 % Gradient vector (orthogonal to tangent)
-\draw[->, >=stealth, line width=2.0pt, color=traprad] (P) -- ($(P) + (1.2, 1.7)$) node[right=2pt] {$\nabla f(\mathbf{x}_0)$ (Steepest Ascent)};
+\draw[->, >=stealth, line width=1.8pt, color=traprad] (P) -- ($(P) + (1.0, 1.45)$) node[above right, font=\scriptsize\bfseries\sffamily, align=left] {$\nabla f(\mathbf{x}_0)$\\[-1pt]\tiny(Steepest Ascent)};
 
 % Negative gradient vector (towards minimum)
-\draw[->, >=stealth, line width=2.0pt, color=primarydark] (P) -- ($(P) + (-1.2, -1.7)$) node[below left=2pt] {$-\nabla f(\mathbf{x}_0)$ (Steepest Descent)};
+\draw[->, >=stealth, line width=1.8pt, color=primarydark] (P) -- ($(P) + (-1.0, -1.45)$) node[below right=2pt, font=\scriptsize\bfseries\sffamily, align=left] {$-\nabla f(\mathbf{x}_0)$\\[-1pt]\tiny(Steepest Descent)};
 
 \end{tikzpicture}
 \caption{The Geometry of Contours: The gradient vector $\nabla f(\mathbf{x}_0)$ is strictly perpendicular (orthogonal) to the contour tangent line, pointing in the direction of maximal rate of increase. The negative gradient points directly downhill toward lower level sets.}
@@ -1274,11 +1306,12 @@ if __name__ == "__main__":
     where $\delta_{ij}$ is the Kronecker delta.
 
     \item \textbf{Directional Derivative Along Non-Gradient Paths:}
-    Let $f(x_1, x_2) = 3x_1^2 + 2x_1 x_2 + x_2^2$.
+    Consider the anisotropic quadratic loss surface $f(x_1, x_2) = 2x_1^2 - 4x_1 x_2 + 5x_2^2 - 2x_1 + 6x_2$.
     \begin{enumerate}[label=(\alph*)]
-        \item Compute $\nabla f(1, 2)$.
-        \item Find the rate of change of $f$ at $(1, 2)$ in the direction toward the point $(4, 6)$.
-        \item Determine the unit vector $\mathbf{v}$ along which the directional derivative at $(1, 2)$ is exactly zero.
+        \item Compute the exact gradient vector $\nabla f(\mathbf{x}_0)$ at the evaluation point $\mathbf{x}_0 = (1, 1)$.
+        \item Find the unit direction vector $\mathbf{u}$ pointing from $\mathbf{x}_0 = (1, 1)$ toward the target point $\mathbf{x}_1 = (4, 5)$, and compute the directional derivative $D_{\mathbf{u}} f(1, 1)$.
+        \item Determine all unit vectors $\mathbf{v}$ along which the rate of change $D_{\mathbf{v}} f(1, 1)$ is identically zero, and confirm that these vectors are tangent to the level curve passing through $(1, 1)$.
+        \item State the unit direction of steepest descent and compute the maximal instantaneous rate of loss reduction at $(1, 1)$.
     \end{enumerate}
 
     \item \textbf{Second-Order Taylor Approximation Error Bound:}
@@ -1306,12 +1339,12 @@ if __name__ == "__main__":
         \item Conclude whether $f$ is continuous at the origin. Is $f$ Fréchet differentiable at $(0, 0)$? Explain the profound lesson for gradient-based optimization.
     \end{enumerate}
 
-    \item \textbf{Binary Logistic Regression Hessian and Strict Convexity:}
-    Consider the binary logistic regression loss functional $\mathcal{L}(\mathbf{w}) = -\sum_{i=1}^N [y_i \ln p_i + (1 - y_i)\ln(1 - p_i)]$ where $p_i = \sigma(\mathbf{w}^T \mathbf{x}_i)$ and $X \in \mathbb{R}^{N \times d}$.
+    \item \textbf{Separation Pathology, Coercivity, and Existence of Regularized Logistic Minimizers:}
+    Consider binary logistic regression on a training dataset $\{(\mathbf{x}_i, y_i)\}_{i=1}^N$ with $y_i \in \{0, 1\}$ and cross-entropy loss $\mathcal{L}(\mathbf{w}) = -\sum_{i=1}^N [y_i \ln p_i + (1 - y_i)\ln(1 - p_i)]$, where $p_i = \sigma(\mathbf{w}^T \mathbf{x}_i)$.
     \begin{enumerate}[label=(\alph*)]
-        \item Prove that the Hessian matrix can be written as $H(\mathbf{w}) = X^T S(\mathbf{w}) X$, where $S(\mathbf{w}) = \operatorname{diag}\big(p_1(1-p_1), \dots, p_N(1-p_N)\big)$.
-        \item Prove that if $X$ has full column rank ($N \ge d$), then $H(\mathbf{w}) \succ 0$ is strictly positive definite for any finite $\mathbf{w} \in \mathbb{R}^d$.
-        \item What does this imply about the uniqueness of the minimizer and the existence of local minima or saddle points in logistic regression?
+        \item \textbf{Complete Separation:} Suppose the dataset is strictly linearly separable: there exists a direction $\mathbf{v} \in \mathbb{R}^d$ such that $\mathbf{v}^T \mathbf{x}_i > 0$ whenever $y_i = 1$ and $\mathbf{v}^T \mathbf{x}_i < 0$ whenever $y_i = 0$. Show that along the ray $\mathbf{w}(t) = t \mathbf{v}$ for $t > 0$, the loss satisfies $\lim_{t \to +\infty} \mathcal{L}(t\mathbf{v}) = 0$. Explain why this implies that unregularized logistic regression has no finite minimizer in $\mathbb{R}^d$, even when $X$ has full column rank and the Hessian $H(\mathbf{w}) \succ 0$ is strictly positive definite.
+        \item \textbf{Strong Convexity under Regularization:} Consider the $L_2$-regularized loss $\mathcal{L}_{\text{reg}}(\mathbf{w}) = \mathcal{L}(\mathbf{w}) + \frac{\lambda}{2}\|\mathbf{w}\|_2^2$ with regularization parameter $\lambda > 0$. Compute the Hessian $\nabla^2 \mathcal{L}_{\text{reg}}(\mathbf{w})$ and prove that its smallest eigenvalue satisfies $\lambda_{\min}\big(\nabla^2 \mathcal{L}_{\text{reg}}(\mathbf{w})\big) \ge \lambda > 0$, proving that $\mathcal{L}_{\text{reg}}$ is $\lambda$-strongly convex on all of $\mathbb{R}^d$ regardless of whether $X$ has full rank.
+        \item \textbf{Coercivity and Global Existence:} A function $f: \mathbb{R}^d \to \mathbb{R}$ is \emph{coercive} if $\lim_{\|\mathbf{w}\|_2 \to \infty} f(\mathbf{w}) = +\infty$. Prove that $\mathcal{L}_{\text{reg}}(\mathbf{w})$ is coercive. Using the fact that continuous, coercive functions attain their minimum on compact sublevel sets, prove rigorously that $\mathcal{L}_{\text{reg}}(\mathbf{w})$ possesses a unique, finite global minimizer $\mathbf{w}^* \in \mathbb{R}^d$ on any dataset.
     \end{enumerate}
 \end{enumerate}
 

@@ -297,13 +297,11 @@ where $C > 0$ is a universal constant. For the Gram matrix $\Phi^T \Phi$, the co
 \end{equation}
 \end{theorembox}
 
-\begin{proof}
-Let $P_j(x) = \prod_{k \ne j} \frac{x - x_k}{x_j - x_k}$ be the $j$-th Lagrange basis polynomial. In matrix terms, the rows of $\Phi^{-1}$ contain the expansion coefficients of $P_j(x)$ in the monomial basis. For equispaced nodes on $[-1, 1]$ with spacing $h = \frac{2}{p}$, the denominator $\prod_{k \ne j} (x_j - x_k)$ contains terms of the form $(j - k)h$. For the central node ($j \approx p/2$), the product scales as:
-\begin{equation}
-\prod_{k \ne j} |x_j - x_k| = h^p \left(\frac{p}{2}\right)! \left(\frac{p}{2}\right)! \approx \left(\frac{2}{p}\right)^p 2\pi p \left(\frac{p}{2e}\right)^p = 2\pi p \left(\frac{1}{e}\right)^p
-\end{equation}
-Meanwhile, the numerator evaluated at the boundary reaches $|P_j(\pm 1)| \sim \frac{2^p}{p!}$. By applying complex contour integration around the Bernstein ellipse of the interval $[-1, 1]$, the supremum norm of the inverse Vandermonde matrix is bounded below by the sum of reciprocal node distances, yielding the asymptotic growth factor $(1 + \sqrt{2})^{2p}$.
-\end{proof}
+\begin{intuitionbox}{Origin of the $(1+\sqrt{2})^{2p}$ Lower Bound (Gautschi \& Beckermann)}
+The rigorous exponential lower bound on $\kappa_2(\Phi)$ is established through classical potential theory and complex approximation (Gautschi, 1975; Beckermann, 2000). While the technical proof—which bounds the row norms of the inverse Vandermonde matrix via the Bernstein regularity ellipse of $[-1, 1]$—lies beyond the scope of this course, the core linear-algebraic mechanism is intuitive:
+
+The rows of the inverse matrix $\Phi^{-1}$ contain the coefficients of the Lagrange interpolating polynomials $\ell_j(x) = \prod_{k \ne j} \frac{x - x_k}{x_j - x_k}$ expanded in the standard monomial basis. For equispaced nodes, the denominator product $\prod_{k \ne j} |x_j - x_k|$ shrinks factorially as $\mathcal{O}((2/p)^p (p/2)!^2) \sim \mathcal{O}(e^{-p})$, forcing the monomial expansion coefficients in $\Phi^{-1}$ to explode at the geometric rate $(1 + \sqrt{2})^{2p} \approx (5.828)^p$. Even for a moderate degree such as $p = 15$, the condition number $\kappa_2(\Phi^T \Phi)$ exceeds $10^{22}$, completely swamping IEEE double-precision floating-point arithmetic ($\epsilon_{\text{mach}} \approx 10^{-16}$).
+\end{intuitionbox}
 
 For a modest degree $p = 10$, $(5.828)^{10} \approx 4.3 \times 10^7$, and for $p = 15$, $(5.828)^{15} \approx 1.8 \times 10^{11}$. For the Gram matrix $\Phi^T \Phi$, $\kappa(\Phi^T \Phi) \approx 3.2 \times 10^{22}$, completely obliterating standard 64-bit IEEE double-precision floating-point arithmetic ($\epsilon_{\text{mach}} \approx 1.11 \times 10^{-16}$). Inverting $\Phi^T \Phi$ directly via the normal equations produces complete numerical noise!
 
@@ -452,7 +450,7 @@ In machine learning, practitioners frequently gather training data using uniform
 \end{itemize}
 \end{ponderbox}
 
-\begin{examplebox}{Worked Example 4.4: Vandermonde Ill-Conditioning and Condition Number Hand Evaluation}
+\begin{examplebox}{Worked Example 4.2: Vandermonde Ill-Conditioning and Condition Number Hand Evaluation}
 \label{ex:w04_vander_conditioning}
 \textbf{The Scenario:}
 Consider a 1D training dataset consisting of $N = 3$ observations sampled at positive points:
@@ -610,7 +608,7 @@ Suppose a $4 \times 4$ matrix has characteristic polynomial $p(\lambda) = (\lamb
 3. For $\lambda = -1$, the algebraic multiplicity is $am(-1) = 1$. Because $1 \le gm(-1) \le am(-1) = 1$, the geometric multiplicity is \textbf{strictly forced to be 1}! It can never equal 2. Whenever an eigenvalue has algebraic multiplicity 1 (a simple root), its geometric multiplicity is guaranteed to be 1.
 \end{ponderbox}
 
-\begin{examplebox}{Worked Example 4.2: Diagnosing a Defective Shear Matrix}
+\begin{examplebox}{Worked Example 4.3: Diagnosing a Defective Shear Matrix}
 \label{ex:w04_defective_matrix}
 \textbf{The Scenario:}
 Let matrix $B \in \mathbb{R}^{2 \times 2}$ be the horizontal shear operator:
@@ -646,7 +644,7 @@ E_3 = \Span\left\{ \begin{bmatrix} 1 \\ 0 \end{bmatrix} \right\} \implies gm(3) 
 Because $gm(3) = 1 < am(3) = 2$, matrix $B$ is \textbf{defective}. It possesses only one linearly independent eigenvector in $\mathbb{R}^2$. It is physically impossible to construct an invertible $2 \times 2$ modal matrix $P = [\mathbf{v}_1, \mathbf{v}_2]$, so $B$ \textbf{cannot be diagonalized}!
 \end{examplebox}
 
-\subsection{The Jordan Canonical Form \& Secular Growth in Defective Systems}
+\subsection{The Jordan Canonical Form \& Secular Growth in Defective Systems [Optional / Advanced Track]}
 \label{subsec:jordan_form}
 
 When an $n \times n$ matrix is defective ($gm(\lambda) < am(\lambda)$ for some eigenvalue $\lambda$), the geometric eigenspace is too small to span the state space $\mathbb{R}^n$. There is a shortage of $am(\lambda) - gm(\lambda)$ independent eigenvectors. Consequently, the matrix \textbf{cannot be diagonalized} into $P D P^{-1}$.
@@ -786,7 +784,7 @@ P = \begin{bmatrix} \mathbf{v}_1 & \mathbf{v}_2 & \dots & \mathbf{v}_n \end{bmat
 \label{fig:eigen_geometry}
 \end{figure}
 
-\begin{examplebox}{Worked Example 4.3: Step-by-Step Eigendecomposition and Matrix Power $A^k$}
+\begin{examplebox}{Worked Example 4.4: Step-by-Step Eigendecomposition and Matrix Power $A^k$}
 \label{ex:w04_matrix_power}
 \textbf{The Scenario:}
 Let $A = \begin{bmatrix} 4 & 2 \\ 1 & 3 \end{bmatrix}$. 
@@ -1159,7 +1157,7 @@ F_k = \frac{1}{\sqrt{5}} \left( \left(\frac{1 + \sqrt{5}}{2}\right)^k - \left(\f
 \label{eq:binet}
 \end{equation}
 
-\subsection{The Cayley-Hamilton Theorem \& Spectral Matrix Functions}
+\subsection{The Cayley-Hamilton Theorem \& Spectral Matrix Functions [Optional / Advanced Track]}
 \label{subsec:cayley_hamilton}
 
 In Section~\ref{subsec:power_iteration}, we saw that evaluating matrix powers $A^k$ via diagonalization requires computing all eigenvalues, constructing the modal matrix $P = [\mathbf{v}_1, \dots, \mathbf{v}_n]$, and inverting $P$. But what if $A$ is defective (non-diagonalizable), or what if we only need a specific matrix power or transcendental function (such as the matrix exponential $e^{At}$ or matrix resolvent $(I - \gamma A)^{-1}$) without the computational overhead of computing full eigenspaces?
@@ -1295,7 +1293,7 @@ This method requires zero matrix inversions, zero eigenvector normalizations, an
 
 \begin{trapbox}{Gotcha 3: Believing Real Matrices Always Have Real Eigenvalues}
 \textbf{The Scenario:} A programmer computes the eigenvalues of a $2 \times 2$ 90-degree counterclockwise rotation matrix $R = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}$ and expects real scale factors. \\
-\textbf{The Trap:} The characteristic equation is $\det(R - \lambda I) = \lambda^2 + 1 = 0 \implies \lambda = \pm i$. A pure rotation leaves no 1-dimensional real line invariant. Eigenvalues of real matrices are generally \textbf{complex numbers}. Real eigenvalues are guaranteed if and only if the matrix is symmetric ($A = A^T$), as established by the Spectral Theorem (Chapter~\ref{chap:week06}).
+\textbf{The Trap:} The characteristic equation is $\det(R - \lambda I) = \lambda^2 + 1 = 0 \implies \lambda = \pm i$. A pure rotation leaves no 1-dimensional real line invariant. Eigenvalues of real matrices are generally \textbf{complex numbers} occurring in conjugate pairs ($\lambda, \bar{\lambda} \in \mathbb{C}$). Real eigenvalues are guaranteed if the matrix is symmetric ($A = A^T$), as established by the Spectral Theorem (Chapter~\ref{chap:week05}), which further guarantees an orthonormal basis of real eigenvectors. However, symmetry is merely a \emph{sufficient} condition, not a necessary one: non-symmetric matrices can also possess entirely real eigenvalues (e.g., triangular matrices with real diagonals, or reversible Markov transition matrices). The key rule is that for general non-symmetric matrices, real eigenvalues are never guaranteed.
 \end{trapbox}
 
 \begin{trapbox}{Gotcha 4: Illegally Adding Eigenvalues for Matrix Sums}
@@ -1430,13 +1428,13 @@ if __name__ == "__main__":
 \subsection*{Part A: Analytical \& Mathematical Problems}
 
 \begin{enumerate}[label=\textbf{P\arabic*.}]
-    \item \textbf{Eigendecomposition of a $2 \times 2$ Matrix:}
-    Let $A = \begin{bmatrix} 4 & 2 \\ 1 & 3 \end{bmatrix}$.
+    \item \textbf{Eigendecomposition, Matrix Powers \& Discrete Dynamical Systems:}
+    Consider the non-symmetric matrix $A = \begin{bmatrix} 1 & 2 \\ 3 & 2 \end{bmatrix} \in \mathbb{R}^{2 \times 2}$.
     \begin{enumerate}[label=(\alph*)]
-        \item Compute the characteristic equation $p_A(\lambda) = \det(A - \lambda I) = 0$ and find all eigenvalues.
-        \item For each eigenvalue, find a corresponding eigenvector.
-        \item Construct the modal matrix $P$ and diagonal matrix $D$ such that $A = PDP^{-1}$.
-        \item Use this diagonalization to compute the exact matrix $A^5$.
+        \item Compute the characteristic polynomial $p_A(\lambda) = \det(A - \lambda I)$ and find both eigenvalues $\lambda_1, \lambda_2$ (order them such that $\lambda_1 > \lambda_2$). Verify that $\trace(A) = \lambda_1 + \lambda_2$ and $\det(A) = \lambda_1 \lambda_2$.
+        \item For each eigenvalue, find a corresponding non-zero eigenvector $\mathbf{v}_1, \mathbf{v}_2$. Construct the modal matrix $P = [\mathbf{v}_1, \mathbf{v}_2]$ and diagonal matrix $D = \operatorname{diag}(\lambda_1, \lambda_2)$, and compute $P^{-1}$.
+        \item Using the diagonalization $A = P D P^{-1}$, derive an explicit closed-form formula for the matrix power $A^k$ valid for any positive integer $k$.
+        \item Consider the discrete dynamical system $\mathbf{x}_{k+1} = A \mathbf{x}_k$ initialized at $\mathbf{x}_0 = \begin{bmatrix} 5 \\ 0 \end{bmatrix}$. Expand $\mathbf{x}_0$ in the eigenbasis ($\mathbf{x}_0 = c_1 \mathbf{v}_1 + c_2 \mathbf{v}_2$), write the exact state trajectory $\mathbf{x}_k$, and determine the asymptotic limiting direction $\lim_{k \to \infty} \frac{\mathbf{x}_k}{\|\mathbf{x}_k\|_2}$ (connecting matrix powers directly to Power Iteration).
     \end{enumerate}
 
     \item \textbf{Defective Matrix and Algebraic vs. Geometric Multiplicity:}

@@ -35,6 +35,13 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
+# Pass 3 (to stabilize Table of Contents and cross-references)
+& pdflatex -interaction=nonstopmode -halt-on-error -disable-installer main.tex
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Error in third pdflatex pass! Check main.log." -ForegroundColor Red
+    exit 1
+}
+
 # Cleanup aux files
 $auxFiles = @("*.aux", "*.log", "*.toc", "*.out", "*.synctex.gz", "*.fls", "*.fdb_latexmk", "*.idx", "*.ind", "*.ilg")
 foreach ($pattern in $auxFiles) {

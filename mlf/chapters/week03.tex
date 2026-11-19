@@ -526,7 +526,7 @@ Figure~\ref{fig:ols_projection_geometry} visualizes the complete geometric archi
 
 % Plane representing Column Space Col(X)
 \draw[thick, fill=primarylight!40, draw=primaryborder] (-1, -1) -- (5.5, -0.5) -- (7.5, 3.5) -- (1, 3.0) -- cycle;
-\node[color=primarydark, font=\bfseries] at (6.2, 3.0) {$\Col(X) = \operatorname{span}\{\mathbf{x}_1, \mathbf{x}_2\}$};
+\node[color=primarydark, font=\bfseries\sffamily] at (2.4, -0.5) {Subspace: $\Col(X) = \operatorname{span}\{\mathbf{x}_1, \mathbf{x}_2\}$};
 
 % Basis vectors on the plane
 \coordinate (O) at (1.5, 0.5);
@@ -549,7 +549,7 @@ Figure~\ref{fig:ols_projection_geometry} visualizes the complete geometric archi
 \draw[->, >=stealth, line width=1.8pt, color=tealdef] (O) -- (Yhat);
 
 % Error vector e = y - y_hat (perpendicular to plane)
-\draw[->, >=stealth, line width=2.0pt, color=primarydark] (Yhat) -- (Y) node[midway, right] {$\mathbf{e} = \mathbf{y} - \hat{\mathbf{y}} \in \Col(X)^\perp$};
+\draw[->, >=stealth, line width=2.0pt, color=primarydark] (Yhat) -- (Y) node[midway, right=3pt] {$\mathbf{e} = \mathbf{y} - \hat{\mathbf{y}} \in \Col(X)^\perp$};
 
 % Right angle symbol between error vector and plane
 \draw[thick, color=black] ($(Yhat) + (0, 0.35)$) -- ($(Yhat) + (-0.35, 0.35)$) -- ($(Yhat) + (-0.35, 0)$);
@@ -753,8 +753,8 @@ Notice the immense computational advantages:
 \draw[axis] (0, -0.5) -- (0, 4.2) node[above, font=\footnotesize] {Orthogonal direction $\mathbf{q}_2$};
 
 % Vector x1 and its normalized unit vector q1
-\draw[vec, color=primarydark] (0, 0) -- (4.5, 0) node[below right] {$\mathbf{x}_1 = r_{11} \mathbf{q}_1$};
-\draw[vec, color=forest, line width=2.2pt] (0, 0) -- (1.5, 0) node[below, yshift=-2pt] {$\mathbf{q}_1 = \frac{\mathbf{x}_1}{\|\mathbf{x}_1\|}$};
+\draw[vec, color=primarydark] (0, 0) -- (4.5, 0) node[below right, font=\scriptsize\sffamily] {$\mathbf{x}_1 = r_{11} \mathbf{q}_1$};
+\draw[vec, color=forest, line width=2.2pt] (0, 0) -- (1.5, 0) node[above=2pt, font=\scriptsize\bfseries\sffamily] {$\mathbf{q}_1 = \frac{\mathbf{x}_1}{\|\mathbf{x}_1\|}$};
 
 % Vector x2
 \coordinate (X2) at (3.5, 3.4);
@@ -762,19 +762,19 @@ Notice the immense computational advantages:
 \coordinate (U2) at (0, 3.4);
 \coordinate (Q2) at (0, 1.5);
 
-\draw[vec, color=primarydark] (0, 0) -- (X2) node[above right] {$\mathbf{x}_2 = r_{12}\mathbf{q}_1 + r_{22}\mathbf{q}_2$};
+\draw[vec, color=primarydark] (0, 0) -- (X2) node[above right, font=\scriptsize\sffamily] {$\mathbf{x}_2 = r_{12}\mathbf{q}_1 + r_{22}\mathbf{q}_2$};
 
 % Projection of x2 onto q1
 \draw[proj] (X2) -- (P);
-\draw[vec, color=coralborder, line width=1.4pt] (0, 0) -- (P) node[below=2pt] {$\text{proj}_{\mathbf{q}_1}(\mathbf{x}_2) = r_{12}\mathbf{q}_1$};
+\draw[vec, color=coralborder, line width=1.4pt] (0, 0) -- (P) node[below=3pt, font=\scriptsize\sffamily] {$\text{proj}_{\mathbf{q}_1}(\mathbf{x}_2) = r_{12}\mathbf{q}_1$};
 
 % Right angle symbol at P
 \draw[line width=0.7pt, color=traprad] (3.2, 0) -- (3.2, 0.3) -- (3.5, 0.3);
 
 % Orthogonal residual vector u2 and normalized q2
-\draw[vec, color=traprad] (0, 0) -- (U2) node[left] {$\mathbf{u}_2 = \mathbf{x}_2 - r_{12}\mathbf{q}_1$};
+\draw[vec, color=traprad] (0, 0) -- (U2) node[left=2pt, font=\scriptsize\sffamily] {$\mathbf{u}_2 = \mathbf{x}_2 - r_{12}\mathbf{q}_1$};
 \draw[proj] (X2) -- (U2);
-\draw[vec, color=forest, line width=2.2pt] (0, 0) -- (Q2) node[left, xshift=-2pt] {$\mathbf{q}_2 = \frac{\mathbf{u}_2}{\|\mathbf{u}_2\|}$};
+\draw[vec, color=forest, line width=2.2pt] (0, 0) -- (Q2) node[right=2pt, font=\scriptsize\bfseries\sffamily] {$\mathbf{q}_2 = \frac{\mathbf{u}_2}{\|\mathbf{u}_2\|}$};
 
 % Right angle at origin between q1 and q2
 \draw[line width=0.7pt, color=forest] (0.35, 0) -- (0.35, 0.35) -- (0, 0.35);
@@ -831,23 +831,53 @@ The gold standard is the \textbf{Minimum-Norm Solution}:
 \begin{equation}
 \mathbf{w}_{\text{min}} = \arg\min_{\mathbf{w} \in \mathbb{R}^d} \|\mathbf{w}\|_2^2 \quad \text{subject to } X\mathbf{w} = \mathbf{y}
 \end{equation}
-Using the method of Lagrange multipliers, we set up the Lagrangian:
+
+\textbf{Pure Geometric Derivation via Fundamental Subspaces \& Pythagoras:}
+Rather than resorting to external optimization machinery, we can derive $\mathbf{w}_{\text{min}}$ directly and rigorously using the Four Fundamental Subspaces developed in this chapter.
+
+By the Fundamental Theorem of Linear Algebra, the parameter domain decomposes orthogonally into the row space and null space: $\mathbb{R}^d = \Row(X) \oplus \Null(X)$, with $\Row(X) \perp \Null(X)$. Any interpolating candidate $\mathbf{w} \in \mathbb{R}^d$ can be uniquely decomposed as:
 \begin{equation}
-\mathcal{L}(\mathbf{w}, \boldsymbol{\lambda}) = \frac{1}{2}\mathbf{w}^T \mathbf{w} - \boldsymbol{\lambda}^T (X\mathbf{w} - \mathbf{y})
+\mathbf{w} = \mathbf{w}_{\Row} + \mathbf{w}_{\Null}, \qquad \text{where } \mathbf{w}_{\Row} \in \Row(X) \text{ and } \mathbf{w}_{\Null} \in \Null(X)
 \end{equation}
-Differentiating with respect to $\mathbf{w}$ and setting to zero:
+Substitute this decomposition into the interpolation constraint $X\mathbf{w} = \mathbf{y}$:
 \begin{equation}
-\nabla_{\mathbf{w}} \mathcal{L} = \mathbf{w} - X^T \boldsymbol{\lambda} = \mathbf{0} \implies \mathbf{w} = X^T \boldsymbol{\lambda} \in \Row(X)
+X\mathbf{w} = X(\mathbf{w}_{\Row} + \mathbf{w}_{\Null}) = X\mathbf{w}_{\Row} + \underbrace{X\mathbf{w}_{\Null}}_{= \mathbf{0}} = X\mathbf{w}_{\Row} = \mathbf{y}
 \end{equation}
-Multiplying by $X$:
+Notice the striking geometric insight: \textbf{the nullspace component $\mathbf{w}_{\Null}$ contributes absolutely nothing to satisfying $X\mathbf{w} = \mathbf{y}$!}
+
+Now examine the squared Euclidean norm of $\mathbf{w}$. Because $\mathbf{w}_{\Row} \perp \mathbf{w}_{\Null}$, the cross-terms vanish identically by the Pythagorean theorem:
 \begin{equation}
-X\mathbf{w} = X(X^T \boldsymbol{\lambda}) = (X X^T)\boldsymbol{\lambda} = \mathbf{y} \implies \boldsymbol{\lambda} = (X X^T)^{-1}\mathbf{y}
+\|\mathbf{w}\|_2^2 = \|\mathbf{w}_{\Row} + \mathbf{w}_{\Null}\|_2^2 = \|\mathbf{w}_{\Row}\|_2^2 + \|\mathbf{w}_{\Null}\|_2^2 + 2\underbrace{\mathbf{w}_{\Row}^T \mathbf{w}_{\Null}}_{= 0} = \|\mathbf{w}_{\Row}\|_2^2 + \|\mathbf{w}_{\Null}\|_2^2
 \end{equation}
-Substituting $\boldsymbol{\lambda}$ back into $\mathbf{w} = X^T \boldsymbol{\lambda}$:
+To minimize $\|\mathbf{w}\|_2^2$ while satisfying $X\mathbf{w}_{\Row} = \mathbf{y}$, we must eliminate the wasteful nullspace energy completely:
+\begin{equation}
+\|\mathbf{w}_{\Null}\|_2^2 = 0 \iff \mathbf{w}_{\Null} = \mathbf{0}
+\end{equation}
+Therefore, the unique minimum-norm solution must live \textbf{purely inside the row space}:
+\begin{equation}
+\mathbf{w}_{\text{min}} = \mathbf{w}_{\Row} \in \Row(X) = \Col(X^T)
+\end{equation}
+Since every vector in $\Col(X^T)$ is a linear combination of the columns of $X^T$ (the rows of $X$), there exists some coordinate vector $\boldsymbol{\alpha} \in \mathbb{R}^N$ such that:
+\begin{equation}
+\mathbf{w}_{\text{min}} = X^T \boldsymbol{\alpha}
+\end{equation}
+Multiplying by $X$ and applying the constraint $X\mathbf{w}_{\text{min}} = \mathbf{y}$:
+\begin{equation}
+X\mathbf{w}_{\text{min}} = X(X^T \boldsymbol{\alpha}) = (X X^T)\boldsymbol{\alpha} = \mathbf{y}
+\end{equation}
+Because $X \in \mathbb{R}^{N \times d}$ has full row rank ($\rank(X) = N \le d$), the $N \times N$ Gram matrix $X X^T$ is strictly symmetric positive definite and invertible. Inverting yields:
+\begin{equation}
+\boldsymbol{\alpha} = (X X^T)^{-1}\mathbf{y}
+\end{equation}
+Substituting $\boldsymbol{\alpha}$ back into $\mathbf{w}_{\text{min}} = X^T \boldsymbol{\alpha}$ produces the celebrated underdetermined minimum-norm closed form:
 \begin{equation}
 \mathbf{w}_{\text{min}} = X^T (X X^T)^{-1}\mathbf{y}
 \label{eq:underdetermined_min_norm}
 \end{equation}
+
+\begin{intuitionbox}{Optimization Bridge: Dual Connection to Lagrange Multipliers (Chapter 9)}
+In Chapter~9, we will explore constrained optimization via Lagrange multipliers. Setting up the Lagrangian $\mathcal{L}(\mathbf{w}, \boldsymbol{\lambda}) = \frac{1}{2}\|\mathbf{w}\|_2^2 - \boldsymbol{\lambda}^T(X\mathbf{w} - \mathbf{y})$ and setting $\nabla_{\mathbf{w}}\mathcal{L} = \mathbf{w} - X^T\boldsymbol{\lambda} = \mathbf{0}$ yields the identical condition $\mathbf{w} = X^T\boldsymbol{\lambda} \in \Row(X)$, proving that the Lagrange multipliers $\boldsymbol{\lambda}$ are precisely the row-space coordinates $\boldsymbol{\alpha}$ derived above!
+\end{intuitionbox}
 
 \begin{definitionbox}{The Moore-Penrose Pseudoinverse}
 For any matrix $X \in \mathbb{R}^{N \times d}$, the \textbf{Moore-Penrose Pseudoinverse} $X^\dagger$ provides the unique optimal operator unifying all regimes:
@@ -910,7 +940,7 @@ Whenever $\lambda_{\min} \ll \sigma^2$, the variance reduction overwhelmingly ou
 % ----------------------------------------------------------------------
 \section{Exhaustive Multi-Step Numerical Worked Examples}
 
-\begin{examplebox}[breakable]{Worked Example 3.1: Classical \& Modified Gram-Schmidt Orthonormalization}
+\begin{examplebox}{Worked Example 3.3: Classical \& Modified Gram-Schmidt Orthonormalization}
 \label{ex:w03_gram_schmidt}
 \textbf{The Scenario:}
 Given the linearly independent column vectors spanning a subspace of $\mathbb{R}^3$:
@@ -1004,7 +1034,7 @@ In exact arithmetic, Classical Gram-Schmidt (subtracting all projections simulta
 However, in floating-point arithmetic, CGS suffers from catastrophic cancellation when vectors are nearly collinear, rapidly losing orthogonality ($Q^T Q \ne I$). MGS updates the working vector after each projection step ($\mathbf{a}_k^{(j)} \leftarrow \mathbf{a}_k^{(j-1)} - (\mathbf{q}_j^T \mathbf{a}_k^{(j-1)})\mathbf{q}_j$), which is mathematically proven to be backward stable!
 \end{examplebox}
 
-\begin{examplebox}[breakable]{Worked Example 3.2: Four Fundamental Subspaces Decomposition of an Arbitrary Vector}
+\begin{examplebox}{Worked Example 3.4: Four Fundamental Subspaces Decomposition of an Arbitrary Vector}
 \label{ex:w03_four_subspaces_decomp}
 \textbf{The Scenario:}
 Let $A \in \mathbb{R}^{3 \times 2}$ be the rank-deficient matrix and $\mathbf{b} \in \mathbb{R}^3$ be the target observation:
@@ -1088,7 +1118,7 @@ Summing the components:
 The total energy decomposes completely into signal and residual without cross-term leakage!
 \end{examplebox}
 
-\begin{examplebox}[breakable]{Worked Example 3.3: Full OLS Line Fitting via Projection Geometry}
+\begin{examplebox}{Worked Example 3.5: Full OLS Line Fitting via Projection Geometry}
 \label{ex:w03_ols_line_fitting}
 \textbf{The Scenario:}
 Fit an affine line $y = \beta_0 + \beta_1 x$ to three empirical observations:
@@ -1158,7 +1188,7 @@ Because the first column of $X$ is the constant intercept column of ones $\mathb
 This proves mathematically why \textbf{any linear regression model that contains an intercept term always has residuals that sum to exactly zero}!
 \end{examplebox}
 
-\begin{examplebox}[breakable]{Worked Example 3.4: OLS via QR Decomposition vs. Normal Equations Condition Squaring}
+\begin{examplebox}{Worked Example 3.6: OLS via QR Decomposition vs. Normal Equations Condition Squaring}
 \label{ex:w03_qr_vs_normal}
 \textbf{The Scenario:}
 Consider a least-squares problem with design matrix $X \in \mathbb{R}^{3 \times 2}$ exhibiting severe collinearity:
@@ -1245,7 +1275,7 @@ The exact parameter estimate is $\hat{\boldsymbol{\beta}} = [1, 1]^T$.
 Notice that back-substitution on $R_1$ evaluates the ratio $\frac{\epsilon\sqrt{2}}{\epsilon\sqrt{2}} = 1$ without ever squaring $\epsilon$ into $10^{-8}$, preserving complete numerical stability!
 \end{examplebox}
 
-\begin{examplebox}[breakable]{Worked Example 3.5: Minimum-Norm Solution for Underdetermined Systems}
+\begin{examplebox}{Worked Example 3.7: Minimum-Norm Solution for Underdetermined Systems}
 \label{ex:w03_min_norm_underdetermined}
 \textbf{The Scenario:}
 Consider the underdetermined linear system with $N = 1$ constraint and $d = 3$ unknowns:

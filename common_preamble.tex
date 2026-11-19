@@ -183,12 +183,12 @@
 }
 
 % Example Box
-\newtcolorbox{examplebox}[1]{
+\newtcolorbox{examplebox}[2][]{
     colback=purplebg,
     colframe=purpleborder,
     coltitle=white,
     fonttitle=\bfseries\sffamily,
-    title={Example: #1},
+    title={#2},
     enhanced,
     breakable,
     attach boxed title to top left={yshift=-2mm, xshift=4mm},
@@ -199,7 +199,8 @@
     bottom=3mm,
     left=3mm,
     right=3mm,
-    drop shadow={opacity=0.1, color=black}
+    drop shadow={opacity=0.1, color=black},
+    #1
 }
 
 % Socratic Pause & Ponder Box (Deep Pedagogical Reflection)

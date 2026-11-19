@@ -568,12 +568,114 @@ In multi-sensor data processing and quantum mechanics, we frequently encounter t
 \label{fig:spectral_geometry}
 \end{figure}
 
+\subsection{The Rayleigh Quotient \& The Courant-Fischer Min-Max Theorem}
+\label{subsec:courant_fischer}
+
+While the Spectral Theorem (Theorem~\ref{thm:spectral_theorem_hermitian}) establishes that every Hermitian operator possesses a complete orthonormal set of eigenvectors, it treats eigenvalues as algebraic roots of the characteristic polynomial $\det(A - \lambda I) = 0$. In machine learning, optimization, and scientific computing, however, eigenvalues are characterized \textbf{variationally} as the extrema of an energy landscape known as the \textbf{Rayleigh Quotient}.
+
+\begin{definitionbox}{The Rayleigh Quotient}
+\label{def:rayleigh_quotient}
+Let $A \in \mathbb{C}^{n \times n}$ be a Hermitian matrix. The \textbf{Rayleigh Quotient} $R_A: \mathbb{C}^n \setminus \{\mathbf{0}\} \to \mathbb{R}$ is the scalar functional:
+\begin{equation}
+R_A(\mathbf{x}) \triangleq \frac{\mathbf{x}^H A \mathbf{x}}{\mathbf{x}^H \mathbf{x}}
+\label{eq:rayleigh_quotient_def}
+\end{equation}
+Because $R_A(c \mathbf{x}) = R_A(\mathbf{x})$ for any non-zero complex scalar $c \ne 0$, the Rayleigh quotient is homogeneous of degree zero. Consequently, its range over all non-zero vectors is identical to its restriction to the complex unit sphere $\mathbb{S}^{2n-1} = \{\mathbf{x} \in \mathbb{C}^n : \|\mathbf{x}\|_2 = 1\}$:
+\begin{equation}
+R_A(\mathbf{x}) = \mathbf{x}^H A \mathbf{x} \quad \text{for all } \|\mathbf{x}\|_2 = 1
+\end{equation}
+\end{definitionbox}
+
+To understand the geometric structure of $R_A(\mathbf{x})$, expand an arbitrary unit vector $\mathbf{x}$ in the orthonormal eigenbasis $\{\mathbf{u}_1, \dots, \mathbf{u}_n\}$ of $A$ guaranteed by the Spectral Theorem:
+\begin{equation*}
+\mathbf{x} = \sum_{i=1}^n c_i \mathbf{u}_i, \quad \text{where } c_i = \mathbf{u}_i^H \mathbf{x} \quad \text{and} \quad \sum_{i=1}^n |c_i|^2 = \|\mathbf{x}\|_2^2 = 1
+\end{equation*}
+Substituting this expansion into the quadratic form yields:
+\begin{equation}
+R_A(\mathbf{x}) = \mathbf{x}^H A \mathbf{x} = \left(\sum_{i=1}^n c_i \mathbf{u}_i\right)^H \left(\sum_{j=1}^n \lambda_j c_j \mathbf{u}_j\right) = \sum_{i=1}^n \lambda_i |c_i|^2
+\label{eq:rayleigh_convex_comb}
+\end{equation}
+Equation~\eqref{eq:rayleigh_convex_comb} reveals a foundational insight: \textbf{for any vector $\mathbf{x}$, the Rayleigh quotient is a weighted average (convex combination) of the eigenvalues of $A$ with non-negative weights $w_i = |c_i|^2 \ge 0$ summing to 1}.
+
+If the eigenvalues are sorted in ascending order, $\lambda_1 \le \lambda_2 \le \dots \le \lambda_n$, the extreme values are bounded by the endpoints of the spectrum:
+\begin{equation}
+\lambda_1 \le R_A(\mathbf{x}) \le \lambda_n \quad \forall \, \mathbf{x} \ne \mathbf{0}
+\label{eq:rayleigh_ritz_inequality}
+\end{equation}
+The global minimum $\lambda_1$ is achieved at the primary eigenvector $\mathbf{u}_1$, and the global maximum $\lambda_n$ is achieved at the dominant eigenvector $\mathbf{u}_n$. This variational result is known as the \textbf{Rayleigh-Ritz Theorem}.
+
+\subsubsection{Intermediate Eigenvalues and Subspace Optimization}
+How can we isolate the intermediate eigenvalues $\lambda_2, \lambda_3, \dots, \lambda_{n-1}$ without sequential eigenvector deflation? Sequential deflation requires prior knowledge of exact numerical eigenvectors, which is impractical for perturbation analysis or high-dimensional graph partitioning.
+
+This challenge is solved by the variational characterization known as the \textbf{Courant-Fischer Min-Max Theorem}.
+
+\begin{theorembox}{The Courant-Fischer Min-Max Theorem}
+\label{thm:courant_fischer}
+Let $A \in \mathbb{C}^{n \times n}$ be an $n \times n$ Hermitian matrix with eigenvalues sorted in \textbf{ascending order}:
+\begin{equation*}
+\lambda_1 \le \lambda_2 \le \dots \le \lambda_n
+\end{equation*}
+Then for every index $k \in \{1, 2, \dots, n\}$, the $k$-th eigenvalue admits the dual variational characterizations:
+\begin{align}
+\lambda_k(A) &= \min_{\substack{V \subseteq \mathbb{C}^n \\ \dim(V) = k}} \; \max_{\substack{\mathbf{x} \in V \\ \mathbf{x} \ne \mathbf{0}}} R_A(\mathbf{x}) \label{eq:courant_fischer_minmax} \\[4pt]
+&= \max_{\substack{W \subseteq \mathbb{C}^n \\ \dim(W) = n - k + 1}} \; \min_{\substack{\mathbf{x} \in W \\ \mathbf{x} \ne \mathbf{0}}} R_A(\mathbf{x}) \label{eq:courant_fischer_maxmin}
+\end{align}
+\textbf{Dual Descending Ordering Convention:}
+If eigenvalues are sorted in \textbf{descending order} ($\lambda_1 \ge \lambda_2 \ge \dots \ge \lambda_n$, standard in PCA and low-rank approximation), the inner and outer operators swap:
+\begin{equation}
+\lambda_k^{\downarrow}(A) = \max_{\substack{V \subseteq \mathbb{C}^n \\ \dim(V) = k}} \; \min_{\substack{\mathbf{x} \in V \\ \mathbf{x} \ne \mathbf{0}}} R_A(\mathbf{x}) = \min_{\substack{W \subseteq \mathbb{C}^n \\ \dim(W) = n - k + 1}} \; \max_{\substack{\mathbf{x} \in W \\ \mathbf{x} \ne \mathbf{0}}} R_A(\mathbf{x})
+\label{eq:courant_fischer_descending}
+\end{equation}
+\end{theorembox}
+
+\begin{proof}[Analytical Proof of the Min-Max Formula]
+Let $\{\mathbf{u}_1, \dots, \mathbf{u}_n\}$ be the orthonormal eigenbasis corresponding to $\lambda_1 \le \dots \le \lambda_n$.
+\begin{enumerate}
+    \item \textbf{Upper Bound:} Choose the specific subspace $V^* \triangleq \Span\{\mathbf{u}_1, \dots, \mathbf{u}_k\}$, which has $\dim(V^*) = k$. For any non-zero unit vector $\mathbf{x} \in V^*$, its expansion coefficients satisfy $c_{k+1} = \dots = c_n = 0$. By Equation~\eqref{eq:rayleigh_convex_comb}:
+    \begin{equation*}
+    R_A(\mathbf{x}) = \sum_{i=1}^k \lambda_i |c_i|^2 \le \lambda_k \sum_{i=1}^k |c_i|^2 = \lambda_k
+    \end{equation*}
+    Therefore, $\max_{\mathbf{x} \in V^*} R_A(\mathbf{x}) = \lambda_k$. Since the infimum over all $k$-dimensional subspaces cannot exceed the value achieved on $V^*$, we conclude:
+    \begin{equation*}
+    \min_{\dim(V) = k} \max_{\mathbf{x} \in V, \mathbf{x} \ne \mathbf{0}} R_A(\mathbf{x}) \le \lambda_k
+    \end{equation*}
+    \item \textbf{Lower Bound via Dimensional Intersection:} Let $V$ be an \emph{arbitrary} $k$-dimensional subspace of $\mathbb{C}^n$. Define the complementary upper subspace $W \triangleq \Span\{\mathbf{u}_k, \mathbf{u}_{k+1}, \dots, \mathbf{u}_n\}$, which has dimension $\dim(W) = n - k + 1$.
+    Applying the Grassmannian dimension formula for intersecting subspaces:
+    \begin{equation*}
+    \dim(V \cap W) = \dim(V) + \dim(W) - \dim(V + W) \ge k + (n - k + 1) - n = 1
+    \end{equation*}
+    Therefore, the intersection $V \cap W$ must contain at least one non-zero unit vector $\mathbf{v}_0 \in V \cap W$.
+    Because $\mathbf{v}_0 \in W$, its coordinates satisfy $c_1 = \dots = c_{k-1} = 0$, so its Rayleigh energy satisfies:
+    \begin{equation*}
+    R_A(\mathbf{v}_0) = \sum_{i=k}^n \lambda_i |c_i|^2 \ge \lambda_k \sum_{i=k}^n |c_i|^2 = \lambda_k
+    \end{equation*}
+    Because $\mathbf{v}_0$ is also in $V$, the maximum Rayleigh quotient over $V$ cannot be smaller than $R_A(\mathbf{v}_0)$:
+    \begin{equation*}
+    \max_{\mathbf{x} \in V, \mathbf{x} \ne \mathbf{0}} R_A(\mathbf{x}) \ge R_A(\mathbf{v}_0) \ge \lambda_k
+    \end{equation*}
+    Because this inequality holds for \emph{every} $k$-dimensional subspace $V$, taking the infimum over all such subspaces yields:
+    \begin{equation*}
+    \min_{\dim(V) = k} \max_{\mathbf{x} \in V, \mathbf{x} \ne \mathbf{0}} R_A(\mathbf{x}) \ge \lambda_k
+    \end{equation*}
+\end{enumerate}
+Combining the matching upper and lower bounds rigorously establishes $\lambda_k(A) = \min_{\dim(V) = k} \max_{\mathbf{x} \in V} R_A(\mathbf{x})$.
+\end{proof}
+
+\begin{intuitionbox}{Pedagogical Significance of Courant-Fischer}
+Courant-Fischer transforms eigenvalues from algebraic roots into topological minimax saddle-points on the Grassmannian manifold. In machine learning, it serves two indispensable roles:
+\begin{enumerate}
+    \item \textbf{Graph Partitioning \& Spectral Clustering:} It proves that the continuous relaxation of the NP-hard minimum graph bisection problem is solved by the second smallest eigenvalue of the graph Laplacian, $\lambda_2(L) = \min_{\mathbf{x} \perp \mathbf{1}, \|\mathbf{x}\|_2=1} \mathbf{x}^T L \mathbf{x}$ (the Fiedler vector; see Worked Example~\ref{ex:w05_graph_laplacian} and Problem~\textbf{P7}).
+    \item \textbf{Perturbation Stability (Weyl's Inequalities):} It provides the analytical machinery to prove that when an empirical covariance matrix is corrupted by noise $\tilde{\Sigma} = \Sigma + E$, no eigenvalue can shift by more than the spectral norm of the disturbance: $|\lambda_k(\tilde{\Sigma}) - \lambda_k(\Sigma)| \le \|E\|_2$ (Problem~\textbf{P6}).
+\end{enumerate}
+\end{intuitionbox}
+
+
 % ----------------------------------------------------------------------
 % PART 5: WORKED NUMERICAL EXAMPLES
 % ----------------------------------------------------------------------
 \section{Exhaustive Multi-Step Numerical Worked Examples}
 
-\begin{examplebox}[breakable]{Worked Example 5.1: Full Eigendecomposition and Spectral Projectors of a Complex Hermitian Matrix}
+\begin{examplebox}{Worked Example 5.1: Full Eigendecomposition and Spectral Projectors of a Complex Hermitian Matrix}
 \label{ex:w05_hermitian_spectral_projectors}
 Consider the complex matrix:
 \begin{equation}
@@ -663,7 +765,7 @@ Checking spectral reconstruction $H = \lambda_1 P_1 + \lambda_2 P_2$:
 \end{align}
 \end{examplebox}
 
-\begin{examplebox}[breakable]{Worked Example 5.2: The Rayleigh Quotient and Variational Optimization on the Sphere}
+\begin{examplebox}{Worked Example 5.2: The Rayleigh Quotient and Variational Optimization on the Sphere}
 \label{ex:w05_rayleigh_quotient}
 Consider the real symmetric covariance-type matrix:
 \begin{equation}
@@ -792,7 +894,7 @@ Let $A \in \mathbb{R}^{n \times n}$ be a real symmetric matrix. Consider the con
 \end{enumerate}
 \end{ponderbox}
 
-\begin{examplebox}[breakable]{Worked Example 5.3: Spectral Resolution of a Graph Adjacency Operator}
+\begin{examplebox}{Worked Example 5.3: Spectral Resolution of a Graph Adjacency Operator}
 \label{ex:w05_graph_adjacency_spectral}
 Consider a 3-node linear path graph $1 - 2 - 3$. The symmetric adjacency matrix is:
 \begin{equation}
@@ -851,7 +953,7 @@ Reconstructing the adjacency matrix:
 \end{align}
 \end{examplebox}
 
-\begin{examplebox}[breakable]{Worked Example 5.4: Simultaneous Unitary Diagonalization of Commuting Hermitian Operators}
+\begin{examplebox}{Worked Example 5.4: Simultaneous Unitary Diagonalization of Commuting Hermitian Operators}
 \label{ex:w05_simultaneous_diag}
 \textbf{The Scenario:}
 Consider two complex Hermitian matrices:
@@ -917,7 +1019,7 @@ U^H A U = \begin{bmatrix} 3 & 0 \\ 0 & 1 \end{bmatrix} = \Lambda_A, \quad U^H B 
 Both operators are decoupled into diagonal form by the exact same coordinate transformation.
 \end{examplebox}
 
-\begin{examplebox}[breakable]{Worked Example 5.5: Graph Laplacian Construction, Fiedler Vector \& Spectral Bisection}
+\begin{examplebox}{Worked Example 5.5: Graph Laplacian Construction, Fiedler Vector \& Spectral Bisection}
 \label{ex:w05_graph_laplacian_fiedler}
 \textbf{The Scenario:}
 In spectral clustering and community detection, data points are modeled as nodes in an affinity graph. Consider an undirected, weighted 3-node graph where nodes 1 and 2 belong to a dense cluster (edge weight $w_{12} = 10$), while node 3 is a distant outlier weakly linked to node 2 (edge weight $w_{23} = 1$), with no direct connection to node 1 ($w_{13} = 0$).
@@ -1231,13 +1333,13 @@ if __name__ == "__main__":
 \subsection*{Part A: Analytical \& Mathematical Problems}
 
 \begin{enumerate}[label=\textbf{P\arabic*.}]
-    \item \textbf{Verifying Hermitian Properties:}
-    Consider the complex matrix $H = \begin{bmatrix} 2 & 1 - i \\ 1 + i & 3 \end{bmatrix}$.
+    \item \textbf{Hermitian Spectral Decomposition \& Projection Invariance:}
+    Consider the complex matrix $H = \begin{bmatrix} 4 & 1 - i \\ 1 + i & 3 \end{bmatrix} \in \mathbb{C}^{2 \times 2}$.
     \begin{enumerate}[label=(\alph*)]
-        \item Compute $H^H$ and confirm that $H$ is Hermitian.
-        \item Compute the characteristic polynomial $\det(H - \lambda I) = 0$ and find its eigenvalues.
-        \item Find the normalized eigenvectors $\mathbf{u}_1, \mathbf{u}_2 \in \mathbb{C}^2$ and verify $\mathbf{u}_1^H \mathbf{u}_2 = 0$.
-        \item Verify the projection formula $H = \lambda_1 \mathbf{u}_1 \mathbf{u}_1^H + \lambda_2 \mathbf{u}_2 \mathbf{u}_2^H$.
+        \item Confirm that $H^H = H$. Compute the trace $\trace(H)$ and determinant $\det(H)$.
+        \item Compute the characteristic polynomial $p_H(\lambda) = \det(H - \lambda I)$ and show that its roots are $\lambda_1 = 5$ and $\lambda_2 = 2$. Verify that $\lambda_1 + \lambda_2 = \trace(H)$ and $\lambda_1 \lambda_2 = \det(H)$.
+        \item Compute the normalized eigenvectors $\mathbf{u}_1, \mathbf{u}_2 \in \mathbb{C}^2$ and confirm that $\mathbf{u}_1^H \mathbf{u}_2 = 0$.
+        \item Construct the rank-1 projection operators $P_1 \triangleq \mathbf{u}_1 \mathbf{u}_1^H$ and $P_2 \triangleq \mathbf{u}_2 \mathbf{u}_2^H$. Verify explicitly that $P_1 + P_2 = I_2$, $P_1 P_2 = \mathbf{0}$, and $5 P_1 + 2 P_2 = H$.
     \end{enumerate}
 
     \item \textbf{Spectral Properties of Unitary Transformations:}
@@ -1271,22 +1373,40 @@ if __name__ == "__main__":
     \end{equation}
     Using this variational characterization, prove that if $A$ and $B$ are Hermitian and $B \succeq 0$ (positive semidefinite), then $\lambda_k(A + B) \ge \lambda_k(A)$ for all $k \in \{1, \dots, n\}$.
 
-    \item \textbf{Schur's Triangularization Theorem and Spectral Corollary:}
-    Let $A \in \mathbb{C}^{n \times n}$ be an arbitrary square complex matrix.
+    \item \textbf{Weyl's Perturbation Theorem \& Eigenvalue Interlacing for Hermitian Operators:}
+    In empirical machine learning, covariance matrices and graph Laplacians are contaminated by sampling noise: $\tilde{A} = A + E$, where $A, E \in \mathbb{C}^{n \times n}$ are Hermitian.
     \begin{enumerate}[label=(\alph*)]
-        \item State Schur's Triangularization Theorem and explain why the diagonal entries of the triangular factor $T$ in $A = U T U^H$ must be the eigenvalues of $A$.
-        \item Prove that if $A$ is Hermitian ($A = A^H$), the upper-triangular matrix $T$ must be strictly diagonal.
-        \item Show that the diagonal entries of $T$ for a Hermitian matrix $A$ are strictly real numbers.
-        \item Deduce that every real symmetric matrix $A \in \mathbb{R}^{n \times n}$ possesses an orthonormal basis of real eigenvectors in $\mathbb{R}^n$.
+        \item Let eigenvalues be sorted in ascending order: $\lambda_1 \le \lambda_2 \le \dots \le \lambda_n$. Using the Courant-Fischer Min-Max Theorem, prove \textbf{Weyl's Monotonicity and Perturbation Theorem}:
+        \begin{equation*}
+        \lambda_k(A) + \lambda_1(E) \le \lambda_k(A + E) \le \lambda_k(A) + \lambda_n(E) \quad \text{for all } k = 1, \dots, n
+        \end{equation*}
+        \item Deduce that $|\lambda_k(A + E) - \lambda_k(A)| \le \|E\|_2$, establishing that the eigenvalue spectrum of any Hermitian matrix is $1$-Lipschitz stable with respect to the spectral norm of additive perturbations.
+        \item Consider a positive semidefinite rank-1 update $E = \mathbf{v}\mathbf{v}^H$ with non-zero $\mathbf{v} \in \mathbb{C}^n$. Prove the \textbf{Cauchy Interlacing Theorem for Rank-1 Updates}:
+        \begin{equation*}
+        \lambda_1(A) \le \lambda_1(A + \mathbf{v}\mathbf{v}^H) \le \lambda_2(A) \le \lambda_2(A + \mathbf{v}\mathbf{v}^H) \le \dots \le \lambda_n(A) \le \lambda_n(A + \mathbf{v}\mathbf{v}^H)
+        \end{equation*}
+        Explain why this ensures that adding a single feature vector or data point can never move any eigenvalue past its adjacent unperturbed neighbor.
     \end{enumerate}
 
-    \item \textbf{Simultaneous Diagonalization of Commuting Operators:}
-    Let $A, B \in \mathbb{C}^{n \times n}$ be two Hermitian matrices that commute: $AB = BA$.
+    \item \textbf{Spectral Graph Partitioning, Cheeger Relaxation \& The Fiedler Cut:}
+    Let $G = (V, E)$ be an unweighted, connected, undirected graph with $N$ vertices, adjacency matrix $W$, and diagonal degree matrix $D$. The combinatorial graph Laplacian is $L \triangleq D - W \succeq 0$.
     \begin{enumerate}[label=(\alph*)]
-        \item Let $\lambda$ be an eigenvalue of $A$ and let $E_\lambda \triangleq \{\mathbf{v} \in \mathbb{C}^n : A\mathbf{v} = \lambda \mathbf{v}\}$ be its corresponding eigenspace. Prove that $E_\lambda$ is an invariant subspace under $B$ (i.e., $\mathbf{v} \in E_\lambda \implies B\mathbf{v} \in E_\lambda$).
-        \item Prove that the restriction of $B$ to $E_\lambda$ is Hermitian with respect to the standard complex inner product.
-        \item Using parts (a) and (b), prove by induction that there exists a unitary matrix $U \in \mathbb{C}^{n \times n}$ such that both $U^H A U$ and $U^H B U$ are diagonal.
-        \item Give an explicit counterexample of two $2 \times 2$ symmetric matrices that do not commute and explain why they cannot be simultaneously diagonalized.
+        \item Prove that for any vector $\mathbf{x} \in \mathbb{R}^N$:
+        \begin{equation*}
+        \mathbf{x}^T L \mathbf{x} = \frac{1}{2}\sum_{i,j=1}^N W_{ij}(x_i - x_j)^2
+        \end{equation*}
+        Deduce that $\lambda_1(L) = 0$ with associated eigenvector $\mathbf{u}_1 = \frac{1}{\sqrt{N}}\mathbf{1}$.
+        \item The discrete graph minimum bisection problem partitions $V$ into two equal disjoint sets $S, \bar{S}$ ($|S| = |\bar{S}| = N/2$) to minimize the cut size $\operatorname{cut}(S, \bar{S}) \triangleq \sum_{i \in S, j \in \bar{S}} W_{ij}$. Define the discrete indicator vector $\mathbf{y} \in \{-1, +1\}^N$ where $y_i = +1$ if $i \in S$ and $y_i = -1$ if $i \in \bar{S}$.
+        Prove that $\mathbf{y}^T \mathbf{1} = 0$, $\|\mathbf{y}\|_2^2 = N$, and:
+        \begin{equation*}
+        \operatorname{cut}(S, \bar{S}) = \frac{1}{4} \mathbf{y}^T L \mathbf{y}
+        \end{equation*}
+        \item Because the discrete binary constraint $\mathbf{y} \in \{-1, +1\}^N$ makes graph bisection NP-hard, relax the domain to the continuous Euclidean sphere $\mathbf{y} \in \mathbb{R}^N$ with $\|\mathbf{y}\|_2^2 = N$ subject to $\mathbf{y} \perp \mathbf{1}$.
+        Using the Courant-Fischer Theorem, prove that the exact global minimum of this relaxed continuous optimization problem is given by:
+        \begin{equation*}
+        \min_{\substack{\mathbf{y} \ne \mathbf{0} \\ \mathbf{y} \perp \mathbf{1}}} \frac{\mathbf{y}^T L \mathbf{y}}{\mathbf{y}^T \mathbf{y}} = \lambda_2(L)
+        \end{equation*}
+        and is achieved by the \textbf{Fiedler eigenvector} $\mathbf{u}_2$. Explain how thresholding the coordinates of $\mathbf{u}_2$ ($i \in S \iff u_{2,i} > 0$) provides a polynomial-time approximation for graph clustering.
     \end{enumerate}
 \end{enumerate}
 

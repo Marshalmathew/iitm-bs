@@ -74,13 +74,14 @@ Let $A \in \mathbb{R}^{m \times n}$ with rank $r = \rank(A) \le \min(m, n)$:
     \end{equation*}
     \item \textbf{Rayleigh Quotient \& Variational Bounds:}
     \begin{equation*}
-    R_A(\mathbf{x}) \triangleq \frac{\mathbf{x}^T A \mathbf{x}}{\mathbf{x}^T \mathbf{x}} \implies \lambda_{\min}(A) \le R_A(\mathbf{x}) \le \lambda_{\max}(A) \quad (\forall \mathbf{x} \ne \mathbf{0})
+    R_A(\mathbf{x}) \triangleq \frac{\mathbf{x}^H A \mathbf{x}}{\mathbf{x}^H \mathbf{x}} \implies \lambda_{\min}(A) \le R_A(\mathbf{x}) \le \lambda_{\max}(A) \quad (\forall \mathbf{x} \ne \mathbf{0})
     \end{equation*}
-    $\argmax_{\|\mathbf{x}\|=1} R_A(\mathbf{x}) = \mathbf{q}_1$ (dominant eigenvector); $\argmin_{\|\mathbf{x}\|=1} R_A(\mathbf{x}) = \mathbf{q}_n$.
-    \item \textbf{Courant-Fischer Min-Max Theorem:} Variational characterization of the $k$-th eigenvalue:
+    Extrema: $\max_{\|\mathbf{x}\|=1} R_A(\mathbf{x}) = \lambda_{\max}$, $\min_{\|\mathbf{x}\|=1} R_A(\mathbf{x}) = \lambda_{\min}$.
+    \item \textbf{Courant-Fischer Min-Max Theorem:} Under ascending ordering $\lambda_1 \le \lambda_2 \le \dots \le \lambda_n$:
     \begin{equation*}
-    \lambda_k(A) = \max_{\dim(V) = k} \min_{\mathbf{x} \in V, \mathbf{x} \ne \mathbf{0}} \frac{\mathbf{x}^T A \mathbf{x}}{\mathbf{x}^T \mathbf{x}} = \min_{\dim(V) = n - k + 1} \max_{\mathbf{x} \in V, \mathbf{x} \ne \mathbf{0}} \frac{\mathbf{x}^T A \mathbf{x}}{\mathbf{x}^T \mathbf{x}}
+    \lambda_k(A) = \min_{S: \dim(S) = k} \max_{\substack{\mathbf{x} \in S \\ \mathbf{x} \ne \mathbf{0}}} \frac{\mathbf{x}^H A \mathbf{x}}{\mathbf{x}^H \mathbf{x}} = \max_{T: \dim(T) = n - k + 1} \min_{\substack{\mathbf{x} \in T \\ \mathbf{x} \ne \mathbf{0}}} \frac{\mathbf{x}^H A \mathbf{x}}{\mathbf{x}^H \mathbf{x}}
     \end{equation*}
+    (Under descending ordering $\lambda_1^\downarrow \ge \dots \ge \lambda_n^\downarrow$, swap min and max: $\lambda_k^\downarrow = \max_{\dim(S)=k} \min_{\mathbf{x} \in S, \mathbf{x} \ne \mathbf{0}} R_A(\mathbf{x})$).
     \item \textbf{Positive Definite Matrices ($A \succ 0$):} $\mathbf{x}^T A \mathbf{x} > 0 \; (\forall \mathbf{x} \ne \mathbf{0})$.
     \textbf{Four Equivalent Tests:} (1) All $\lambda_i > 0$; (2) Sylvester: all leading principal minors $\Delta_k > 0$; (3) Cholesky: unique $A = L L^T$ ($l_{ii} > 0$); (4) Energy landscape is a strictly convex bowl.
 \end{itemize}
@@ -115,7 +116,12 @@ Let $A \in \mathbb{R}^{m \times n}$ with rank $r = \rank(A) \le \min(m, n)$:
         \item Covariance Eigendecomposition: $S \mathbf{u}_i = \lambda_i \mathbf{u}_i$ with $\Var(\tilde{X}\mathbf{u}_i) = \lambda_i$.
         \item SVD Connection: If $\tilde{X} = U \Sigma V^T$, then $S = \frac{1}{N-1} V \Sigma^2 V^T \implies \mathbf{u}_i = \mathbf{v}_i$ and $\lambda_i = \frac{\sigma_i^2}{N-1}$.
         \item Principal Component Scores: $Z = \tilde{X} V_k \in \mathbb{R}^{N \times k}$ with uncorrelated columns: $\frac{1}{N-1}Z^T Z = \Lambda_k$.
-        \item Variance Explained \& Scree Ratio: $\eta_k = \frac{\sum_{i=1}^k \lambda_i}{\sum_{j=1}^d \lambda_j}$; Reconstruction Error: $\|X - \hat{X}_k\|_F^2 = \sum_{j=k+1}^d \lambda_j$.
+        \item Variance Explained Ratio: $\eta_k = \frac{\sum_{i=1}^k \lambda_i}{\sum_{j=1}^d \lambda_j} = \frac{\sum_{i=1}^k \sigma_i^2}{\sum_{j=1}^d \sigma_j^2}$.
+        \item \textbf{Reconstruction Error Scaling:} With rank-$k$ projection $\hat{X}_k \triangleq \tilde{X} V_k V_k^T$:
+        \begin{equation*}
+        \|\tilde{X} - \hat{X}_k\|_F^2 = \sum_{j=k+1}^{\min(N, d)} \sigma_j^2 = (N-1)\sum_{j=k+1}^d \lambda_j \iff \frac{1}{N-1}\|\tilde{X} - \hat{X}_k\|_F^2 = \sum_{j=k+1}^d \lambda_j
+        \end{equation*}
+        where factor $(N-1)$ scales sample covariance eigenvalues $\lambda_j$ to total Frobenius energy $\sigma_j^2$.
         \item \textbf{Dual Gram Shortcut ($N \ll d$):} Compute $K = \tilde{X}\tilde{X}^T \in \mathbb{R}^{N \times N}$. If $K \mathbf{a}_i = \sigma_i^2 \mathbf{a}_i$, the high-dimensional loading vector is $\mathbf{v}_i = \frac{1}{\sigma_i} \tilde{X}^T \mathbf{a}_i$ (saving $\mathcal{O}(d^3)$ computations).
     \end{itemize}
 \end{itemize}
@@ -143,19 +149,22 @@ Let $A \in \mathbb{R}^{m \times n}$ with rank $r = \rank(A) \le \min(m, n)$:
     \begin{equation*}
     f(\mathbf{y}) \le f(\mathbf{x}) + \nabla f(\mathbf{x})^T(\mathbf{y} - \mathbf{x}) + \frac{L}{2}\|\mathbf{y} - \mathbf{x}\|_2^2
     \end{equation*}
-    \item \textbf{Gradient Descent (GD) Dynamics \& Rates:} $\mathbf{w}_{k+1} = \mathbf{w}_k - \alpha \nabla f(\mathbf{w}_k)$.
+    \item \textbf{Gradient Descent (GD) Dynamics \& Rates:} $\mathbf{w}_{t+1} = \mathbf{w}_t - \alpha \nabla f(\mathbf{w}_t)$.
     \begin{itemize}[leftmargin=*, noitemsep]
-        \item Stability: Decreases monotonically if $\alpha < \frac{2}{L}$. Optimal step: $\alpha = \frac{1}{L}$.
-        \item Convex $L$-smooth: Sublinear rate $f(\mathbf{w}_k) - f^* \le \frac{L \|\mathbf{w}_0 - \mathbf{w}^*\|^2}{2k} = \mathcal{O}(1/k)$.
-        \item Strongly convex ($\mu I \preceq \nabla^2 f \preceq L I$): Linear rate $\|\mathbf{w}_k - \mathbf{w}^*\|_2 \le \left(\frac{\kappa - 1}{\kappa + 1}\right)^k \|\mathbf{w}_0 - \mathbf{w}^*\|_2$.
+        \item Stability: Decreases monotonically if $\alpha < \frac{2}{L}$. Optimal step: $\alpha = \frac{1}{L}$ (or $\alpha^* = \frac{2}{L+\mu}$).
+        \item Convex $L$-smooth: Sublinear rate $f(\mathbf{w}_t) - f^* \le \frac{L \|\mathbf{w}_0 - \mathbf{w}^*\|_2^2}{2t} = \mathcal{O}(1/t)$.
+        \item Strongly convex ($\mu I \preceq \nabla^2 f \preceq L I$, $\kappa \triangleq \frac{L}{\mu}$): Linear contraction rate
+        \begin{equation*}
+        \|\mathbf{w}_t - \mathbf{w}^*\|_2 \le \left(\frac{\kappa - 1}{\kappa + 1}\right)^t \|\mathbf{w}_0 - \mathbf{w}^*\|_2 \quad (\text{exponent is iteration step } t, \text{ not } \kappa)
+        \end{equation*}
     \end{itemize}
     \item \textbf{Accelerated Momentum \& Modern Optimizers:}
     \begin{itemize}[leftmargin=*, noitemsep]
-        \item Polyak Heavy-Ball: $\mathbf{v}_{k+1} = \beta \mathbf{v}_k + \alpha \nabla f(\mathbf{w}_k)$, $\mathbf{w}_{k+1} = \mathbf{w}_k - \mathbf{v}_{k+1}$.
-        \item Nesterov Accelerated Gradient (NAG): Evaluates $\nabla f(\mathbf{w}_k - \beta \mathbf{v}_k)$, achieving optimal $\mathcal{O}(1/k^2)$ convex rate.
+        \item Polyak Heavy-Ball: $\mathbf{v}_{t+1} = \beta \mathbf{v}_t + \alpha \nabla f(\mathbf{w}_t)$, $\mathbf{w}_{t+1} = \mathbf{w}_t - \mathbf{v}_{t+1}$.
+        \item Nesterov Accelerated Gradient (NAG): Evaluates $\nabla f(\mathbf{w}_t - \beta \mathbf{v}_t)$, achieving optimal $\mathcal{O}(1/t^2)$ convex rate.
         \item Adam: Updates via $\mathbf{w}_{t+1} = \mathbf{w}_t - \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon}\hat{m}_t$ with bias-corrected moments $\hat{m}_t, \hat{v}_t$.
         \item AdamW: Decouples weight decay: $\mathbf{w}_{t+1} = (1 - \eta \lambda)\mathbf{w}_t - \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon}\hat{m}_t$.
-        \item Newton-Raphson: $\mathbf{w}_{k+1} = \mathbf{w}_k - [H(\mathbf{w}_k)]^{-1}\nabla f(\mathbf{w}_k)$ (quadratic rate $\mathcal{O}(\epsilon^2)$ near minimum).
+        \item Newton-Raphson: $\mathbf{w}_{t+1} = \mathbf{w}_t - [H(\mathbf{w}_t)]^{-1}\nabla f(\mathbf{w}_t)$ (quadratic rate $\mathcal{O}(\epsilon^2)$ near minimum).
     \end{itemize}
 \end{itemize}
 \end{tcolorbox}
@@ -217,8 +226,9 @@ Let $A \in \mathbb{R}^{m \times n}$ with rank $r = \rank(A) \le \min(m, n)$:
     $\boldsymbol{\eta}$: natural parameter, $\mathbf{T}(x)$: sufficient statistics, $A(\boldsymbol{\eta})$: log-partition function.
     \item \textbf{Moment Properties of $A(\boldsymbol{\eta})$:}
     \begin{equation*}
-    \nabla_{\boldsymbol{\eta}} A(\boldsymbol{\eta}) = \E[\mathbf{T}(X)], \qquad \nabla_{\boldsymbol{\eta}}^2 A(\boldsymbol{\eta}) = \Cov(\mathbf{T}(X)) \succeq 0 \implies A(\boldsymbol{\eta}) \text{ is strictly convex}
+    \nabla_{\boldsymbol{\eta}} A(\boldsymbol{\eta}) = \E[\mathbf{T}(X)], \qquad \nabla_{\boldsymbol{\eta}}^2 A(\boldsymbol{\eta}) = \Cov(\mathbf{T}(X)) \succeq 0 \implies A(\boldsymbol{\eta}) \text{ is convex}
     \end{equation*}
+    \textbf{Strict Convexity Condition:} $A(\boldsymbol{\eta})$ is \textbf{strictly convex} $\iff$ the exponential family representation is \textbf{minimal} (no linear dependency among components of $\mathbf{T}(X)$ and $1$), which guarantees $\Cov(\mathbf{T}(X)) \succ 0$ and ensures a strictly unique MLE $\hat{\boldsymbol{\eta}}_{\text{MLE}}$.
     \item \textbf{MLE via Moment Matching:} Setting $\nabla \ell(\boldsymbol{\eta}) = \mathbf{0}$ yields:
     \begin{equation*}
     \nabla_{\boldsymbol{\eta}} A(\hat{\boldsymbol{\eta}}_{\text{MLE}}) = \frac{1}{N}\sum_{i=1}^N \mathbf{T}(x_i) \iff \E_{\hat{\boldsymbol{\eta}}}[\mathbf{T}(X)] = \bar{\mathbf{T}}_{\text{emp}}

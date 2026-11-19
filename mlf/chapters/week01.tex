@@ -393,7 +393,7 @@ The algorithm was fooled by the random sampling fluctuations of finite data.
 \end{examplebox}
 
 \subsection{Why ERM is Dangerous: The Downward Optimistic Bias}
-Look closely at what just happened in Worked Example~\ref{ex:w01_toy_universe}. This concrete failure illustrates the most critical conceptual trap in all of machine learning.
+Look closely at what just happened in Worked Example~1.1. This concrete failure illustrates the most critical conceptual trap in all of machine learning.
 
 If you pick a \emph{fixed} function $h$ out of a hat before inspecting any data, its empirical risk $R_{\text{emp}}(h; S)$ is an unbiased estimate of its true risk:
 \begin{equation}
@@ -503,7 +503,7 @@ Figure~\ref{fig:ml_pipeline_geometry} visualizes how information flows from Natu
 \end{figure}
 
 \subsection{Why Nature Cannot Be Beaten: Overlapping Distributions}
-Why is zero generalization error fundamentally impossible in real-world problems? Consider Figure~\ref{fig:bayes_boundary_geometry}, which visualizes the exact setup of Worked Example~\ref{ex:w01_overlapping_gaussians}.
+Why is zero generalization error fundamentally impossible in real-world problems? Consider Figure~\ref{fig:bayes_boundary_geometry}, which visualizes the exact setup of Worked Example~1.2.
 
 \begin{figure}[htbp]
 \centering
@@ -552,7 +552,7 @@ Why is zero generalization error fundamentally impossible in real-world problems
 
 \end{axis}
 \end{tikzpicture}
-\caption{The Geometry of Bayes Error (Visualizing Worked Example~\ref{ex:w01_overlapping_gaussians}): In regions where class distributions overlap, no deterministic rule can achieve $100\%$ accuracy. Because Functional chips dominate ($70\%$ vs. $30\%$), the Bayes optimal decision boundary shifts right from the naive geometric midpoint ($x=1.0$) to $x^* = 1.4236$. The shaded red area represents the irreducible Bayes Error $\E[\min(\eta(X), 1-\eta(X))]$.}
+\caption{The Geometry of Bayes Error (Visualizing Worked Example~1.2): In regions where class distributions overlap, no deterministic rule can achieve $100\%$ accuracy. Because Functional chips dominate ($70\%$ vs. $30\%$), the Bayes optimal decision boundary shifts right from the naive geometric midpoint ($x=1.0$) to $x^* = 1.4236$. The shaded red area represents the irreducible Bayes Error $\E[\min(\eta(X), 1-\eta(X))]$.}
 \label{fig:bayes_boundary_geometry}
 \end{figure}
 
@@ -908,7 +908,7 @@ To understand why choosing the right model family $\mathcal{H}$ is the most crit
 
 In mathematical learning theory, we decompose the total excess risk $R(\hat{h}_S) - R(h^*)$ into these two exact components:
 \begin{equation}
-R(\hat{h}_S) - R(h^*) = \underbrace{\big( R(h^*_{\mathcal{H}}) - R(h^*) \big)}_{\text{Approximation Error (Bias)}} + \underbrace{\big( R(\hat{h}_S) - R(h^*_{\mathcal{H}}) \big)}_{\text{Estimation Error (Variance)}}
+R(\hat{h}_S) - R(h^*) = \underbrace{\big( R(h^*_{\mathcal{H}}) - R(h^*) \big)}_{\text{Approximation Error (Analogue to Bias)}} + \underbrace{\big( R(\hat{h}_S) - R(h^*_{\mathcal{H}}) \big)}_{\text{Estimation Error (Analogue to Variance)}}
 \label{eq:approx_estimation_decomp_ped}
 \end{equation}
 where:
@@ -955,6 +955,18 @@ where:
     \item \textbf{Approximation Error ($\epsilon_{\text{app}}$):} Measures the geometric distance between Nature's truth $h^*$ and our chosen model class $\mathcal{H}$. If Nature's law is a sine wave, but we restrict $\mathcal{H}$ to straight lines ($y = mx + b$), our model can never fit the sine wave, even if we collect ten billion data points! This error depends solely on the expressiveness of $\mathcal{H}$.
     \item \textbf{Estimation Error ($\epsilon_{\text{est}}$):} Measures how far our sample-trained model $\hat{h}_S$ drifts from the class optimum $h^*_{\mathcal{H}}$ due to finite sample noise. If we choose a massively flexible neural network with 10 million parameters, $\epsilon_{\text{app}} \approx 0$ (a neural network can fit almost any curve). But because the model has so many degrees of freedom, the small random noise in our training sample will cause the weights to oscillate wildly, driving estimation error $\epsilon_{\text{est}}$ through the roof!
 \end{enumerate}
+
+\begin{warningbox}{Rigorous Caveat: Learning-Theoretic Excess Risk vs. Classical $\text{Bias}^2$--$\text{Variance}$}
+While Approximation Error vs. Estimation Error is often informally described as the ``bias-variance tradeoff'' of learning theory, one must not conflate Equation~\eqref{eq:approx_estimation_decomp_ped} with the classical point-wise squared-loss bias-variance identity:
+\begin{equation*}
+\E_S\big[(\hat{h}_S(\mathbf{x}) - h^*(\mathbf{x}))^2\big] = \underbrace{\big(\E_S[\hat{h}_S(\mathbf{x})] - h^*(\mathbf{x})\big)^2}_{\text{Bias}^2(\mathbf{x})} + \underbrace{\E_S\big[(\hat{h}_S(\mathbf{x}) - \E_S[\hat{h}_S(\mathbf{x})])^2\big]}_{\text{Variance}(\mathbf{x})}
+\end{equation*}
+Two crucial theoretical distinctions must be maintained:
+\begin{enumerate}[leftmargin=*, noitemsep]
+    \item \textbf{Deterministic vs. Expected Quantity:} The excess risk decomposition $R(\hat{h}_S) - R(h^*)$ in Equation~\eqref{eq:approx_estimation_decomp_ped} is a deterministic identity evaluated for a \emph{single fixed training set} $S$, measuring loss relative to the best in-class model $h^*_{\mathcal{H}}$. In contrast, the classical bias-variance decomposition is an expectation taken over infinite draws of random training sets $S \sim \mathcal{D}^N$.
+    \item \textbf{Estimation Error Can Contain Bias:} In practice, learning algorithms frequently inject deliberate statistical bias to reduce sample variance (e.g., $L_2$ weight decay, ridge shrinkage, or early stopping). Under regularized learning, $\E_S[\hat{h}_S] \ne h^*_{\mathcal{H}}$; therefore, Estimation Error $\big(R(\hat{h}_S) - R(h^*_{\mathcal{H}})\big)$ itself contains both systematic estimation bias and finite-sample variance.
+\end{enumerate}
+\end{warningbox}
 
 \subsection{The Curse of Dimensionality: Why 100 Dimensions Breaks Human Intuition}
 Human beings evolved in a three-dimensional world. When we hear the word ``sphere'', we think of a basketball. When we hear ``cube'', we think of a cardboard box. In high-dimensional data science, these physical intuitions are catastrophic traps.
@@ -1225,12 +1237,31 @@ if __name__ == "__main__":
     \end{enumerate}
 
     \item \textbf{[Challenge / Theoretical Extension] Uniform Generalization Bound for Finite Hypothesis Classes:}
-    \textit{(Note: This problem introduces the core machinery of Statistical Learning Theory, proving why restricting the size of the hypothesis class $|\mathcal{H}|$ mathematically prevents overfitting as sample size $N$ grows.)}
-    
-    Let $\mathcal{H}$ be a finite hypothesis space containing $|\mathcal{H}| < \infty$ candidate models. Using Hoeffding's inequality for bounded loss functions $\ell \in [0, 1]$ and applying the union bound across all hypotheses, prove that with probability at least $1 - \delta$ over the random draw of training sample $S$ of size $N$, every hypothesis $h \in \mathcal{H}$ simultaneously satisfies:
+    \textit{(Note: This problem introduces the foundational machinery of Statistical Learning Theory, demonstrating how class capacity $|\mathcal{H}|$ controls generalization error.)}
+
+    \begin{theorembox}{Mathematical Primer: Hoeffding's Inequality (Preview of Chapter 12)}
+    Let $Z_1, \dots, Z_N$ be independent random variables bounded in $[a_i, b_i]$, with sample average $\bar{Z} = \frac{1}{N}\sum_{i=1}^N Z_i$ and true mean $\mu = \E[\bar{Z}]$. Hoeffding's inequality establishes that for any deviation $\epsilon > 0$:
     \begin{equation*}
-    R(h) \le R_{\text{emp}}(h; S) + \sqrt{\frac{\log |\mathcal{H}| + \log(1/\delta)}{2N}}
+    P\big(\bar{Z} - \mu \ge \epsilon\big) \le \exp\left(-\frac{2N^2\epsilon^2}{\sum_{i=1}^N (b_i - a_i)^2}\right), \quad P\big(\mu - \bar{Z} \ge \epsilon\big) \le \exp\left(-\frac{2N^2\epsilon^2}{\sum_{i=1}^N (b_i - a_i)^2}\right)
     \end{equation*}
+    For any single fixed hypothesis $h$ with bounded loss $\ell(h(\mathbf{x}), y) \in [0, 1]$ on i.i.d.\ observations, each loss term $Z_i = \ell(h(\mathbf{x}_i), y_i)$ has range $b_i - a_i = 1$, giving the one-sided concentration bound:
+    \begin{equation*}
+    P\big(R(h) - R_{\text{emp}}(h; S) \ge \epsilon\big) \le \exp\left(-2N\epsilon^2\right)
+    \end{equation*}
+    \end{theorembox}
+
+    Let $\mathcal{H}$ be a finite hypothesis space containing $|\mathcal{H}| < \infty$ candidate models. Using the bounded Hoeffding inequality above and applying Boole's inequality (the union bound) across all hypotheses in $\mathcal{H}$:
+    \begin{enumerate}[label=(\alph*)]
+        \item Show that the probability of \emph{any} hypothesis suffering an estimation gap exceeding $\epsilon$ satisfies:
+        \begin{equation*}
+        P\left(\exists h \in \mathcal{H} : R(h) - R_{\text{emp}}(h; S) \ge \epsilon\right) \le |\mathcal{H}| \exp\left(-2N\epsilon^2\right)
+        \end{equation*}
+        \item Equating this failure probability upper bound to $\delta \in (0, 1)$ and solving for $\epsilon$, deduce that with probability at least $1 - \delta$ over the random draw of training sample $S \sim \mathcal{D}^N$, every hypothesis $h \in \mathcal{H}$ simultaneously satisfies:
+        \begin{equation*}
+        R(h) \le R_{\text{emp}}(h; S) + \sqrt{\frac{\log |\mathcal{H}| + \log(1/\delta)}{2N}}
+        \end{equation*}
+        \item Explain why minimizing empirical risk over an exponentially large hypothesis class (massive $|\mathcal{H}|$) requires sample size $N$ to scale with $\log |\mathcal{H}|$ to prevent catastrophic overfitting.
+    \end{enumerate}
 \end{enumerate}
 
 \subsection*{Part B: Diagnostic Conceptual Multiple-Choice Questions}
