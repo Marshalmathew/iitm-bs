@@ -276,6 +276,46 @@ S = \frac{1}{N-1} \sum_{i=1}^N (\mathbf{x}_i - \bar{\mathbf{x}})(\mathbf{x}_i - 
 \end{equation}
 \end{theorembox}
 
+\subsubsection{Algebraic Trace Derivation of Bessel's Correction via Projection Matrices}
+The bias in the maximum likelihood covariance estimator can be derived with geometric precision using the centering projection matrix from Chapter~\ref{chap:week03}.
+Let data matrix $\mathbf{X} \in \mathbb{R}^{N \times d}$ stack sample vectors as rows: $\mathbf{X} = [\mathbf{x}_1, \dots, \mathbf{x}_N]^T$.
+Without loss of generality, assume the true mean is zero ($\E[\mathbf{x}_i] = \mathbf{0}$, so $\E[\mathbf{x}_i \mathbf{x}_j^T] = \delta_{ij}\Sigma$).
+The sample mean is $\bar{\mathbf{x}} = \frac{1}{N}\mathbf{X}^T \mathbf{1}_N$, where $\mathbf{1}_N \in \mathbb{R}^N$ is the vector of ones.
+The centered data matrix $\tilde{\mathbf{X}} \in \mathbb{R}^{N \times d}$ is given by:
+\begin{equation}
+\tilde{\mathbf{X}} = \mathbf{X} - \frac{1}{N}\mathbf{1}_N \mathbf{1}_N^T \mathbf{X} = \left( I_N - \frac{1}{N}\mathbf{1}_N \mathbf{1}_N^T \right) \mathbf{X} = H \mathbf{X}
+\end{equation}
+where $H \triangleq I_N - \frac{1}{N}\mathbf{1}_N \mathbf{1}_N^T \in \mathbb{R}^{N \times N}$ is the symmetric, idempotent \textbf{Centering Projection Matrix}:
+\begin{align}
+H^T &= H \\
+H^2 &= \left(I_N - \frac{1}{N}\mathbf{1}\mathbf{1}^T\right)\left(I_N - \frac{1}{N}\mathbf{1}\mathbf{1}^T\right) = I_N - \frac{2}{N}\mathbf{1}\mathbf{1}^T + \frac{1}{N^2}\mathbf{1}(\mathbf{1}^T\mathbf{1})\mathbf{1}^T = I_N - \frac{1}{N}\mathbf{1}\mathbf{1}^T = H
+\end{align}
+The sum of squared deviations can be written as a quadratic matrix product:
+\begin{equation}
+\sum_{i=1}^N (\mathbf{x}_i - \bar{\mathbf{x}})(\mathbf{x}_i - \bar{\mathbf{x}})^T = \tilde{\mathbf{X}}^T \tilde{\mathbf{X}} = (H\mathbf{X})^T (H\mathbf{X}) = \mathbf{X}^T H^T H \mathbf{X} = \mathbf{X}^T H \mathbf{X}
+\end{equation}
+Taking the mathematical expectation:
+\begin{equation}
+\E[\mathbf{X}^T H \mathbf{X}] = \E\left[ \sum_{i=1}^N \sum_{j=1}^N H_{ij} \mathbf{x}_i \mathbf{x}_j^T \right] = \sum_{i=1}^N \sum_{j=1}^N H_{ij} \E[\mathbf{x}_i \mathbf{x}_j^T]
+\end{equation}
+Because samples are independent and identically distributed, $\E[\mathbf{x}_i \mathbf{x}_j^T] = \Sigma$ if $i = j$, and $\mathbf{0}$ if $i \ne j$:
+\begin{equation}
+\E[\mathbf{X}^T H \mathbf{X}] = \sum_{i=1}^N H_{ii} \Sigma = \left( \sum_{i=1}^N H_{ii} \right) \Sigma = \trace(H) \Sigma
+\end{equation}
+Now, evaluate the trace of the centering matrix $H$:
+\begin{equation}
+\trace(H) = \trace\left( I_N - \frac{1}{N}\mathbf{1}_N \mathbf{1}_N^T \right) = \trace(I_N) - \frac{1}{N}\trace(\mathbf{1}_N \mathbf{1}_N^T) = N - \frac{1}{N}\trace(\mathbf{1}_N^T \mathbf{1}_N) = N - \frac{1}{N}(N) = N - 1
+\end{equation}
+Therefore:
+\begin{equation}
+\E\left[ \sum_{i=1}^N (\mathbf{x}_i - \bar{\mathbf{x}})(\mathbf{x}_i - \bar{\mathbf{x}})^T \right] = (N - 1)\Sigma
+\end{equation}
+Dividing by $N$ proves the exact expectation of the Maximum Likelihood covariance estimator:
+\begin{equation}
+\E[\hat{\Sigma}_{\text{MLE}}] = \frac{N - 1}{N}\Sigma
+\end{equation}
+This confirms that the lost degree of freedom arises because $H$ projects onto the $(N-1)$-dimensional orthogonal complement of the subspace spanned by $\mathbf{1}_N$!
+
 \begin{ponderbox}{Where Does the Lost Degree of Freedom Go? (Bessel's Correction)}
 Why is the maximum likelihood sample covariance $\hat{\Sigma}_{\text{MLE}}$ systematically smaller than the true covariance $\Sigma$ by exactly the factor $\frac{N-1}{N}$?
 
@@ -788,7 +828,7 @@ Soft probabilistic responsibilities $\gamma_{ik}$ collapse into hard binary Voro
 % ----------------------------------------------------------------------
 \section{Multi-Page Breakable Numerical Worked Examples}
 
-\begin{examplebox}[breakable]{Analytical 2D Mahalanobis Distance and Ellipsoidal Contours}
+\begin{examplebox}[breakable]{Worked Example 12.1: Analytical 2D Mahalanobis Distance and Ellipsoidal Contours}
 \textbf{Problem Statement:}
 Let $\mathbf{X} \sim \mathcal{N}(\boldsymbol{\mu}, \Sigma)$ be a bivariate Gaussian distribution with parameters:
 \begin{equation}
@@ -870,7 +910,7 @@ The $1$-standard-deviation contour ellipsoid is defined by $D_M^2 = 1$:
 The distribution is elongated along the line $y - 2 = 0.618(x - 1)$ with an eccentricity ratio of $\frac{2.288}{0.874} \approx 2.62$.
 \end{examplebox}
 
-\begin{examplebox}[breakable]{Full Cycle Hand-Calculated EM Iteration on a Toy Dataset}
+\begin{examplebox}[breakable]{Worked Example 12.2: Full Cycle Hand-Calculated EM Iteration on a Toy Dataset}
 \textbf{Problem Statement:}
 Consider a 1D Gaussian Mixture Model with $K = 2$ components applied to a concrete toy dataset of $N = 4$ observations:
 \begin{equation}
@@ -1007,7 +1047,7 @@ Computing the net improvement:
 In a single hand-calculated iteration, the marginal log-likelihood ascended by $\mathbf{+1.2344}$ nats, concretely verifying the variational ascent guarantee.
 \end{examplebox}
 
-\begin{examplebox}[breakable]{Non-Asymptotic Sample Complexity via Hoeffding vs. Chebyshev Bounds}
+\begin{examplebox}[breakable]{Worked Example 12.3: Non-Asymptotic Sample Complexity via Hoeffding vs. Chebyshev Bounds}
 \textbf{Problem Statement:}
 A machine learning engineer evaluates the generalization error rate $R(h) = P(h(\mathbf{X}) \ne Y)$ of a trained classification model $h$ using an independent test set $\mathcal{D}_{\text{test}} = \{(\mathbf{x}_i, y_i)\}_{i=1}^N$.
 Let $X_i = \mathbb{I}(h(\mathbf{x}_i) \ne y_i) \in \{0, 1\}$ denote the zero-one misclassification loss on sample $i$. The empirical risk is the sample average:
@@ -1085,6 +1125,167 @@ Hoeffding's bound slashes the required sample size by nearly a factor of $10\tim
 Why? Chebyshev's bound scales inversely with failure probability ($N \propto 1/\delta$), whereas Hoeffding's bound scales logarithmically with failure probability ($N \propto \log(1/\delta)$). For high-confidence testing ($\delta = 0.01$ or $0.001$), sub-Gaussian exponential concentration is indispensable in machine learning theory.
 \end{examplebox}
 
+\begin{examplebox}[breakable]{Worked Example 12.4: High-Dimensional Gaussian Geometry: Computing the Radial Mass Shell and Tail Integrals by Hand}
+\textbf{Problem Statement:}
+Consider a high-dimensional isotropic Gaussian feature vector in dimension $d = 50$:
+\begin{equation}
+\mathbf{X} \sim \mathcal{N}(\mathbf{0}, I_{50}), \qquad p_{\mathbf{X}}(\mathbf{x}) = \frac{1}{(2\pi)^{25}} \exp\left( -\frac{\|\mathbf{x}\|_2^2}{2} \right)
+\end{equation}
+A machine learning engineer evaluates points in this representation space.
+
+\textbf{Task Requirements:}
+\begin{enumerate}
+    \item Compute the expected squared radius $\E[R^2]$ and its standard deviation $\operatorname{Std}(R^2)$, where $R = \|\mathbf{X}\|_2$.
+    \item Use the first-order Delta method approximation to calculate the approximate mean radius $\E[R]$ and radial shell thickness $\sigma_R$.
+    \item Evaluate the ratio of the Gaussian PDF evaluated at the mode $\mathbf{x} = \mathbf{0}$ versus at a typical point on the radial shell $\mathbf{x}_{\text{shell}}$ with $\|\mathbf{x}_{\text{shell}}\|_2 = \sqrt{d} = \sqrt{50}$.
+    \item Formulate the radial probability mass density $f_R(r)$ and determine its exact global maximum $r^*$.
+    \item Explain the fundamental engineering implication for high-dimensional nearest-neighbor search and Euclidean distance concentration.
+\end{enumerate}
+
+\tcblower
+
+\textbf{Step 1: Exact Moments of the Squared Radius}
+The squared Euclidean norm is the sum of $50$ independent squared standard normal variables:
+\begin{equation}
+R^2 = \sum_{j=1}^{50} X_j^2 \sim \chi^2(50)
+\end{equation}
+For a Chi-squared distribution with $d = 50$ degrees of freedom:
+\begin{align}
+\E[R^2] &= d = 50 \\
+\Var(R^2) &= 2d = 2(50) = 100 \implies \operatorname{Std}(R^2) = \sqrt{100} = 10.0
+\end{align}
+
+\textbf{Step 2: Approximate Mean and Shell Thickness via the Delta Method}
+Consider the smooth transformation $g(u) = \sqrt{u}$ applied to $u = R^2$.
+Expanding $g(u)$ in a first-order Taylor series around $\mu = \E[R^2] = 50$:
+\begin{equation}
+g(u) \approx g(\mu) + g'(\mu)(u - \mu) = \sqrt{50} + \frac{1}{2\sqrt{50}}(u - 50)
+\end{equation}
+Taking expectations:
+\begin{equation}
+\E[R] = \E[\sqrt{R^2}] \approx \sqrt{50} \approx \mathbf{7.07107}
+\end{equation}
+Taking variances:
+\begin{equation}
+\Var(R) \approx (g'(\mu))^2 \Var(R^2) = \left( \frac{1}{2\sqrt{d}} \right)^2 (2d) = \frac{1}{4d}(2d) = \frac{1}{2} = 0.50
+\end{equation}
+The standard deviation (shell thickness) is:
+\begin{equation}
+\sigma_R = \operatorname{Std}(R) \approx \sqrt{0.50} = \frac{1}{\sqrt{2}} \approx \mathbf{0.7071}
+\end{equation}
+Notice that the shell thickness $\sigma_R \approx 0.707$ is completely independent of the dimension $d$!
+As $d \to \infty$, the relative thickness of the shell vanishes:
+\begin{equation}
+\frac{\sigma_R}{\E[R]} \approx \frac{1/\sqrt{2}}{\sqrt{d}} = \frac{1}{\sqrt{2d}} = \frac{1}{\sqrt{100}} = \frac{1}{10} = \mathbf{10\%}
+\end{equation}
+
+\textbf{Step 3: Pointwise PDF Ratio: Mode vs. Shell}
+Evaluate the probability density at the origin $\mathbf{0}$:
+\begin{equation}
+p_{\mathbf{X}}(\mathbf{0}) = \frac{1}{(2\pi)^{25}} \exp(0) = \frac{1}{(2\pi)^{25}} \approx 1.254 \times 10^{-20}
+\end{equation}
+Evaluate the probability density at any point $\mathbf{x}_{\text{shell}}$ on the sphere of radius $r = \sqrt{50}$:
+\begin{equation}
+p_{\mathbf{X}}(\mathbf{x}_{\text{shell}}) = \frac{1}{(2\pi)^{25}} \exp\left( -\frac{50}{2} \right) = p_{\mathbf{X}}(\mathbf{0}) \cdot e^{-25}
+\end{equation}
+The ratio of densities is:
+\begin{equation}
+\frac{p_{\mathbf{X}}(\mathbf{x}_{\text{shell}})}{p_{\mathbf{X}}(\mathbf{0})} = e^{-25} \approx 1.3888 \times 10^{-11}
+\end{equation}
+The point density at the radial shell is over $72$ billion times smaller than at the mode!
+
+\textbf{Step 4: Radial Probability Mass Density and Peak Location}
+Despite the density at the shell being $7.2 \times 10^{10}$ times smaller than at the origin, the probability mass is proportional to the surface area of a $50$-dimensional hypersphere of radius $r$:
+\begin{equation}
+f_R(r) \propto r^{d-1} \exp\left( -\frac{r^2}{2} \right) = r^{49} \exp\left( -\frac{r^2}{2} \right) \quad \text{for } r > 0
+\end{equation}
+Differentiating with respect to $r$ and setting to zero to locate the peak of probability mass:
+\begin{equation}
+\frac{d f_R}{dr} \propto 49 r^{48} e^{-r^2/2} - r^{50} e^{-r^2/2} = r^{48}(49 - r^2) e^{-r^2/2} = 0 \implies r^* = \sqrt{49} = \mathbf{7.00}
+\end{equation}
+The radial probability mass peaks at $r^* = \sqrt{d - 1} = 7.00$, exactly coinciding with the radial shell!
+The origin $r = 0$ has $f_R(0) = 0$. The ball of radius $r \le 3.0$ contains less than $10^{-16}$ total probability mass.
+
+\textbf{Step 5: Machine Learning Implications}
+In high dimensions, Gaussian distributions are hollow soap bubbles. 
+When computing nearest neighbors or Euclidean distances between independent samples $\mathbf{X}_1, \mathbf{X}_2 \sim \mathcal{N}(\mathbf{0}, I_d)$:
+\begin{equation}
+\|\mathbf{X}_1 - \mathbf{X}_2\|_2^2 = \|\mathbf{X}_1\|^2 + \|\mathbf{X}_2\|^2 - 2\mathbf{X}_1^T \mathbf{X}_2 \approx d + d - 0 = 2d
+\end{equation}
+Every pair of points is approximately the exact same distance $\sqrt{2d} = 10.0$ apart! The ratio $\frac{\max \text{dist} - \min \text{dist}}{\min \text{dist}} \to 0$ as $d \to \infty$, causing Euclidean distance to lose its discriminatory contrast in high-dimensional machine learning representations.
+\end{examplebox}
+
+\begin{examplebox}[breakable]{Worked Example 12.5: Bernstein's Inequality vs. Hoeffding's Inequality: Sample Complexity in High-Confidence Rare-Event Risk Bounds}
+\textbf{Problem Statement:}
+An autonomous safety-critical vision model is evaluated on a validation benchmark. A catastrophic failure occurs if the system misidentifies an obstacle, represented by a binary indicator $X_i \in \{0, 1\}$.
+Engineering specifications require the true error probability $p = \E[X_i] = 0.005$ ($0.5\%$). The variance of each indicator is:
+\begin{equation}
+\sigma^2 = \Var(X_i) = p(1 - p) = 0.005(0.995) = 0.004975
+\end{equation}
+The engineering team must certify with $99\%$ confidence ($\delta = 0.01$) that the empirical error $\bar{X}_N$ does not exceed $p + \epsilon$ with tolerance $\epsilon = 0.005$.
+
+\textbf{Task Requirements:}
+\begin{enumerate}
+    \item State Hoeffding's inequality for bounded variables $X_i \in [0, 1]$ and compute the required certification test set size $N_{\text{Hoeffding}}$.
+    \item State Bernstein's inequality incorporating empirical variance $\sigma^2$ and bound $c = 1$.
+    \item Compute the required certification test set size $N_{\text{Bernstein}}$.
+    \item Calculate the sample size efficiency ratio $\frac{N_{\text{Hoeffding}}}{N_{\text{Bernstein}}}$ and explain why Bernstein's inequality is dramatically superior for low-probability risk certification.
+\end{enumerate}
+
+\tcblower
+
+\textbf{Step 1: Sample Size via Hoeffding's Inequality}
+For independent random variables bounded in $[0, 1]$ ($b_i - a_i = 1$), Hoeffding's inequality for one-sided deviation states:
+\begin{equation}
+P\left( \bar{X}_N - p \ge \epsilon \right) \le \exp\left( -2 N \epsilon^2 \right) \le \delta
+\end{equation}
+Taking the natural logarithm of both sides:
+\begin{equation}
+-2 N \epsilon^2 \le \ln(\delta) \implies 2 N \epsilon^2 \ge \ln\left(\frac{1}{\delta}\right) \implies N \ge \frac{\ln(1/\delta)}{2\epsilon^2}
+\end{equation}
+Substituting failure probability $\delta = 0.01 \implies \ln(1/\delta) = \ln(100) \approx 4.60517$, and tolerance $\epsilon = 0.005 \implies \epsilon^2 = 0.000025$:
+\begin{align}
+2\epsilon^2 &= 2(0.000025) = 0.000050 \\
+N_{\text{Hoeffding}} &\ge \frac{4.60517}{0.000050} = \mathbf{92{,}104}
+\end{align}
+Under Hoeffding's inequality, certifying the model requires collecting and labeling at least $92{,}104$ validation samples!
+
+\textbf{Step 2: Formulate Bernstein's Inequality}
+Bernstein's inequality for independent zero-mean variables bounded by $|X_i - \E[X_i]| \le c = 1$ states:
+\begin{equation}
+P\left( \bar{X}_N - p \ge \epsilon \right) \le \exp\left( -\frac{N \epsilon^2}{2\sigma^2 + \frac{2}{3}c\epsilon} \right) \le \delta
+\end{equation}
+Taking the natural logarithm:
+\begin{equation}
+-\frac{N \epsilon^2}{2\sigma^2 + \frac{2}{3}c\epsilon} \le -\ln\left(\frac{1}{\delta}\right) \implies N \ge \frac{\left(2\sigma^2 + \frac{2}{3}c\epsilon\right) \ln(1/\delta)}{\epsilon^2}
+\end{equation}
+
+\textbf{Step 3: Sample Size via Bernstein's Inequality}
+Evaluate the variance-dependent denominator factor with $\sigma^2 = 0.004975$, $c = 1$, and $\epsilon = 0.005$:
+\begin{align}
+2\sigma^2 &= 2(0.004975) = 0.009950 \\
+\frac{2}{3}c\epsilon &= \frac{2}{3}(1)(0.005) = \frac{0.010}{3} \approx 0.003333 \\
+2\sigma^2 + \frac{2}{3}c\epsilon &= 0.009950 + 0.003333 = 0.013283
+\end{align}
+Now evaluate $N_{\text{Bernstein}}$:
+\begin{align}
+N_{\text{Bernstein}} &\ge \frac{0.013283 \cdot \ln(100)}{\epsilon^2} = \frac{0.013283 \cdot 4.60517}{0.000025} \nonumber \\
+&= \frac{0.061170}{0.000025} = 2{,}446.8 \implies \mathbf{2{,}447}
+\end{align}
+Under Bernstein's inequality, exactly $2{,}447$ validation samples are required!
+
+\textbf{Step 4: Efficiency Comparison and Architectural Insight}
+Comparing the required sample sizes:
+\begin{equation}
+\frac{N_{\text{Hoeffding}}}{N_{\text{Bernstein}}} = \frac{92{,}104}{2{,}447} \approx \mathbf{37.64\times}
+\end{equation}
+Bernstein's inequality slashes the sample size requirement by an astonishing \textbf{37.6-fold}!
+\begin{itemize}
+    \item \textbf{Why Hoeffding Fails in Rare Events:} Hoeffding's inequality relies strictly on the bounded support $[a, b] = [0, 1]$, implicitly assuming the worst-case variance $\sigma_{\max}^2 = 1/4 = 0.25$ of a fair coin. When modeling rare events where $p = 0.005$, the true variance is $\sigma^2 \approx 0.005$, which is $50\times$ smaller than Hoeffding's worst-case assumption!
+    \item \textbf{Why Bernstein Dominates:} Bernstein's inequality bridges sub-Gaussian concentration when deviations are small ($\epsilon \ll \sigma^2$) with sub-exponential Poisson-like tail decay when deviations are large. By directly factoring in the tiny empirical variance $\sigma^2$, Bernstein captures the true concentration behavior of rare-event classifiers.
+\end{itemize}
+\end{examplebox}
+
 % ----------------------------------------------------------------------
 % PART 6: EXPLICIT GOTCHAS & DIAGNOSTIC MISCONCEPTIONS
 % ----------------------------------------------------------------------
@@ -1113,6 +1314,17 @@ A practitioner samples $N = 100$ points from a distribution with variance $\sigm
 \begin{trapbox}{Gotcha 5: Assuming $K$-Means and GMM Yield Identical Clusters on Anisotropic Data}
 An engineer claims that since $K$-Means is the limit of GMM as $\sigma^2 \to 0$, they will produce identical cluster partitions on real-world tabular data.
 \textbf{The Trap:} $K$-Means implicitly assumes all clusters have \textbf{equal, spherical covariance} ($\Sigma_k = \sigma^2 I$) and \textbf{equal cluster proportions} ($\pi_k = 1/K$), generating rigid linear Voronoi boundaries. When data clusters are elongated (high correlation), have different sizes, or have different densities, $K$-Means catastrophically fractures the elongated cluster across its major axis! Full-covariance GMM adapts individual orientation ellipsoids and yields correct clustering.
+\end{trapbox}
+
+\begin{trapbox}{Gotcha 6: The Union Bound Over-Conservatism Trap (PAC Learning \& Correlated Hypotheses)}
+In statistical learning theory, a student bounds the generalization error of a finite hypothesis space $|\mathcal{H}| = M$ by applying Hoeffding's inequality and the classical union bound:
+\begin{equation*}
+P\left( \exists h \in \mathcal{H} : R(h) - \hat{R}_N(h) \ge \epsilon \right) \le \sum_{h=1}^M P\left( R(h) - \hat{R}_N(h) \ge \epsilon \right) \le M \exp\left( -2N\epsilon^2 \right) \le \delta
+\end{equation*}
+Solving for sample complexity yields $N \ge \frac{\ln M + \ln(1/\delta)}{2\epsilon^2}$.
+\textbf{The Trap:} The student concludes that if a neural network or model class has infinitely many continuous parameters ($M = \infty$), generalization is mathematically impossible because the sample complexity diverges to infinity ($N \to \infty$).
+The union bound assumes the failure events across all hypotheses are completely disjoint. In reality, modern hypothesis classes (such as deep neural networks or linear classifiers) have hypotheses that are \textbf{massively correlated and redundant}: changing a weight by $\epsilon$ produces almost identical classification boundaries!
+To bound generalization in continuous hypothesis classes, statistical learning theory replaces naive union bounds over discrete counts $M$ with geometric capacity measures: \textbf{Vapnik-Chervonenkis (VC) Dimension}, \textbf{Rademacher Complexity}, and \textbf{Dudley's Chaining Integral}, which correctly reflect the effective geometric volume of hypothesis space.
 \end{trapbox}
 
 % ----------------------------------------------------------------------
